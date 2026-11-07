@@ -555,3 +555,107 @@ export component NavItem inherits Rectangle {
         border-radius: parent.border-radius;
     }
 }
+
+// One document line in the Documents list.
+export struct DocumentRow {
+    id: int,
+    name: string,
+    meta: string,
+    is-linked: bool,
+    has-ocr: bool,
+    is-pdf: bool,
+    selected: bool,
+}
+
+// One transaction the Documents detail panel offers for linking.
+export struct DocumentLinkRow {
+    id: int,
+    title: string,
+    meta: string,
+    badge: string,
+}
+
+// The rounded search field with a leading magnifier.
+export component SearchField inherits Rectangle {
+    in property <string> text;
+    in property <string> placeholder;
+    in property <bool> enabled: true;
+
+    callback edited(string);
+
+    height: 40px;
+    border-radius: 20px;
+    background: Theme.surface;
+    border-width: input.has-focus ? 2px : 1px;
+    border-color: input.has-focus ? Theme.primary : Theme.divider;
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 10px;
+
+        // A small magnifier, drawn so the field needs no icon font, centred vertically.
+        VerticalLayout {
+            alignment: center;
+
+            Rectangle {
+                width: 16px;
+                height: 16px;
+                border-radius: 8px;
+                border-width: 2px;
+                border-color: Theme.muted-text;
+                background: transparent;
+            }
+        }
+
+        Rectangle {
+            horizontal-stretch: 1;
+            background: transparent;
+
+            input := TextInput {
+                width: 100%;
+                height: 100%;
+                text: root.text;
+                color: Theme.text;
+                font-size: 14px;
+                vertical-alignment: center;
+                enabled: root.enabled;
+                edited => { root.edited(input.text); }
+                accepted => { root.edited(input.text); }
+            }
+
+            if (input.text == "") : Text {
+                width: 100%;
+                height: 100%;
+                horizontal-alignment: left;
+                text: root.placeholder;
+                color: Theme.muted-text;
+                font-size: 14px;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+    }
+}
+
+// A small pill for OCR state and match scores.
+export component Badge inherits Rectangle {
+    in property <string> text;
+    in property <bool> positive: true;
+
+    height: 20px;
+    border-radius: 10px;
+    background: root.positive ? Theme.selected : Theme.background;
+
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        Text {
+            text: root.text;
+            color: root.positive ? Theme.success : Theme.muted-text;
+            font-size: 11px;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+}

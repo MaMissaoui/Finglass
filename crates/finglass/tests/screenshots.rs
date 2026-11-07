@@ -20,8 +20,8 @@ use finglass_core::db::Database;
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{
-    AccountId, AccountType, BankAccessItem, CategoryId, NewAccount, NewAccountGroup, NewCategory, NewDocument, NewRule,
-    NewTransaction, RuleDirection, RuleField, TransactionId,
+    AccountId, AccountType, BankAccessItem, CategoryId, DocumentItem, NewAccount, NewAccountGroup, NewCategory,
+    NewDocument, NewRule, NewTransaction, RuleDirection, RuleField, TransactionFilter, TransactionId,
 };
 use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
@@ -29,7 +29,7 @@ use finglass_core::repo::{account_groups, accounts, bank_connections, categories
 use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
 use slint::platform::{Platform, PlatformError, WindowAdapter};
 use slint::{
-    Color, ComponentHandle, Model, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel,
+    Color, ComponentHandle, Image, Model, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel,
 };
 use time::macros::date;
 use time::{Date, OffsetDateTime};
@@ -74,6 +74,10 @@ fn renders_the_app_shell() {
     seed_dashboard(&db);
     seed_settings(&db);
     let rows = app::audit::recent(&db, 100).unwrap();
+
+    let documents = seed_documents(&db, temp.path());
+    let preview_path = temp.path().join("kassenbon.png");
+    write_preview_png(&preview_path);
     let today = date!(2026 - 10 - 15);
 
     {
@@ -534,6 +538,305 @@ fn renders_the_app_shell() {
         assert_varied(&buffer, "accounts-empty-en");
         let _ = ui.hide();
     }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "documents", &rows);
+        configure_documents(&ui, Language::En, &documents, Some(&preview_path));
+        ui.show().unwrap();
+        let buffer = render(&window, "documents-en-light", 1100, 720);
+        assert_varied(&buffer, "documents-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "documents", &rows);
+        configure_documents(&ui, Language::De, &documents, Some(&preview_path));
+        ui.show().unwrap();
+        let buffer = render(&window, "documents-de-dark", 1100, 720);
+        assert_varied(&buffer, "documents-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "documents", &rows);
+        configure_documents(&ui, Language::En, &[], None);
+        ui.show().unwrap();
+        let buffer = render(&window, "documents-empty-en", 1100, 720);
+        assert_varied(&buffer, "documents-empty-en");
+        let _ = ui.hide();
+    }
+}
+
+/// Three documents: one linked, one with OCR text, one selected. Returns them oldest first, as the
+/// page lists them in the seeded screenshot.
+fn seed_documents(db: &finglass_core::db::Database, temp: &Path) -> Vec<DocumentItem> {
+    let account = accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: Some("Checking".to_owned()),
+            iban: None,
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::Checking,
+            balance: Money {
+                minor: 0,
+                currency: Currency::EUR,
+            },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap();
+
+    transactions::insert_planned(
+        db,
+        account,
+        vec![NewTransaction {
+            booking_date: time::Date::from_calendar_date(2026, time::Month::March, 13).unwrap(),
+            amount: Money {
+                minor: -378,
+                currency: Currency::EUR,
+            },
+            balance_after: None,
+            partner_name: Some("REWE Markt GmbH".to_owned()),
+            purpose: Some("Wocheneinkauf".to_owned()),
+            category_id: None,
+            import_hash: "screenshot-rewe".to_owned(),
+            created_at: time::OffsetDateTime::from_unix_timestamp(1_760_000_000).unwrap(),
+            is_new: false,
+            tax_override: None,
+        }],
+    )
+    .unwrap();
+    let transaction = transactions::find_items(db, &TransactionFilter::default(), None)
+        .unwrap()
+        .into_iter()
+        .next()
+        .unwrap()
+        .id;
+
+    documents::create(
+        db,
+        NewDocument {
+            file_name: "baeckerei-beleg.png".to_owned(),
+            stored_path: temp
+                .join("documents/baeckerei-beleg.png")
+                .to_string_lossy()
+                .into_owned(),
+            mime_type: "image/png".to_owned(),
+            transaction_id: None,
+        },
+    )
+    .unwrap();
+    let linked = documents::create(
+        db,
+        NewDocument {
+            file_name: "stadtwerke-rechnung.pdf".to_owned(),
+            stored_path: temp
+                .join("documents/stadtwerke-rechnung.pdf")
+                .to_string_lossy()
+                .into_owned(),
+            mime_type: "application/pdf".to_owned(),
+            transaction_id: Some(transaction),
+        },
+    )
+    .unwrap();
+    documents::save_ocr_text(
+        db,
+        linked.id,
+        "Stadtwerke Musterstadt\nAbschlag März 2026\nBetrag 37,80 EUR",
+        "deu+eng",
+        Some(91.0),
+    )
+    .unwrap();
+
+    let selected = documents::create(
+        db,
+        NewDocument {
+            file_name: "kassenbon.jpg".to_owned(),
+            stored_path: temp.join("kassenbon.png").to_string_lossy().into_owned(),
+            mime_type: "image/jpeg".to_owned(),
+            transaction_id: None,
+        },
+    )
+    .unwrap();
+    documents::save_ocr_text(
+        db,
+        selected.id,
+        "REWE Markt GmbH\nDatum: 13.03.2026\nSUMME EUR 3,78",
+        "deu+eng",
+        Some(84.0),
+    )
+    .unwrap();
+
+    let mut items = documents::find_items(db, None, false, None).unwrap();
+    items.sort_by_key(|document| document.id);
+    items
+}
+
+/// Writes a small image so the detail panel's image preview has something to show.
+fn write_preview_png(path: &Path) {
+    let width = 120_u32;
+    let height = 80_u32;
+    let mut data = Vec::with_capacity((width * height * 3) as usize);
+    for y in 0..height {
+        for x in 0..width {
+            let border = x < 6 || y < 6 || x >= width - 6 || y >= height - 6;
+            let (red, green, blue) = if border { (13, 148, 136) } else { (245, 247, 250) };
+            data.extend_from_slice(&[red, green, blue]);
+        }
+    }
+
+    let file = std::fs::File::create(path).unwrap();
+    let mut encoder = png::Encoder::new(BufWriter::new(file), width, height);
+    encoder.set_color(png::ColorType::Rgb);
+    encoder.set_depth(png::BitDepth::Eight);
+    let mut writer = encoder.write_header().unwrap();
+    writer.write_image_data(&data).unwrap();
+}
+
+fn configure_documents(ui: &MainWindow, language: Language, items: &[DocumentItem], preview: Option<&Path>) {
+    let selected = items.iter().find(|document| document.file_name == "kassenbon.jpg");
+    let linked = items.len();
+    let unlinked = items
+        .iter()
+        .filter(|document| document.transaction_id.is_none())
+        .count();
+    let linked_count = linked.saturating_sub(unlinked);
+    let tab = |key: Key, count: usize| {
+        i18n::format(
+            language,
+            Key::TabWithCount,
+            &[i18n::text(language, key).into(), Arg::Int(count as i64)],
+        )
+    };
+
+    ui.set_document_rows(ModelRc::new(VecModel::from(
+        items
+            .iter()
+            .map(|document| DocumentRow {
+                id: i32::try_from(document.id).unwrap_or(i32::MAX),
+                name: document.file_name.clone().into(),
+                meta: format!(
+                    "{} · {}",
+                    document_date(document.uploaded_at),
+                    document
+                        .transaction_label
+                        .clone()
+                        .unwrap_or_else(|| { i18n::text(language, Key::NotLinked).to_owned() })
+                )
+                .into(),
+                is_linked: document.transaction_id.is_some(),
+                has_ocr: document.has_ocr,
+                is_pdf: document.is_pdf(),
+                selected: selected.is_some_and(|selected| selected.id == document.id),
+            })
+            .collect::<Vec<_>>(),
+    )));
+    ui.set_documents_tab("all".into());
+    ui.set_documents_tab_all_label(tab(Key::TabAllDocuments, items.len()).into());
+    ui.set_documents_tab_unlinked_label(tab(Key::TabUnlinked, unlinked).into());
+    ui.set_documents_tab_linked_label(tab(Key::TabLinked, linked_count).into());
+    ui.set_documents_search_query("".into());
+    ui.set_documents_ocr_available(true);
+    ui.set_documents_ocr_hint("".into());
+    ui.set_documents_uploading(false);
+    ui.set_documents_progress_text("".into());
+    ui.set_documents_loading(false);
+    ui.set_documents_error("".into());
+    ui.set_documents_message("".into());
+    ui.set_documents_has_selection(selected.is_some());
+    ui.set_documents_selected_name(
+        selected
+            .map(|document| document.file_name.clone())
+            .unwrap_or_default()
+            .into(),
+    );
+    ui.set_documents_selected_linked(selected.is_some_and(|document| document.transaction_id.is_some()));
+    ui.set_documents_selected_link_label(
+        selected
+            .and_then(|document| document.transaction_label.clone())
+            .unwrap_or_default()
+            .into(),
+    );
+    ui.set_documents_selected_ocr_heading(
+        selected
+            .and_then(|document| document.ocr_confidence)
+            .map_or_else(
+                || i18n::text(language, Key::ExtractedText).to_owned(),
+                |confidence| {
+                    i18n::format(
+                        language,
+                        Key::ExtractedTextConfidence,
+                        &[Arg::Int(confidence.round() as i64)],
+                    )
+                },
+            )
+            .into(),
+    );
+    ui.set_documents_selected_ocr_text(
+        if selected.is_some() {
+            "REWE Markt GmbH\nDatum: 13.03.2026\nSUMME EUR 3,78"
+        } else {
+            ""
+        }
+        .into(),
+    );
+    ui.set_documents_preview_kind(if preview.is_some() { "image" } else { "none" }.into());
+    ui.set_documents_preview(
+        preview
+            .and_then(|path| Image::load_from_path(path).ok())
+            .unwrap_or_default(),
+    );
+    ui.set_documents_suggestions(ModelRc::new(VecModel::from(if selected.is_some() {
+        vec![DocumentLinkRow {
+            id: 1,
+            title: "REWE Markt GmbH".into(),
+            meta: "13.03.2026 · -€3.78".into(),
+            badge: i18n::format(
+                language,
+                Key::MatchPercent,
+                &[Arg::Str(if language == Language::En {
+                    "80%".to_owned()
+                } else {
+                    "80\u{a0}%".to_owned()
+                })],
+            )
+            .into(),
+        }]
+    } else {
+        Vec::new()
+    })));
+    ui.set_documents_candidates(ModelRc::new(VecModel::from(Vec::<DocumentLinkRow>::new())));
+    ui.set_documents_candidate_query("".into());
+    ui.set_documents_delete_text(
+        selected
+            .map(|document| {
+                i18n::format(
+                    language,
+                    Key::DeleteDocumentText,
+                    &[Arg::Str(document.file_name.clone())],
+                )
+            })
+            .unwrap_or_default()
+            .into(),
+    );
+}
+
+fn document_date(value: time::OffsetDateTime) -> String {
+    format!(
+        "{:02}.{:02}.{:04} {:02}:{:02}",
+        value.day(),
+        value.month() as u8,
+        value.year(),
+        value.hour(),
+        value.minute()
+    )
 }
 
 struct SeededAccounts {

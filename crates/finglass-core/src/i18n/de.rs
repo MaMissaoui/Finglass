@@ -677,6 +677,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::MessageSavedTo => "%s gespeichert",
         Key::PinNotSaved => "Die PIN konnte nicht im sicheren Anmeldedatenspeicher des Systems gespeichert werden.",
         Key::MessageUploaded => "%d {1:Datei|Dateien} hochgeladen, Text aus %d extrahiert",
+        Key::UploadProgress => "Lade %1$d von %2$d hoch…",
         Key::MessageDocumentLinked => "Dokument verknüpft",
         Key::MessageDocumentDeleted => "Dokument gelöscht",
         Key::MessageNoTextExtracted => "Es konnte kein Text extrahiert werden",
