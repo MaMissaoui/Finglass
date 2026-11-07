@@ -29,6 +29,7 @@ pub mod report;
 pub mod rules;
 pub mod secret;
 pub mod settings;
+pub mod sync;
 
 /// The product name, as shown in window titles and the About dialog.
 pub const APP_NAME: &str = "Finglass";
