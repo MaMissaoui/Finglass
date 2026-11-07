@@ -20,6 +20,8 @@ use finglass_core::i18n::{self, Key, Language};
 use finglass_core::instance::{InstanceError, InstanceLock};
 use finglass_core::model::{CategoryId, RuleId};
 use finglass_core::paths::AppPaths;
+use finglass_core::sync::CredentialStore;
+use finglass_core::sync::system_credential_store;
 use finglass_core::{APP_NAME, VERSION};
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel, Weak};
 use time::OffsetDateTime;
@@ -41,6 +43,8 @@ pub(crate) struct ShellState {
     pub(crate) language: Mutex<Language>,
     pub(crate) theme: Mutex<ThemePref>,
     pub(crate) db: Mutex<Option<Arc<Database>>>,
+    /// The one operating-system credential store for the whole app, created at startup.
+    pub(crate) credentials: Arc<dyn CredentialStore>,
     pub(crate) dashboard: Mutex<DashboardState>,
     pub(crate) reports: Arc<ReportsController>,
     /// The filter the dashboard or a report last asked the Transactions page to show; M4c reads it.
@@ -118,6 +122,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
         db: Mutex::new(None),
+        credentials: system_credential_store(),
         dashboard: Mutex::new(DashboardState::new(initial_language, today)),
         reports,
         navigation: Mutex::new(StartArgs::default()),
@@ -1963,6 +1968,7 @@ mod tests {
             language: Mutex::new(Language::En),
             theme: Mutex::new(ThemePref::System),
             db: Mutex::new(db),
+            credentials: Arc::new(finglass_core::sync::credentials::NoCredentialStore),
             dashboard: Mutex::new(DashboardState::new(Language::En, OffsetDateTime::now_utc().date())),
             reports,
             navigation: Mutex::new(StartArgs::default()),

@@ -1035,6 +1035,7 @@ pub fn confirm_delete_profile(main: &MainWindow, state: &Arc<ShellState>, paths:
     };
     let open_profile = pending.open_profile.clone();
     let paths = paths.clone();
+    let credentials = state.credentials.clone();
 
     spawn_profile_action(
         main,
@@ -1042,11 +1043,9 @@ pub fn confirm_delete_profile(main: &MainWindow, state: &Arc<ShellState>, paths:
         pending,
         paths,
         move |pending, db, paths| {
-            // M5c: replace NoCredentialStore with the Keychain-backed credential store.
-            let store = finglass_core::sync::credentials::NoCredentialStore;
             let forget = |slug: &str| {
                 if let Ok(dir) = paths.profile_dir(slug) {
-                    finglass_core::sync::credentials::forget_pins_for_profile(&store, &dir);
+                    finglass_core::sync::credentials::forget_pins_for_profile(credentials.as_ref(), &dir);
                 }
             };
             if pending

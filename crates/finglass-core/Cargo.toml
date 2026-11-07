@@ -28,5 +28,9 @@ uuid = { version = "1", features = ["v4"] }
 zeroize = "1"
 zip = "9.4.1"
 
+[target.'cfg(target_os = "macos")'.dependencies]
+apple-native-keyring-store = { version = "1", features = ["keychain"] }
+keyring-core = "1"
+
 [lints]
 workspace = true

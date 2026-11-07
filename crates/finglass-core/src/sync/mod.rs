@@ -12,8 +12,8 @@
 //!
 //! - `Hbci4JavaGateway` and any order method (transfers, instant transfers, scheduled transfers, standing orders):
 //!   Finglass is read-only, so these are out of scope by design.
-//! - `CredentialSelfCheck`: the operating-system credential store arrives with the desktop integration; core only
-//!   defines the [`credentials::CredentialStore`] port, an in-memory store and a no-op store.
+//! - `CredentialSelfCheck`: the operating-system credential store is wired by the desktop app; core defines the
+//!   [`credentials::CredentialStore`] port, an in-memory store, a no-op store and the macOS Keychain store.
 //! - `ProtocolTrace`: that is M5b, together with the real adapter.
 //! - `BankDirectory`: the bank-directory data licence is still pending, so a connection needs an explicit server URL.
 //! - `BankingInteraction::confirm_payee`: Verification of Payee only exists for payments.
@@ -29,6 +29,7 @@ pub mod credentials;
 pub mod failures;
 pub mod gateway;
 pub mod interaction;
+pub mod keychain;
 pub mod redactor;
 pub mod service;
 
@@ -45,4 +46,7 @@ pub use gateway::{
     UnavailableGateway,
 };
 pub use interaction::{BankingInteraction, PinEntry, TanChallenge, TanMethod};
+#[cfg(target_os = "macos")]
+pub use keychain::KeychainCredentialStore;
+pub use keychain::{KEYCHAIN_SERVICE, account_for, system_credential_store, system_credential_store_with};
 pub use service::{BankingService, ImportResult, SyncReport};
