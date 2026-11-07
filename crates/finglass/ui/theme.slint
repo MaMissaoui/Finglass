@@ -4,7 +4,41 @@ import { Palette } from "std-widgets.slint";
 // style's colour-scheme is followed so the app matches the desktop.
 export global Theme {
     in property <string> mode: "system";
-    in property <bool> dark: mode == "system" ? Palette.color-scheme == ColorScheme.dark : mode == "dark";
+
+    // The OS colour scheme, captured in each window's `init` before the first explicit assignment
+    // replaces Palette's default binding to the OS scheme. Returning to "system" restores it.
+    in-out property <ColorScheme> os-scheme: Palette.color-scheme;
+    property <bool> os-scheme-captured: false;
+    // Set once the app has assigned Palette.color-scheme. While it is false, Palette still follows
+    // the OS scheme live. After returning to "system" it is pinned to the captured scheme, so a later
+    // live OS change may need a restart.
+    property <bool> scheme-assigned: false;
+
+    public function capture-os-scheme() {
+        if (!os-scheme-captured) {
+            os-scheme = Palette.color-scheme;
+            os-scheme-captured = true;
+        }
+    }
+
+    public function apply-scheme() {
+        capture-os-scheme();
+        if (mode == "light") {
+            Palette.color-scheme = ColorScheme.light;
+            scheme-assigned = true;
+        } else if (mode == "dark") {
+            Palette.color-scheme = ColorScheme.dark;
+            scheme-assigned = true;
+        } else if (scheme-assigned) {
+            Palette.color-scheme = os-scheme;
+        }
+    }
+
+    // Follow Palette in system mode until it has been assigned, so a live OS change still shows;
+    // after that the captured OS scheme is the value both the widgets and Theme.dark use.
+    in property <bool> dark: mode == "system"
+            ? (scheme-assigned ? os-scheme : Palette.color-scheme) == ColorScheme.dark
+            : mode == "dark";
 
     // Brand
     out property <color> primary: dark ? #5EEAD4 : #0D9488;

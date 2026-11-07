@@ -34,6 +34,12 @@ export component UnlockWindow inherits Window {
     min-height: 620px;
     background: Theme.background;
 
+    init => {
+        // The unlock window always follows the OS scheme. Capture it before any assignment replaces
+        // Palette.color-scheme's default binding.
+        Theme.capture-os-scheme();
+    }
+
     function heading() -> string {
         if (root.startup-error) {
             return Tr.t("UnlockWindowTitle");

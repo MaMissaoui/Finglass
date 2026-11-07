@@ -272,6 +272,36 @@ fn renders_the_app_shell() {
         ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-currency-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-currency-de-dark");
+        assert_dark_widget(&buffer, 800, 255, "settings-currency-de-dark currency ComboBox");
+        let _ = ui.hide();
+    }
+
+    // M2d: the fluent widgets follow the app's theme, not only the page palettes.
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(0.0);
+
+        let buffer = render(&window, "theme-switch-dark", 1100, 720);
+        assert_varied(&buffer, "theme-switch-dark");
+        assert_dark_widget(&buffer, 800, 255, "theme-switch-dark currency ComboBox");
+
+        sync_theme(&ui, ThemePref::System);
+        let theme = ui.global::<Theme>();
+        // Whatever the captured OS scheme is, Theme.dark and the fluent widgets must agree.
+        let system_dark = theme.get_dark();
+        let buffer = render(&window, "theme-switch-system", 1100, 720);
+        assert_varied(&buffer, "theme-switch-system");
+        assert_widget_tone(&buffer, 800, 255, system_dark, "theme-switch-system currency ComboBox");
+
+        sync_theme(&ui, ThemePref::Light);
+        assert!(!theme.get_dark(), "theme-switch-light: Theme.dark is light");
+        let buffer = render(&window, "theme-switch-light", 1100, 720);
+        assert_varied(&buffer, "theme-switch-light");
+        assert_light_widget(&buffer, 800, 255, "theme-switch-light currency ComboBox");
         let _ = ui.hide();
     }
 
@@ -749,7 +779,7 @@ fn renders_the_app_shell() {
         &transactions_en,
         |_| {},
     );
-    render_transactions(
+    let dark_transactions = render_transactions(
         &window,
         Language::De,
         ThemePref::Dark,
@@ -757,6 +787,13 @@ fn renders_the_app_shell() {
         &transactions_de,
         |_| {},
     );
+    assert_dark_widget(
+        &dark_transactions,
+        380,
+        100,
+        "transactions-de-dark account filter field",
+    );
+    assert_dark_widget(&dark_transactions, 1120, 172, "transactions-de-dark period ComboBox");
 
     let account_state = transactions_state(
         &transactions_db,
@@ -1233,7 +1270,7 @@ fn render_transactions(
     name: &str,
     state: &TransactionsState,
     configure: impl FnOnce(&MainWindow),
-) {
+) -> SharedPixelBuffer<Rgb8Pixel> {
     let width = if name.ends_with("narrow-en") { 900 } else { 1440 };
     let ui = MainWindow::new().unwrap();
     configure_main(&ui, language, theme, "transactions", &[]);
@@ -1244,6 +1281,7 @@ fn render_transactions(
     let buffer = render(window, name, width, 720);
     assert_varied(&buffer, name);
     let _ = ui.hide();
+    buffer
 }
 
 fn open_multi_delete_for_test(ui: &MainWindow, state: &TransactionsState) {
@@ -2617,13 +2655,17 @@ trait ThemeMode {
 
 impl ThemeMode for UnlockWindow {
     fn set_theme_mode(&self, theme: ThemePref) {
-        self.global::<Theme>().set_mode(theme.code().into());
+        let theme_global = self.global::<Theme>();
+        theme_global.set_mode(theme.code().into());
+        theme_global.invoke_apply_scheme();
     }
 }
 
 impl ThemeMode for MainWindow {
     fn set_theme_mode(&self, theme: ThemePref) {
-        self.global::<Theme>().set_mode(theme.code().into());
+        let theme_global = self.global::<Theme>();
+        theme_global.set_mode(theme.code().into());
+        theme_global.invoke_apply_scheme();
     }
 }
 
@@ -2679,6 +2721,41 @@ fn assert_varied(buffer: &SharedPixelBuffer<Rgb8Pixel>, name: &str) {
         "{name}: rendered one flat colour ({} unique colours)",
         colours.len()
     );
+}
+
+fn pixel_at(buffer: &SharedPixelBuffer<Rgb8Pixel>, x: u32, y: u32) -> Rgb8Pixel {
+    let index = (y * buffer.width() + x) as usize;
+    buffer.as_slice()[index]
+}
+
+fn luminance(pixel: Rgb8Pixel) -> f32 {
+    (0.2126 * f32::from(pixel.r) + 0.7152 * f32::from(pixel.g) + 0.0722 * f32::from(pixel.b)) / 255.0
+}
+
+fn assert_dark_widget(buffer: &SharedPixelBuffer<Rgb8Pixel>, x: u32, y: u32, name: &str) {
+    let pixel = pixel_at(buffer, x, y);
+    let luminance = luminance(pixel);
+    assert!(
+        luminance < 0.35,
+        "{name}: widget pixel at ({x}, {y}) has luminance {luminance:.3} ({pixel:?}), expected a dark widget"
+    );
+}
+
+fn assert_light_widget(buffer: &SharedPixelBuffer<Rgb8Pixel>, x: u32, y: u32, name: &str) {
+    let pixel = pixel_at(buffer, x, y);
+    let luminance = luminance(pixel);
+    assert!(
+        luminance > 0.8,
+        "{name}: widget pixel at ({x}, {y}) has luminance {luminance:.3} ({pixel:?}), expected a light widget"
+    );
+}
+
+fn assert_widget_tone(buffer: &SharedPixelBuffer<Rgb8Pixel>, x: u32, y: u32, dark: bool, name: &str) {
+    if dark {
+        assert_dark_widget(buffer, x, y, name);
+    } else {
+        assert_light_widget(buffer, x, y, name);
+    }
 }
 
 fn write_png(directory: &Path, name: &str, buffer: &SharedPixelBuffer<Rgb8Pixel>) {

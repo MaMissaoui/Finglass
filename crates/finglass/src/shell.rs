@@ -1504,13 +1504,18 @@ trait HasThemeMode {
 
 impl HasThemeMode for UnlockWindow {
     fn set_theme_mode(&self, theme: ThemePref) {
-        self.global::<Theme>().set_mode(theme.code().into());
+        let theme_global = self.global::<Theme>();
+        theme_global.set_mode(theme.code().into());
+        // The widgets own Palette.color-scheme; Theme applies the choice to it.
+        theme_global.invoke_apply_scheme();
     }
 }
 
 impl HasThemeMode for MainWindow {
     fn set_theme_mode(&self, theme: ThemePref) {
-        self.global::<Theme>().set_mode(theme.code().into());
+        let theme_global = self.global::<Theme>();
+        theme_global.set_mode(theme.code().into());
+        theme_global.invoke_apply_scheme();
     }
 }
 
