@@ -7,8 +7,9 @@ See every account, booking, receipt and report in one place. Nothing in Finglass
 
 ---
 
-> **Status: pre-alpha.** The repository holds the project skeleton, the brand assets and the plan
-> ([`docs/PLAN.md`](docs/PLAN.md)). The app opens a placeholder window; features land milestone by milestone.
+> **Status: alpha, macOS only.** Everything FinDesk does, minus payments, is in, except the live bank sync (FinTS),
+> which comes next. Download the DMG from [Releases](https://github.com/MaMissaoui/Finglass/releases) or install from
+> a checkout (below). The plan is in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## What Finglass is
 
@@ -17,8 +18,9 @@ See every account, booking, receipt and report in one place. Nothing in Finglass
 - **Local-first.** Your data stays on your computer in an encrypted database (SQLCipher). No account, no cloud, no
   telemetry.
 - **Built in Rust** with a native [Slint](https://slint.dev) UI, for a small, fast app on macOS, Windows and Linux.
-- **German banking via FinTS** (planned): balances and statements with pushTAN, chipTAN and photoTAN. Bank file imports
-  (CSV, MT940, camt, OFX, QIF, XLSX) work without any bank connection.
+- **German banking via FinTS** (in progress: the bank screens are in, the connection itself is not yet): balances and
+  statements with pushTAN, chipTAN and photoTAN. Bank file imports (CSV, MT940, camt, OFX, QIF, XLSX) work without any
+  bank connection.
 
 Finglass is a sister project of [FinDesk](https://github.com/MaMissaoui/FinDesk) (Kotlin), rebuilt in Rust without the
 payment features.
@@ -76,6 +78,15 @@ scripts/install-mac.sh [--install-dir <folder>] [--force]
 It installs into `/Applications` by default. Quit Finglass first: a previous `Finglass.app` is moved to the
 Trash, never deleted. `--force` installs a checkout with uncommitted changes or a HEAD that is neither a
 `v*` release tag nor the fetched `origin/main`.
+
+## Releasing
+
+A release is a pushed `v<version>` tag on `main`, where `<version>` is the workspace version in `Cargo.toml`.
+
+- The `Package` workflow builds the DMG, runs its launch and install checks, and then publishes it with a SHA-256 file
+  as a GitHub pre-release.
+- The release notes come from `docs/releases/v<version>.md`.
+- The workflow refuses a tag that doesn't match the version, and a release without notes.
 
 ## License
 
