@@ -54,6 +54,9 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
   - **No-go:** Finglass ships with file imports first, and M5 waits for a library or a port of the needed parts.
 - [ ] Apply for a FinTS product registration with the Deutsche Kreditwirtschaft under the name Finglass. It must be in
       place before live sync ships.
+- [ ] Once the DK registration is in and its terms for the FinTS institute list are known, decide how Finglass gets
+      bank server URLs: the user loads the institute list they received (Finglass never redistributes it), or, only
+      if the terms allow it, the list ships with the app. Until then the add-bank dialog asks for the server URL.
 
 ### M1 — Foundation
 
@@ -98,8 +101,9 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 ### M5 — Live sync, read-only (after M0 go)
 
 - [ ] Bank connections:
-  - bank directory lookup: deferred until the licence of the bank list (FinDesk uses HBCI4Java's `blz.properties`)
-    is settled; until then the add-bank dialog asks for the server URL;
+  - bank directory lookup (M5d): search by name, BLZ, BIC or IBAN in the Bundesbank's bank code file, shipped
+    unchanged with "Quelle: Deutsche Bundesbank" (its terms allow passing it on unaltered). Server URLs wait for the
+    DK registration decision above;
   - TAN methods: pushTAN, photoTAN and QR; chipTAN flicker waits for M5b, since FinDesk's flicker rendering comes
     from HBCI4Java and the code's format depends on the adapter;
   - TAN media.
@@ -151,6 +155,10 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
         FinDesk's `documents/`, no payment orders, PIN flags or capabilities) (#15).
   - [x] M8d-3: Settings entry, folder picker starting in FinDesk's data folder, passphrase, report, reload (#38).
   - [ ] Follow-up: run the empty-target check inside the import transaction, not just before it.
+
+- [ ] M8g: first-run migration from the FinDesk install on this Mac: offered once when Finglass has no data and
+      FinDesk is found; every FinDesk profile becomes a Finglass profile with the same name, FinDesk's data is only
+      read.
 
 ### M9 — Packaging and release
 
