@@ -890,6 +890,16 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ThemeLight => "Light",
         Key::ThemeDark => "Dark",
         Key::Theme => "Theme",
+        Key::ErrorFinDeskNotFound => "No FinDesk database was found in the selected folder.",
+        Key::ErrorFinDeskWrongPassphrase => "The FinDesk passphrase is wrong.",
+        Key::ErrorFinDeskNotFinDesk => "This database is not a FinDesk database.",
+        Key::ErrorFinDeskTargetNotEmpty => "The Finglass profile already contains data. Import into an empty profile.",
+        Key::FinDeskImportSummary => {
+            "Imported %d account groups, %d bank connections, %d accounts, %d categories, %d rules, \
+             %d transactions, %d deleted bookings, %d pending bookings, %d documents, %d OCR texts and \
+             %d settings. Skipped %d rows, %d documents with a missing file and %d refused documents. \
+             Left %d payment orders behind."
+        }
         Key::ErrorNotEncrypted => "This data folder contains an unencrypted database, which Finglass cannot open.",
         Key::ErrorDatabaseTooNew => "This database was created by a newer version of Finglass.",
         Key::ErrorUnexpected => "an unexpected error",

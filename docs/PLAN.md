@@ -117,6 +117,9 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [ ] One-time import from a FinDesk database. It reads a copy you select, with its passphrase (SQLCipher 4, `cipher`
       sqlcipher, `legacy` 4), and brings over accounts, transactions, categories, rules and documents. FinDesk's
       payment orders are never imported.
+  - [x] M8c core: `findesk_import` (copy opened, one transaction, ids kept, hashes verbatim, documents confined to
+        FinDesk's `documents/`, no payment orders, PIN flags or capabilities). Still to do: the Settings entry point
+        with the folder picker, telling the user to quit FinDesk first.
 
 ### M9 — Packaging and release
 
