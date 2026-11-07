@@ -2,22 +2,34 @@
 
 pub mod camt;
 pub mod csv;
+pub mod dedup;
+pub mod hash;
 pub mod model;
 pub mod mt940;
 pub mod ofx;
 pub mod qif;
+pub mod service;
 pub mod two_digit_year;
 pub mod xlsx;
 
 mod util;
 
+pub use dedup::{Candidate, Plan};
+pub use hash::{hashes, transaction_hash};
 pub use model::{
     ClosingBalance, CsvLayout, CsvMapping, ImportError, ImportedBooking, ParsedStatement, StatementFormat,
+};
+pub use service::{
+    ImportReport, ImportServiceError, TYPED_BALANCE_RECENT_DAYS, balance_update_allowed, import, is_newest_first,
+    match_account,
 };
 
 use std::path::Path;
 
+use rust_decimal::Decimal;
 use time::Date;
+
+use crate::money::{Currency, Money, MoneyError};
 
 /// The largest statement file Finglass reads.
 pub const MAX_FILE_BYTES: u64 = 100 * 1024 * 1024;
@@ -59,6 +71,28 @@ pub fn read(
     };
     require_single_account(&statement)?;
     Ok(statement)
+}
+
+/// Converts an imported decimal amount to the currency's minor units.
+///
+/// Amounts with more decimal places than the currency allows are rejected, never rounded.
+pub(crate) fn amount_to_money(amount: Decimal, currency: Currency) -> Result<Money, MoneyError> {
+    let normalized = amount.normalize();
+    let scale = normalized.scale();
+    let exponent = currency.minor_exponent();
+
+    if scale > exponent {
+        return Err(MoneyError::Invalid(format!(
+            "too many decimal places for {}",
+            currency.as_str()
+        )));
+    }
+
+    let factor = 10_i128.checked_pow(exponent - scale).ok_or(MoneyError::Overflow)?;
+    let minor = normalized.mantissa().checked_mul(factor).ok_or(MoneyError::Overflow)?;
+    let minor = i64::try_from(minor).map_err(|_| MoneyError::Overflow)?;
+
+    Ok(Money { minor, currency })
 }
 
 fn require_single_account(statement: &ParsedStatement) -> Result<(), ImportError> {

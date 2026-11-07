@@ -188,6 +188,35 @@ pub fn set_balance(db: &Database, id: AccountId, balance: Money, at: OffsetDateT
     })
 }
 
+/// Sets an account's balance for the import service, without writing its own audit entry.
+///
+/// The import service writes the single `IMPORT_STATEMENT` audit entry after the balance update, with
+/// FinDesk's import detail wording. [`set_balance`] keeps its own audit entry for direct user changes.
+pub(crate) fn set_balance_for_import(db: &Database, id: AccountId, balance: Money, at: OffsetDateTime) -> Result<()> {
+    in_conn(db, |conn| {
+        let transaction = conn.unchecked_transaction()?;
+        let currency_text: Option<String> = transaction
+            .query_row("SELECT currency FROM accounts WHERE id = ?1", [id.0], |row| row.get(0))
+            .optional()?;
+        let Some(currency_text) = currency_text else {
+            return Err(RepoError::NotFound);
+        };
+
+        if parse_currency(&currency_text)? != balance.currency {
+            return Err(RepoError::CurrencyMismatch);
+        }
+
+        let at = format_timestamp(at)?;
+        transaction.execute(
+            "UPDATE accounts SET balance_minor = ?1, balance_updated_at = ?2 WHERE id = ?3",
+            params![balance.minor, at, id.0],
+        )?;
+        transaction.commit()?;
+
+        Ok(())
+    })
+}
+
 /// Deletes an account and, through the foreign keys, its bookings.
 pub fn delete(db: &Database, id: AccountId) -> Result<()> {
     in_conn(db, |conn| {
