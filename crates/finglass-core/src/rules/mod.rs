@@ -5,9 +5,15 @@
 //! users have in their rules keep working. A pattern that does not compile falls back to a
 //! case-insensitive substring test and never panics.
 
+pub mod file;
+pub mod import;
 pub mod matcher;
 pub mod payment_providers;
 
+pub use file::{
+    ParsedRuleFile, RuleFile, RuleFileError, RuleFileItem, RuleFileParseError, RuleFileRow, validate_rule_pattern,
+};
+pub use import::{RuleImportConflict, RuleImportError, RuleImportPreview, RuleImportResult, RuleImportService};
 pub use matcher::{CompiledPattern, RuleMatcher, RuleSpec};
 pub use payment_providers::{PaymentProviders, ShopMatch};
 

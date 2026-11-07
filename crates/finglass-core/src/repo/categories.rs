@@ -4,10 +4,122 @@ use rusqlite::{Row, params};
 
 use crate::audit::{self, Actor};
 use crate::db::Database;
+use crate::i18n::{self, Key, Language};
 use crate::model::{Category, CategoryId, NewCategory};
 use crate::money::{Currency, Money};
 
 use super::{RepoError, Result, from_int_bool, id_and_name, id_only, in_conn, to_int_bool};
+
+/// The 24-colour category palette, in display order, ported from FinDesk's `DefaultCategories.colors`.
+pub const COLORS: [&str; 24] = [
+    "#FF5722", // Deep Orange
+    "#4CAF50", // Green
+    "#2196F3", // Blue
+    "#FF9800", // Orange
+    "#9C27B0", // Purple
+    "#E91E63", // Pink
+    "#00BCD4", // Cyan
+    "#795548", // Brown
+    "#607D8B", // Blue Grey
+    "#CDDC39", // Lime
+    "#3F51B5", // Indigo
+    "#009688", // Teal
+    "#FFC107", // Amber
+    "#673AB7", // Deep Purple
+    "#8BC34A", // Light Green
+    "#03A9F4", // Light Blue
+    "#AFB42B", // Dark Lime
+    "#880E4F", // Dark Pink
+    "#1A237E", // Dark Indigo
+    "#004D40", // Dark Teal
+    "#BF360C", // Burnt Orange
+    "#33691E", // Dark Green
+    "#F06292", // Light Pink
+    "#A1887F", // Light Brown
+];
+
+/// The default categories in display order: name key, colour and transfer flag.
+///
+/// Entry `i` is coloured [`COLORS`][i]. The names come from the string keys, so the current UI language decides what
+/// is stored. Only "Own transfers" is a transfer: a card statement payment is the only record of card spending while
+/// the card's own bookings come from no import, so counting it would erase the card's spending altogether.
+pub const ENTRIES: [(Key, &str, bool); 24] = [
+    (Key::DefaultCategoryGroceries, COLORS[0], false),
+    (Key::DefaultCategoryDrugstore, COLORS[1], false),
+    (Key::DefaultCategoryHousing, COLORS[2], false),
+    (Key::DefaultCategoryEnergy, COLORS[3], false),
+    (Key::DefaultCategoryPhoneInternetMedia, COLORS[4], false),
+    (Key::DefaultCategoryInsurance, COLORS[5], false),
+    (Key::DefaultCategoryLoans, COLORS[6], false),
+    (Key::DefaultCategorySavings, COLORS[7], false),
+    (Key::DefaultCategoryTransport, COLORS[8], false),
+    (Key::DefaultCategoryHealth, COLORS[9], false),
+    (Key::DefaultCategoryClothing, COLORS[10], false),
+    (Key::DefaultCategoryOnlineShopping, COLORS[11], false),
+    (Key::DefaultCategoryLeisure, COLORS[12], false),
+    (Key::DefaultCategoryRestaurants, COLORS[13], false),
+    (Key::DefaultCategoryTaxes, COLORS[14], false),
+    (Key::DefaultCategoryCash, COLORS[15], false),
+    // NOT a transfer: see the note above.
+    (Key::DefaultCategoryCreditCard, COLORS[16], false),
+    (Key::DefaultCategoryOwnTransfers, COLORS[17], true),
+    (Key::DefaultCategorySalary, COLORS[18], false),
+    (Key::DefaultCategoryChildBenefit, COLORS[19], false),
+    (Key::DefaultCategoryInterestFees, COLORS[20], false),
+    (Key::DefaultCategoryFamily, COLORS[21], false),
+    (Key::DefaultCategoryChildrenSchool, COLORS[22], false),
+    (Key::DefaultCategoryOtherIncome, COLORS[23], false),
+];
+
+/// The palette colour of the default category whose localized name equals `name`, or `None`.
+pub fn default_colour_for(name: &str, lang: Language) -> Option<&'static str> {
+    ENTRIES
+        .iter()
+        .find(|(key, _, _)| i18n::text(lang, *key).trim().eq_ignore_ascii_case(name.trim()))
+        .map(|(_, color, _)| *color)
+}
+
+/// Adds the default categories that don't exist yet, in one transaction with one audit entry, as FinDesk's
+/// "Add default categories" does.
+///
+/// A default is skipped when a category with the same name (trimmed, case-insensitive) exists; existing categories are
+/// never changed. The audit entry is written also when nothing was added. Returns how many categories were added.
+pub fn seed_defaults(db: &Database, lang: Language) -> Result<usize> {
+    in_conn(db, |conn| {
+        let transaction = conn.unchecked_transaction()?;
+        let existing: std::collections::HashSet<String> = {
+            let mut statement = transaction.prepare("SELECT name FROM categories")?;
+            let names = statement
+                .query_map([], |row| row.get::<_, String>(0))?
+                .collect::<rusqlite::Result<Vec<_>>>()?;
+            names.into_iter().map(|name| name.trim().to_lowercase()).collect()
+        };
+
+        let mut added = 0_usize;
+        for (key, color, is_transfer) in ENTRIES {
+            let name = i18n::text(lang, key).trim();
+            if existing.contains(&name.to_lowercase()) {
+                continue;
+            }
+            transaction.execute(
+                "INSERT INTO categories (name, color, budget_limit_minor, is_tax_relevant, is_transfer)
+                 VALUES (?1, ?2, NULL, 0, ?3)",
+                params![name, color, to_int_bool(is_transfer)],
+            )?;
+            added += 1;
+        }
+
+        audit::log_conn(
+            &transaction,
+            "ADD_DEFAULT_CATEGORIES",
+            Actor::User,
+            &format!("Added {added} default categories"),
+        )?;
+        transaction.commit()?;
+
+        Ok(added)
+    })
+}
 
 fn from_row(row: &Row<'_>) -> Result<Category> {
     let budget_limit = row.get::<_, Option<i64>>(3)?.map(|minor| Money {
@@ -150,4 +262,175 @@ pub fn delete(db: &Database, id: CategoryId) -> Result<()> {
 
         Ok(())
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::db::Database;
+    use crate::i18n::Language;
+    use crate::secret::{Passphrase, PassphrasePurpose};
+
+    fn database() -> (tempfile::TempDir, Database) {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("finglass.db");
+        let pass = Passphrase::new("correct horse battery staple", PassphrasePurpose::New).unwrap();
+        let db = Database::create(&path, &pass).unwrap();
+        (temp, db)
+    }
+
+    fn audit_actions(db: &Database) -> Vec<(String, String)> {
+        crate::audit::recent(db, 1000)
+            .unwrap()
+            .into_iter()
+            .map(|entry| (entry.action, entry.details))
+            .collect()
+    }
+
+    #[test]
+    fn the_palette_has_24_distinct_colours_and_the_defaults_use_them_in_order() {
+        assert_eq!(COLORS.len(), 24);
+        assert_eq!(
+            COLORS
+                .iter()
+                .map(|color| color.to_uppercase())
+                .collect::<std::collections::BTreeSet<_>>()
+                .len(),
+            24,
+            "the colours must be distinct"
+        );
+
+        assert_eq!(ENTRIES.len(), 24);
+        assert_eq!(
+            ENTRIES
+                .iter()
+                .map(|(_, color, _)| *color)
+                .collect::<std::collections::BTreeSet<_>>()
+                .len(),
+            24,
+            "no cycling: every category needs its own colour"
+        );
+        assert_eq!(
+            ENTRIES.iter().map(|(_, color, _)| *color).collect::<Vec<_>>(),
+            COLORS.to_vec()
+        );
+    }
+
+    #[test]
+    fn the_palette_stays_in_the_documented_order() {
+        assert_eq!(
+            COLORS[..10].concat(),
+            "#FF5722#4CAF50#2196F3#FF9800#9C27B0#E91E63#00BCD4#795548#607D8B#CDDC39"
+        );
+        assert_eq!(
+            COLORS[10..].concat(),
+            "#3F51B5#009688#FFC107#673AB7#8BC34A#03A9F4#AFB42B#880E4F#1A237E#004D40#BF360C#33691E#F06292#A1887F"
+        );
+    }
+
+    #[test]
+    fn only_own_transfers_is_a_transfer() {
+        let transfers: Vec<_> = ENTRIES.iter().filter(|(_, _, is_transfer)| *is_transfer).collect();
+        assert_eq!(transfers.len(), 1);
+        assert_eq!(transfers[0].0, Key::DefaultCategoryOwnTransfers);
+        assert!(
+            !ENTRIES
+                .iter()
+                .any(|(key, _, is_transfer)| { *key == Key::DefaultCategoryCreditCard && *is_transfer })
+        );
+    }
+
+    #[test]
+    fn seeding_an_empty_database_adds_all_24_defaults_and_audits_once() {
+        let (_temp, db) = database();
+
+        let added = seed_defaults(&db, Language::En).unwrap();
+
+        assert_eq!(added, 24);
+        let names: Vec<String> = list(&db).unwrap().into_iter().map(|category| category.name).collect();
+        assert_eq!(names.len(), 24);
+        assert!(names.contains(&"Groceries".to_owned()));
+        assert!(names.contains(&"Drugstore & household".to_owned()));
+        assert!(names.contains(&"Other income".to_owned()));
+
+        let entries = audit_actions(&db);
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].0, "ADD_DEFAULT_CATEGORIES");
+        assert_eq!(entries[0].1, "Added 24 default categories");
+    }
+
+    #[test]
+    fn seeding_stores_the_transfer_flag() {
+        let (_temp, db) = database();
+        seed_defaults(&db, Language::En).unwrap();
+
+        let saved: std::collections::HashMap<String, bool> = list(&db)
+            .unwrap()
+            .into_iter()
+            .map(|category| (category.name, category.is_transfer))
+            .collect();
+        assert!(!saved["Groceries"]);
+        assert!(!saved["Credit card"]);
+        assert!(saved["Own transfers"]);
+    }
+
+    #[test]
+    fn seeding_uses_the_language_names_and_default_colours() {
+        let (_temp, db) = database();
+        seed_defaults(&db, Language::De).unwrap();
+
+        let groceries = list(&db)
+            .unwrap()
+            .into_iter()
+            .find(|category| category.name == "Lebensmittel")
+            .unwrap();
+        assert_eq!(groceries.color, "#FF5722");
+    }
+
+    #[test]
+    fn existing_categories_are_kept_and_matched_case_insensitively() {
+        let (_temp, db) = database();
+        let existing = create(
+            &db,
+            NewCategory {
+                name: "groceries".to_owned(),
+                color: "#123456".to_owned(),
+                budget_limit: None,
+                is_tax_relevant: false,
+                is_transfer: false,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(seed_defaults(&db, Language::En).unwrap(), 23);
+        let categories = list(&db).unwrap();
+        assert_eq!(categories.len(), 24);
+        let groceries = categories.iter().find(|category| category.id == existing).unwrap();
+        assert_eq!(groceries.name, "groceries", "existing categories are never changed");
+        assert_eq!(groceries.color, "#123456");
+
+        assert_eq!(seed_defaults(&db, Language::En).unwrap(), 0);
+        assert_eq!(list(&db).unwrap().len(), 24);
+    }
+
+    #[test]
+    fn two_seed_calls_create_the_defaults_once() {
+        let (_temp, db) = database();
+
+        assert_eq!(seed_defaults(&db, Language::En).unwrap(), 24);
+        assert_eq!(seed_defaults(&db, Language::En).unwrap(), 0);
+
+        let names: Vec<String> = list(&db).unwrap().into_iter().map(|category| category.name).collect();
+        assert_eq!(names.len(), 24);
+        let unique: std::collections::BTreeSet<&String> = names.iter().collect();
+        assert_eq!(unique.len(), names.len(), "no category is created twice");
+        assert_eq!(audit_actions(&db).len(), 2, "each call is audited, as in FinDesk");
+    }
+
+    #[test]
+    fn default_colours_match_localized_default_names() {
+        assert_eq!(default_colour_for("  groceries ", Language::En), Some("#FF5722"));
+        assert_eq!(default_colour_for("Lebensmittel", Language::De), Some("#FF5722"));
+        assert_eq!(default_colour_for("not a default", Language::En), None);
+    }
 }
