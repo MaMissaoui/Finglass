@@ -8,10 +8,17 @@ import {
     DashboardTransactionRow,
     DashboardUpcomingRow,
     NavItem,
+    ReportAmountRow,
+    ReportMonthlyRow,
+    ReportRecurringRow,
+    ReportSuggestionRow,
+    ReportTaxRow,
+    ReportVendorRow,
     TextButton,
 } from "components.slint";
 import { AuditRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
+import { ReportsPage } from "reports_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
 
 // The main window: sidebar navigation, placeholder screens and the settings sections.
@@ -85,6 +92,73 @@ export component MainWindow inherits Window {
     in property <[DashboardTransactionRow]> dashboard-recent-rows;
     in property <string> dashboard-view-all-label;
 
+    in-out property <string> reports-tab: "summary";
+
+    in property <string> reports-year-label;
+    in property <bool> reports-custom;
+    in property <string> reports-range-from;
+    in property <string> reports-range-to;
+    in property <string> reports-range-error;
+    in property <bool> reports-loading;
+    in property <bool> reports-exporting;
+    in property <bool> reports-has-report;
+    in property <bool> reports-empty;
+    in property <string> reports-empty-title;
+    in property <string> reports-empty-hint;
+    in property <string> reports-error-text;
+    in property <string> reports-message-text;
+    in property <bool> reports-can-export-report;
+    in property <bool> reports-can-export-tax;
+    in property <bool> reports-linkable;
+
+    in property <string> reports-other-currency-hint;
+    in property <string> reports-income-value;
+    in property <string> reports-expenses-value;
+    in property <string> reports-net-value;
+    in property <string> reports-tax-value;
+    in property <string> reports-net-tone;
+    in property <[ReportAmountRow]> reports-tax-relevant-rows;
+    in property <string> reports-tax-relevant-empty;
+    in property <string> reports-stat-transactions;
+    in property <string> reports-stat-categories;
+    in property <string> reports-stat-average;
+    in property <string> reports-stat-highest;
+
+    in property <string> reports-monthly-title;
+    in property <[ReportMonthlyRow]> reports-monthly-rows;
+    in property <string> reports-monthly-total-income;
+    in property <string> reports-monthly-total-expenses;
+    in property <string> reports-monthly-total-net;
+    in property <string> reports-monthly-total-tone;
+
+    in property <[DashboardCategoryRow]> reports-category-rows;
+    in property <string> reports-transfers-note;
+    in property <[ReportVendorRow]> reports-vendor-rows;
+
+    in property <bool> reports-recurring-empty;
+    in property <string> reports-recurring-count;
+    in property <string> reports-recurring-yearly;
+    in property <string> reports-recurring-monthly;
+    in property <[ReportRecurringRow]> reports-recurring-rows;
+
+    in property <bool> reports-has-tax;
+    in property <bool> reports-tax-empty;
+    in property <string> reports-tax-income-value;
+    in property <string> reports-tax-deduction-value;
+    in property <string> reports-tax-net-value;
+    in property <string> reports-tax-net-tone;
+    in property <string> reports-tax-receipts-value;
+    in property <string> reports-tax-receipts-subtitle;
+    in property <bool> reports-tax-receipts-missing;
+    in property <string> reports-tax-other-hint;
+    in property <string> reports-tax-suggestions-title;
+    in property <string> reports-tax-suggestions-hint;
+    in property <[ReportSuggestionRow]> reports-tax-suggestions;
+    in property <bool> reports-missing-receipts-only;
+    in property <string> reports-tax-empty-title;
+    in property <string> reports-tax-empty-hint;
+    in property <[ReportTaxRow]> reports-tax-rows;
+
     callback navigate(string);
     callback set-theme(string);
     callback set-language(string);
@@ -103,6 +177,22 @@ export component MainWindow inherits Window {
     callback dashboard-open-accounts;
     callback dashboard-open-settings;
     callback dashboard-dismiss-error;
+
+    callback reports-set-custom(bool);
+    callback reports-change-year(int);
+    callback reports-apply-range(string, string);
+    callback reports-export-report-pdf;
+    callback reports-export-csv;
+    callback reports-export-tax-xlsx;
+    callback reports-export-tax-pdf;
+    callback reports-print-tax;
+    callback reports-set-missing-only(bool);
+    callback reports-accept-suggestion(int);
+    callback reports-dismiss-suggestion(int);
+    callback reports-mark-not-tax-relevant(int);
+    callback reports-reset-tax-automatic(int);
+    callback reports-open-category(int);
+    callback reports-dismiss;
 
     title: root.app-name;
     icon: @image-url("../../../assets/icons/finglass-256.png");
@@ -330,6 +420,94 @@ export component MainWindow inherits Window {
                 dismiss-error => { root.dashboard-dismiss-error(); }
             }
 
+            if (root.current-screen == "reports") : ReportsPage {
+                horizontal-stretch: 1;
+                vertical-stretch: 1;
+
+                tab: root.reports-tab;
+                year-label: root.reports-year-label;
+                custom: root.reports-custom;
+                range-from: root.reports-range-from;
+                range-to: root.reports-range-to;
+                range-error: root.reports-range-error;
+                loading: root.reports-loading;
+                exporting: root.reports-exporting;
+                has-report: root.reports-has-report;
+                empty: root.reports-empty;
+                empty-title: root.reports-empty-title;
+                empty-hint: root.reports-empty-hint;
+                error-text: root.reports-error-text;
+                message-text: root.reports-message-text;
+                can-export-report: root.reports-can-export-report;
+                can-export-tax: root.reports-can-export-tax;
+                linkable: root.reports-linkable;
+
+                other-currency-hint: root.reports-other-currency-hint;
+                income-value: root.reports-income-value;
+                expenses-value: root.reports-expenses-value;
+                net-value: root.reports-net-value;
+                tax-value: root.reports-tax-value;
+                net-tone: root.reports-net-tone;
+                tax-relevant-rows: root.reports-tax-relevant-rows;
+                tax-relevant-empty: root.reports-tax-relevant-empty;
+                stat-transactions: root.reports-stat-transactions;
+                stat-categories: root.reports-stat-categories;
+                stat-average: root.reports-stat-average;
+                stat-highest: root.reports-stat-highest;
+
+                monthly-title: root.reports-monthly-title;
+                monthly-rows: root.reports-monthly-rows;
+                monthly-total-income: root.reports-monthly-total-income;
+                monthly-total-expenses: root.reports-monthly-total-expenses;
+                monthly-total-net: root.reports-monthly-total-net;
+                monthly-total-tone: root.reports-monthly-total-tone;
+
+                category-rows: root.reports-category-rows;
+                transfers-note: root.reports-transfers-note;
+                vendor-rows: root.reports-vendor-rows;
+
+                recurring-empty: root.reports-recurring-empty;
+                recurring-count: root.reports-recurring-count;
+                recurring-yearly: root.reports-recurring-yearly;
+                recurring-monthly: root.reports-recurring-monthly;
+                recurring-rows: root.reports-recurring-rows;
+
+                has-tax: root.reports-has-tax;
+                tax-empty: root.reports-tax-empty;
+                tax-income-value: root.reports-tax-income-value;
+                tax-deduction-value: root.reports-tax-deduction-value;
+                tax-net-value: root.reports-tax-net-value;
+                tax-net-tone: root.reports-tax-net-tone;
+                tax-receipts-value: root.reports-tax-receipts-value;
+                tax-receipts-subtitle: root.reports-tax-receipts-subtitle;
+                tax-receipts-missing: root.reports-tax-receipts-missing;
+                tax-other-hint: root.reports-tax-other-hint;
+                tax-suggestions-title: root.reports-tax-suggestions-title;
+                tax-suggestions-hint: root.reports-tax-suggestions-hint;
+                tax-suggestions: root.reports-tax-suggestions;
+                missing-receipts-only: root.reports-missing-receipts-only;
+                tax-empty-title: root.reports-tax-empty-title;
+                tax-empty-hint: root.reports-tax-empty-hint;
+                tax-rows: root.reports-tax-rows;
+
+                select-tab(value) => { root.reports-tab = value; }
+                set-custom(value) => { root.reports-set-custom(value); }
+                change-year(delta) => { root.reports-change-year(delta); }
+                apply-range(from, to) => { root.reports-apply-range(from, to); }
+                export-report-pdf => { root.reports-export-report-pdf(); }
+                export-csv => { root.reports-export-csv(); }
+                export-tax-xlsx => { root.reports-export-tax-xlsx(); }
+                export-tax-pdf => { root.reports-export-tax-pdf(); }
+                print-tax => { root.reports-print-tax(); }
+                set-missing-only(value) => { root.reports-set-missing-only(value); }
+                accept-suggestion(id) => { root.reports-accept-suggestion(id); }
+                dismiss-suggestion(id) => { root.reports-dismiss-suggestion(id); }
+                mark-not-tax-relevant(id) => { root.reports-mark-not-tax-relevant(id); }
+                reset-tax-automatic(id) => { root.reports-reset-tax-automatic(id); }
+                open-category(id) => { root.reports-open-category(id); }
+                dismiss => { root.reports-dismiss(); }
+            }
+
             if (root.current-screen == "settings") : SettingsPage {
                 theme-pref: root.theme-pref;
                 language: root.language;
@@ -341,7 +519,7 @@ export component MainWindow inherits Window {
                 open-change => { root.open-change(); }
             }
 
-            if (root.current-screen != "settings" && root.current-screen != "dashboard") : VerticalLayout {
+            if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports") : VerticalLayout {
                 padding: 32px;
                 spacing: 12px;
 

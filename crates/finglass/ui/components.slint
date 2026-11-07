@@ -57,6 +57,69 @@ export struct DashboardTaxSlice {
     arc: string,
 }
 
+// One labelled amount row of the Reports page.
+export struct ReportAmountRow {
+    label: string,
+    amount-text: string,
+}
+
+// One numbered row of the Reports page's top vendors.
+export struct ReportVendorRow {
+    rank: string,
+    name: string,
+    amount-text: string,
+}
+
+// One month of the Reports page's monthly breakdown.
+export struct ReportMonthlyRow {
+    month: string,
+    income-text: string,
+    expenses-text: string,
+    net-text: string,
+    income-zero: bool,
+    expenses-zero: bool,
+    net-zero: bool,
+    net-tone: string,
+}
+
+// One recurring payment row.
+export struct ReportRecurringRow {
+    name: string,
+    meta: string,
+    cadence: string,
+    next-text: string,
+    amount-text: string,
+    yearly-text: string,
+    income: bool,
+}
+
+// One row of the Tax bookings tab: a section label, a group header or a booking.
+export struct ReportTaxRow {
+    kind: string,
+    title: string,
+    subtitle: string,
+    colour: color,
+    summary: string,
+    id: int,
+    date-text: string,
+    account-text: string,
+    amount-text: string,
+    expense: bool,
+    has-receipt: bool,
+    missing-receipt: bool,
+    can-reset: bool,
+}
+
+// One keyword suggestion above the tax booking groups.
+export struct ReportSuggestionRow {
+    id: int,
+    date-text: string,
+    title: string,
+    keyword-text: string,
+    amount-text: string,
+    expense: bool,
+}
+
 // A filled action button in the brand colour. The fluent widgets keep their own palette; the
 // surfaces and primary actions that belong to Finglass use Theme directly.
 export component PrimaryButton inherits Rectangle {
@@ -159,6 +222,7 @@ export component TextButton inherits Rectangle {
         font-weight: 600;
         horizontal-alignment: left;
         vertical-alignment: center;
+        overflow: elide;
     }
 
     touch := TouchArea {
@@ -185,6 +249,132 @@ export component TextButton inherits Rectangle {
         border-width: 2px;
         border-color: Theme.primary;
         border-radius: 4px;
+    }
+}
+
+// An outlined action button for less prominent actions.
+export component SecondaryButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> enabled: true;
+
+    callback clicked;
+
+    height: 32px;
+    min-width: 80px;
+    border-radius: 6px;
+    background: touch.has-hover && root.enabled ? Theme.background : Theme.surface;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: focus.has-focus ? Theme.primary : Theme.divider;
+
+    Text {
+        text: root.text;
+        color: root.enabled ? Theme.text : Theme.muted-text;
+        font-size: 13px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            if (root.enabled) {
+                root.clicked();
+            }
+        }
+    }
+
+    focus := FocusScope {
+        enabled <=> root.enabled;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+}
+
+// A card surface with a hairline outline.
+export component Card inherits Rectangle {
+    border-radius: 12px;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: Theme.divider;
+}
+
+// Inline success and error banner with a dismiss action.
+export component MessageBanner inherits Rectangle {
+    in property <string> text;
+    in property <bool> is-error: false;
+
+    callback dismissed;
+
+    height: 42px;
+    border-radius: 8px;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: root.is-error ? Theme.error : Theme.success;
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 8px;
+        spacing: 12px;
+
+        Text {
+            horizontal-stretch: 1;
+            text: root.text;
+            color: root.is-error ? Theme.error : Theme.text;
+            font-size: 13px;
+            vertical-alignment: center;
+            wrap: word-wrap;
+        }
+
+        TextButton {
+            text: "×";
+            clicked => { root.dismissed(); }
+        }
+    }
+}
+
+// One filter tab in a page's tab bar.
+export component TabPill inherits Rectangle {
+    in property <string> text;
+    in property <bool> selected;
+
+    callback clicked;
+
+    height: 36px;
+    min-width: 120px;
+    border-radius: 6px;
+    background: root.selected ? Theme.selected : Theme.surface;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    Text {
+        text: root.text;
+        color: root.selected ? Theme.on-selected : Theme.text;
+        font-size: 13px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+
+    TouchArea {
+        clicked => root.clicked();
+    }
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
     }
 }
 

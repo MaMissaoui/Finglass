@@ -1,0 +1,1311 @@
+import { CheckBox, ScrollView, Spinner } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import {
+    DashboardCategoryRow,
+    MessageBanner,
+    ReportAmountRow,
+    ReportMonthlyRow,
+    ReportRecurringRow,
+    ReportSuggestionRow,
+    ReportTaxRow,
+    ReportVendorRow,
+    SecondaryButton,
+    TextButton,
+} from "components.slint";
+import { CategorySplit } from "charts.slint";
+
+// One tab of the Reports page's tab bar.
+component ReportTab inherits Rectangle {
+    in property <string> text;
+    in property <bool> selected;
+
+    callback clicked;
+
+    height: 44px;
+    horizontal-stretch: 1;
+    background: transparent;
+
+    Text {
+        text: root.text;
+        color: root.selected ? Theme.primary : Theme.muted-text;
+        font-size: 13px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+
+    Rectangle {
+        y: parent.height - self.height;
+        width: parent.width;
+        height: 2px;
+        background: root.selected ? Theme.primary : transparent;
+    }
+
+    TouchArea {
+        clicked => root.clicked();
+    }
+}
+
+// A compact pill for the tax-year / custom-range choices.
+component ReportToggle inherits Rectangle {
+    in property <string> text;
+    in property <bool> selected;
+
+    callback clicked;
+
+    height: 34px;
+    min-width: 110px;
+    border-radius: 6px;
+    background: root.selected ? Theme.selected : Theme.surface;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    Text {
+        text: root.text;
+        color: root.selected ? Theme.on-selected : Theme.text;
+        font-size: 13px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        clicked => root.clicked();
+    }
+}
+
+// A compact date field with its label as the placeholder.
+component DateField inherits Rectangle {
+    in property <string> label;
+    in property <string> text;
+    in property <bool> enabled: true;
+
+    callback edited(string);
+
+    width: 128px;
+    height: 34px;
+    border-radius: 6px;
+    background: Theme.surface;
+    border-width: input.has-focus ? 2px : 1px;
+    border-color: input.has-focus ? Theme.primary : Theme.divider;
+
+    input := TextInput {
+        x: 10px;
+        width: parent.width - 20px;
+        height: parent.height;
+        text: root.text;
+        color: Theme.text;
+        font-size: 13px;
+        vertical-alignment: center;
+        single-line: true;
+        enabled: root.enabled;
+        edited => { root.edited(input.text); }
+        accepted => { root.edited(input.text); }
+    }
+
+    if (input.text == "") : Text {
+        x: 10px;
+        width: parent.width - 20px;
+        height: parent.height;
+        text: root.label;
+        color: Theme.muted-text;
+        font-size: 12px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+}
+
+// A headline figure with a coloured accent and an optional second line.
+component ReportStat inherits Rectangle {
+    in property <string> title;
+    in property <string> value;
+    in property <string> subtitle;
+    in property <color> accent;
+    in property <color> value-color: Theme.text;
+    in property <bool> interactive: false;
+
+    callback clicked;
+
+    min-height: 96px;
+    border-radius: 12px;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    VerticalLayout {
+        padding: 14px;
+        spacing: 6px;
+        alignment: start;
+
+        HorizontalLayout {
+            spacing: 8px;
+
+            Text {
+                text: root.title;
+                color: Theme.muted-text;
+                font-size: 12px;
+                vertical-alignment: center;
+                wrap: word-wrap;
+                horizontal-stretch: 1;
+            }
+
+            Rectangle {
+                width: 10px;
+                height: 10px;
+                border-radius: 5px;
+                background: root.accent;
+            }
+        }
+
+        Text {
+            text: root.value;
+            color: root.value-color;
+            font-size: 20px;
+            font-weight: 700;
+            wrap: word-wrap;
+        }
+
+        if (root.subtitle != "") : Text {
+            text: root.subtitle;
+            color: Theme.muted-text;
+            font-size: 11px;
+            wrap: word-wrap;
+        }
+    }
+
+    TouchArea {
+        enabled: root.interactive;
+        clicked => {
+            if (root.interactive) {
+                root.clicked();
+            }
+        }
+    }
+}
+
+// A card with a heading.
+component SectionCard inherits Rectangle {
+    in property <string> title;
+
+    border-radius: 12px;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    VerticalLayout {
+        padding: 16px;
+        spacing: 12px;
+        alignment: start;
+
+        if (root.title != "") : Text {
+            text: root.title;
+            color: Theme.text;
+            font-size: 15px;
+            font-weight: 600;
+            overflow: elide;
+        }
+
+        @children
+    }
+}
+
+// A centred empty state with a simple document-like icon.
+component ReportEmpty inherits Rectangle {
+    in property <string> title;
+    in property <string> hint;
+
+    background: transparent;
+
+    VerticalLayout {
+        padding: 40px;
+        spacing: 10px;
+        alignment: center;
+
+        Rectangle {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            border-width: 2px;
+            border-color: Theme.muted-text;
+            background: transparent;
+
+            Rectangle {
+                x: 12px;
+                y: 12px;
+                width: 8px;
+                height: 18px;
+                border-radius: 2px;
+                background: Theme.muted-text;
+            }
+            Rectangle {
+                x: 23px;
+                y: 18px;
+                width: 8px;
+                height: 12px;
+                border-radius: 2px;
+                background: Theme.muted-text;
+            }
+        }
+
+        Text {
+            text: root.title;
+            color: Theme.text;
+            font-size: 16px;
+            font-weight: 600;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: root.hint;
+            color: Theme.muted-text;
+            font-size: 13px;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+    }
+}
+
+// The Reports page, ported from FinDesk's ReportsScreen: period controls, exports, five tabs, tax
+// bookings with keyword suggestions and recurring payments.
+export component ReportsPage inherits Rectangle {
+    in property <string> tab: "summary";
+
+    in property <string> year-label;
+    in property <bool> custom;
+    in property <string> range-from;
+    in property <string> range-to;
+    in property <string> range-error;
+    in property <bool> loading;
+    in property <bool> exporting;
+    in property <bool> has-report;
+    in property <bool> empty;
+    in property <string> empty-title;
+    in property <string> empty-hint;
+    in property <string> error-text;
+    in property <string> message-text;
+    in property <bool> can-export-report;
+    in property <bool> can-export-tax;
+    in property <bool> linkable;
+
+    in property <string> other-currency-hint;
+    in property <string> income-value;
+    in property <string> expenses-value;
+    in property <string> net-value;
+    in property <string> tax-value;
+    in property <string> net-tone;
+    in property <[ReportAmountRow]> tax-relevant-rows;
+    in property <string> tax-relevant-empty;
+    in property <string> stat-transactions;
+    in property <string> stat-categories;
+    in property <string> stat-average;
+    in property <string> stat-highest;
+
+    in property <string> monthly-title;
+    in property <[ReportMonthlyRow]> monthly-rows;
+    in property <string> monthly-total-income;
+    in property <string> monthly-total-expenses;
+    in property <string> monthly-total-net;
+    in property <string> monthly-total-tone;
+
+    in property <[DashboardCategoryRow]> category-rows;
+    in property <string> transfers-note;
+    in property <[ReportVendorRow]> vendor-rows;
+
+    in property <bool> recurring-empty;
+    in property <string> recurring-count;
+    in property <string> recurring-yearly;
+    in property <string> recurring-monthly;
+    in property <[ReportRecurringRow]> recurring-rows;
+
+    in property <bool> has-tax;
+    in property <bool> tax-empty;
+    in property <string> tax-income-value;
+    in property <string> tax-deduction-value;
+    in property <string> tax-net-value;
+    in property <string> tax-net-tone;
+    in property <string> tax-receipts-value;
+    in property <string> tax-receipts-subtitle;
+    in property <bool> tax-receipts-missing;
+    in property <string> tax-other-hint;
+    in property <string> tax-suggestions-title;
+    in property <string> tax-suggestions-hint;
+    in property <[ReportSuggestionRow]> tax-suggestions;
+    in property <bool> missing-receipts-only;
+    in property <string> tax-empty-title;
+    in property <string> tax-empty-hint;
+    in property <[ReportTaxRow]> tax-rows;
+
+    property <bool> custom-edit: root.custom;
+    property <string> from-edit: root.range-from;
+    property <string> to-edit: root.range-to;
+    callback select-tab(string);
+    callback set-custom(bool);
+    callback change-year(int);
+    callback apply-range(string, string);
+    callback export-report-pdf;
+    callback export-csv;
+    callback export-tax-xlsx;
+    callback export-tax-pdf;
+    callback print-tax;
+    callback set-missing-only(bool);
+    callback accept-suggestion(int);
+    callback dismiss-suggestion(int);
+    callback mark-not-tax-relevant(int);
+    callback reset-tax-automatic(int);
+    callback open-category(int);
+    callback dismiss;
+
+    property <bool> busy: root.loading || root.exporting;
+
+    changed custom => { root.custom-edit = root.custom; }
+    changed range-from => { root.from-edit = root.range-from; }
+    changed range-to => { root.to-edit = root.range-to; }
+
+    background: Theme.background;
+
+    VerticalLayout {
+        padding: 24px;
+        spacing: 12px;
+
+        if (root.tab != "recurring") : HorizontalLayout {
+            spacing: 12px;
+
+            HorizontalLayout {
+                spacing: 0px;
+
+                ReportToggle {
+                    text: Tr.t("TaxYear");
+                    selected: !root.custom-edit;
+                    clicked => {
+                        root.custom-edit = false;
+                        root.set-custom(false);
+                    }
+                }
+                ReportToggle {
+                    text: Tr.t("CustomRange");
+                    selected: root.custom-edit;
+                    clicked => {
+                        root.custom-edit = true;
+                        root.set-custom(true);
+                    }
+                }
+            }
+
+            if (!root.custom-edit) : HorizontalLayout {
+                spacing: 8px;
+
+                SecondaryButton {
+                    text: "←";
+                    min-width: 40px;
+                    enabled: !root.busy;
+                    clicked => { root.change-year(-1); }
+                }
+                Text {
+                    text: root.year-label;
+                    color: Theme.text;
+                    font-size: 20px;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
+                SecondaryButton {
+                    text: "→";
+                    min-width: 40px;
+                    enabled: !root.busy;
+                    clicked => { root.change-year(1); }
+                }
+            }
+
+            if (root.custom-edit) : HorizontalLayout {
+                spacing: 8px;
+
+                DateField {
+                    label: Tr.t("FromDate");
+                    text: root.from-edit;
+                    enabled: !root.busy;
+                    edited(value) => { root.from-edit = value; }
+                }
+                DateField {
+                    label: Tr.t("ToDate");
+                    text: root.to-edit;
+                    enabled: !root.busy;
+                    edited(value) => { root.to-edit = value; }
+                }
+                SecondaryButton {
+                    text: Tr.t("Apply");
+                    enabled: !root.busy;
+                    clicked => { root.apply-range(root.from-edit, root.to-edit); }
+                }
+            }
+
+            Rectangle {
+                horizontal-stretch: 1;
+                background: transparent;
+            }
+
+            if (root.loading) : Spinner {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: end;
+
+            if (root.exporting) : Spinner {
+                width: 20px;
+                height: 20px;
+            }
+
+            SecondaryButton {
+                text: Tr.t("ExportReport");
+                enabled: root.can-export-report && !root.busy;
+                clicked => { root.export-report-pdf(); }
+            }
+            SecondaryButton {
+                text: Tr.t("ExportCsv");
+                enabled: root.can-export-report && !root.busy;
+                clicked => { root.export-csv(); }
+            }
+            SecondaryButton {
+                text: Tr.t("ExportExcel");
+                enabled: root.can-export-tax && !root.busy;
+                clicked => { root.export-tax-xlsx(); }
+            }
+            SecondaryButton {
+                text: Tr.t("ExportPdf");
+                enabled: root.can-export-tax && !root.busy;
+                clicked => { root.export-tax-pdf(); }
+            }
+            SecondaryButton {
+                text: Tr.t("Print");
+                enabled: root.can-export-tax && !root.busy;
+                clicked => { root.print-tax(); }
+            }
+        }
+
+        if (root.range-error != "") : Text {
+            text: root.range-error;
+            color: Theme.error;
+            font-size: 12px;
+        }
+
+        if (root.message-text != "" || root.error-text != "") : MessageBanner {
+            text: root.error-text != "" ? root.error-text : root.message-text;
+            is-error: root.error-text != "";
+            dismissed => { root.dismiss(); }
+        }
+
+        Rectangle {
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+
+            HorizontalLayout {
+                spacing: 0px;
+
+                ReportTab {
+                    text: Tr.t("TabTaxSummary");
+                    selected: root.tab == "summary";
+                    clicked => { root.select-tab("summary"); }
+                }
+                ReportTab {
+                    text: Tr.t("TabTaxBookings");
+                    selected: root.tab == "tax";
+                    clicked => { root.select-tab("tax"); }
+                }
+                ReportTab {
+                    text: Tr.t("TabMonthlyBreakdown");
+                    selected: root.tab == "monthly";
+                    clicked => { root.select-tab("monthly"); }
+                }
+                ReportTab {
+                    text: Tr.t("TabCategoryAnalysis");
+                    selected: root.tab == "category";
+                    clicked => { root.select-tab("category"); }
+                }
+                ReportTab {
+                    text: Tr.t("TabRecurring");
+                    selected: root.tab == "recurring";
+                    clicked => { root.select-tab("recurring"); }
+                }
+            }
+        }
+
+        ScrollView {
+            vertical-stretch: 1;
+
+            VerticalLayout {
+                spacing: 16px;
+                alignment: start;
+
+                if (root.tab == "recurring") : VerticalLayout {
+                    spacing: 16px;
+
+                    if (root.recurring-empty) : ReportEmpty {
+                        title: Tr.t("NoRecurringFound");
+                        hint: Tr.t("RecurringHint");
+                    }
+
+                    if (!root.recurring-empty) : VerticalLayout {
+                        spacing: 16px;
+
+                        HorizontalLayout {
+                            spacing: 16px;
+
+                            ReportStat {
+                                horizontal-stretch: 1;
+                                title: Tr.t("RecurringPayments");
+                                value: root.recurring-count;
+                                accent: Theme.primary;
+                            }
+                            ReportStat {
+                                horizontal-stretch: 1;
+                                title: Tr.t("CostPerYear");
+                                value: root.recurring-yearly;
+                                accent: Theme.error;
+                                value-color: Theme.error;
+                            }
+                            ReportStat {
+                                horizontal-stretch: 1;
+                                title: Tr.t("PerMonth");
+                                value: root.recurring-monthly;
+                                accent: Theme.warning;
+                                value-color: Theme.error;
+                            }
+                        }
+
+                        SectionCard {
+                            title: Tr.t("SubscriptionsTitle");
+
+                            HorizontalLayout {
+                                spacing: 8px;
+
+                                Text {
+                                    text: Tr.t("ColName");
+                                    horizontal-stretch: 3;
+                                    color: Theme.muted-text;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                }
+                                Text {
+                                    text: Tr.t("ColEvery");
+                                    horizontal-stretch: 1;
+                                    color: Theme.muted-text;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                }
+                                Text {
+                                    text: Tr.t("ColNext");
+                                    horizontal-stretch: 1;
+                                    color: Theme.muted-text;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                }
+                                Text {
+                                    text: Tr.t("ColAmount");
+                                    horizontal-stretch: 1;
+                                    color: Theme.muted-text;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                    horizontal-alignment: right;
+                                }
+                                Text {
+                                    text: Tr.t("ColPerYear");
+                                    horizontal-stretch: 1;
+                                    color: Theme.muted-text;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                    horizontal-alignment: right;
+                                }
+                            }
+
+                            Rectangle {
+                                height: 1px;
+                                background: Theme.divider;
+                            }
+
+                            for row in root.recurring-rows : Rectangle {
+                                height: 52px;
+
+                                HorizontalLayout {
+                                    spacing: 8px;
+
+                                    VerticalLayout {
+                                        horizontal-stretch: 3;
+                                        spacing: 2px;
+
+                                        Text {
+                                            text: row.name;
+                                            color: Theme.text;
+                                            font-size: 13px;
+                                            font-weight: 600;
+                                            overflow: elide;
+                                        }
+                                        Text {
+                                            text: row.meta;
+                                            color: Theme.muted-text;
+                                            font-size: 11px;
+                                            overflow: elide;
+                                        }
+                                    }
+                                    Text {
+                                        text: row.cadence;
+                                        horizontal-stretch: 1;
+                                        color: Theme.text;
+                                        font-size: 12px;
+                                        vertical-alignment: center;
+                                        overflow: elide;
+                                    }
+                                    Text {
+                                        text: row.next-text;
+                                        horizontal-stretch: 1;
+                                        color: Theme.text;
+                                        font-size: 12px;
+                                        vertical-alignment: center;
+                                    }
+                                    Text {
+                                        text: row.amount-text;
+                                        horizontal-stretch: 1;
+                                        color: row.income ? Theme.success : Theme.error;
+                                        font-size: 12px;
+                                        horizontal-alignment: right;
+                                        vertical-alignment: center;
+                                        overflow: elide;
+                                    }
+                                    Text {
+                                        text: row.yearly-text;
+                                        horizontal-stretch: 1;
+                                        color: Theme.text;
+                                        font-size: 12px;
+                                        font-weight: 600;
+                                        horizontal-alignment: right;
+                                        vertical-alignment: center;
+                                        overflow: elide;
+                                    }
+                                }
+
+                                Rectangle {
+                                    y: parent.height - self.height;
+                                    height: 1px;
+                                    background: Theme.divider;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (root.tab != "recurring" && !root.has-report) : VerticalLayout {
+                    padding: 40px;
+                    alignment: center;
+
+                    Spinner {
+                        width: 24px;
+                        height: 24px;
+                    }
+                }
+
+                if (root.tab != "recurring" && root.has-report && root.empty) : ReportEmpty {
+                    title: root.empty-title;
+                    hint: root.empty-hint;
+                }
+
+                if (root.tab == "summary" && root.has-report && !root.empty) : VerticalLayout {
+                    spacing: 16px;
+
+                    if (root.other-currency-hint != "") : Text {
+                        text: root.other-currency-hint;
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+
+                    HorizontalLayout {
+                        spacing: 16px;
+
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("TotalIncome");
+                            value: root.income-value;
+                            accent: Theme.success;
+                            value-color: Theme.success;
+                        }
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("TotalExpenses");
+                            value: root.expenses-value;
+                            accent: Theme.error;
+                            value-color: Theme.error;
+                        }
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("NetIncome");
+                            value: root.net-value;
+                            accent: Theme.primary;
+                            value-color: root.net-tone == "negative" ? Theme.error : (root.net-tone == "positive" ? Theme.success : Theme.text);
+                        }
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("TaxRelevantAmount");
+                            value: root.tax-value;
+                            accent: Theme.warning;
+                        }
+                    }
+
+                    SectionCard {
+                        title: Tr.t("TaxRelevantByCategory");
+
+                        if (root.tax-relevant-empty != "") : Text {
+                            text: root.tax-relevant-empty;
+                            color: Theme.muted-text;
+                            font-size: 13px;
+                            wrap: word-wrap;
+                        }
+
+                        for row in root.tax-relevant-rows : HorizontalLayout {
+                            height: 28px;
+                            spacing: 8px;
+
+                            Text {
+                                text: row.label;
+                                horizontal-stretch: 1;
+                                color: Theme.text;
+                                font-size: 13px;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+                            Text {
+                                text: row.amount-text;
+                                color: Theme.text;
+                                font-size: 13px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+
+                    HorizontalLayout {
+                        spacing: 16px;
+
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("StatTransactions");
+                            value: root.stat-transactions;
+                            accent: Theme.primary;
+                        }
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("CategoriesUsed");
+                            value: root.stat-categories;
+                            accent: Theme.primary;
+                        }
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("AvgMonthlyExpenses");
+                            value: root.stat-average;
+                            accent: Theme.primary;
+                            value-color: Theme.error;
+                        }
+                        ReportStat {
+                            horizontal-stretch: 1;
+                            title: Tr.t("HighestMonth");
+                            value: root.stat-highest;
+                            accent: Theme.primary;
+                        }
+                    }
+                }
+
+                if (root.tab == "monthly" && root.has-report && !root.empty) : SectionCard {
+                    title: root.monthly-title;
+
+                    HorizontalLayout {
+                        spacing: 8px;
+
+                        Text {
+                            text: Tr.t("ColMonth");
+                            horizontal-stretch: 1;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            font-weight: 600;
+                        }
+                        Text {
+                            text: Tr.t("ColIncome");
+                            horizontal-stretch: 1;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            font-weight: 600;
+                            horizontal-alignment: right;
+                        }
+                        Text {
+                            text: Tr.t("ColExpenses");
+                            horizontal-stretch: 1;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            font-weight: 600;
+                            horizontal-alignment: right;
+                        }
+                        Text {
+                            text: Tr.t("ColNet");
+                            horizontal-stretch: 1;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            font-weight: 600;
+                            horizontal-alignment: right;
+                        }
+                    }
+
+                    Rectangle {
+                        height: 1px;
+                        background: Theme.divider;
+                    }
+
+                    for row in root.monthly-rows : Rectangle {
+                        height: 36px;
+
+                        HorizontalLayout {
+                            spacing: 8px;
+
+                            Text {
+                                text: row.month;
+                                horizontal-stretch: 1;
+                                color: Theme.text;
+                                font-size: 13px;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+                            Text {
+                                text: row.income-text;
+                                horizontal-stretch: 1;
+                                color: row.income-zero ? Theme.muted-text : Theme.success;
+                                font-size: 13px;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                            }
+                            Text {
+                                text: row.expenses-text;
+                                horizontal-stretch: 1;
+                                color: row.expenses-zero ? Theme.muted-text : Theme.error;
+                                font-size: 13px;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                            }
+                            Text {
+                                text: row.net-text;
+                                horizontal-stretch: 1;
+                                color: row.net-zero ? Theme.muted-text : (row.net-tone == "negative" ? Theme.error : Theme.success);
+                                font-size: 13px;
+                                font-weight: row.net-zero ? 400 : 600;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                            }
+                        }
+
+                        Rectangle {
+                            y: parent.height - self.height;
+                            height: 1px;
+                            background: Theme.divider;
+                        }
+                    }
+
+                    Rectangle {
+                        height: 1px;
+                        background: Theme.divider;
+                    }
+
+                    HorizontalLayout {
+                        height: 36px;
+                        spacing: 8px;
+
+                        Text {
+                            text: Tr.t("ReportTotal");
+                            horizontal-stretch: 1;
+                            color: Theme.text;
+                            font-size: 13px;
+                            font-weight: 700;
+                            vertical-alignment: center;
+                        }
+                        Text {
+                            text: root.monthly-total-income;
+                            horizontal-stretch: 1;
+                            color: Theme.success;
+                            font-size: 13px;
+                            font-weight: 700;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                        }
+                        Text {
+                            text: root.monthly-total-expenses;
+                            horizontal-stretch: 1;
+                            color: Theme.error;
+                            font-size: 13px;
+                            font-weight: 700;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                        }
+                        Text {
+                            text: root.monthly-total-net;
+                            horizontal-stretch: 1;
+                            color: root.monthly-total-tone == "negative" ? Theme.error : Theme.success;
+                            font-size: 13px;
+                            font-weight: 700;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+
+                if (root.tab == "category" && root.has-report && !root.empty) : VerticalLayout {
+                    spacing: 16px;
+
+                    SectionCard {
+                        title: Tr.t("SpendingByCategory");
+
+                        CategorySplit {
+                            rows: root.category-rows;
+                            transfers-note: root.transfers-note;
+                            selectable: root.linkable;
+                            select(id) => { root.open-category(id); }
+                        }
+                    }
+
+                    SectionCard {
+                        title: Tr.t("TopVendors");
+
+                        for row in root.vendor-rows : Rectangle {
+                            height: 36px;
+
+                            HorizontalLayout {
+                                spacing: 8px;
+
+                                Text {
+                                    text: row.rank;
+                                    width: 28px;
+                                    color: Theme.muted-text;
+                                    font-size: 13px;
+                                    vertical-alignment: center;
+                                }
+                                Text {
+                                    text: row.name;
+                                    horizontal-stretch: 1;
+                                    color: Theme.text;
+                                    font-size: 13px;
+                                    vertical-alignment: center;
+                                    overflow: elide;
+                                }
+                                Text {
+                                    text: row.amount-text;
+                                    color: Theme.text;
+                                    font-size: 13px;
+                                    font-weight: 600;
+                                    vertical-alignment: center;
+                                }
+                            }
+
+                            Rectangle {
+                                y: parent.height - self.height;
+                                height: 1px;
+                                background: Theme.divider;
+                            }
+                        }
+                    }
+                }
+
+                if (root.tab == "tax" && root.has-report && !root.empty) : VerticalLayout {
+                    spacing: 16px;
+
+                    if (root.has-tax) : VerticalLayout {
+                        spacing: 16px;
+
+                        HorizontalLayout {
+                            spacing: 16px;
+
+                            ReportStat {
+                                horizontal-stretch: 1;
+                                title: Tr.t("TaxIncomeTotal");
+                                value: root.tax-income-value;
+                                accent: Theme.success;
+                                value-color: Theme.success;
+                            }
+                            ReportStat {
+                                horizontal-stretch: 1;
+                                title: Tr.t("TaxDeductionTotal");
+                                value: root.tax-deduction-value;
+                                accent: Theme.error;
+                                value-color: Theme.error;
+                            }
+                            ReportStat {
+                                horizontal-stretch: 1;
+                                title: Tr.t("NetIncome");
+                                value: root.tax-net-value;
+                                accent: Theme.primary;
+                                value-color: root.tax-net-tone == "negative" ? Theme.error : (root.tax-net-tone == "positive" ? Theme.success : Theme.text);
+                            }
+                            ReportStat {
+                                horizontal-stretch: 1;
+                                title: Tr.t("TaxReceipts");
+                                value: root.tax-receipts-value;
+                                subtitle: root.tax-receipts-subtitle;
+                                accent: root.tax-receipts-missing ? Theme.warning : Theme.success;
+                                value-color: root.tax-receipts-missing ? Theme.text : Theme.success;
+                                interactive: root.tax-receipts-missing;
+                                clicked => { root.set-missing-only(true); }
+                            }
+                        }
+
+                        if (root.tax-other-hint != "") : Text {
+                            text: root.tax-other-hint;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+
+                        if (root.tax-suggestions.length > 0) : SectionCard {
+                            title: root.tax-suggestions-title;
+
+                            Text {
+                                text: root.tax-suggestions-hint;
+                                color: Theme.muted-text;
+                                font-size: 12px;
+                                wrap: word-wrap;
+                            }
+
+                            for suggestion in root.tax-suggestions : Rectangle {
+                                height: 52px;
+
+                                HorizontalLayout {
+                                    spacing: 8px;
+
+                                    Text {
+                                        text: suggestion.date-text;
+                                        width: 78px;
+                                        color: Theme.text;
+                                        font-size: 12px;
+                                        vertical-alignment: center;
+                                    }
+                                    VerticalLayout {
+                                        horizontal-stretch: 1;
+                                        spacing: 2px;
+
+                                        Text {
+                                            text: suggestion.title;
+                                            color: Theme.text;
+                                            font-size: 13px;
+                                            overflow: elide;
+                                        }
+                                        Text {
+                                            text: suggestion.keyword-text;
+                                            color: Theme.muted-text;
+                                            font-size: 11px;
+                                            overflow: elide;
+                                        }
+                                    }
+                                    Text {
+                                        text: suggestion.amount-text;
+                                        width: 96px;
+                                        color: suggestion.expense ? Theme.error : Theme.success;
+                                        font-size: 13px;
+                                        font-weight: 600;
+                                        horizontal-alignment: right;
+                                        vertical-alignment: center;
+                                    }
+                                    TextButton {
+                                        text: Tr.t("Accept");
+                                        width: 84px;
+                                        enabled: !root.busy;
+                                        clicked => { root.accept-suggestion(suggestion.id); }
+                                    }
+                                    TextButton {
+                                        text: Tr.t("DismissSuggestion");
+                                        width: 84px;
+                                        enabled: !root.busy;
+                                        clicked => { root.dismiss-suggestion(suggestion.id); }
+                                    }
+                                }
+
+                                Rectangle {
+                                    y: parent.height - self.height;
+                                    height: 1px;
+                                    background: Theme.divider;
+                                }
+                            }
+                        }
+
+                        check := CheckBox {
+                            text: Tr.t("MissingReceiptsOnly");
+                            checked: root.missing-receipts-only;
+                            enabled: !root.busy;
+                            toggled => { root.set-missing-only(check.checked); }
+                        }
+
+                        if (root.tax-empty) : ReportEmpty {
+                            title: root.tax-empty-title;
+                            hint: root.tax-empty-hint;
+                        }
+
+                        if (!root.tax-empty) : VerticalLayout {
+                            spacing: 8px;
+
+                            for row in root.tax-rows : VerticalLayout {
+                                spacing: 0px;
+
+                                if (row.kind == "section") : Text {
+                                    height: 30px;
+                                    text: row.title;
+                                    color: Theme.text;
+                                    font-size: 14px;
+                                    font-weight: 700;
+                                    vertical-alignment: bottom;
+                                }
+
+                                if (row.kind == "group") : Rectangle {
+                                    height: 48px;
+                                    border-radius: 8px;
+                                    background: Theme.surface;
+                                    border-width: 1px;
+                                    border-color: Theme.divider;
+
+                                    HorizontalLayout {
+                                        padding-left: 12px;
+                                        padding-right: 12px;
+                                        spacing: 10px;
+
+                                        Rectangle {
+                                            width: 10px;
+                                            height: 10px;
+                                            border-radius: 5px;
+                                            background: row.colour;
+                                        }
+                                        Text {
+                                            text: row.title;
+                                            horizontal-stretch: 1;
+                                            color: Theme.text;
+                                            font-size: 14px;
+                                            font-weight: 600;
+                                            vertical-alignment: center;
+                                            overflow: elide;
+                                        }
+                                        Text {
+                                            text: row.summary;
+                                            color: Theme.muted-text;
+                                            font-size: 12px;
+                                            vertical-alignment: center;
+                                        }
+                                    }
+                                }
+
+                                if (row.kind == "booking") : Rectangle {
+                                    border-radius: 6px;
+                                    background: Theme.surface;
+                                    border-width: 1px;
+                                    border-color: Theme.divider;
+
+                                    HorizontalLayout {
+                                        padding: 10px;
+                                        spacing: 8px;
+
+                                        Text {
+                                            text: row.date-text;
+                                            width: 78px;
+                                            color: Theme.text;
+                                            font-size: 12px;
+                                            vertical-alignment: center;
+                                        }
+                                        VerticalLayout {
+                                            horizontal-stretch: 1;
+                                            spacing: 2px;
+
+                                            Text {
+                                                text: row.title;
+                                                color: Theme.text;
+                                                font-size: 13px;
+                                                overflow: elide;
+                                            }
+                                            if (row.subtitle != "") : Text {
+                                                text: row.subtitle;
+                                                color: Theme.muted-text;
+                                                font-size: 11px;
+                                                overflow: elide;
+                                            }
+                                        }
+                                        Text {
+                                            text: row.account-text;
+                                            width: 56px;
+                                            color: Theme.muted-text;
+                                            font-size: 11px;
+                                            vertical-alignment: center;
+                                            overflow: elide;
+                                        }
+                                        if (row.has-receipt) : Rectangle {
+                                            width: 16px;
+                                            height: 18px;
+                                            border-radius: 3px;
+                                            border-width: 1px;
+                                            border-color: Theme.primary;
+                                            background: transparent;
+
+                                            Rectangle {
+                                                x: 3px;
+                                                y: 4px;
+                                                width: parent.width - 6px;
+                                                height: 2px;
+                                                background: Theme.primary;
+                                            }
+                                            Rectangle {
+                                                x: 3px;
+                                                y: 8px;
+                                                width: parent.width - 6px;
+                                                height: 2px;
+                                                background: Theme.primary;
+                                            }
+                                        }
+                                        if (row.missing-receipt) : Text {
+                                            text: Tr.t("NoReceipt");
+                                            color: Theme.muted-text;
+                                            font-size: 11px;
+                                            vertical-alignment: center;
+                                        }
+                                        Text {
+                                            text: row.amount-text;
+                                            width: 96px;
+                                            color: row.expense ? Theme.error : Theme.success;
+                                            font-size: 13px;
+                                            font-weight: 600;
+                                            horizontal-alignment: right;
+                                            vertical-alignment: center;
+                                        }
+                                        VerticalLayout {
+                                            width: 150px;
+                                            spacing: 0px;
+
+                                            TextButton {
+                                                text: Tr.t("MarkNotTaxRelevant");
+                                                min-width: 0px;
+                                                enabled: !root.busy;
+                                                clicked => { root.mark-not-tax-relevant(row.id); }
+                                            }
+                                            if (row.can-reset) : TextButton {
+                                                text: Tr.t("ResetTaxAutomatic");
+                                                min-width: 0px;
+                                                enabled: !root.busy;
+                                                clicked => { root.reset-tax-automatic(row.id); }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (!root.has-tax) : ReportEmpty {
+                        title: root.tax-empty-title;
+                        hint: root.tax-empty-hint;
+                    }
+                }
+            }
+        }
+    }
+}
