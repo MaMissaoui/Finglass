@@ -8,7 +8,7 @@ import { ReportsPage } from "reports_page.slint";
 import { AccountPanel } from "account_panel.slint";
 import { AccountsPage } from "accounts_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
-import { CategoryDialog, ConfirmDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
+import { BackupPassphraseDialog, CategoryDialog, ConfirmDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
 
 // The main window: sidebar navigation, placeholder screens and the settings sections.
 export component MainWindow inherits Window {
@@ -37,6 +37,18 @@ export component MainWindow inherits Window {
     in-out property <string> settings-tax-keywords;
     in property <string> settings-tax-keywords-count;
     in-out property <length> settings-scroll-y;
+
+    // Backup & restore section and its dialogs.
+    in property <bool> settings-backup-busy;
+    in property <bool> settings-has-pending-restore;
+    in property <string> settings-backup-restored-text;
+    in property <bool> settings-restore-open;
+    in property <string> settings-restore-title;
+    in property <string> settings-restore-text;
+    in property <bool> settings-restore-passphrase-open;
+    in property <string> settings-restore-passphrase-file;
+    in property <bool> settings-restore-passphrase-wrong;
+    in-out property <string> settings-restore-passphrase;
 
     // Category dialog and its delete confirmation.
     in property <bool> category-dialog-open;
@@ -303,6 +315,13 @@ export component MainWindow inherits Window {
     callback settings-export-rules;
     callback settings-save-tax-keywords(string);
     callback settings-reset-tax-keywords;
+    callback settings-create-backup;
+    callback settings-restore-backup;
+    callback settings-cancel-pending-restore;
+    callback settings-confirm-restore;
+    callback settings-cancel-restore;
+    callback settings-confirm-restore-passphrase(string);
+    callback settings-cancel-restore-passphrase;
     callback settings-category-changed(string, string);
     callback settings-rule-changed(string, string);
     callback settings-category-dialog-save;
@@ -777,6 +796,9 @@ export component MainWindow inherits Window {
                 rule-rows: root.settings-rule-rows;
                 tax-keywords <=> root.settings-tax-keywords;
                 tax-keywords-count: root.settings-tax-keywords-count;
+                backup-busy: root.settings-backup-busy;
+                backup-has-pending-restore: root.settings-has-pending-restore;
+                backup-restored-text: root.settings-backup-restored-text;
                 scroll-y <=> root.settings-scroll-y;
 
                 set-theme(value) => { root.set-theme(value); }
@@ -796,6 +818,9 @@ export component MainWindow inherits Window {
                 export-rules => { root.settings-export-rules(); }
                 save-tax-keywords(text) => { root.settings-save-tax-keywords(text); }
                 reset-tax-keywords => { root.settings-reset-tax-keywords(); }
+                create-backup => { root.settings-create-backup(); }
+                restore-backup => { root.settings-restore-backup(); }
+                cancel-pending-restore => { root.settings-cancel-pending-restore(); }
             }
 
             if (root.current-screen == "documents") : DocumentsPage {
@@ -961,5 +986,23 @@ export component MainWindow inherits Window {
         confirm-enabled: root.rule-import-confirm-enabled;
         close => { root.settings-cancel-rule-import(); }
         confirm => { root.settings-confirm-rule-import(); }
+    }
+
+    if (root.settings-restore-open) : ConfirmDialog {
+        title: root.settings-restore-title;
+        text: root.settings-restore-text;
+        confirm-text: Tr.t("PrepareRestore");
+        busy: root.settings-backup-busy;
+        confirm => { root.settings-confirm-restore(); }
+        cancel => { root.settings-cancel-restore(); }
+    }
+
+    if (root.settings-restore-passphrase-open) : BackupPassphraseDialog {
+        file-name: root.settings-restore-passphrase-file;
+        wrong: root.settings-restore-passphrase-wrong;
+        busy: root.settings-backup-busy;
+        passphrase <=> root.settings-restore-passphrase;
+        close => { root.settings-cancel-restore-passphrase(); }
+        submit(value) => { root.settings-confirm-restore-passphrase(value); }
     }
 }

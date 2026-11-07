@@ -923,6 +923,9 @@ pub(super) fn text(key: Key) -> &'static str {
             "Dieser Datenordner enthält eine unverschlüsselte Datenbank, die Finglass nicht öffnen kann."
         }
         Key::ErrorDatabaseTooNew => "Diese Datenbank wurde von einer neueren Version von Finglass erstellt.",
+        Key::ErrorStartupFailed => {
+            "Finglass konnte die Daten dieses Profils beim Start nicht vorbereiten. Beenden Sie Finglass und versuchen Sie es erneut."
+        }
         Key::ErrorUnexpected => "ein unerwarteter Fehler",
     }
 }

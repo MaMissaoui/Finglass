@@ -11,6 +11,8 @@ export component UnlockWindow inherits Window {
     in property <string> passphrase-hint;
     in property <bool> busy;
     in property <bool> allow-change;
+    in property <bool> restored;
+    in property <bool> startup-error;
     in property <string> error-text;
 
     callback unlock(string);
@@ -33,6 +35,9 @@ export component UnlockWindow inherits Window {
     background: Theme.background;
 
     function heading() -> string {
+        if (root.startup-error) {
+            return Tr.t("UnlockWindowTitle");
+        }
         if (root.mode == "create") {
             return Tr.t("CreatePassphraseHeading");
         }
@@ -43,6 +48,9 @@ export component UnlockWindow inherits Window {
     }
 
     function body() -> string {
+        if (root.startup-error) {
+            return "";
+        }
         if (root.mode == "create") {
             return Tr.t("CreatePassphraseText");
         }
@@ -118,122 +126,140 @@ export component UnlockWindow inherits Window {
                     wrap: word-wrap;
                 }
 
-                if (root.mode == "change") : VerticalLayout {
-                    spacing: 6px;
-                    Text {
-                        text: Tr.t("CurrentPassphrase");
-                        color: Theme.text;
-                        font-size: 13px;
-                        font-weight: 600;
-                    }
-                    LineEdit {
-                        enabled: !root.busy;
-                        text <=> root.current;
-                        input-type: root.show-passphrase ? InputType.text : InputType.password;
-                        accepted(text) => { root.submit(); }
-                    }
-                }
-
-                VerticalLayout {
-                    spacing: 6px;
-                    Text {
-                        text: root.mode == "unlock" ? Tr.t("Passphrase") : Tr.t("NewPassphrase");
-                        color: Theme.text;
-                        font-size: 13px;
-                        font-weight: 600;
-                    }
-                    LineEdit {
-                        enabled: !root.busy;
-                        text <=> root.passphrase;
-                        input-type: root.show-passphrase ? InputType.text : InputType.password;
-                        accepted(text) => { root.submit(); }
-                    }
-                }
-
-                if (root.mode != "unlock") : VerticalLayout {
-                    spacing: 6px;
-                    Text {
-                        text: Tr.t("RepeatPassphrase");
-                        color: Theme.text;
-                        font-size: 13px;
-                        font-weight: 600;
-                    }
-                    LineEdit {
-                        enabled: !root.busy;
-                        text <=> root.repeat;
-                        input-type: root.show-passphrase ? InputType.text : InputType.password;
-                        accepted(text) => { root.submit(); }
-                    }
-                }
-
-                CheckBox {
-                    enabled: !root.busy;
-                    text: Tr.t("ShowPassphrase");
-                    checked <=> root.show-passphrase;
-                }
-
-                if (root.mode != "unlock" && root.passphrase-hint != "") : Text {
-                    text: root.passphrase-hint;
-                    color: Theme.muted-text;
-                    font-size: 12px;
+                if (root.restored) : Text {
+                    text: Tr.t("RestoredEncryptedHint");
+                    color: Theme.warning;
+                    font-size: 16px;
                     wrap: word-wrap;
                 }
 
-                if (root.mode == "create") : Text {
-                    text: Tr.t("DocumentsNotEncrypted");
-                    color: Theme.muted-text;
-                    font-size: 12px;
-                    wrap: word-wrap;
+                if (!root.startup-error) : VerticalLayout {
+                    spacing: 12px;
+
+                    if (root.mode == "change") : VerticalLayout {
+                        spacing: 6px;
+                        Text {
+                            text: Tr.t("CurrentPassphrase");
+                            color: Theme.text;
+                            font-size: 13px;
+                            font-weight: 600;
+                        }
+                        LineEdit {
+                            enabled: !root.busy;
+                            text <=> root.current;
+                            input-type: root.show-passphrase ? InputType.text : InputType.password;
+                            accepted(text) => { root.submit(); }
+                        }
+                    }
+
+                    VerticalLayout {
+                        spacing: 6px;
+                        Text {
+                            text: root.mode == "unlock" ? Tr.t("Passphrase") : Tr.t("NewPassphrase");
+                            color: Theme.text;
+                            font-size: 13px;
+                            font-weight: 600;
+                        }
+                        LineEdit {
+                            enabled: !root.busy;
+                            text <=> root.passphrase;
+                            input-type: root.show-passphrase ? InputType.text : InputType.password;
+                            accepted(text) => { root.submit(); }
+                        }
+                    }
+
+                    if (root.mode != "unlock") : VerticalLayout {
+                        spacing: 6px;
+                        Text {
+                            text: Tr.t("RepeatPassphrase");
+                            color: Theme.text;
+                            font-size: 13px;
+                            font-weight: 600;
+                        }
+                        LineEdit {
+                            enabled: !root.busy;
+                            text <=> root.repeat;
+                            input-type: root.show-passphrase ? InputType.text : InputType.password;
+                            accepted(text) => { root.submit(); }
+                        }
+                    }
+
+                    CheckBox {
+                        enabled: !root.busy;
+                        text: Tr.t("ShowPassphrase");
+                        checked <=> root.show-passphrase;
+                    }
+
+                    if (root.mode != "unlock" && root.passphrase-hint != "") : Text {
+                        text: root.passphrase-hint;
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+
+                    if (root.mode == "create") : Text {
+                        text: Tr.t("DocumentsNotEncrypted");
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+
+                    if (root.mode != "unlock") : CheckBox {
+                        enabled: !root.busy;
+                        text: Tr.t("PassphraseNoRecovery");
+                        checked <=> root.acknowledged;
+                    }
+
+                    if (root.error-text != "") : Text {
+                        text: root.error-text;
+                        color: Theme.error;
+                        font-size: 14px;
+                        wrap: word-wrap;
+                    }
+
+                    HorizontalLayout {
+                        spacing: 12px;
+                        alignment: start;
+
+                        PrimaryButton {
+                            text: root.action-label();
+                            enabled: !root.busy;
+                            clicked => { root.submit(); }
+                        }
+
+                        if (root.busy) : HorizontalLayout {
+                            spacing: 8px;
+                            Spinner {
+                                width: 20px;
+                                height: 20px;
+                            }
+                            Text {
+                                text: root.busy-label();
+                                color: Theme.muted-text;
+                                font-size: 13px;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+
+                    if (root.mode == "unlock" && root.allow-change) : TextButton {
+                        text: Tr.t("ChangePassphrase");
+                        enabled: !root.busy;
+                        clicked => { root.show-change(true); }
+                    }
+
+                    if (root.mode == "change") : TextButton {
+                        text: Tr.t("Back");
+                        enabled: !root.busy;
+                        clicked => { root.show-change(false); }
+                    }
                 }
 
-                if (root.mode != "unlock") : CheckBox {
-                    enabled: !root.busy;
-                    text: Tr.t("PassphraseNoRecovery");
-                    checked <=> root.acknowledged;
-                }
-
-                if (root.error-text != "") : Text {
+                if (root.startup-error && root.error-text != "") : Text {
                     text: root.error-text;
                     color: Theme.error;
-                    font-size: 14px;
+                    font-size: 16px;
                     wrap: word-wrap;
-                }
-
-                HorizontalLayout {
-                    spacing: 12px;
-                    alignment: start;
-
-                    PrimaryButton {
-                        text: root.action-label();
-                        enabled: !root.busy;
-                        clicked => { root.submit(); }
-                    }
-
-                    if (root.busy) : HorizontalLayout {
-                        spacing: 8px;
-                        Spinner {
-                            width: 20px;
-                            height: 20px;
-                        }
-                        Text {
-                            text: root.busy-label();
-                            color: Theme.muted-text;
-                            font-size: 13px;
-                            vertical-alignment: center;
-                        }
-                    }
-                }
-
-                if (root.mode == "unlock" && root.allow-change) : TextButton {
-                    text: Tr.t("ChangePassphrase");
-                    enabled: !root.busy;
-                    clicked => { root.show-change(true); }
-                }
-
-                if (root.mode == "change") : TextButton {
-                    text: Tr.t("Back");
-                    enabled: !root.busy;
-                    clicked => { root.show-change(false); }
                 }
             }
         }

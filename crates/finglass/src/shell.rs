@@ -3,6 +3,7 @@
 //! Key derivation and every database call run on a background thread. Results come back through
 //! `slint::invoke_from_event_loop`, so the event loop never waits for SQLCipher.
 
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -28,7 +29,6 @@ use crate::documents::DocumentsController;
 use crate::reports::ReportsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
 
-const SLUG: &str = "default";
 const MIN_PASSPHRASE_LENGTH: i64 = 10;
 const AUDIT_LIMIT: u32 = 100;
 
@@ -47,6 +47,10 @@ pub(crate) struct ShellState {
     /// sync and import work (and reads before it allows a delete).
     pub(crate) accounts_work: Busy,
     pub(crate) documents: Arc<DocumentsController>,
+    /// The profile opened at this start (`None` is the default profile).
+    pub(crate) slug: Option<String>,
+    /// The data a startup restore moved aside, shown in Settings.
+    pub(crate) restored_from: Option<PathBuf>,
 }
 
 /// Runs the app shell against `paths`.
@@ -57,10 +61,26 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     let initial_language = system_language();
     let today = OffsetDateTime::now_utc().date();
     let unlock = UnlockWindow::new()?;
+    install_translations_unlock(&unlock, initial_language);
+    apply_theme(&unlock, ThemePref::System);
+
+    // Profile first, then the staged restore, and only then the unlock gate looks at the database.
+    let startup = match app::startup::prepare(&paths, OffsetDateTime::now_utc()) {
+        Ok(startup) => startup,
+        Err(error) => {
+            configure_startup_error(&unlock, initial_language, &error.message(initial_language));
+            return unlock.run();
+        }
+    };
+
     let main = MainWindow::new()?;
     let paths = Arc::new(paths);
     let reports = Arc::new(ReportsController::new(main.as_weak()));
-    let documents = Arc::new(DocumentsController::new(main.as_weak(), paths.clone(), SLUG));
+    let documents = Arc::new(DocumentsController::new(
+        main.as_weak(),
+        paths.clone(),
+        app::startup::slug_key(startup.slug.as_deref()),
+    ));
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
@@ -72,15 +92,15 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         accounts: Mutex::new(AccountsState::new(initial_language)),
         accounts_work: Busy::default(),
         documents,
+        slug: startup.slug.clone(),
+        restored_from: startup.restored_from.clone(),
     });
 
-    install_translations_unlock(&unlock, initial_language);
     install_translations_main(&main, initial_language);
-    apply_theme(&unlock, ThemePref::System);
     apply_theme(&main, ThemePref::System);
 
-    configure_main_window(&main, initial_language);
-    configure_unlock_window(&unlock, &paths, initial_language);
+    configure_main_window(&main, initial_language, startup.restored_from.as_deref());
+    configure_unlock_window(&unlock, &paths, initial_language, &startup);
 
     wire_unlock(&unlock, &main, &paths, &state);
     wire_main(&main, &paths, &state);
@@ -88,7 +108,18 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     unlock.run()
 }
 
-fn configure_main_window(main: &MainWindow, language: Language) {
+fn configure_startup_error(unlock: &UnlockWindow, language: Language, message: &str) {
+    unlock.set_mode("unlock".into());
+    unlock.set_allow_change(false);
+    unlock.set_busy(false);
+    unlock.set_restored(false);
+    unlock.set_startup_error(true);
+    unlock.set_error_text(message.into());
+    apply_language_unlock(unlock, language, None);
+    unlock.set_profile_label("".into());
+}
+
+fn configure_main_window(main: &MainWindow, language: Language, restored_from: Option<&Path>) {
     main.set_app_name(APP_NAME.into());
     main.set_version(VERSION.into());
     main.set_about_version_text(about_version_text(language).into());
@@ -100,23 +131,31 @@ fn configure_main_window(main: &MainWindow, language: Language) {
     main.set_change_busy(false);
     main.set_change_error("".into());
     main.set_audit_rows(empty_audit_model());
-    crate::settings::apply(main, &SettingsState::new(language));
+    crate::settings::apply(main, &SettingsState::new(language), restored_from);
     main.set_accounts_dialog("".into());
     main.set_accounts_dialog_error("".into());
     main.set_accounts_detail_open(false);
 }
 
-fn configure_unlock_window(unlock: &UnlockWindow, paths: &AppPaths, language: Language) {
+fn configure_unlock_window(
+    unlock: &UnlockWindow,
+    paths: &AppPaths,
+    language: Language,
+    startup: &app::startup::Startup,
+) {
+    let slug = app::startup::slug_key(startup.slug.as_deref());
     let mode = paths
-        .database_file(SLUG)
+        .database_file(slug)
         .map(|file| app::unlock::mode_for(&file))
         .unwrap_or(UnlockMode::Create);
 
     unlock.set_mode(mode_name(mode).into());
     unlock.set_allow_change(mode == UnlockMode::Unlock);
     unlock.set_busy(false);
+    unlock.set_restored(startup.restored_from.is_some());
+    unlock.set_startup_error(false);
     unlock.set_error_text("".into());
-    apply_language_unlock(unlock, language);
+    apply_language_unlock(unlock, language, startup.slug.as_deref());
 }
 
 fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
@@ -140,9 +179,10 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
 
             let paths = paths.clone();
             let language = current_language(&state);
+            let slug = state.slug.clone();
             let input = Zeroizing::new(input.to_string());
             spawn_open_work(
-                move || app::unlock::unlock(&paths, SLUG, input.as_str()),
+                move || app::unlock::unlock(&paths, app::startup::slug_key(slug.as_deref()), input.as_str()),
                 language,
                 unlock_weak.clone(),
                 main_weak.clone(),
@@ -168,10 +208,19 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
 
             let paths = paths.clone();
             let language = current_language(&state);
+            let slug = state.slug.clone();
             let passphrase = Zeroizing::new(passphrase.to_string());
             let repeat = Zeroizing::new(repeat.to_string());
             spawn_open_work(
-                move || app::unlock::create(&paths, SLUG, passphrase.as_str(), repeat.as_str(), acknowledged),
+                move || {
+                    app::unlock::create(
+                        &paths,
+                        app::startup::slug_key(slug.as_deref()),
+                        passphrase.as_str(),
+                        repeat.as_str(),
+                        acknowledged,
+                    )
+                },
                 language,
                 unlock_weak.clone(),
                 main_weak.clone(),
@@ -197,12 +246,13 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
 
             let paths = paths.clone();
             let language = current_language(&state);
+            let slug = state.slug.clone();
             let current = Zeroizing::new(current.to_string());
             let passphrase = Zeroizing::new(passphrase.to_string());
             let repeat = Zeroizing::new(repeat.to_string());
             spawn_open_work(
                 move || {
-                    let db = app::unlock::unlock(&paths, SLUG, current.as_str())?;
+                    let db = app::unlock::unlock(&paths, app::startup::slug_key(slug.as_deref()), current.as_str())?;
                     app::unlock::change(&db, passphrase.as_str(), repeat.as_str(), acknowledged)?;
                     Ok(db)
                 },
@@ -921,6 +971,81 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_create_backup(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::create_backup(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_restore_backup(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::restore_backup(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_cancel_pending_restore(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::cancel_pending_restore(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_confirm_restore(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::confirm_restore(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_cancel_restore(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::cancel_restore_choice(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_confirm_restore_passphrase(move |passphrase| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::confirm_restore_passphrase(&ui, &state, &paths, passphrase.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_cancel_restore_passphrase(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::cancel_restore_passphrase(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
         main.on_settings_category_changed(move |name, colour| {
             if let Some(ui) = main_weak.upgrade() {
                 let id = ui.get_category_dialog_id();
@@ -1143,11 +1268,12 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             let language = current_language(&state);
             let paths = paths.clone();
             let main_weak = main_weak.clone();
+            let slug = state.slug.clone();
             let current = Zeroizing::new(current.to_string());
             let passphrase = Zeroizing::new(passphrase.to_string());
             let repeat = Zeroizing::new(repeat.to_string());
             thread::spawn(move || {
-                let result = app::unlock::unlock(&paths, SLUG, current.as_str())
+                let result = app::unlock::unlock(&paths, app::startup::slug_key(slug.as_deref()), current.as_str())
                     .and_then(|verified| {
                         drop(verified);
                         app::unlock::change(&db, passphrase.as_str(), repeat.as_str(), acknowledged)
@@ -1208,7 +1334,7 @@ fn spawn_open_work(
                     *state.theme.lock().expect("theme state poisoned") = prefs.theme;
 
                     apply_language_main(&main, prefs.language);
-                    apply_language_unlock(&ui, prefs.language);
+                    apply_language_unlock(&ui, prefs.language, state.slug.as_deref());
                     apply_theme(&main, prefs.theme);
                     main.set_theme_pref(prefs.theme.code().into());
                     main.set_language(prefs.language.code().into());
@@ -1252,9 +1378,9 @@ fn translate(key: &SharedString, language: &SharedString) -> SharedString {
     }
 }
 
-fn apply_language_unlock(unlock: &UnlockWindow, language: Language) {
+fn apply_language_unlock(unlock: &UnlockWindow, language: Language, slug: Option<&str>) {
     unlock.global::<Tr>().set_language(language.code().into());
-    unlock.set_profile_label(profile_label(language, SLUG).into());
+    unlock.set_profile_label(profile_label(language, app::startup::slug_key(slug)).into());
     unlock.set_passphrase_hint(passphrase_hint(language).into());
 }
 

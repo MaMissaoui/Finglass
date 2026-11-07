@@ -905,6 +905,9 @@ pub(super) fn text(key: Key) -> &'static str {
         }
         Key::ErrorNotEncrypted => "This data folder contains an unencrypted database, which Finglass cannot open.",
         Key::ErrorDatabaseTooNew => "This database was created by a newer version of Finglass.",
+        Key::ErrorStartupFailed => {
+            "Finglass could not prepare this profile's data at startup. Quit Finglass and try again."
+        }
         Key::ErrorUnexpected => "an unexpected error",
     }
 }

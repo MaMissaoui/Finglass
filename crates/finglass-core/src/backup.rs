@@ -1340,6 +1340,41 @@ mod tests {
     }
 
     #[test]
+    fn credentials_are_neither_backed_up_nor_moved_by_a_restore() {
+        let (temp, dir, db) = profile();
+        accounts::create(&db, account("Account")).unwrap();
+        let credentials = dir.join("credentials");
+        fs::create_dir_all(&credentials).unwrap();
+        fs::write(credentials.join("bank-1"), b"remembered-pin-marker").unwrap();
+
+        let service = BackupService::new(dir.clone());
+        let backup = temp.path().join("credentials.zip");
+        service.create_backup(&db, &backup).unwrap();
+        let entries = zip_names(&backup);
+        assert!(
+            entries.iter().all(|name| !name.starts_with("credentials/")),
+            "credentials must not enter a backup: {entries:?}"
+        );
+
+        service.stage_restore(&db, &backup, None).unwrap();
+        drop(db);
+        let previous = service
+            .apply_pending_restore(OffsetDateTime::now_utc())
+            .unwrap()
+            .expect("a restore was pending");
+
+        assert_eq!(
+            fs::read(credentials.join("bank-1")).unwrap(),
+            b"remembered-pin-marker",
+            "credentials stay in the live profile folder"
+        );
+        assert!(
+            !previous.join("credentials").exists(),
+            "credentials must not be moved into a pre-restore folder"
+        );
+    }
+
+    #[test]
     fn the_manifest_is_read_leniently() {
         let (temp, dir, db) = profile();
         accounts::create(&db, account("Account")).unwrap();
