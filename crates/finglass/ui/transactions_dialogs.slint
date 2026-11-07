@@ -1,0 +1,704 @@
+import { ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import { ChoiceChip, PrimaryButton, TextButton } from "components.slint";
+
+// A label-and-value line of the transaction detail dialog.
+component DetailRow inherits HorizontalLayout {
+    in property <string> label;
+    in property <string> value;
+
+    spacing: 8px;
+
+    Text {
+        width: 88px;
+        text: root.label;
+        color: Theme.text;
+        font-size: 13px;
+        font-weight: 600;
+        vertical-alignment: center;
+    }
+
+    Text {
+        horizontal-stretch: 1;
+        text: root.value;
+        color: Theme.text;
+        font-size: 13px;
+        wrap: word-wrap;
+        vertical-alignment: center;
+    }
+}
+
+// A destructive action button for the batch-delete confirmation.
+component DangerButton inherits Rectangle {
+    in property <string> text;
+
+    callback clicked;
+
+    height: 36px;
+    min-width: 120px;
+    border-radius: 6px;
+    background: touch.has-hover ? #B91C1C : Theme.error;
+
+    Text {
+        text: root.text;
+        color: #FFFFFF;
+        font-size: 14px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+// The transaction detail dialog: amount, booking data, category, tax override, partner link and the
+// bank-balance mismatch note. Attaching receipts and creating rules belong to the next task.
+export component TransactionDetailDialog inherits Rectangle {
+    in property <string> title;
+    in property <string> amount-text;
+    in property <bool> expense;
+    in property <string> date-text;
+    in property <string> account-text;
+    in property <string> partner-text;
+    in property <string> shop-text;
+    in property <string> purpose-text;
+    in-out property <int> category-index;
+    in property <[string]> category-names;
+    in property <bool> tax-relevant;
+    in property <string> tax-state-text;
+    in-out property <int> tax-index;
+    in property <[string]> tax-options;
+    in property <bool> has-mismatch;
+    in property <string> mismatch-text;
+    in property <bool> has-partner;
+    in property <string> partner-link-text;
+
+    callback close;
+    callback category-selected(int);
+    callback tax-selected(int);
+    callback show-partner;
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 560px;
+        height: min(content.preferred-height, parent.height - 48px);
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        ScrollView {
+            content := VerticalLayout {
+                padding: 24px;
+                spacing: 10px;
+                alignment: start;
+
+                Text {
+                    text: root.title;
+                    color: Theme.text;
+                    font-size: 20px;
+                    font-weight: 700;
+                    wrap: word-wrap;
+                }
+
+                Text {
+                    text: root.amount-text;
+                    color: root.expense ? Theme.error : Theme.success;
+                    font-size: 24px;
+                    font-weight: 700;
+                }
+
+                DetailRow { label: Tr.t("DetailDate"); value: root.date-text; }
+                DetailRow { label: Tr.t("DetailAccount"); value: root.account-text; }
+                if (root.partner-text != "") : DetailRow { label: Tr.t("DetailPartner"); value: root.partner-text; }
+                if (root.shop-text != "") : DetailRow { label: Tr.t("DetailShop"); value: root.shop-text; }
+                if (root.purpose-text != "") : DetailRow { label: Tr.t("DetailPurpose"); value: root.purpose-text; }
+
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    Text {
+                        width: 88px;
+                        text: Tr.t("DetailCategory");
+                        color: Theme.text;
+                        font-size: 13px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                    }
+
+                    ComboBox {
+                        width: 220px;
+                        model: root.category-names;
+                        current-index <=> root.category-index;
+                        selected(value) => { root.category-selected(root.category-index); }
+                    }
+
+                    if (root.tax-relevant) : Rectangle {
+                        height: 22px;
+                        border-radius: 11px;
+                        background: #F59E0B33;
+
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            padding-right: 8px;
+
+                            Text {
+                                text: Tr.t("TaxRelevant");
+                                color: #B45309;
+                                font-size: 11px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                                horizontal-alignment: center;
+                            }
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    Text {
+                        width: 88px;
+                        text: Tr.t("TaxMenu");
+                        color: Theme.text;
+                        font-size: 13px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                    }
+
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.tax-state-text;
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                        vertical-alignment: center;
+                    }
+
+                    ComboBox {
+                        width: 190px;
+                        model: root.tax-options;
+                        current-index <=> root.tax-index;
+                        selected(value) => { root.tax-selected(root.tax-index); }
+                    }
+                }
+
+                if (root.has-mismatch) : Rectangle {
+                    background: Theme.background;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: Theme.warning;
+
+                    HorizontalLayout {
+                        padding: 10px;
+                        spacing: 8px;
+
+                        Text {
+                            text: "⚠";
+                            color: Theme.warning;
+                            font-size: 15px;
+                            vertical-alignment: center;
+                        }
+
+                        Text {
+                            horizontal-stretch: 1;
+                            text: root.mismatch-text;
+                            color: Theme.text;
+                            font-size: 12px;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+
+                if (root.has-partner) : TextButton {
+                    text: root.partner-link-text;
+                    clicked => { root.show-partner(); }
+                }
+
+                Rectangle {
+                    height: 1px;
+                    background: Theme.divider;
+                }
+
+                HorizontalLayout {
+                    alignment: end;
+
+                    TextButton {
+                        text: Tr.t("Close");
+                        clicked => { root.close(); }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The add-booking dialog, including the account, direction, date, amount, partner and category.
+export component AddTransactionDialog inherits Rectangle {
+    in property <string> initial-date;
+    in property <int> initial-account-index;
+    in property <[string]> accounts;
+    in property <[string]> category-names;
+    in property <string> amount-label;
+    in property <string> error-text;
+
+    callback close;
+    callback submit(int, bool, string, string, string, string, int);
+
+    property <int> account-index: 0;
+    property <bool> is-expense: true;
+    property <string> date-text: "";
+    property <string> amount-text: "";
+    property <string> partner-text: "";
+    property <string> purpose-text: "";
+    property <int> category-index: 0;
+
+    init => {
+        root.account-index = root.initial-account-index;
+        root.date-text = root.initial-date;
+        root.is-expense = true;
+        root.amount-text = "";
+        root.partner-text = "";
+        root.purpose-text = "";
+        root.category-index = 0;
+    }
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 500px;
+        height: min(content.preferred-height, parent.height - 48px);
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        ScrollView {
+            content := VerticalLayout {
+                padding: 24px;
+                spacing: 10px;
+                alignment: start;
+
+                Text {
+                    text: Tr.t("AddTransaction");
+                    color: Theme.text;
+                    font-size: 20px;
+                    font-weight: 600;
+                }
+
+                Text {
+                    text: Tr.t("DetailAccount");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                ComboBox {
+                    model: root.accounts;
+                    current-index <=> root.account-index;
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    ChoiceChip {
+                        label: Tr.t("Expense");
+                        selected: root.is-expense;
+                        clicked => { root.is-expense = true; }
+                    }
+
+                    ChoiceChip {
+                        label: Tr.t("Income");
+                        selected: !root.is-expense;
+                        clicked => { root.is-expense = false; }
+                    }
+                }
+
+                Text {
+                    text: Tr.t("DateFormat");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.date-text;
+                }
+
+                Text {
+                    text: root.amount-label;
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.amount-text;
+                }
+
+                Text {
+                    text: Tr.t("PartnerPayee");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.partner-text;
+                }
+
+                Text {
+                    text: Tr.t("Purpose");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.purpose-text;
+                }
+
+                Text {
+                    text: Tr.t("DetailCategory");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                ComboBox {
+                    model: root.category-names;
+                    current-index <=> root.category-index;
+                }
+
+                if (root.error-text != "") : Text {
+                    text: root.error-text;
+                    color: Theme.error;
+                    font-size: 13px;
+                    wrap: word-wrap;
+                }
+
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+
+                    PrimaryButton {
+                        text: Tr.t("Add");
+                        enabled: root.date-text != ""
+                            && root.amount-text != ""
+                            && (root.partner-text != "" || root.purpose-text != "");
+                        clicked => {
+                            root.submit(
+                                root.account-index,
+                                root.is-expense,
+                                root.date-text,
+                                root.amount-text,
+                                root.partner-text,
+                                root.purpose-text,
+                                root.category-index,
+                            );
+                        }
+                    }
+
+                    TextButton {
+                        text: Tr.t("Cancel");
+                        clicked => { root.close(); }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The batch-delete confirmation: the captured date range, per-currency totals, the first bookings
+// and the warning that a later sync can bring deleted bookings back.
+export component MultiDeleteDialog inherits Rectangle {
+    in property <string> title;
+    in property <string> range-text;
+    in property <string> totals-text;
+    in property <[string]> booking-lines;
+    in property <string> more-text;
+
+    callback confirm;
+    callback cancel;
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 560px;
+        height: min(content.preferred-height, parent.height - 48px);
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        ScrollView {
+            content := VerticalLayout {
+                padding: 24px;
+                spacing: 10px;
+                alignment: start;
+
+                Text {
+                    text: root.title;
+                    color: Theme.text;
+                    font-size: 20px;
+                    font-weight: 600;
+                    wrap: word-wrap;
+                }
+
+                Text {
+                    text: root.range-text;
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                if (root.totals-text != "") : Text {
+                    text: root.totals-text;
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                }
+
+                for line in root.booking-lines : Text {
+                    text: line;
+                    color: Theme.text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                if (root.more-text != "") : Text {
+                    text: root.more-text;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                }
+
+                Text {
+                    text: Tr.t("DeleteSyncedHint");
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+
+                    DangerButton {
+                        text: Tr.t("Delete");
+                        clicked => { root.confirm(); }
+                    }
+
+                    TextButton {
+                        text: Tr.t("Cancel");
+                        clicked => { root.cancel(); }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The period menu's custom From/To range dialog.
+export component CustomRangeDialog inherits Rectangle {
+    in property <string> initial-from;
+    in property <string> initial-to;
+    in property <string> error-text;
+
+    callback close;
+    callback apply(string, string);
+
+    property <string> from-text: "";
+    property <string> to-text: "";
+
+    init => {
+        root.from-text = root.initial-from;
+        root.to-text = root.initial-to;
+    }
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 420px;
+        height: content.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        content := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+            alignment: start;
+
+            Text {
+                text: Tr.t("CustomRange");
+                color: Theme.text;
+                font-size: 20px;
+                font-weight: 600;
+            }
+
+            Text {
+                text: Tr.t("FromDate");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.from-text;
+            }
+
+            Text {
+                text: Tr.t("ToDate");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.to-text;
+            }
+
+            if (root.error-text != "") : Text {
+                text: root.error-text;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Apply");
+                    enabled: root.from-text != "" && root.to-text != "";
+                    clicked => { root.apply(root.from-text, root.to-text); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.close(); }
+                }
+            }
+        }
+    }
+}
+
+// The amount-range menu, as a small modal with the two bound fields and a reset action.
+export component AmountFilterDialog inherits Rectangle {
+    in property <string> initial-min;
+    in property <string> initial-max;
+    in property <string> min-label;
+    in property <string> max-label;
+    in property <string> error-text;
+
+    callback close;
+    callback apply(string, string);
+    callback reset;
+
+    property <string> min-text: "";
+    property <string> max-text: "";
+
+    init => {
+        root.min-text = root.initial-min;
+        root.max-text = root.initial-max;
+    }
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 420px;
+        height: content.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        content := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+            alignment: start;
+
+            Text {
+                text: Tr.t("AmountFilterAny");
+                color: Theme.text;
+                font-size: 20px;
+                font-weight: 600;
+            }
+
+            Text {
+                text: root.min-label;
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.min-text;
+            }
+
+            Text {
+                text: root.max-label;
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.max-text;
+            }
+
+            if (root.error-text != "") : Text {
+                text: root.error-text;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Apply");
+                    clicked => { root.apply(root.min-text, root.max-text); }
+                }
+
+                TextButton {
+                    text: Tr.t("Reset");
+                    clicked => { root.reset(); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.close(); }
+                }
+            }
+        }
+    }
+}

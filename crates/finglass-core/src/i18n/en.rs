@@ -830,6 +830,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::DeleteSelected => "Delete…",
         Key::ClearSelection => "Clear selection",
         Key::DeleteSelectedCount => "Delete %d selected",
+        Key::SelectAll => "Select all",
         Key::DeleteTransactionsTitle => "Delete %d {1:transaction|transactions}?",
         Key::DeleteSyncedHint => {
             "Deleted bookings are remembered, so a later import or bank sync won't add them again. To allow that, use “Allow deleted bookings again” in the account's menu on the Accounts screen. Linked receipts are kept and only unlinked."
