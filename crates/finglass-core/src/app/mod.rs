@@ -10,6 +10,7 @@ pub mod documents;
 pub mod prefs;
 pub mod reports;
 pub mod settings;
+pub mod transactions;
 pub mod unlock;
 
 pub use account_panel::{AccountSelection, AppError};
