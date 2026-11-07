@@ -10,6 +10,11 @@ in line with the code.
 categories and rules, dashboard, receipts with OCR, reports and tax exports, backups, profiles, an encrypted database,
 EN/DE/FR, installers for macOS, Windows and Linux.
 
+**Platforms:** macOS first. Until Finglass does everything FinDesk does except payments, CI builds and tests on macOS
+only, and Windows and Linux are neither built nor tested. Code stays portable, with no macOS-only APIs outside
+platform-guarded code. Once that point is reached, Windows and Linux go back into the CI matrix and get their
+installers.
+
 **Out, by design:**
 
 - Transfers, scheduled transfers and standing orders. No code for them, not even read-only lists; no FinTS order
@@ -55,7 +60,7 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [x] M1a: data folder (`FINGLASS_HOME`, profile slugs), passphrase rules (NFC, at least 10 characters, no surrounding
       whitespace), encrypted database (create, open, change passphrase; one connection, passphrase dropped after
       open), versioned migrations, settings, audit log.
-- [ ] M1b: domain tables as migration 2, designed from FinDesk's tables so M8 maps one to one (no payment tables);
+- [x] M1b: domain tables as migration 2, designed from FinDesk's tables so M8 maps one to one (no payment tables);
       money type in integer minor units; repositories for accounts, groups, categories, rules and transactions.
 - [ ] Profile management (list, create, rename, delete) with the app shell.
 
@@ -72,7 +77,7 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 ### M3 — Accounts and imports
 
 - [ ] Manual accounts (IBAN check, currency, account type).
-- [ ] Parsers for CSV (bank presets and detection), MT940, camt.052/053, OFX, QIF and XLSX. FinDesk's test files are
+- [x] Parsers for CSV (bank presets and detection), MT940, camt.052/053, OFX, QIF and XLSX. FinDesk's test files are
       reused as fixtures.
 - [ ] Import preview, duplicate detection (bank booking id or running balance) and an import summary.
 
@@ -112,8 +117,10 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 
 ### M9 — Packaging and release
 
-- [ ] Installers: DMG, MSI/EXE, DEB/RPM (candidate: `cargo-packager`), with the icons from `assets/icons`.
-- [ ] A CI job that builds them on all three systems and launches each installed app once.
+- [ ] macOS: `Finglass.app` and a DMG (candidate: `cargo-packager`), with the icons from `assets/icons`, and a CI job
+      that builds it and launches the app once.
+- [ ] After full functionality: Windows and Linux back in CI, MSI/EXE and DEB/RPM installers, each launched once in
+      CI.
 - [ ] Signing (macOS ad-hoc first) and a release workflow.
 
 ## Done
