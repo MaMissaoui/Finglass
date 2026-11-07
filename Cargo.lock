@@ -1768,13 +1768,13 @@ name = "finglass"
 version = "0.1.0"
 dependencies = [
  "finglass-core",
+ "finglass-ui",
  "open",
  "png",
  "rfd",
  "rust_decimal",
  "secrecy",
  "slint",
- "slint-build",
  "tempfile",
  "time",
  "zeroize",
@@ -1815,6 +1815,14 @@ dependencies = [
  "rpassword",
  "secrecy",
  "tokio",
+]
+
+[[package]]
+name = "finglass-ui"
+version = "0.1.0"
+dependencies = [
+ "slint",
+ "slint-build",
 ]
 
 [[package]]
