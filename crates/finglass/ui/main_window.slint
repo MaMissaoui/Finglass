@@ -617,6 +617,12 @@ export component MainWindow inherits Window {
     min-height: 640px;
     background: Theme.background;
 
+    init => {
+        // Capture the OS scheme before apply_theme() can replace Palette.color-scheme's default
+        // binding to the OS scheme.
+        Theme.capture-os-scheme();
+    }
+
     property <string> title-key: {
         if (root.current-screen == "accounts") {
             return "NavAccounts";
