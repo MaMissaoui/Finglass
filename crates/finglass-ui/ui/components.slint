@@ -345,6 +345,9 @@ export component PrimaryButton inherits Rectangle {
 
     focus := FocusScope {
         enabled <=> root.enabled;
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.clicked();
@@ -383,6 +386,9 @@ export component ChoiceChip inherits Rectangle {
     }
 
     focus := FocusScope {
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.clicked();
@@ -425,6 +431,9 @@ export component TextButton inherits Rectangle {
 
     focus := FocusScope {
         enabled <=> root.enabled;
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.clicked();
@@ -476,6 +485,9 @@ export component SecondaryButton inherits Rectangle {
 
     focus := FocusScope {
         enabled <=> root.enabled;
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.clicked();
@@ -557,6 +569,9 @@ export component TabPill inherits Rectangle {
     }
 
     focus := FocusScope {
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.clicked();
@@ -599,6 +614,9 @@ export component IconButton inherits Rectangle {
     }
 
     focus := FocusScope {
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.clicked();
@@ -683,6 +701,9 @@ export component SidebarItem inherits Rectangle {
     }
 
     focus := FocusScope {
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.activated();

@@ -42,6 +42,9 @@ component LanguageMenuItem inherits Rectangle {
     }
 
     focus := FocusScope {
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == Key.Space) {
                 root.picked();
@@ -1052,6 +1055,9 @@ export component MainWindow inherits Window {
                         }
 
                         language-focus := FocusScope {
+                            // The TouchArea underneath handles the mouse; without this the FocusScope
+                            // would take the first press to gain focus and need a second click.
+                            focus-on-click: false;
                             key-pressed(event) => {
                                 if (event.text == Key.Return || event.text == Key.Space) {
                                     root.language-menu-open = !root.language-menu-open;
