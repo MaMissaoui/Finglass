@@ -332,6 +332,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ProfileOpen => "jetzt geöffnet",
         Key::ProfileNextStart => "öffnet beim nächsten Start",
         Key::RestartToOpenProfile => "Starten Sie Finglass neu, um %s zu öffnen.",
+        Key::ProfileSwitchBusy => "Beenden Sie zuerst die laufende Aufgabe, bevor Sie das Profil wechseln.",
         Key::WrongCurrencySkipped => {
             "%1$d {1:Buchung ist|Buchungen sind} in einer anderen Währung als dieses %2$s-Konto und {1:wird|werden} übersprungen."
         }

@@ -105,9 +105,14 @@ pub fn spawn_load(main: &MainWindow, state: &Arc<ShellState>, month: Option<Year
 
     let main_weak = main.as_weak();
     let state = state.clone();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let _ = pending.load(&db, today);
         let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = main_weak.upgrade() {
                 *state.dashboard.lock().expect("dashboard state poisoned") = pending.clone();
                 apply(&ui, &pending);

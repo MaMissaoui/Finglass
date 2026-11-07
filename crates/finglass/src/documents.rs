@@ -50,7 +50,7 @@ struct ActionOrder {
 pub struct DocumentsController {
     ui: Weak<MainWindow>,
     paths: Arc<AppPaths>,
-    profile: String,
+    profile: Mutex<String>,
     db: Mutex<Option<Arc<Database>>>,
     state: Mutex<DocumentsState>,
     engine: Mutex<Option<Arc<dyn OcrEngine>>>,
@@ -59,16 +59,22 @@ pub struct DocumentsController {
     order: Mutex<ActionOrder>,
     order_ready: Condvar,
     started: AtomicBool,
+    jobs: crate::jobs::JobTracker,
 }
 
 impl DocumentsController {
     /// Builds a controller for one main window and data folder.
     #[must_use]
-    pub fn new(ui: Weak<MainWindow>, paths: Arc<AppPaths>, profile: impl Into<String>) -> Self {
+    pub fn new(
+        ui: Weak<MainWindow>,
+        paths: Arc<AppPaths>,
+        profile: impl Into<String>,
+        jobs: crate::jobs::JobTracker,
+    ) -> Self {
         Self {
             ui,
             paths,
-            profile: profile.into(),
+            profile: Mutex::new(profile.into()),
             db: Mutex::new(None),
             state: Mutex::new(DocumentsState::new(Language::En, false)),
             engine: Mutex::new(None),
@@ -80,7 +86,18 @@ impl DocumentsController {
             order: Mutex::new(ActionOrder::default()),
             order_ready: Condvar::new(),
             started: AtomicBool::new(false),
+            jobs,
         }
+    }
+
+    /// Re-points the controller at another profile's folder without rebuilding it.
+    pub fn set_profile(&self, profile: impl Into<String>) {
+        *self.profile.lock().expect("documents profile poisoned") = profile.into();
+    }
+
+    /// The profile slug key this controller currently uses, for the shell's switch test.
+    pub(crate) fn profile_key(&self) -> String {
+        self.profile.lock().expect("documents profile poisoned").clone()
     }
 
     /// Installs the page's callbacks on the main window.
@@ -224,7 +241,7 @@ impl DocumentsController {
         let snapshot = {
             let mut state = self.state.lock().expect("documents state poisoned");
             *state = DocumentsState::new(language, is_ocr_available);
-            state.set_profile(self.profile.clone());
+            state.set_profile(self.profile_key());
             state.clone()
         };
         *self.preview.lock().expect("documents preview poisoned") = Preview::default();
@@ -237,6 +254,7 @@ impl DocumentsController {
 
     /// Clears the page, for when the profile is locked.
     pub fn reset(&self) {
+        *self.db.lock().expect("documents database poisoned") = None;
         let language = self.state.lock().expect("documents state poisoned").language;
         let is_ocr_available = self
             .engine
@@ -247,7 +265,7 @@ impl DocumentsController {
         let snapshot = {
             let mut state = self.state.lock().expect("documents state poisoned");
             *state = DocumentsState::new(language, is_ocr_available);
-            state.set_profile(self.profile.clone());
+            state.set_profile(self.profile_key());
             state.clone()
         };
         *self.preview.lock().expect("documents preview poisoned") = Preview::default();
@@ -266,13 +284,14 @@ impl DocumentsController {
         }
         // Work holds the state: apply the language once it is done, off the UI thread.
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
             let snapshot = {
                 let mut state = this.state.lock().expect("documents state poisoned");
                 state.language = language;
                 state.clone()
             };
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -287,16 +306,20 @@ impl DocumentsController {
         self.reload();
 
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
             let engine = TesseractCli::create_or_none().map(|engine| Arc::new(engine) as Arc<dyn OcrEngine>);
             let is_ocr_available = engine.is_some();
-            *this.engine.lock().expect("documents engine poisoned") = engine;
+            if this.jobs.is_current(generation) {
+                *this.engine.lock().expect("documents engine poisoned") = engine;
 
-            {
-                let mut state = this.state.lock().expect("documents state poisoned");
-                state.is_ocr_available = is_ocr_available;
+                {
+                    let mut state = this.state.lock().expect("documents state poisoned");
+                    state.is_ocr_available = is_ocr_available;
+                }
+                this.reload();
             }
-            this.reload();
+            this.jobs.end();
         });
     }
 
@@ -313,9 +336,17 @@ impl DocumentsController {
             return;
         };
         let ticket = self.ticket();
+        let profile = self.profile_key();
+        let generation = self.jobs.begin();
         let this = Arc::clone(self);
         thread::spawn(move || {
             this.wait_ticket(ticket);
+
+            if !this.jobs.is_current(generation) {
+                this.complete_ticket();
+                this.jobs.end();
+                return;
+            }
 
             let snapshot = {
                 let mut state = this.state.lock().expect("documents state poisoned");
@@ -323,10 +354,10 @@ impl DocumentsController {
                 state.clone()
             };
             *this.preview.lock().expect("documents preview poisoned") =
-                preview_for(snapshot.selected_document.as_ref(), &this.paths, &this.profile);
+                preview_for(snapshot.selected_document.as_ref(), &this.paths, &profile);
 
             this.complete_ticket();
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -373,13 +404,24 @@ impl DocumentsController {
         };
         let engine = self.engine.lock().expect("documents engine poisoned").clone();
         let ticket = self.ticket();
+        let profile = self.profile_key();
+        let generation = self.jobs.begin();
         let this = Arc::clone(self);
         thread::spawn(move || {
             this.wait_ticket(ticket);
+            if !this.jobs.is_current(generation) {
+                this.complete_ticket();
+                this.jobs.end();
+                return;
+            }
             let progress_ui = this.ui.clone();
+            let jobs = this.jobs.clone();
             let snapshot = {
                 let mut state = this.state.lock().expect("documents state poisoned");
                 state.upload(&files, None, &db, &this.paths, engine, |done, total| {
+                    if !jobs.is_current(generation) {
+                        return;
+                    }
                     let text = i18n::format(
                         language,
                         Key::UploadProgress,
@@ -396,9 +438,9 @@ impl DocumentsController {
                 state.clone()
             };
             *this.preview.lock().expect("documents preview poisoned") =
-                preview_for(snapshot.selected_document.as_ref(), &this.paths, &this.profile);
+                preview_for(snapshot.selected_document.as_ref(), &this.paths, &profile);
             this.complete_ticket();
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -409,12 +451,15 @@ impl DocumentsController {
         let Some(document) = state.selected_document.as_ref() else {
             return;
         };
-        let path = document_path(&self.paths, &self.profile, &document.stored_path);
+        let path = document_path(&self.paths, &self.profile_key(), &document.stored_path);
         drop(state);
 
         if path.is_file() {
+            let jobs = self.jobs.clone();
+            jobs.begin();
             thread::spawn(move || {
                 let _ = open::that_detached(path);
+                jobs.end();
             });
         }
     }
@@ -429,6 +474,28 @@ impl DocumentsController {
         let query = self.candidate_query.lock().expect("documents picker poisoned").clone();
 
         let _ = slint::invoke_from_event_loop(move || {
+            if let Some(ui) = ui.upgrade() {
+                apply(&ui, &state, &preview, &query);
+            }
+        });
+    }
+
+    /// Publishes a worker's result unless the profile has been switched in the meantime.
+    fn publish_job(&self, state: DocumentsState, generation: u64) {
+        if !self.jobs.is_current(generation) {
+            self.jobs.end();
+            return;
+        }
+        let ui = self.ui.clone();
+        let preview = self.preview.lock().expect("documents preview poisoned").clone();
+        let query = self.candidate_query.lock().expect("documents picker poisoned").clone();
+        let jobs = self.jobs.clone();
+
+        let _ = slint::invoke_from_event_loop(move || {
+            jobs.end();
+            if !jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = ui.upgrade() {
                 apply(&ui, &state, &preview, &query);
             }

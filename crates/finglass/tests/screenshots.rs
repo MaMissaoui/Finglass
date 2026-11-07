@@ -28,6 +28,7 @@ use finglass_core::model::{
 };
 use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
+use finglass_core::profiles;
 use finglass_core::repo::{account_groups, accounts, bank_connections, categories, documents, rules, transactions};
 use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
 use slint::platform::{Platform, PlatformError, WindowAdapter};
@@ -38,6 +39,10 @@ use time::macros::date;
 use time::{Date, OffsetDateTime};
 
 slint::include_modules!();
+
+#[allow(dead_code)]
+#[path = "../src/jobs.rs"]
+mod jobs;
 
 #[allow(dead_code)]
 #[path = "../src/reports.rs"]
@@ -251,6 +256,9 @@ fn renders_the_app_shell() {
         let _ = ui.hide();
     }
 
+    let business = profiles::create(&paths, "Business").unwrap();
+    let business_slug = business.slug.clone().unwrap();
+
     {
         let settings = settings_state(&db, &paths, Language::En);
         let ui = MainWindow::new().unwrap();
@@ -260,6 +268,57 @@ fn renders_the_app_shell() {
         ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-currency-en-light", 1100, 720);
         assert_varied(&buffer, "settings-currency-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(0.0);
+        let buffer = render(&window, "settings-profiles-en-light", 1100, 720);
+        assert_varied(&buffer, "settings-profiles-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(0.0);
+        let buffer = render(&window, "settings-profiles-de-dark", 1100, 720);
+        assert_varied(&buffer, "settings-profiles-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_profile_menu_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-profiles-en-light", 1100, 720);
+        assert_varied(&buffer, "topbar-profiles-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_profile_delete_open(true);
+        ui.set_profile_delete_index(1);
+        ui.set_profile_delete_title(i18n::format(Language::En, Key::DeleteProfile, &[Arg::from("Business")]).into());
+        ui.set_profile_delete_text(i18n::format(Language::En, Key::DeleteProfileText, &[Arg::from("Business")]).into());
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-profile-delete-en", 1100, 720);
+        assert_varied(&buffer, "settings-profile-delete-en");
         let _ = ui.hide();
     }
 
@@ -529,6 +588,29 @@ fn renders_the_app_shell() {
         ui.show().unwrap();
         let buffer = render(&window, "settings-rule-import-en", 1100, 720);
         assert_varied(&buffer, "settings-rule-import-en");
+        let _ = ui.hide();
+    }
+
+    {
+        app::unlock::create(
+            &paths,
+            &business_slug,
+            "correct horse battery staple",
+            "correct horse battery staple",
+            true,
+        )
+        .unwrap();
+        let startup =
+            app::switch::begin_switch(&db, &paths, None, Some(&business_slug), OffsetDateTime::now_utc()).unwrap();
+        let ui = UnlockWindow::new().unwrap();
+        configure_unlock(&ui, Language::En, ThemePref::Light, "unlock", "");
+        ui.set_profile_label(i18n::format(Language::En, Key::UnlockProfile, &[business_slug.clone().into()]).into());
+        ui.set_restored(startup.restored_from.is_some());
+        ui.set_passphrase("".into());
+        assert_eq!(ui.get_passphrase(), "");
+        ui.show().unwrap();
+        let buffer = render(&window, "unlock-target-after-switch-en", 560, 760);
+        assert_varied(&buffer, "unlock-target-after-switch-en");
         let _ = ui.hide();
     }
 
@@ -2120,6 +2202,18 @@ fn apply_settings(ui: &MainWindow, state: &SettingsState) {
     ui.set_settings_message(state.message.clone().unwrap_or_default().into());
     ui.set_settings_categories_empty(state.categories.is_empty());
     ui.set_settings_has_duplicate_colours(has_duplicate_colours(state));
+    ui.set_settings_profile_rows(settings_profile_model(state));
+    ui.set_profile_rows(settings_profile_model(state));
+    ui.set_current_profile_name(
+        state
+            .profiles
+            .iter()
+            .find(|profile| profile.slug == state.open_profile)
+            .or_else(|| state.profiles.first())
+            .map(|profile| profile.name.clone())
+            .unwrap_or_default()
+            .into(),
+    );
     ui.set_settings_currency_options(string_model(
         state.currency_options.iter().map(|currency| currency.as_str()),
     ));
@@ -2227,6 +2321,27 @@ fn has_duplicate_colours(state: &SettingsState) -> bool {
         *seen.entry(category.color.to_uppercase()).or_default() += 1;
     }
     seen.values().any(|count| *count > 1)
+}
+
+fn settings_profile_model(state: &SettingsState) -> ModelRc<ProfileRow> {
+    ModelRc::new(VecModel::from(
+        state
+            .profiles
+            .iter()
+            .enumerate()
+            .map(|(index, profile)| {
+                let open = profile.slug == state.open_profile;
+                ProfileRow {
+                    index: i32::try_from(index).unwrap_or(-1),
+                    name: profile.name.clone().into(),
+                    open,
+                    next_start: !open && profile.slug == state.next_profile,
+                    can_switch: !open,
+                    can_delete: !profile.is_default() && !open,
+                }
+            })
+            .collect::<Vec<_>>(),
+    ))
 }
 
 fn settings_category_model(state: &SettingsState) -> ModelRc<CategoryRow> {

@@ -326,6 +326,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ProfileOpen => "open now",
         Key::ProfileNextStart => "opens at next start",
         Key::RestartToOpenProfile => "Restart Finglass to open %s.",
+        Key::ProfileSwitchBusy => "Finish the running task before switching profiles.",
         Key::WrongCurrencySkipped => {
             "%1$d {1:booking is|bookings are} in another currency than this %2$s account and will be skipped."
         }

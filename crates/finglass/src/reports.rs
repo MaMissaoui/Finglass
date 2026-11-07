@@ -45,16 +45,18 @@ pub struct ReportsController {
     ui: Weak<MainWindow>,
     db: Mutex<Option<Arc<Database>>>,
     state: Mutex<ReportsState>,
+    jobs: crate::jobs::JobTracker,
 }
 
 impl ReportsController {
     /// Builds a controller for one main window.
     #[must_use]
-    pub fn new(ui: Weak<MainWindow>) -> Self {
+    pub fn new(ui: Weak<MainWindow>, jobs: crate::jobs::JobTracker) -> Self {
         Self {
             ui,
             db: Mutex::new(None),
             state: Mutex::new(ReportsState::new(Language::En, OffsetDateTime::now_utc().date())),
+            jobs,
         }
     }
 
@@ -216,13 +218,14 @@ impl ReportsController {
             self.publish(snapshot);
         } else {
             let this = Arc::clone(self);
+            let generation = self.jobs.begin();
             thread::spawn(move || {
                 let snapshot = {
                     let mut state = this.state.lock().expect("reports state poisoned");
                     state.language = language;
                     state.clone()
                 };
-                this.publish(snapshot);
+                this.publish_job(snapshot, generation);
             });
         }
         self.clear_range_error();
@@ -240,7 +243,12 @@ impl ReportsController {
         }
 
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
+            if !this.jobs.is_current(generation) {
+                this.jobs.end();
+                return;
+            }
             let snapshot = {
                 let mut state = this.state.lock().expect("reports state poisoned");
                 if let Some((from, to)) = state.custom_range {
@@ -252,7 +260,7 @@ impl ReportsController {
                 state.load_recurring(&db, today);
                 state.clone()
             };
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -278,13 +286,18 @@ impl ReportsController {
         self.publish(year.clone());
 
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
+            if !this.jobs.is_current(generation) {
+                this.jobs.end();
+                return;
+            }
             let snapshot = {
                 let mut state = this.state.lock().expect("reports state poisoned");
                 state.update_year(&db, year.selected_year);
                 state.clone()
             };
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -321,13 +334,18 @@ impl ReportsController {
         self.publish(pending);
 
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
+            if !this.jobs.is_current(generation) {
+                this.jobs.end();
+                return;
+            }
             let snapshot = {
                 let mut state = this.state.lock().expect("reports state poisoned");
                 state.set_custom_range(&db, from, to);
                 state.clone()
             };
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -349,13 +367,18 @@ impl ReportsController {
         self.publish(pending);
 
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
+            if !this.jobs.is_current(generation) {
+                this.jobs.end();
+                return;
+            }
             let snapshot = {
                 let mut state = this.state.lock().expect("reports state poisoned");
                 action(&mut state, &db);
                 state.clone()
             };
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -378,11 +401,16 @@ impl ReportsController {
         self.publish(pending);
 
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
             let path = rfd::FileDialog::new()
                 .set_title(i18n::text(language, title))
                 .set_file_name(&file_name)
                 .save_file();
+            if !this.jobs.is_current(generation) {
+                this.jobs.end();
+                return;
+            }
             let snapshot = {
                 let mut state = this.state.lock().expect("reports state poisoned");
                 match path {
@@ -391,7 +419,7 @@ impl ReportsController {
                 }
                 state.clone()
             };
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -412,7 +440,12 @@ impl ReportsController {
         self.publish(pending);
 
         let this = Arc::clone(self);
+        let generation = self.jobs.begin();
         thread::spawn(move || {
+            if !this.jobs.is_current(generation) {
+                this.jobs.end();
+                return;
+            }
             let path = {
                 let mut state = this.state.lock().expect("reports state poisoned");
                 state.print_tax(&db, today)
@@ -421,7 +454,7 @@ impl ReportsController {
                 let _ = open::that_detached(path);
             }
             let snapshot = this.state.lock().expect("reports state poisoned").clone();
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
         });
     }
 
@@ -437,6 +470,25 @@ impl ReportsController {
     fn publish(&self, state: ReportsState) {
         let ui = self.ui.clone();
         let _ = slint::invoke_from_event_loop(move || {
+            if let Some(ui) = ui.upgrade() {
+                apply(&ui, &state);
+            }
+        });
+    }
+
+    /// Publishes a worker's result unless the profile has been switched in the meantime.
+    fn publish_job(&self, state: ReportsState, generation: u64) {
+        if !self.jobs.is_current(generation) {
+            self.jobs.end();
+            return;
+        }
+        let ui = self.ui.clone();
+        let jobs = self.jobs.clone();
+        let _ = slint::invoke_from_event_loop(move || {
+            jobs.end();
+            if !jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = ui.upgrade() {
                 apply(&ui, &state);
             }

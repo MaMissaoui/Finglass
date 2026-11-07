@@ -4,6 +4,7 @@
 mod accounts;
 mod dashboard;
 mod documents;
+mod jobs;
 mod reports;
 mod settings;
 mod shell;
