@@ -87,6 +87,73 @@ impl Database {
         Self::open_with_migrations(path, passphrase, migrations)
     }
 
+    /// Writes a consistent, compacted copy of the database to `target`.
+    ///
+    /// `VACUUM INTO` runs through the live connection, so it uses the database's key and never sees the passphrase.
+    /// The target path is bound as a parameter, never formatted into SQL, so quotes in the path are harmless.
+    pub fn vacuum_into(&self, target: &Path) -> Result<(), DbError> {
+        let target = target.to_string_lossy().into_owned();
+
+        self.with_conn(|conn| {
+            conn.execute("VACUUM INTO ?1", [target.as_str()])?;
+            Ok(())
+        })
+    }
+
+    /// Checks whether `file` can be read with the key of this live connection.
+    ///
+    /// The file is attached **without** a `KEY` clause, so SQLCipher tries the main database's key. A `NOTADB`
+    /// error means the key does not fit (or the file is not a database) and yields `false`. The attachment is
+    /// always removed, also when reading fails. A database whose schema is newer than this build is refused with
+    /// [`DbError::TooNew`].
+    pub fn can_read_with_current_key(&self, file: &Path) -> Result<bool, DbError> {
+        let file = file.to_string_lossy().into_owned();
+
+        self.with_conn(|conn| {
+            match conn.execute("ATTACH DATABASE ?1 AS staged", [file.as_str()]) {
+                Ok(_) => {}
+                // SQLCipher can reject the key already while attaching.
+                Err(rusqlite::Error::SqliteFailure(err, _)) if err.code == ErrorCode::NotADatabase => {
+                    return Ok(false);
+                }
+                Err(err) => return Err(DbError::Sqlite(err)),
+            }
+
+            let result = (|| -> Result<bool, DbError> {
+                match conn.query_row("SELECT count(*) FROM staged.sqlite_master", [], |row| {
+                    row.get::<_, i64>(0)
+                }) {
+                    Ok(_) => {
+                        let found: u32 = conn.query_row("PRAGMA staged.user_version", [], |row| row.get(0))?;
+                        let supported = MIGRATIONS.iter().map(|migration| migration.version).max().unwrap_or(0);
+
+                        if found > supported {
+                            return Err(DbError::TooNew { found, supported });
+                        }
+
+                        Ok(true)
+                    }
+                    Err(rusqlite::Error::SqliteFailure(err, _)) if err.code == ErrorCode::NotADatabase => Ok(false),
+                    Err(err) => Err(DbError::Sqlite(err)),
+                }
+            })();
+
+            let detached = conn.execute_batch("DETACH DATABASE staged");
+
+            match result {
+                Ok(readable) => {
+                    detached?;
+                    Ok(readable)
+                }
+                Err(err) => {
+                    // The original error is the useful one; a detach failure must not mask it.
+                    let _ = detached;
+                    Err(err)
+                }
+            }
+        })
+    }
+
     fn open_with_migrations(path: &Path, passphrase: &Passphrase, migrations: &[Migration]) -> Result<Self, DbError> {
         if !path.exists() {
             return Err(DbError::NotFound);
