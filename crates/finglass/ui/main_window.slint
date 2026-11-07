@@ -1,7 +1,7 @@
 import { Theme } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
-import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, NavItem, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, TextButton } from "components.slint";
+import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton } from "components.slint";
 import { AuditRow, CategoryRow, ColourSwatch, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
@@ -9,6 +9,46 @@ import { AccountPanel } from "account_panel.slint";
 import { AccountsPage } from "accounts_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
 import { BackupPassphraseDialog, CategoryDialog, ConfirmDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
+
+// One language in the top bar's menu.
+component LanguageMenuItem inherits Rectangle {
+    in property <string> code;
+    in property <bool> selected;
+
+    callback picked;
+
+    height: 40px;
+    border-radius: 6px;
+    background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
+    accessible-role: button;
+    accessible-label: root.code;
+
+    Text {
+        x: 12px;
+        width: parent.width - 24px;
+        height: parent.height;
+        text: root.code;
+        color: root.selected ? Theme.on-selected : Theme.text;
+        font-size: 14px;
+        font-weight: root.selected ? 600 : 400;
+        vertical-alignment: center;
+        horizontal-alignment: left;
+    }
+
+    touch := TouchArea {
+        clicked => root.picked();
+    }
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.picked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+}
 
 // The main window: sidebar navigation, placeholder screens and the settings sections.
 export component MainWindow inherits Window {
@@ -18,6 +58,8 @@ export component MainWindow inherits Window {
     in property <string> current-screen: "dashboard";
     in property <string> theme-pref: "system";
     in property <string> language: "en";
+    in-out property <bool> sidebar-collapsed: false;
+    in-out property <bool> language-menu-open: false;
     in property <string> status-text;
     in property <bool> change-open;
     in property <bool> change-busy;
@@ -296,6 +338,7 @@ export component MainWindow inherits Window {
     callback navigate(string);
     callback set-theme(string);
     callback set-language(string);
+    callback sidebar-collapsed-changed(bool);
     callback open-change;
     callback close-change;
     callback change-passphrase(string, string, string, bool);
@@ -434,11 +477,14 @@ export component MainWindow inherits Window {
 
     HorizontalLayout {
         Rectangle {
-            width: 240px;
+            width: root.sidebar-collapsed ? 72px : 240px;
             background: Theme.sidebar;
 
             VerticalLayout {
-                padding: 16px;
+                padding-left: root.sidebar-collapsed ? 12px : 16px;
+                padding-right: root.sidebar-collapsed ? 12px : 16px;
+                padding-top: 16px;
+                padding-bottom: 16px;
                 spacing: 4px;
 
                 Rectangle {
@@ -446,6 +492,8 @@ export component MainWindow inherits Window {
                     background: transparent;
 
                     HorizontalLayout {
+                        alignment: root.sidebar-collapsed ? center : start;
+                        cross-axis-alignment: center;
                         spacing: 10px;
 
                         Image {
@@ -453,8 +501,9 @@ export component MainWindow inherits Window {
                             width: 36px;
                             height: 36px;
                             image-fit: contain;
+                            accessible-label: Tr.t("AppLogo");
                         }
-                        Text {
+                        if (!root.sidebar-collapsed) : Text {
                             text: root.app-name;
                             color: Theme.text;
                             font-size: 22px;
@@ -469,34 +518,46 @@ export component MainWindow inherits Window {
                     background: transparent;
                 }
 
-                NavItem {
+                SidebarItem {
                     label: Tr.t("NavDashboard");
+                    icon: @image-url("icons/dashboard.svg");
                     selected: root.current-screen == "dashboard";
+                    collapsed: root.sidebar-collapsed;
                     activated => { root.navigate("dashboard"); }
                 }
-                NavItem {
+                SidebarItem {
                     label: Tr.t("NavAccounts");
+                    icon: @image-url("icons/accounts.svg");
                     selected: root.current-screen == "accounts";
+                    collapsed: root.sidebar-collapsed;
                     activated => { root.navigate("accounts"); }
                 }
-                NavItem {
+                SidebarItem {
                     label: Tr.t("NavTransactions");
+                    icon: @image-url("icons/transactions.svg");
                     selected: root.current-screen == "transactions";
+                    collapsed: root.sidebar-collapsed;
                     activated => { root.navigate("transactions"); }
                 }
-                NavItem {
+                SidebarItem {
                     label: Tr.t("NavDocuments");
+                    icon: @image-url("icons/documents.svg");
                     selected: root.current-screen == "documents";
+                    collapsed: root.sidebar-collapsed;
                     activated => { root.navigate("documents"); }
                 }
-                NavItem {
+                SidebarItem {
                     label: Tr.t("NavReports");
+                    icon: @image-url("icons/reports.svg");
                     selected: root.current-screen == "reports";
+                    collapsed: root.sidebar-collapsed;
                     activated => { root.navigate("reports"); }
                 }
-                NavItem {
+                SidebarItem {
                     label: Tr.t("NavSettings");
+                    icon: @image-url("icons/settings.svg");
                     selected: root.current-screen == "settings";
+                    collapsed: root.sidebar-collapsed;
                     activated => { root.navigate("settings"); }
                 }
 
@@ -505,7 +566,7 @@ export component MainWindow inherits Window {
                     background: transparent;
                 }
 
-                Text {
+                if (!root.sidebar-collapsed) : Text {
                     text: root.version;
                     color: Theme.muted-text;
                     font-size: 12px;
@@ -524,15 +585,27 @@ export component MainWindow inherits Window {
                 background: Theme.surface;
 
                 HorizontalLayout {
-                    padding-left: 24px;
+                    padding-left: 12px;
                     padding-right: 24px;
                     spacing: 12px;
+                    cross-axis-alignment: center;
+
+                    IconButton {
+                        icon: root.sidebar-collapsed ? @image-url("icons/menu.svg") : @image-url("icons/menu-open.svg");
+                        label: root.sidebar-collapsed ? Tr.t("ExpandSidebar") : Tr.t("CollapseSidebar");
+                        clicked => {
+                            root.sidebar-collapsed = !root.sidebar-collapsed;
+                            root.sidebar-collapsed-changed(root.sidebar-collapsed);
+                        }
+                    }
 
                     Text {
                         text: root.screen-title;
                         color: Theme.text;
                         font-size: 24px;
                         font-weight: 600;
+                        // A tall box keeps accents such as the "Ü" of "Übersicht" from being clipped.
+                        min-height: 48px;
                         vertical-alignment: center;
                     }
 
@@ -550,6 +623,61 @@ export component MainWindow inherits Window {
                     if (root.status-text != "") : TextButton {
                         text: Tr.t("Dismiss");
                         clicked => { root.dismiss-status(); }
+                    }
+
+                    // The profile menu that M8d-2 adds goes in this slot, before the language and
+                    // theme actions.
+                    Rectangle {
+                        width: 72px;
+                        height: 36px;
+                        border-radius: 8px;
+                        background: language-touch.has-hover || root.language-menu-open ? Theme.background : transparent;
+                        accessible-role: button;
+                        accessible-label: Tr.t("ChangeLanguage");
+
+                        HorizontalLayout {
+                            alignment: center;
+                            cross-axis-alignment: center;
+                            spacing: 6px;
+
+                            Text {
+                                text: root.language == "de" ? "DE" : (root.language == "fr" ? "FR" : "EN");
+                                color: Theme.text;
+                                font-size: 13px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+
+                            Path {
+                                width: 8px;
+                                height: 5px;
+                                commands: "M 0 0 L 8 0 L 4 5 Z";
+                                fill: Theme.muted-text;
+                            }
+                        }
+
+                        language-touch := TouchArea {
+                            clicked => { root.language-menu-open = !root.language-menu-open; }
+                        }
+
+                        language-focus := FocusScope {
+                            key-pressed(event) => {
+                                if (event.text == Key.Return || event.text == Key.Space) {
+                                    root.language-menu-open = !root.language-menu-open;
+                                    return accept;
+                                }
+                                return reject;
+                            }
+                        }
+                    }
+
+                    IconButton {
+                        icon: Theme.dark ? @image-url("icons/sun.svg") : @image-url("icons/moon.svg");
+                        label: Tr.t("ToggleTheme");
+                        clicked => {
+                            // "System" shows its effective mode; a click stores an explicit mode.
+                            root.set-theme(Theme.dark ? "light" : "dark");
+                        }
                     }
                 }
             }
@@ -1004,5 +1132,57 @@ export component MainWindow inherits Window {
         passphrase <=> root.settings-restore-passphrase;
         close => { root.settings-cancel-restore-passphrase(); }
         submit(value) => { root.settings-confirm-restore-passphrase(value); }
+    }
+
+    // The top bar's language menu. The backdrop closes it on a click anywhere else.
+    if (root.language-menu-open) : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+
+        TouchArea {
+            clicked => { root.language-menu-open = false; }
+        }
+
+        Rectangle {
+            x: root.width - 184px;
+            y: 58px;
+            width: 160px;
+            height: 144px;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            background: Theme.surface;
+
+            VerticalLayout {
+                padding: 8px;
+                spacing: 4px;
+
+                LanguageMenuItem {
+                    code: "EN";
+                    selected: root.language == "en";
+                    picked => {
+                        root.language-menu-open = false;
+                        root.set-language("en");
+                    }
+                }
+                LanguageMenuItem {
+                    code: "DE";
+                    selected: root.language == "de";
+                    picked => {
+                        root.language-menu-open = false;
+                        root.set-language("de");
+                    }
+                }
+                LanguageMenuItem {
+                    code: "FR";
+                    selected: root.language == "fr";
+                    picked => {
+                        root.language-menu-open = false;
+                        root.set-language("fr");
+                    }
+                }
+            }
+        }
     }
 }
