@@ -71,6 +71,7 @@ component BankAccountView inherits Rectangle {
     in property <BankAccountRow> account;
 
     callback open-detail;
+    callback open-transactions;
     callback rename-account;
     callback edit-balance;
     callback forget-deleted;
@@ -132,6 +133,28 @@ component BankAccountView inherits Rectangle {
                     font-weight: 700;
                     vertical-alignment: center;
                     horizontal-alignment: right;
+                }
+
+                Rectangle {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 12px;
+                    background: list-icon.has-hover ? Theme.divider : transparent;
+
+                    Text {
+                        text: "☰";
+                        color: Theme.muted-text;
+                        font-size: 14px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+
+                    list-icon := TouchArea {
+                        clicked => {
+                            root.menu-open = false;
+                            root.open-transactions();
+                        }
+                    }
                 }
 
                 Rectangle {
@@ -221,6 +244,7 @@ component BankCardView inherits Rectangle {
     callback add-account;
     callback remove-bank;
     callback open-detail(int);
+    callback open-transactions(int);
     callback open-rename(int);
     callback open-balance(int);
     callback forget-deleted(int);
@@ -340,6 +364,9 @@ component BankCardView inherits Rectangle {
                 account: account;
                 open-detail => {
                     root.open-detail(account.account-id);
+                }
+                open-transactions => {
+                    root.open-transactions(account.account-id);
                 }
                 rename-account => {
                     root.open-rename(account.account-id);
@@ -474,6 +501,7 @@ export component AccountsPage inherits Rectangle {
     callback forget-deleted(int);
     callback dismiss-message;
     callback open-detail(int);
+    callback open-transactions(int);
 
     property <string> add-bank-name: "";
     property <string> add-account-name: "";
@@ -601,6 +629,9 @@ export component AccountsPage inherits Rectangle {
                     }
                     open-detail(account-id) => {
                         root.open-detail(account-id);
+                    }
+                    open-transactions(account-id) => {
+                        root.open-transactions(account-id);
                     }
                     open-rename(account-id) => {
                         root.open-rename(account-id);

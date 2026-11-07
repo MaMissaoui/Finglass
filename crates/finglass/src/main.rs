@@ -7,6 +7,7 @@ mod documents;
 mod reports;
 mod settings;
 mod shell;
+mod transactions;
 
 slint::include_modules!();
 

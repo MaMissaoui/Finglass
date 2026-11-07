@@ -15,6 +15,7 @@ use finglass_core::app::dashboard::{DashboardState, DashboardView};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
 use finglass_core::app::settings::{RestoreCandidate, SettingsState};
+use finglass_core::app::transactions::{Period, StartArgs, TransactionsState, TransactionsView};
 use finglass_core::audit::{self, Actor};
 use finglass_core::backup::BackupInfo;
 use finglass_core::db::Database;
@@ -22,7 +23,8 @@ use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{
     AccountId, AccountType, BankAccessItem, CategoryId, DocumentItem, NewAccount, NewAccountGroup, NewCategory,
-    NewDocument, NewRule, NewTransaction, RuleDirection, RuleField, TransactionFilter, TransactionId,
+    NewDocument, NewPendingBooking, NewRule, NewTransaction, RuleDirection, RuleField, TransactionFilter,
+    TransactionId,
 };
 use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
@@ -40,6 +42,10 @@ slint::include_modules!();
 #[allow(dead_code)]
 #[path = "../src/reports.rs"]
 mod reports;
+
+#[allow(dead_code)]
+#[path = "../src/transactions.rs"]
+mod transactions_page;
 
 const SLUG: &str = "default";
 
@@ -720,6 +726,224 @@ fn renders_the_app_shell() {
         assert_varied(&buffer, "documents-empty-en");
         let _ = ui.hide();
     }
+
+    let transactions_temp = tempfile::tempdir().unwrap();
+    let transactions_paths = AppPaths::resolve(Some(transactions_temp.path().as_os_str().to_owned()), None).unwrap();
+    let transactions_db = app::unlock::create(
+        &transactions_paths,
+        SLUG,
+        "correct horse battery staple",
+        "correct horse battery staple",
+        true,
+    )
+    .unwrap();
+    let seeded_transactions = seed_transactions(&transactions_db);
+    let transactions_en = transactions_state(&transactions_db, Language::En, StartArgs::default(), today);
+    let transactions_de = transactions_state(&transactions_db, Language::De, StartArgs::default(), today);
+
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-en-light",
+        &transactions_en,
+        |_| {},
+    );
+    render_transactions(
+        &window,
+        Language::De,
+        ThemePref::Dark,
+        "transactions-de-dark",
+        &transactions_de,
+        |_| {},
+    );
+
+    let account_state = transactions_state(
+        &transactions_db,
+        Language::En,
+        StartArgs {
+            account_id: Some(seeded_transactions.checking),
+            period: Some(Period::All),
+            ..Default::default()
+        },
+        today,
+    );
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-chart-en",
+        &account_state,
+        |_| {},
+    );
+    let mut collapsed = account_state.clone();
+    collapsed.chart_collapsed = true;
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-chart-collapsed-en",
+        &collapsed,
+        |_| {},
+    );
+
+    let mut selection = transactions_en.clone();
+    selection.selected_ids = selection
+        .transactions
+        .iter()
+        .take(3)
+        .map(|transaction| transaction.id)
+        .collect();
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-selection-en",
+        &selection,
+        |_| {},
+    );
+
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-multi-delete-en",
+        &selection,
+        |ui| open_multi_delete_for_test(ui, &selection),
+    );
+
+    let mut detail = account_state.clone();
+    let detail_transaction = detail
+        .transactions
+        .iter()
+        .find(|transaction| {
+            detail
+                .balances
+                .as_ref()
+                .and_then(|balances| balances.get(&transaction.id))
+                .is_some_and(|entry| entry.bank_difference.is_some())
+        })
+        .or_else(|| {
+            detail
+                .transactions
+                .iter()
+                .find(|transaction| transaction.is_tax_relevant)
+        })
+        .or_else(|| detail.transactions.first())
+        .cloned()
+        .unwrap();
+    detail.selected = Some(detail_transaction);
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-detail-en",
+        &detail,
+        |_| {},
+    );
+
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-add-en",
+        &transactions_en,
+        |ui| {
+            ui.set_transactions_add_open(true);
+            ui.set_transactions_add_date(format::date(today).into());
+            ui.set_transactions_add_account_options(ModelRc::new(VecModel::from(
+                transactions_en
+                    .accounts
+                    .iter()
+                    .map(|account| {
+                        SharedString::from(format!(
+                            "{} · {}",
+                            accounts_label(account, Language::En),
+                            account.currency.as_str()
+                        ))
+                    })
+                    .collect::<Vec<_>>(),
+            )));
+            ui.set_transactions_add_account_index(
+                transactions_en
+                    .accounts
+                    .iter()
+                    .position(|account| account.id == seeded_transactions.checking)
+                    .map_or(0, |index| i32::try_from(index).unwrap_or(0)),
+            );
+            ui.set_transactions_add_category_names(ModelRc::new(VecModel::from(
+                std::iter::once(SharedString::from(i18n::text(Language::En, Key::AutoRules)))
+                    .chain(
+                        transactions_en
+                            .categories
+                            .iter()
+                            .map(|category| SharedString::from(category.name.clone())),
+                    )
+                    .collect::<Vec<_>>(),
+            )));
+            ui.set_transactions_add_amount_label(
+                i18n::format(
+                    Language::En,
+                    Key::AmountIn,
+                    &[Arg::Str(format::currency_symbol(Currency::EUR))],
+                )
+                .into(),
+            );
+        },
+    );
+
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-duplicate-en",
+        &transactions_en,
+        |ui| {
+            ui.set_transactions_duplicate_open(true);
+            ui.set_transactions_duplicate_title(i18n::text(Language::En, Key::DuplicateTransactionTitle).into());
+            ui.set_transactions_duplicate_text(
+                i18n::format(
+                    Language::En,
+                    Key::DuplicateTransactionText,
+                    &[
+                        Arg::from(format::date(today)),
+                        Arg::from(format::money(
+                            Money {
+                                minor: -1_200,
+                                currency: Currency::EUR,
+                            },
+                            Language::En,
+                            false,
+                        )),
+                    ],
+                )
+                .into(),
+            );
+        },
+    );
+
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-custom-range-en",
+        &transactions_en,
+        |ui| {
+            ui.set_transactions_range_open(true);
+            ui.set_transactions_range_from("01.08.2026".into());
+            ui.set_transactions_range_to("31.10.2026".into());
+            ui.set_transactions_range_error("".into());
+        },
+    );
+
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-narrow-en",
+        &transactions_en,
+        |_| {},
+    );
 }
 
 /// Three documents: one linked, one with OCR text, one selected. Returns them oldest first, as the
@@ -989,6 +1213,292 @@ fn document_date(value: time::OffsetDateTime) -> String {
         value.hour(),
         value.minute()
     )
+}
+
+struct SeededTransactions {
+    checking: AccountId,
+}
+
+fn transactions_state(db: &Database, language: Language, args: StartArgs, today: Date) -> TransactionsState {
+    let mut view = TransactionsView::new(language);
+    view.start(db, args, today).unwrap();
+    view.update_period(db, Period::All, today).unwrap();
+    view.state().clone()
+}
+
+fn render_transactions(
+    window: &Rc<MinimalSoftwareWindow>,
+    language: Language,
+    theme: ThemePref,
+    name: &str,
+    state: &TransactionsState,
+    configure: impl FnOnce(&MainWindow),
+) {
+    let width = if name.ends_with("narrow-en") { 900 } else { 1440 };
+    let ui = MainWindow::new().unwrap();
+    configure_main(&ui, language, theme, "transactions", &[]);
+    ui.set_transactions_show_panel(width >= 1000);
+    transactions_page::apply(&ui, state);
+    configure(&ui);
+    ui.show().unwrap();
+    let buffer = render(window, name, width, 720);
+    assert_varied(&buffer, name);
+    let _ = ui.hide();
+}
+
+fn open_multi_delete_for_test(ui: &MainWindow, state: &TransactionsState) {
+    let bookings = state.selected_shown();
+    let from = bookings.iter().map(|transaction| transaction.date).min().unwrap();
+    let to = bookings.iter().map(|transaction| transaction.date).max().unwrap();
+    let range = if from == to {
+        format::date(from)
+    } else {
+        format!("{}–{}", format::date(from), format::date(to))
+    };
+    let totals = state
+        .selected_totals()
+        .iter()
+        .map(|(currency, minor)| {
+            format::money(
+                Money {
+                    minor: *minor,
+                    currency: *currency,
+                },
+                Language::En,
+                true,
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" · ");
+    let lines = bookings
+        .iter()
+        .take(5)
+        .map(|transaction| {
+            format!(
+                "{} {} {}",
+                format::date(transaction.date),
+                finglass_core::bank_text::display_description(transaction),
+                format::money(transaction.amount, Language::En, false),
+            )
+        })
+        .collect::<Vec<_>>();
+    let more = bookings.len().saturating_sub(5);
+    ui.set_transactions_multi_delete_title(
+        i18n::format(Language::En, Key::DeleteTransactionsTitle, &[Arg::from(bookings.len())]).into(),
+    );
+    ui.set_transactions_multi_delete_range(range.into());
+    ui.set_transactions_multi_delete_totals(totals.into());
+    ui.set_transactions_multi_delete_lines(ModelRc::new(VecModel::from(
+        lines.into_iter().map(SharedString::from).collect::<Vec<_>>(),
+    )));
+    ui.set_transactions_multi_delete_more(
+        if more > 0 {
+            i18n::format(Language::En, Key::AndMore, &[Arg::from(more)])
+        } else {
+            String::new()
+        }
+        .into(),
+    );
+    ui.set_transactions_multi_delete_open(true);
+}
+
+fn seed_transactions(db: &Database) -> SeededTransactions {
+    let checking = accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: Some("Haushalt".to_owned()),
+            iban: Some("DE89370400440532013000".to_owned()),
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::Checking,
+            balance: Money {
+                minor: 245_037,
+                currency: Currency::EUR,
+            },
+            balance_updated_at: Some(OffsetDateTime::now_utc()),
+            group_id: None,
+        },
+    )
+    .unwrap();
+    let savings = accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: Some("Rücklage".to_owned()),
+            iban: Some("DE44500105175407324930".to_owned()),
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::Savings,
+            balance: Money {
+                minor: 800_000,
+                currency: Currency::EUR,
+            },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap();
+    let usd = Currency::new("USD").unwrap();
+    let dollar = accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: Some("Dollar".to_owned()),
+            iban: Some("DE44500105175407324931".to_owned()),
+            account_number: None,
+            currency: usd,
+            account_type: AccountType::Savings,
+            balance: Money {
+                minor: 50_000,
+                currency: usd,
+            },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap();
+    let group = account_groups::create(
+        db,
+        NewAccountGroup {
+            name: "Reisen".to_owned(),
+            sort_order: 1,
+        },
+    )
+    .unwrap();
+    accounts::set_group(db, savings, Some(group)).unwrap();
+    accounts::set_group(db, dollar, Some(group)).unwrap();
+
+    let food = category(db, "Food", "#FFC107", false, false, None);
+    let salary = category(db, "Salary", "#4CAF50", false, false, None);
+    let health = category(db, "Health", "#2196F3", true, false, None);
+    let office = category(db, "Office", "#FF5722", true, false, None);
+
+    let mut counter = 0_i64;
+    for month in 8..=10 {
+        let month = time::Month::try_from(month).unwrap();
+        for (day, minor, partner, category_id, new) in [
+            (2_u8, -12_000_i64, "Example Market", Some(food), true),
+            (3, 150_000, "Employer GmbH", Some(salary), true),
+            (5, -1_500, "Corner Kiosk", None, false),
+            (8, -8_900, "Beispiel-Krankenkasse", Some(health), false),
+            (10, -999, "Spotify", None, false),
+            (12, -3_200, "Bürobedarf GmbH", Some(office), true),
+            (15, -2_550, "Apotheke am Ring", Some(health), false),
+            (18, -4_500, "Example Market", Some(food), false),
+            (22, 25_000, "Beispielhilfe e. V.", None, false),
+            (26, -6_000, "Bürobedarf GmbH", Some(office), true),
+        ] {
+            let date = Date::from_calendar_date(2026, month, day).unwrap();
+            let back = (counter == 4).then_some(245_037);
+            seed_booking(
+                db,
+                checking,
+                Currency::EUR,
+                date,
+                minor,
+                partner,
+                category_id,
+                new,
+                back,
+                None,
+            );
+            counter += 1;
+        }
+    }
+
+    for (day, minor) in [
+        (time::macros::date!(2026 - 08 - 14), -1_199_i64),
+        (time::macros::date!(2026 - 09 - 14), -1_199),
+        (time::macros::date!(2026 - 10 - 14), -1_199),
+    ] {
+        seed_booking(db, dollar, usd, day, minor, "Cloud Service", None, false, None, None);
+    }
+    seed_booking(
+        db,
+        savings,
+        Currency::EUR,
+        time::macros::date!(2026 - 09 - 28),
+        100_000,
+        "Transfer from Haushalt",
+        None,
+        false,
+        None,
+        None,
+    );
+
+    finglass_core::repo::pending_bookings::replace_for_account(
+        db,
+        checking,
+        vec![
+            NewPendingBooking {
+                date: time::macros::date!(2026 - 10 - 14),
+                value_date: None,
+                amount: Money {
+                    minor: -2_000,
+                    currency: Currency::EUR,
+                },
+                partner_name: Some("Bäckerei Muster".to_owned()),
+                purpose: Some("Brötchen".to_owned()),
+            },
+            NewPendingBooking {
+                date: time::macros::date!(2026 - 10 - 15),
+                value_date: None,
+                amount: Money {
+                    minor: 12_000,
+                    currency: Currency::EUR,
+                },
+                partner_name: Some("Beispiel AG".to_owned()),
+                purpose: Some("Gehalt Oktober".to_owned()),
+            },
+        ],
+        OffsetDateTime::now_utc(),
+    )
+    .unwrap();
+
+    SeededTransactions { checking }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn seed_booking(
+    db: &Database,
+    account: AccountId,
+    currency: Currency,
+    day: Date,
+    minor: i64,
+    partner: &str,
+    category: Option<CategoryId>,
+    is_new: bool,
+    balance_after: Option<i64>,
+    tax_override: Option<bool>,
+) -> TransactionId {
+    let hash = format!("tx-{}-{}-{}-{}", account.0, day, minor, partner);
+    transactions::insert_planned(
+        db,
+        account,
+        vec![NewTransaction {
+            booking_date: day,
+            amount: Money { minor, currency },
+            balance_after: balance_after.map(|minor| Money { minor, currency }),
+            partner_name: Some(partner.to_owned()),
+            purpose: None,
+            category_id: category,
+            import_hash: hash.clone(),
+            created_at: OffsetDateTime::now_utc(),
+            is_new,
+            tax_override,
+        }],
+    )
+    .unwrap();
+    transactions::list_for_account(db, account, None, None)
+        .unwrap()
+        .into_iter()
+        .find(|transaction| transaction.import_hash == hash)
+        .expect("the inserted booking")
+        .id
 }
 
 struct SeededAccounts {

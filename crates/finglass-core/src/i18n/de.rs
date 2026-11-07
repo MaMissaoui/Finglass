@@ -846,6 +846,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::DeleteSelected => "Löschen…",
         Key::ClearSelection => "Auswahl aufheben",
         Key::DeleteSelectedCount => "%d ausgewählte löschen",
+        Key::SelectAll => "Alle auswählen",
         Key::DeleteTransactionsTitle => "%d {1:Buchung|Buchungen} löschen?",
         Key::DeleteSyncedHint => {
             "Gelöschte Buchungen werden gemerkt, sodass ein späterer Import oder Bankabgleich sie nicht wieder hinzufügt. Über „Gelöschte Buchungen wieder zulassen“ im Menü des Kontos auf der Konten-Ansicht lassen Sie das wieder zu. Verknüpfte Belege bleiben erhalten und werden nur entknüpft."

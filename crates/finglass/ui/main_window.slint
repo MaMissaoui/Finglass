@@ -1,12 +1,13 @@
 import { Theme } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
-import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton } from "components.slint";
+import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
 import { AuditRow, CategoryRow, ColourSwatch, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
 import { AccountPanel } from "account_panel.slint";
 import { AccountsPage } from "accounts_page.slint";
+import { TransactionsPage } from "transactions_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
 import { BackupPassphraseDialog, CategoryDialog, ConfirmDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
 
@@ -308,6 +309,115 @@ export component MainWindow inherits Window {
     in property <string> accounts-detail-axis-bottom;
     in property <[AccountDetailRow]> accounts-detail-rows;
 
+    // Transactions page state, mapped from finglass_core::app::transactions::TransactionsState.
+    in-out property <bool> transactions-show-panel: true;
+    changed width => {
+        root.transactions-show-panel = self.width >= 1000px;
+    }
+    in property <bool> transactions-loading;
+    in property <bool> transactions-has-accounts;
+    in property <string> transactions-error-text;
+    in property <string> transactions-message-text;
+
+    in property <string> transactions-count-text;
+    in property <[AccountAmount]> transactions-income-amounts;
+    in property <[AccountAmount]> transactions-expense-amounts;
+    in property <bool> transactions-has-balance;
+    in property <string> transactions-balance-text;
+    in property <string> transactions-balance-tone;
+    in property <bool> transactions-show-back;
+
+    in property <[string]> transactions-period-options;
+    in-out property <int> transactions-period-index;
+    in property <string> transactions-period-extra;
+    in property <[string]> transactions-category-options;
+    in-out property <int> transactions-category-index;
+    in property <[string]> transactions-direction-options;
+    in-out property <int> transactions-direction-index;
+    in property <string> transactions-amount-label;
+    in-out property <int> transactions-account-index;
+    in property <[string]> transactions-account-options;
+
+    in property <[AccountPanelRow]> transactions-panel-rows;
+    in property <[AccountGroupChoice]> transactions-group-choices;
+    in property <string> transactions-panel-filter-text;
+    in property <string> transactions-panel-shown-text;
+
+    in property <string> transactions-pending-header;
+    in property <[TransactionRow]> transactions-rows;
+    in property <bool> transactions-has-balance-column;
+
+    in property <bool> transactions-has-chart;
+    in property <bool> transactions-chart-collapsed;
+    in property <string> transactions-chart-line;
+    in property <string> transactions-chart-area;
+    in property <string> transactions-chart-axis-top;
+    in property <string> transactions-chart-axis-bottom;
+    in property <string> transactions-chart-axis-start;
+    in property <string> transactions-chart-axis-mid;
+    in property <string> transactions-chart-axis-end;
+    in property <string> transactions-chart-value;
+    in property <bool> transactions-chart-not-from-zero;
+
+    in property <bool> transactions-selection-visible;
+    in property <string> transactions-selection-count-text;
+    in property <string> transactions-selection-totals-text;
+    in property <[string]> transactions-category-names;
+    in property <[string]> transactions-tax-options;
+
+    in property <bool> transactions-detail-open;
+    in property <string> transactions-detail-title;
+    in property <string> transactions-detail-amount;
+    in property <bool> transactions-detail-expense;
+    in property <string> transactions-detail-date;
+    in property <string> transactions-detail-account;
+    in property <string> transactions-detail-partner;
+    in property <string> transactions-detail-shop;
+    in property <string> transactions-detail-purpose;
+    in-out property <int> transactions-detail-category-index;
+    in property <bool> transactions-detail-tax-relevant;
+    in property <string> transactions-detail-tax-state;
+    in-out property <int> transactions-detail-tax-index;
+    in property <string> transactions-detail-mismatch;
+    in property <bool> transactions-detail-has-mismatch;
+    in property <string> transactions-detail-partner-link;
+
+    in property <bool> transactions-add-open;
+    in property <[string]> transactions-add-account-options;
+    in property <int> transactions-add-account-index;
+    in property <string> transactions-add-date;
+    in property <[string]> transactions-add-category-names;
+    in property <string> transactions-add-amount-label;
+    in property <string> transactions-add-error;
+
+    in property <bool> transactions-duplicate-open;
+    in property <string> transactions-duplicate-title;
+    in property <string> transactions-duplicate-text;
+
+    in property <bool> transactions-delete-open;
+    in property <int> transactions-delete-id;
+    in property <string> transactions-delete-title;
+    in property <string> transactions-delete-text;
+
+    in property <bool> transactions-multi-delete-open;
+    in property <string> transactions-multi-delete-title;
+    in property <string> transactions-multi-delete-range;
+    in property <string> transactions-multi-delete-totals;
+    in property <[string]> transactions-multi-delete-lines;
+    in property <string> transactions-multi-delete-more;
+
+    in property <bool> transactions-range-open;
+    in property <string> transactions-range-from;
+    in property <string> transactions-range-to;
+    in property <string> transactions-range-error;
+
+    in property <bool> transactions-amount-open;
+    in property <string> transactions-amount-min;
+    in property <string> transactions-amount-max;
+    in property <string> transactions-amount-min-label;
+    in property <string> transactions-amount-max-label;
+    in property <string> transactions-amount-error;
+
     // Documents page state, mapped from finglass_core::app::documents::DocumentsState.
     in property <[DocumentRow]> document-rows;
     in property <string> documents-tab: "all";
@@ -432,6 +542,59 @@ export component MainWindow inherits Window {
     callback accounts-filter-changed(string);
     callback accounts-dismiss-message;
     callback accounts-open-detail(int);
+    callback accounts-open-transactions(int);
+
+    callback transactions-search(string);
+    callback transactions-period-changed(int);
+    callback transactions-open-range;
+    callback transactions-apply-range(string, string);
+    callback transactions-close-range;
+    callback transactions-category-changed(int);
+    callback transactions-direction-changed(int);
+    callback transactions-account-changed(int);
+    callback transactions-open-amount;
+    callback transactions-apply-amount(string, string);
+    callback transactions-reset-amount;
+    callback transactions-close-amount;
+    callback transactions-toggle-chart;
+    callback transactions-auto-categorize;
+    callback transactions-back;
+
+    callback transactions-open-detail(int);
+    callback transactions-toggle-select(int);
+    callback transactions-select-range(int);
+    callback transactions-select-all;
+    callback transactions-clear-selection;
+    callback transactions-show-partner(string);
+    callback transactions-delete-row(int);
+    callback transactions-confirm-delete(int);
+    callback transactions-cancel-delete;
+    callback transactions-open-multi-delete;
+    callback transactions-confirm-multi-delete;
+    callback transactions-cancel-multi-delete;
+    callback transactions-batch-category(int);
+    callback transactions-batch-tax(int);
+
+    callback transactions-open-add;
+    callback transactions-add-submit(int, bool, string, string, string, string, int);
+    callback transactions-close-add;
+    callback transactions-confirm-duplicate;
+    callback transactions-dismiss-duplicate;
+    callback transactions-detail-close;
+    callback transactions-detail-category(int);
+    callback transactions-detail-tax(int);
+    callback transactions-detail-show-partner(string);
+    callback transactions-dismiss-message;
+
+    callback transactions-panel-select(string, string, int, string);
+    callback transactions-panel-toggle(string, string, int, string);
+    callback transactions-panel-mark-read(string, string, int, string);
+    callback transactions-panel-new-group(string);
+    callback transactions-panel-rename-group(int, string);
+    callback transactions-panel-delete-group(int);
+    callback transactions-panel-move-group(int, bool);
+    callback transactions-panel-move-account(int, int);
+    callback transactions-panel-filter-changed(string);
 
     callback documents-set-tab(string);
     callback documents-search(string);
@@ -905,6 +1068,180 @@ export component MainWindow inherits Window {
                 forget-deleted(account-id) => { root.accounts-forget-deleted(account-id); }
                 dismiss-message => { root.accounts-dismiss-message(); }
                 open-detail(account-id) => { root.accounts-open-detail(account-id); }
+                open-transactions(account-id) => { root.accounts-open-transactions(account-id); }
+            }
+
+            if (root.current-screen == "transactions") : TransactionsPage {
+                horizontal-stretch: 1;
+                vertical-stretch: 1;
+
+                show-panel: root.transactions-show-panel;
+                loading: root.transactions-loading;
+                has-accounts: root.transactions-has-accounts;
+                error-text: root.transactions-error-text;
+                message-text: root.transactions-message-text;
+
+                count-text: root.transactions-count-text;
+                income-amounts: root.transactions-income-amounts;
+                expense-amounts: root.transactions-expense-amounts;
+                has-balance: root.transactions-has-balance;
+                balance-text: root.transactions-balance-text;
+                balance-tone: root.transactions-balance-tone;
+                show-back: root.transactions-show-back;
+
+                period-options: root.transactions-period-options;
+                period-index <=> root.transactions-period-index;
+                period-extra: root.transactions-period-extra;
+                category-options: root.transactions-category-options;
+                category-index <=> root.transactions-category-index;
+                direction-options: root.transactions-direction-options;
+                direction-index <=> root.transactions-direction-index;
+                amount-label: root.transactions-amount-label;
+                account-index <=> root.transactions-account-index;
+                account-options: root.transactions-account-options;
+
+                panel-rows: root.transactions-panel-rows;
+                group-choices: root.transactions-group-choices;
+                panel-filter-text: root.transactions-panel-filter-text;
+                panel-shown-text: root.transactions-panel-shown-text;
+
+                pending-header: root.transactions-pending-header;
+                rows: root.transactions-rows;
+                has-balance-column: root.transactions-has-balance-column;
+
+                has-chart: root.transactions-has-chart;
+                chart-collapsed: root.transactions-chart-collapsed;
+                chart-line: root.transactions-chart-line;
+                chart-area: root.transactions-chart-area;
+                chart-axis-top: root.transactions-chart-axis-top;
+                chart-axis-bottom: root.transactions-chart-axis-bottom;
+                chart-axis-start: root.transactions-chart-axis-start;
+                chart-axis-mid: root.transactions-chart-axis-mid;
+                chart-axis-end: root.transactions-chart-axis-end;
+                chart-value: root.transactions-chart-value;
+                chart-not-from-zero: root.transactions-chart-not-from-zero;
+
+                selection-visible: root.transactions-selection-visible;
+                selection-count-text: root.transactions-selection-count-text;
+                selection-totals-text: root.transactions-selection-totals-text;
+                category-names: root.transactions-category-names;
+                tax-options: root.transactions-tax-options;
+
+                detail-open: root.transactions-detail-open;
+                detail-title: root.transactions-detail-title;
+                detail-amount: root.transactions-detail-amount;
+                detail-expense: root.transactions-detail-expense;
+                detail-date: root.transactions-detail-date;
+                detail-account: root.transactions-detail-account;
+                detail-partner: root.transactions-detail-partner;
+                detail-shop: root.transactions-detail-shop;
+                detail-purpose: root.transactions-detail-purpose;
+                detail-category-index <=> root.transactions-detail-category-index;
+                detail-tax-relevant: root.transactions-detail-tax-relevant;
+                detail-tax-state: root.transactions-detail-tax-state;
+                detail-tax-index <=> root.transactions-detail-tax-index;
+                detail-mismatch: root.transactions-detail-mismatch;
+                detail-has-mismatch: root.transactions-detail-has-mismatch;
+                detail-partner-link: root.transactions-detail-partner-link;
+
+                add-open: root.transactions-add-open;
+                add-account-options: root.transactions-add-account-options;
+                add-account-index: root.transactions-add-account-index;
+                add-date: root.transactions-add-date;
+                add-category-names: root.transactions-add-category-names;
+                add-amount-label: root.transactions-add-amount-label;
+                add-error: root.transactions-add-error;
+
+                duplicate-open: root.transactions-duplicate-open;
+                duplicate-title: root.transactions-duplicate-title;
+                duplicate-text: root.transactions-duplicate-text;
+
+                delete-open: root.transactions-delete-open;
+                delete-id: root.transactions-delete-id;
+                delete-title: root.transactions-delete-title;
+                delete-text: root.transactions-delete-text;
+
+                multi-delete-open: root.transactions-multi-delete-open;
+                multi-delete-title: root.transactions-multi-delete-title;
+                multi-delete-range: root.transactions-multi-delete-range;
+                multi-delete-totals: root.transactions-multi-delete-totals;
+                multi-delete-lines: root.transactions-multi-delete-lines;
+                multi-delete-more: root.transactions-multi-delete-more;
+
+                range-open: root.transactions-range-open;
+                range-from: root.transactions-range-from;
+                range-to: root.transactions-range-to;
+                range-error: root.transactions-range-error;
+
+                amount-open: root.transactions-amount-open;
+                amount-min: root.transactions-amount-min;
+                amount-max: root.transactions-amount-max;
+                amount-min-label: root.transactions-amount-min-label;
+                amount-max-label: root.transactions-amount-max-label;
+                amount-error: root.transactions-amount-error;
+
+                search(text) => { root.transactions-search(text); }
+                period-changed(index) => { root.transactions-period-changed(index); }
+                open-range => { root.transactions-open-range(); }
+                apply-range(from, to) => { root.transactions-apply-range(from, to); }
+                close-range => { root.transactions-close-range(); }
+                category-changed(index) => { root.transactions-category-changed(index); }
+                direction-changed(index) => { root.transactions-direction-changed(index); }
+                account-changed(index) => { root.transactions-account-changed(index); }
+                open-amount => { root.transactions-open-amount(); }
+                apply-amount(minimum, maximum) => { root.transactions-apply-amount(minimum, maximum); }
+                reset-amount => { root.transactions-reset-amount(); }
+                close-amount => { root.transactions-close-amount(); }
+                toggle-chart => { root.transactions-toggle-chart(); }
+                auto-categorize => { root.transactions-auto-categorize(); }
+                open-accounts => { root.navigate("accounts"); }
+                back => { root.transactions-back(); }
+
+                open-detail(id) => { root.transactions-open-detail(id); }
+                toggle-select(id) => { root.transactions-toggle-select(id); }
+                select-range(id) => { root.transactions-select-range(id); }
+                select-all => { root.transactions-select-all(); }
+                clear-selection => { root.transactions-clear-selection(); }
+                show-partner(partner) => { root.transactions-show-partner(partner); }
+                delete-row(id) => { root.transactions-delete-row(id); }
+                confirm-delete(id) => { root.transactions-confirm-delete(id); }
+                cancel-delete => { root.transactions-cancel-delete(); }
+                open-multi-delete => { root.transactions-open-multi-delete(); }
+                confirm-multi-delete => { root.transactions-confirm-multi-delete(); }
+                cancel-multi-delete => { root.transactions-cancel-multi-delete(); }
+                batch-category(index) => { root.transactions-batch-category(index); }
+                batch-tax(index) => { root.transactions-batch-tax(index); }
+
+                open-add => { root.transactions-open-add(); }
+                add-submit(account-index, expense, date-text, amount-text, partner-text, purpose-text, category-index) => {
+                    root.transactions-add-submit(account-index, expense, date-text, amount-text, partner-text, purpose-text, category-index);
+                }
+                close-add => { root.transactions-close-add(); }
+                confirm-duplicate => { root.transactions-confirm-duplicate(); }
+                dismiss-duplicate => { root.transactions-dismiss-duplicate(); }
+                detail-close => { root.transactions-detail-close(); }
+                detail-category(index) => { root.transactions-detail-category(index); }
+                detail-tax(index) => { root.transactions-detail-tax(index); }
+                detail-show-partner(partner) => { root.transactions-detail-show-partner(partner); }
+                dismiss-message => { root.transactions-dismiss-message(); }
+
+                panel-select(kind, group-kind, id, account-type) => {
+                    root.transactions-panel-select(kind, group-kind, id, account-type);
+                }
+                panel-toggle(kind, group-kind, id, account-type) => {
+                    root.transactions-panel-toggle(kind, group-kind, id, account-type);
+                }
+                panel-mark-read(kind, group-kind, id, account-type) => {
+                    root.transactions-panel-mark-read(kind, group-kind, id, account-type);
+                }
+                panel-new-group(name) => { root.transactions-panel-new-group(name); }
+                panel-rename-group(id, name) => { root.transactions-panel-rename-group(id, name); }
+                panel-delete-group(id) => { root.transactions-panel-delete-group(id); }
+                panel-move-group(id, up) => { root.transactions-panel-move-group(id, up); }
+                panel-move-account(account-id, group-id) => {
+                    root.transactions-panel-move-account(account-id, group-id);
+                }
+                panel-filter-changed(text) => { root.transactions-panel-filter-changed(text); }
             }
 
             if (root.current-screen == "settings") : SettingsPage {
@@ -992,7 +1329,7 @@ export component MainWindow inherits Window {
                 dismiss => { root.documents-dismiss(); }
             }
 
-            if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports" && root.current-screen != "accounts" && root.current-screen != "documents") : VerticalLayout {
+            if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports" && root.current-screen != "accounts" && root.current-screen != "documents" && root.current-screen != "transactions") : VerticalLayout {
                 padding: 32px;
                 spacing: 12px;
 

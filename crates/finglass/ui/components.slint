@@ -156,6 +156,30 @@ export struct AccountsBankCard {
     accounts: [BankAccountRow],
 }
 
+// One row of the Transactions list: a booking or a pending bank line.
+export struct TransactionRow {
+    pending: bool,
+    id: int,
+    date-text: string,
+    title: string,
+    subtitle: string,
+    category-text: string,
+    category-colour: color,
+    partner: string,
+    partner-link-text: string,
+    amount-text: string,
+    expense: bool,
+    is-new: bool,
+    selected: bool,
+    has-documents: bool,
+    documents-text: string,
+    balance-text: string,
+    // "positive", "negative", "loan" or "zero".
+    balance-tone: string,
+    balance-warning: bool,
+    balance-mismatch: string,
+}
+
 // One row of the shared account panel: "all", a group or an account.
 export struct AccountPanelRow {
     kind: string,

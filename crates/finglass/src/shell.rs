@@ -28,6 +28,7 @@ use crate::accounts;
 use crate::dashboard;
 use crate::documents::DocumentsController;
 use crate::reports::ReportsController;
+use crate::transactions::TransactionsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
 
 const MIN_PASSPHRASE_LENGTH: i64 = 10;
@@ -52,6 +53,7 @@ pub(crate) struct ShellState {
     pub(crate) slug: Option<String>,
     /// The data a startup restore moved aside, shown in Settings.
     pub(crate) restored_from: Option<PathBuf>,
+    pub(crate) transactions: Arc<TransactionsController>,
 }
 
 /// Runs the app shell against `paths`.
@@ -86,6 +88,11 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         paths.clone(),
         app::startup::slug_key(startup.slug.as_deref()),
     ));
+    let transactions = Arc::new(TransactionsController::new(
+        main.as_weak(),
+        paths.clone(),
+        app::startup::slug_key(startup.slug.as_deref()),
+    ));
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
@@ -99,6 +106,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         documents,
         slug: startup.slug.clone(),
         restored_from: startup.restored_from.clone(),
+        transactions,
     });
 
     install_translations_main(&main, initial_language);
@@ -325,6 +333,7 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
 fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
     state.reports.wire(main);
     state.documents.wire(main);
+    state.transactions.wire(main);
 
     {
         let main_weak = main.as_weak();
@@ -337,6 +346,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 let reports = screen.as_str() == "reports";
                 let settings = screen.as_str() == "settings";
                 let accounts_screen = screen.as_str() == "accounts";
+                let transactions_screen = screen.as_str() == "transactions";
                 ui.set_current_screen(screen);
                 if dashboard {
                     dashboard::spawn_load(&ui, &state, None);
@@ -353,6 +363,10 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 }
                 if accounts_screen {
                     accounts::spawn_load(&ui, &state);
+                }
+                if transactions_screen {
+                    let args = std::mem::take(&mut *state.navigation.lock().expect("navigation state poisoned"));
+                    state.transactions.open_page(args);
                 }
             }
         });
@@ -411,8 +425,8 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 }
             };
             drop(dashboard);
-            *state.navigation.lock().expect("navigation state poisoned") = args;
             ui.set_current_screen("transactions".into());
+            state.transactions.open_page(args);
         });
     }
 
@@ -430,8 +444,8 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 ..Default::default()
             };
             drop(dashboard);
-            *state.navigation.lock().expect("navigation state poisoned") = args;
             ui.set_current_screen("transactions".into());
+            state.transactions.open_page(args);
         });
     }
 
@@ -442,8 +456,8 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             let Some(ui) = main_weak.upgrade() else {
                 return;
             };
-            *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
             ui.set_current_screen("transactions".into());
+            state.transactions.open_page(StartArgs::default());
         });
     }
 
@@ -454,11 +468,11 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             let Some(ui) = main_weak.upgrade() else {
                 return;
             };
-            *state.navigation.lock().expect("navigation state poisoned") = StartArgs {
+            ui.set_current_screen("transactions".into());
+            state.transactions.open_page(StartArgs {
                 partner: Some(partner.to_string()),
                 ..Default::default()
-            };
-            ui.set_current_screen("transactions".into());
+            });
         });
     }
 
@@ -518,8 +532,8 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                     ..Default::default()
                 }
             };
-            *state.navigation.lock().expect("navigation state poisoned") = args;
             ui.set_current_screen("transactions".into());
+            state.transactions.open_page(args);
         });
     }
 
@@ -842,6 +856,20 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
         main.on_accounts_open_detail(move |account_id| {
             if let Some(ui) = main_weak.upgrade() {
                 accounts::open_detail(&ui, &state, account_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_transactions(move |account_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_current_screen("transactions".into());
+                state.transactions.open_page(StartArgs {
+                    account_id: Some(finglass_core::model::AccountId(i64::from(account_id))),
+                    ..Default::default()
+                });
             }
         });
     }
@@ -1273,6 +1301,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 crate::settings::spawn_load(&ui, &state, &paths);
             }
             state.documents.set_language(language);
+            state.transactions.set_language(language);
 
             let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
                 return;
@@ -1382,6 +1411,7 @@ fn spawn_open_work(
 ) {
     state.reports.reset();
     state.documents.reset();
+    state.transactions.reset();
     thread::spawn(move || {
         let outcome = work().and_then(|db| {
             let db = Arc::new(db);
@@ -1414,6 +1444,7 @@ fn spawn_open_work(
                     main.set_audit_rows(audit_model(rows));
                     state.reports.attach(db.clone(), prefs.language);
                     state.documents.attach(db.clone(), prefs.language);
+                    state.transactions.attach(db.clone(), prefs.language);
                     *state.db.lock().expect("database state poisoned") = Some(db);
 
                     dashboard::spawn_load(&main, &state, None);

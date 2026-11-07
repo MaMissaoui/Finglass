@@ -871,6 +871,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::DeleteSelected => "Supprimer…",
         Key::ClearSelection => "Effacer la sélection",
         Key::DeleteSelectedCount => "Supprimer %d {1:sélectionnée|sélectionnées}",
+        Key::SelectAll => "Tout sélectionner",
         Key::DeleteTransactionsTitle => "Supprimer %d {1:opération|opérations} ?",
         Key::DeleteSyncedHint => {
             "Les opérations supprimées sont mémorisées : un import ou une synchronisation bancaire ultérieur ne les rajoutera pas. Pour les réautoriser, utilisez « Réautoriser les opérations supprimées » dans le menu du compte sur l'écran des comptes. Les justificatifs liés sont conservés et seulement déliés."

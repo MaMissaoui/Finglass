@@ -1,0 +1,1269 @@
+import { ComboBox, ListView, Spinner } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import {
+    AccountAmount,
+    AccountGroupChoice,
+    AccountPanelRow,
+    AccountTone,
+    PrimaryButton,
+    SearchField,
+    TextButton,
+    TransactionRow,
+} from "components.slint";
+import { AccountPanel } from "account_panel.slint";
+import { ConfirmDialog } from "settings_dialogs.slint";
+import {
+    AddTransactionDialog,
+    AmountFilterDialog,
+    CustomRangeDialog,
+    MultiDeleteDialog,
+    TransactionDetailDialog,
+} from "transactions_dialogs.slint";
+
+// The shared column widths of the booking list.
+global TxLayout {
+    out property <length> date-width: 82px;
+    out property <length> category-width: 112px;
+    out property <length> amount-width: 106px;
+    out property <length> balance-width: 106px;
+    out property <length> action-width: 30px;
+}
+
+// One labelled figure of the transactions summary strip.
+component SummaryFigure inherits VerticalLayout {
+    in property <string> label;
+    in property <[AccountAmount]> values;
+    in property <string> single-text;
+    in property <bool> value-tone: true;
+
+    spacing: 1px;
+    alignment: start;
+
+    Text {
+        text: root.label;
+        color: Theme.muted-text;
+        font-size: 11px;
+        overflow: elide;
+    }
+
+    if (root.single-text != "") : Text {
+        text: root.single-text;
+        color: Theme.text;
+        font-size: 17px;
+        font-weight: 600;
+        overflow: elide;
+    }
+
+    for amount in root.values : Text {
+        text: amount.text;
+        color: root.value-tone ? AccountTone.amount-color(amount.tone) : Theme.text;
+        font-size: 17px;
+        font-weight: 600;
+        overflow: elide;
+    }
+}
+
+// A pill-shaped filter control with a dropdown arrow.
+component FilterButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> destructive: false;
+
+    callback clicked;
+
+    height: 36px;
+    min-width: 96px;
+    border-radius: 18px;
+    background: touch.has-hover ? Theme.background : Theme.surface;
+    border-width: 1px;
+    border-color: root.destructive ? Theme.error : Theme.divider;
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+
+        Text {
+            text: root.text + " ▾";
+            color: root.destructive ? Theme.error : Theme.text;
+            font-size: 13px;
+            font-weight: 600;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+// A menu button for batch actions: the closed control shows the action's label, the popup lists
+// the real choices and closes after one is picked.
+component ActionPicker inherits Rectangle {
+    in property <string> label;
+    in property <[string]> options;
+    in property <bool> primary: false;
+
+    callback chosen(int);
+
+    height: 32px;
+    min-width: 104px;
+    border-radius: 16px;
+    background: root.primary ? Theme.primary : Theme.surface;
+    border-width: 1px;
+    border-color: root.primary ? Theme.primary : Theme.divider;
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 12px;
+        spacing: 6px;
+
+        Text {
+            horizontal-stretch: 1;
+            text: root.label;
+            color: root.primary ? Theme.on-primary : Theme.text;
+            font-size: 13px;
+            font-weight: 600;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+
+        Text {
+            text: "▾";
+            color: root.primary ? Theme.on-primary : Theme.muted-text;
+            font-size: 11px;
+            vertical-alignment: center;
+        }
+    }
+
+    TouchArea {
+        clicked => { menu.show(); }
+    }
+
+    menu := PopupWindow {
+        x: 0px;
+        y: root.height + 4px;
+        width: max(root.width, 220px);
+        height: min(root.options.length * 32px, 280px);
+
+        Rectangle {
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            clip: true;
+
+            ListView {
+                for option[index] in root.options : Rectangle {
+                    height: 32px;
+                    background: row-touch.has-hover ? Theme.background : transparent;
+
+                    Text {
+                        x: 12px;
+                        width: parent.width - 24px;
+                        text: option;
+                        color: Theme.text;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+
+                    row-touch := TouchArea {
+                        clicked => {
+                            menu.close();
+                            root.chosen(index);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// One booking row: its columns, selection tint, unread dot and inline actions.
+component TransactionRowView inherits Rectangle {
+    in property <TransactionRow> item;
+    in property <bool> has-balance-column;
+
+    callback open;
+    callback toggle-select;
+    callback select-range;
+    callback show-partner;
+    callback delete-row;
+
+    property <bool> menu-open: false;
+
+    height: 46px + (root.menu-open && !root.item.pending ? 28px : 0px);
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 0px;
+
+        Rectangle {
+            height: 46px;
+            background: root.item.selected ? Theme.selected : transparent;
+
+            Rectangle {
+                visible: root.item.selected;
+                x: 0px;
+                y: 4px;
+                width: 3px;
+                height: parent.height - 8px;
+                border-radius: 2px;
+                background: Theme.primary;
+            }
+
+            HorizontalLayout {
+                padding-left: 10px;
+                padding-right: 4px;
+                spacing: 8px;
+
+                HorizontalLayout {
+                    width: TxLayout.date-width;
+                    spacing: 5px;
+
+                    // Its own fixed-width column, centred on the row's text line.
+                    VerticalLayout {
+                        width: 8px;
+                        alignment: center;
+
+                        Rectangle {
+                            visible: root.item.is-new;
+                            width: 6px;
+                            height: 6px;
+                            border-radius: 3px;
+                            background: Theme.primary;
+                        }
+                    }
+
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.item.date-text;
+                        color: root.item.pending ? Theme.muted-text : Theme.text;
+                        font-size: 12px;
+                        font-weight: root.item.is-new ? 700 : 400;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                }
+
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 0px;
+                    alignment: center;
+
+                    HorizontalLayout {
+                        spacing: 5px;
+
+                        Text {
+                            text: root.item.title;
+                            color: root.item.pending ? Theme.muted-text : Theme.text;
+                            font-size: 13px;
+                            font-weight: root.item.is-new ? 700 : 600;
+                            overflow: elide;
+                            horizontal-stretch: 1;
+                        }
+
+                        if (root.item.has-documents) : Text {
+                            text: "▤";
+                            color: Theme.primary;
+                            font-size: 11px;
+                            vertical-alignment: center;
+                        }
+                    }
+
+                    if (root.item.subtitle != "") : Text {
+                        text: root.item.subtitle;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        overflow: elide;
+                    }
+                }
+
+                HorizontalLayout {
+                    width: TxLayout.category-width;
+                    spacing: 5px;
+
+                    // Directly left of the name, centred with it.
+                    VerticalLayout {
+                        width: 7px;
+                        alignment: center;
+
+                        Rectangle {
+                            width: 7px;
+                            height: 7px;
+                            border-radius: 4px;
+                            background: root.item.category-colour;
+                        }
+                    }
+
+                    Text {
+                        text: root.item.category-text;
+                        color: root.item.pending ? Theme.muted-text : Theme.muted-text;
+                        font-size: 11px;
+                        vertical-alignment: center;
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                    }
+                }
+
+                Text {
+                    width: TxLayout.amount-width;
+                    text: root.item.amount-text;
+                    color: root.item.pending
+                        ? Theme.muted-text
+                        : (root.item.expense ? Theme.error : Theme.success);
+                    font-size: 13px;
+                    font-weight: root.item.is-new ? 700 : 600;
+                    font-italic: root.item.pending;
+                    horizontal-alignment: right;
+                    vertical-alignment: center;
+                }
+
+                if (root.has-balance-column) : HorizontalLayout {
+                    width: TxLayout.balance-width;
+                    spacing: 4px;
+                    alignment: end;
+
+                    if (root.item.balance-warning) : Text {
+                        text: "⚠";
+                        color: Theme.error;
+                        font-size: 12px;
+                        vertical-alignment: center;
+                    }
+
+                    Text {
+                        text: root.item.balance-text;
+                        color: AccountTone.amount-color(root.item.balance-tone);
+                        font-size: 12px;
+                        vertical-alignment: center;
+                        horizontal-alignment: right;
+                        overflow: elide;
+                    }
+                }
+
+                Rectangle {
+                    width: TxLayout.action-width;
+                    background: transparent;
+
+                    Text {
+                        text: "⋯";
+                        color: Theme.muted-text;
+                        font-size: 16px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+
+                    if (!root.item.pending) : TouchArea {
+                        clicked => { root.menu-open = !root.menu-open; }
+                    }
+                }
+            }
+
+            if (!root.item.pending) : TouchArea {
+                x: 0px;
+                y: 0px;
+                width: parent.width - TxLayout.action-width;
+                height: parent.height;
+
+                pointer-event(event) => {
+                    if (event.kind == PointerEventKind.up && event.button == PointerEventButton.left) {
+                        if (event.modifiers.shift) {
+                            root.select-range();
+                        } else if (event.modifiers.control) {
+                            root.toggle-select();
+                        } else {
+                            root.open();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (root.menu-open && !root.item.pending) : Rectangle {
+            height: 28px;
+            background: Theme.background;
+
+            HorizontalLayout {
+                padding-left: 100px;
+                padding-right: 6px;
+                spacing: 12px;
+                alignment: start;
+
+                TextButton {
+                    text: Tr.t("OpenDetails");
+                    clicked => {
+                        root.menu-open = false;
+                        root.open();
+                    }
+                }
+
+                if (root.item.partner-link-text != "") : TextButton {
+                    text: root.item.partner-link-text;
+                    clicked => {
+                        root.menu-open = false;
+                        root.show-partner();
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Delete");
+                    clicked => {
+                        root.menu-open = false;
+                        root.delete-row();
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The empty booking list.
+component EmptyTransactions inherits Rectangle {
+    in property <bool> has-accounts;
+
+    callback add-bank;
+
+    vertical-stretch: 1;
+    background: transparent;
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 10px;
+
+        Text {
+            text: "☰";
+            color: Theme.muted-text;
+            font-size: 28px;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: Tr.t("NoTransactions");
+            color: Theme.text;
+            font-size: 17px;
+            font-weight: 600;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: root.has-accounts ? Tr.t("NothingMatches") : Tr.t("NoTransactionsAddBank");
+            color: Theme.muted-text;
+            font-size: 13px;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+
+        if (!root.has-accounts) : HorizontalLayout {
+            alignment: center;
+
+            PrimaryButton {
+                width: 150px;
+                text: Tr.t("AddBank");
+                clicked => { root.add-bank(); }
+            }
+        }
+    }
+}
+
+// The foldable balance-history card below the list.
+component BalanceChartCard inherits Rectangle {
+    in property <bool> collapsed;
+    in property <string> line-path;
+    in property <string> area-path;
+    in property <string> axis-top;
+    in property <string> axis-bottom;
+    in property <string> axis-start;
+    in property <string> axis-mid;
+    in property <string> axis-end;
+    in property <string> value-text;
+    in property <bool> not-from-zero;
+
+    callback toggle;
+
+    border-radius: 12px;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: Theme.divider;
+    height: root.collapsed ? 44px : 200px;
+
+    VerticalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 4px;
+        padding-bottom: 8px;
+        spacing: 4px;
+
+        HorizontalLayout {
+            height: 36px;
+            spacing: 8px;
+
+            Rectangle {
+                width: 28px;
+                height: 28px;
+                border-radius: 14px;
+                background: touch.has-hover ? Theme.divider : transparent;
+
+                Text {
+                    text: root.collapsed ? "▸" : "▴";
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                touch := TouchArea {
+                    clicked => { root.toggle(); }
+                }
+            }
+
+            Text {
+                horizontal-stretch: 1;
+                text: Tr.t("BalanceHistory");
+                color: Theme.text;
+                font-size: 14px;
+                font-weight: 600;
+                vertical-alignment: center;
+            }
+
+            if (!root.collapsed && root.not-from-zero) : Text {
+                text: Tr.t("AxisNotFromZero");
+                color: Theme.muted-text;
+                font-size: 11px;
+                vertical-alignment: center;
+            }
+        }
+
+        if (!root.collapsed) : HorizontalLayout {
+            spacing: 6px;
+            vertical-stretch: 1;
+
+            VerticalLayout {
+                width: 66px;
+                alignment: space-between;
+
+                Text {
+                    text: root.axis-top;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    horizontal-alignment: right;
+                    overflow: elide;
+                }
+
+                Text {
+                    text: root.axis-bottom;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    horizontal-alignment: right;
+                    overflow: elide;
+                }
+            }
+
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 2px;
+
+                Rectangle {
+                    vertical-stretch: 1;
+                    background: transparent;
+                    clip: true;
+
+                    Path {
+                        commands: root.area-path;
+                        viewbox-width: 700.0;
+                        viewbox-height: 200.0;
+                        width: 100%;
+                        height: 100%;
+                        fill: Theme.primary;
+                        opacity: 0.10;
+                        stroke: transparent;
+                    }
+
+                    Path {
+                        commands: root.line-path;
+                        viewbox-width: 700.0;
+                        viewbox-height: 200.0;
+                        width: 100%;
+                        height: 100%;
+                        stroke: Theme.primary;
+                        stroke-width: 2px;
+                        fill: transparent;
+                    }
+
+                    Text {
+                        x: parent.width - self.width - 4px;
+                        y: 0px;
+                        text: root.value-text;
+                        color: Theme.text;
+                        font-size: 11px;
+                        font-weight: 600;
+                        horizontal-alignment: right;
+                    }
+                }
+
+                HorizontalLayout {
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.axis-start;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                    }
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.axis-mid;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        horizontal-alignment: center;
+                    }
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.axis-end;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        horizontal-alignment: right;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The Transactions page: the shared account panel, summary, filters, booking list and chart.
+export component TransactionsPage inherits Rectangle {
+    in property <bool> show-panel;
+    in property <bool> loading;
+    in property <bool> has-accounts;
+    in property <string> error-text;
+    in property <string> message-text;
+
+    in property <string> count-text;
+    in property <[AccountAmount]> income-amounts;
+    in property <[AccountAmount]> expense-amounts;
+    in property <bool> has-balance;
+    in property <string> balance-text;
+    in property <string> balance-tone;
+    in property <bool> show-back;
+
+    in property <[string]> period-options;
+    in-out property <int> period-index;
+    in property <string> period-extra;
+    in property <[string]> category-options;
+    in-out property <int> category-index;
+    in property <[string]> direction-options;
+    in-out property <int> direction-index;
+    in property <string> amount-label;
+    in-out property <int> account-index;
+    in property <[string]> account-options;
+
+    in property <[AccountPanelRow]> panel-rows;
+    in property <[AccountGroupChoice]> group-choices;
+    in property <string> panel-filter-text;
+    in property <string> panel-shown-text;
+
+    in property <string> pending-header;
+    in property <[TransactionRow]> rows;
+    in property <bool> has-balance-column;
+
+    in property <bool> has-chart;
+    in property <bool> chart-collapsed;
+    in property <string> chart-line;
+    in property <string> chart-area;
+    in property <string> chart-axis-top;
+    in property <string> chart-axis-bottom;
+    in property <string> chart-axis-start;
+    in property <string> chart-axis-mid;
+    in property <string> chart-axis-end;
+    in property <string> chart-value;
+    in property <bool> chart-not-from-zero;
+
+    in property <bool> selection-visible;
+    in property <string> selection-count-text;
+    in property <string> selection-totals-text;
+    in property <[string]> category-names;
+    in property <[string]> tax-options;
+
+    in property <bool> detail-open;
+    in property <string> detail-title;
+    in property <string> detail-amount;
+    in property <bool> detail-expense;
+    in property <string> detail-date;
+    in property <string> detail-account;
+    in property <string> detail-partner;
+    in property <string> detail-shop;
+    in property <string> detail-purpose;
+    in-out property <int> detail-category-index;
+    in property <bool> detail-tax-relevant;
+    in property <string> detail-tax-state;
+    in-out property <int> detail-tax-index;
+    in property <string> detail-mismatch;
+    in property <bool> detail-has-mismatch;
+    in property <string> detail-partner-link;
+
+    in property <bool> add-open;
+    in property <[string]> add-account-options;
+    in property <int> add-account-index;
+    in property <string> add-date;
+    in property <[string]> add-category-names;
+    in property <string> add-amount-label;
+    in property <string> add-error;
+
+    in property <bool> duplicate-open;
+    in property <string> duplicate-title;
+    in property <string> duplicate-text;
+
+    in property <bool> delete-open;
+    in property <int> delete-id;
+    in property <string> delete-title;
+    in property <string> delete-text;
+
+    in property <bool> multi-delete-open;
+    in property <string> multi-delete-title;
+    in property <string> multi-delete-range;
+    in property <string> multi-delete-totals;
+    in property <[string]> multi-delete-lines;
+    in property <string> multi-delete-more;
+
+    in property <bool> range-open;
+    in property <string> range-from;
+    in property <string> range-to;
+    in property <string> range-error;
+
+    in property <bool> amount-open;
+    in property <string> amount-min;
+    in property <string> amount-max;
+    in property <string> amount-min-label;
+    in property <string> amount-max-label;
+    in property <string> amount-error;
+
+    callback search(string);
+    callback period-changed(int);
+    callback open-range;
+    callback apply-range(string, string);
+    callback close-range;
+    callback category-changed(int);
+    callback direction-changed(int);
+    callback account-changed(int);
+    callback open-amount;
+    callback apply-amount(string, string);
+    callback reset-amount;
+    callback close-amount;
+    callback toggle-chart;
+    callback auto-categorize;
+    callback open-accounts;
+    callback back;
+
+    callback open-detail(int);
+    callback toggle-select(int);
+    callback select-range(int);
+    callback select-all;
+    callback clear-selection;
+    callback show-partner(string);
+    callback delete-row(int);
+    callback confirm-delete(int);
+    callback cancel-delete;
+    callback open-multi-delete;
+    callback confirm-multi-delete;
+    callback cancel-multi-delete;
+    callback batch-category(int);
+    callback batch-tax(int);
+
+    callback open-add;
+    callback add-submit(int, bool, string, string, string, string, int);
+    callback close-add;
+    callback confirm-duplicate;
+    callback dismiss-duplicate;
+    callback detail-close;
+    callback detail-category(int);
+    callback detail-tax(int);
+    callback detail-show-partner(string);
+    callback dismiss-message;
+
+    callback panel-select(string, string, int, string);
+    callback panel-toggle(string, string, int, string);
+    callback panel-mark-read(string, string, int, string);
+    callback panel-new-group(string);
+    callback panel-rename-group(int, string);
+    callback panel-delete-group(int);
+    callback panel-move-group(int, bool);
+    callback panel-move-account(int, int);
+    callback panel-filter-changed(string);
+
+    property <bool> more-open: false;
+
+    background: Theme.background;
+
+    HorizontalLayout {
+        padding: 20px;
+        spacing: 16px;
+
+        if (root.show-panel && root.has-accounts) : AccountPanel {
+            width: 258px;
+            rows: root.panel-rows;
+            groups: root.group-choices;
+            filter-text: root.panel-filter-text;
+            shown-text: root.panel-shown-text;
+
+            filter-changed(text) => { root.panel-filter-changed(text); }
+            select(kind, group-kind, id, account-type) => {
+                root.panel-select(kind, group-kind, id, account-type);
+            }
+            toggle(kind, group-kind, id, account-type) => {
+                root.panel-toggle(kind, group-kind, id, account-type);
+            }
+            mark-read(kind, group-kind, id, account-type) => {
+                root.panel-mark-read(kind, group-kind, id, account-type);
+            }
+            new-group(name) => { root.panel-new-group(name); }
+            rename-group(id, name) => { root.panel-rename-group(id, name); }
+            delete-group(id) => { root.panel-delete-group(id); }
+            move-group(id, up) => { root.panel-move-group(id, up); }
+            move-account(account-id, group-id) => { root.panel-move-account(account-id, group-id); }
+        }
+
+        VerticalLayout {
+            spacing: 10px;
+
+            HorizontalLayout {
+                spacing: 20px;
+
+                SummaryFigure {
+                    label: Tr.t("SummaryCount");
+                    single-text: root.count-text;
+                    value-tone: false;
+                }
+
+                SummaryFigure {
+                    label: Tr.t("SummaryIn");
+                    values: root.income-amounts;
+                }
+
+                SummaryFigure {
+                    label: Tr.t("SummaryOut");
+                    values: root.expense-amounts;
+                }
+
+                if (root.has-balance) : SummaryFigure {
+                    label: Tr.t("SummaryBalance");
+                    values: [{ text: root.balance-text, tone: root.balance-tone }];
+                }
+
+                Rectangle {
+                    horizontal-stretch: 1;
+                    background: transparent;
+                }
+
+                TextButton {
+                    text: Tr.t("More");
+                    clicked => { root.more-open = !root.more-open; }
+                }
+
+                if (root.more-open) : TextButton {
+                    text: Tr.t("AutoCategorize");
+                    clicked => {
+                        root.more-open = false;
+                        root.auto-categorize();
+                    }
+                }
+
+                if (root.has-accounts) : PrimaryButton {
+                    width: 108px;
+                    text: "+ " + Tr.t("Add");
+                    clicked => { root.open-add(); }
+                }
+            }
+
+            if (root.error-text != "" || root.message-text != "") : Rectangle {
+                height: 42px;
+                background: Theme.surface;
+                border-radius: 8px;
+                border-width: 1px;
+                border-color: root.error-text != "" ? Theme.error : Theme.success;
+
+                HorizontalLayout {
+                    padding-left: 14px;
+                    padding-right: 8px;
+                    spacing: 12px;
+
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.error-text != "" ? root.error-text : root.message-text;
+                        color: root.error-text != "" ? Theme.error : Theme.success;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                        wrap: word-wrap;
+                    }
+
+                    TextButton {
+                        text: Tr.t("Dismiss");
+                        clicked => { root.dismiss-message(); }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 8px;
+
+                SearchField {
+                    horizontal-stretch: 1;
+                    min-width: 180px;
+                    text: "";
+                    placeholder: Tr.t("SearchPartnerPurpose");
+                    edited(text) => { root.search(text); }
+                }
+
+                ComboBox {
+                    width: 150px;
+                    model: root.period-options;
+                    current-index <=> root.period-index;
+                    selected(value) => { root.period-changed(root.period-index); }
+                }
+
+                if (root.period-extra != "") : Text {
+                    text: root.period-extra;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                }
+
+                FilterButton {
+                    text: Tr.t("PeriodCustomRange");
+                    clicked => { root.open-range(); }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 8px;
+
+                ComboBox {
+                    width: 160px;
+                    model: root.category-options;
+                    current-index <=> root.category-index;
+                    selected(value) => { root.category-changed(root.category-index); }
+                }
+
+                ComboBox {
+                    width: 140px;
+                    model: root.direction-options;
+                    current-index <=> root.direction-index;
+                    selected(value) => { root.direction-changed(root.direction-index); }
+                }
+
+                FilterButton {
+                    text: root.amount-label;
+                    clicked => { root.open-amount(); }
+                }
+
+                if (!root.show-panel && root.has-accounts) : ComboBox {
+                    width: 190px;
+                    model: root.account-options;
+                    current-index <=> root.account-index;
+                    selected(value) => { root.account-changed(root.account-index); }
+                }
+
+                Rectangle {
+                    horizontal-stretch: 1;
+                    background: transparent;
+                }
+
+                if (root.rows.length > 0 && !root.selection-visible) : TextButton {
+                    text: Tr.t("SelectAll");
+                    clicked => { root.select-all(); }
+                }
+            }
+
+            if (root.show-back) : TextButton {
+                text: Tr.t("Back");
+                clicked => { root.back(); }
+            }
+
+            Rectangle {
+                background: Theme.surface;
+                border-radius: 12px;
+                border-width: 1px;
+                border-color: Theme.divider;
+                vertical-stretch: 1;
+
+                VerticalLayout {
+                    spacing: 0px;
+
+                    if (root.selection-visible) : Rectangle {
+                        height: 48px;
+                        background: Theme.background;
+
+                        HorizontalLayout {
+                            padding-left: 12px;
+                            padding-right: 8px;
+                            spacing: 8px;
+
+                            Text {
+                                text: root.selection-count-text;
+                                color: Theme.text;
+                                font-size: 13px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+
+                            Text {
+                                text: root.selection-totals-text;
+                                color: Theme.muted-text;
+                                font-size: 12px;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+
+                            Rectangle {
+                                horizontal-stretch: 1;
+                                background: transparent;
+                            }
+
+                            ActionPicker {
+                                width: 140px;
+                                label: Tr.t("CategoryMenu");
+                                options: root.category-names;
+                                primary: true;
+                                chosen(index) => { root.batch-category(index); }
+                            }
+
+                            ActionPicker {
+                                width: 150px;
+                                label: Tr.t("TaxMenu");
+                                options: root.tax-options;
+                                chosen(index) => { root.batch-tax(index); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("SelectAll");
+                                clicked => { root.select-all(); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("ClearSelection");
+                                clicked => { root.clear-selection(); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("DeleteSelected");
+                                clicked => { root.open-multi-delete(); }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        height: 34px;
+                        background: transparent;
+
+                        HorizontalLayout {
+                            padding-left: 10px;
+                            padding-right: 4px;
+                            spacing: 8px;
+
+                            Text {
+                                width: TxLayout.date-width;
+                                text: Tr.t("ColDate");
+                                color: Theme.muted-text;
+                                font-size: 11px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+                            Text {
+                                horizontal-stretch: 1;
+                                text: Tr.t("ColDescription");
+                                color: Theme.muted-text;
+                                font-size: 11px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+                            Text {
+                                width: TxLayout.category-width;
+                                text: Tr.t("ColCategory");
+                                color: Theme.muted-text;
+                                font-size: 11px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+                            Text {
+                                width: TxLayout.amount-width;
+                                text: Tr.t("ColAmount");
+                                color: Theme.muted-text;
+                                font-size: 11px;
+                                font-weight: 600;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                            }
+                            if (root.has-balance-column) : Text {
+                                width: TxLayout.balance-width;
+                                text: Tr.t("ColBalance");
+                                color: Theme.muted-text;
+                                font-size: 11px;
+                                font-weight: 600;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                            }
+                            Rectangle {
+                                width: TxLayout.action-width;
+                                background: transparent;
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        height: 1px;
+                        background: Theme.divider;
+                    }
+
+                    if (root.pending-header != "") : Rectangle {
+                        height: 34px;
+                        background: Theme.background;
+
+                        HorizontalLayout {
+                            padding-left: 12px;
+
+                            Text {
+                                text: root.pending-header;
+                                color: Theme.muted-text;
+                                font-size: 12px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+
+                    if (root.rows.length == 0 && !root.loading) : EmptyTransactions {
+                        has-accounts: root.has-accounts;
+                        add-bank => { root.open-accounts(); }
+                    }
+
+                    if (root.rows.length == 0 && root.loading) : Rectangle {
+                        vertical-stretch: 1;
+                        background: transparent;
+
+                        Spinner {
+                            width: 28px;
+                            height: 28px;
+                        }
+                    }
+
+                    if (root.rows.length > 0) : ListView {
+                        vertical-stretch: 1;
+
+                        for row in root.rows : TransactionRowView {
+                            item: row;
+                            has-balance-column: root.has-balance-column;
+
+                            open => { root.open-detail(row.id); }
+                            toggle-select => { root.toggle-select(row.id); }
+                            select-range => { root.select-range(row.id); }
+                            show-partner => { root.show-partner(row.partner); }
+                            delete-row => { root.delete-row(row.id); }
+                        }
+                    }
+                }
+            }
+
+            if (root.has-chart) : BalanceChartCard {
+                collapsed: root.chart-collapsed;
+                line-path: root.chart-line;
+                area-path: root.chart-area;
+                axis-top: root.chart-axis-top;
+                axis-bottom: root.chart-axis-bottom;
+                axis-start: root.chart-axis-start;
+                axis-mid: root.chart-axis-mid;
+                axis-end: root.chart-axis-end;
+                value-text: root.chart-value;
+                not-from-zero: root.chart-not-from-zero;
+                toggle => { root.toggle-chart(); }
+            }
+        }
+    }
+
+    if (root.detail-open) : TransactionDetailDialog {
+        title: root.detail-title;
+        amount-text: root.detail-amount;
+        expense: root.detail-expense;
+        date-text: root.detail-date;
+        account-text: root.detail-account;
+        partner-text: root.detail-partner;
+        shop-text: root.detail-shop;
+        purpose-text: root.detail-purpose;
+        category-index <=> root.detail-category-index;
+        category-names: root.category-names;
+        tax-relevant: root.detail-tax-relevant;
+        tax-state-text: root.detail-tax-state;
+        tax-index <=> root.detail-tax-index;
+        tax-options: root.tax-options;
+        has-mismatch: root.detail-has-mismatch;
+        mismatch-text: root.detail-mismatch;
+        has-partner: root.detail-partner != "";
+        partner-link-text: root.detail-partner-link;
+
+        close => { root.detail-close(); }
+        category-selected(index) => { root.detail-category(index); }
+        tax-selected(index) => { root.detail-tax(index); }
+        show-partner => { root.detail-show-partner(root.detail-partner); }
+    }
+
+    if (root.add-open) : AddTransactionDialog {
+        initial-date: root.add-date;
+        initial-account-index: root.add-account-index;
+        accounts: root.add-account-options;
+        category-names: root.add-category-names;
+        amount-label: root.add-amount-label;
+        error-text: root.add-error;
+
+        close => { root.close-add(); }
+        submit(account-index, expense, date-text, amount-text, partner-text, purpose-text, category-index) => {
+            root.add-submit(account-index, expense, date-text, amount-text, partner-text, purpose-text, category-index);
+        }
+    }
+
+    if (root.duplicate-open) : ConfirmDialog {
+        title: root.duplicate-title;
+        text: root.duplicate-text;
+        confirm-text: Tr.t("AddAnyway");
+
+        confirm => { root.confirm-duplicate(); }
+        cancel => { root.dismiss-duplicate(); }
+    }
+
+    if (root.delete-open) : ConfirmDialog {
+        title: root.delete-title;
+        text: root.delete-text;
+        confirm-text: Tr.t("Delete");
+
+        confirm => { root.confirm-delete(root.delete-id); }
+        cancel => { root.cancel-delete(); }
+    }
+
+    if (root.multi-delete-open) : MultiDeleteDialog {
+        title: root.multi-delete-title;
+        range-text: root.multi-delete-range;
+        totals-text: root.multi-delete-totals;
+        booking-lines: root.multi-delete-lines;
+        more-text: root.multi-delete-more;
+
+        confirm => { root.confirm-multi-delete(); }
+        cancel => { root.cancel-multi-delete(); }
+    }
+
+    if (root.range-open) : CustomRangeDialog {
+        initial-from: root.range-from;
+        initial-to: root.range-to;
+        error-text: root.range-error;
+
+        close => { root.close-range(); }
+        apply(from, to) => { root.apply-range(from, to); }
+    }
+
+    if (root.amount-open) : AmountFilterDialog {
+        initial-min: root.amount-min;
+        initial-max: root.amount-max;
+        min-label: root.amount-min-label;
+        max-label: root.amount-max-label;
+        error-text: root.amount-error;
+
+        close => { root.close-amount(); }
+        apply(minimum, maximum) => { root.apply-amount(minimum, maximum); }
+        reset => { root.reset-amount(); }
+    }
+}
