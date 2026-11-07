@@ -52,15 +52,12 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 
 ### M1 — Foundation
 
-- [ ] Data folder and profiles (`FINGLASS_HOME`, profile store, slugs).
-- [ ] Encrypted database:
-  - create, open, verify and change the passphrase;
-  - a wrong passphrase gives a clear error;
-  - the key goes only into `PRAGMA key` on the connection, never into SQL logs or error text.
-- [ ] Migration runner with the first schema: accounts, transactions, categories, rules, documents, settings, audit
-      log.
-- [ ] Audit log for every user-visible change.
-- [ ] Repository layer returning plain data structs.
+- [x] M1a: data folder (`FINGLASS_HOME`, profile slugs), passphrase rules (NFC, at least 10 characters, no surrounding
+      whitespace), encrypted database (create, open, change passphrase; one connection, passphrase dropped after
+      open), versioned migrations, settings, audit log.
+- [ ] M1b: domain tables as migration 2, designed from FinDesk's tables so M8 maps one to one (no payment tables);
+      money type in integer minor units; repositories for accounts, groups, categories, rules and transactions.
+- [ ] Profile management (list, create, rename, delete) with the app shell.
 
 ### M2 — App shell
 
