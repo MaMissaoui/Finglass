@@ -311,11 +311,45 @@ fn migrate_in_staging(
         }
         Some(_) => {
             let created = profiles::create(paths, &profile.name)?;
-            move_into_place(staging, &created.dir)?;
+            if let Err(error) = move_into_place(staging, &created.dir) {
+                roll_back_created_profile(paths, staging, &created);
+                return Err(error.into());
+            }
             Ok(MigratedProfile {
                 finglass_slug: created.slug,
                 report,
             })
+        }
+    }
+}
+
+/// Undoes `profiles::create` after a failed move, best effort.
+///
+/// Files that already reached the profile folder go back to staging, and the profile is removed and unregistered only
+/// when its folder is empty again. A folder that still holds unexpected files stays registered so nothing is lost.
+fn roll_back_created_profile(paths: &AppPaths, staging: &Path, created: &profiles::Profile) {
+    move_back_to_staging(&created.dir, staging);
+
+    let empty = fs::read_dir(&created.dir)
+        .map(|mut entries| entries.next().is_none())
+        .unwrap_or(false);
+    if !empty {
+        return;
+    }
+    if fs::remove_dir(&created.dir).is_ok()
+        && let Some(slug) = created.slug.as_deref()
+    {
+        let _ = profiles::forget_created(paths, slug);
+    }
+}
+
+/// Moves whatever `move_into_place` already placed back into staging, leaving conflicts alone.
+fn move_back_to_staging(target: &Path, staging: &Path) {
+    for name in ["documents", "finglass.db-wal", "finglass.db-shm", "finglass.db"] {
+        let placed = target.join(name);
+        let back = staging.join(name);
+        if placed.exists() && !back.exists() {
+            let _ = fs::rename(&placed, &back);
         }
     }
 }
@@ -362,9 +396,31 @@ fn move_into_place(staging: &Path, target: &Path) -> io::Result<()> {
             fs::rename(&source, target.join(name))?;
         }
     }
+
+    #[cfg(test)]
+    if fail_move_before_database() {
+        return Err(io::Error::other("injected move failure"));
+    }
+
     fs::rename(&database, target.join("finglass.db"))?;
 
     Ok(())
+}
+
+// A test-only switch that makes the next `move_into_place` fail after the documents and side files were moved.
+#[cfg(test)]
+thread_local! {
+    static FAIL_MOVE_BEFORE_DATABASE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+#[cfg(test)]
+fn fail_next_move_before_database() {
+    FAIL_MOVE_BEFORE_DATABASE.with(|flag| flag.set(true));
+}
+
+#[cfg(test)]
+fn fail_move_before_database() -> bool {
+    FAIL_MOVE_BEFORE_DATABASE.with(|flag| flag.replace(false))
 }
 
 fn documents_absent_or_empty(path: &Path) -> bool {
@@ -841,5 +897,45 @@ mod tests {
         assert!(move_into_place(&staging, &target).is_err());
         assert!(staging.join("documents/receipt.pdf").is_file());
         assert!(!target.join("documents").exists());
+    }
+
+    #[test]
+    fn a_failed_named_move_rolls_back_the_created_profile() {
+        let (_source_temp, root) = fixture_copy();
+        write_named_profile(&root, "work");
+        fs::write(
+            root.join("profiles.properties"),
+            "name.default=Personal\nname.work=Work\nactive=work\n",
+        )
+        .unwrap();
+        let install = discover(&root).unwrap();
+        let profile = install
+            .profiles
+            .iter()
+            .find(|profile| profile.slug.as_deref() == Some("work"))
+            .unwrap()
+            .clone();
+        let before = hashes(&root);
+
+        let target_temp = tempfile::tempdir().unwrap();
+        let target = paths(&target_temp);
+        fail_next_move_before_database();
+        let error =
+            migrate_profile(&target, &profile, &findesk_passphrase(), &target_passphrase(), offset()).unwrap_err();
+
+        assert!(matches!(error, MigrationError::Io(_)));
+        assert!(
+            profiles::list(&target)
+                .unwrap()
+                .iter()
+                .all(|listed| listed.name != "Work"),
+            "the failed profile is no longer listed"
+        );
+        assert!(
+            !target.root().join(profiles::PROFILES_DIR).join("work").exists(),
+            "the half-filled profile folder is gone"
+        );
+        assert!(!target.root().join(STAGING_DIR).exists(), "staging is removed");
+        assert_eq!(hashes(&root), before, "FinDesk's folder was only read");
     }
 }

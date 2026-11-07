@@ -74,6 +74,15 @@ pub(crate) fn run(
 }
 
 fn ensure_target_empty(target: &Database) -> Result<(), FinDeskImportError> {
+    let count = target
+        .with_conn(|conn| target_row_count(conn).map_err(DbError::from))
+        .map_err(FinDeskImportError::Db)?;
+    ensure_empty_count(count)
+}
+
+/// Counts the rows in the tables an import replaces or fills. Shared by the early check on the target and the check
+/// inside the import transaction, so both see the same data.
+fn target_row_count(conn: &Connection) -> rusqlite::Result<i64> {
     let sql = format!(
         "SELECT {}",
         TARGET_TABLES
@@ -83,10 +92,10 @@ fn ensure_target_empty(target: &Database) -> Result<(), FinDeskImportError> {
             .join(" + ")
     );
 
-    let count: i64 = target
-        .with_conn(|conn| conn.query_row(&sql, [], |row| row.get(0)).map_err(DbError::from))
-        .map_err(FinDeskImportError::Db)?;
+    conn.query_row(&sql, [], |row| row.get(0))
+}
 
+fn ensure_empty_count(count: i64) -> Result<(), FinDeskImportError> {
     if count > 0 {
         return Err(FinDeskImportError::TargetNotEmpty);
     }
@@ -94,7 +103,7 @@ fn ensure_target_empty(target: &Database) -> Result<(), FinDeskImportError> {
     Ok(())
 }
 
-fn import_in_connection(
+pub(super) fn import_in_connection(
     conn: &Connection,
     data: &SourceData,
     findesk_data_dir: &Path,
@@ -107,6 +116,10 @@ fn import_in_connection(
     };
     let mut copied = CopiedFiles::default();
     let transaction = conn.unchecked_transaction().map_err(db_error)?;
+
+    // The target may have gained data while the FinDesk copy was read; check again before the first write.
+    let count = target_row_count(&transaction).map_err(db_error)?;
+    ensure_empty_count(count)?;
 
     // Seeded categories are replaced, not merged.
     transaction.execute("DELETE FROM categories", []).map_err(db_error)?;

@@ -9,10 +9,11 @@ use std::path::Path;
 use std::sync::Arc;
 use std::thread;
 
+use finglass_core::app::accounts::Busy;
 use finglass_core::app::findesk::{self, FindeskImportState};
 use finglass_core::app::settings::SettingsState;
 use finglass_core::db::Database;
-use finglass_core::findesk_import::FinDeskImportError;
+use finglass_core::findesk_import::{FinDeskImportError, FinDeskImportReport};
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{Category, CategoryId, RuleDirection, RuleField, RuleId};
@@ -222,6 +223,32 @@ pub fn import_findesk(main: &MainWindow, state: &Arc<ShellState>) {
     });
 }
 
+/// Runs the chosen import with FinDesk's passphrase while the profile's busy flag is held.
+fn import_with_profile_busy(
+    pending: &mut FindeskImportState,
+    db: &Database,
+    paths: &AppPaths,
+    slug: Option<&str>,
+    passphrase: &str,
+    busy: &Busy,
+) -> Result<FinDeskImportReport, FinDeskImportError> {
+    run_while_profile_busy(busy, || match Passphrase::new(passphrase, PassphrasePurpose::Unlock) {
+        Ok(passphrase) => pending.import_in_profile(db, paths, slug, &passphrase),
+        Err(_) => {
+            pending.is_importing = false;
+            pending.report = None;
+            pending.error = None;
+            pending.passphrase_wrong = true;
+            Err(FinDeskImportError::WrongPassphrase)
+        }
+    })
+}
+
+/// Runs `work` as one profile-busy section, so the section ends on every path.
+fn run_while_profile_busy<T>(busy: &Busy, work: impl FnOnce() -> T) -> T {
+    busy.run(work)
+}
+
 /// Runs the chosen import with FinDesk's passphrase; the field is cleared before any work starts.
 pub fn submit_findesk_passphrase(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, passphrase: &str) {
     main.set_findesk_passphrase("".into());
@@ -241,20 +268,12 @@ pub fn submit_findesk_passphrase(main: &MainWindow, state: &Arc<ShellState>, pat
     let slug = state.slug();
     let paths = paths.clone();
     let passphrase = Zeroizing::new(passphrase.to_owned());
+    let busy = state.profile_busy.lock().expect("profile busy poisoned").clone();
     let main_weak = main.as_weak();
     let state = state.clone();
     let generation = state.jobs.begin();
     thread::spawn(move || {
-        let result = match Passphrase::new(passphrase.as_str(), PassphrasePurpose::Unlock) {
-            Ok(passphrase) => pending.import_in_profile(&db, &paths, slug.as_deref(), &passphrase),
-            Err(_) => {
-                pending.is_importing = false;
-                pending.report = None;
-                pending.error = None;
-                pending.passphrase_wrong = true;
-                Err(FinDeskImportError::WrongPassphrase)
-            }
-        };
+        let result = import_with_profile_busy(&mut pending, &db, &paths, slug.as_deref(), passphrase.as_str(), &busy);
         let success = result.is_ok();
 
         let _ = slint::invoke_from_event_loop(move || {
@@ -1634,6 +1653,8 @@ fn color(hex: &str) -> slint::Color {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
     use finglass_core::app::settings::SettingsState;
     use finglass_core::model::{Category, Rule};
@@ -1771,5 +1792,74 @@ mod tests {
         assert_eq!(field_index(RuleField::Purpose), 2);
         assert_eq!(direction_index(RuleDirection::Income), 2);
         assert_eq!(tax_index(Some(false)), 2);
+    }
+
+    fn fixture_copy() -> (tempfile::TempDir, std::path::PathBuf) {
+        fn copy_tree(from: &Path, to: &Path) {
+            fs::create_dir_all(to).unwrap();
+            for entry in fs::read_dir(from).unwrap() {
+                let entry = entry.unwrap();
+                let target = to.join(entry.file_name());
+                if entry.file_type().unwrap().is_dir() {
+                    copy_tree(&entry.path(), &target);
+                } else {
+                    fs::copy(entry.path(), target).unwrap();
+                }
+            }
+        }
+
+        let fixture = Path::new(env!("CARGO_MANIFEST_DIR")).join("../finglass-core/tests/fixtures/findesk");
+        let temp = tempfile::tempdir().unwrap();
+        let destination = temp.path().join("findesk");
+        copy_tree(&fixture, &destination);
+        (temp, destination)
+    }
+
+    fn findesk_target() -> (tempfile::TempDir, AppPaths, Database) {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = AppPaths::resolve(Some(temp.path().as_os_str().to_owned()), None).unwrap();
+        let passphrase = Passphrase::new("target passphrase 1", PassphrasePurpose::New).unwrap();
+        let db = Database::create(&temp.path().join("finglass.db"), &passphrase).unwrap();
+        (temp, paths, db)
+    }
+
+    #[test]
+    fn the_profile_busy_section_is_active_during_work_and_released_afterwards() {
+        let busy = Busy::default();
+
+        let active_during = run_while_profile_busy(&busy, || busy.active());
+
+        assert!(active_during, "the work runs inside the busy section");
+        assert!(!busy.active(), "the section ends after the work");
+    }
+
+    #[test]
+    fn the_findesk_import_releases_the_profile_busy_after_success() {
+        let (_fixture_temp, source_dir) = fixture_copy();
+        let (_target_temp, paths, db) = findesk_target();
+        let busy = Busy::default();
+        let mut pending = FindeskImportState::new(Language::En);
+        pending.source_dir = Some(source_dir);
+
+        let result = import_with_profile_busy(&mut pending, &db, &paths, None, "fixture passphrase 1", &busy);
+
+        assert!(result.is_ok());
+        assert!(pending.report.is_some());
+        assert!(!busy.active());
+    }
+
+    #[test]
+    fn the_findesk_import_releases_the_profile_busy_after_an_error() {
+        let (_fixture_temp, source_dir) = fixture_copy();
+        let (_target_temp, paths, db) = findesk_target();
+        let busy = Busy::default();
+        let mut pending = FindeskImportState::new(Language::En);
+        pending.source_dir = Some(source_dir);
+
+        let result = import_with_profile_busy(&mut pending, &db, &paths, None, "wrong passphrase", &busy);
+
+        assert!(matches!(result, Err(FinDeskImportError::WrongPassphrase)));
+        assert!(pending.passphrase_wrong);
+        assert!(!busy.active());
     }
 }

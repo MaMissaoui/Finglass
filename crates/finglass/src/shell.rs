@@ -139,6 +139,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         jobs.clone(),
     ));
     let profile_busy = Busy::default();
+    transactions.set_profile_busy(profile_busy.clone());
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
@@ -2108,6 +2109,7 @@ pub(crate) fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow
     *state.findesk.lock().expect("findesk state poisoned") = FindeskImportState::new(language);
     let busy = Busy::default();
     *state.profile_busy.lock().expect("profile busy poisoned") = busy.clone();
+    state.transactions.set_profile_busy(busy.clone());
     *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(language, busy);
     *state.banking.lock().expect("banking state poisoned") = BankingState::new(language);
     *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
