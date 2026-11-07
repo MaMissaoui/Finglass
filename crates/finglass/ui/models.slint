@@ -5,3 +5,29 @@ export struct AuditRow {
     actor: string,
     details: string,
 }
+
+// One category in the Settings list, prepared by the UI mapping.
+export struct CategoryRow {
+    id: int,
+    name: string,
+    colour: color,
+    budget-text: string,
+    usage-text: string,
+    tax-relevant: bool,
+    transfer: bool,
+}
+
+// One auto-categorization rule in the Settings list, prepared by the UI mapping.
+export struct RuleRow {
+    id: int,
+    pattern: string,
+    category-text: string,
+    detail: string,
+    prio-text: string,
+}
+
+// One colour of the category palette.
+export struct ColourSwatch {
+    hex: string,
+    colour: color,
+}

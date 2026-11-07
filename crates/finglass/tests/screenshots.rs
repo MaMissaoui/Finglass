@@ -11,15 +11,17 @@ use finglass_core::app;
 use finglass_core::app::dashboard::{DashboardState, DashboardView};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
+use finglass_core::app::settings::SettingsState;
 use finglass_core::audit::{self, Actor};
 use finglass_core::db::Database;
-use finglass_core::i18n::{self, Key, Language};
+use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{
-    AccountId, AccountType, CategoryId, NewAccount, NewCategory, NewDocument, NewTransaction, TransactionId,
+    AccountId, AccountType, CategoryId, NewAccount, NewCategory, NewDocument, NewRule, NewTransaction, RuleDirection,
+    RuleField, TransactionId,
 };
 use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
-use finglass_core::repo::{accounts, categories, documents, transactions};
+use finglass_core::repo::{accounts, categories, documents, rules, transactions};
 use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
 use slint::platform::{Platform, PlatformError, WindowAdapter};
 use slint::{Color, ComponentHandle, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel};
@@ -63,6 +65,7 @@ fn renders_the_app_shell() {
     app::prefs::save_theme(&db, ThemePref::Dark).unwrap();
     app::prefs::save_language(&db, Language::De).unwrap();
     seed_dashboard(&db);
+    seed_settings(&db);
     let rows = app::audit::recent(&db, 100).unwrap();
     let today = date!(2026 - 10 - 15);
 
@@ -137,20 +140,196 @@ fn renders_the_app_shell() {
     }
 
     {
+        let settings = settings_state(&db, &paths, Language::En);
         let ui = MainWindow::new().unwrap();
-        configure_main(&ui, Language::En, ThemePref::Dark, "settings", &rows);
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
         ui.show().unwrap();
-        let buffer = render(&window, "settings-en-dark", 1100, 720);
-        assert_varied(&buffer, "settings-en-dark");
+        ui.set_settings_scroll_y(0.0);
+        let buffer = render(&window, "settings-currency-en-light", 1100, 720);
+        assert_varied(&buffer, "settings-currency-en-light");
         let _ = ui.hide();
     }
 
     {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(0.0);
+        let buffer = render(&window, "settings-currency-de-dark", 1100, 720);
+        assert_varied(&buffer, "settings-currency-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-220.0);
+        let buffer = render(&window, "settings-categories-en-light", 1100, 720);
+        assert_varied(&buffer, "settings-categories-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-220.0);
+        let buffer = render(&window, "settings-categories-de-dark", 1100, 720);
+        assert_varied(&buffer, "settings-categories-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-555.0);
+        let buffer = render(&window, "settings-tax-keywords-en-light", 1100, 720);
+        assert_varied(&buffer, "settings-tax-keywords-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-555.0);
+        let buffer = render(&window, "settings-tax-keywords-de-dark", 1100, 720);
+        assert_varied(&buffer, "settings-tax-keywords-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-835.0);
+        let buffer = render(&window, "settings-rules-en-light", 1100, 720);
+        assert_varied(&buffer, "settings-rules-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-835.0);
+        let buffer = render(&window, "settings-rules-de-dark", 1100, 720);
+        assert_varied(&buffer, "settings-rules-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::Fr);
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::Fr, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
         ui.show().unwrap();
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-fr-light", 1100, 720);
         assert_varied(&buffer, "settings-fr-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let food = settings
+            .categories
+            .iter()
+            .find(|category| category.name == "Food")
+            .unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_category_dialog_open(true);
+        ui.set_category_dialog_id(i32::try_from(food.id.0).unwrap());
+        ui.set_category_dialog_name(food.name.clone().into());
+        ui.set_category_dialog_colour(food.color.clone().into());
+        ui.set_category_dialog_budget("300.00".into());
+        ui.set_category_dialog_tax(true);
+        ui.set_category_dialog_transfer(false);
+        ui.set_category_dialog_error("".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-category-dialog-en", 1100, 720);
+        assert_varied(&buffer, "settings-category-dialog-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let rule = settings
+            .rules
+            .iter()
+            .find(|rule| rule.pattern == "Example Market")
+            .unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_rule_dialog_open(true);
+        ui.set_rule_dialog_id(i32::try_from(rule.id.0).unwrap());
+        ui.set_rule_dialog_pattern(rule.pattern.clone().into());
+        ui.set_rule_dialog_category_index(
+            settings
+                .categories
+                .iter()
+                .position(|category| category.id == rule.category_id)
+                .map_or(0, |index| i32::try_from(index).unwrap()),
+        );
+        ui.set_rule_dialog_priority("5".into());
+        ui.set_rule_dialog_auto_apply(true);
+        ui.set_rule_dialog_field_index(1);
+        ui.set_rule_dialog_direction_index(1);
+        ui.set_rule_dialog_tax_index(1);
+        ui.set_rule_dialog_error("".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-rule-dialog-en", 1100, 720);
+        assert_varied(&buffer, "settings-rule-dialog-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut settings = settings_state(&db, &paths, Language::En);
+        let rule_file = temp.path().join("preview-rules.tsv");
+        std::fs::write(
+            &rule_file,
+            concat!(
+                "# FinDesk rules v1\n",
+                "category\tpattern\tsearch_in\tapplies_to\tpriority\tauto_apply\n",
+                "Household\trewe|edeka\tany\texpense\t50\ttrue\n",
+                "Household\trewe|edeka\tany\texpense\t50\ttrue\n",
+                "Household\tcorner kiosk\tpartner\texpense\t90\ttrue\n",
+                "Salary\tbeispiel gmbh\tpartner\tincome\t70\ttrue\n",
+                "Household\tExample Market\tpartner\texpense\t80\ttrue\n",
+                "Broken\trow\n"
+            ),
+        )
+        .unwrap();
+        settings.choose_rule_import(&db, &rule_file).unwrap();
+        assert!(settings.rule_import.is_some(), "the preview is prepared");
+
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_rule_import_categorize(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-rule-import-en", 1100, 720);
+        assert_varied(&buffer, "settings-rule-import-en");
         let _ = ui.hide();
     }
 
@@ -457,6 +636,71 @@ fn seed_dashboard(db: &Database) {
     }
 }
 
+fn seed_settings(db: &Database) {
+    let all = categories::list(db).unwrap();
+    let by_name = |name: &str| {
+        all.iter()
+            .find(|category| category.name == name)
+            .map(|category| category.id)
+            .expect("the dashboard seed created the category")
+    };
+    let food = by_name("Food");
+    let donations = by_name("Donations");
+    let health = category(db, "Health", "#E91E63", true, false, Some(20_000));
+
+    for (pattern, category_id, priority, auto_apply, field, direction, tax) in [
+        (
+            "Example Market",
+            food,
+            60,
+            true,
+            RuleField::Partner,
+            RuleDirection::Expense,
+            None,
+        ),
+        (
+            "Example Aid",
+            donations,
+            45,
+            true,
+            RuleField::Any,
+            RuleDirection::Any,
+            Some(true),
+        ),
+        (
+            "Apotheke|Arzt",
+            health,
+            20,
+            false,
+            RuleField::Purpose,
+            RuleDirection::Any,
+            Some(false),
+        ),
+    ] {
+        rules::create(
+            db,
+            NewRule {
+                pattern: pattern.to_owned(),
+                category_id,
+                priority,
+                auto_apply,
+                match_field: field,
+                direction,
+                tax_relevant: tax,
+            },
+        )
+        .unwrap();
+    }
+
+    finglass_core::settings::set_setting(db, app::settings::TAX_KEYWORDS_KEY, "arzt\napotheke\nhandwerker").unwrap();
+}
+
+fn settings_state(db: &Database, paths: &AppPaths, language: Language) -> SettingsState {
+    let mut state = SettingsState::new(language);
+    state.load(db, paths, None).unwrap();
+    state
+}
+
 fn account(db: &Database, iban: &str, balance: i64, currency: Currency, account_type: AccountType) -> AccountId {
     accounts::create(
         db,
@@ -601,6 +845,304 @@ fn apply_dashboard_view(ui: &MainWindow, view: &DashboardView, language: Languag
     ui.set_dashboard_recent_empty_text(view.recent_empty_text.clone().into());
     ui.set_dashboard_recent_rows(transaction_model(view));
     ui.set_dashboard_view_all_label(view.view_all_label.clone().into());
+}
+
+fn apply_settings(ui: &MainWindow, state: &SettingsState) {
+    ui.set_settings_error(state.error.clone().unwrap_or_default().into());
+    ui.set_settings_message(state.message.clone().unwrap_or_default().into());
+    ui.set_settings_categories_empty(state.categories.is_empty());
+    ui.set_settings_has_duplicate_colours(has_duplicate_colours(state));
+    ui.set_settings_currency_options(string_model(
+        state.currency_options.iter().map(|currency| currency.as_str()),
+    ));
+    ui.set_settings_primary_currency(state.primary_currency.as_str().into());
+    ui.set_settings_primary_currency_index(
+        state
+            .currency_options
+            .iter()
+            .position(|currency| *currency == state.primary_currency)
+            .map_or(0, |index| i32::try_from(index).unwrap()),
+    );
+    ui.set_settings_category_rows(settings_category_model(state));
+    ui.set_settings_rule_rows(settings_rule_model(state));
+    ui.set_settings_tax_keywords(state.tax_keywords.clone().into());
+    let keyword_count = state
+        .tax_keywords
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .count();
+    ui.set_settings_tax_keywords_count(
+        i18n::format(state.language, Key::TaxKeywordsCount, &[Arg::from(keyword_count)]).into(),
+    );
+
+    ui.set_category_dialog_swatches(colour_model());
+    ui.set_rule_dialog_categories(string_model(
+        state.categories.iter().map(|category| category.name.as_str()),
+    ));
+    ui.set_rule_dialog_field_options(string_model(
+        [
+            i18n::text(state.language, Key::RuleFieldAny),
+            i18n::text(state.language, Key::RuleFieldPartner),
+            i18n::text(state.language, Key::RuleFieldPurpose),
+        ]
+        .into_iter(),
+    ));
+    ui.set_rule_dialog_direction_options(string_model(
+        [
+            i18n::text(state.language, Key::RuleDirectionAny),
+            i18n::text(state.language, Key::RuleDirectionExpense),
+            i18n::text(state.language, Key::RuleDirectionIncome),
+        ]
+        .into_iter(),
+    ));
+    ui.set_rule_dialog_tax_options(string_model(
+        [
+            i18n::text(state.language, Key::RuleTaxAsCategory),
+            i18n::text(state.language, Key::TaxRelevantChoice),
+            i18n::text(state.language, Key::TaxNotRelevantChoice),
+        ]
+        .into_iter(),
+    ));
+
+    apply_rule_import(ui, state);
+}
+
+fn has_duplicate_colours(state: &SettingsState) -> bool {
+    let mut seen = std::collections::BTreeMap::<String, usize>::new();
+    for category in &state.categories {
+        *seen.entry(category.color.to_uppercase()).or_default() += 1;
+    }
+    seen.values().any(|count| *count > 1)
+}
+
+fn settings_category_model(state: &SettingsState) -> ModelRc<CategoryRow> {
+    ModelRc::new(VecModel::from(
+        state
+            .categories
+            .iter()
+            .map(|category| {
+                let usage = state.category_usage.get(&category.id).copied().unwrap_or(0);
+                CategoryRow {
+                    id: i32::try_from(category.id.0).unwrap(),
+                    name: category.name.clone().into(),
+                    colour: color(&category.color),
+                    budget_text: category
+                        .budget_limit
+                        .map(|budget| {
+                            i18n::format(
+                                state.language,
+                                Key::BudgetAmount,
+                                &[Arg::from(finglass_core::format::money(budget, state.language, false))],
+                            )
+                        })
+                        .unwrap_or_default()
+                        .into(),
+                    usage_text: i18n::format(state.language, Key::CategoryUsage, &[Arg::from(usage)]).into(),
+                    tax_relevant: category.is_tax_relevant,
+                    transfer: category.is_transfer,
+                }
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn settings_rule_model(state: &SettingsState) -> ModelRc<RuleRow> {
+    ModelRc::new(VecModel::from(
+        state
+            .rules
+            .iter()
+            .map(|rule| {
+                let category_name = state
+                    .categories
+                    .iter()
+                    .find(|category| category.id == rule.category_id)
+                    .map(|category| category.name.clone())
+                    .unwrap_or_default();
+                let mut category_text = category_name;
+                match rule.tax_relevant {
+                    Some(true) => {
+                        category_text.push_str(" · ");
+                        category_text.push_str(i18n::text(state.language, Key::RuleTaxMarkerYes));
+                    }
+                    Some(false) => {
+                        category_text.push_str(" · ");
+                        category_text.push_str(i18n::text(state.language, Key::RuleTaxMarkerNo));
+                    }
+                    None => {}
+                }
+
+                let mut restrictions = Vec::new();
+                match rule.match_field {
+                    RuleField::Any => {}
+                    RuleField::Partner => restrictions.push(i18n::text(state.language, Key::RuleFieldPartner)),
+                    RuleField::Purpose => restrictions.push(i18n::text(state.language, Key::RuleFieldPurpose)),
+                }
+                match rule.direction {
+                    RuleDirection::Any => {}
+                    RuleDirection::Expense => {
+                        restrictions.push(i18n::text(state.language, Key::RuleDirectionExpense));
+                    }
+                    RuleDirection::Income => {
+                        restrictions.push(i18n::text(state.language, Key::RuleDirectionIncome));
+                    }
+                }
+                let mut prio_text = i18n::format(state.language, Key::Prio, &[Arg::from(rule.priority)]);
+                if !rule.auto_apply {
+                    prio_text.push_str(" · ");
+                    prio_text.push_str(i18n::text(state.language, Key::Manual));
+                }
+
+                RuleRow {
+                    id: i32::try_from(rule.id.0).unwrap(),
+                    pattern: rule.pattern.clone().into(),
+                    category_text: category_text.into(),
+                    detail: restrictions.join(" · ").into(),
+                    prio_text: prio_text.into(),
+                }
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn colour_model() -> ModelRc<ColourSwatch> {
+    ModelRc::new(VecModel::from(
+        finglass_core::repo::categories::COLORS
+            .iter()
+            .map(|hex| ColourSwatch {
+                hex: (*hex).into(),
+                colour: color(hex),
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn string_model<'a>(values: impl Iterator<Item = &'a str>) -> ModelRc<SharedString> {
+    ModelRc::new(VecModel::from(values.map(SharedString::from).collect::<Vec<_>>()))
+}
+
+fn apply_rule_import(ui: &MainWindow, state: &SettingsState) {
+    let Some(preview) = &state.rule_import else {
+        ui.set_rule_import_open(false);
+        return;
+    };
+    let language = state.language;
+    if !ui.get_rule_import_open() {
+        ui.set_rule_import_categorize(true);
+    }
+    ui.set_rule_import_open(true);
+    ui.set_rule_import_busy(state.is_importing_rules);
+    ui.set_rule_import_new_rules_text(
+        i18n::format(language, Key::RuleImportNewRules, &[Arg::from(preview.new_rules.len())]).into(),
+    );
+    ui.set_rule_import_categories_text(
+        if preview.categories_to_create.is_empty() {
+            String::new()
+        } else {
+            i18n::format(
+                language,
+                Key::RuleImportCategories,
+                &[Arg::from(preview.categories_to_create.len())],
+            )
+        }
+        .into(),
+    );
+    let mut categories = preview
+        .categories_to_create
+        .iter()
+        .take(20)
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(", ");
+    let more = preview.categories_to_create.len().saturating_sub(20);
+    if more > 0 {
+        if !categories.is_empty() {
+            categories.push_str(", ");
+        }
+        categories.push_str(&i18n::format(language, Key::AndMore, &[Arg::from(more)]));
+    }
+    ui.set_rule_import_categories_list(categories.into());
+    ui.set_rule_import_duplicates_text(
+        if preview.duplicates == 0 {
+            String::new()
+        } else {
+            i18n::format(language, Key::RuleImportDuplicates, &[Arg::from(preview.duplicates)])
+        }
+        .into(),
+    );
+    ui.set_rule_import_conflicts_text(
+        if preview.conflicts.is_empty() {
+            String::new()
+        } else {
+            i18n::format(
+                language,
+                Key::RuleImportConflicts,
+                &[Arg::from(preview.conflicts.len())],
+            )
+        }
+        .into(),
+    );
+    let mut conflicts = preview
+        .conflicts
+        .iter()
+        .take(20)
+        .map(|conflict| {
+            i18n::format(
+                language,
+                Key::RuleImportConflictLine,
+                &[
+                    Arg::from(conflict.line),
+                    Arg::from(conflict.pattern.clone()),
+                    Arg::from(conflict.file_category.clone()),
+                    Arg::from(conflict.existing_category.clone()),
+                ],
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let more = preview.conflicts.len().saturating_sub(20);
+    if more > 0 {
+        if !conflicts.is_empty() {
+            conflicts.push('\n');
+        }
+        conflicts.push_str(&i18n::format(language, Key::AndMore, &[Arg::from(more)]));
+    }
+    ui.set_rule_import_conflicts_list(conflicts.into());
+    ui.set_rule_import_errors_text(
+        if preview.errors.is_empty() {
+            String::new()
+        } else {
+            i18n::format(language, Key::RuleImportErrors, &[Arg::from(preview.errors.len())])
+        }
+        .into(),
+    );
+    let mut errors = preview
+        .errors
+        .iter()
+        .take(20)
+        .map(|error| {
+            i18n::format(
+                language,
+                Key::RuleImportErrorLine,
+                &[Arg::from(error.line), Arg::from(error.reason.clone())],
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let more = preview.errors.len().saturating_sub(20);
+    if more > 0 {
+        if !errors.is_empty() {
+            errors.push('\n');
+        }
+        errors.push_str(&i18n::format(language, Key::AndMore, &[Arg::from(more)]));
+    }
+    ui.set_rule_import_errors_list(errors.into());
+    ui.set_rule_import_show_categorize(preview.match_count > 0);
+    ui.set_rule_import_categorize_text(
+        i18n::format(language, Key::RuleImportCategorize, &[Arg::from(preview.match_count)]).into(),
+    );
+    ui.set_rule_import_confirm_enabled(
+        !state.is_importing_rules && (!preview.new_rules.is_empty() || !preview.categories_to_create.is_empty()),
+    );
 }
 
 fn category_model(rows: &[finglass_core::app::CategoryRowView]) -> ModelRc<DashboardCategoryRow> {

@@ -3,6 +3,7 @@
 
 mod dashboard;
 mod reports;
+mod settings;
 mod shell;
 
 slint::include_modules!();

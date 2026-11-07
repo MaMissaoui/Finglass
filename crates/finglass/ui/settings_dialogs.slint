@@ -1,0 +1,471 @@
+import { CheckBox, ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import { PrimaryButton, TextButton } from "components.slint";
+import { ColourSwatch } from "models.slint";
+
+// A modal confirmation with a title, a body and two actions.
+export component ConfirmDialog inherits Rectangle {
+    in property <string> title;
+    in property <string> text;
+    in property <string> confirm-text;
+
+    callback confirm;
+    callback cancel;
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 440px;
+        height: dialog.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+        background: Theme.surface;
+
+        dialog := VerticalLayout {
+            padding: 24px;
+            spacing: 12px;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: 20px;
+                font-weight: 600;
+                wrap: word-wrap;
+            }
+
+            Text {
+                text: root.text;
+                color: Theme.muted-text;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: root.confirm-text;
+                    clicked => { root.confirm(); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.cancel(); }
+                }
+            }
+        }
+    }
+}
+
+// Add or edit one category: name, palette colour, monthly budget and flags.
+export component CategoryDialog inherits Rectangle {
+    in property <string> title;
+    in-out property <string> name;
+    in-out property <string> colour;
+    in-out property <string> budget;
+    in-out property <bool> tax-relevant;
+    in-out property <bool> transfer;
+    in property <string> error-text;
+    in property <[ColourSwatch]> swatches;
+
+    callback close;
+    callback save;
+    // Fired whenever the name or colour changes, so the host can re-run validate_category.
+    callback changed(string, string);
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 500px;
+        height: dialog.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+        background: Theme.surface;
+
+        dialog := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: 22px;
+                font-weight: 600;
+            }
+
+            Text {
+                text: Tr.t("Name");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                text <=> root.name;
+                edited(value) => { root.changed(value, root.colour); }
+                accepted(value) => { root.save(); }
+            }
+
+            GridLayout {
+                spacing: 6px;
+                for swatch[index] in root.swatches : Rectangle {
+                    row: Math.floor(index / 12);
+                    col: Math.mod(index, 12);
+                    width: 26px;
+                    height: 26px;
+                    border-radius: 13px;
+                    background: swatch.colour;
+                    border-width: swatch.hex == root.colour ? 3px : 0px;
+                    border-color: Theme.text;
+
+                    TouchArea {
+                        clicked => {
+                            root.colour = swatch.hex;
+                            root.changed(root.name, root.colour);
+                        }
+                    }
+                }
+            }
+
+            Text {
+                text: Tr.t("MonthlyBudgetOptional");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                text <=> root.budget;
+                edited(value) => { root.changed(root.name, root.colour); }
+                accepted(value) => { root.save(); }
+            }
+
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                CheckBox {
+                    checked <=> root.tax-relevant;
+                    text: Tr.t("TaxRelevantHint");
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                CheckBox {
+                    checked <=> root.transfer;
+                    text: Tr.t("CategoryIsTransfer");
+                }
+            }
+
+            Text {
+                text: Tr.t("CategoryIsTransferHint");
+                color: Theme.muted-text;
+                font-size: 11px;
+                wrap: word-wrap;
+            }
+
+            if (root.error-text != "") : Text {
+                text: root.error-text;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    clicked => { root.save(); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.close(); }
+                }
+            }
+        }
+    }
+}
+
+// Add or edit one auto-categorization rule.
+export component RuleDialog inherits Rectangle {
+    in property <string> title;
+    in-out property <string> pattern;
+    in property <[string]> categories;
+    in-out property <int> category-index;
+    in-out property <string> priority;
+    in-out property <bool> auto-apply;
+    in property <[string]> field-options;
+    in-out property <int> field-index;
+    in property <[string]> direction-options;
+    in-out property <int> direction-index;
+    in property <[string]> tax-options;
+    in-out property <int> tax-index;
+    in property <string> error-text;
+
+    callback close;
+    callback save;
+    // Fired whenever the pattern or priority changes, so the host can re-run validate_rule.
+    callback changed(string, string);
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 500px;
+        height: dialog.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+        background: Theme.surface;
+
+        dialog := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: 22px;
+                font-weight: 600;
+            }
+
+            Text {
+                text: Tr.t("PatternExample");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                text <=> root.pattern;
+                edited(value) => { root.changed(value, root.priority); }
+                accepted(value) => { root.save(); }
+            }
+
+            Text {
+                text: Tr.t("ColCategory");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            ComboBox {
+                model: root.categories;
+                current-index <=> root.category-index;
+            }
+
+            Text {
+                text: Tr.t("RuleSearchIn");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            ComboBox {
+                model: root.field-options;
+                current-index <=> root.field-index;
+                selected(value) => { root.changed(root.pattern, root.priority); }
+            }
+
+            Text {
+                text: Tr.t("RuleAppliesTo");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            ComboBox {
+                model: root.direction-options;
+                current-index <=> root.direction-index;
+            }
+
+            Text {
+                text: Tr.t("TaxMenu");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            ComboBox {
+                model: root.tax-options;
+                current-index <=> root.tax-index;
+            }
+
+            Text {
+                text: Tr.t("Priority");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                text <=> root.priority;
+                edited(value) => { root.changed(root.pattern, value); }
+                accepted(value) => { root.save(); }
+            }
+
+            CheckBox {
+                checked <=> root.auto-apply;
+                text: Tr.t("ApplyAutomatically");
+            }
+
+            if (root.error-text != "") : Text {
+                text: root.error-text;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    clicked => { root.save(); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.close(); }
+                }
+            }
+        }
+    }
+}
+
+// The rule-import preview: counts, skipped rows and the option to categorize existing bookings.
+export component RuleImportDialog inherits Rectangle {
+    in property <string> new-rules-text;
+    in property <string> categories-text;
+    in property <string> categories-list;
+    in property <string> duplicates-text;
+    in property <string> conflicts-text;
+    in property <string> conflicts-list;
+    in property <string> errors-text;
+    in property <string> errors-list;
+    in property <bool> show-categorize;
+    in property <string> categorize-text;
+    in-out property <bool> categorize;
+    in property <bool> busy;
+    in property <bool> confirm-enabled;
+
+    callback close;
+    callback confirm;
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 580px;
+        height: dialog.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+        background: Theme.surface;
+
+        dialog := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+
+            Text {
+                text: Tr.t("RuleImportTitle");
+                color: Theme.text;
+                font-size: 22px;
+                font-weight: 600;
+            }
+
+            ScrollView {
+                height: 300px;
+                VerticalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    Text {
+                        text: root.new-rules-text;
+                        color: Theme.text;
+                        font-size: 13px;
+                    }
+
+                    if (root.categories-text != "") : Text {
+                        text: root.categories-text;
+                        color: Theme.text;
+                        font-size: 13px;
+                    }
+                    if (root.categories-list != "") : Text {
+                        text: root.categories-list;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        wrap: word-wrap;
+                    }
+
+                    if (root.duplicates-text != "") : Text {
+                        text: root.duplicates-text;
+                        color: Theme.text;
+                        font-size: 13px;
+                    }
+
+                    if (root.conflicts-text != "") : Text {
+                        text: root.conflicts-text;
+                        color: Theme.text;
+                        font-size: 13px;
+                    }
+                    if (root.conflicts-list != "") : Text {
+                        text: root.conflicts-list;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        wrap: word-wrap;
+                    }
+
+                    if (root.errors-text != "") : Text {
+                        text: root.errors-text;
+                        color: Theme.text;
+                        font-size: 13px;
+                    }
+                    if (root.errors-list != "") : Text {
+                        text: root.errors-list;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        wrap: word-wrap;
+                    }
+
+                    if (root.show-categorize) : CheckBox {
+                        checked <=> root.categorize;
+                        text: root.categorize-text;
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Import");
+                    enabled: root.confirm-enabled;
+                    clicked => { root.confirm(); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    enabled: !root.busy;
+                    clicked => { root.close(); }
+                }
+            }
+        }
+    }
+}

@@ -16,10 +16,11 @@ import {
     ReportVendorRow,
     TextButton,
 } from "components.slint";
-import { AuditRow } from "models.slint";
+import { AuditRow, CategoryRow, ColourSwatch, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
+import { CategoryDialog, ConfirmDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
 
 // The main window: sidebar navigation, placeholder screens and the settings sections.
 export component MainWindow inherits Window {
@@ -34,6 +35,71 @@ export component MainWindow inherits Window {
     in property <bool> change-busy;
     in property <string> change-error;
     in property <[AuditRow]> audit-rows;
+
+    // Settings page state, prepared by the mapping in src/settings.rs.
+    in property <string> settings-error;
+    in property <string> settings-message;
+    in property <bool> settings-categories-empty;
+    in property <bool> settings-has-duplicate-colours;
+    in property <[string]> settings-currency-options;
+    in property <string> settings-primary-currency;
+    in-out property <int> settings-primary-currency-index;
+    in property <[CategoryRow]> settings-category-rows;
+    in property <[RuleRow]> settings-rule-rows;
+    in-out property <string> settings-tax-keywords;
+    in property <string> settings-tax-keywords-count;
+    in-out property <length> settings-scroll-y;
+
+    // Category dialog and its delete confirmation.
+    in property <bool> category-dialog-open;
+    in property <int> category-dialog-id: -1;
+    in-out property <string> category-dialog-name;
+    in-out property <string> category-dialog-colour;
+    in-out property <string> category-dialog-budget;
+    in-out property <bool> category-dialog-tax;
+    in-out property <bool> category-dialog-transfer;
+    in property <string> category-dialog-error;
+    in property <[ColourSwatch]> category-dialog-swatches;
+    in property <bool> category-delete-open;
+    in property <int> category-delete-id: -1;
+    in property <string> category-delete-title;
+    in property <string> category-delete-text;
+
+    // Rule dialog and its delete confirmation.
+    in property <bool> rule-dialog-open;
+    in property <int> rule-dialog-id: -1;
+    in-out property <string> rule-dialog-pattern;
+    in property <[string]> rule-dialog-categories;
+    in-out property <int> rule-dialog-category-index;
+    in-out property <string> rule-dialog-priority;
+    in-out property <bool> rule-dialog-auto-apply;
+    in property <[string]> rule-dialog-field-options;
+    in-out property <int> rule-dialog-field-index;
+    in property <[string]> rule-dialog-direction-options;
+    in-out property <int> rule-dialog-direction-index;
+    in property <[string]> rule-dialog-tax-options;
+    in-out property <int> rule-dialog-tax-index;
+    in property <string> rule-dialog-error;
+    in property <bool> rule-delete-open;
+    in property <int> rule-delete-id: -1;
+    in property <string> rule-delete-title;
+    in property <string> rule-delete-text;
+
+    // Rule-import preview.
+    in property <bool> rule-import-open;
+    in property <bool> rule-import-busy;
+    in property <bool> rule-import-confirm-enabled;
+    in property <string> rule-import-new-rules-text;
+    in property <string> rule-import-categories-text;
+    in property <string> rule-import-categories-list;
+    in property <string> rule-import-duplicates-text;
+    in property <string> rule-import-conflicts-text;
+    in property <string> rule-import-conflicts-list;
+    in property <string> rule-import-errors-text;
+    in property <string> rule-import-errors-list;
+    in property <bool> rule-import-show-categorize;
+    in property <string> rule-import-categorize-text;
+    in-out property <bool> rule-import-categorize;
 
     in property <bool> dashboard-loading;
     in property <bool> dashboard-first-run;
@@ -166,6 +232,33 @@ export component MainWindow inherits Window {
     callback close-change;
     callback change-passphrase(string, string, string, bool);
     callback dismiss-status;
+
+    callback settings-dismiss-message;
+    callback settings-set-primary-currency(string);
+    callback settings-add-category;
+    callback settings-edit-category(int);
+    callback settings-delete-category(int);
+    callback settings-add-default-categories;
+    callback settings-fix-duplicate-colours;
+    callback settings-add-rule;
+    callback settings-edit-rule(int);
+    callback settings-delete-rule(int);
+    callback settings-import-rules;
+    callback settings-export-rules;
+    callback settings-save-tax-keywords(string);
+    callback settings-reset-tax-keywords;
+    callback settings-category-changed(string, string);
+    callback settings-rule-changed(string, string);
+    callback settings-category-dialog-save;
+    callback settings-category-dialog-close;
+    callback settings-confirm-delete-category;
+    callback settings-cancel-delete-category;
+    callback settings-rule-dialog-save;
+    callback settings-rule-dialog-close;
+    callback settings-confirm-delete-rule;
+    callback settings-cancel-delete-rule;
+    callback settings-confirm-rule-import;
+    callback settings-cancel-rule-import;
 
     callback dashboard-previous-month;
     callback dashboard-next-month;
@@ -514,9 +607,36 @@ export component MainWindow inherits Window {
                 about-version-text: root.about-version-text;
                 audit-rows: root.audit-rows;
 
+                settings-error: root.settings-error;
+                settings-message: root.settings-message;
+                categories-empty: root.settings-categories-empty;
+                has-duplicate-colours: root.settings-has-duplicate-colours;
+                primary-currency: root.settings-primary-currency;
+                currency-options: root.settings-currency-options;
+                primary-currency-index <=> root.settings-primary-currency-index;
+                category-rows: root.settings-category-rows;
+                rule-rows: root.settings-rule-rows;
+                tax-keywords <=> root.settings-tax-keywords;
+                tax-keywords-count: root.settings-tax-keywords-count;
+                scroll-y <=> root.settings-scroll-y;
+
                 set-theme(value) => { root.set-theme(value); }
                 set-language(value) => { root.set-language(value); }
                 open-change => { root.open-change(); }
+                dismiss-message => { root.settings-dismiss-message(); }
+                set-primary-currency(value) => { root.settings-set-primary-currency(value); }
+                add-category => { root.settings-add-category(); }
+                edit-category(id) => { root.settings-edit-category(id); }
+                delete-category(id) => { root.settings-delete-category(id); }
+                add-default-categories => { root.settings-add-default-categories(); }
+                fix-duplicate-colours => { root.settings-fix-duplicate-colours(); }
+                add-rule => { root.settings-add-rule(); }
+                edit-rule(id) => { root.settings-edit-rule(id); }
+                delete-rule(id) => { root.settings-delete-rule(id); }
+                import-rules => { root.settings-import-rules(); }
+                export-rules => { root.settings-export-rules(); }
+                save-tax-keywords(text) => { root.settings-save-tax-keywords(text); }
+                reset-tax-keywords => { root.settings-reset-tax-keywords(); }
             }
 
             if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports") : VerticalLayout {
@@ -540,5 +660,72 @@ export component MainWindow inherits Window {
         submit(current, new-passphrase, repeat, acknowledged) => {
             root.change-passphrase(current, new-passphrase, repeat, acknowledged);
         }
+    }
+
+    if (root.category-dialog-open) : CategoryDialog {
+        title: root.category-dialog-id < 0 ? Tr.t("AddCategory") : Tr.t("EditCategory");
+        name <=> root.category-dialog-name;
+        colour <=> root.category-dialog-colour;
+        budget <=> root.category-dialog-budget;
+        tax-relevant <=> root.category-dialog-tax;
+        transfer <=> root.category-dialog-transfer;
+        error-text: root.category-dialog-error;
+        swatches: root.category-dialog-swatches;
+        changed(name, colour) => { root.settings-category-changed(name, colour); }
+        close => { root.settings-category-dialog-close(); }
+        save => { root.settings-category-dialog-save(); }
+    }
+
+    if (root.category-delete-open) : ConfirmDialog {
+        title: root.category-delete-title;
+        text: root.category-delete-text;
+        confirm-text: Tr.t("Delete");
+        confirm => { root.settings-confirm-delete-category(); }
+        cancel => { root.settings-cancel-delete-category(); }
+    }
+
+    if (root.rule-dialog-open) : RuleDialog {
+        title: root.rule-dialog-id < 0 ? Tr.t("AddRule") : Tr.t("EditRule");
+        pattern <=> root.rule-dialog-pattern;
+        categories: root.rule-dialog-categories;
+        category-index <=> root.rule-dialog-category-index;
+        priority <=> root.rule-dialog-priority;
+        auto-apply <=> root.rule-dialog-auto-apply;
+        field-options: root.rule-dialog-field-options;
+        field-index <=> root.rule-dialog-field-index;
+        direction-options: root.rule-dialog-direction-options;
+        direction-index <=> root.rule-dialog-direction-index;
+        tax-options: root.rule-dialog-tax-options;
+        tax-index <=> root.rule-dialog-tax-index;
+        error-text: root.rule-dialog-error;
+        changed(pattern, priority) => { root.settings-rule-changed(pattern, priority); }
+        close => { root.settings-rule-dialog-close(); }
+        save => { root.settings-rule-dialog-save(); }
+    }
+
+    if (root.rule-delete-open) : ConfirmDialog {
+        title: root.rule-delete-title;
+        text: root.rule-delete-text;
+        confirm-text: Tr.t("Delete");
+        confirm => { root.settings-confirm-delete-rule(); }
+        cancel => { root.settings-cancel-delete-rule(); }
+    }
+
+    if (root.rule-import-open) : RuleImportDialog {
+        new-rules-text: root.rule-import-new-rules-text;
+        categories-text: root.rule-import-categories-text;
+        categories-list: root.rule-import-categories-list;
+        duplicates-text: root.rule-import-duplicates-text;
+        conflicts-text: root.rule-import-conflicts-text;
+        conflicts-list: root.rule-import-conflicts-list;
+        errors-text: root.rule-import-errors-text;
+        errors-list: root.rule-import-errors-list;
+        show-categorize: root.rule-import-show-categorize;
+        categorize-text: root.rule-import-categorize-text;
+        categorize <=> root.rule-import-categorize;
+        busy: root.rule-import-busy;
+        confirm-enabled: root.rule-import-confirm-enabled;
+        close => { root.settings-cancel-rule-import(); }
+        confirm => { root.settings-confirm-rule-import(); }
     }
 }
