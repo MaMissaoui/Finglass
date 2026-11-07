@@ -5,7 +5,10 @@
 
 pub mod audit;
 pub mod db;
+pub mod model;
+pub mod money;
 pub mod paths;
+pub mod repo;
 pub mod secret;
 pub mod settings;
 
