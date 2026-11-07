@@ -10,6 +10,7 @@ use std::thread;
 
 use finglass_core::app;
 use finglass_core::app::accounts::{AccountsState, Busy};
+use finglass_core::app::banking::BankingState;
 use finglass_core::app::dashboard::DashboardState;
 use finglass_core::app::findesk::FindeskImportState;
 use finglass_core::app::prefs::ThemePref;
@@ -30,6 +31,7 @@ use time::OffsetDateTime;
 use zeroize::Zeroizing;
 
 use crate::accounts;
+use crate::banking;
 use crate::dashboard;
 use crate::documents::DocumentsController;
 use crate::jobs::JobTracker;
@@ -55,6 +57,14 @@ pub(crate) struct ShellState {
     /// The one-time FinDesk import's folder, passphrase prompt and result.
     pub(crate) findesk: Mutex<FindeskImportState>,
     pub(crate) accounts: Mutex<AccountsState>,
+    /// The bank-login part of the Accounts page.
+    pub(crate) banking: Mutex<BankingState>,
+    /// The open profile's prompt bridge, replaced when the profile changes.
+    pub(crate) banking_bridge: Mutex<Option<crate::banking::BridgeHandle>>,
+    /// The one profile busy flag; the Accounts state and every sync share this handle.
+    pub(crate) profile_busy: Mutex<Busy>,
+    /// The data root, used to build a banking service for the open profile.
+    pub(crate) paths: Arc<AppPaths>,
     /// The Accounts page's own work guard. It is separate from the profile's busy flag, which the core reserves for
     /// sync and import work (and reads before it allows a delete).
     pub(crate) accounts_work: Busy,
@@ -122,6 +132,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         app::startup::slug_key(startup.slug.as_deref()),
         jobs.clone(),
     ));
+    let profile_busy = Busy::default();
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
@@ -132,7 +143,11 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         navigation: Mutex::new(StartArgs::default()),
         settings: Mutex::new(SettingsState::new(initial_language)),
         findesk: Mutex::new(FindeskImportState::new(initial_language)),
-        accounts: Mutex::new(AccountsState::new(initial_language)),
+        accounts: Mutex::new(new_accounts_state(initial_language, profile_busy.clone())),
+        banking: Mutex::new(BankingState::new(initial_language)),
+        banking_bridge: Mutex::new(None),
+        profile_busy: Mutex::new(profile_busy),
+        paths: paths.clone(),
         accounts_work: Busy::default(),
         documents,
         slug: Mutex::new(startup.slug.clone()),
@@ -141,6 +156,10 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         jobs,
         switching: AtomicBool::new(false),
     });
+    *state.banking_bridge.lock().expect("banking bridge poisoned") = Some(crate::banking::BridgeHandle::new(
+        main.as_weak(),
+        Arc::downgrade(&state),
+    ));
 
     install_translations_main(&main, initial_language);
     apply_theme(&main, ThemePref::System);
@@ -150,6 +169,16 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
 
     wire_unlock(&unlock, &main, &paths, &state);
     wire_main(&main, &unlock, &paths, &state);
+
+    {
+        let state = state.clone();
+        main.window().on_close_requested(move || {
+            if let Some(bridge) = banking::current_bridge(&state) {
+                bridge.cancel_pending();
+            }
+            slint::CloseRequestResponse::HideWindow
+        });
+    }
 
     let result = unlock.run();
     drop(lock);
@@ -231,6 +260,7 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_findesk_passphrase("".into());
     main.set_accounts_dialog("".into());
     main.set_accounts_dialog_error("".into());
+    main.set_accounts_dialog_online(false);
     main.set_accounts_detail_open(false);
 }
 
@@ -601,7 +631,156 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         let state = state.clone();
         main.on_accounts_open_add_bank(move || {
             if let Some(ui) = main_weak.upgrade() {
-                accounts::open_add_bank(&ui, &state);
+                banking::open_add_bank(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_submit_add_online_bank(move |name, blz, bic, user_id, server_url| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::submit_add_online_bank(
+                    &ui,
+                    &state,
+                    name.as_str(),
+                    blz.as_str(),
+                    bic.as_str(),
+                    user_id.as_str(),
+                    server_url.as_str(),
+                );
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_submit_connection(move |bank_id, name, blz, user_id, server_url| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::submit_connection(
+                    &ui,
+                    &state,
+                    bank_id,
+                    name.as_str(),
+                    blz.as_str(),
+                    user_id.as_str(),
+                    server_url.as_str(),
+                );
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_accounts_forget_pin(move |bank_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::forget_pin(&ui, &state, &paths, bank_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_accounts_submit_history(move |bank_id, date| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::submit_history(&ui, &state, &paths, bank_id, date.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_accounts_clear_history(move |bank_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::clear_history(&ui, &state, &paths, bank_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_accounts_sync_all(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::start_sync_all(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_accounts_bank_menu(move |bank_id, action| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::handle_bank_menu(&ui, &state, &paths, bank_id, action.as_str());
+            }
+        });
+    }
+
+    {
+        let state = state.clone();
+        main.on_banking_answer_pin(move |value, remember| {
+            if let Some(bridge) = banking::current_bridge(&state) {
+                banking::answer_pin(&bridge, Some(value.as_str()), remember);
+            }
+        });
+    }
+
+    {
+        let state = state.clone();
+        main.on_banking_answer_choice(move |value| {
+            if let Some(bridge) = banking::current_bridge(&state) {
+                banking::answer_choice(&bridge, Some(value.as_str()));
+            }
+        });
+    }
+
+    {
+        let state = state.clone();
+        main.on_banking_answer_tan(move |value| {
+            if let Some(bridge) = banking::current_bridge(&state) {
+                banking::answer_tan(&bridge, Some(value.as_str()));
+            }
+        });
+    }
+
+    {
+        let state = state.clone();
+        main.on_banking_answer_decoupled(move |confirmed| {
+            if let Some(bridge) = banking::current_bridge(&state) {
+                banking::answer_decoupled(&bridge, confirmed);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_banking_answer_cancel(move || {
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            if let Some(bridge) = banking::current_bridge(&state) {
+                banking::cancel_prompt(&bridge, ui.get_banking_prompt().as_str());
+            }
+        });
+    }
+
+    {
+        let state = state.clone();
+        main.on_banking_clear_info(move || {
+            if let Some(bridge) = banking::current_bridge(&state) {
+                bridge.clear_info();
             }
         });
     }
@@ -1652,7 +1831,9 @@ pub(crate) fn reload_after_findesk_import(
     *state.settings.lock().expect("settings state poisoned") = settings.clone();
     *state.dashboard.lock().expect("dashboard state poisoned") =
         DashboardState::new(prefs.language, OffsetDateTime::now_utc().date());
-    *state.accounts.lock().expect("accounts state poisoned") = AccountsState::new(prefs.language);
+    let busy = state.profile_busy.lock().expect("profile busy poisoned").clone();
+    *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(prefs.language, busy);
+    *state.banking.lock().expect("banking state poisoned") = BankingState::new(prefs.language);
     *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
 
     state.reports.reset();
@@ -1721,6 +1902,9 @@ fn spawn_open_work(
                     *state.theme.lock().expect("theme state poisoned") = prefs.theme;
                     *state.settings.lock().expect("settings state poisoned") = settings.clone();
                     *state.findesk.lock().expect("findesk state poisoned") = FindeskImportState::new(prefs.language);
+                    let busy = state.profile_busy.lock().expect("profile busy poisoned").clone();
+                    *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(prefs.language, busy);
+                    *state.banking.lock().expect("banking state poisoned") = BankingState::new(prefs.language);
 
                     main.set_current_screen("dashboard".into());
                     main.set_profile_menu_open(false);
@@ -1739,6 +1923,7 @@ fn spawn_open_work(
                     main.set_findesk_passphrase_open(false);
                     main.set_findesk_passphrase("".into());
                     main.set_accounts_dialog("".into());
+                    main.set_accounts_dialog_online(false);
                     main.set_accounts_detail_open(false);
 
                     apply_language_main(&main, prefs.language);
@@ -1881,7 +2066,10 @@ fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup:
     *state.dashboard.lock().expect("dashboard state poisoned") = DashboardState::new(language, today);
     *state.settings.lock().expect("settings state poisoned") = SettingsState::new(language);
     *state.findesk.lock().expect("findesk state poisoned") = FindeskImportState::new(language);
-    *state.accounts.lock().expect("accounts state poisoned") = AccountsState::new(language);
+    let busy = Busy::default();
+    *state.profile_busy.lock().expect("profile busy poisoned") = busy.clone();
+    *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(language, busy);
+    *state.banking.lock().expect("banking state poisoned") = BankingState::new(language);
     *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
 
     state.reports.reset();
@@ -1890,7 +2078,12 @@ fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup:
     state.transactions.set_profile(target);
     state.transactions.reset();
 
-    // M5c-3: if ShellState holds a banking PromptBridge by then, call its cancel_pending() here.
+    // M5c-3: cancel the old profile's prompts and give the next profile its own bridge.
+    crate::banking::replace_bridge(
+        state,
+        main.map(MainWindow::as_weak).unwrap_or_default(),
+        Arc::downgrade(state),
+    );
 
     if let Some(main) = main {
         crate::settings::apply(main, &SettingsState::new(language), startup.restored_from.as_deref());
@@ -1898,7 +2091,9 @@ fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup:
         main.set_findesk_passphrase_open(false);
         main.set_findesk_passphrase("".into());
         dashboard::apply(main, &DashboardState::new(language, today));
-        accounts::apply(main, &AccountsState::new(language));
+        let busy = state.profile_busy.lock().expect("profile busy poisoned").clone();
+        let banking = state.banking.lock().expect("banking state poisoned").clone();
+        accounts::apply(main, &new_accounts_state(language, busy), &banking);
         crate::transactions::apply(main, &app::transactions::TransactionsState::new(language));
         // The caller hides the main window only after the unlock window is shown: Slint quits the event loop as
         // soon as no window is visible.
@@ -2037,6 +2232,13 @@ fn empty_audit_model() -> ModelRc<AuditRow> {
     ModelRc::new(VecModel::from(Vec::<AuditRow>::new()))
 }
 
+/// Builds an Accounts state that shares the profile's one busy flag.
+fn new_accounts_state(language: Language, busy: Busy) -> AccountsState {
+    let mut accounts = AccountsState::new(language);
+    accounts.busy = busy;
+    accounts
+}
+
 fn current_language(state: &ShellState) -> Language {
     *state.language.lock().expect("language state poisoned")
 }
@@ -2102,7 +2304,11 @@ mod tests {
             navigation: Mutex::new(StartArgs::default()),
             settings: Mutex::new(SettingsState::new(Language::En)),
             findesk: Mutex::new(FindeskImportState::new(Language::En)),
-            accounts: Mutex::new(AccountsState::new(Language::En)),
+            accounts: Mutex::new(new_accounts_state(Language::En, Busy::default())),
+            banking: Mutex::new(BankingState::new(Language::En)),
+            banking_bridge: Mutex::new(None),
+            profile_busy: Mutex::new(Busy::default()),
+            paths: paths.clone(),
             accounts_work: Busy::default(),
             documents,
             slug: Mutex::new(slug.map(str::to_owned)),
@@ -2111,6 +2317,46 @@ mod tests {
             jobs,
             switching: AtomicBool::new(false),
         })
+    }
+
+    #[test]
+    fn the_profile_busy_is_shared_when_the_accounts_state_is_rebuilt() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let state = shell_state(&paths, None, None);
+        let busy = state.profile_busy.lock().expect("profile busy poisoned").clone();
+
+        let rebuilt = new_accounts_state(Language::En, busy.clone());
+        *state.accounts.lock().expect("accounts state poisoned") = rebuilt;
+
+        busy.begin();
+        assert!(
+            state.accounts.lock().expect("accounts state poisoned").busy.active(),
+            "an active profile busy is seen through the rebuilt Accounts state"
+        );
+        assert!(state.profile_busy.lock().expect("profile busy poisoned").active());
+        busy.end();
+        assert!(!state.accounts.lock().expect("accounts state poisoned").busy.active());
+    }
+
+    #[test]
+    fn a_finished_banking_action_keeps_a_sync_claimed_meanwhile() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let state = shell_state(&paths, None, None);
+        // The action's snapshot was taken before the sync was claimed.
+        let mut result = state.banking.lock().expect("banking state poisoned").clone();
+        {
+            let mut live = state.banking.lock().expect("banking state poisoned");
+            live.syncing_bank = Some(finglass_core::model::BankConnectionId(7));
+            live.sync_step = Some("Connecting".to_owned());
+        }
+
+        crate::banking::keep_live_sync_fields(&mut result, &state);
+
+        assert_eq!(result.syncing_bank, Some(finglass_core::model::BankConnectionId(7)));
+        assert_eq!(result.sync_step.as_deref(), Some("Connecting"));
+        assert!(result.is_syncing());
     }
 
     #[test]

@@ -121,7 +121,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::Syncing => "Synchronisiere…",
         Key::Sync => "Sync",
         Key::SyncAll => "Alle synchronisieren",
-        Key::SyncAllProgress => "Synchronisiere %d von %d: %s",
+        Key::SyncAllProgress => "%d/%d · %s",
         Key::IncludeInSyncAll => "In „Alle synchronisieren“ einbeziehen",
         Key::NotInSyncAll => "nicht in „Alle synchronisieren“",
         Key::SyncAllNothingIncluded => "Keine Verbindung ist in „Alle synchronisieren“ einbezogen",
@@ -134,6 +134,7 @@ pub(super) fn text(key: Key) -> &'static str {
         }
         Key::Fetch => "Abrufen",
         Key::Reset => "Zurücksetzen",
+        Key::ClearHistoryStart => "Verlaufsstart löschen",
         Key::NextSyncFrom => "nächster Abruf ab %s",
         Key::ConnectionSettings => "Verbindungseinstellungen",
         Key::RenameConnection => "Umbenennen",
@@ -642,7 +643,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PinExplanation => "Online-Banking-PIN für Benutzer %s.",
         Key::RememberPinForSyncs => "PIN für Syncs merken",
         Key::RememberPinExplanation => {
-            "Wird im sicheren Anmeldedatenspeicher Ihres Systems gespeichert. Überweisungen fragen sie weiterhin ab."
+            "Wird im sicheren Anmeldedatenspeicher Ihres Systems gespeichert, nie in den Dateien von Finglass."
         }
         Key::Pin => "PIN",
         Key::ChooseTanProcedure => "TAN-Verfahren wählen",
@@ -650,6 +651,9 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::TanRequired => "TAN erforderlich",
         Key::TanDefaultMessage => "Geben Sie die TAN aus Ihrem TAN-Verfahren ein.",
         Key::TanChallenge => "TAN-Herausforderung",
+        Key::TanFlickerUnsupported => {
+            "chipTAN-Flickercodes werden in dieser Version noch nicht unterstützt. Geben Sie die auf dem Generator angezeigte TAN ein."
+        }
         Key::ConfirmInBankingApp => "In Ihrer Banking-App bestätigen",
         Key::IConfirmedIt => "Ich habe bestätigt",
         Key::MessageFromBank => "Nachricht Ihrer Bank",

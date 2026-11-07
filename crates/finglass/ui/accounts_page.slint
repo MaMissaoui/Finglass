@@ -243,6 +243,8 @@ component BankCardView inherits Rectangle {
     callback toggle;
     callback add-account;
     callback remove-bank;
+    callback sync;
+    callback menu-action(string);
     callback open-detail(int);
     callback open-transactions(int);
     callback open-rename(int);
@@ -250,6 +252,7 @@ component BankCardView inherits Rectangle {
     callback forget-deleted(int);
     callback delete-account(int);
 
+    property <bool> menu-open: false;
     height: card-content.preferred-height;
     background: Theme.surface;
     border-radius: 12px;
@@ -329,6 +332,33 @@ component BankCardView inherits Rectangle {
                     font-size: 11px;
                     overflow: elide;
                 }
+
+                if (!root.card.offline && root.card.pin-text != "") : Text {
+                    text: root.card.pin-text;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    overflow: elide;
+                }
+            }
+
+            if (root.card.syncing) : Spinner {
+                width: 18px;
+                height: 18px;
+            }
+
+            if (root.card.syncing) : Text {
+                text: root.card.sync-step;
+                color: Theme.muted-text;
+                font-size: 12px;
+                vertical-alignment: center;
+            }
+
+            if (root.card.bank-id >= 0 && !root.card.offline && !root.card.syncing) : TextButton {
+                text: Tr.t("Sync");
+                enabled: root.card.sync-enabled;
+                clicked => {
+                    root.sync();
+                }
             }
 
             if (root.card.bank-id >= 0) : TextButton {
@@ -338,10 +368,45 @@ component BankCardView inherits Rectangle {
                 }
             }
 
-            if (root.card.bank-id >= 0 && root.card.offline) : TextButton {
-                text: Tr.t("RemoveBank");
-                clicked => {
-                    root.remove-bank();
+            if (root.card.bank-id >= 0) : Rectangle {
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background: bank-menu-button.has-hover ? Theme.divider : transparent;
+                // The menu is only meaningful for a real bank connection.
+
+                Text {
+                    text: "⋯";
+                    color: Theme.muted-text;
+                    font-size: 16px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                bank-menu-button := TouchArea {
+                    clicked => {
+                        root.menu-open = !root.menu-open;
+                    }
+                }
+            }
+        }
+
+        if (root.menu-open && root.card.bank-id >= 0) : Rectangle {
+            height: menu-items.preferred-height;
+            background: Theme.background;
+            border-radius: 8px;
+
+            menu-items := VerticalLayout {
+                padding: 6px;
+                spacing: 2px;
+
+                for item in root.card.menu : TextButton {
+                    text: item.checked ? "✓ " + item.label : item.label;
+                    enabled: item.enabled;
+                    clicked => {
+                        root.menu-open = false;
+                        root.menu-action(item.action);
+                    }
                 }
             }
         }
@@ -449,9 +514,14 @@ export component AccountsPage inherits Rectangle {
     in property <bool> has-content;
     in property <string> error-text;
     in property <string> message-text;
+    in property <bool> banking-busy: false;
 
     in property <[AccountsFigure]> figures;
     in property <[AccountsBankCard]> bank-cards;
+
+    in property <string> sync-all-progress;
+    in property <bool> sync-all-visible;
+    in property <bool> sync-all-enabled;
 
     in property <[AccountTypeChoice]> type-choices;
     in property <[string]> currency-codes;
@@ -466,8 +536,18 @@ export component AccountsPage inherits Rectangle {
     in property <string> dialog-error;
     in property <string> dialog-account-type;
     in property <bool> dialog-offline;
+    in-out property <bool> dialog-online;
     in property <int> dialog-bank-id;
     in property <int> dialog-account-id;
+    in-out property <string> connection-name;
+    in-out property <string> connection-blz;
+    in-out property <string> connection-user-id;
+    in-out property <string> connection-server-url;
+    in property <string> connection-pin-text;
+    in property <bool> connection-has-pin;
+    in property <bool> connection-syncing;
+    in-out property <string> history-date;
+    in property <bool> history-has-start;
 
     in property <bool> detail-open;
     in property <string> detail-title;
@@ -485,6 +565,13 @@ export component AccountsPage inherits Rectangle {
     callback open-add-bank;
     callback close-dialog;
     callback submit-add-bank(string);
+    callback submit-add-online-bank(string, string, string, string, string);
+    callback submit-connection(int, string, string, string, string);
+    callback forget-pin(int);
+    callback submit-history(int, string);
+    callback clear-history(int);
+    callback sync-all;
+    callback bank-menu(int, string);
     callback open-add-account(int);
     callback submit-add-account(int, string, string, string, string, string);
     callback open-balance(int);
@@ -504,6 +591,10 @@ export component AccountsPage inherits Rectangle {
     callback open-transactions(int);
 
     property <string> add-bank-name: "";
+    property <string> add-bank-blz: "";
+    property <string> add-bank-bic: "";
+    property <string> add-bank-user-id: "";
+    property <string> add-bank-server-url: "";
     property <string> add-account-name: "";
     property <string> add-account-identifier: "";
     property <string> add-account-balance: "0";
@@ -513,8 +604,13 @@ export component AccountsPage inherits Rectangle {
     property <string> balance-type-code: "checking";
     property <string> rename-input;
 
+
     changed dialog => {
         root.add-bank-name = "";
+        root.add-bank-blz = "";
+        root.add-bank-bic = "";
+        root.add-bank-user-id = "";
+        root.add-bank-server-url = "";
         root.add-account-name = "";
         root.add-account-identifier = "";
         root.add-account-balance = "0";
@@ -558,8 +654,34 @@ export component AccountsPage inherits Rectangle {
                 background: transparent;
             }
 
+            if (root.sync-all-visible) : HorizontalLayout {
+                spacing: 12px;
+                alignment: center;
+
+                if (root.sync-all-progress != "") : Spinner {
+                    width: 18px;
+                    height: 18px;
+                }
+
+                if (root.sync-all-progress != "") : Text {
+                    text: root.sync-all-progress;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                }
+
+                if (root.sync-all-progress == "") : TextButton {
+                    text: Tr.t("SyncAll");
+                    enabled: root.sync-all-enabled;
+                    clicked => {
+                        root.sync-all();
+                    }
+                }
+            }
+
             PrimaryButton {
                 text: Tr.t("AddBank");
+                enabled: !root.banking-busy;
                 clicked => {
                     root.open-add-bank();
                 }
@@ -626,6 +748,12 @@ export component AccountsPage inherits Rectangle {
                     }
                     remove-bank => {
                         root.open-delete-bank(card.bank-id);
+                    }
+                    sync => {
+                        root.bank-menu(card.bank-id, "sync");
+                    }
+                    menu-action(action) => {
+                        root.bank-menu(card.bank-id, action);
                     }
                     open-detail(account-id) => {
                         root.open-detail(account-id);
@@ -840,12 +968,26 @@ export component AccountsPage inherits Rectangle {
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: Tr.t("AddBank");
+            dialog-width: 540px;
 
-            Text {
-                text: Tr.t("BankOfflineMode");
-                color: Theme.muted-text;
-                font-size: 12px;
-                wrap: word-wrap;
+            HorizontalLayout {
+                spacing: 6px;
+
+                ChoiceChip {
+                    label: Tr.t("BankOnlineMode");
+                    selected: root.dialog-online;
+                    clicked => {
+                        root.dialog-online = true;
+                    }
+                }
+
+                ChoiceChip {
+                    label: Tr.t("BankOfflineMode");
+                    selected: !root.dialog-online;
+                    clicked => {
+                        root.dialog-online = false;
+                    }
+                }
             }
 
             Text {
@@ -858,9 +1000,64 @@ export component AccountsPage inherits Rectangle {
             LineEdit {
                 text <=> root.add-bank-name;
                 accepted(text) => {
-                    if (text != "") {
+                    if (text != "" && !root.dialog-online) {
                         root.submit-add-bank(text);
                     }
+                }
+            }
+
+            if (root.dialog-online) : VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: Tr.t("BlzDigits");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.add-bank-blz;
+                }
+
+                Text {
+                    text: Tr.t("BicOptional");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.add-bank-bic;
+                }
+
+                Text {
+                    text: Tr.t("UserIdLogin");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.add-bank-user-id;
+                }
+
+                Text {
+                    text: Tr.t("FintsServerUrl");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.add-bank-server-url;
+                }
+
+                Text {
+                    text: Tr.t("AskBankForFints");
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    wrap: word-wrap;
                 }
             }
 
@@ -879,7 +1076,17 @@ export component AccountsPage inherits Rectangle {
                     text: Tr.t("Add");
                     enabled: root.add-bank-name != "";
                     clicked => {
-                        root.submit-add-bank(root.add-bank-name);
+                        if (root.dialog-online) {
+                            root.submit-add-online-bank(
+                                root.add-bank-name,
+                                root.add-bank-blz,
+                                root.add-bank-bic,
+                                root.add-bank-user-id,
+                                root.add-bank-server-url,
+                            );
+                        } else {
+                            root.submit-add-bank(root.add-bank-name);
+                        }
                     }
                 }
 
@@ -1120,6 +1327,171 @@ export component AccountsPage inherits Rectangle {
                     text: Tr.t("Save");
                     clicked => {
                         root.submit-rename(root.dialog-account-id, root.rename-input);
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+
+        if (root.dialog == "connection") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: root.dialog-title;
+            dialog-width: 520px;
+
+            Text {
+                text: Tr.t("ConnectionName");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.connection-name;
+            }
+
+            Text {
+                text: Tr.t("ConnectionNameHint");
+                color: Theme.muted-text;
+                font-size: 11px;
+                wrap: word-wrap;
+            }
+
+            if (!root.dialog-offline) : VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: Tr.t("BlzDigits");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.connection-blz;
+                }
+
+                Text {
+                    text: Tr.t("UserIdLogin");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.connection-user-id;
+                }
+
+                Text {
+                    text: Tr.t("FintsServerUrl");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.connection-server-url;
+                }
+
+                if (root.connection-pin-text != "") : Text {
+                    text: root.connection-pin-text;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    wrap: word-wrap;
+                }
+
+                if (root.connection-has-pin) : TextButton {
+                    text: Tr.t("ForgetPin");
+                    enabled: !root.connection-syncing;
+                    clicked => {
+                        root.forget-pin(root.dialog-bank-id);
+                    }
+                }
+            }
+
+            if (root.dialog-error != "") : Text {
+                text: root.dialog-error;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    enabled: root.connection-name != "" && !root.connection-syncing;
+                    clicked => {
+                        root.submit-connection(
+                            root.dialog-bank-id,
+                            root.connection-name,
+                            root.connection-blz,
+                            root.connection-user-id,
+                            root.connection-server-url,
+                        );
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+
+        if (root.dialog == "history") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: root.dialog-title;
+            dialog-width: 500px;
+
+            Text {
+                text: Tr.t("FetchHistoryDate");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.history-date;
+                accepted(text) => {
+                    root.submit-history(root.dialog-bank-id, text);
+                }
+            }
+
+            Text {
+                text: root.dialog-error != "" ? root.dialog-error : Tr.t("FetchHistoryHint");
+                color: root.dialog-error != "" ? Theme.error : Theme.muted-text;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Fetch");
+                    enabled: root.history-date != "";
+                    clicked => {
+                        root.submit-history(root.dialog-bank-id, root.history-date);
+                    }
+                }
+
+                if (root.history-has-start) : TextButton {
+                    text: Tr.t("ClearHistoryStart");
+                    clicked => {
+                        root.clear-history(root.dialog-bank-id);
                     }
                 }
 

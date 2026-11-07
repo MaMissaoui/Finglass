@@ -11,6 +11,7 @@ use finglass_core::account_grouping::{self, AccountItem as GroupingAccount, Bala
 use finglass_core::account_ids;
 use finglass_core::app;
 use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountItem, AccountsState};
+use finglass_core::app::banking::{BankingState, SyncAllProgress};
 use finglass_core::app::dashboard::{DashboardState, DashboardView};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
@@ -835,7 +836,7 @@ fn renders_the_app_shell() {
     {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
-        apply_accounts(&ui, &accounts_state);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
         ui.show().unwrap();
         let buffer = render(&window, "accounts-en-light", 1100, 720);
         assert_varied(&buffer, "accounts-en-light");
@@ -847,7 +848,7 @@ fn renders_the_app_shell() {
         german.language = Language::De;
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::De, ThemePref::Dark, "accounts", &rows);
-        apply_accounts(&ui, &german);
+        apply_accounts(&ui, &german, &banking_state(&german));
         ui.show().unwrap();
         let buffer = render(&window, "accounts-de-dark", 1100, 720);
         assert_varied(&buffer, "accounts-de-dark");
@@ -882,7 +883,7 @@ fn renders_the_app_shell() {
 
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
-        apply_accounts(&ui, &panel_state);
+        apply_accounts(&ui, &panel_state, &banking_state(&panel_state));
         ui.set_accounts_panel_preview(true);
         ui.show().unwrap();
         let buffer = render(&window, "account-panel-en-light", 360, 720);
@@ -894,7 +895,7 @@ fn renders_the_app_shell() {
         let bank = accounts_state.bank_accesses[0].clone();
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
-        apply_accounts(&ui, &accounts_state);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
         ui.show().unwrap();
         ui.set_accounts_dialog_title(
             i18n::format(Language::En, Key::AddAccountAt, &[Arg::from(bank.bank_name.as_str())]).into(),
@@ -918,7 +919,7 @@ fn renders_the_app_shell() {
             .unwrap();
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
-        apply_accounts(&ui, &detail);
+        apply_accounts(&ui, &detail, &banking_state(&detail));
         ui.show().unwrap();
         let buffer = render(&window, "accounts-detail-en-light", 1100, 720);
         assert_varied(&buffer, "accounts-detail-en-light");
@@ -940,10 +941,193 @@ fn renders_the_app_shell() {
         empty.load_accounts(&empty_db).unwrap();
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
-        apply_accounts(&ui, &empty);
+        apply_accounts(&ui, &empty, &banking_state(&empty));
         ui.show().unwrap();
         let buffer = render(&window, "accounts-empty-en", 1100, 720);
         assert_varied(&buffer, "accounts-empty-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut banking = banking_state(&accounts_state);
+        banking.syncing_bank = Some(seeded.online);
+        banking.sync_step = Some(i18n::text(Language::En, Key::SyncConnecting).to_owned());
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-syncing-en", 1100, 720);
+        assert_varied(&buffer, "accounts-syncing-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut banking = banking_state(&accounts_state);
+        banking.sync_all = Some(SyncAllProgress {
+            position: 1,
+            total: 2,
+            bank_name: "Sparkasse".to_owned(),
+        });
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-sync-all-en", 1100, 720);
+        assert_varied(&buffer, "accounts-sync-all-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_accounts_dialog_online(true);
+        ui.set_accounts_dialog("add-bank".into());
+        ui.set_accounts_dialog_error(i18n::text(Language::En, Key::BlzMustBe8Digits).into());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-add-online-bank-en", 1100, 720);
+        assert_varied(&buffer, "accounts-add-online-bank-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let bank = accounts_state
+            .bank_accesses
+            .iter()
+            .find(|bank| !bank.offline)
+            .expect("the seeded online bank");
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_accounts_dialog_title(
+            i18n::format(
+                Language::En,
+                Key::OnlineBankingFor,
+                &[Arg::from(bank.bank_name.as_str())],
+            )
+            .into(),
+        );
+        ui.set_accounts_dialog_account_name(bank.bank_name.clone().into());
+        ui.set_accounts_connection_name(bank.bank_name.clone().into());
+        ui.set_accounts_dialog_bank_id(i32::try_from(bank.id.0).unwrap_or(-1));
+        ui.set_accounts_dialog_offline(false);
+        ui.set_accounts_connection_blz(bank.blz.clone().into());
+        ui.set_accounts_connection_user_id(bank.user_id.clone().into());
+        ui.set_accounts_connection_server_url(bank.server_url.clone().unwrap_or_default().into());
+        ui.set_accounts_connection_pin_text(i18n::text(Language::En, Key::PinSavedForSyncs).into());
+        ui.set_accounts_connection_has_pin(true);
+        ui.set_accounts_dialog("connection".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-connection-en", 1100, 720);
+        assert_varied(&buffer, "accounts-connection-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let bank = accounts_state
+            .bank_accesses
+            .iter()
+            .find(|bank| !bank.offline)
+            .expect("the seeded online bank");
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_accounts_dialog_title(
+            i18n::format(
+                Language::En,
+                Key::FetchHistoryFor,
+                &[Arg::from(bank.bank_name.as_str())],
+            )
+            .into(),
+        );
+        ui.set_accounts_dialog_bank_id(i32::try_from(bank.id.0).unwrap_or(-1));
+        ui.set_accounts_history_date("01.01.2026".into());
+        ui.set_accounts_history_has_start(true);
+        ui.set_accounts_dialog("history".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-history-en", 1100, 720);
+        assert_varied(&buffer, "accounts-history-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_banking_prompt("pin".into());
+        ui.set_banking_prompt_title("PIN for Sparkasse".into());
+        ui.set_banking_prompt_text("Enter the PIN for meinuser.".into());
+        ui.set_banking_prompt_label(i18n::text(Language::En, Key::Pin).into());
+        ui.set_banking_prompt_remember_visible(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-pin-remember-en", 1100, 720);
+        assert_varied(&buffer, "accounts-pin-remember-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_banking_prompt("pin".into());
+        ui.set_banking_prompt_title("PIN for Sparkasse".into());
+        ui.set_banking_prompt_text("Enter the PIN for meinuser.".into());
+        ui.set_banking_prompt_label(i18n::text(Language::En, Key::Pin).into());
+        ui.set_banking_prompt_remember_visible(false);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-pin-en", 1100, 720);
+        assert_varied(&buffer, "accounts-pin-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_banking_prompt("choice".into());
+        ui.set_banking_prompt_title(i18n::text(Language::En, Key::ChooseTanProcedure).into());
+        ui.set_banking_prompt_choices(ModelRc::new(VecModel::from(vec![
+            BankingPromptChoice {
+                id: "942".into(),
+                label: "chipTAN optisch".into(),
+            },
+            BankingPromptChoice {
+                id: "946".into(),
+                label: "pushTAN".into(),
+            },
+        ])));
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-tan-method-en", 1100, 720);
+        assert_varied(&buffer, "accounts-tan-method-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_banking_prompt("tan".into());
+        ui.set_banking_prompt_title(i18n::text(Language::En, Key::TanRequired).into());
+        ui.set_banking_prompt_label(i18n::text(Language::En, Key::TanLabel).into());
+        ui.set_banking_prompt_challenge("Bitte bestätigen Sie den Abruf der Umsätze.".into());
+        ui.set_banking_prompt_show_image(true);
+        ui.set_banking_prompt_image(slint::Image::load_from_path(&preview_path).unwrap());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-tan-photo-en", 1100, 720);
+        assert_varied(&buffer, "accounts-tan-photo-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_banking_prompt("decoupled".into());
+        ui.set_banking_prompt_title(i18n::text(Language::En, Key::ConfirmInBankingApp).into());
+        ui.set_banking_prompt_text("Confirm the login in your banking app.".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-decoupled-en", 1100, 720);
+        assert_varied(&buffer, "accounts-decoupled-en");
         let _ = ui.hide();
     }
 
@@ -1908,10 +2092,54 @@ fn seed_booking(
 
 struct SeededAccounts {
     checking: AccountId,
+    online: finglass_core::model::BankConnectionId,
 }
 
 fn seed_accounts(db: &Database) -> SeededAccounts {
     let offline = bank_connections::create_offline(db, "Bank Norwegian").unwrap();
+    let online = bank_connections::create(
+        db,
+        finglass_core::model::NewBankConnection {
+            bank_name: "Sparkasse".to_owned(),
+            blz: "37040044".to_owned(),
+            bic: Some("COLSDE33XXX".to_owned()),
+            user_id: "meinuser".to_owned(),
+        },
+    )
+    .unwrap();
+    bank_connections::update_connection(
+        db,
+        online.id,
+        finglass_core::model::BankConnectionUpdate {
+            server_url: Some("https://fints.example/pintan".to_owned()),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    for (name, iban, minor) in [
+        ("Girokonto", "DE89370400440532013001", 312_540),
+        ("Tagesgeld", "DE44500105175407324932", 800_000),
+    ] {
+        accounts::create(
+            db,
+            NewAccount {
+                bank_connection_id: Some(online.id),
+                institution: None,
+                name: Some(name.to_owned()),
+                iban: Some(iban.to_owned()),
+                account_number: None,
+                currency: Currency::EUR,
+                account_type: AccountType::Checking,
+                balance: Money {
+                    minor,
+                    currency: Currency::EUR,
+                },
+                balance_updated_at: Some(OffsetDateTime::now_utc()),
+                group_id: None,
+            },
+        )
+        .unwrap();
+    }
     let usd = Currency::new("USD").unwrap();
 
     let checking = accounts::create(
@@ -2033,7 +2261,10 @@ fn seed_accounts(db: &Database) -> SeededAccounts {
         .unwrap();
     }
 
-    SeededAccounts { checking }
+    SeededAccounts {
+        checking,
+        online: online.id,
+    }
 }
 
 fn render_reports(
@@ -3179,7 +3410,7 @@ fn write_png(directory: &Path, name: &str, buffer: &SharedPixelBuffer<Rgb8Pixel>
 const ACCOUNTS_CURRENCY_CODES: [&str; 6] = ["EUR", "USD", "GBP", "CHF", "JPY", "CAD"];
 const ACCOUNTS_DETAIL_DAYS: [i64; 3] = [30, 90, 365];
 
-fn apply_accounts(ui: &MainWindow, state: &AccountsState) {
+fn apply_accounts(ui: &MainWindow, state: &AccountsState, banking: &BankingState) {
     let language = state.language;
     let has_content = !state.bank_accesses.is_empty() || !state.accounts.is_empty();
 
@@ -3188,8 +3419,20 @@ fn apply_accounts(ui: &MainWindow, state: &AccountsState) {
     ui.set_accounts_has_content(has_content);
     ui.set_accounts_error_text(state.error.clone().unwrap_or_default().into());
     ui.set_accounts_message_text(state.message.clone().unwrap_or_default().into());
+    ui.set_accounts_banking_busy(banking.is_syncing());
+    ui.set_accounts_sync_all_progress(accounts_sync_all_text(banking).into());
+    ui.set_accounts_sync_all_visible(banking.banks.iter().any(|bank| !bank.offline));
+    ui.set_accounts_sync_all_enabled(
+        !banking.is_syncing()
+            && banking
+                .banks
+                .iter()
+                .any(|bank| bank.include_in_sync_all && !bank.offline),
+    );
     ui.set_accounts_figures(accounts_figures(state, language));
-    ui.set_accounts_bank_cards(ModelRc::new(VecModel::from(accounts_bank_cards(state, language))));
+    ui.set_accounts_bank_cards(ModelRc::new(VecModel::from(accounts_bank_cards(
+        state, banking, language,
+    ))));
     ui.set_accounts_panel_rows(ModelRc::new(VecModel::from(accounts_panel_rows(state, language))));
     ui.set_accounts_group_choices(ModelRc::new(VecModel::from(
         state
@@ -3339,7 +3582,29 @@ fn accounts_amounts(
     ))
 }
 
-fn accounts_bank_cards(state: &AccountsState, language: Language) -> Vec<AccountsBankCard> {
+fn banking_state(state: &AccountsState) -> BankingState {
+    let mut banking = BankingState::new(state.language);
+    banking.can_remember_pin = true;
+    banking.banks = state
+        .bank_accesses
+        .iter()
+        .map(|bank| finglass_core::app::banking::BankItem {
+            id: bank.id,
+            bank_name: bank.bank_name.clone(),
+            blz: bank.blz.clone(),
+            user_id: bank.user_id.clone(),
+            server_url: bank.server_url.clone(),
+            offline: bank.offline,
+            include_in_sync_all: bank.include_in_sync_all,
+            sync_from: bank.sync_from,
+            last_sync: bank.last_sync,
+            has_saved_pin: false,
+        })
+        .collect();
+    banking
+}
+
+fn accounts_bank_cards(state: &AccountsState, banking: &BankingState, language: Language) -> Vec<AccountsBankCard> {
     let mut cards = Vec::new();
     for bank in &state.bank_accesses {
         let in_bank: Vec<&AccountItem> = state
@@ -3347,6 +3612,7 @@ fn accounts_bank_cards(state: &AccountsState, language: Language) -> Vec<Account
             .iter()
             .filter(|account| account.bank_access_id == Some(bank.id))
             .collect();
+        let item = banking.banks.iter().find(|item| item.id == bank.id);
         cards.push(accounts_bank_card(
             bank.id.0,
             &bank.bank_name,
@@ -3355,6 +3621,8 @@ fn accounts_bank_cards(state: &AccountsState, language: Language) -> Vec<Account
             state.collapsed_banks.contains(&bank.id),
             &in_bank,
             state,
+            item,
+            banking,
             language,
         ));
     }
@@ -3373,6 +3641,8 @@ fn accounts_bank_cards(state: &AccountsState, language: Language) -> Vec<Account
             false,
             &without_bank,
             state,
+            None,
+            banking,
             language,
         ));
     }
@@ -3388,6 +3658,8 @@ fn accounts_bank_card(
     collapsed: bool,
     in_bank: &[&AccountItem],
     state: &AccountsState,
+    item: Option<&finglass_core::app::banking::BankItem>,
+    banking: &BankingState,
     language: Language,
 ) -> AccountsBankCard {
     let grouping_accounts: Vec<GroupingAccount> = in_bank.iter().map(|account| accounts_grouping(account)).collect();
@@ -3413,7 +3685,114 @@ fn accounts_bank_card(
                 })
                 .collect::<Vec<BankAccountRow>>(),
         )),
+        syncing: item.is_some_and(|item| banking.syncing_bank == Some(item.id)),
+        sync_step: item
+            .and_then(|_| banking.sync_step.clone())
+            .unwrap_or_else(|| i18n::text(language, Key::Syncing).to_owned())
+            .into(),
+        sync_enabled: !banking.is_syncing(),
+        pin_text: if item.is_none() || offline {
+            String::new()
+        } else if item.is_some_and(|item| item.has_saved_pin) {
+            i18n::text(language, Key::PinSavedForSyncs).to_owned()
+        } else if banking.can_remember_pin {
+            i18n::text(language, Key::PinAskedEverySync).to_owned()
+        } else {
+            i18n::text(language, Key::PinNeverStored).to_owned()
+        }
+        .into(),
+        menu: ModelRc::new(VecModel::from(
+            item.map(|item| accounts_bank_menu(item, banking, state, language))
+                .unwrap_or_default(),
+        )),
     }
+}
+
+fn accounts_sync_all_text(banking: &BankingState) -> String {
+    banking.sync_all.as_ref().map_or_else(String::new, |progress| {
+        if progress.position == 0 {
+            String::new()
+        } else {
+            i18n::format(
+                banking.language,
+                Key::SyncAllProgress,
+                &[
+                    progress.position.into(),
+                    progress.total.into(),
+                    Arg::Str(progress.bank_name.clone()),
+                ],
+            )
+        }
+    })
+}
+
+fn accounts_bank_menu(
+    bank: &finglass_core::app::banking::BankItem,
+    banking: &BankingState,
+    state: &AccountsState,
+    language: Language,
+) -> Vec<BankMenuItem> {
+    let enabled = !banking.is_syncing();
+    let mut items = Vec::new();
+    if !bank.offline {
+        for (action, key) in [("sync", Key::SyncNow), ("history", Key::FetchHistory)] {
+            items.push(BankMenuItem {
+                action: action.into(),
+                label: i18n::text(language, key).into(),
+                checked: false,
+                danger: false,
+                enabled,
+            });
+        }
+        if bank.sync_from.is_some() {
+            items.push(BankMenuItem {
+                action: "clear-history".into(),
+                label: i18n::text(language, Key::ClearHistoryStart).into(),
+                checked: false,
+                danger: false,
+                enabled,
+            });
+        }
+        items.push(BankMenuItem {
+            action: "include".into(),
+            label: i18n::text(language, Key::IncludeInSyncAll).into(),
+            checked: bank.include_in_sync_all,
+            danger: false,
+            enabled,
+        });
+        items.push(BankMenuItem {
+            action: "connection".into(),
+            label: i18n::text(language, Key::ConnectionSettings).into(),
+            checked: false,
+            danger: false,
+            enabled,
+        });
+        if bank.has_saved_pin {
+            items.push(BankMenuItem {
+                action: "forget-pin".into(),
+                label: i18n::text(language, Key::ForgetPin).into(),
+                checked: false,
+                danger: false,
+                enabled,
+            });
+        }
+    } else {
+        items.push(BankMenuItem {
+            action: "connection".into(),
+            label: i18n::text(language, Key::RenameConnection).into(),
+            checked: false,
+            danger: false,
+            enabled,
+        });
+    }
+    items.push(BankMenuItem {
+        action: "delete".into(),
+        label: i18n::text(language, Key::RemoveBank).into(),
+        checked: false,
+        danger: true,
+        enabled: enabled && !state.busy.active(),
+    });
+    items
 }
 
 fn accounts_bank_subtitle(bank: &BankAccessItem, language: Language) -> String {

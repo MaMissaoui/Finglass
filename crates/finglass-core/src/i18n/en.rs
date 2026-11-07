@@ -123,7 +123,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::Syncing => "Syncing…",
         Key::Sync => "Sync",
         Key::SyncAll => "Sync all",
-        Key::SyncAllProgress => "Syncing %d of %d: %s",
+        Key::SyncAllProgress => "%d/%d · %s",
         Key::IncludeInSyncAll => "Include in Sync all",
         Key::NotInSyncAll => "not in Sync all",
         Key::SyncAllNothingIncluded => "No connection is included in Sync all",
@@ -136,6 +136,7 @@ pub(super) fn text(key: Key) -> &'static str {
         }
         Key::Fetch => "Fetch",
         Key::Reset => "Reset",
+        Key::ClearHistoryStart => "Clear history start",
         Key::NextSyncFrom => "next sync from %s",
         Key::ConnectionSettings => "Connection settings",
         Key::RenameConnection => "Rename",
@@ -636,13 +637,16 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PinFor => "PIN for %s",
         Key::PinExplanation => "Online banking PIN for user %s.",
         Key::RememberPinForSyncs => "Remember PIN for syncs",
-        Key::RememberPinExplanation => "Kept in your system's secure credential store. Transfers still ask for it.",
+        Key::RememberPinExplanation => "Kept in your system's secure credential store, never in Finglass's files.",
         Key::Pin => "PIN",
         Key::ChooseTanProcedure => "Choose TAN procedure",
         Key::ChooseTanMedium => "Choose TAN medium",
         Key::TanRequired => "TAN required",
         Key::TanDefaultMessage => "Enter the TAN shown by your TAN procedure.",
         Key::TanChallenge => "TAN challenge",
+        Key::TanFlickerUnsupported => {
+            "chipTAN flicker codes are not supported in this build yet. Enter the TAN shown on the generator."
+        }
         Key::ConfirmInBankingApp => "Confirm in your banking app",
         Key::IConfirmedIt => "I confirmed it",
         Key::MessageFromBank => "Message from your bank",

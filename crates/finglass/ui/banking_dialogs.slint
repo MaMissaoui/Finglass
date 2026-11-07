@@ -1,0 +1,322 @@
+import { CheckBox, LineEdit, ScrollView } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import { PrimaryButton, TextButton } from "components.slint";
+import { BankingPromptChoice } from "models.slint";
+
+// One choice in a TAN-procedure or TAN-medium prompt.
+component PromptChoiceRow inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+
+    callback picked;
+
+    height: 34px;
+    border-radius: 6px;
+    background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
+
+    Text {
+        x: 10px;
+        width: parent.width - 20px;
+        height: parent.height;
+        text: root.label;
+        color: root.selected ? Theme.on-selected : Theme.text;
+        font-size: 14px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+
+    touch := TouchArea {
+        clicked => root.picked();
+    }
+}
+
+// The modal card shared by every banking prompt. Secrets live in the fields only while the prompt is open; every
+// submit and cancel clears them, and so does the adapter when the prompt closes (by setting `kind` to "").
+export component BankingPrompts inherits Rectangle {
+    in property <string> kind;
+    in property <string> title;
+    in property <string> text;
+    in property <string> label;
+    in property <bool> remember-visible;
+    in property <[BankingPromptChoice]> choices;
+    in property <string> challenge;
+    in property <string> flicker-note;
+    in property <image> challenge-image;
+    in property <bool> show-image;
+
+    callback answer-pin(string, bool);
+    callback answer-choice(string);
+    callback answer-tan(string);
+    callback answer-decoupled(bool);
+    callback cancel;
+
+    property <string> pin-input;
+    property <string> tan-input;
+    property <bool> remember-checked: false;
+    property <int> selected-choice: -1;
+
+    changed kind => {
+        root.pin-input = "";
+        root.tan-input = "";
+        root.remember-checked = false;
+        root.selected-choice = -1;
+    }
+
+    visible: root.kind != "";
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 480px;
+        height: dialog-content.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        dialog-content := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: 22px;
+                font-weight: 600;
+                wrap: word-wrap;
+            }
+
+            if (root.text != "") : Text {
+                text: root.text;
+                color: Theme.muted-text;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            if (root.kind == "pin") : VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: root.label;
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.pin-input;
+                    input-type: password;
+                    accepted(value) => {
+                        if (value != "") {
+                            root.answer-pin(value, root.remember-checked);
+                            root.pin-input = "";
+                            root.remember-checked = false;
+                        }
+                    }
+                }
+
+                if (root.remember-visible) : VerticalLayout {
+                    spacing: 1px;
+
+                    CheckBox {
+                        checked <=> root.remember-checked;
+                        text: Tr.t("RememberPinForSyncs");
+                    }
+
+                    Text {
+                        text: Tr.t("RememberPinExplanation");
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+
+            if (root.kind == "choice") : Rectangle {
+                height: min(choices-layout.preferred-height, 320px);
+                background: transparent;
+
+                ScrollView {
+                    choices-layout := VerticalLayout {
+                        spacing: 2px;
+
+                        for choice[index] in root.choices : PromptChoiceRow {
+                            label: choice.label;
+                            selected: root.selected-choice == index;
+                            picked => {
+                                root.selected-choice = index;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (root.kind == "tan") : VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: root.challenge;
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                    wrap: word-wrap;
+                }
+
+                if (root.show-image) : Image {
+                    source: root.challenge-image;
+                    width: 220px;
+                    height: 220px;
+                    image-fit: contain;
+                    horizontal-alignment: center;
+                }
+
+                if (root.flicker-note != "") : Text {
+                    text: root.flicker-note;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                Text {
+                    text: root.label;
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.tan-input;
+                    accepted(value) => {
+                        if (value != "") {
+                            root.answer-tan(value);
+                            root.tan-input = "";
+                        }
+                    }
+                }
+            }
+
+            if (root.kind == "decoupled") : HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("IConfirmedIt");
+                    clicked => {
+                        root.answer-decoupled(true);
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.answer-decoupled(false);
+                    }
+                }
+            }
+
+            if (root.kind == "pin") : HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Ok");
+                    enabled: root.pin-input != "";
+                    clicked => {
+                        root.answer-pin(root.pin-input, root.remember-checked);
+                        root.pin-input = "";
+                        root.remember-checked = false;
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.pin-input = "";
+                        root.remember-checked = false;
+                        root.cancel();
+                    }
+                }
+            }
+
+            if (root.kind == "choice") : HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Ok");
+                    enabled: root.selected-choice >= 0;
+                    clicked => {
+                        if (root.selected-choice >= 0 && root.selected-choice < root.choices.length) {
+                            root.answer-choice(root.choices[root.selected-choice].id);
+                        }
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.cancel();
+                    }
+                }
+            }
+
+            if (root.kind == "tan") : HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Ok");
+                    enabled: root.tan-input != "";
+                    clicked => {
+                        root.answer-tan(root.tan-input);
+                        root.tan-input = "";
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.tan-input = "";
+                        root.cancel();
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The bank's informational message: non-modal, with a close button.
+export component BankingInfoBanner inherits Rectangle {
+    in property <string> text;
+
+    callback close;
+
+    width: 520px;
+    height: banner.preferred-height;
+    background: Theme.surface;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    banner := HorizontalLayout {
+        padding: 12px;
+        spacing: 12px;
+
+        Text {
+            text: root.text;
+            color: Theme.text;
+            font-size: 13px;
+            wrap: word-wrap;
+            horizontal-stretch: 1;
+            vertical-alignment: center;
+        }
+
+        TextButton {
+            text: Tr.t("Close");
+            clicked => root.close();
+        }
+    }
+}

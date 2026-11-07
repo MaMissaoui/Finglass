@@ -129,7 +129,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::Syncing => "Synchronisation…",
         Key::Sync => "Sync",
         Key::SyncAll => "Tout synchroniser",
-        Key::SyncAllProgress => "Synchronisation %d sur %d : %s",
+        Key::SyncAllProgress => "%d/%d · %s",
         Key::IncludeInSyncAll => "Inclure dans « Tout synchroniser »",
         Key::NotInSyncAll => "hors « Tout synchroniser »",
         Key::SyncAllNothingIncluded => "Aucune connexion n'est incluse dans « Tout synchroniser »",
@@ -142,6 +142,7 @@ pub(super) fn text(key: Key) -> &'static str {
         }
         Key::Fetch => "Récupérer",
         Key::Reset => "Réinitialiser",
+        Key::ClearHistoryStart => "Effacer le début de l'historique",
         Key::NextSyncFrom => "prochaine récupération depuis %s",
         Key::ConnectionSettings => "Paramètres de connexion",
         Key::RenameConnection => "Renommer",
@@ -656,7 +657,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PinExplanation => "PIN de banque en ligne pour l'utilisateur %s.",
         Key::RememberPinForSyncs => "Mémoriser le PIN pour les syncs",
         Key::RememberPinExplanation => {
-            "Conservé dans le magasin d'identifiants sécurisé de votre système. Les virements le demandent toujours."
+            "Conservé dans le magasin d'identifiants sécurisé de votre système, jamais dans les fichiers de Finglass."
         }
         Key::Pin => "PIN",
         Key::ChooseTanProcedure => "Choisir la procédure TAN",
@@ -664,6 +665,9 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::TanRequired => "TAN requis",
         Key::TanDefaultMessage => "Saisissez le TAN affiché par votre procédure TAN.",
         Key::TanChallenge => "Défi TAN",
+        Key::TanFlickerUnsupported => {
+            "Les codes clignotants chipTAN ne sont pas encore pris en charge dans cette version. Saisissez le TAN affiché sur le générateur."
+        }
         Key::ConfirmInBankingApp => "Confirmer dans votre application bancaire",
         Key::IConfirmedIt => "J'ai confirmé",
         Key::MessageFromBank => "Message de votre banque",

@@ -2,7 +2,7 @@ import { Theme } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
 import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
-import { AuditRow, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
+import { AuditRow, BankingPromptChoice, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
 import { AccountPanel } from "account_panel.slint";
@@ -10,6 +10,7 @@ import { AccountsPage } from "accounts_page.slint";
 import { TransactionsPage } from "transactions_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
 import { BackupPassphraseDialog, CategoryDialog, ConfirmDialog, ProfileNameDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
+import { BankingInfoBanner, BankingPrompts } from "banking_dialogs.slint";
 
 // One language in the top bar's menu.
 component LanguageMenuItem inherits Rectangle {
@@ -361,6 +362,7 @@ export component MainWindow inherits Window {
     in property <string> accounts-dialog-balance;
     in property <string> accounts-dialog-account-type;
     in property <bool> accounts-dialog-offline;
+    in-out property <bool> accounts-dialog-online;
     in property <int> accounts-dialog-bank-id;
     in property <int> accounts-dialog-account-id;
 
@@ -376,6 +378,33 @@ export component MainWindow inherits Window {
     in property <string> accounts-detail-axis-top;
     in property <string> accounts-detail-axis-bottom;
     in property <[AccountDetailRow]> accounts-detail-rows;
+
+    // M5c-3 banking: card sync state, the add-online-bank/connection/history forms and the prompt dialogs.
+    in property <bool> accounts-banking-busy;
+    in property <string> accounts-sync-all-progress;
+    in property <bool> accounts-sync-all-visible;
+    in property <bool> accounts-sync-all-enabled;
+    in-out property <string> accounts-connection-name;
+    in-out property <string> accounts-connection-blz;
+    in-out property <string> accounts-connection-user-id;
+    in-out property <string> accounts-connection-server-url;
+    in property <string> accounts-connection-pin-text;
+    in property <bool> accounts-connection-has-pin;
+    in property <bool> accounts-connection-syncing;
+    in-out property <string> accounts-history-date;
+    in property <bool> accounts-history-has-start;
+
+    in property <string> banking-prompt;
+    in property <string> banking-prompt-title;
+    in property <string> banking-prompt-text;
+    in property <string> banking-prompt-label;
+    in property <bool> banking-prompt-remember-visible;
+    in property <[BankingPromptChoice]> banking-prompt-choices;
+    in property <string> banking-prompt-challenge;
+    in property <string> banking-prompt-flicker-note;
+    in property <image> banking-prompt-image;
+    in property <bool> banking-prompt-show-image;
+    in property <string> banking-info-text;
 
     // Transactions page state, mapped from finglass_core::app::transactions::TransactionsState.
     in-out property <bool> transactions-show-panel: true;
@@ -634,6 +663,19 @@ export component MainWindow inherits Window {
     callback accounts-open-add-bank;
     callback accounts-close-dialog;
     callback accounts-submit-add-bank(string);
+    callback accounts-submit-add-online-bank(string, string, string, string, string);
+    callback accounts-submit-connection(int, string, string, string, string);
+    callback accounts-forget-pin(int);
+    callback accounts-submit-history(int, string);
+    callback accounts-clear-history(int);
+    callback accounts-sync-all;
+    callback accounts-bank-menu(int, string);
+    callback banking-answer-pin(string, bool);
+    callback banking-answer-choice(string);
+    callback banking-answer-tan(string);
+    callback banking-answer-decoupled(bool);
+    callback banking-answer-cancel;
+    callback banking-clear-info;
     callback accounts-open-add-account(int);
     callback accounts-submit-add-account(int, string, string, string, string, string);
     callback accounts-open-balance(int);
@@ -1191,8 +1233,12 @@ export component MainWindow inherits Window {
                 has-content: root.accounts-has-content;
                 error-text: root.accounts-error-text;
                 message-text: root.accounts-message-text;
+                banking-busy: root.accounts-banking-busy;
                 figures: root.accounts-figures;
                 bank-cards: root.accounts-bank-cards;
+                sync-all-progress: root.accounts-sync-all-progress;
+                sync-all-visible: root.accounts-sync-all-visible;
+                sync-all-enabled: root.accounts-sync-all-enabled;
                 type-choices: root.accounts-type-choices;
                 currency-codes: root.accounts-currency-codes;
                 days-choices: root.accounts-days-choices;
@@ -1206,8 +1252,18 @@ export component MainWindow inherits Window {
                 dialog-balance: root.accounts-dialog-balance;
                 dialog-account-type: root.accounts-dialog-account-type;
                 dialog-offline: root.accounts-dialog-offline;
+                dialog-online <=> root.accounts-dialog-online;
                 dialog-bank-id: root.accounts-dialog-bank-id;
                 dialog-account-id: root.accounts-dialog-account-id;
+                connection-name <=> root.accounts-connection-name;
+                connection-blz <=> root.accounts-connection-blz;
+                connection-user-id <=> root.accounts-connection-user-id;
+                connection-server-url <=> root.accounts-connection-server-url;
+                connection-pin-text: root.accounts-connection-pin-text;
+                connection-has-pin: root.accounts-connection-has-pin;
+                connection-syncing: root.accounts-connection-syncing;
+                history-date <=> root.accounts-history-date;
+                history-has-start: root.accounts-history-has-start;
 
                 detail-open: root.accounts-detail-open;
                 detail-title: root.accounts-detail-title;
@@ -1225,6 +1281,17 @@ export component MainWindow inherits Window {
                 open-add-bank => { root.accounts-open-add-bank(); }
                 close-dialog => { root.accounts-close-dialog(); }
                 submit-add-bank(name) => { root.accounts-submit-add-bank(name); }
+                submit-add-online-bank(name, blz, bic, user-id, server-url) => {
+                    root.accounts-submit-add-online-bank(name, blz, bic, user-id, server-url);
+                }
+                submit-connection(bank-id, name, blz, user-id, server-url) => {
+                    root.accounts-submit-connection(bank-id, name, blz, user-id, server-url);
+                }
+                forget-pin(bank-id) => { root.accounts-forget-pin(bank-id); }
+                submit-history(bank-id, date) => { root.accounts-submit-history(bank-id, date); }
+                clear-history(bank-id) => { root.accounts-clear-history(bank-id); }
+                sync-all => { root.accounts-sync-all(); }
+                bank-menu(bank-id, action) => { root.accounts-bank-menu(bank-id, action); }
                 open-add-account(bank-id) => { root.accounts-open-add-account(bank-id); }
                 submit-add-account(bank-id, name, identifier, account-type, currency, balance) => {
                     root.accounts-submit-add-account(bank-id, name, identifier, account-type, currency, balance);
@@ -1624,6 +1691,13 @@ export component MainWindow inherits Window {
         }
     }
 
+    if (root.banking-info-text != "") : BankingInfoBanner {
+        x: (parent.width - self.width) / 2;
+        y: parent.height - self.height - 16px;
+        text: root.banking-info-text;
+        close => { root.banking-clear-info(); }
+    }
+
     if (root.change-open) : ChangePassphraseDialog {
         busy: root.change-busy;
         error-text: root.change-error;
@@ -1836,5 +1910,24 @@ export component MainWindow inherits Window {
                 }
             }
         }
+    }
+
+    // Banking prompts stay above every other surface: only one can be open, and it blocks the page beneath.
+    if (root.banking-prompt != "") : BankingPrompts {
+        kind: root.banking-prompt;
+        title: root.banking-prompt-title;
+        text: root.banking-prompt-text;
+        label: root.banking-prompt-label;
+        remember-visible: root.banking-prompt-remember-visible;
+        choices: root.banking-prompt-choices;
+        challenge: root.banking-prompt-challenge;
+        flicker-note: root.banking-prompt-flicker-note;
+        challenge-image: root.banking-prompt-image;
+        show-image: root.banking-prompt-show-image;
+        answer-pin(value, remember) => { root.banking-answer-pin(value, remember); }
+        answer-choice(value) => { root.banking-answer-choice(value); }
+        answer-tan(value) => { root.banking-answer-tan(value); }
+        answer-decoupled(confirmed) => { root.banking-answer-decoupled(confirmed); }
+        cancel => { root.banking-answer-cancel(); }
     }
 }

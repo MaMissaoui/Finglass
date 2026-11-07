@@ -23,9 +23,10 @@ slint = { version = "1.18.1", default-features = false, features = [
 time = "0.3"
 zeroize = "1"
 open = "5"
+png = "0.18"
+secrecy = "0.10"
 
 [dev-dependencies]
-png = "0.18"
 rust_decimal = "1.43.0"
 tempfile = "3"
 time = { version = "0.3", features = ["macros"] }

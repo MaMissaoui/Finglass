@@ -51,7 +51,7 @@ impl Drop for BusyGuard {
 }
 
 /// Applies `state` to the window without touching the database.
-pub fn apply(main: &MainWindow, state: &AccountsState) {
+pub fn apply(main: &MainWindow, state: &AccountsState, banking: &finglass_core::app::banking::BankingState) {
     let language = state.language;
     let has_content = !state.bank_accesses.is_empty() || !state.accounts.is_empty();
 
@@ -62,7 +62,10 @@ pub fn apply(main: &MainWindow, state: &AccountsState) {
     main.set_accounts_message_text(state.message.clone().unwrap_or_default().into());
 
     main.set_accounts_figures(figures(state, language));
-    main.set_accounts_bank_cards(ModelRc::new(VecModel::from(bank_cards(state, language))));
+    main.set_accounts_bank_cards(ModelRc::new(VecModel::from(crate::banking::bank_cards(
+        state, banking, language,
+    ))));
+    crate::banking::apply_props(main, state, banking);
     main.set_accounts_panel_rows(ModelRc::new(VecModel::from(panel_rows(state, language))));
     main.set_accounts_group_choices(ModelRc::new(VecModel::from(group_choices(state))));
     main.set_accounts_filter_text(state.account_filter_text.clone().into());
@@ -138,22 +141,39 @@ pub fn spawn_load(main: &MainWindow, state: &Arc<ShellState>) {
     main.set_accounts_dialog("".into());
     main.set_accounts_dialog_error("".into());
     main.set_accounts_loading(true);
-    apply(main, &pending);
+    let banking_pending = crate::banking::state_snapshot(state);
+    apply(main, &pending, &banking_pending);
 
+    let inputs = crate::banking::service_inputs(state, pending.language);
     let main_weak = main.as_weak();
     let state = state.clone();
     let generation = state.jobs.begin();
     thread::spawn(move || {
         let _guard = BusyGuard(busy);
-        let _ = pending.load_accounts(&db);
+        let (banking, accounts) = if let Some(inputs) = inputs {
+            crate::banking::load(&db, &inputs.service(), banking_pending, pending)
+        } else {
+            let mut pending = pending;
+            let _ = pending.load_accounts(&db);
+            (banking_pending, pending)
+        };
         let _ = slint::invoke_from_event_loop(move || {
             state.jobs.end();
             if !state.jobs.is_current(generation) {
                 return;
             }
             if let Some(ui) = main_weak.upgrade() {
-                *state.accounts.lock().expect("accounts state poisoned") = pending.clone();
-                apply(&ui, &pending);
+                let banking = {
+                    let mut live = state.banking.lock().expect("banking state poisoned");
+                    // A sync may have claimed the state while this page load ran: keep its live fields and only
+                    // merge the freshly loaded bank list, so the spinner and the progress are never clobbered.
+                    live.language = banking.language;
+                    live.banks = banking.banks;
+                    live.can_remember_pin = banking.can_remember_pin;
+                    live.clone()
+                };
+                *state.accounts.lock().expect("accounts state poisoned") = accounts.clone();
+                apply(&ui, &accounts, &banking);
             }
         });
     });
@@ -433,12 +453,24 @@ pub fn confirm_delete_account(main: &MainWindow, state: &Arc<ShellState>, accoun
     });
 }
 
-/// Confirms deleting an offline bank.
+/// Confirms deleting a bank. Offline banks go through the accounts state; online banks through the banking state.
 pub fn confirm_delete_bank(main: &MainWindow, state: &Arc<ShellState>, bank_id: i32) {
+    let offline = state
+        .accounts
+        .lock()
+        .expect("accounts state poisoned")
+        .bank_accesses
+        .iter()
+        .find(|bank| bank.id == BankConnectionId(i64::from(bank_id)))
+        .is_some_and(|bank| bank.offline);
     close_dialog(main);
-    spawn_action(main, state, move |accounts, db| {
-        let _ = accounts.delete_bank_access(db, BankConnectionId(i64::from(bank_id)));
-    });
+    if offline {
+        spawn_action(main, state, move |accounts, db| {
+            let _ = accounts.delete_bank_access(db, BankConnectionId(i64::from(bank_id)));
+        });
+    } else {
+        crate::banking::delete_bank(main, state, &state.paths, bank_id);
+    }
 }
 
 /// Opens the detail view with FinDesk's default window.
@@ -464,7 +496,8 @@ pub fn close_detail(main: &MainWindow, state: &Arc<ShellState>) {
         accounts.close_detail();
         accounts.clone()
     };
-    apply(main, &accounts);
+    let banking = crate::banking::state_snapshot(state);
+    apply(main, &accounts, &banking);
 }
 
 /// Stores the panel's free-text filter and rerenders.
@@ -474,7 +507,8 @@ pub fn filter_changed(main: &MainWindow, state: &Arc<ShellState>, text: &str) {
         accounts.update_account_filter_text(text);
         accounts.clone()
     };
-    apply(main, &accounts);
+    let banking = crate::banking::state_snapshot(state);
+    apply(main, &accounts, &banking);
 }
 
 /// Clears the error and success banner.
@@ -610,7 +644,12 @@ fn spawn_action(
             }
             if let Some(ui) = main_weak.upgrade() {
                 *state.accounts.lock().expect("accounts state poisoned") = pending.clone();
-                apply(&ui, &pending);
+                let banking = {
+                    let mut live = state.banking.lock().expect("banking state poisoned");
+                    crate::banking::merge_banks(&mut live, &pending);
+                    live.clone()
+                };
+                apply(&ui, &pending, &banking);
             }
         });
     });
@@ -644,7 +683,12 @@ fn clear_messages(main: &MainWindow, state: &Arc<ShellState>) {
         accounts.clear_messages();
         accounts.clone()
     };
-    apply(main, &accounts);
+    let banking = {
+        let mut banking = state.banking.lock().expect("banking state poisoned");
+        banking.clear_messages();
+        banking.clone()
+    };
+    apply(main, &accounts, &banking);
 }
 
 fn selection_from(kind: &str, group_kind: &str, id: i32, account_type: &str) -> Option<AccountSelection> {
@@ -722,7 +766,7 @@ fn amounts(
     ModelRc::new(VecModel::from(rows))
 }
 
-fn bank_cards(state: &AccountsState, language: Language) -> Vec<AccountsBankCard> {
+pub(crate) fn bank_cards(state: &AccountsState, language: Language) -> Vec<AccountsBankCard> {
     let mut cards = Vec::new();
     for bank in &state.bank_accesses {
         let accounts: Vec<&AccountItem> = state
@@ -794,6 +838,11 @@ fn bank_card(state: &AccountsState, source: BankCardSource<'_>, language: Langua
         account_count_text: i18n::format(language, Key::AccountCount, &[source.accounts.len().into()]).into(),
         totals: amounts(&totals, &grouping_accounts, language, false),
         accounts: ModelRc::new(VecModel::from(rows)),
+        syncing: false,
+        sync_step: "".into(),
+        sync_enabled: true,
+        pin_text: "".into(),
+        menu: ModelRc::new(VecModel::from(Vec::<crate::BankMenuItem>::new())),
     }
 }
 
