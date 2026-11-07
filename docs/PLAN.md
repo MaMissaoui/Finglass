@@ -110,7 +110,10 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 
 ### M8 — Backups and FinDesk import
 
-- [ ] Backup and restore of the encrypted database and the documents.
+- [x] M8a: backup and two-phase restore of the encrypted database and the documents (core).
+- [ ] M8b: Settings section for backup and restore; `apply_pending_restore` called at startup, before the unlock
+      window; after a restore staged with the backup's passphrase, the unlock screen says the backup's passphrase is
+      now needed (reuse FinDesk's wording from `UnlockViewModel.kt`).
 - [ ] One-time import from a FinDesk database. It reads a copy you select, with its passphrase (SQLCipher 4, `cipher`
       sqlcipher, `legacy` 4), and brings over accounts, transactions, categories, rules and documents. FinDesk's
       payment orders are never imported.
