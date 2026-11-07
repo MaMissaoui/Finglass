@@ -16,6 +16,7 @@ use crate::repo::{self, RepoError};
 
 use super::limits::{self, MAX_OCR_PAGES, MAX_TEXT_PAGES, MIN_TEXT_LAYER_CHARS, RENDER_DPI};
 use super::pdf_text;
+use super::programs;
 use super::tesseract::{COMMAND_TIMEOUT, run_with_timeout};
 
 /// One engine's recognition result.
@@ -189,7 +190,8 @@ impl OcrService {
                 prefix.as_os_str().to_owned(),
             ];
 
-            let output = match run_with_timeout("pdftoppm", &args, COMMAND_TIMEOUT) {
+            let pdftoppm = programs::resolve("pdftoppm")?;
+            let output = match run_with_timeout(&pdftoppm, &args, COMMAND_TIMEOUT) {
                 Ok(output) => output,
                 // Without poppler a scanned PDF simply has no OCR, like FinDesk without Tesseract.
                 Err(error) if error.kind() == std::io::ErrorKind::NotFound => return None,

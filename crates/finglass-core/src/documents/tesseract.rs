@@ -12,6 +12,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use super::ocr::{OcrEngine, OcrError, Recognition};
+use super::programs;
 
 /// The language pair used for recognition.
 pub const DEFAULT_LANGUAGE: &str = "deu+eng";
@@ -31,7 +32,7 @@ pub(crate) struct CommandOutput {
 ///
 /// Arguments are passed separately, never as one shell string. The stdout and stderr pipes are drained on
 /// threads while the child runs, so a chatty program cannot deadlock on a full pipe.
-pub(crate) fn run_with_timeout(program: &str, args: &[OsString], timeout: Duration) -> std::io::Result<CommandOutput> {
+pub(crate) fn run_with_timeout(program: &Path, args: &[OsString], timeout: Duration) -> std::io::Result<CommandOutput> {
     let mut child = Command::new(program)
         .args(args)
         .stdin(Stdio::null())
@@ -91,7 +92,8 @@ impl TesseractCli {
     /// `tesseract --list-langs` instead of loading a native library.
     #[must_use]
     pub fn create_or_none() -> Option<Self> {
-        let output = run_with_timeout("tesseract", &[OsString::from("--list-langs")], Duration::from_secs(10)).ok()?;
+        let tesseract = programs::resolve("tesseract")?;
+        let output = run_with_timeout(&tesseract, &[OsString::from("--list-langs")], Duration::from_secs(10)).ok()?;
         if !output.success {
             return None;
         }
@@ -198,7 +200,9 @@ impl OcrEngine for TesseractCli {
             OsString::from("tsv"),
         ];
 
-        let output = run_with_timeout("tesseract", &args, COMMAND_TIMEOUT)?;
+        let tesseract = programs::resolve("tesseract")
+            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "tesseract was not found"))?;
+        let output = run_with_timeout(&tesseract, &args, COMMAND_TIMEOUT)?;
         if !output.success {
             return Err(OcrError::CommandFailed);
         }
@@ -216,6 +220,9 @@ mod tests {
     use time::macros::date;
 
     fn tool_available(program: &str) -> bool {
+        let Some(program) = programs::resolve(program) else {
+            return false;
+        };
         Command::new(program)
             .arg("-v")
             .stdin(Stdio::null())
@@ -226,7 +233,8 @@ mod tests {
     }
 
     fn render_first_page(pdf: &Path, png: &Path) {
-        let status = Command::new("pdftoppm")
+        let pdftoppm = programs::resolve("pdftoppm").expect("pdftoppm resolves");
+        let status = Command::new(pdftoppm)
             .args([
                 "-r",
                 "300",
