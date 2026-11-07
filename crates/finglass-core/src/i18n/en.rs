@@ -942,5 +942,35 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorServerUrlRequired => "The FinTS server URL is required",
         Key::ErrorServerUrlMustBeHttps => "The FinTS server URL must start with https://",
         Key::ErrorUnexpected => "an unexpected error",
+        Key::MigrationWelcomeTitle => "FinDesk found on this Mac",
+        Key::MigrationWelcomeText => {
+            "Finglass can take over your FinDesk profiles now. Each FinDesk profile becomes a Finglass profile with \
+             the same name."
+        }
+        Key::MigrationProfilesLabel => "FinDesk profiles",
+        Key::MigrationCopiedText => {
+            "Accounts, bank connections, categories, rules, bookings and documents are copied. Payment orders and \
+             remembered PINs are not. Bank logins must sign in again."
+        }
+        Key::MigrationQuitHint => "Quit FinDesk first.",
+        Key::MigrationStart => "Migrate from FinDesk",
+        Key::MigrationStartEmpty => "Start empty",
+        Key::MigrationProfileHeading => "Profile %1$d of %2$d: %3$s",
+        Key::MigrationFindeskPassphrase => "FinDesk passphrase",
+        Key::MigrationSamePassphrase => "Use the same passphrase for Finglass",
+        Key::MigrationNewPassphraseNeeded => {
+            "The FinDesk passphrase does not meet Finglass's rules for a new passphrase. Choose a new one."
+        }
+        Key::MigrationMigrateProfile => "Migrate profile",
+        Key::MigrationSkip => "Skip",
+        Key::MigrationSummaryTitle => "Migration finished",
+        Key::MigrationSummaryText => "These FinDesk profiles were handled:",
+        Key::MigrationContinue => "Continue",
+        Key::MigrationProfileMigrated => "%1$s: %2$s",
+        Key::MigrationProfileSkipped => "%1$s: skipped",
+        Key::MigrationProfileFailed => "%1$s: %2$s",
+        Key::MigrationBusy => "Migrating…",
+        Key::ErrorFinDeskSourceChanged => "FinDesk seems to be running. Quit FinDesk and try again.",
+        Key::ErrorMigrationTargetNotEmpty => "The Finglass profile already contains data. Nothing was migrated.",
     }
 }

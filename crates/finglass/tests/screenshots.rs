@@ -166,6 +166,68 @@ fn renders_the_app_shell() {
         let _ = ui.hide();
     }
 
+    // M8g: the first-run migration from FinDesk.
+    {
+        let ui = UnlockWindow::new().unwrap();
+        configure_migration(&ui, Language::En, ThemePref::Light, "welcome");
+        ui.show().unwrap();
+        let buffer = render(&window, "migration-welcome-en", 560, 800);
+        assert_varied(&buffer, "migration-welcome-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = UnlockWindow::new().unwrap();
+        configure_migration(&ui, Language::En, ThemePref::Light, "profile");
+        ui.show().unwrap();
+        let buffer = render(&window, "migration-profile-en", 560, 800);
+        assert_varied(&buffer, "migration-profile-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = UnlockWindow::new().unwrap();
+        configure_migration(&ui, Language::De, ThemePref::Dark, "profile");
+        ui.set_error_text(i18n::text(Language::De, Key::WrongPassphrase).into());
+        ui.show().unwrap();
+        let buffer = render(&window, "migration-wrong-passphrase-de-dark", 560, 800);
+        assert_varied(&buffer, "migration-wrong-passphrase-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = UnlockWindow::new().unwrap();
+        configure_migration(&ui, Language::En, ThemePref::Light, "profile");
+        ui.set_migration_same_passphrase(false);
+        ui.set_migration_new_required(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "migration-profile-new-passphrase-en", 560, 800);
+        assert_varied(&buffer, "migration-profile-new-passphrase-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = UnlockWindow::new().unwrap();
+        configure_migration(&ui, Language::En, ThemePref::Light, "summary");
+        let report = FinDeskImportReport::default();
+        ui.set_migration_summary_lines(ModelRc::new(VecModel::from(vec![
+            SharedString::from(i18n::format(
+                Language::En,
+                Key::MigrationProfileMigrated,
+                &["Personal".into(), report.summary(Language::En).into()],
+            )),
+            SharedString::from(i18n::format(
+                Language::En,
+                Key::MigrationProfileSkipped,
+                &["Business".into()],
+            )),
+        ])));
+        ui.show().unwrap();
+        let buffer = render(&window, "migration-summary-en", 560, 800);
+        assert_varied(&buffer, "migration-summary-en");
+        let _ = ui.hide();
+    }
+
     {
         let mut dashboard = DashboardState::new(Language::En, today);
         dashboard.load(&db, today).unwrap();
@@ -3319,6 +3381,32 @@ fn configure_unlock(ui: &UnlockWindow, language: Language, theme: ThemePref, mod
         .into(),
     );
     ui.set_passphrase_hint(i18n::format(language, Key::PassphraseHint, &[10i64.into()]).into());
+}
+
+fn configure_migration(ui: &UnlockWindow, language: Language, theme: ThemePref, step: &str) {
+    configure_unlock(ui, language, theme, "migrate", "");
+    ui.set_migration_step(step.into());
+    ui.set_migration_profile_names(ModelRc::new(VecModel::from(vec![
+        SharedString::from("Personal"),
+        SharedString::from("Business"),
+    ])));
+    ui.set_migration_profile_count(2);
+    ui.set_migration_profile_name("Business".into());
+    ui.set_migration_profile_heading(
+        i18n::format(
+            language,
+            Key::MigrationProfileHeading,
+            &[2.into(), 2.into(), "Business".into()],
+        )
+        .into(),
+    );
+    ui.set_migration_same_passphrase(true);
+    ui.set_migration_new_required(false);
+    ui.set_migration_summary_lines(ModelRc::new(VecModel::from(Vec::<SharedString>::new())));
+    ui.set_acknowledged(false);
+    ui.set_migration_passphrase("".into());
+    ui.set_migration_new_passphrase("".into());
+    ui.set_migration_repeat("".into());
 }
 
 fn configure_main(ui: &MainWindow, language: Language, theme: ThemePref, screen: &str, rows: &[app::AuditRow]) {

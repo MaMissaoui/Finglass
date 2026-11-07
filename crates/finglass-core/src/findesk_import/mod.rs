@@ -172,6 +172,9 @@ pub enum FinDeskImportError {
     /// The target profile already holds data.
     #[error("{}", message(Language::En, Key::ErrorFinDeskTargetNotEmpty))]
     TargetNotEmpty,
+    /// The FinDesk files changed while they were copied; FinDesk is probably still running.
+    #[error("{}", message(Language::En, Key::ErrorFinDeskSourceChanged))]
+    SourceChanged,
     /// A database operation failed.
     #[error(transparent)]
     Db(#[from] DbError),
@@ -189,6 +192,7 @@ impl FinDeskImportError {
             Self::WrongPassphrase => message(language, Key::ErrorFinDeskWrongPassphrase),
             Self::NotFinDesk => message(language, Key::ErrorFinDeskNotFinDesk),
             Self::TargetNotEmpty => message(language, Key::ErrorFinDeskTargetNotEmpty),
+            Self::SourceChanged => message(language, Key::ErrorFinDeskSourceChanged),
             Self::Db(error) => error.to_string(),
             Self::Io(error) => error.to_string(),
         }
@@ -197,6 +201,13 @@ impl FinDeskImportError {
 
 fn message(language: Language, key: Key) -> String {
     i18n::format(language, key, &[])
+}
+
+/// Checks that `passphrase` opens the FinDesk database in `findesk_data_dir`.
+///
+/// This is the import's own copy-and-open, so nothing is written to the FinDesk folder; the copy is dropped again.
+pub fn verify_passphrase(findesk_data_dir: &Path, passphrase: &Passphrase) -> Result<(), FinDeskImportError> {
+    source::FinDeskSource::verify(findesk_data_dir, passphrase)
 }
 
 /// Imports a FinDesk profile into an empty Finglass profile database.

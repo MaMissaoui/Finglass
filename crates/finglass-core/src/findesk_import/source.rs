@@ -5,7 +5,9 @@
 
 use std::collections::HashSet;
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
+use std::time::SystemTime;
 
 use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
 use rusqlite::{Connection, ErrorCode, OpenFlags};
@@ -189,6 +191,51 @@ pub(crate) struct SourceData {
     pub payment_orders: usize,
 }
 
+/// The size and modification time of one source file.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct FileStamp {
+    /// The file size in bytes.
+    pub size: u64,
+    /// The modification time, when the filesystem reports one.
+    pub modified: Option<SystemTime>,
+}
+
+/// The source files that must not change while they are copied.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub(crate) struct SourceSnapshot {
+    /// `findesk.db`.
+    pub database: Option<FileStamp>,
+    /// `findesk.db-wal`.
+    pub wal: Option<FileStamp>,
+}
+
+impl SourceSnapshot {
+    /// Records the size and modification time of the source files in `data_dir`.
+    pub(crate) fn take(data_dir: &Path) -> io::Result<Self> {
+        Ok(Self {
+            database: stamp(&data_dir.join("findesk.db"))?,
+            wal: stamp(&data_dir.join("findesk.db-wal"))?,
+        })
+    }
+}
+
+fn stamp(path: &Path) -> io::Result<Option<FileStamp>> {
+    match fs::metadata(path) {
+        Ok(metadata) if metadata.is_file() => Ok(Some(FileStamp {
+            size: metadata.len(),
+            modified: metadata.modified().ok(),
+        })),
+        Ok(_) => Ok(None),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(error),
+    }
+}
+
+/// Whether anything changed between two snapshots. A file appearing or disappearing counts as a change.
+pub(crate) fn source_changed(before: &SourceSnapshot, after: &SourceSnapshot) -> bool {
+    before != after
+}
+
 /// A FinDesk database copy plus the temporary folder that holds it.
 pub(crate) struct FinDeskSource {
     conn: Connection,
@@ -204,12 +251,19 @@ impl FinDeskSource {
             return Err(FinDeskImportError::NotFound);
         }
 
+        let before = SourceSnapshot::take(data_dir)?;
         let temporary = tempfile::tempdir()?;
         for name in ["findesk.db", "findesk.db-wal", "findesk.db-shm", "findesk.db-journal"] {
             let source: PathBuf = data_dir.join(name);
             if source.is_file() {
                 fs::copy(&source, temporary.path().join(name))?;
             }
+        }
+
+        let after = SourceSnapshot::take(data_dir)?;
+        if source_changed(&before, &after) {
+            // Dropping the temporary folder deletes the copy.
+            return Err(FinDeskImportError::SourceChanged);
         }
 
         let copy = temporary.path().join("findesk.db");
@@ -234,6 +288,13 @@ impl FinDeskSource {
             conn,
             _temporary: temporary,
         })
+    }
+
+    /// Copies and opens the database once, then drops the copy. Nothing is written to `data_dir`.
+    pub(crate) fn verify(data_dir: &Path, passphrase: &Passphrase) -> Result<(), FinDeskImportError> {
+        let source = Self::open(data_dir, passphrase)?;
+        drop(source);
+        Ok(())
     }
 
     /// Reads every table that the import needs.

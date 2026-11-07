@@ -39,7 +39,7 @@ use crate::reports::ReportsController;
 use crate::transactions::TransactionsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
 
-const MIN_PASSPHRASE_LENGTH: i64 = 10;
+pub(crate) const MIN_PASSPHRASE_LENGTH: i64 = 10;
 const AUDIT_LIMIT: u32 = 100;
 
 /// Shared, thread-safe state behind the two windows.
@@ -118,6 +118,12 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
 
     let main = MainWindow::new()?;
     let paths = Arc::new(paths);
+
+    // Only `run` resolves the FinDesk root; tests and screenshots pass their own fixture roots.
+    let migration_offer = app::findesk::default_findesk_start_dir()
+        .and_then(|root| app::migration::discover(&root))
+        .filter(|install| app::migration::should_offer(&paths, Some(install)));
+
     let jobs = JobTracker::new();
     let reports = Arc::new(ReportsController::new(main.as_weak(), jobs.clone()));
     let documents = Arc::new(DocumentsController::new(
@@ -168,6 +174,9 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     configure_unlock_window(&unlock, &paths, initial_language, &startup);
 
     wire_unlock(&unlock, &main, &paths, &state);
+    if let Some(install) = migration_offer {
+        crate::migration::wire(&unlock, &main, &paths, &state, startup.clone(), install);
+    }
     wire_main(&main, &unlock, &paths, &state);
 
     {
@@ -266,7 +275,7 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_accounts_detail_open(false);
 }
 
-fn configure_unlock_window(
+pub(crate) fn configure_unlock_window(
     unlock: &UnlockWindow,
     paths: &AppPaths,
     language: Language,
@@ -2085,7 +2094,7 @@ fn set_settings_error_text(state: &Arc<ShellState>, main: &MainWindow, text: Str
 ///
 /// This is the only place that tears a profile down: the generation changes first, then the database and every page
 /// state or controller holding it are cleared, and the main window is hidden until the target unlocks.
-fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup: &app::startup::Startup) {
+pub(crate) fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup: &app::startup::Startup) {
     let language = current_language(state);
     let today = OffsetDateTime::now_utc().date();
     let target = app::startup::slug_key(startup.slug.as_deref()).to_owned();
@@ -2221,7 +2230,7 @@ fn about_version_text(language: Language) -> String {
     i18n::format(language, Key::AboutVersion, &[VERSION.into()])
 }
 
-fn unlock_error_text(language: Language, error: &UnlockError) -> String {
+pub(crate) fn unlock_error_text(language: Language, error: &UnlockError) -> String {
     match error {
         UnlockError::WrongPassphrase => i18n::text(language, Key::WrongPassphrase).to_owned(),
         UnlockError::TooShort => i18n::format(language, Key::PassphraseTooShort, &[MIN_PASSPHRASE_LENGTH.into()]),
@@ -2564,6 +2573,45 @@ mod tests {
         assert_eq!(language_from_locale("en_US"), Language::En);
         assert_eq!(language_from_locale("es_ES"), Language::En);
         assert_eq!(language_from_locale(""), Language::En);
+    }
+
+    #[test]
+    fn only_the_welcome_actions_write_the_migration_marker() {
+        use std::fs;
+
+        use time::macros::datetime;
+
+        let temp = tempfile::tempdir().unwrap();
+        let paths = AppPaths::resolve(Some(temp.path().as_os_str().to_owned()), None).unwrap();
+        let findesk_root = temp.path().join("findesk");
+        fs::create_dir_all(&findesk_root).unwrap();
+        fs::write(findesk_root.join("findesk.db"), b"db").unwrap();
+
+        let install = app::migration::discover(&findesk_root).unwrap();
+        assert!(app::migration::should_offer(&paths, Some(&install)));
+        assert!(!paths.root().join(app::migration::MARKER_FILE).exists());
+
+        app::startup::prepare(&paths, datetime!(2026-10-15 12:34:56 UTC)).unwrap();
+        assert!(
+            !paths.root().join(app::migration::MARKER_FILE).exists(),
+            "discovery and startup never write the marker"
+        );
+
+        let now = datetime!(2026-10-15 12:34:56 UTC);
+        crate::migration::welcome_action(&paths, true, now).unwrap();
+        assert!(
+            fs::read_to_string(paths.root().join(app::migration::MARKER_FILE))
+                .unwrap()
+                .starts_with("migrate ")
+        );
+
+        fs::remove_file(paths.root().join(app::migration::MARKER_FILE)).unwrap();
+        crate::migration::welcome_action(&paths, false, now).unwrap();
+        assert!(
+            fs::read_to_string(paths.root().join(app::migration::MARKER_FILE))
+                .unwrap()
+                .starts_with("skip ")
+        );
     }
 
     #[test]

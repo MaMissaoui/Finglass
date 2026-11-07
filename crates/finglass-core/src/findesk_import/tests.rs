@@ -738,6 +738,42 @@ fn a_database_from_before_groups_pending_bookings_and_payments_still_imports() {
 }
 
 #[test]
+fn the_source_snapshot_comparison_detects_a_change() {
+    use std::time::{Duration, UNIX_EPOCH};
+
+    use super::source::{FileStamp, SourceSnapshot, source_changed};
+
+    let stamp = |size, seconds| FileStamp {
+        size,
+        modified: Some(UNIX_EPOCH + Duration::from_secs(seconds)),
+    };
+    let before = SourceSnapshot {
+        database: Some(stamp(100, 10)),
+        wal: Some(stamp(20, 11)),
+    };
+
+    assert!(!source_changed(&before, &before.clone()));
+
+    let grown = SourceSnapshot {
+        database: Some(stamp(101, 10)),
+        ..before.clone()
+    };
+    assert!(source_changed(&before, &grown));
+
+    let touched = SourceSnapshot {
+        wal: Some(stamp(20, 12)),
+        ..before.clone()
+    };
+    assert!(source_changed(&before, &touched));
+
+    let disappeared = SourceSnapshot {
+        wal: None,
+        ..before.clone()
+    };
+    assert!(source_changed(&before, &disappeared));
+}
+
+#[test]
 fn a_budget_with_too_many_decimals_keeps_its_category() {
     let (_source_temp, source_dir) = fixture_copy();
     {

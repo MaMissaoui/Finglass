@@ -959,5 +959,35 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorServerUrlRequired => "Die FinTS-Server-URL ist erforderlich",
         Key::ErrorServerUrlMustBeHttps => "Die FinTS-Server-URL muss mit https:// beginnen",
         Key::ErrorUnexpected => "ein unerwarteter Fehler",
+        Key::MigrationWelcomeTitle => "FinDesk auf diesem Mac gefunden",
+        Key::MigrationWelcomeText => {
+            "Finglass kann jetzt deine FinDesk-Profile übernehmen. Jedes FinDesk-Profil wird ein Finglass-Profil mit \
+             demselben Namen."
+        }
+        Key::MigrationProfilesLabel => "FinDesk-Profile",
+        Key::MigrationCopiedText => {
+            "Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente werden kopiert. Zahlungsaufträge \
+             und gespeicherte PINs nicht. Bei Bank-Logins ist eine neue Anmeldung nötig."
+        }
+        Key::MigrationQuitHint => "Beende FinDesk zuerst.",
+        Key::MigrationStart => "Von FinDesk übernehmen",
+        Key::MigrationStartEmpty => "Leer starten",
+        Key::MigrationProfileHeading => "Profil %1$d von %2$d: %3$s",
+        Key::MigrationFindeskPassphrase => "FinDesk-Passphrase",
+        Key::MigrationSamePassphrase => "Dieselbe Passphrase für Finglass verwenden",
+        Key::MigrationNewPassphraseNeeded => {
+            "Die FinDesk-Passphrase erfüllt nicht die Regeln für eine neue Finglass-Passphrase. Wähle eine neue."
+        }
+        Key::MigrationMigrateProfile => "Profil übernehmen",
+        Key::MigrationSkip => "Überspringen",
+        Key::MigrationSummaryTitle => "Übernahme abgeschlossen",
+        Key::MigrationSummaryText => "Diese FinDesk-Profile wurden behandelt:",
+        Key::MigrationContinue => "Weiter",
+        Key::MigrationProfileMigrated => "%1$s: %2$s",
+        Key::MigrationProfileSkipped => "%1$s: übersprungen",
+        Key::MigrationProfileFailed => "%1$s: %2$s",
+        Key::MigrationBusy => "Wird übernommen…",
+        Key::ErrorFinDeskSourceChanged => "FinDesk scheint zu laufen. Beende FinDesk und versuche es erneut.",
+        Key::ErrorMigrationTargetNotEmpty => "Das Finglass-Profil enthält bereits Daten. Es wurde nichts übernommen.",
     }
 }
