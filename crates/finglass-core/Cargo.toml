@@ -9,12 +9,16 @@ repository.workspace = true
 
 [dependencies]
 dirs = "7"
+encoding_rs = "0.8.44"
+roxmltree = "0.21.2"
 rusqlite = { version = "0.41", features = ["bundled-sqlcipher-vendored-openssl"] }
+rust_decimal = "1.43.0"
 secrecy = "0.10"
 thiserror = "2"
-time = { version = "0.3", features = ["formatting", "macros"] }
+time = { version = "0.3", features = ["formatting", "macros", "parsing"] }
 unicode-normalization = "0.1"
 zeroize = "1"
+zip = "9.4.1"
 
 [lints]
 workspace = true
