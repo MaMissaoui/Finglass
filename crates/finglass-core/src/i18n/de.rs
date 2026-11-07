@@ -904,6 +904,18 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ThemeLight => "Hell",
         Key::ThemeDark => "Dunkel",
         Key::Theme => "Design",
+        Key::ErrorFinDeskNotFound => "Im gewählten Ordner wurde keine FinDesk-Datenbank gefunden.",
+        Key::ErrorFinDeskWrongPassphrase => "Die FinDesk-Passphrase ist falsch.",
+        Key::ErrorFinDeskNotFinDesk => "Diese Datenbank ist keine FinDesk-Datenbank.",
+        Key::ErrorFinDeskTargetNotEmpty => {
+            "Das Finglass-Profil enthält bereits Daten. Importiere in ein leeres Profil."
+        }
+        Key::FinDeskImportSummary => {
+            "Importiert: %d Kontogruppen, %d Bankverbindungen, %d Konten, %d Kategorien, %d Regeln, \
+             %d Umsätze, %d gelöschte Buchungen, %d vorgemerkte Buchungen, %d Dokumente, %d OCR-Texte und \
+             %d Einstellungen. Übersprungen: %d Zeilen, %d Dokumente mit fehlender Datei und %d abgelehnte \
+             Dokumente. %d Zahlungsaufträge blieben zurück."
+        }
         Key::ErrorNotEncrypted => {
             "Dieser Datenordner enthält eine unverschlüsselte Datenbank, die Finglass nicht öffnen kann."
         }

@@ -931,6 +931,18 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ThemeLight => "Clair",
         Key::ThemeDark => "Sombre",
         Key::Theme => "Thème",
+        Key::ErrorFinDeskNotFound => "Aucune base de données FinDesk n'a été trouvée dans le dossier choisi.",
+        Key::ErrorFinDeskWrongPassphrase => "La phrase secrète FinDesk est incorrecte.",
+        Key::ErrorFinDeskNotFinDesk => "Cette base de données n'est pas une base de données FinDesk.",
+        Key::ErrorFinDeskTargetNotEmpty => {
+            "Le profil Finglass contient déjà des données. Importez dans un profil vide."
+        }
+        Key::FinDeskImportSummary => {
+            "Importé : %d groupes de comptes, %d connexions bancaires, %d comptes, %d catégories, %d règles, \
+             %d opérations, %d écritures supprimées, %d écritures en attente, %d documents, %d textes OCR et \
+             %d paramètres. Ignoré : %d lignes, %d documents avec un fichier manquant et %d documents refusés. \
+             %d ordres de paiement laissés de côté."
+        }
         Key::ErrorNotEncrypted => {
             "Ce dossier de données contient une base non chiffrée que Finglass ne peut pas ouvrir."
         }

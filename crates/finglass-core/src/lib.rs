@@ -11,6 +11,7 @@ pub mod dashboard;
 pub mod db;
 pub mod documents;
 pub mod export;
+pub mod findesk_import;
 pub mod i18n;
 pub mod iban;
 pub mod model;
