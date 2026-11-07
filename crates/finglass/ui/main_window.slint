@@ -150,6 +150,17 @@ export component MainWindow inherits Window {
     in property <bool> settings-restore-passphrase-wrong;
     in-out property <string> settings-restore-passphrase;
 
+    // One-time import from FinDesk and its result.
+    in property <bool> findesk-busy;
+    in property <bool> findesk-passphrase-open;
+    in property <string> findesk-folder;
+    in property <bool> findesk-passphrase-wrong;
+    in-out property <string> findesk-passphrase;
+    in property <bool> findesk-report-open;
+    in property <string> findesk-report-title;
+    in property <string> findesk-report-text;
+    in property <bool> findesk-report-error;
+
     // Category dialog and its delete confirmation.
     in property <bool> category-dialog-open;
     in property <int> category-dialog-id: -1;
@@ -554,6 +565,10 @@ export component MainWindow inherits Window {
     callback settings-cancel-delete-rule;
     callback settings-confirm-rule-import;
     callback settings-cancel-rule-import;
+    callback settings-import-findesk;
+    callback settings-findesk-passphrase-submit(string);
+    callback settings-findesk-passphrase-cancel;
+    callback settings-findesk-report-close;
 
     callback dashboard-previous-month;
     callback dashboard-next-month;
@@ -1376,6 +1391,15 @@ export component MainWindow inherits Window {
                 backup-busy: root.settings-backup-busy;
                 backup-has-pending-restore: root.settings-has-pending-restore;
                 backup-restored-text: root.settings-backup-restored-text;
+                findesk-busy: root.findesk-busy;
+                findesk-passphrase-open: root.findesk-passphrase-open;
+                findesk-folder: root.findesk-folder;
+                findesk-passphrase-wrong: root.findesk-passphrase-wrong;
+                findesk-passphrase <=> root.findesk-passphrase;
+                findesk-report-open: root.findesk-report-open;
+                findesk-report-title: root.findesk-report-title;
+                findesk-report-text: root.findesk-report-text;
+                findesk-report-error: root.findesk-report-error;
                 scroll-y <=> root.settings-scroll-y;
 
                 set-theme(value) => { root.set-theme(value); }
@@ -1402,6 +1426,10 @@ export component MainWindow inherits Window {
                 create-backup => { root.settings-create-backup(); }
                 restore-backup => { root.settings-restore-backup(); }
                 cancel-pending-restore => { root.settings-cancel-pending-restore(); }
+                import-findesk => { root.settings-import-findesk(); }
+                findesk-passphrase-submit(value) => { root.settings-findesk-passphrase-submit(value); }
+                findesk-passphrase-cancel => { root.settings-findesk-passphrase-cancel(); }
+                findesk-report-close => { root.settings-findesk-report-close(); }
             }
 
             if (root.current-screen == "documents") : DocumentsPage {

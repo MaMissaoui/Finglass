@@ -1,4 +1,4 @@
-import { CheckBox, ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
+import { CheckBox, ComboBox, LineEdit, ScrollView, Spinner } from "std-widgets.slint";
 import { Theme } from "theme.slint";
 import { Tr } from "translations.slint";
 import { PrimaryButton, TextButton } from "components.slint";
@@ -511,6 +511,166 @@ export component BackupPassphraseDialog inherits Rectangle {
                 TextButton {
                     text: Tr.t("Cancel");
                     enabled: !root.busy;
+                    clicked => { root.close(); }
+                }
+            }
+        }
+    }
+}
+
+// FinDesk's passphrase, asked once for the one-time import.
+export component FinDeskPassphraseDialog inherits Rectangle {
+    in property <string> folder;
+    in property <bool> wrong: false;
+    in property <bool> busy: false;
+    in-out property <string> passphrase;
+
+    callback close;
+    callback submit(string);
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    function send() {
+        if (root.busy) {
+            return;
+        }
+        root.submit(root.passphrase);
+    }
+
+    Rectangle {
+        width: 460px;
+        height: dialog.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+        background: Theme.surface;
+
+        dialog := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+
+            Text {
+                text: Tr.t("FinDeskPassphraseTitle");
+                color: Theme.text;
+                font-size: 20px;
+                font-weight: 600;
+                wrap: word-wrap;
+            }
+
+            Text {
+                text: root.folder;
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+                overflow: elide;
+            }
+
+            Text {
+                text: Tr.t("FinDeskPassphraseText");
+                color: Theme.muted-text;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            Text {
+                text: Tr.t("Passphrase");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                enabled: !root.busy;
+                text <=> root.passphrase;
+                input-type: InputType.password;
+                accepted(value) => { root.send(); }
+            }
+
+            if (root.wrong) : Text {
+                text: Tr.t("WrongPassphrase");
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Import");
+                    enabled: !root.busy && root.passphrase != "";
+                    clicked => { root.send(); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    enabled: !root.busy;
+                    clicked => { root.close(); }
+                }
+
+                if (root.busy) : HorizontalLayout {
+                    spacing: 8px;
+                    Spinner {
+                        width: 20px;
+                        height: 20px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The result of a FinDesk import: the success report or the localized failure.
+export component FinDeskReportDialog inherits Rectangle {
+    in property <string> title;
+    in property <string> text;
+    in property <bool> is-error: false;
+
+    callback close;
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 560px;
+        height: dialog.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+        background: Theme.surface;
+
+        dialog := VerticalLayout {
+            padding: 24px;
+            spacing: 12px;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: 20px;
+                font-weight: 600;
+                wrap: word-wrap;
+            }
+
+            Text {
+                text: root.text;
+                color: root.is-error ? Theme.error : Theme.muted-text;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Close");
                     clicked => { root.close(); }
                 }
             }

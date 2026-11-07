@@ -9,6 +9,7 @@ pub mod audit;
 pub mod banking;
 pub mod dashboard;
 pub mod documents;
+pub mod findesk;
 pub mod prefs;
 pub mod reports;
 pub mod settings;
@@ -26,6 +27,7 @@ pub use dashboard::{
     NavigationArgs, TransactionRowView, UpcomingRowView,
 };
 pub use documents::{DocumentCounts, DocumentTab, DocumentsState};
+pub use findesk::{FindeskImportState, findesk_start_dir, resolve_findesk_dir};
 pub use prefs::{Prefs, ThemePref};
 pub use reports::ReportsState;
 pub use settings::{RestoreCandidate, SettingsError, SettingsState};

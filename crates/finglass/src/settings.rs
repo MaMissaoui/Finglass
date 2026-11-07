@@ -9,14 +9,17 @@ use std::path::Path;
 use std::sync::Arc;
 use std::thread;
 
+use finglass_core::app::findesk::{self, FindeskImportState};
 use finglass_core::app::settings::SettingsState;
 use finglass_core::db::Database;
+use finglass_core::findesk_import::FinDeskImportError;
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{Category, CategoryId, RuleDirection, RuleField, RuleId};
 use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
 use finglass_core::repo;
+use finglass_core::secret::{Passphrase, PassphrasePurpose};
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 use time::OffsetDateTime;
 use zeroize::Zeroizing;
@@ -141,6 +144,160 @@ fn apply_backup(main: &MainWindow, state: &SettingsState, restored_from: Option<
             main.set_settings_restore_passphrase("".into());
         }
     }
+}
+
+/// Maps the FinDesk import state to its folder, passphrase and result dialogs.
+pub fn apply_findesk(main: &MainWindow, state: &FindeskImportState) {
+    main.set_findesk_busy(state.is_importing);
+    main.set_findesk_folder(
+        state
+            .source_dir
+            .as_ref()
+            .map(|folder| folder.display().to_string())
+            .unwrap_or_default()
+            .into(),
+    );
+    main.set_findesk_passphrase_wrong(state.passphrase_wrong);
+
+    match (&state.report, &state.error) {
+        (Some(report), _) => {
+            main.set_findesk_report_title(i18n::text(state.language, Key::FinDeskImportReportTitle).into());
+            main.set_findesk_report_text(findesk::report_text(report, state.language).into());
+            main.set_findesk_report_error(false);
+            main.set_findesk_report_open(true);
+        }
+        (None, Some(error)) => {
+            main.set_findesk_report_title(i18n::text(state.language, Key::FinDeskImportFailedTitle).into());
+            main.set_findesk_report_text(error.clone().into());
+            main.set_findesk_report_error(true);
+            main.set_findesk_report_open(true);
+        }
+        (None, None) => main.set_findesk_report_open(false),
+    }
+}
+
+/// Asks for a FinDesk folder on a background thread and opens the passphrase dialog for a valid one.
+pub fn import_findesk(main: &MainWindow, state: &Arc<ShellState>) {
+    let language = *state.language.lock().expect("language state poisoned");
+    let start = findesk::default_findesk_start_dir();
+
+    let main_weak = main.as_weak();
+    let state = state.clone();
+    let generation = state.jobs.begin();
+    thread::spawn(move || {
+        let mut dialog =
+            rfd::FileDialog::new().set_title(i18n::text(language, Key::FinDeskImportChooseFolder).to_owned());
+        if let Some(start) = start {
+            dialog = dialog.set_directory(start);
+        }
+        let chosen = dialog.pick_folder();
+
+        let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            let Some(chosen) = chosen else {
+                return;
+            };
+
+            let mut pending = state.findesk.lock().expect("findesk state poisoned").clone();
+            pending.language = language;
+            if pending.choose(&chosen).is_some() {
+                *state.findesk.lock().expect("findesk state poisoned") = pending.clone();
+                ui.set_findesk_passphrase("".into());
+                ui.set_findesk_passphrase_open(true);
+                apply_findesk(&ui, &pending);
+            } else {
+                let mut settings = state.settings.lock().expect("settings state poisoned").clone();
+                settings.error = Some(i18n::text(language, Key::ErrorFinDeskNotAFolder).to_owned());
+                settings.message = None;
+                *state.settings.lock().expect("settings state poisoned") = settings.clone();
+                apply(&ui, &settings, state.restored_from().as_deref());
+            }
+        });
+    });
+}
+
+/// Runs the chosen import with FinDesk's passphrase; the field is cleared before any work starts.
+pub fn submit_findesk_passphrase(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, passphrase: &str) {
+    main.set_findesk_passphrase("".into());
+    let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
+        return;
+    };
+
+    let mut pending = state.findesk.lock().expect("findesk state poisoned").clone();
+    if pending.source_dir.is_none() || pending.is_importing {
+        return;
+    }
+    pending.language = *state.language.lock().expect("language state poisoned");
+    pending.is_importing = true;
+    *state.findesk.lock().expect("findesk state poisoned") = pending.clone();
+    apply_findesk(main, &pending);
+
+    let slug = state.slug();
+    let paths = paths.clone();
+    let passphrase = Zeroizing::new(passphrase.to_owned());
+    let main_weak = main.as_weak();
+    let state = state.clone();
+    let generation = state.jobs.begin();
+    thread::spawn(move || {
+        let result = match Passphrase::new(passphrase.as_str(), PassphrasePurpose::Unlock) {
+            Ok(passphrase) => pending.import_in_profile(&db, &paths, slug.as_deref(), &passphrase),
+            Err(_) => {
+                pending.is_importing = false;
+                pending.report = None;
+                pending.error = None;
+                pending.passphrase_wrong = true;
+                Err(FinDeskImportError::WrongPassphrase)
+            }
+        };
+        let success = result.is_ok();
+
+        let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+
+            if success {
+                ui.set_findesk_passphrase_open(false);
+                if let Some(language) = crate::shell::reload_after_findesk_import(&ui, &state, &paths) {
+                    pending.language = language;
+                }
+            } else if !pending.passphrase_wrong {
+                ui.set_findesk_passphrase_open(false);
+            }
+
+            *state.findesk.lock().expect("findesk state poisoned") = pending.clone();
+            apply_findesk(&ui, &pending);
+        });
+    });
+}
+
+/// Closes the passphrase dialog and forgets the chosen folder.
+pub fn cancel_findesk_passphrase(main: &MainWindow, state: &Arc<ShellState>) {
+    main.set_findesk_passphrase("".into());
+    main.set_findesk_passphrase_open(false);
+
+    let mut pending = state.findesk.lock().expect("findesk state poisoned").clone();
+    pending.cancel();
+    *state.findesk.lock().expect("findesk state poisoned") = pending.clone();
+    apply_findesk(main, &pending);
+}
+
+/// Closes the success report or failure dialog without changing anything else.
+pub fn close_findesk_report(main: &MainWindow, state: &Arc<ShellState>) {
+    let mut pending = state.findesk.lock().expect("findesk state poisoned").clone();
+    pending.clear_result();
+    *state.findesk.lock().expect("findesk state poisoned") = pending.clone();
+    apply_findesk(main, &pending);
 }
 
 /// Loads the page on a background thread and publishes the result on the event loop.

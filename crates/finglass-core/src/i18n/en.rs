@@ -898,13 +898,31 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorFinDeskNotFound => "No FinDesk database was found in the selected folder.",
         Key::ErrorFinDeskWrongPassphrase => "The FinDesk passphrase is wrong.",
         Key::ErrorFinDeskNotFinDesk => "This database is not a FinDesk database.",
-        Key::ErrorFinDeskTargetNotEmpty => "The Finglass profile already contains data. Import into an empty profile.",
+        Key::ErrorFinDeskTargetNotEmpty => {
+            "The Finglass profile already contains data. Create a new profile in the Profiles section and import there."
+        }
         Key::FinDeskImportSummary => {
             "Imported %d account groups, %d bank connections, %d accounts, %d categories, %d rules, \
              %d transactions, %d deleted bookings, %d pending bookings, %d documents, %d OCR texts and \
              %d settings. Skipped %d rows, %d documents with a missing file and %d refused documents. \
              Left %d payment orders behind."
         }
+        Key::FinDeskImportTitle => "Import from FinDesk",
+        Key::FinDeskImportHint => {
+            "Copies accounts, bank connections, categories, rules, bookings and documents from FinDesk into the open \
+             profile. Payment orders and remembered PINs are not imported. Quit FinDesk first."
+        }
+        Key::FinDeskImportChooseFolder => "Choose FinDesk folder…",
+        Key::FinDeskPassphraseTitle => "FinDesk passphrase",
+        Key::FinDeskPassphraseText => {
+            "Enter the passphrase of the selected FinDesk database. It is used once for this import and is not stored."
+        }
+        Key::FinDeskImportReportTitle => "FinDesk import finished",
+        Key::FinDeskImportFailedTitle => "FinDesk import failed",
+        Key::FinDeskImportSkipped => {
+            "Skipped: %d rows without their account, category or document, %d invalid rows, %d with a fractional cent amount, and %d settings Finglass does not use."
+        }
+        Key::ErrorFinDeskNotAFolder => "The selected folder is not a FinDesk folder.",
         Key::ErrorNotEncrypted => "This data folder contains an unencrypted database, which Finglass cannot open.",
         Key::ErrorDatabaseTooNew => "This database was created by a newer version of Finglass.",
         Key::ErrorAlreadyRunning => "Finglass is already running with this data folder.",
