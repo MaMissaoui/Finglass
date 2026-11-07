@@ -619,6 +619,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PrepareRestore => "Wiederherstellung vorbereiten",
         Key::DeleteCategoryTitle => "Kategorie %s löschen?",
         Key::DeleteCategoryText => "Zugehörige Umsätze werden unkategorisiert, die Regeln werden gelöscht.",
+        Key::DeleteCategoryUsage => "Wird von %d {1:Buchung|Buchungen} verwendet.",
         Key::DeleteRuleTitle => "Regel %s löschen?",
         Key::DeleteRuleText => "Bereits damit kategorisierte Buchungen behalten ihre Kategorie.",
         Key::EditCategory => "Kategorie bearbeiten",

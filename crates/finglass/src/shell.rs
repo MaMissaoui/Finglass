@@ -9,11 +9,12 @@ use std::thread;
 use finglass_core::app;
 use finglass_core::app::dashboard::DashboardState;
 use finglass_core::app::prefs::ThemePref;
+use finglass_core::app::settings::SettingsState;
 use finglass_core::app::transactions::{Period, StartArgs};
 use finglass_core::app::unlock::{UnlockError, UnlockMode};
 use finglass_core::db::Database;
 use finglass_core::i18n::{self, Key, Language};
-use finglass_core::model::CategoryId;
+use finglass_core::model::{CategoryId, RuleId};
 use finglass_core::paths::AppPaths;
 use finglass_core::{APP_NAME, VERSION};
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel, Weak};
@@ -37,6 +38,7 @@ pub(crate) struct ShellState {
     pub(crate) reports: Arc<ReportsController>,
     /// The filter the dashboard or a report last asked the Transactions page to show; M4c reads it.
     pub(crate) navigation: Mutex<StartArgs>,
+    pub(crate) settings: Mutex<SettingsState>,
 }
 
 /// Runs the app shell against `paths`.
@@ -57,6 +59,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         dashboard: Mutex::new(DashboardState::new(initial_language, today)),
         reports,
         navigation: Mutex::new(StartArgs::default()),
+        settings: Mutex::new(SettingsState::new(initial_language)),
     });
 
     install_translations_unlock(&unlock, initial_language);
@@ -85,6 +88,7 @@ fn configure_main_window(main: &MainWindow, language: Language) {
     main.set_change_busy(false);
     main.set_change_error("".into());
     main.set_audit_rows(empty_audit_model());
+    crate::settings::apply(main, &SettingsState::new(language));
 }
 
 fn configure_unlock_window(unlock: &UnlockWindow, paths: &AppPaths, language: Language) {
@@ -212,10 +216,12 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_navigate(move |screen| {
             if let Some(ui) = main_weak.upgrade() {
                 let dashboard = screen.as_str() == "dashboard";
                 let reports = screen.as_str() == "reports";
+                let settings = screen.as_str() == "settings";
                 ui.set_current_screen(screen);
                 if dashboard {
                     dashboard::spawn_load(&ui, &state, None);
@@ -223,6 +229,9 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 if reports {
                     ui.set_reports_tab("summary".into());
                     state.reports.open_page();
+                }
+                if settings {
+                    crate::settings::spawn_load(&ui, &state, &paths);
                 }
             }
         });
@@ -435,6 +444,267 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        main.on_settings_dismiss_message(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::dismiss_messages(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_set_primary_currency(move |value| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::set_primary_currency(&ui, &state, value.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_add_category(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::open_add_category(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_edit_category(move |id| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::open_edit_category(&ui, &state, CategoryId(i64::from(id)));
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_delete_category(move |id| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::request_delete_category(&ui, &state, CategoryId(i64::from(id)));
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_add_default_categories(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::add_default_categories(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_fix_duplicate_colours(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::fix_duplicate_colours(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_add_rule(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::open_add_rule(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_edit_rule(move |id| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::open_edit_rule(&ui, &state, RuleId(i64::from(id)));
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_delete_rule(move |id| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::request_delete_rule(&ui, &state, RuleId(i64::from(id)));
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_import_rules(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::import_rules(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_export_rules(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::export_rules(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_save_tax_keywords(move |text| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::save_tax_keywords(&ui, &state, text.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_reset_tax_keywords(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::reset_tax_keywords(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_category_changed(move |name, colour| {
+            if let Some(ui) = main_weak.upgrade() {
+                let id = ui.get_category_dialog_id();
+                crate::settings::validate_category(&ui, &state, name.as_str(), colour.as_str(), id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_rule_changed(move |pattern, priority| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::validate_rule(&ui, &state, pattern.as_str(), priority.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_category_dialog_save(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::save_category(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_settings_category_dialog_close(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_category_dialog_open(false);
+                ui.set_category_dialog_error("".into());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_confirm_delete_category(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                let id = i64::from(ui.get_category_delete_id());
+                crate::settings::delete_category(&ui, &state, CategoryId(id));
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_settings_cancel_delete_category(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_category_delete_open(false);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_rule_dialog_save(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::save_rule(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_settings_rule_dialog_close(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_rule_dialog_open(false);
+                ui.set_rule_dialog_error("".into());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_confirm_delete_rule(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                let id = i64::from(ui.get_rule_delete_id());
+                crate::settings::delete_rule(&ui, &state, RuleId(id));
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_settings_cancel_delete_rule(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_rule_delete_open(false);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_confirm_rule_import(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::confirm_rule_import(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_cancel_rule_import(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::cancel_rule_import(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
         main.on_set_theme(move |value| {
             let Some(ui) = main_weak.upgrade() else {
                 return;
@@ -477,6 +747,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_set_language(move |value| {
             let Some(ui) = main_weak.upgrade() else {
                 return;
@@ -489,6 +760,9 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             apply_language_main(&ui, language);
             dashboard::spawn_load(&ui, &state, None);
             state.reports.set_language(language);
+            if ui.get_current_screen() == "settings" {
+                crate::settings::spawn_load(&ui, &state, &paths);
+            }
 
             let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
                 return;

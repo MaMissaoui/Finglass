@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 finglass-core = { path = "../finglass-core" }
+rfd = "0.15.4"
 # Explicit features: no Qt backend, so a Qt install on the build machine can't change what ships.
 slint = { version = "1.18.1", default-features = false, features = [
     "std",
@@ -22,7 +23,6 @@ slint = { version = "1.18.1", default-features = false, features = [
 time = "0.3"
 zeroize = "1"
 open = "5"
-rfd = "0.15"
 
 [dev-dependencies]
 png = "0.18"

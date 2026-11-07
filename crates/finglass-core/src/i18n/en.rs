@@ -614,6 +614,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PrepareRestore => "Prepare restore",
         Key::DeleteCategoryTitle => "Delete category %s?",
         Key::DeleteCategoryText => "Its transactions become uncategorized and its rules are deleted.",
+        Key::DeleteCategoryUsage => "Used by %d {1:booking|bookings}.",
         Key::DeleteRuleTitle => "Delete rule %s?",
         Key::DeleteRuleText => "Bookings it already categorized keep their category.",
         Key::EditCategory => "Edit category",

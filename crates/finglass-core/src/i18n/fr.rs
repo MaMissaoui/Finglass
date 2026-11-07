@@ -633,6 +633,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PrepareRestore => "Préparer la restauration",
         Key::DeleteCategoryTitle => "Supprimer la catégorie %s ?",
         Key::DeleteCategoryText => "Ses opérations deviennent sans catégorie et ses règles sont supprimées.",
+        Key::DeleteCategoryUsage => "Utilisée par %d {1:opération|opérations}.",
         Key::DeleteRuleTitle => "Supprimer la règle %s ?",
         Key::DeleteRuleText => "Les opérations déjà catégorisées par elle gardent leur catégorie.",
         Key::EditCategory => "Modifier la catégorie",
