@@ -4,6 +4,7 @@
 //! `slint::invoke_from_event_loop`, so the event loop never waits for SQLCipher.
 
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -27,6 +28,7 @@ use zeroize::Zeroizing;
 use crate::accounts;
 use crate::dashboard;
 use crate::documents::DocumentsController;
+use crate::jobs::JobTracker;
 use crate::reports::ReportsController;
 use crate::transactions::TransactionsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
@@ -49,11 +51,27 @@ pub(crate) struct ShellState {
     /// sync and import work (and reads before it allows a delete).
     pub(crate) accounts_work: Busy,
     pub(crate) documents: Arc<DocumentsController>,
-    /// The profile opened at this start (`None` is the default profile).
-    pub(crate) slug: Option<String>,
+    /// The profile opened now (`None` is the default profile). Read at call time, so a switch is visible everywhere.
+    pub(crate) slug: Mutex<Option<String>>,
     /// The data a startup restore moved aside, shown in Settings.
-    pub(crate) restored_from: Option<PathBuf>,
+    pub(crate) restored_from: Mutex<Option<PathBuf>>,
     pub(crate) transactions: Arc<TransactionsController>,
+    /// The one shell-wide job counter every background action shares.
+    pub(crate) jobs: JobTracker,
+    /// Set synchronously before a switch starts, so a second request is refused immediately.
+    pub(crate) switching: AtomicBool,
+}
+
+impl ShellState {
+    /// The open profile's slug, read at call time.
+    pub(crate) fn slug(&self) -> Option<String> {
+        self.slug.lock().expect("profile state poisoned").clone()
+    }
+
+    /// The folder a restore moved aside, read at call time.
+    pub(crate) fn restored_from(&self) -> Option<PathBuf> {
+        self.restored_from.lock().expect("restore state poisoned").clone()
+    }
 }
 
 /// Runs the app shell against `paths`.
@@ -82,16 +100,19 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
 
     let main = MainWindow::new()?;
     let paths = Arc::new(paths);
-    let reports = Arc::new(ReportsController::new(main.as_weak()));
+    let jobs = JobTracker::new();
+    let reports = Arc::new(ReportsController::new(main.as_weak(), jobs.clone()));
     let documents = Arc::new(DocumentsController::new(
         main.as_weak(),
         paths.clone(),
         app::startup::slug_key(startup.slug.as_deref()),
+        jobs.clone(),
     ));
     let transactions = Arc::new(TransactionsController::new(
         main.as_weak(),
         paths.clone(),
         app::startup::slug_key(startup.slug.as_deref()),
+        jobs.clone(),
     ));
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
@@ -104,9 +125,11 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         accounts: Mutex::new(AccountsState::new(initial_language)),
         accounts_work: Busy::default(),
         documents,
-        slug: startup.slug.clone(),
-        restored_from: startup.restored_from.clone(),
+        slug: Mutex::new(startup.slug.clone()),
+        restored_from: Mutex::new(startup.restored_from.clone()),
         transactions,
+        jobs,
+        switching: AtomicBool::new(false),
     });
 
     install_translations_main(&main, initial_language);
@@ -116,7 +139,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     configure_unlock_window(&unlock, &paths, initial_language, &startup);
 
     wire_unlock(&unlock, &main, &paths, &state);
-    wire_main(&main, &paths, &state);
+    wire_main(&main, &unlock, &paths, &state);
 
     let result = unlock.run();
     drop(lock);
@@ -186,6 +209,12 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_change_busy(false);
     main.set_change_error("".into());
     main.set_audit_rows(empty_audit_model());
+    main.set_profile_menu_open(false);
+    main.set_profile_dialog_open(false);
+    main.set_profile_delete_open(false);
+    main.set_profile_dialog_error("".into());
+    main.set_profile_rows(ModelRc::new(VecModel::from(Vec::<crate::ProfileRow>::new())));
+    main.set_current_profile_name("".into());
     crate::settings::apply(main, &SettingsState::new(language), restored_from);
     main.set_accounts_dialog("".into());
     main.set_accounts_dialog_error("".into());
@@ -232,15 +261,16 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
             ui.set_busy(true);
             ui.set_error_text("".into());
 
-            let paths = paths.clone();
+            let unlock_paths = paths.clone();
             let language = current_language(&state);
-            let slug = state.slug.clone();
+            let slug = state.slug();
             let input = Zeroizing::new(input.to_string());
             spawn_open_work(
-                move || app::unlock::unlock(&paths, app::startup::slug_key(slug.as_deref()), input.as_str()),
+                move || app::unlock::unlock(&unlock_paths, app::startup::slug_key(slug.as_deref()), input.as_str()),
                 language,
                 unlock_weak.clone(),
                 main_weak.clone(),
+                paths.clone(),
                 state.clone(),
             );
         });
@@ -261,15 +291,15 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
             ui.set_busy(true);
             ui.set_error_text("".into());
 
-            let paths = paths.clone();
+            let unlock_paths = paths.clone();
             let language = current_language(&state);
-            let slug = state.slug.clone();
+            let slug = state.slug();
             let passphrase = Zeroizing::new(passphrase.to_string());
             let repeat = Zeroizing::new(repeat.to_string());
             spawn_open_work(
                 move || {
                     app::unlock::create(
-                        &paths,
+                        &unlock_paths,
                         app::startup::slug_key(slug.as_deref()),
                         passphrase.as_str(),
                         repeat.as_str(),
@@ -279,6 +309,7 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
                 language,
                 unlock_weak.clone(),
                 main_weak.clone(),
+                paths.clone(),
                 state.clone(),
             );
         });
@@ -299,21 +330,23 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
             ui.set_busy(true);
             ui.set_error_text("".into());
 
-            let paths = paths.clone();
+            let unlock_paths = paths.clone();
             let language = current_language(&state);
-            let slug = state.slug.clone();
+            let slug = state.slug();
             let current = Zeroizing::new(current.to_string());
             let passphrase = Zeroizing::new(passphrase.to_string());
             let repeat = Zeroizing::new(repeat.to_string());
             spawn_open_work(
                 move || {
-                    let db = app::unlock::unlock(&paths, app::startup::slug_key(slug.as_deref()), current.as_str())?;
+                    let db =
+                        app::unlock::unlock(&unlock_paths, app::startup::slug_key(slug.as_deref()), current.as_str())?;
                     app::unlock::change(&db, passphrase.as_str(), repeat.as_str(), acknowledged)?;
                     Ok(db)
                 },
                 language,
                 unlock_weak.clone(),
                 main_weak.clone(),
+                paths.clone(),
                 state.clone(),
             );
         });
@@ -330,7 +363,7 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
     }
 }
 
-fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
+fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
     state.reports.wire(main);
     state.documents.wire(main);
     state.transactions.wire(main);
@@ -1258,6 +1291,8 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 return;
             };
             let language = current_language(&state);
+            let jobs = state.jobs.clone();
+            let generation = jobs.begin();
             let main_weak = main_weak.clone();
             thread::spawn(move || {
                 let result = app::prefs::save_theme(&db, theme).and_then(|()| app::audit::recent(&db, AUDIT_LIMIT));
@@ -1266,6 +1301,10 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                     .err()
                     .map(|_| i18n::text(language, Key::ErrorUnexpected).to_owned());
                 let _ = slint::invoke_from_event_loop(move || {
+                    jobs.end();
+                    if !jobs.is_current(generation) {
+                        return;
+                    }
                     if let Some(ui) = main_weak.upgrade() {
                         match result {
                             Ok(rows) => ui.set_audit_rows(audit_model(rows)),
@@ -1306,12 +1345,18 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
                 return;
             };
+            let jobs = state.jobs.clone();
+            let generation = jobs.begin();
             let main_weak = main_weak.clone();
             thread::spawn(move || {
                 let result =
                     app::prefs::save_language(&db, language).and_then(|()| app::audit::recent(&db, AUDIT_LIMIT));
                 let error_text = i18n::text(language, Key::ErrorUnexpected).to_owned();
                 let _ = slint::invoke_from_event_loop(move || {
+                    jobs.end();
+                    if !jobs.is_current(generation) {
+                        return;
+                    }
                     if let Some(ui) = main_weak.upgrade() {
                         match result {
                             Ok(rows) => ui.set_audit_rows(audit_model(rows)),
@@ -1331,12 +1376,18 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 return;
             };
             let language = current_language(&state);
+            let jobs = state.jobs.clone();
+            let generation = jobs.begin();
             let main_weak = main_weak.clone();
             thread::spawn(move || {
                 let result = app::prefs::save_sidebar_collapsed(&db, collapsed)
                     .and_then(|()| app::audit::recent(&db, AUDIT_LIMIT));
                 let error_text = i18n::text(language, Key::ErrorUnexpected).to_owned();
                 let _ = slint::invoke_from_event_loop(move || {
+                    jobs.end();
+                    if !jobs.is_current(generation) {
+                        return;
+                    }
                     if let Some(ui) = main_weak.upgrade() {
                         match result {
                             Ok(rows) => ui.set_audit_rows(audit_model(rows)),
@@ -1368,8 +1419,10 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
 
             let language = current_language(&state);
             let paths = paths.clone();
+            let jobs = state.jobs.clone();
+            let generation = jobs.begin();
             let main_weak = main_weak.clone();
-            let slug = state.slug.clone();
+            let slug = state.slug();
             let current = Zeroizing::new(current.to_string());
             let passphrase = Zeroizing::new(passphrase.to_string());
             let repeat = Zeroizing::new(repeat.to_string());
@@ -1382,6 +1435,10 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                     .and_then(|()| app::audit::recent(&db, AUDIT_LIMIT).map_err(|_| UnlockError::Failed));
                 let error_text = result.as_ref().err().map(|error| unlock_error_text(language, error));
                 let _ = slint::invoke_from_event_loop(move || {
+                    jobs.end();
+                    if !jobs.is_current(generation) {
+                        return;
+                    }
                     if let Some(ui) = main_weak.upgrade() {
                         ui.set_change_busy(false);
                         match result {
@@ -1400,6 +1457,118 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             });
         });
     }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        let unlock_weak = unlock.as_weak();
+        main.on_profile_switch(move |index| {
+            if let (Some(ui), Some(unlock)) = (main_weak.upgrade(), unlock_weak.upgrade()) {
+                switch_profile(&ui, &unlock, &paths, &state, index);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        let unlock_weak = unlock.as_weak();
+        main.on_settings_switch_profile(move |index| {
+            if let (Some(ui), Some(unlock)) = (main_weak.upgrade(), unlock_weak.upgrade()) {
+                switch_profile(&ui, &unlock, &paths, &state, index);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_new_profile(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::open_new_profile(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_rename_profile(move |index| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::open_rename_profile(&ui, &state, &paths, index);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_profile_dialog_close(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::close_profile_dialog(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_profile_dialog_save(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::save_profile(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_delete_profile(move |index| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::request_delete_profile(&ui, &state, &paths, index);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_confirm_delete_profile(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::confirm_delete_profile(&ui, &state, &paths);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_cancel_delete_profile(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::cancel_delete_profile(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_profile_manage(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_profile_menu_open(false);
+                ui.set_current_screen("settings".into());
+                crate::settings::spawn_load(&ui, &state, &paths);
+            }
+        });
+    }
 }
 
 fn spawn_open_work(
@@ -1407,41 +1576,71 @@ fn spawn_open_work(
     language: Language,
     unlock_weak: Weak<UnlockWindow>,
     main_weak: Weak<MainWindow>,
+    paths: Arc<AppPaths>,
     state: Arc<ShellState>,
 ) {
     state.reports.reset();
     state.documents.reset();
     state.transactions.reset();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
+        let slug = state.slug();
         let outcome = work().and_then(|db| {
             let db = Arc::new(db);
             let prefs = app::prefs::load(&db, system_language()).map_err(|_| UnlockError::Failed)?;
             let rows = app::audit::recent(&db, AUDIT_LIMIT).map_err(|_| UnlockError::Failed)?;
-            Ok((db, prefs, rows))
+            let mut settings = SettingsState::new(prefs.language);
+            settings
+                .load(&db, &paths, slug.as_deref())
+                .map_err(|_| UnlockError::Failed)?;
+            Ok((db, prefs, rows, settings))
         });
         let error_text = outcome.as_ref().err().map(|error| unlock_error_text(language, error));
 
         let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
             let Some(ui) = unlock_weak.upgrade() else {
                 return;
             };
             ui.set_busy(false);
 
             match outcome {
-                Ok((db, prefs, rows)) => {
+                Ok((db, prefs, rows, settings)) => {
                     let Some(main) = main_weak.upgrade() else {
                         return;
                     };
                     *state.language.lock().expect("language state poisoned") = prefs.language;
                     *state.theme.lock().expect("theme state poisoned") = prefs.theme;
+                    *state.settings.lock().expect("settings state poisoned") = settings.clone();
+
+                    main.set_current_screen("dashboard".into());
+                    main.set_profile_menu_open(false);
+                    main.set_profile_dialog_open(false);
+                    main.set_profile_delete_open(false);
+                    main.set_change_open(false);
+                    main.set_change_busy(false);
+                    main.set_change_error("".into());
+                    main.set_category_dialog_open(false);
+                    main.set_rule_dialog_open(false);
+                    main.set_category_delete_open(false);
+                    main.set_rule_delete_open(false);
+                    main.set_rule_import_open(false);
+                    main.set_settings_restore_open(false);
+                    main.set_settings_restore_passphrase_open(false);
+                    main.set_accounts_dialog("".into());
+                    main.set_accounts_detail_open(false);
 
                     apply_language_main(&main, prefs.language);
-                    apply_language_unlock(&ui, prefs.language, state.slug.as_deref());
+                    apply_language_unlock(&ui, prefs.language, slug.as_deref());
                     apply_theme(&main, prefs.theme);
                     main.set_theme_pref(prefs.theme.code().into());
                     main.set_language(prefs.language.code().into());
                     main.set_sidebar_collapsed(prefs.sidebar_collapsed);
                     main.set_audit_rows(audit_model(rows));
+                    crate::settings::apply(&main, &settings, state.restored_from().as_deref());
                     state.reports.attach(db.clone(), prefs.language);
                     state.documents.attach(db.clone(), prefs.language);
                     state.transactions.attach(db.clone(), prefs.language);
@@ -1459,6 +1658,138 @@ fn spawn_open_work(
             }
         });
     });
+}
+
+/// Starts a live switch to the profile at `index` in the loaded Settings list.
+fn switch_profile(
+    main: &MainWindow,
+    unlock: &UnlockWindow,
+    paths: &Arc<AppPaths>,
+    state: &Arc<ShellState>,
+    index: i32,
+) {
+    main.set_profile_menu_open(false);
+    let target = {
+        let settings = state.settings.lock().expect("settings state poisoned");
+        settings
+            .profiles
+            .get(usize::try_from(index).unwrap_or(usize::MAX))
+            .cloned()
+    };
+    let Some(target) = target else {
+        set_settings_error(state, main, Key::ErrorUnexpected);
+        return;
+    };
+
+    if state.switching.swap(true, Ordering::SeqCst) || state.jobs.active() {
+        state.switching.store(false, Ordering::SeqCst);
+        let text = app::SwitchError::Busy.message(current_language(state));
+        set_settings_error_text(state, main, text);
+        return;
+    }
+
+    let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
+        state.switching.store(false, Ordering::SeqCst);
+        set_settings_error(state, main, Key::ErrorUnexpected);
+        return;
+    };
+    let from = state.slug();
+    let to = target.slug.clone();
+    let settings = state.settings.lock().expect("settings state poisoned").clone();
+    let language = current_language(state);
+    let paths = paths.clone();
+    let state = state.clone();
+    let main_weak = main.as_weak();
+    let unlock_weak = unlock.as_weak();
+    let generation = state.jobs.begin();
+
+    thread::spawn(move || {
+        let result = settings
+            .switch_profile(&paths, to.as_deref())
+            .map_err(|_| app::SwitchError::UnknownProfile)
+            .and_then(|slug| {
+                app::switch::begin_switch(&db, &paths, from.as_deref(), slug.as_deref(), OffsetDateTime::now_utc())
+            });
+        let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            state.switching.store(false, Ordering::SeqCst);
+            if !state.jobs.is_current(generation) {
+                return;
+            }
+            let Some(main) = main_weak.upgrade() else {
+                return;
+            };
+
+            match result {
+                Ok(startup) => {
+                    teardown_profile(&state, Some(&main), &startup);
+                    let Some(unlock) = unlock_weak.upgrade() else {
+                        return;
+                    };
+                    configure_unlock_window(&unlock, &paths, current_language(&state), &startup);
+                    unlock.set_passphrase("".into());
+                    unlock.set_repeat("".into());
+                    unlock.set_current("".into());
+                    unlock.set_show_passphrase(false);
+                    unlock.set_acknowledged(false);
+                    // Show the unlock window first: hiding the last visible window quits the event loop.
+                    let _ = unlock.show();
+                    let _ = main.hide();
+                }
+                Err(error) => {
+                    set_settings_error_text(&state, &main, error.message(language));
+                }
+            }
+        });
+    });
+}
+
+fn set_settings_error(state: &Arc<ShellState>, main: &MainWindow, key: Key) {
+    let text = i18n::text(current_language(state), key).to_owned();
+    set_settings_error_text(state, main, text);
+}
+
+fn set_settings_error_text(state: &Arc<ShellState>, main: &MainWindow, text: String) {
+    let mut pending = state.settings.lock().expect("settings state poisoned").clone();
+    pending.error = Some(text);
+    *state.settings.lock().expect("settings state poisoned") = pending.clone();
+    crate::settings::apply(main, &pending, state.restored_from().as_deref());
+}
+
+/// Closes the profile that is open and prepares the target's unlock window.
+///
+/// This is the only place that tears a profile down: the generation changes first, then the database and every page
+/// state or controller holding it are cleared, and the main window is hidden until the target unlocks.
+fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup: &app::startup::Startup) {
+    let language = current_language(state);
+    let today = OffsetDateTime::now_utc().date();
+    let target = app::startup::slug_key(startup.slug.as_deref()).to_owned();
+
+    state.jobs.bump();
+    *state.db.lock().expect("database state poisoned") = None;
+    *state.slug.lock().expect("profile state poisoned") = startup.slug.clone();
+    *state.restored_from.lock().expect("restore state poisoned") = startup.restored_from.clone();
+    *state.dashboard.lock().expect("dashboard state poisoned") = DashboardState::new(language, today);
+    *state.settings.lock().expect("settings state poisoned") = SettingsState::new(language);
+    *state.accounts.lock().expect("accounts state poisoned") = AccountsState::new(language);
+    *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
+
+    state.reports.reset();
+    state.documents.set_profile(target.clone());
+    state.documents.reset();
+    state.transactions.set_profile(target);
+    state.transactions.reset();
+
+    // M5c-3: if ShellState holds a banking PromptBridge by then, call its cancel_pending() here.
+
+    if let Some(main) = main {
+        crate::settings::apply(main, &SettingsState::new(language), startup.restored_from.as_deref());
+        dashboard::apply(main, &DashboardState::new(language, today));
+        accounts::apply(main, &AccountsState::new(language));
+        crate::transactions::apply(main, &app::transactions::TransactionsState::new(language));
+        // The caller hides the main window only after the unlock window is shown: Slint quits the event loop as
+        // soon as no window is visible.
+    }
 }
 
 fn install_translations_unlock(unlock: &UnlockWindow, language: Language) {
@@ -1601,7 +1932,168 @@ fn language_from_locale(locale: &str) -> Language {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::mpsc;
+
     use super::*;
+    use finglass_core::app::settings::SettingsState;
+    use finglass_core::app::startup::Startup;
+    use finglass_core::profiles;
+
+    fn shell_paths(temp: &tempfile::TempDir) -> Arc<AppPaths> {
+        Arc::new(AppPaths::resolve(Some(temp.path().as_os_str().to_owned()), None).unwrap())
+    }
+
+    fn shell_state(paths: &Arc<AppPaths>, db: Option<Arc<Database>>, slug: Option<&str>) -> Arc<ShellState> {
+        let jobs = JobTracker::new();
+        let ui = slint::Weak::<MainWindow>::default();
+        let reports = Arc::new(ReportsController::new(ui.clone(), jobs.clone()));
+        let documents = Arc::new(DocumentsController::new(
+            ui.clone(),
+            paths.clone(),
+            app::startup::slug_key(slug),
+            jobs.clone(),
+        ));
+        let transactions = Arc::new(TransactionsController::new(
+            ui,
+            paths.clone(),
+            app::startup::slug_key(slug),
+            jobs.clone(),
+        ));
+        Arc::new(ShellState {
+            language: Mutex::new(Language::En),
+            theme: Mutex::new(ThemePref::System),
+            db: Mutex::new(db),
+            dashboard: Mutex::new(DashboardState::new(Language::En, OffsetDateTime::now_utc().date())),
+            reports,
+            navigation: Mutex::new(StartArgs::default()),
+            settings: Mutex::new(SettingsState::new(Language::En)),
+            accounts: Mutex::new(AccountsState::new(Language::En)),
+            accounts_work: Busy::default(),
+            documents,
+            slug: Mutex::new(slug.map(str::to_owned)),
+            restored_from: Mutex::new(None),
+            transactions,
+            jobs,
+            switching: AtomicBool::new(false),
+        })
+    }
+
+    #[test]
+    fn teardown_drops_every_arc_database() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let db = Arc::new(
+            app::unlock::create(
+                &paths,
+                "default",
+                "correct horse battery staple",
+                "correct horse battery staple",
+                true,
+            )
+            .unwrap(),
+        );
+        let state = shell_state(&paths, Some(db.clone()), None);
+        state.documents.attach(db.clone(), Language::En);
+        state.transactions.attach(db.clone(), Language::En);
+        state.reports.attach(db.clone(), Language::En);
+
+        let weak = Arc::downgrade(&db);
+        drop(db);
+        assert!(weak.upgrade().is_some(), "the pages hold the open database");
+
+        teardown_profile(
+            &state,
+            None,
+            &Startup {
+                slug: None,
+                restored_from: None,
+            },
+        );
+
+        assert!(
+            weak.upgrade().is_none(),
+            "teardown must drop the shell, page states and controllers that hold the database"
+        );
+    }
+
+    #[test]
+    fn a_late_result_from_before_the_teardown_is_dropped() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let state = shell_state(&paths, None, None);
+        let worker_state = state.clone();
+        let (send, receive) = mpsc::channel::<&'static str>();
+        let generation = worker_state.jobs.begin();
+        let worker = thread::spawn(move || {
+            let result = receive.recv().expect("the test sends a result");
+            let accepted = worker_state.jobs.is_current(generation);
+            worker_state.jobs.end();
+            (result, accepted)
+        });
+
+        teardown_profile(
+            &state,
+            None,
+            &Startup {
+                slug: None,
+                restored_from: None,
+            },
+        );
+        send.send("late result").unwrap();
+        let (result, accepted) = worker.join().unwrap();
+
+        assert_eq!(result, "late result");
+        assert!(!accepted, "the generation check drops the old profile's result");
+        assert!(!state.jobs.active(), "the job released its slot");
+    }
+
+    #[test]
+    fn after_a_switch_the_controllers_and_unlock_use_the_target_folder() {
+        use time::macros::datetime;
+
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let old = app::unlock::create(
+            &paths,
+            "default",
+            "correct horse battery staple",
+            "correct horse battery staple",
+            true,
+        )
+        .unwrap();
+        let target = profiles::create(&paths, "Business").unwrap();
+        let slug = target.slug.clone().unwrap();
+        let target_db = app::unlock::create(
+            &paths,
+            &slug,
+            "correct horse battery staple",
+            "correct horse battery staple",
+            true,
+        )
+        .unwrap();
+        drop(target_db);
+
+        let state = shell_state(&paths, Some(Arc::new(old)), None);
+        let startup = app::switch::begin_switch(
+            state.db.lock().expect("database state poisoned").as_ref().unwrap(),
+            &paths,
+            None,
+            Some(&slug),
+            datetime!(2026 - 10 - 15 12:34:56 UTC),
+        )
+        .unwrap();
+
+        teardown_profile(&state, None, &startup);
+
+        assert_eq!(state.slug().as_deref(), Some(slug.as_str()));
+        assert_eq!(state.documents.profile_key(), slug);
+        assert_eq!(state.transactions.profile_key(), slug);
+        let target_file = paths
+            .database_file(app::startup::slug_key(state.slug().as_deref()))
+            .unwrap();
+        assert_eq!(target_file, target.dir.join("finglass.db"));
+        assert_eq!(app::unlock::mode_for(&target_file), UnlockMode::Unlock);
+    }
 
     #[test]
     fn every_unlock_error_has_text_in_every_language() {

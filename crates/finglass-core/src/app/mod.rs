@@ -13,6 +13,7 @@ pub mod prefs;
 pub mod reports;
 pub mod settings;
 pub mod startup;
+pub mod switch;
 pub mod transactions;
 pub mod unlock;
 
@@ -28,4 +29,5 @@ pub use documents::{DocumentCounts, DocumentTab, DocumentsState};
 pub use prefs::{Prefs, ThemePref};
 pub use reports::ReportsState;
 pub use settings::{RestoreCandidate, SettingsError, SettingsState};
+pub use switch::{SwitchError, begin_switch};
 pub use unlock::{UnlockError, UnlockMode, change, create, mode_for, unlock, validate_new};

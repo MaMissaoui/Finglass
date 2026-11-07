@@ -2,7 +2,7 @@ import { AboutSlint, CheckBox, ComboBox, LineEdit, ScrollView, Spinner, TextEdit
 import { Theme } from "theme.slint";
 import { Tr } from "translations.slint";
 import { ChoiceChip, PrimaryButton, TextButton } from "components.slint";
-import { AuditRow, CategoryRow, RuleRow } from "models.slint";
+import { AuditRow, CategoryRow, ProfileRow, RuleRow } from "models.slint";
 
 component SectionTitle inherits Text {
     color: Theme.text;
@@ -30,6 +30,7 @@ export component SettingsPage inherits Rectangle {
     in property <[string]> currency-options;
     in-out property <int> primary-currency-index;
 
+    in property <[ProfileRow]> profile-rows;
     in property <[CategoryRow]> category-rows;
     in property <[RuleRow]> rule-rows;
     in-out property <string> tax-keywords;
@@ -48,6 +49,10 @@ export component SettingsPage inherits Rectangle {
     callback dismiss-message;
 
     callback set-primary-currency(string);
+    callback new-profile;
+    callback rename-profile(int);
+    callback switch-profile(int);
+    callback delete-profile(int);
     callback add-category;
     callback edit-category(int);
     callback delete-category(int);
@@ -211,6 +216,95 @@ export component SettingsPage inherits Rectangle {
                         model: root.currency-options;
                         current-index <=> root.primary-currency-index;
                         selected(value) => { root.set-primary-currency(value); }
+                    }
+                }
+
+                Divider {}
+
+                VerticalLayout {
+                    spacing: 12px;
+
+                    HorizontalLayout {
+                        spacing: 12px;
+
+                        SectionTitle {
+                            text: Tr.t("Profiles");
+                            horizontal-stretch: 1;
+                            vertical-alignment: center;
+                        }
+
+                        PrimaryButton {
+                            text: Tr.t("NewProfile");
+                            clicked => { root.new-profile(); }
+                        }
+                    }
+
+                    Text {
+                        text: Tr.t("ProfilesHint");
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                        width: 640px;
+                    }
+
+                    for row in root.profile-rows : Rectangle {
+                        height: 46px;
+                        background: transparent;
+
+                        HorizontalLayout {
+                            spacing: 12px;
+
+                            Text {
+                                text: row.name;
+                                color: Theme.text;
+                                font-size: 14px;
+                                font-weight: row.open ? 700 : 400;
+                                vertical-alignment: center;
+                                horizontal-stretch: 1;
+                                overflow: elide;
+                            }
+
+                            if (row.open) : Rectangle {
+                                height: 22px;
+                                border-radius: 11px;
+                                background: Theme.selected;
+
+                                HorizontalLayout {
+                                    padding-left: 8px;
+                                    padding-right: 8px;
+
+                                    Text {
+                                        text: Tr.t("ProfileOpen");
+                                        color: Theme.on-selected;
+                                        font-size: 11px;
+                                        font-weight: 600;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                            }
+
+                            if (row.next-start) : Text {
+                                text: Tr.t("ProfileNextStart");
+                                color: Theme.muted-text;
+                                font-size: 11px;
+                                vertical-alignment: center;
+                            }
+
+                            if (row.can-switch) : TextButton {
+                                text: Tr.t("OpenProfile");
+                                clicked => { root.switch-profile(row.index); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("Edit");
+                                clicked => { root.rename-profile(row.index); }
+                            }
+
+                            if (row.can-delete) : TextButton {
+                                text: Tr.t("Delete");
+                                clicked => { root.delete-profile(row.index); }
+                            }
+                        }
                     }
                 }
 

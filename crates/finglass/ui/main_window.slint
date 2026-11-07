@@ -2,14 +2,14 @@ import { Theme } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
 import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
-import { AuditRow, CategoryRow, ColourSwatch, RuleRow } from "models.slint";
+import { AuditRow, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
 import { AccountPanel } from "account_panel.slint";
 import { AccountsPage } from "accounts_page.slint";
 import { TransactionsPage } from "transactions_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
-import { BackupPassphraseDialog, CategoryDialog, ConfirmDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
+import { BackupPassphraseDialog, CategoryDialog, ConfirmDialog, ProfileNameDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
 
 // One language in the top bar's menu.
 component LanguageMenuItem inherits Rectangle {
@@ -51,6 +51,48 @@ component LanguageMenuItem inherits Rectangle {
     }
 }
 
+// One profile in the top bar's dropdown.
+component ProfileMenuItem inherits Rectangle {
+    in property <string> name;
+    in property <bool> selected;
+
+    callback picked;
+
+    height: 36px;
+    border-radius: 6px;
+    background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
+    accessible-role: button;
+    accessible-label: root.name;
+
+    Text {
+        x: 12px;
+        width: parent.width - 36px;
+        height: parent.height;
+        text: root.name;
+        color: root.selected ? Theme.on-selected : Theme.text;
+        font-size: 14px;
+        font-weight: root.selected ? 600 : 400;
+        vertical-alignment: center;
+        horizontal-alignment: left;
+        overflow: elide;
+    }
+
+    if (root.selected) : Text {
+        x: parent.width - 26px;
+        width: 16px;
+        height: parent.height;
+        text: "✓";
+        color: Theme.on-selected;
+        font-size: 14px;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => root.picked();
+    }
+}
+
 // The main window: sidebar navigation, placeholder screens and the settings sections.
 export component MainWindow inherits Window {
     in property <string> app-name: "Finglass";
@@ -75,8 +117,23 @@ export component MainWindow inherits Window {
     in property <[string]> settings-currency-options;
     in property <string> settings-primary-currency;
     in-out property <int> settings-primary-currency-index;
+    in property <[ProfileRow]> settings-profile-rows;
     in property <[CategoryRow]> settings-category-rows;
     in property <[RuleRow]> settings-rule-rows;
+
+    // Profiles in the top bar and their dialogs.
+    in property <[ProfileRow]> profile-rows;
+    in property <string> current-profile-name;
+    in-out property <bool> profile-menu-open;
+    in property <bool> profile-dialog-open;
+    in property <string> profile-dialog-title;
+    in-out property <string> profile-dialog-name;
+    in property <int> profile-dialog-index: -1;
+    in property <string> profile-dialog-error;
+    in property <bool> profile-delete-open;
+    in property <int> profile-delete-index: -1;
+    in property <string> profile-delete-title;
+    in property <string> profile-delete-text;
     in-out property <string> settings-tax-keywords;
     in property <string> settings-tax-keywords-count;
     in-out property <length> settings-scroll-y;
@@ -454,6 +511,16 @@ export component MainWindow inherits Window {
     callback change-passphrase(string, string, string, bool);
     callback dismiss-status;
 
+    callback profile-switch(int);
+    callback profile-manage;
+    callback settings-new-profile;
+    callback settings-rename-profile(int);
+    callback settings-switch-profile(int);
+    callback settings-delete-profile(int);
+    callback settings-profile-dialog-save;
+    callback settings-profile-dialog-close;
+    callback settings-confirm-delete-profile;
+    callback settings-cancel-delete-profile;
     callback settings-dismiss-message;
     callback settings-set-primary-currency(string);
     callback settings-add-category;
@@ -794,8 +861,46 @@ export component MainWindow inherits Window {
                         clicked => { root.dismiss-status(); }
                     }
 
-                    // The profile menu that M8d-2 adds goes in this slot, before the language and
-                    // theme actions.
+                    if (root.profile-rows.length > 1) : Rectangle {
+                        height: 36px;
+                        width: 180px;
+                        border-radius: 8px;
+                        border-width: 1px;
+                        border-color: Theme.divider;
+                        background: profile-touch.has-hover || root.profile-menu-open ? Theme.background : Theme.surface;
+                        accessible-role: button;
+                        accessible-label: Tr.t("SwitchProfileMenu");
+
+                        HorizontalLayout {
+                            padding-left: 12px;
+                            padding-right: 10px;
+                            alignment: center;
+                            cross-axis-alignment: center;
+                            spacing: 8px;
+
+                            Text {
+                                text: root.current-profile-name;
+                                color: Theme.text;
+                                font-size: 13px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                                horizontal-stretch: 1;
+                                overflow: elide;
+                            }
+
+                            Path {
+                                width: 8px;
+                                height: 5px;
+                                commands: "M 0 0 L 8 0 L 4 5 Z";
+                                fill: Theme.muted-text;
+                            }
+                        }
+
+                        profile-touch := TouchArea {
+                            clicked => { root.profile-menu-open = !root.profile-menu-open; }
+                        }
+                    }
+
                     Rectangle {
                         width: 72px;
                         height: 36px;
@@ -1263,6 +1368,7 @@ export component MainWindow inherits Window {
                 primary-currency: root.settings-primary-currency;
                 currency-options: root.settings-currency-options;
                 primary-currency-index <=> root.settings-primary-currency-index;
+                profile-rows: root.settings-profile-rows;
                 category-rows: root.settings-category-rows;
                 rule-rows: root.settings-rule-rows;
                 tax-keywords <=> root.settings-tax-keywords;
@@ -1277,6 +1383,10 @@ export component MainWindow inherits Window {
                 open-change => { root.open-change(); }
                 dismiss-message => { root.settings-dismiss-message(); }
                 set-primary-currency(value) => { root.settings-set-primary-currency(value); }
+                new-profile => { root.settings-new-profile(); }
+                rename-profile(index) => { root.settings-rename-profile(index); }
+                switch-profile(index) => { root.settings-switch-profile(index); }
+                delete-profile(index) => { root.settings-delete-profile(index); }
                 add-category => { root.settings-add-category(); }
                 edit-category(id) => { root.settings-edit-category(id); }
                 delete-category(id) => { root.settings-delete-category(id); }
@@ -1475,6 +1585,74 @@ export component MainWindow inherits Window {
         passphrase <=> root.settings-restore-passphrase;
         close => { root.settings-cancel-restore-passphrase(); }
         submit(value) => { root.settings-confirm-restore-passphrase(value); }
+    }
+
+    if (root.profile-dialog-open) : ProfileNameDialog {
+        title: root.profile-dialog-title;
+        name <=> root.profile-dialog-name;
+        error-text: root.profile-dialog-error;
+        close => { root.settings-profile-dialog-close(); }
+        save => { root.settings-profile-dialog-save(); }
+    }
+
+    if (root.profile-delete-open) : ConfirmDialog {
+        title: root.profile-delete-title;
+        text: root.profile-delete-text;
+        confirm-text: Tr.t("Delete");
+        confirm => { root.settings-confirm-delete-profile(); }
+        cancel => { root.settings-cancel-delete-profile(); }
+    }
+
+    // The top bar's profile menu. The backdrop closes it on a click anywhere else.
+    if (root.profile-menu-open) : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+
+        TouchArea {
+            clicked => { root.profile-menu-open = false; }
+        }
+
+        Rectangle {
+            x: root.width - 444px;
+            y: 58px;
+            width: 240px;
+            height: 24px + (root.profile-rows.length + 1) * 36px;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            background: Theme.surface;
+
+            VerticalLayout {
+                padding: 8px;
+                spacing: 4px;
+
+                for row in root.profile-rows : ProfileMenuItem {
+                    name: row.name;
+                    selected: row.open;
+                    picked => {
+                        root.profile-menu-open = false;
+                        if (!row.open) {
+                            root.profile-switch(row.index);
+                        }
+                    }
+                }
+
+                Rectangle {
+                    height: 1px;
+                    background: Theme.divider;
+                }
+
+                ProfileMenuItem {
+                    name: Tr.t("ManageProfiles");
+                    selected: false;
+                    picked => {
+                        root.profile-menu-open = false;
+                        root.profile-manage();
+                    }
+                }
+            }
+        }
     }
 
     // The top bar's language menu. The backdrop closes it on a click anywhere else.

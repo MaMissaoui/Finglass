@@ -20,11 +20,11 @@ export component UnlockWindow inherits Window {
     callback change(string, string, string, bool);
     callback show-change(bool);
 
-    property <string> passphrase;
-    property <string> repeat;
-    property <string> current;
-    property <bool> show-passphrase;
-    property <bool> acknowledged;
+    in-out property <string> passphrase;
+    in-out property <string> repeat;
+    in-out property <string> current;
+    in-out property <bool> show-passphrase;
+    in-out property <bool> acknowledged;
 
     title: Tr.t("UnlockWindowTitle");
     icon: @image-url("../../../assets/icons/finglass-256.png");

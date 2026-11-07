@@ -142,10 +142,15 @@ pub fn spawn_load(main: &MainWindow, state: &Arc<ShellState>) {
 
     let main_weak = main.as_weak();
     let state = state.clone();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let _guard = BusyGuard(busy);
         let _ = pending.load_accounts(&db);
         let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = main_weak.upgrade() {
                 *state.accounts.lock().expect("accounts state poisoned") = pending.clone();
                 apply(&ui, &pending);
@@ -594,10 +599,15 @@ fn spawn_action(
 
     let main_weak = main.as_weak();
     let state = state.clone();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let _guard = BusyGuard(busy);
         work(&mut pending, &db);
         let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = main_weak.upgrade() {
                 *state.accounts.lock().expect("accounts state poisoned") = pending.clone();
                 apply(&ui, &pending);

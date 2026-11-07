@@ -741,6 +741,31 @@ fn deleting_a_profile_forgets_the_pins_before_moving_the_folder() {
     drop(temp);
 }
 
+#[test]
+fn a_refused_profile_delete_forgets_no_pins() {
+    let (temp, paths, db) = fixture();
+    let business = profiles::create(&paths, "Business").unwrap();
+    let slug = business.slug.clone().unwrap();
+    let mut state = loaded(&paths, &db);
+    let calls = Cell::new(0_usize);
+    let hook = |_slug: &str| calls.set(calls.get() + 1);
+
+    // The open profile cannot be deleted.
+    assert!(state.delete_profile(&db, &paths, Some(&slug), &slug, &hook).is_err());
+    assert_eq!(calls.get(), 0, "an open profile is refused before forgetting PINs");
+    assert!(business.dir.exists(), "the folder stays");
+
+    // An unknown profile cannot be deleted either.
+    assert!(state.delete_profile(&db, &paths, None, "missing", &hook).is_err());
+    assert_eq!(calls.get(), 0, "an unknown profile is refused before forgetting PINs");
+
+    // The default profile cannot be deleted.
+    assert!(state.delete_profile(&db, &paths, None, "default", &hook).is_err());
+    assert_eq!(calls.get(), 0, "the default profile is refused before forgetting PINs");
+    assert_eq!(audit_details(&db, "PROFILE_DELETED").len(), 0);
+    drop(temp);
+}
+
 // The backup and restore flow the Settings page drives.
 
 #[test]

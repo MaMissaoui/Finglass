@@ -82,29 +82,46 @@ impl PendingSearch {
 pub struct TransactionsController {
     ui: Weak<MainWindow>,
     paths: Arc<AppPaths>,
-    /// The open profile's slug key, for its `documents/` folder.
-    profile: String,
+    /// The open profile's slug key, for its `documents/` folder. Read at call time so a switch is visible.
+    profile: Mutex<String>,
     db: Mutex<Option<Arc<Database>>>,
     state: Mutex<TransactionsState>,
     busy: Busy,
     pending_search: Mutex<PendingSearch>,
     multi_delete_ids: Mutex<BTreeSet<TransactionId>>,
+    jobs: crate::jobs::JobTracker,
 }
 
 impl TransactionsController {
     /// Builds a controller for one main window and data folder.
     #[must_use]
-    pub fn new(ui: Weak<MainWindow>, paths: Arc<AppPaths>, profile: impl Into<String>) -> Self {
+    pub fn new(
+        ui: Weak<MainWindow>,
+        paths: Arc<AppPaths>,
+        profile: impl Into<String>,
+        jobs: crate::jobs::JobTracker,
+    ) -> Self {
         Self {
             ui,
             paths,
-            profile: profile.into(),
+            profile: Mutex::new(profile.into()),
             db: Mutex::new(None),
             state: Mutex::new(TransactionsState::new(Language::En)),
             busy: Busy::default(),
             pending_search: Mutex::new(PendingSearch::default()),
             multi_delete_ids: Mutex::new(BTreeSet::new()),
+            jobs,
         }
+    }
+
+    /// Re-points the controller at another profile's folder without rebuilding it.
+    pub fn set_profile(&self, profile: impl Into<String>) {
+        *self.profile.lock().expect("transactions profile poisoned") = profile.into();
+    }
+
+    /// The profile slug key this controller currently uses, for the shell's switch test.
+    pub(crate) fn profile_key(&self) -> String {
+        self.profile.lock().expect("transactions profile poisoned").clone()
     }
 
     /// Installs the page's callbacks on the main window.
@@ -428,7 +445,7 @@ impl TransactionsController {
         {
             let this = Arc::clone(self);
             main.on_transactions_detail_close(move || {
-                let documents = documents_dir(&this.paths, &this.profile);
+                let documents = documents_dir(&this.paths, &this.profile_key());
                 this.spawn(move |view, db| {
                     let service = DocumentService::new(db, OcrService::without_ocr(), documents);
                     let _ = view.select_transaction(db, &service, None);
@@ -970,7 +987,7 @@ impl TransactionsController {
         let Some(transaction) = transaction else {
             return;
         };
-        let documents = documents_dir(&self.paths, &self.profile);
+        let documents = documents_dir(&self.paths, &self.profile_key());
         self.spawn(move |view, db| {
             let service = DocumentService::new(db, OcrService::without_ocr(), documents.clone());
             let _ = view.select_transaction(db, &service, Some(transaction));
@@ -995,13 +1012,14 @@ impl TransactionsController {
         drop(state);
 
         self.busy.begin();
+        let generation = self.jobs.begin();
         let this = Arc::clone(self);
         let busy = self.busy.clone();
         thread::spawn(move || {
             let guard = BusyGuard(busy);
             action(&mut view, &db);
             let snapshot = view.state().clone();
-            this.publish(snapshot);
+            this.publish_job(snapshot, generation);
             drop(guard);
             this.run_pending_search();
         });
@@ -1026,6 +1044,29 @@ impl TransactionsController {
         }
         let ui = self.ui.clone();
         let _ = slint::invoke_from_event_loop(move || {
+            if let Some(ui) = ui.upgrade() {
+                apply(&ui, &state);
+            }
+        });
+    }
+
+    /// Publishes a worker's result unless the profile has been switched in the meantime.
+    fn publish_job(&self, state: TransactionsState, generation: u64) {
+        if !self.jobs.is_current(generation) {
+            self.jobs.end();
+            return;
+        }
+        {
+            let mut current = self.state.lock().expect("transactions state poisoned");
+            *current = state.clone();
+        }
+        let ui = self.ui.clone();
+        let jobs = self.jobs.clone();
+        let _ = slint::invoke_from_event_loop(move || {
+            jobs.end();
+            if !jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = ui.upgrade() {
                 apply(&ui, &state);
             }

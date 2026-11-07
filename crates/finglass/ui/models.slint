@@ -31,3 +31,13 @@ export struct ColourSwatch {
     hex: string,
     colour: color,
 }
+
+// One profile in Settings and in the top bar's dropdown.
+export struct ProfileRow {
+    index: int,
+    name: string,
+    open: bool,
+    next-start: bool,
+    can-switch: bool,
+    can-delete: bool,
+}

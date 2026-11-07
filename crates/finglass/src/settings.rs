@@ -22,7 +22,7 @@ use time::OffsetDateTime;
 use zeroize::Zeroizing;
 
 use crate::shell::ShellState;
-use crate::{CategoryRow, ColourSwatch, MainWindow, RuleRow};
+use crate::{CategoryRow, ColourSwatch, MainWindow, ProfileRow, RuleRow};
 
 /// Applies `state` to the window without touching the database.
 pub fn apply(main: &MainWindow, state: &SettingsState, restored_from: Option<&Path>) {
@@ -49,8 +49,46 @@ pub fn apply(main: &MainWindow, state: &SettingsState, restored_from: Option<&Pa
     main.set_rule_dialog_direction_options(string_model(direction_options(state.language).into_iter()));
     main.set_rule_dialog_tax_options(string_model(tax_options(state.language).into_iter()));
 
+    apply_profiles(main, state);
     apply_backup(main, state, restored_from);
     apply_rule_import(main, state);
+}
+
+/// Maps the profile list to both the Settings section and the top bar's dropdown.
+fn apply_profiles(main: &MainWindow, state: &SettingsState) {
+    main.set_settings_profile_rows(profile_model(state));
+    main.set_profile_rows(profile_model(state));
+    main.set_current_profile_name(
+        state
+            .profiles
+            .iter()
+            .find(|profile| profile.slug == state.open_profile)
+            .or_else(|| state.profiles.first())
+            .map(|profile| profile.name.clone())
+            .unwrap_or_default()
+            .into(),
+    );
+}
+
+fn profile_model(state: &SettingsState) -> ModelRc<ProfileRow> {
+    ModelRc::new(VecModel::from(
+        state
+            .profiles
+            .iter()
+            .enumerate()
+            .map(|(index, profile)| {
+                let open = profile.slug == state.open_profile;
+                ProfileRow {
+                    index: i32::try_from(index).unwrap_or(-1),
+                    name: profile.name.clone().into(),
+                    open,
+                    next_start: !open && profile.slug == state.next_profile,
+                    can_switch: !open,
+                    can_delete: !profile.is_default() && !open,
+                }
+            })
+            .collect::<Vec<_>>(),
+    ))
 }
 
 /// Maps the backup and restore state, including the two restore dialogs.
@@ -112,7 +150,7 @@ pub fn spawn_load(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPat
     pending.language = language;
     pending.is_loading = true;
     *state.settings.lock().expect("settings state poisoned") = pending.clone();
-    apply(main, &pending, state.restored_from.as_deref());
+    apply(main, &pending, state.restored_from().as_deref());
 
     let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
         return;
@@ -120,13 +158,18 @@ pub fn spawn_load(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPat
     let main_weak = main.as_weak();
     let state = state.clone();
     let paths = paths.clone();
-    let slug = state.slug.clone();
+    let slug = state.slug();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let _ = pending.load(&db, &paths, slug.as_deref());
         let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = main_weak.upgrade() {
                 *state.settings.lock().expect("settings state poisoned") = pending.clone();
-                apply(&ui, &pending, state.restored_from.as_deref());
+                apply(&ui, &pending, state.restored_from().as_deref());
             }
         });
     });
@@ -137,7 +180,7 @@ pub fn dismiss_messages(main: &MainWindow, state: &Arc<ShellState>) {
     let mut pending = state.settings.lock().expect("settings state poisoned").clone();
     pending.clear_messages();
     *state.settings.lock().expect("settings state poisoned") = pending.clone();
-    apply(main, &pending, state.restored_from.as_deref());
+    apply(main, &pending, state.restored_from().as_deref());
 }
 
 /// Stores the primary currency.
@@ -543,7 +586,8 @@ pub fn create_backup(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<App
     let main_weak = main.as_weak();
     let state = state.clone();
     let paths = paths.clone();
-    let profile = state.slug.clone();
+    let profile = state.slug();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let today = OffsetDateTime::now_utc().date();
         let file_name = format!(
@@ -558,16 +602,17 @@ pub fn create_backup(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<App
             .set_file_name(&file_name)
             .save_file()
         else {
+            state.jobs.end();
             return;
         };
 
         pending.clear_messages();
         pending.is_busy = true;
-        publish(main_weak.clone(), state.clone(), pending.clone());
+        publish(main_weak.clone(), state.clone(), pending.clone(), generation, false);
         if pending.create_backup(&db, &paths, profile.as_deref(), &path).is_err() {
             pending.error = Some(i18n::text(pending.language, Key::ErrorUnexpected).to_owned());
         }
-        publish(main_weak, state, pending);
+        publish(main_weak, state, pending, generation, true);
     });
 }
 
@@ -579,22 +624,24 @@ pub fn restore_backup(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<Ap
     let main_weak = main.as_weak();
     let state = state.clone();
     let paths = paths.clone();
-    let profile = state.slug.clone();
+    let profile = state.slug();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let filter = i18n::text(pending.language, Key::RestoreBackup).to_owned();
         let Some(path) = rfd::FileDialog::new().add_filter(&filter, &["zip"]).pick_file() else {
+            state.jobs.end();
             return;
         };
 
         pending.clear_messages();
         pending.is_busy = true;
-        publish(main_weak.clone(), state.clone(), pending.clone());
+        publish(main_weak.clone(), state.clone(), pending.clone(), generation, false);
         let result = pending.choose_restore(&paths, profile.as_deref(), &path);
         pending.is_busy = false;
         if result.is_err() {
             pending.error = Some(i18n::text(pending.language, Key::ErrorUnexpected).to_owned());
         }
-        publish(main_weak, state, pending);
+        publish(main_weak, state, pending, generation, true);
     });
 }
 
@@ -604,7 +651,7 @@ pub fn confirm_restore(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<A
         return;
     };
     let paths = paths.clone();
-    let profile = state.slug.clone();
+    let profile = state.slug();
     let pending = begin_busy(main, state, pending);
 
     spawn_pending(
@@ -625,7 +672,7 @@ pub fn cancel_restore_choice(main: &MainWindow, state: &Arc<ShellState>) {
     let mut pending = state.settings.lock().expect("settings state poisoned").clone();
     pending.cancel_restore_choice();
     *state.settings.lock().expect("settings state poisoned") = pending.clone();
-    apply(main, &pending, state.restored_from.as_deref());
+    apply(main, &pending, state.restored_from().as_deref());
 }
 
 /// Confirms a backup made with another passphrase. The passphrase is not kept in the UI state.
@@ -635,7 +682,7 @@ pub fn confirm_restore_passphrase(main: &MainWindow, state: &Arc<ShellState>, pa
         return;
     };
     let paths = paths.clone();
-    let profile = state.slug.clone();
+    let profile = state.slug();
     let passphrase = Zeroizing::new(passphrase.to_owned());
     let pending = begin_busy(main, state, pending);
 
@@ -660,7 +707,7 @@ pub fn cancel_restore_passphrase(main: &MainWindow, state: &Arc<ShellState>) {
     let mut pending = state.settings.lock().expect("settings state poisoned").clone();
     pending.cancel_restore_passphrase();
     *state.settings.lock().expect("settings state poisoned") = pending.clone();
-    apply(main, &pending, state.restored_from.as_deref());
+    apply(main, &pending, state.restored_from().as_deref());
 }
 
 /// Cancels a staged restore that has not been applied yet.
@@ -669,7 +716,7 @@ pub fn cancel_pending_restore(main: &MainWindow, state: &Arc<ShellState>, paths:
         return;
     };
     let paths = paths.clone();
-    let profile = state.slug.clone();
+    let profile = state.slug();
     let pending = begin_busy(main, state, pending);
 
     spawn_pending(
@@ -689,7 +736,7 @@ pub fn cancel_pending_restore(main: &MainWindow, state: &Arc<ShellState>, paths:
 fn begin_busy(main: &MainWindow, state: &Arc<ShellState>, mut pending: SettingsState) -> SettingsState {
     pending.is_busy = true;
     *state.settings.lock().expect("settings state poisoned") = pending.clone();
-    apply(main, &pending, state.restored_from.as_deref());
+    apply(main, &pending, state.restored_from().as_deref());
     pending
 }
 
@@ -703,6 +750,7 @@ pub fn export_rules(main: &MainWindow, state: &Arc<ShellState>) {
     };
     let main_weak = main.as_weak();
     let state = state.clone();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let today = OffsetDateTime::now_utc().date();
         let file_name = format!(
@@ -717,12 +765,13 @@ pub fn export_rules(main: &MainWindow, state: &Arc<ShellState>) {
             .set_file_name(&file_name)
             .save_file()
         else {
+            state.jobs.end();
             return;
         };
         if pending.export_rules(&db, &path).is_err() {
             pending.error = Some(i18n::text(pending.language, Key::ErrorUnexpected).to_owned());
         }
-        publish(main_weak, state, pending);
+        publish(main_weak, state, pending, generation, true);
     });
 }
 
@@ -736,16 +785,18 @@ pub fn import_rules(main: &MainWindow, state: &Arc<ShellState>) {
     };
     let main_weak = main.as_weak();
     let state = state.clone();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         let filter = i18n::text(pending.language, Key::ImportRules).to_owned();
         let Some(path) = rfd::FileDialog::new().add_filter(&filter, &["tsv", "txt"]).pick_file() else {
+            state.jobs.end();
             return;
         };
         pending.clear_messages();
         if pending.choose_rule_import(&db, &path).is_err() {
             pending.error = Some(i18n::text(pending.language, Key::ErrorUnexpected).to_owned());
         }
-        publish(main_weak, state, pending);
+        publish(main_weak, state, pending, generation, true);
     });
 }
 
@@ -757,7 +808,7 @@ pub fn confirm_rule_import(main: &MainWindow, state: &Arc<ShellState>) {
     let categorize = main.get_rule_import_categorize();
     pending.is_importing_rules = true;
     *state.settings.lock().expect("settings state poisoned") = pending.clone();
-    apply(main, &pending, state.restored_from.as_deref());
+    apply(main, &pending, state.restored_from().as_deref());
 
     spawn_pending(
         main,
@@ -777,7 +828,7 @@ pub fn cancel_rule_import(main: &MainWindow, state: &Arc<ShellState>) {
     let mut pending = state.settings.lock().expect("settings state poisoned").clone();
     pending.cancel_rule_import();
     *state.settings.lock().expect("settings state poisoned") = pending.clone();
-    apply(main, &pending, state.restored_from.as_deref());
+    apply(main, &pending, state.restored_from().as_deref());
 }
 
 fn pending_state(state: &Arc<ShellState>) -> Option<SettingsState> {
@@ -807,23 +858,225 @@ fn spawn_pending<F, After>(
     };
     let main_weak = main.as_weak();
     let state = state.clone();
+    let generation = state.jobs.begin();
     thread::spawn(move || {
         work(&mut pending, &db);
         let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
             if let Some(ui) = main_weak.upgrade() {
                 *state.settings.lock().expect("settings state poisoned") = pending.clone();
-                apply(&ui, &pending, state.restored_from.as_deref());
+                apply(&ui, &pending, state.restored_from().as_deref());
                 after(&ui, &pending);
             }
         });
     });
 }
 
-fn publish(main: slint::Weak<MainWindow>, state: Arc<ShellState>, pending: SettingsState) {
+/// Runs a profile action that needs the data root and the database, off the event loop.
+fn spawn_profile_action<F, After>(
+    main: &MainWindow,
+    state: &Arc<ShellState>,
+    mut pending: SettingsState,
+    paths: Arc<AppPaths>,
+    work: F,
+    after: After,
+) where
+    F: FnOnce(&mut SettingsState, &Database, &AppPaths) + Send + 'static,
+    After: FnOnce(&MainWindow, &SettingsState) + Send + 'static,
+{
+    let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
+        return;
+    };
+    let main_weak = main.as_weak();
+    let state = state.clone();
+    let generation = state.jobs.begin();
+    thread::spawn(move || {
+        work(&mut pending, &db, &paths);
+        let _ = slint::invoke_from_event_loop(move || {
+            state.jobs.end();
+            if !state.jobs.is_current(generation) {
+                return;
+            }
+            if let Some(ui) = main_weak.upgrade() {
+                *state.settings.lock().expect("settings state poisoned") = pending.clone();
+                apply(&ui, &pending, state.restored_from().as_deref());
+                after(&ui, &pending);
+            }
+        });
+    });
+}
+
+/// Opens the name dialog for a new profile.
+pub fn open_new_profile(main: &MainWindow, state: &Arc<ShellState>, _paths: &Arc<AppPaths>) {
+    let language = *state.language.lock().expect("language state poisoned");
+    main.set_profile_dialog_title(i18n::text(language, Key::NewProfile).into());
+    main.set_profile_dialog_name("".into());
+    main.set_profile_dialog_index(-1);
+    main.set_profile_dialog_error("".into());
+    main.set_profile_dialog_open(true);
+}
+
+/// Opens the name dialog to rename the profile at `index`.
+pub fn open_rename_profile(main: &MainWindow, state: &Arc<ShellState>, _paths: &Arc<AppPaths>, index: i32) {
+    let language = *state.language.lock().expect("language state poisoned");
+    let profile = state
+        .settings
+        .lock()
+        .expect("settings state poisoned")
+        .profiles
+        .get(usize::try_from(index).unwrap_or(usize::MAX))
+        .cloned();
+    let Some(profile) = profile else {
+        return;
+    };
+    main.set_profile_dialog_title(
+        i18n::format(language, Key::RenameProfile, &[Arg::from(profile.name.clone())]).into(),
+    );
+    main.set_profile_dialog_name(profile.name.into());
+    main.set_profile_dialog_index(index);
+    main.set_profile_dialog_error("".into());
+    main.set_profile_dialog_open(true);
+}
+
+/// Closes the name dialog without changing anything.
+pub fn close_profile_dialog(main: &MainWindow, _state: &Arc<ShellState>) {
+    main.set_profile_dialog_open(false);
+    main.set_profile_dialog_error("".into());
+}
+
+/// Creates or renames the profile the name dialog shows.
+pub fn save_profile(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>) {
+    let Some(mut pending) = pending_state(state) else {
+        return;
+    };
+    pending.clear_messages();
+    let index = main.get_profile_dialog_index();
+    let name = main.get_profile_dialog_name().to_string();
+    let paths = paths.clone();
+
+    spawn_profile_action(
+        main,
+        state,
+        pending,
+        paths,
+        move |pending, db, paths| {
+            let result = if index < 0 {
+                pending.create_profile(db, paths, &name)
+            } else {
+                let profile = pending
+                    .profiles
+                    .get(usize::try_from(index).unwrap_or(usize::MAX))
+                    .cloned();
+                match profile {
+                    Some(profile) => pending.rename_profile(db, paths, profile.slug.as_deref(), &name),
+                    None => Ok(()),
+                }
+            };
+            if result.is_err() {
+                pending.error = Some(i18n::text(pending.language, Key::ErrorUnexpected).to_owned());
+            }
+        },
+        |ui, pending| {
+            if pending.error.is_none() {
+                ui.set_profile_dialog_open(false);
+            } else if let Some(error) = &pending.error {
+                ui.set_profile_dialog_error(error.clone().into());
+            }
+        },
+    );
+}
+
+/// Opens the confirmation for deleting the profile at `index`.
+pub fn request_delete_profile(main: &MainWindow, state: &Arc<ShellState>, _paths: &Arc<AppPaths>, index: i32) {
+    let language = *state.language.lock().expect("language state poisoned");
+    let profile = state
+        .settings
+        .lock()
+        .expect("settings state poisoned")
+        .profiles
+        .get(usize::try_from(index).unwrap_or(usize::MAX))
+        .cloned();
+    let Some(profile) = profile else {
+        return;
+    };
+    main.set_profile_delete_index(index);
+    main.set_profile_delete_title(
+        i18n::format(language, Key::DeleteProfile, &[Arg::from(profile.name.clone())]).into(),
+    );
+    main.set_profile_delete_text(i18n::format(language, Key::DeleteProfileText, &[Arg::from(profile.name)]).into());
+    main.set_profile_delete_open(true);
+}
+
+/// Closes the delete confirmation without moving anything.
+pub fn cancel_delete_profile(main: &MainWindow, _state: &Arc<ShellState>) {
+    main.set_profile_delete_open(false);
+}
+
+/// Moves the confirmed profile's folder aside after forgetting its remembered PINs.
+pub fn confirm_delete_profile(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>) {
+    let Some(mut pending) = pending_state(state) else {
+        return;
+    };
+    pending.clear_messages();
+    let index = main.get_profile_delete_index();
+    main.set_profile_delete_open(false);
+    let profile = pending
+        .profiles
+        .get(usize::try_from(index).unwrap_or(usize::MAX))
+        .cloned();
+    let Some(profile) = profile else {
+        return;
+    };
+    let Some(slug) = profile.slug.clone() else {
+        return;
+    };
+    let open_profile = pending.open_profile.clone();
+    let paths = paths.clone();
+
+    spawn_profile_action(
+        main,
+        state,
+        pending,
+        paths,
+        move |pending, db, paths| {
+            // M5c: replace NoCredentialStore with the Keychain-backed credential store.
+            let store = finglass_core::sync::credentials::NoCredentialStore;
+            let forget = |slug: &str| {
+                if let Ok(dir) = paths.profile_dir(slug) {
+                    finglass_core::sync::credentials::forget_pins_for_profile(&store, &dir);
+                }
+            };
+            if pending
+                .delete_profile(db, paths, open_profile.as_deref(), &slug, &forget)
+                .is_err()
+            {
+                pending.error = Some(i18n::text(pending.language, Key::ErrorUnexpected).to_owned());
+            }
+        },
+        |_, _| {},
+    );
+}
+
+fn publish(
+    main: slint::Weak<MainWindow>,
+    state: Arc<ShellState>,
+    pending: SettingsState,
+    generation: u64,
+    finish: bool,
+) {
     let _ = slint::invoke_from_event_loop(move || {
+        if finish {
+            state.jobs.end();
+        }
+        if !state.jobs.is_current(generation) {
+            return;
+        }
         if let Some(ui) = main.upgrade() {
             *state.settings.lock().expect("settings state poisoned") = pending.clone();
-            apply(&ui, &pending, state.restored_from.as_deref());
+            apply(&ui, &pending, state.restored_from().as_deref());
         }
     });
 }

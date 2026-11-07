@@ -749,6 +749,10 @@ impl SettingsState {
         slug: &str,
         forget_pins: &dyn Fn(&str),
     ) -> Result<(), SettingsError> {
+        // Validate before forgetting anything: a refused delete must not touch the credential store.
+        if let Err(error) = validate_delete(paths, open_profile, slug) {
+            return self.action_error(profile_error(error));
+        }
         forget_pins(slug);
         let moved = match profiles::delete(paths, slug, open_profile) {
             Ok(moved) => moved,
@@ -927,6 +931,23 @@ fn category_usage(db: &Database) -> Result<BTreeMap<CategoryId, usize>, Settings
 
 fn backup_service(paths: &AppPaths, profile: Option<&str>) -> Result<BackupService, SettingsError> {
     Ok(BackupService::new(profiles::data_dir(paths, profile)?))
+}
+
+/// Checks a delete target the same way [`profiles::delete`] will, before any side effect runs.
+fn validate_delete(paths: &AppPaths, open_profile: Option<&str>, slug: &str) -> Result<(), ProfileError> {
+    if open_profile == Some(slug) {
+        return Err(ProfileError::OpenProfile);
+    }
+    if slug == "default" {
+        return Err(ProfileError::DefaultProfile);
+    }
+    let known = profiles::list(paths)?
+        .iter()
+        .any(|profile| profile.slug.as_deref() == Some(slug));
+    if !known {
+        return Err(ProfileError::Unknown(slug.to_owned()));
+    }
+    Ok(())
 }
 
 fn profile_error(error: ProfileError) -> SettingsError {
