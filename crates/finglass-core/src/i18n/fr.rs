@@ -988,5 +988,36 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorServerUrlRequired => "L'URL du serveur FinTS est requise",
         Key::ErrorServerUrlMustBeHttps => "L'URL du serveur FinTS doit commencer par https://",
         Key::ErrorUnexpected => "une erreur inattendue",
+        Key::MigrationWelcomeTitle => "FinDesk trouvé sur ce Mac",
+        Key::MigrationWelcomeText => {
+            "Finglass peut reprendre vos profils FinDesk maintenant. Chaque profil FinDesk devient un profil \
+             Finglass du même nom."
+        }
+        Key::MigrationProfilesLabel => "Profils FinDesk",
+        Key::MigrationCopiedText => {
+            "Les comptes, connexions bancaires, catégories, règles, écritures et documents sont copiés. Les ordres \
+             de paiement et les codes PIN mémorisés ne le sont pas. Les connexions bancaires devront se reconnecter."
+        }
+        Key::MigrationQuitHint => "Quittez FinDesk d'abord.",
+        Key::MigrationStart => "Reprendre depuis FinDesk",
+        Key::MigrationStartEmpty => "Commencer vide",
+        Key::MigrationProfileHeading => "Profil %1$d sur %2$d : %3$s",
+        Key::MigrationFindeskPassphrase => "Phrase secrète FinDesk",
+        Key::MigrationSamePassphrase => "Utiliser la même phrase secrète pour Finglass",
+        Key::MigrationNewPassphraseNeeded => {
+            "La phrase secrète FinDesk ne respecte pas les règles d'une nouvelle phrase secrète Finglass. \
+             Choisissez-en une nouvelle."
+        }
+        Key::MigrationMigrateProfile => "Reprendre le profil",
+        Key::MigrationSkip => "Ignorer",
+        Key::MigrationSummaryTitle => "Migration terminée",
+        Key::MigrationSummaryText => "Ces profils FinDesk ont été traités :",
+        Key::MigrationContinue => "Continuer",
+        Key::MigrationProfileMigrated => "%1$s : %2$s",
+        Key::MigrationProfileSkipped => "%1$s : ignoré",
+        Key::MigrationProfileFailed => "%1$s : %2$s",
+        Key::MigrationBusy => "Migration…",
+        Key::ErrorFinDeskSourceChanged => "FinDesk semble être en cours d'exécution. Quittez FinDesk et réessayez.",
+        Key::ErrorMigrationTargetNotEmpty => "Le profil Finglass contient déjà des données. Rien n'a été migré.",
     }
 }

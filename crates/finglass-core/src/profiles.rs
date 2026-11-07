@@ -419,7 +419,7 @@ fn temp_path(root: &Path) -> PathBuf {
     root.join(format!("profiles.{}-{nanos}-{counter}.tmp", std::process::id()))
 }
 
-fn parse_properties(text: &str) -> BTreeMap<String, String> {
+pub(crate) fn parse_properties(text: &str) -> BTreeMap<String, String> {
     let mut properties = BTreeMap::new();
 
     for line in text.lines() {

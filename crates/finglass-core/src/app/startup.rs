@@ -199,9 +199,19 @@ impl StartupError {
 }
 
 /// Resolves the active profile and applies a staged restore before the database is opened.
+///
+/// A leftover migration staging folder is removed first: after a crash it can hold unencrypted document copies.
 pub fn prepare(paths: &AppPaths, now: OffsetDateTime) -> Result<Startup, StartupError> {
+    remove_migration_staging(paths);
     let profile = profiles::active(paths)?;
     prepare_profile(paths, profile.slug.as_deref(), now)
+}
+
+fn remove_migration_staging(paths: &AppPaths) {
+    let staging = paths.root().join(crate::app::migration::STAGING_DIR);
+    if fs::symlink_metadata(&staging).is_ok_and(|metadata| metadata.file_type().is_dir()) {
+        let _ = fs::remove_dir_all(&staging);
+    }
 }
 
 /// Prepares `slug` (or the default profile) and applies its staged restore.
@@ -493,6 +503,20 @@ mod tests {
 
         let reopened = crate::app::unlock::unlock(&paths, slug_key(None), PASS).unwrap();
         assert_eq!(partner_names(&reopened), vec!["Before backup"]);
+    }
+
+    #[test]
+    fn prepare_removes_a_leftover_migration_staging_folder() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+        let staging = temp.path().join(crate::app::migration::STAGING_DIR).join("1");
+        fs::create_dir_all(staging.join("documents")).unwrap();
+        fs::write(staging.join("documents/copy.pdf"), b"unencrypted").unwrap();
+        fs::write(staging.join("finglass.db"), b"staged").unwrap();
+
+        prepare(&paths, datetime!(2026-10-15 12:34:56 UTC)).unwrap();
+
+        assert!(!temp.path().join(crate::app::migration::STAGING_DIR).exists());
     }
 
     #[test]

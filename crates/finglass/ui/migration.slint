@@ -1,0 +1,308 @@
+import { CheckBox, LineEdit, Spinner } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import { PrimaryButton, TextButton } from "components.slint";
+
+// The first-run migration steps: welcome, one step per FinDesk profile and the summary.
+export component MigrationPanel inherits VerticalLayout {
+    in property <string> step: "welcome";
+    in property <[string]> profile-names;
+    in property <string> profile-heading;
+    in property <string> profile-name;
+    in property <int> profile-count: 1;
+    in property <bool> busy;
+    in-out property <bool> same-passphrase: true;
+    in property <bool> new-passphrase-required;
+    in property <string> error-text;
+    in property <[string]> summary-lines;
+    in property <string> passphrase-hint;
+
+    in-out property <bool> acknowledged;
+    in-out property <string> findesk-passphrase;
+    in-out property <string> new-passphrase;
+    in-out property <string> repeat;
+    in-out property <bool> show-passphrase;
+
+    callback migrate();
+    callback start-empty();
+    callback submit(string, string, string);
+    callback skip();
+    callback continue-clicked();
+    callback passphrase-changed(string);
+
+    function submit-profile() {
+        if (root.busy) {
+            return;
+        }
+        root.submit(root.findesk-passphrase, root.new-passphrase, root.repeat);
+    }
+
+    spacing: 12px;
+
+    if (root.step == "welcome") : VerticalLayout {
+        spacing: 10px;
+
+        Text {
+            text: Tr.t("MigrationWelcomeTitle");
+            color: Theme.text;
+            font-size: 22px;
+            font-weight: 600;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: Tr.t("MigrationWelcomeText");
+            color: Theme.text;
+            font-size: 14px;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: Tr.t("MigrationProfilesLabel");
+            color: Theme.text;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        for name in root.profile-names : Text {
+            text: "• " + name;
+            color: Theme.muted-text;
+            font-size: 13px;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: Tr.t("MigrationCopiedText");
+            color: Theme.muted-text;
+            font-size: 12px;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: Tr.t("MigrationQuitHint");
+            color: Theme.warning;
+            font-size: 13px;
+            font-weight: 600;
+            wrap: word-wrap;
+        }
+
+        CheckBox {
+            enabled: !root.busy;
+            text: Tr.t("PassphraseNoRecovery");
+            checked <=> root.acknowledged;
+        }
+
+        if (root.error-text != "") : Text {
+            text: root.error-text;
+            color: Theme.error;
+            font-size: 14px;
+            wrap: word-wrap;
+        }
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: start;
+
+            PrimaryButton {
+                text: Tr.t("MigrationStart");
+                enabled: !root.busy && root.acknowledged;
+                clicked => { root.migrate(); }
+            }
+
+            TextButton {
+                text: Tr.t("MigrationStartEmpty");
+                enabled: !root.busy;
+                clicked => { root.start-empty(); }
+            }
+        }
+    }
+
+    if (root.step == "profile") : VerticalLayout {
+        spacing: 10px;
+
+        Text {
+            text: root.profile-heading;
+            color: Theme.text;
+            font-size: 20px;
+            font-weight: 600;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: Tr.t("MigrationCopiedText");
+            color: Theme.muted-text;
+            font-size: 12px;
+            wrap: word-wrap;
+        }
+
+        VerticalLayout {
+            spacing: 6px;
+
+            Text {
+                text: Tr.t("MigrationFindeskPassphrase");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                enabled: !root.busy;
+                text <=> root.findesk-passphrase;
+                input-type: root.show-passphrase ? InputType.text : InputType.password;
+                edited(text) => { root.passphrase-changed(text); }
+                accepted(text) => { root.submit-profile(); }
+            }
+        }
+
+        CheckBox {
+            enabled: !root.busy;
+            text: Tr.t("MigrationSamePassphrase");
+            checked <=> root.same-passphrase;
+        }
+
+        if (root.new-passphrase-required || !root.same-passphrase) : VerticalLayout {
+            spacing: 6px;
+
+            Text {
+                text: Tr.t("NewPassphrase");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                enabled: !root.busy;
+                text <=> root.new-passphrase;
+                input-type: root.show-passphrase ? InputType.text : InputType.password;
+                accepted(text) => { root.submit-profile(); }
+            }
+
+            Text {
+                text: Tr.t("RepeatPassphrase");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                enabled: !root.busy;
+                text <=> root.repeat;
+                input-type: root.show-passphrase ? InputType.text : InputType.password;
+                accepted(text) => { root.submit-profile(); }
+            }
+        }
+
+        CheckBox {
+            enabled: !root.busy;
+            text: Tr.t("ShowPassphrase");
+            checked <=> root.show-passphrase;
+        }
+
+        if (root.passphrase-hint != "") : Text {
+            text: root.passphrase-hint;
+            color: Theme.muted-text;
+            font-size: 12px;
+            wrap: word-wrap;
+        }
+
+        if (root.error-text != "") : Text {
+            text: root.error-text;
+            color: Theme.error;
+            font-size: 14px;
+            wrap: word-wrap;
+        }
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: start;
+
+            PrimaryButton {
+                text: Tr.t("MigrationMigrateProfile");
+                enabled: !root.busy;
+                clicked => { root.submit-profile(); }
+            }
+
+            TextButton {
+                text: Tr.t("MigrationSkip");
+                enabled: !root.busy;
+                clicked => { root.skip(); }
+            }
+
+            if (root.busy) : HorizontalLayout {
+                spacing: 8px;
+
+                Spinner {
+                    width: 20px;
+                    height: 20px;
+                }
+
+                Text {
+                    text: Tr.t("MigrationBusy");
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+
+    if (root.step == "summary") : VerticalLayout {
+        spacing: 10px;
+
+        Text {
+            text: Tr.t("MigrationSummaryTitle");
+            color: Theme.text;
+            font-size: 22px;
+            font-weight: 600;
+            wrap: word-wrap;
+        }
+
+        Text {
+            text: Tr.t("MigrationSummaryText");
+            color: Theme.text;
+            font-size: 14px;
+            wrap: word-wrap;
+        }
+
+        for line in root.summary-lines : Text {
+            text: line;
+            color: Theme.muted-text;
+            font-size: 13px;
+            wrap: word-wrap;
+        }
+
+        if (root.error-text != "") : Text {
+            text: root.error-text;
+            color: Theme.error;
+            font-size: 14px;
+            wrap: word-wrap;
+        }
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: start;
+
+            PrimaryButton {
+                text: Tr.t("MigrationContinue");
+                enabled: !root.busy;
+                clicked => { root.continue-clicked(); }
+            }
+
+            if (root.busy) : HorizontalLayout {
+                spacing: 8px;
+
+                Spinner {
+                    width: 20px;
+                    height: 20px;
+                }
+
+                Text {
+                    text: Tr.t("MigrationBusy");
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

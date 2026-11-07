@@ -6,6 +6,7 @@ mod banking;
 mod dashboard;
 mod documents;
 mod jobs;
+mod migration;
 mod reports;
 mod settings;
 mod shell;

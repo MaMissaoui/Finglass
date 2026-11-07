@@ -10,6 +10,7 @@ pub mod banking;
 pub mod dashboard;
 pub mod documents;
 pub mod findesk;
+pub mod migration;
 pub mod prefs;
 pub mod reports;
 pub mod settings;
