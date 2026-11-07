@@ -6,6 +6,7 @@
 pub mod limits;
 pub mod ocr;
 pub mod pdf_text;
+mod programs;
 pub mod service;
 pub mod tesseract;
 
