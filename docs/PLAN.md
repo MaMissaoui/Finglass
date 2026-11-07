@@ -40,7 +40,7 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 
 ### M0 — FinTS feasibility probe (go/no-go for live sync)
 
-- [ ] `finglass-probe`, a small CLI on the FinTS library (candidate: `fints-rs`). It runs one dialog: account list,
+- [x] `finglass-probe`, a small CLI on the FinTS library (candidate: `fints-rs`). It runs one dialog: account list,
       balance and statements for the last 30 days, with pushTAN. It prints counts and dates only, never booking text,
       account numbers or the PIN.
 - [ ] You run it against your bank. The code is never run against a real bank by an agent.
