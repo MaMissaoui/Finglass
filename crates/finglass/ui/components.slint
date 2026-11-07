@@ -180,6 +180,32 @@ export struct TransactionRow {
     balance-mismatch: string,
 }
 
+// One file (or one unreadable selection) in the import dialog.
+export struct ImportFileRow {
+    name: string,
+    count-text: string,
+    period-text: string,
+    warning-text: string,
+    failure: bool,
+}
+
+// One CSV column mapping field of the import dialog.
+export struct ImportCsvField {
+    field: string,
+    label: string,
+    options: [string],
+    index: int,
+}
+
+// One checkbox row of the re-apply rules dialog.
+export struct ReapplyGroupRow {
+    from-id: int,
+    to-id: int,
+    title: string,
+    detail: string,
+    ticked: bool,
+}
+
 // One row of the shared account panel: "all", a group or an account.
 export struct AccountPanelRow {
     kind: string,

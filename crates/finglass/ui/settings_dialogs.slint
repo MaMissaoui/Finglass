@@ -218,6 +218,8 @@ export component RuleDialog inherits Rectangle {
     in property <[string]> tax-options;
     in-out property <int> tax-index;
     in property <string> error-text;
+    // Creating a rule from a booking (as FinDesk): only the pattern and the category; core picks the rest.
+    in property <bool> pattern-and-category-only: false;
 
     callback close;
     callback save;
@@ -272,55 +274,59 @@ export component RuleDialog inherits Rectangle {
                 current-index <=> root.category-index;
             }
 
-            Text {
-                text: Tr.t("RuleSearchIn");
-                color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            ComboBox {
-                model: root.field-options;
-                current-index <=> root.field-index;
-                selected(value) => { root.changed(root.pattern, root.priority); }
-            }
+            if (!root.pattern-and-category-only) : VerticalLayout {
+                spacing: 10px;
 
-            Text {
-                text: Tr.t("RuleAppliesTo");
-                color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            ComboBox {
-                model: root.direction-options;
-                current-index <=> root.direction-index;
-            }
+                Text {
+                    text: Tr.t("RuleSearchIn");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+                ComboBox {
+                    model: root.field-options;
+                    current-index <=> root.field-index;
+                    selected(value) => { root.changed(root.pattern, root.priority); }
+                }
 
-            Text {
-                text: Tr.t("TaxMenu");
-                color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            ComboBox {
-                model: root.tax-options;
-                current-index <=> root.tax-index;
-            }
+                Text {
+                    text: Tr.t("RuleAppliesTo");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+                ComboBox {
+                    model: root.direction-options;
+                    current-index <=> root.direction-index;
+                }
 
-            Text {
-                text: Tr.t("Priority");
-                color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            LineEdit {
-                text <=> root.priority;
-                edited(value) => { root.changed(root.pattern, value); }
-                accepted(value) => { root.save(); }
-            }
+                Text {
+                    text: Tr.t("TaxMenu");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+                ComboBox {
+                    model: root.tax-options;
+                    current-index <=> root.tax-index;
+                }
 
-            CheckBox {
-                checked <=> root.auto-apply;
-                text: Tr.t("ApplyAutomatically");
+                Text {
+                    text: Tr.t("Priority");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+                LineEdit {
+                    text <=> root.priority;
+                    edited(value) => { root.changed(root.pattern, value); }
+                    accepted(value) => { root.save(); }
+                }
+
+                CheckBox {
+                    checked <=> root.auto-apply;
+                    text: Tr.t("ApplyAutomatically");
+                }
             }
 
             if (root.error-text != "") : Text {

@@ -1771,6 +1771,7 @@ dependencies = [
  "open",
  "png",
  "rfd",
+ "rust_decimal",
  "slint",
  "slint-build",
  "tempfile",
