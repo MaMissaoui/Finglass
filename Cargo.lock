@@ -1602,6 +1602,7 @@ dependencies = [
  "dirs",
  "encoding_rs",
  "fancy-regex",
+ "regex",
  "roxmltree",
  "rusqlite",
  "rust_decimal",
