@@ -63,13 +63,14 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [x] M1b: domain tables as migration 2, designed from FinDesk's tables so M8 maps one to one (no payment tables);
       money type in integer minor units; repositories for accounts, groups, categories, rules and transactions.
 - [x] M1c: profiles and the remaining repositories (#12).
-- [ ] Profile management in the app: list, create, rename, delete and the live switch (M8d-2).
+- [x] Profile management in the app: list, create, rename, delete and the live switch (M8d-1 #29, M8d-2 #36).
 
 ### M2 — App shell
 
 - [x] Unlock screen: create, unlock and change the passphrase (#11).
 - [x] Main window with sidebar navigation, light and dark theme (#11).
-- [ ] M2c: top bar (sidebar toggle, language and theme switch) and the collapsible icon sidebar.
+- [x] M2c: top bar (sidebar toggle, language and theme switch) and the collapsible icon sidebar (#33).
+- [x] M2d: the standard widgets follow the app's light/dark choice (#35).
 - [x] Translations EN/DE/FR (a typed key enum and one table per language, with a test that every key exists in all
       three) (#7).
 - [x] Settings and About (with the AboutSlint badge) (#11, #25).
@@ -83,12 +84,13 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [x] Parsers for CSV (bank presets and detection), MT940, camt.052/053, OFX, QIF and XLSX. FinDesk's test files are
       reused as fixtures.
 - [x] Import service with duplicate detection (bank booking id or running balance) (#6).
-- [ ] Import dialog with preview and summary on the Transactions page (M4d-2).
+- [x] Import dialog with preview and summary on the Transactions page (#39).
 
 ### M4 — Transactions, categories, dashboard
 
 - [x] Transactions view state (#22).
-- [ ] Transactions page: list, filters, panel, selection, details (M4d-1); import, rules, export, receipts (M4d-2).
+- [x] Transactions page: list, filters, panel, selection, details (#34); import, re-apply rules, rule from booking,
+      CSV export, receipts (#39).
 - [x] Categories, rules and rule import/export; auto-categorisation on import (#6, #16, #25).
 - [x] Dashboard: balance, monthly income and expenses, expenses by category, budgets. Totals per currency, primary
       currency for overviews (#9, #23).
@@ -109,12 +111,13 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
       Booking texts are stored as the bank sent them; error, warning and note texts are masked.
 - [ ] M5b: the fints-rs adapter (after the M0 probe). Login state (system id, bank parameter data) goes into
       `bank_connections`' server-state columns cleared by `clear_login_state`, never into a side file.
-- [ ] M5c-1: `app::banking` (bank-login state, sync one/all, history start) and the prompt bridge, with an
-      `UnavailableGateway` until M5b.
-- [ ] M5c-2: the macOS Keychain store; `delete_profile` calls `forget_pins_for_profile` with it (replacing M8d-2's
-      placeholder).
+- [x] M5c-1: `app::banking` (bank-login state, sync one/all, history start) and the prompt bridge, with an
+      `UnavailableGateway` until M5b (#31).
+- [x] M5c-2: the macOS Keychain store; `delete_profile` calls `forget_pins_for_profile` with it (#37).
 - [ ] M5c-3: bank UI on the Accounts page (add, edit, sync, sync all, history, PIN and TAN prompts).
-      `FinTsClient::new` gets `AppPaths::profile_dir(slug)`. A profile switch cancels an open prompt.
+      `FinTsClient::new` gets `AppPaths::profile_dir(slug)`. A profile switch cancels an open prompt. Online banks
+      are deleted through `BankingState::remove_bank`; one profile `Busy` is shared by sync and the Accounts deletes.
+- [ ] Follow-up: statement imports and the FinDesk import don't take the profile `Busy` yet.
 
 ### M6 — Receipts and OCR
 
@@ -132,17 +135,18 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [x] M8b: Settings section for backup and restore; `apply_pending_restore` called at startup, before the unlock
       window; after a restore staged with the backup's passphrase, the unlock screen says the backup's passphrase is
       now needed (reuse FinDesk's wording from `UnlockViewModel.kt`) (#29).
-- [ ] Unlock screen: list of leftover `pre-restore-*` folders and moved-aside deleted profiles, with delete
-      buttons (they can hold unencrypted documents). After M8d-2. Finglass never has plaintext database copies, so
-      FinDesk's "leftover plaintext copies" part does not apply.
-- [ ] Single-instance lock taken before `app::startup::prepare`, so a second launch can't apply a staged restore
-      while the first instance has the database open.
-- [ ] One-time import from a FinDesk database. It reads a copy you select, with its passphrase (SQLCipher 4, `cipher`
+- [x] Unlock screen: list of leftover `pre-restore-*` folders, moved-aside deleted profiles and a staged restore that
+      still hold unencrypted documents, display only as in FinDesk; the label names the profile (M8f #40). Finglass
+      never has plaintext database copies.
+- [x] Single-instance lock taken before `app::startup::prepare`, so a second launch can't apply a staged restore
+      while the first instance has the database open (#32).
+- [x] One-time import from a FinDesk database. It reads a copy you select, with its passphrase (SQLCipher 4, `cipher`
       sqlcipher, `legacy` 4), and brings over accounts, transactions, categories, rules and documents. FinDesk's
       payment orders are never imported.
   - [x] M8c core: `findesk_import` (copy opened, one transaction, ids kept, hashes verbatim, documents confined to
-        FinDesk's `documents/`, no payment orders, PIN flags or capabilities). Still to do: the Settings entry point
-        with the folder picker, telling the user to quit FinDesk first (M8d-3).
+        FinDesk's `documents/`, no payment orders, PIN flags or capabilities) (#15).
+  - [x] M8d-3: Settings entry, folder picker starting in FinDesk's data folder, passphrase, report, reload (#38).
+  - [ ] Follow-up: run the empty-target check inside the import transaction, not just before it.
 
 ### M9 — Packaging and release
 
