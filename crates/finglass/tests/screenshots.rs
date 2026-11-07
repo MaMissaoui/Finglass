@@ -1,11 +1,14 @@
 //! Headless rendering of the app shell with Slint's software renderer.
 //!
-//! `set_platform` can only be called once per process, so every render lives in this one test.
+//! `set_platform` installs the Slint platform for the calling thread, so each test sets up its own
+//! software window for rendering.
 
+use std::cell::{Cell, RefCell};
 use std::collections::HashSet;
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
+use std::sync::{Mutex, MutexGuard};
 
 use finglass_core::account_grouping::{self, AccountItem as GroupingAccount, BalanceTone, GroupKey, LOAN_TYPE};
 use finglass_core::account_ids;
@@ -45,21 +48,48 @@ use finglass_ui::*;
 
 const SLUG: &str = "default";
 
-struct TestPlatform {
-    window: Rc<MinimalSoftwareWindow>,
+// `set_platform` installs the platform on the calling thread. Each test thread keeps its own
+// software window, and tests take turns so they never share one.
+static TEST_SERIAL: Mutex<()> = Mutex::new(());
+
+thread_local! {
+    static TEST_WINDOW: RefCell<Option<Rc<MinimalSoftwareWindow>>> = const { RefCell::new(None) };
+    static PLATFORM_READY: Cell<bool> = const { Cell::new(false) };
 }
+
+struct TestPlatform;
 
 impl Platform for TestPlatform {
     fn create_window_adapter(&self) -> Result<Rc<dyn WindowAdapter>, PlatformError> {
-        Ok(self.window.clone())
+        Ok(test_window())
     }
+}
+
+fn test_window() -> Rc<MinimalSoftwareWindow> {
+    TEST_WINDOW.with(|slot| {
+        slot.borrow_mut()
+            .get_or_insert_with(|| MinimalSoftwareWindow::new(RepaintBufferType::ReusedBuffer))
+            .clone()
+    })
+}
+
+fn platform_window() -> Rc<MinimalSoftwareWindow> {
+    PLATFORM_READY.with(|ready| {
+        if !ready.replace(true) {
+            slint::platform::set_platform(Box::new(TestPlatform)).expect("test platform must be installable");
+        }
+    });
+    test_window()
+}
+
+fn serial_test() -> MutexGuard<'static, ()> {
+    TEST_SERIAL.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
 #[test]
 fn renders_the_app_shell() {
-    let window = MinimalSoftwareWindow::new(RepaintBufferType::ReusedBuffer);
-    slint::platform::set_platform(Box::new(TestPlatform { window: window.clone() }))
-        .expect("test platform must be installable");
+    let _serial = serial_test();
+    let window = platform_window();
 
     let temp = tempfile::tempdir().unwrap();
     let paths = AppPaths::resolve(Some(temp.path().as_os_str().to_owned()), None).unwrap();
@@ -1637,6 +1667,64 @@ fn renders_the_app_shell() {
             ui.set_transactions_more_menu_open(true);
         },
     );
+}
+
+/// A mouse click lands on the control the first time, even when another control had focus first.
+#[test]
+fn one_click_activates_a_control() {
+    let _serial = serial_test();
+    let window = platform_window();
+
+    let ui = MainWindow::new().unwrap();
+    configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &[]);
+
+    let navigated = Rc::new(RefCell::new(Vec::<String>::new()));
+    {
+        let navigated = navigated.clone();
+        ui.on_navigate(move |screen| navigated.borrow_mut().push(screen.to_string()));
+    }
+    let themes = Rc::new(RefCell::new(Vec::<String>::new()));
+    {
+        let themes = themes.clone();
+        ui.on_set_theme(move |theme| themes.borrow_mut().push(theme.to_string()));
+    }
+
+    ui.show().unwrap();
+    // Settle the layout at the usual window size before using its coordinates.
+    render(&window, "one-click-activates-a-control", 1100, 720);
+
+    // The theme button must act on its own first click: on the unfixed code its FocusScope eats
+    // the press and only gains focus.
+    click(&window, 1058.0, 32.0);
+    assert_eq!(themes.borrow().len(), 1, "one click toggles the theme exactly once");
+    assert_eq!(themes.borrow()[0], "dark");
+
+    // The theme click above is also the "click another control first" case. One click on the
+    // Accounts sidebar item (240px sidebar, 16px padding, 56px logo, 20px gap, 40px Dashboard
+    // item, 4px spacing) must now navigate to that page.
+    click(&window, 120.0, 164.0);
+    assert_eq!(
+        navigated.borrow().len(),
+        1,
+        "one click navigates exactly once, after another control had focus"
+    );
+    assert_eq!(navigated.borrow()[0], "accounts");
+    assert_eq!(themes.borrow().len(), 1, "the sidebar click does not toggle the theme");
+
+    let _ = ui.hide();
+}
+
+/// Sends one left press and release at a logical window position.
+fn click(window: &MinimalSoftwareWindow, x: f32, y: f32) {
+    let position = slint::LogicalPosition { x, y };
+    window.dispatch_event(slint::platform::WindowEvent::PointerPressed {
+        position,
+        button: slint::platform::PointerEventButton::Left,
+    });
+    window.dispatch_event(slint::platform::WindowEvent::PointerReleased {
+        position,
+        button: slint::platform::PointerEventButton::Left,
+    });
 }
 
 /// Writes one small synthetic CSV statement for the import screenshots.
