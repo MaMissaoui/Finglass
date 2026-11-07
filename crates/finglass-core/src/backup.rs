@@ -1167,6 +1167,31 @@ mod tests {
     }
 
     #[test]
+    fn a_backup_after_a_passphrase_change_on_the_same_connection_uses_the_new_key() {
+        // The session keeps using the re-keyed connection after "change passphrase"; its backups must be encrypted
+        // with the new passphrase, or the user would find out only when restoring.
+        let (temp, dir, db) = profile();
+        accounts::create(&db, account("Account")).unwrap();
+        let new_passphrase = passphrase("another very long passphrase");
+        db.change_passphrase(&new_passphrase).unwrap();
+
+        let service = BackupService::new(dir);
+        let backup = temp.path().join("after-change.zip");
+        service.create_backup(&db, &backup).unwrap();
+
+        let extracted = temp.path().join("after-change.db");
+        fs::write(&extracted, zip_entry(&backup, DB_NAME)).unwrap();
+        drop(Database::open(&extracted, &new_passphrase).unwrap());
+        assert!(matches!(
+            Database::open(&extracted, &passphrase(PASS)),
+            Err(DbError::WrongPassphraseOrDamaged)
+        ));
+
+        service.stage_restore(&db, &backup, None).unwrap();
+        assert!(service.has_pending_restore());
+    }
+
+    #[test]
     fn a_backup_made_before_a_passphrase_change_asks_for_the_old_one() {
         let (temp, dir, db) = profile();
         accounts::create(&db, account("Account")).unwrap();
