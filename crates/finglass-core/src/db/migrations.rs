@@ -149,6 +149,12 @@ CREATE TABLE ocr_texts (
     confidence  REAL
 ) STRICT;",
     },
+    Migration {
+        version: 3,
+        name: "offline_bank_connections",
+        sql: "ALTER TABLE bank_connections
+    ADD COLUMN offline INTEGER NOT NULL DEFAULT 0 CHECK (offline IN (0, 1));",
+    },
 ];
 
 /// Applies every migration newer than the database's `user_version`.
@@ -218,15 +224,16 @@ mod tests {
     };
 
     #[test]
-    fn fresh_database_ends_at_version_2() {
+    fn fresh_database_ends_at_version_3() {
         let mut conn = Connection::open_in_memory().unwrap();
         migrate(&mut conn, MIGRATIONS).unwrap();
 
-        assert_eq!(version(&conn), 2);
+        assert_eq!(version(&conn), 3);
         assert!(table_exists(&conn, "settings"));
         assert!(table_exists(&conn, "audit_log"));
         assert!(table_exists(&conn, "accounts"));
         assert!(table_exists(&conn, "transactions"));
+        assert!(table_exists(&conn, "bank_connections"));
     }
 
     #[test]
@@ -234,7 +241,7 @@ mod tests {
         let mut conn = Connection::open_in_memory().unwrap();
         migrate(&mut conn, MIGRATIONS).unwrap();
         migrate(&mut conn, MIGRATIONS).unwrap();
-        assert_eq!(version(&conn), 2);
+        assert_eq!(version(&conn), 3);
     }
 
     #[test]
@@ -247,7 +254,7 @@ mod tests {
             err,
             DbError::TooNew {
                 found: 99,
-                supported: 2
+                supported: 3
             }
         ));
         assert_eq!(version(&conn), 99);
@@ -255,7 +262,7 @@ mod tests {
     }
 
     #[test]
-    fn a_version_1_database_migrates_to_version_2_on_open() {
+    fn a_version_1_database_migrates_to_version_3_on_open() {
         use crate::db::Database;
         use crate::secret::{Passphrase, PassphrasePurpose};
 
@@ -274,7 +281,7 @@ mod tests {
 
         let db = Database::open(&path, &pass).unwrap();
         db.with_conn(|conn| {
-            assert_eq!(version(conn), 2);
+            assert_eq!(version(conn), 3);
             assert!(table_exists(conn, "accounts"));
             Ok(())
         })

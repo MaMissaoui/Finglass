@@ -5,7 +5,10 @@
 
 pub mod account_groups;
 pub mod accounts;
+pub mod bank_connections;
 pub mod categories;
+pub mod documents;
+pub mod pending_bookings;
 pub mod rules;
 pub mod transactions;
 
