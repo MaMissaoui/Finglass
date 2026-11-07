@@ -4,13 +4,14 @@
 //! here, so the rest of the shell never has to know whether a restore was pending. The profile's folder is created
 //! before the restore is applied, because that folder is where the restore puts its `pre-restore-<timestamp>` data.
 
+use std::fs;
 use std::io;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use thiserror::Error;
 use time::OffsetDateTime;
 
-use crate::backup::{BackupError, BackupService};
+use crate::backup::{BackupError, BackupService, PENDING_DIR, PRE_RESTORE_PREFIX};
 use crate::i18n::{self, Key, Language};
 use crate::paths::AppPaths;
 use crate::profiles::{self, ProfileError};
@@ -31,6 +32,144 @@ pub struct Startup {
     pub slug: Option<String>,
     /// The `pre-restore-<timestamp>` folder holding the data the restore replaced.
     pub restored_from: Option<PathBuf>,
+}
+
+/// Why a folder with unencrypted documents is still on disk.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LeftoverKind {
+    /// The data a restore replaced.
+    PreRestore,
+    /// The data folder of a deleted profile.
+    DeletedProfile,
+    /// A staged restore waiting for the next start.
+    PendingRestore,
+}
+
+/// A folder that still holds unencrypted documents.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Leftover {
+    /// Where the folder came from.
+    pub kind: LeftoverKind,
+    /// The folder relative to the data root, with `/` separators, for display.
+    pub path: String,
+}
+
+/// The folders under `paths` that still hold unencrypted documents, sorted by path.
+///
+/// Finglass never writes a plaintext database, but the folders it moves aside keep a `documents/` folder of
+/// unencrypted files. Only a folder with at least one regular file under `documents/` is listed. Symlinks are never
+/// followed and no file contents are read.
+#[must_use]
+pub fn leftovers(paths: &AppPaths) -> Vec<Leftover> {
+    let root = paths.root();
+    let mut found = Vec::new();
+
+    // The default profile is the data root itself.
+    scan_profile_dir(root, root, &mut found);
+
+    let profiles_root = root.join(profiles::PROFILES_DIR);
+    if is_real_dir(&profiles_root) {
+        for dir in subdirectories(&profiles_root) {
+            scan_profile_dir(&dir, root, &mut found);
+        }
+    }
+
+    let deleted_root = root.join(profiles::DELETED_DIR);
+    if is_real_dir(&deleted_root) {
+        for dir in subdirectories(&deleted_root) {
+            if has_documents(&dir) {
+                found.push(Leftover {
+                    kind: LeftoverKind::DeletedProfile,
+                    path: relative_path(root, &dir),
+                });
+            }
+        }
+    }
+
+    found.sort_by(|left, right| left.path.cmp(&right.path));
+    found
+}
+
+fn scan_profile_dir(dir: &Path, root: &Path, found: &mut Vec<Leftover>) {
+    let pending = dir.join(PENDING_DIR);
+    if has_documents(&pending) {
+        found.push(Leftover {
+            kind: LeftoverKind::PendingRestore,
+            path: relative_path(root, &pending),
+        });
+    }
+
+    for folder in subdirectories(dir) {
+        let starts_with_prefix = folder
+            .file_name()
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| name.starts_with(PRE_RESTORE_PREFIX));
+        if starts_with_prefix && has_documents(&folder) {
+            found.push(Leftover {
+                kind: LeftoverKind::PreRestore,
+                path: relative_path(root, &folder),
+            });
+        }
+    }
+}
+
+/// The real subdirectories of `dir`, without following symlinks.
+fn subdirectories(dir: &Path) -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
+    let Ok(entries) = fs::read_dir(dir) else {
+        return dirs;
+    };
+
+    for entry in entries.flatten() {
+        if entry.file_type().is_ok_and(|file_type| file_type.is_dir()) {
+            dirs.push(entry.path());
+        }
+    }
+
+    dirs
+}
+
+/// Whether `path` is a directory itself, not a symlink to one.
+fn is_real_dir(path: &Path) -> bool {
+    fs::symlink_metadata(path).is_ok_and(|metadata| metadata.file_type().is_dir())
+}
+
+/// Whether `dir/documents` holds at least one regular file, directly or in a real subfolder.
+fn has_documents(dir: &Path) -> bool {
+    has_regular_file(&dir.join("documents"))
+}
+
+fn has_regular_file(dir: &Path) -> bool {
+    if !is_real_dir(dir) {
+        return false;
+    }
+    let Ok(entries) = fs::read_dir(dir) else {
+        return false;
+    };
+
+    for entry in entries.flatten() {
+        let Ok(file_type) = entry.file_type() else {
+            continue;
+        };
+        if file_type.is_file() {
+            return true;
+        }
+        if file_type.is_dir() && has_regular_file(&entry.path()) {
+            return true;
+        }
+    }
+
+    false
+}
+
+/// `path` relative to `root` with `/` separators, for display.
+fn relative_path(root: &Path, path: &Path) -> String {
+    path.strip_prefix(root)
+        .unwrap_or(path)
+        .components()
+        .map(|component| component.as_os_str().to_string_lossy())
+        .collect::<Vec<_>>()
+        .join("/")
 }
 
 /// Everything that can go wrong while preparing the startup profile.
@@ -174,6 +313,137 @@ mod tests {
             })
             .map(|entry| entry.path())
             .collect()
+    }
+
+    fn folder_with_document(dir: &Path) {
+        let documents = dir.join("documents");
+        fs::create_dir_all(&documents).unwrap();
+        fs::write(documents.join("receipt.pdf"), b"unencrypted").unwrap();
+    }
+
+    #[test]
+    fn a_fresh_root_has_no_leftovers() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+
+        assert!(leftovers(&paths).is_empty());
+    }
+
+    #[test]
+    fn pre_restore_folders_with_documents_in_the_root_and_a_profile_are_listed() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+        folder_with_document(&temp.path().join("pre-restore-20260101-000000"));
+
+        let profile = profiles::create(&paths, "Business").unwrap();
+        let slug = profile.slug.clone().unwrap();
+        folder_with_document(&profile.dir.join("pre-restore-20260102-000000"));
+
+        assert_eq!(
+            leftovers(&paths),
+            vec![
+                Leftover {
+                    kind: LeftoverKind::PreRestore,
+                    path: "pre-restore-20260101-000000".to_owned(),
+                },
+                Leftover {
+                    kind: LeftoverKind::PreRestore,
+                    path: format!("profiles/{slug}/pre-restore-20260102-000000"),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn a_deleted_profile_with_a_document_is_listed() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+        folder_with_document(&temp.path().join("profiles-deleted/business-20260101-000000"));
+
+        assert_eq!(
+            leftovers(&paths),
+            vec![Leftover {
+                kind: LeftoverKind::DeletedProfile,
+                path: "profiles-deleted/business-20260101-000000".to_owned(),
+            }]
+        );
+    }
+
+    #[test]
+    fn a_pending_restore_with_a_document_is_listed() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+        folder_with_document(&temp.path().join(PENDING_DIR));
+
+        assert_eq!(
+            leftovers(&paths),
+            vec![Leftover {
+                kind: LeftoverKind::PendingRestore,
+                path: PENDING_DIR.to_owned(),
+            }]
+        );
+    }
+
+    #[test]
+    fn a_pre_restore_folder_without_documents_is_not_listed() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+        let folder = temp.path().join("pre-restore-20260101-000000");
+        fs::create_dir_all(&folder).unwrap();
+        fs::write(folder.join(crate::backup::DB_NAME), b"encrypted").unwrap();
+        fs::create_dir_all(folder.join("documents")).unwrap();
+
+        assert!(leftovers(&paths).is_empty());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn symlinks_are_not_followed() {
+        use std::os::unix::fs::symlink;
+
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+        let outside = temp.path().join("outside");
+        folder_with_document(&outside);
+
+        symlink(&outside, temp.path().join("pre-restore-20260101-000000")).unwrap();
+
+        let folder = temp.path().join("pre-restore-20260102-000000");
+        fs::create_dir_all(folder.join("documents")).unwrap();
+        symlink(
+            outside.join("documents/receipt.pdf"),
+            folder.join("documents/receipt.pdf"),
+        )
+        .unwrap();
+
+        assert!(leftovers(&paths).is_empty());
+    }
+
+    #[test]
+    fn leftovers_are_sorted_by_path() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = paths(&temp);
+        folder_with_document(&temp.path().join(PENDING_DIR));
+        folder_with_document(&temp.path().join("profiles-deleted/business-20260101-000000"));
+        let profile = profiles::create(&paths, "Business").unwrap();
+        let slug = profile.slug.clone().unwrap();
+        folder_with_document(&profile.dir.join("pre-restore-20260101-000000"));
+        folder_with_document(&temp.path().join("pre-restore-20260101-000000"));
+
+        let listed = leftovers(&paths)
+            .into_iter()
+            .map(|leftover| leftover.path)
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            listed,
+            vec![
+                "pre-restore-20260101-000000".to_owned(),
+                "profiles-deleted/business-20260101-000000".to_owned(),
+                format!("profiles/{slug}/pre-restore-20260101-000000"),
+                PENDING_DIR.to_owned(),
+            ]
+        );
     }
 
     #[test]

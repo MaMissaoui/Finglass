@@ -319,6 +319,10 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PlaintextLeftoverDeletedProfile => "Profil supprimé",
         Key::PlaintextLeftoverPendingRestore => "Restauration en attente du prochain démarrage",
         Key::PlaintextLeftoverOtherProfile => "Autre profil",
+        Key::UnencryptedLeftoversTitle => "Des documents non chiffrés sont encore sur le disque",
+        Key::UnencryptedLeftoversText => {
+            "Finglass chiffre sa base de données, mais les documents de ces dossiers sont enregistrés en clair. Ils proviennent de restaurations ou de profils supprimés. Quiconque peut lire ce disque peut les lire sans votre phrase secrète. Supprimez un dossier vous-même lorsque vous n'en avez plus besoin."
+        }
         Key::EncryptionStatus => {
             "Base de données chiffrée (SQLCipher, AES-256). Finglass demande la phrase secrète à chaque démarrage ; vous pouvez la changer sur l'écran de déverrouillage."
         }

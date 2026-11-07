@@ -21,6 +21,7 @@ use finglass_core::i18n::{self, Key, Language};
 use finglass_core::instance::{InstanceError, InstanceLock};
 use finglass_core::model::{CategoryId, RuleId};
 use finglass_core::paths::AppPaths;
+use finglass_core::profiles;
 use finglass_core::sync::CredentialStore;
 use finglass_core::sync::system_credential_store;
 use finglass_core::{APP_NAME, VERSION};
@@ -100,7 +101,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     let (lock, startup) = match startup {
         Ok(startup) => startup,
         Err(refusal) => {
-            configure_startup_error(&unlock, initial_language, &refusal.message(initial_language));
+            configure_startup_error(&unlock, &paths, initial_language, &refusal.message(initial_language));
             return unlock.run();
         }
     };
@@ -193,14 +194,14 @@ fn prepare_startup(
     }
 }
 
-fn configure_startup_error(unlock: &UnlockWindow, language: Language, message: &str) {
+fn configure_startup_error(unlock: &UnlockWindow, paths: &AppPaths, language: Language, message: &str) {
     unlock.set_mode("unlock".into());
     unlock.set_allow_change(false);
     unlock.set_busy(false);
     unlock.set_restored(false);
     unlock.set_startup_error(true);
     unlock.set_error_text(message.into());
-    apply_language_unlock(unlock, language, None);
+    apply_language_unlock(unlock, paths, language, None);
     unlock.set_profile_label("".into());
 }
 
@@ -251,7 +252,8 @@ fn configure_unlock_window(
     unlock.set_restored(startup.restored_from.is_some());
     unlock.set_startup_error(false);
     unlock.set_error_text("".into());
-    apply_language_unlock(unlock, language, startup.slug.as_deref());
+    apply_language_unlock(unlock, paths, language, startup.slug.as_deref());
+    apply_leftovers(unlock, paths, language);
 }
 
 fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
@@ -1740,7 +1742,7 @@ fn spawn_open_work(
                     main.set_accounts_detail_open(false);
 
                     apply_language_main(&main, prefs.language);
-                    apply_language_unlock(&ui, prefs.language, slug.as_deref());
+                    apply_language_unlock(&ui, &paths, prefs.language, slug.as_deref());
                     apply_theme(&main, prefs.theme);
                     main.set_theme_pref(prefs.theme.code().into());
                     main.set_language(prefs.language.code().into());
@@ -1924,10 +1926,25 @@ fn translate(key: &SharedString, language: &SharedString) -> SharedString {
     }
 }
 
-fn apply_language_unlock(unlock: &UnlockWindow, language: Language, slug: Option<&str>) {
+fn apply_language_unlock(unlock: &UnlockWindow, paths: &AppPaths, language: Language, slug: Option<&str>) {
     unlock.global::<Tr>().set_language(language.code().into());
-    unlock.set_profile_label(profile_label(language, app::startup::slug_key(slug)).into());
+    unlock.set_profile_label(profile_label(language, paths, slug).into());
     unlock.set_passphrase_hint(passphrase_hint(language).into());
+}
+
+fn apply_leftovers(unlock: &UnlockWindow, paths: &AppPaths, language: Language) {
+    let lines: Vec<SharedString> = app::startup::leftovers(paths)
+        .into_iter()
+        .map(|leftover| {
+            let kind = match leftover.kind {
+                app::startup::LeftoverKind::PreRestore => Key::PlaintextLeftoverPreRestore,
+                app::startup::LeftoverKind::DeletedProfile => Key::PlaintextLeftoverDeletedProfile,
+                app::startup::LeftoverKind::PendingRestore => Key::PlaintextLeftoverPendingRestore,
+            };
+            format!("{} · {}", i18n::text(language, kind), leftover.path).into()
+        })
+        .collect();
+    unlock.set_leftover_lines(ModelRc::new(VecModel::from(lines)));
 }
 
 fn apply_language_main(main: &MainWindow, language: Language) {
@@ -1961,8 +1978,13 @@ impl HasThemeMode for MainWindow {
     }
 }
 
-fn profile_label(language: Language, slug: &str) -> String {
-    i18n::format(language, Key::UnlockProfile, &[slug.into()])
+fn profile_label(language: Language, paths: &AppPaths, slug: Option<&str>) -> String {
+    let name = profiles::list(paths)
+        .ok()
+        .and_then(|profiles| profiles.into_iter().find(|profile| profile.slug.as_deref() == slug))
+        .map(|profile| profile.name)
+        .unwrap_or_else(|| app::startup::slug_key(slug).to_owned());
+    i18n::format(language, Key::UnlockProfile, &[name.into()])
 }
 
 fn passphrase_hint(language: Language) -> String {
@@ -2241,6 +2263,20 @@ mod tests {
         assert_eq!(
             translate(&key, &SharedString::from("de")),
             SharedString::from(i18n::text(Language::De, Key::NavDashboard))
+        );
+    }
+
+    #[test]
+    fn the_unlock_label_shows_the_profile_name() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+
+        assert_eq!(profile_label(Language::En, &paths, None), "Profile: Personal");
+
+        let business = profiles::create(&paths, "Business").unwrap();
+        assert_eq!(
+            profile_label(Language::En, &paths, business.slug.as_deref()),
+            "Profile: Business"
         );
     }
 

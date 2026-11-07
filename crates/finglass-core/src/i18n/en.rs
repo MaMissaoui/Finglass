@@ -303,6 +303,10 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PlaintextLeftoverDeletedProfile => "Deleted profile",
         Key::PlaintextLeftoverPendingRestore => "Restore waiting for the next start",
         Key::PlaintextLeftoverOtherProfile => "Another profile",
+        Key::UnencryptedLeftoversTitle => "Unencrypted documents are still on disk",
+        Key::UnencryptedLeftoversText => {
+            "Finglass encrypts its database, but the documents in these folders are stored as plain files. They were left behind by restores or deleted profiles. Anyone who can read this disk can read them without your passphrase. Delete a folder yourself once you no longer need it."
+        }
         Key::EncryptionStatus => {
             "Database encrypted (SQLCipher, AES-256). Finglass asks for the passphrase at every start; you can change it on the unlock screen."
         }

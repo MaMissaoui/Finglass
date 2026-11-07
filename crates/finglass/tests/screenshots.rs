@@ -129,6 +129,27 @@ fn renders_the_app_shell() {
 
     {
         let ui = UnlockWindow::new().unwrap();
+        configure_unlock(&ui, Language::En, ThemePref::Light, "unlock", "");
+        ui.set_leftover_lines(ModelRc::new(VecModel::from(vec![
+            SharedString::from(format!(
+                "{} · pre-restore-20261015-123456",
+                i18n::text(Language::En, Key::PlaintextLeftoverPreRestore)
+            )),
+            SharedString::from(format!(
+                "{} · profiles-deleted/business-20261015-123456",
+                i18n::text(Language::En, Key::PlaintextLeftoverDeletedProfile)
+            )),
+        ])));
+        ui.show().unwrap();
+        let buffer = render(&window, "unlock-leftovers-en", 560, 800);
+        assert_eq!(buffer.width(), 560);
+        assert_eq!(buffer.height(), 800);
+        assert_varied(&buffer, "unlock-leftovers-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = UnlockWindow::new().unwrap();
         configure_unlock(
             &ui,
             Language::En,
@@ -721,7 +742,7 @@ fn renders_the_app_shell() {
             app::switch::begin_switch(&db, &paths, None, Some(&business_slug), OffsetDateTime::now_utc()).unwrap();
         let ui = UnlockWindow::new().unwrap();
         configure_unlock(&ui, Language::En, ThemePref::Light, "unlock", "");
-        ui.set_profile_label(i18n::format(Language::En, Key::UnlockProfile, &[business_slug.clone().into()]).into());
+        ui.set_profile_label(i18n::format(Language::En, Key::UnlockProfile, &["Business".into()]).into());
         ui.set_restored(startup.restored_from.is_some());
         ui.set_passphrase("".into());
         assert_eq!(ui.get_passphrase(), "");
@@ -2990,7 +3011,14 @@ fn configure_unlock(ui: &UnlockWindow, language: Language, theme: ThemePref, mod
     ui.set_allow_change(mode == "unlock");
     ui.set_busy(false);
     ui.set_error_text(error.into());
-    ui.set_profile_label(i18n::format(language, Key::UnlockProfile, &[SLUG.into()]).into());
+    ui.set_profile_label(
+        i18n::format(
+            language,
+            Key::UnlockProfile,
+            &[finglass_core::profiles::DEFAULT_NAME.into()],
+        )
+        .into(),
+    );
     ui.set_passphrase_hint(i18n::format(language, Key::PassphraseHint, &[10i64.into()]).into());
 }
 
