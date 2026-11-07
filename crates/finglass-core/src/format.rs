@@ -23,25 +23,57 @@ fn separators(lang: Language) -> (char, char) {
 }
 
 /// The currency symbol as [`money`] shows it, including the trailing space of an unknown code.
-fn symbol_for(currency: Currency) -> String {
+///
+/// FinDesk uses `Currency.getInstance(code).getSymbol(Locale.US)`: a code Java knows shows its US symbol, which is
+/// the code itself for most currencies ("CHF1,234.50"); only a code Java doesn't know gets "CODE " with a space.
+/// The tables below are Java 21's (`Currency.getAvailableCurrencies()`), generated once from the JDK.
+pub(crate) fn symbol_for(currency: Currency) -> String {
     match currency.as_str() {
-        "EUR" => "€".to_owned(),
-        "USD" => "$".to_owned(),
-        "GBP" => "£".to_owned(),
-        "JPY" => "¥".to_owned(),
         "AUD" => "A$".to_owned(),
-        "CAD" => "CA$".to_owned(),
-        "NZD" => "NZ$".to_owned(),
-        "CNY" => "CN¥".to_owned(),
-        "HKD" => "HK$".to_owned(),
-        "INR" => "₹".to_owned(),
         "BRL" => "R$".to_owned(),
-        "MXN" => "MX$".to_owned(),
-        "KRW" => "₩".to_owned(),
+        "CAD" => "CA$".to_owned(),
+        "CNY" => "CN¥".to_owned(),
+        "EUR" => "€".to_owned(),
+        "GBP" => "£".to_owned(),
+        "HKD" => "HK$".to_owned(),
         "ILS" => "₪".to_owned(),
+        "INR" => "₹".to_owned(),
+        "JPY" => "¥".to_owned(),
+        "KRW" => "₩".to_owned(),
+        "MXN" => "MX$".to_owned(),
+        "NZD" => "NZ$".to_owned(),
+        "PHP" => "₱".to_owned(),
+        "TWD" => "NT$".to_owned(),
+        "USD" => "$".to_owned(),
+        "VND" => "₫".to_owned(),
+        "XAF" => "FCFA".to_owned(),
+        "XCD" => "EC$".to_owned(),
+        "XOF" => "F CFA".to_owned(),
+        "XPF" => "CFPF".to_owned(),
+        "XXX" => "¤".to_owned(),
+        code if JAVA_CURRENCY_CODES.binary_search(&code).is_ok() => code.to_owned(),
         other => format!("{other} "),
     }
 }
+
+/// Every ISO 4217 code Java 21 knows, sorted (for the binary search in [`symbol_for`]).
+const JAVA_CURRENCY_CODES: &[&str] = &[
+    "ADP", "AED", "AFA", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "ATS", "AUD", "AWG", "AYM", "AZM", "AZN", "BAM",
+    "BBD", "BDT", "BEF", "BGL", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BOV", "BRL", "BSD", "BTN", "BWP", "BYB",
+    "BYN", "BYR", "BZD", "CAD", "CDF", "CHE", "CHF", "CHW", "CLF", "CLP", "CNY", "COP", "COU", "CRC", "CSD", "CUC",
+    "CUP", "CVE", "CYP", "CZK", "DEM", "DJF", "DKK", "DOP", "DZD", "EEK", "EGP", "ERN", "ESP", "ETB", "EUR", "FIM",
+    "FJD", "FKP", "FRF", "GBP", "GEL", "GHC", "GHS", "GIP", "GMD", "GNF", "GRD", "GTQ", "GWP", "GYD", "HKD", "HNL",
+    "HRK", "HTG", "HUF", "IDR", "IEP", "ILS", "INR", "IQD", "IRR", "ISK", "ITL", "JMD", "JOD", "JPY", "KES", "KGS",
+    "KHR", "KMF", "KPW", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LTL", "LUF", "LVL", "LYD",
+    "MAD", "MDL", "MGA", "MGF", "MKD", "MMK", "MNT", "MOP", "MRO", "MRU", "MTL", "MUR", "MVR", "MWK", "MXN", "MXV",
+    "MYR", "MZM", "MZN", "NAD", "NGN", "NIO", "NLG", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR",
+    "PLN", "PTE", "PYG", "QAR", "ROL", "RON", "RSD", "RUB", "RUR", "RWF", "SAR", "SBD", "SCR", "SDD", "SDG", "SEK",
+    "SGD", "SHP", "SIT", "SKK", "SLE", "SLL", "SOS", "SRD", "SRG", "SSP", "STD", "STN", "SVC", "SYP", "SZL", "THB",
+    "TJS", "TMM", "TMT", "TND", "TOP", "TPE", "TRL", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "USD", "USN", "USS",
+    "UYI", "UYU", "UZS", "VEB", "VED", "VEF", "VES", "VND", "VUV", "WST", "XAD", "XAF", "XAG", "XAU", "XBA", "XBB",
+    "XBC", "XBD", "XCD", "XCG", "XDR", "XFO", "XFU", "XOF", "XPD", "XPF", "XPT", "XSU", "XTS", "XUA", "XXX", "YER",
+    "YUM", "ZAR", "ZMK", "ZMW", "ZWD", "ZWG", "ZWL", "ZWN", "ZWR",
+];
 
 /// The currency's symbol as [`money`] shows it, without the trailing space of an unknown code.
 pub fn currency_symbol(currency: Currency) -> String {
@@ -319,7 +351,32 @@ mod tests {
                 Language::En,
                 false
             ),
-            "KWD 12.345"
+            "KWD12.345",
+            "Java knows KWD, so it shows the bare code without a space"
+        );
+        let unknown = Currency::new("QQQ").unwrap();
+        assert_eq!(
+            money(
+                Money {
+                    minor: 100,
+                    currency: unknown
+                },
+                Language::En,
+                false
+            ),
+            "QQQ 1.00"
+        );
+        let chf = Currency::new("CHF").unwrap();
+        assert_eq!(
+            money(
+                Money {
+                    minor: 123_450,
+                    currency: chf
+                },
+                Language::En,
+                false
+            ),
+            "CHF1,234.50"
         );
     }
 

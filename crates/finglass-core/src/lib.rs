@@ -25,6 +25,7 @@ pub mod profiles;
 pub mod receipt;
 pub mod recurring;
 pub mod repo;
+pub mod report;
 pub mod rules;
 pub mod secret;
 pub mod settings;
