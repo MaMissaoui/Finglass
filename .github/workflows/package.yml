@@ -1,0 +1,105 @@
+name: Package
+
+# The macOS app and DMG are built on every push to main, on packaging-relevant pull requests and
+# on demand. Windows and Linux come later; the script keeps everything macOS-specific here.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "crates/finglass/Cargo.toml"
+      - "scripts/**"
+      - "assets/icons/**"
+      - ".github/workflows/package.yml"
+
+concurrency:
+  group: package-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  package:
+    name: Package (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master, 2026-10-16
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Install cargo-packager
+        run: cargo install cargo-packager --version 0.11.8 --locked
+      - name: Build app and DMG
+        run: ./scripts/package-macos.sh
+      - name: Launch the packaged app once
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version=$(cargo metadata --no-deps --format-version 1 |
+            python3 -c 'import json, sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "finglass"))')
+          expected="Finglass $version"
+          actual=$(target/packager/Finglass.app/Contents/MacOS/finglass --version)
+          echo "Executable reports: $actual"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::expected '$expected' from --version, got '$actual'"
+            exit 1
+          fi
+
+          dmg=$(find target/packager -maxdepth 1 -type f -name 'Finglass_*.dmg' -print -quit)
+          if [ -z "$dmg" ]; then
+            echo "::error::no Finglass DMG found in target/packager"
+            exit 1
+          fi
+
+          attach=$(hdiutil attach -nobrowse -readonly "$dmg")
+          mount_point=$(printf '%s\n' "$attach" | tail -n 1 | awk -F '\t' '{print $NF}')
+          trap 'hdiutil detach "$mount_point" >/dev/null 2>&1 || true' EXIT
+          echo "Mounted $dmg at $mount_point"
+
+          copy_dir=$(mktemp -d)
+          ditto "$mount_point/Finglass.app" "$copy_dir/Finglass.app"
+
+          home=$(mktemp -d)
+          log="$RUNNER_TEMP/finglass-launch.log"
+          FINGLASS_HOME="$home" "$copy_dir/Finglass.app/Contents/MacOS/finglass" >"$log" 2>&1 &
+          pid=$!
+
+          sleep 10
+          if ! kill -0 "$pid" 2>/dev/null; then
+            echo "::error::the app exited within 10 seconds"
+            cat "$log" 2>/dev/null || true
+            wait "$pid" || true
+            exit 1
+          fi
+          echo "The app is still running after 10 seconds; stopping it."
+          kill "$pid"
+          wait "$pid" || true
+
+          if [ ! -d "$home" ]; then
+            echo "::error::FINGLASS_HOME was not created"
+            exit 1
+          fi
+          # Until the user creates or unlocks a profile, the unlock window only reads this folder.
+          if [ -n "$(ls -A "$home")" ]; then
+            echo "::error::unexpected files in FINGLASS_HOME:"
+            ls -la "$home"
+            exit 1
+          fi
+          echo "Launch check passed; FINGLASS_HOME stayed empty."
+
+          hdiutil detach "$mount_point"
+          trap - EXIT
+      - name: Upload DMG
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: finglass-macos-dmg
+          path: target/packager/*.dmg
+          if-no-files-found: error
+          retention-days: 14
