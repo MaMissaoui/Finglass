@@ -6,18 +6,23 @@ import {
     AccountGroupChoice,
     AccountPanelRow,
     AccountTone,
+    ImportCsvField,
+    ImportFileRow,
     PrimaryButton,
+    ReapplyGroupRow,
     SearchField,
     TextButton,
     TransactionRow,
 } from "components.slint";
 import { AccountPanel } from "account_panel.slint";
-import { ConfirmDialog } from "settings_dialogs.slint";
+import { ConfirmDialog, RuleDialog } from "settings_dialogs.slint";
 import {
     AddTransactionDialog,
     AmountFilterDialog,
     CustomRangeDialog,
+    ImportDialog,
     MultiDeleteDialog,
+    ReapplyRulesDialog,
     TransactionDetailDialog,
 } from "transactions_dialogs.slint";
 
@@ -176,6 +181,36 @@ component ActionPicker inherits Rectangle {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+// One entry of the page's More menu.
+component MoreMenuEntry inherits Rectangle {
+    in property <string> text;
+    in property <bool> enabled: true;
+
+    callback picked;
+
+    height: 36px;
+    background: touch.has-hover && root.enabled ? Theme.background : transparent;
+
+    Text {
+        x: 12px;
+        width: parent.width - 24px;
+        text: root.text;
+        color: root.enabled ? Theme.text : Theme.muted-text;
+        font-size: 13px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            if (root.enabled) {
+                root.picked();
             }
         }
     }
@@ -663,6 +698,7 @@ export component TransactionsPage inherits Rectangle {
 
     in property <string> pending-header;
     in property <[TransactionRow]> rows;
+    in property <bool> has-transactions;
     in property <bool> has-balance-column;
 
     in property <bool> has-chart;
@@ -699,6 +735,37 @@ export component TransactionsPage inherits Rectangle {
     in property <string> detail-mismatch;
     in property <bool> detail-has-mismatch;
     in property <string> detail-partner-link;
+    in property <bool> detail-can-create-rule;
+
+    in property <bool> import-open;
+    in property <string> import-title;
+    in property <string> import-summary;
+    in property <[ImportFileRow]> import-files;
+    in property <[ImportCsvField]> import-csv-fields;
+    in property <string> import-csv-hint;
+    in property <[string]> import-account-options;
+    in-out property <int> import-account-index;
+    in property <bool> import-balance-allowed;
+    in-out property <bool> import-update-balance;
+    in property <string> import-balance-text;
+    in property <string> import-newer-text;
+    in property <bool> importing;
+    in property <string> import-confirm-text;
+    in property <bool> import-confirm-enabled;
+
+    in property <bool> reapply-open;
+    in property <string> reapply-summary;
+    in property <string> reapply-warning;
+    in property <[ReapplyGroupRow]> reapply-groups;
+    in property <string> reapply-confirm-text;
+    in property <bool> reapply-confirm-enabled;
+    in property <bool> can-undo-reapply;
+
+    in property <bool> rule-open;
+    in-out property <string> rule-pattern;
+    in property <[string]> rule-categories;
+    in-out property <int> rule-category-index;
+    in property <string> rule-error;
 
     in property <bool> add-open;
     in property <[string]> add-account-options;
@@ -777,7 +844,25 @@ export component TransactionsPage inherits Rectangle {
     callback detail-category(int);
     callback detail-tax(int);
     callback detail-show-partner(string);
+    callback detail-attach-receipt;
+    callback detail-create-rule;
     callback dismiss-message;
+
+    callback open-import;
+    callback import-account-changed(int);
+    callback import-csv-changed(string, string);
+    callback confirm-import(bool);
+    callback cancel-import;
+    callback reapply-rules;
+    callback toggle-reapply-group(int, int);
+    callback confirm-reapply-rules;
+    callback cancel-reapply-rules;
+    callback undo-reapply-rules;
+    callback export-csv;
+    callback rule-save;
+    callback rule-close;
+
+    in-out property <bool> more-menu-open: false;
 
     callback panel-select(string, string, int, string);
     callback panel-toggle(string, string, int, string);
@@ -788,8 +873,6 @@ export component TransactionsPage inherits Rectangle {
     callback panel-move-group(int, bool);
     callback panel-move-account(int, int);
     callback panel-filter-changed(string);
-
-    property <bool> more-open: false;
 
     background: Theme.background;
 
@@ -855,15 +938,7 @@ export component TransactionsPage inherits Rectangle {
 
                 TextButton {
                     text: Tr.t("More");
-                    clicked => { root.more-open = !root.more-open; }
-                }
-
-                if (root.more-open) : TextButton {
-                    text: Tr.t("AutoCategorize");
-                    clicked => {
-                        root.more-open = false;
-                        root.auto-categorize();
-                    }
+                    clicked => { root.more-menu-open = !root.more-menu-open; }
                 }
 
                 if (root.has-accounts) : PrimaryButton {
@@ -892,6 +967,11 @@ export component TransactionsPage inherits Rectangle {
                         font-size: 13px;
                         vertical-alignment: center;
                         wrap: word-wrap;
+                    }
+
+                    if (root.error-text == "" && root.can-undo-reapply) : TextButton {
+                        text: Tr.t("UndoReapplyRules");
+                        clicked => { root.undo-reapply-rules(); }
                     }
 
                     TextButton {
@@ -1196,11 +1276,14 @@ export component TransactionsPage inherits Rectangle {
         mismatch-text: root.detail-mismatch;
         has-partner: root.detail-partner != "";
         partner-link-text: root.detail-partner-link;
+        can-create-rule: root.detail-can-create-rule;
 
         close => { root.detail-close(); }
         category-selected(index) => { root.detail-category(index); }
         tax-selected(index) => { root.detail-tax(index); }
         show-partner => { root.detail-show-partner(root.detail-partner); }
+        attach-receipt => { root.detail-attach-receipt(); }
+        create-rule => { root.detail-create-rule(); }
     }
 
     if (root.add-open) : AddTransactionDialog {
@@ -1265,5 +1348,120 @@ export component TransactionsPage inherits Rectangle {
         close => { root.close-amount(); }
         apply(minimum, maximum) => { root.apply-amount(minimum, maximum); }
         reset => { root.reset-amount(); }
+    }
+
+    if (root.import-open) : ImportDialog {
+        title: root.import-title;
+        summary-text: root.import-summary;
+        file-rows: root.import-files;
+        csv-fields: root.import-csv-fields;
+        csv-hint: root.import-csv-hint;
+        account-options: root.import-account-options;
+        account-index <=> root.import-account-index;
+        balance-allowed: root.import-balance-allowed;
+        update-balance <=> root.import-update-balance;
+        balance-text: root.import-balance-text;
+        newer-text: root.import-newer-text;
+        importing: root.importing;
+        confirm-text: root.import-confirm-text;
+        confirm-enabled: root.import-confirm-enabled;
+
+        close => { root.cancel-import(); }
+        confirm(update-balance) => { root.confirm-import(update-balance); }
+        account-selected(index) => { root.import-account-changed(index); }
+        csv-changed(field, index) => { root.import-csv-changed(field, index); }
+    }
+
+    if (root.reapply-open) : ReapplyRulesDialog {
+        summary-text: root.reapply-summary;
+        warning-text: root.reapply-warning;
+        groups: root.reapply-groups;
+        confirm-text: root.reapply-confirm-text;
+        confirm-enabled: root.reapply-confirm-enabled;
+
+        cancel => { root.cancel-reapply-rules(); }
+        confirm => { root.confirm-reapply-rules(); }
+        toggle(from-id, to-id) => { root.toggle-reapply-group(from-id, to-id); }
+    }
+
+    if (root.rule-open) : RuleDialog {
+        title: Tr.t("AddRule");
+        pattern <=> root.rule-pattern;
+        categories: root.rule-categories;
+        category-index <=> root.rule-category-index;
+        pattern-and-category-only: true;
+        error-text: root.rule-error;
+
+        close => { root.rule-close(); }
+        save => { root.rule-save(); }
+    }
+
+    if (root.more-menu-open) : Rectangle {
+        width: 100%;
+        height: 100%;
+
+        TouchArea {
+            clicked => { root.more-menu-open = false; }
+        }
+
+        Rectangle {
+            x: parent.width - 288px;
+            y: 52px;
+            width: 260px;
+            height: (root.can-undo-reapply ? 5 : 4) * 36px + 8px;
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            clip: true;
+
+            VerticalLayout {
+                padding: 4px;
+                spacing: 0px;
+
+                MoreMenuEntry {
+                    text: Tr.t("Import");
+                    enabled: root.has-accounts;
+                    picked => {
+                        root.more-menu-open = false;
+                        root.open-import();
+                    }
+                }
+
+                MoreMenuEntry {
+                    text: Tr.t("AutoCategorize");
+                    picked => {
+                        root.more-menu-open = false;
+                        root.auto-categorize();
+                    }
+                }
+
+                MoreMenuEntry {
+                    text: Tr.t("ReapplyRules");
+                    enabled: root.has-transactions;
+                    picked => {
+                        root.more-menu-open = false;
+                        root.reapply-rules();
+                    }
+                }
+
+                if (root.can-undo-reapply) : MoreMenuEntry {
+                    text: Tr.t("UndoReapplyRules");
+                    picked => {
+                        root.more-menu-open = false;
+                        root.undo-reapply-rules();
+                    }
+                }
+
+                MoreMenuEntry {
+                    text: Tr.t("ExportCsv");
+                    enabled: root.has-transactions;
+                    picked => {
+                        root.more-menu-open = false;
+                        root.export-csv();
+                    }
+                }
+            }
+        }
     }
 }

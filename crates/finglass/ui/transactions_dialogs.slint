@@ -1,7 +1,14 @@
-import { ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
+import { CheckBox, ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
 import { Theme } from "theme.slint";
 import { Tr } from "translations.slint";
-import { ChoiceChip, PrimaryButton, TextButton } from "components.slint";
+import {
+    ChoiceChip,
+    ImportCsvField,
+    ImportFileRow,
+    PrimaryButton,
+    ReapplyGroupRow,
+    TextButton,
+} from "components.slint";
 
 // A label-and-value line of the transaction detail dialog.
 component DetailRow inherits HorizontalLayout {
@@ -75,11 +82,14 @@ export component TransactionDetailDialog inherits Rectangle {
     in property <string> mismatch-text;
     in property <bool> has-partner;
     in property <string> partner-link-text;
+    in property <bool> can-create-rule;
 
     callback close;
     callback category-selected(int);
     callback tax-selected(int);
     callback show-partner;
+    callback attach-receipt;
+    callback create-rule;
 
     width: 100%;
     height: 100%;
@@ -229,7 +239,18 @@ export component TransactionDetailDialog inherits Rectangle {
                 }
 
                 HorizontalLayout {
+                    spacing: 12px;
                     alignment: end;
+
+                    TextButton {
+                        text: Tr.t("AttachReceiptEllipsis");
+                        clicked => { root.attach-receipt(); }
+                    }
+
+                    if (root.can-create-rule) : TextButton {
+                        text: Tr.t("CreateRule");
+                        clicked => { root.create-rule(); }
+                    }
 
                     TextButton {
                         text: Tr.t("Close");
@@ -507,6 +528,313 @@ export component MultiDeleteDialog inherits Rectangle {
                     TextButton {
                         text: Tr.t("Cancel");
                         clicked => { root.cancel(); }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The statement import preview: the selected files, the account, the CSV columns and the balance
+// option, plus the files that could not be read.
+export component ImportDialog inherits Rectangle {
+    in property <string> title;
+    in property <string> summary-text;
+    in property <[ImportFileRow]> file-rows;
+    in property <[ImportCsvField]> csv-fields;
+    in property <string> csv-hint;
+    in property <[string]> account-options;
+    in-out property <int> account-index;
+    in property <bool> balance-allowed;
+    in-out property <bool> update-balance;
+    in property <string> balance-text;
+    in property <string> newer-text;
+    in property <bool> importing;
+    in property <string> confirm-text;
+    in property <bool> confirm-enabled;
+
+    callback close;
+    callback confirm(bool);
+    callback account-selected(int);
+    callback csv-changed(string, string);
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 720px;
+        height: min(content.preferred-height, parent.height - 48px);
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        ScrollView {
+            content := VerticalLayout {
+                padding: 24px;
+                spacing: 10px;
+                alignment: start;
+
+                Text {
+                    text: root.title;
+                    color: Theme.text;
+                    font-size: 20px;
+                    font-weight: 700;
+                    wrap: word-wrap;
+                }
+
+                if (root.summary-text != "") : Text {
+                    text: root.summary-text;
+                    color: Theme.text;
+                    font-size: 13px;
+                }
+
+                for file in root.file-rows : Rectangle {
+                    height: 30px;
+                    background: transparent;
+
+                    HorizontalLayout {
+                        spacing: 10px;
+
+                        Text {
+                            horizontal-stretch: 2;
+                            text: file.name;
+                            color: file.failure ? Theme.error : Theme.text;
+                            font-size: 12px;
+                            vertical-alignment: center;
+                            overflow: elide;
+                        }
+
+                        Text {
+                            width: 90px;
+                            text: file.count-text;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                        }
+
+                        Text {
+                            width: 150px;
+                            text: file.period-text;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                            overflow: elide;
+                        }
+
+                        Text {
+                            horizontal-stretch: 1;
+                            text: file.warning-text;
+                            color: Theme.error;
+                            font-size: 12px;
+                            vertical-alignment: center;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    Text {
+                        text: Tr.t("IntoAccount");
+                        color: Theme.text;
+                        font-size: 13px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                    }
+
+                    ComboBox {
+                        width: 320px;
+                        model: root.account-options;
+                        current-index <=> root.account-index;
+                        selected(value) => { root.account-selected(root.account-index); }
+                    }
+                }
+
+                if (root.csv-fields.length > 0) : VerticalLayout {
+                    spacing: 6px;
+                    alignment: start;
+
+                    Text {
+                        text: Tr.t("Columns");
+                        color: Theme.text;
+                        font-size: 14px;
+                        font-weight: 600;
+                    }
+
+                    if (root.csv-hint != "") : Text {
+                        text: root.csv-hint;
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+
+                    GridLayout {
+                        spacing: 8px;
+                        padding-top: 2px;
+
+                        for field[index] in root.csv-fields : VerticalLayout {
+                            row: Math.floor(index / 2);
+                            col: Math.mod(index, 2);
+                            spacing: 2px;
+
+                            Text {
+                                text: field.label;
+                                color: Theme.text;
+                                font-size: 12px;
+                                font-weight: 600;
+                            }
+
+                            ComboBox {
+                                width: 310px;
+                                model: field.options;
+                                current-index: field.index;
+                                selected(value) => { root.csv-changed(field.field, value); }
+                            }
+                        }
+                    }
+                }
+
+                if (root.balance-allowed) : CheckBox {
+                    checked <=> root.update-balance;
+                    text: root.balance-text;
+                }
+
+                if (root.newer-text != "") : Text {
+                    text: root.newer-text;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                Text {
+                    text: Tr.t("BookingsSkippedHint");
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: end;
+
+                    TextButton {
+                        text: Tr.t("Cancel");
+                        enabled: !root.importing;
+                        clicked => { root.close(); }
+                    }
+
+                    PrimaryButton {
+                        text: root.confirm-text;
+                        enabled: root.confirm-enabled && !root.importing;
+                        clicked => { root.confirm(root.update-balance); }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The re-apply rules preview: one checkbox per category change, all ticked by default.
+export component ReapplyRulesDialog inherits Rectangle {
+    in property <string> summary-text;
+    in property <string> warning-text;
+    in property <[ReapplyGroupRow]> groups;
+    in property <string> confirm-text;
+    in property <bool> confirm-enabled;
+
+    callback cancel;
+    callback confirm;
+    callback toggle(int, int);
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    Rectangle {
+        width: 560px;
+        height: min(content.preferred-height, parent.height - 48px);
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Theme.surface;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+
+        ScrollView {
+            content := VerticalLayout {
+                padding: 24px;
+                spacing: 10px;
+                alignment: start;
+
+                Text {
+                    text: Tr.t("ReapplyRulesTitle");
+                    color: Theme.text;
+                    font-size: 20px;
+                    font-weight: 700;
+                }
+
+                Text {
+                    text: root.summary-text;
+                    color: Theme.text;
+                    font-size: 13px;
+                    wrap: word-wrap;
+                }
+
+                Text {
+                    text: root.warning-text;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                for group in root.groups : HorizontalLayout {
+                    spacing: 10px;
+                    padding-top: 4px;
+                    padding-bottom: 4px;
+
+                    CheckBox {
+                        checked: group.ticked;
+                        toggled => { root.toggle(group.from-id, group.to-id); }
+                    }
+
+                    VerticalLayout {
+                        spacing: 2px;
+
+                        Text {
+                            text: group.title;
+                            color: Theme.text;
+                            font-size: 13px;
+                            wrap: word-wrap;
+                        }
+
+                        Text {
+                            text: group.detail;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: end;
+
+                    TextButton {
+                        text: Tr.t("Cancel");
+                        clicked => { root.cancel(); }
+                    }
+
+                    PrimaryButton {
+                        text: root.confirm-text;
+                        enabled: root.confirm-enabled;
+                        clicked => { root.confirm(); }
                     }
                 }
             }

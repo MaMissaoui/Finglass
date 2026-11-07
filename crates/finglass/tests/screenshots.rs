@@ -1180,6 +1180,153 @@ fn renders_the_app_shell() {
         &transactions_en,
         |_| {},
     );
+
+    let import_temp = tempfile::tempdir().unwrap();
+    let new_file = write_import_csv(
+        import_temp.path(),
+        "november.csv",
+        "DE89370400440532013000",
+        &[
+            ("05.11.2026", "Arbeitgeber GmbH", "Gehalt November", "300,00", "120,00"),
+            ("09.11.2026", "Buchhandlung", "Bücher", "276,00", "-24,00"),
+        ],
+    );
+    let partly_duplicate = write_import_csv(
+        import_temp.path(),
+        "oktober.csv",
+        "DE89370400440532013000",
+        &[
+            ("02.08.2026", "Example Market", "groceries", "0,00", "-120,00"),
+            ("21.10.2026", "Bäckerei", "Frühstück", "-8,00", "-8,00"),
+        ],
+    );
+    let unreadable = import_temp.path().join("missing.csv");
+    let import_files = vec![new_file, partly_duplicate, unreadable];
+    let mut import_view = TransactionsView::new(Language::En);
+    import_view
+        .start(&transactions_db, StartArgs::default(), today)
+        .unwrap();
+    import_view
+        .open_import(&transactions_db, &import_files, None, today)
+        .unwrap();
+    let import_en = import_view.state().clone();
+    assert!(import_en.import_preview.is_some(), "the import preview is prepared");
+    let mut import_de_view = TransactionsView::new(Language::De);
+    import_de_view
+        .start(&transactions_db, StartArgs::default(), today)
+        .unwrap();
+    import_de_view
+        .open_import(&transactions_db, &import_files, None, today)
+        .unwrap();
+    let import_de = import_de_view.state().clone();
+
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-import-en-light",
+        &import_en,
+        |_| {},
+    );
+    render_transactions(
+        &window,
+        Language::De,
+        ThemePref::Dark,
+        "transactions-import-de-dark",
+        &import_de,
+        |_| {},
+    );
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-import-csv-en",
+        &import_en,
+        |_| {},
+    );
+
+    let health_category = transactions_en
+        .categories
+        .iter()
+        .find(|category| category.name == "Health")
+        .map(|category| category.id)
+        .unwrap();
+    rules::create(
+        &transactions_db,
+        NewRule {
+            pattern: "Example Market".to_owned(),
+            category_id: health_category,
+            priority: 5,
+            auto_apply: true,
+            match_field: RuleField::Any,
+            direction: RuleDirection::Any,
+            tax_relevant: None,
+        },
+    )
+    .unwrap();
+    let mut reapply_view = TransactionsView::new(Language::En);
+    reapply_view
+        .start(&transactions_db, StartArgs::default(), today)
+        .unwrap();
+    reapply_view.preview_reapply_rules(&transactions_db, today).unwrap();
+    let reapply = reapply_view.state().clone();
+    assert!(reapply.reapply_preview.is_some(), "the re-apply preview is prepared");
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-reapply-en",
+        &reapply,
+        |_| {},
+    );
+
+    let rule_state = detail.clone();
+    let rule_categories = rule_state
+        .categories
+        .iter()
+        .map(|category| SharedString::from(category.name.clone()))
+        .collect::<Vec<_>>();
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-rule-dialog-en",
+        &rule_state,
+        move |ui| {
+            ui.set_transactions_rule_open(true);
+            ui.set_transactions_rule_pattern("Example Market".into());
+            ui.set_transactions_rule_categories(ModelRc::new(VecModel::from(rule_categories)));
+            ui.set_transactions_rule_category_index(0);
+            ui.set_transactions_rule_error("".into());
+        },
+    );
+
+    let mut menu_state = transactions_en.clone();
+    menu_state.can_undo_reapply = true;
+    render_transactions(
+        &window,
+        Language::En,
+        ThemePref::Light,
+        "transactions-more-menu-en",
+        &menu_state,
+        |ui| {
+            ui.set_transactions_more_menu_open(true);
+        },
+    );
+}
+
+/// Writes one small synthetic CSV statement for the import screenshots.
+fn write_import_csv(directory: &Path, name: &str, iban: &str, rows: &[(&str, &str, &str, &str, &str)]) -> PathBuf {
+    let path = directory.join(name);
+    let mut text = format!("IBAN;{iban}\n\n");
+    text.push_str("Buchung;Valuta;Auftraggeber/Empfänger;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung\n");
+    for (date, partner, purpose, saldo, amount) in rows {
+        text.push_str(&format!(
+            "{date};{date};{partner};Lastschrift;{purpose};{saldo};EUR;{amount};EUR\n"
+        ));
+    }
+    std::fs::write(&path, text).unwrap();
+    path
 }
 
 /// Three documents: one linked, one with OCR text, one selected. Returns them oldest first, as the

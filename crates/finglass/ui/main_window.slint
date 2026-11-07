@@ -1,7 +1,7 @@
 import { Theme } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
-import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
+import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
 import { AuditRow, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
@@ -413,6 +413,7 @@ export component MainWindow inherits Window {
 
     in property <string> transactions-pending-header;
     in property <[TransactionRow]> transactions-rows;
+    in property <bool> transactions-has-transactions;
     in property <bool> transactions-has-balance-column;
 
     in property <bool> transactions-has-chart;
@@ -485,6 +486,40 @@ export component MainWindow inherits Window {
     in property <string> transactions-amount-min-label;
     in property <string> transactions-amount-max-label;
     in property <string> transactions-amount-error;
+
+    in property <bool> transactions-detail-can-create-rule;
+
+    in property <bool> transactions-import-open;
+    in property <string> transactions-import-title;
+    in property <string> transactions-import-summary;
+    in property <[ImportFileRow]> transactions-import-files;
+    in property <[ImportCsvField]> transactions-import-csv-fields;
+    in property <string> transactions-import-csv-hint;
+    in property <[string]> transactions-import-account-options;
+    in-out property <int> transactions-import-account-index;
+    in property <bool> transactions-import-balance-allowed;
+    in-out property <bool> transactions-import-update-balance;
+    in property <string> transactions-import-balance-text;
+    in property <string> transactions-import-newer-text;
+    in property <bool> transactions-importing;
+    in property <string> transactions-import-confirm-text;
+    in property <bool> transactions-import-confirm-enabled;
+
+    in property <bool> transactions-reapply-open;
+    in property <string> transactions-reapply-summary;
+    in property <string> transactions-reapply-warning;
+    in property <[ReapplyGroupRow]> transactions-reapply-groups;
+    in property <string> transactions-reapply-confirm-text;
+    in property <bool> transactions-reapply-confirm-enabled;
+    in property <bool> transactions-can-undo-reapply;
+
+    in property <bool> transactions-rule-open;
+    in-out property <string> transactions-rule-pattern;
+    in property <[string]> transactions-rule-categories;
+    in-out property <int> transactions-rule-category-index;
+    in property <string> transactions-rule-error;
+
+    in-out property <bool> transactions-more-menu-open: false;
 
     // Documents page state, mapped from finglass_core::app::documents::DocumentsState.
     in property <[DocumentRow]> document-rows;
@@ -666,7 +701,23 @@ export component MainWindow inherits Window {
     callback transactions-detail-category(int);
     callback transactions-detail-tax(int);
     callback transactions-detail-show-partner(string);
+    callback transactions-detail-attach-receipt;
+    callback transactions-detail-create-rule;
     callback transactions-dismiss-message;
+
+    callback transactions-open-import;
+    callback transactions-import-account-changed(int);
+    callback transactions-import-csv-changed(string, string);
+    callback transactions-confirm-import(bool);
+    callback transactions-cancel-import;
+    callback transactions-reapply-rules;
+    callback transactions-toggle-reapply-group(int, int);
+    callback transactions-confirm-reapply-rules;
+    callback transactions-cancel-reapply-rules;
+    callback transactions-undo-reapply;
+    callback transactions-export-csv;
+    callback transactions-rule-save;
+    callback transactions-rule-close;
 
     callback transactions-panel-select(string, string, int, string);
     callback transactions-panel-toggle(string, string, int, string);
@@ -1233,6 +1284,7 @@ export component MainWindow inherits Window {
 
                 pending-header: root.transactions-pending-header;
                 rows: root.transactions-rows;
+                has-transactions: root.transactions-has-transactions;
                 has-balance-column: root.transactions-has-balance-column;
 
                 has-chart: root.transactions-has-chart;
@@ -1306,6 +1358,39 @@ export component MainWindow inherits Window {
                 amount-max-label: root.transactions-amount-max-label;
                 amount-error: root.transactions-amount-error;
 
+                detail-can-create-rule: root.transactions-detail-can-create-rule;
+
+                import-open: root.transactions-import-open;
+                import-title: root.transactions-import-title;
+                import-summary: root.transactions-import-summary;
+                import-files: root.transactions-import-files;
+                import-csv-fields: root.transactions-import-csv-fields;
+                import-csv-hint: root.transactions-import-csv-hint;
+                import-account-options: root.transactions-import-account-options;
+                import-account-index <=> root.transactions-import-account-index;
+                import-balance-allowed: root.transactions-import-balance-allowed;
+                import-update-balance <=> root.transactions-import-update-balance;
+                import-balance-text: root.transactions-import-balance-text;
+                import-newer-text: root.transactions-import-newer-text;
+                importing: root.transactions-importing;
+                import-confirm-text: root.transactions-import-confirm-text;
+                import-confirm-enabled: root.transactions-import-confirm-enabled;
+
+                reapply-open: root.transactions-reapply-open;
+                reapply-summary: root.transactions-reapply-summary;
+                reapply-warning: root.transactions-reapply-warning;
+                reapply-groups: root.transactions-reapply-groups;
+                reapply-confirm-text: root.transactions-reapply-confirm-text;
+                reapply-confirm-enabled: root.transactions-reapply-confirm-enabled;
+                can-undo-reapply: root.transactions-can-undo-reapply;
+
+                rule-open: root.transactions-rule-open;
+                rule-pattern <=> root.transactions-rule-pattern;
+                rule-categories: root.transactions-rule-categories;
+                rule-category-index <=> root.transactions-rule-category-index;
+                rule-error: root.transactions-rule-error;
+                more-menu-open <=> root.transactions-more-menu-open;
+
                 search(text) => { root.transactions-search(text); }
                 period-changed(index) => { root.transactions-period-changed(index); }
                 open-range => { root.transactions-open-range(); }
@@ -1349,7 +1434,25 @@ export component MainWindow inherits Window {
                 detail-category(index) => { root.transactions-detail-category(index); }
                 detail-tax(index) => { root.transactions-detail-tax(index); }
                 detail-show-partner(partner) => { root.transactions-detail-show-partner(partner); }
+                detail-attach-receipt => { root.transactions-detail-attach-receipt(); }
+                detail-create-rule => { root.transactions-detail-create-rule(); }
                 dismiss-message => { root.transactions-dismiss-message(); }
+
+                open-import => { root.transactions-open-import(); }
+                import-account-changed(index) => { root.transactions-import-account-changed(index); }
+                import-csv-changed(field, index) => { root.transactions-import-csv-changed(field, index); }
+                confirm-import(update-balance) => { root.transactions-confirm-import(update-balance); }
+                cancel-import => { root.transactions-cancel-import(); }
+                reapply-rules => { root.transactions-reapply-rules(); }
+                toggle-reapply-group(from-id, to-id) => {
+                    root.transactions-toggle-reapply-group(from-id, to-id);
+                }
+                confirm-reapply-rules => { root.transactions-confirm-reapply-rules(); }
+                cancel-reapply-rules => { root.transactions-cancel-reapply-rules(); }
+                undo-reapply-rules => { root.transactions-undo-reapply(); }
+                export-csv => { root.transactions-export-csv(); }
+                rule-save => { root.transactions-rule-save(); }
+                rule-close => { root.transactions-rule-close(); }
 
                 panel-select(kind, group-kind, id, account-type) => {
                     root.transactions-panel-select(kind, group-kind, id, account-type);

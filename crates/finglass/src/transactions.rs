@@ -18,15 +18,17 @@ use finglass_core::account_ids;
 use finglass_core::app::account_panel::{self, AccountSelection};
 use finglass_core::app::accounts::{AccountItem, Busy};
 use finglass_core::app::transactions::{
-    CategoryFilter, ManualTransaction, Period, SEARCH_DEBOUNCE_MS, StartArgs, TransactionsState, TransactionsView,
+    CategoryFilter, ImportPreview, ManualTransaction, Period, ReapplyKey, ReapplyPreview, SEARCH_DEBOUNCE_MS,
+    StartArgs, TransactionsState, TransactionsView,
 };
 use finglass_core::bank_text;
 use finglass_core::db::Database;
-use finglass_core::documents::{DocumentService, OcrService};
+use finglass_core::documents::{DocumentService, OcrService, SUPPORTED_EXTENSIONS};
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
+use finglass_core::import::{CsvLayout, CsvMapping};
 use finglass_core::model::{
-    AccountGroupId, AccountId, Direction, PendingBookingItem, TaxSource, TransactionId, TransactionItem,
+    AccountGroupId, AccountId, CategoryId, Direction, PendingBookingItem, TaxSource, TransactionId, TransactionItem,
 };
 use finglass_core::money::{self, Currencies, Currency, Money};
 use finglass_core::paths::AppPaths;
@@ -35,7 +37,10 @@ use finglass_core::rules::payment_providers::PaymentProviders;
 use slint::{Color, ModelRc, SharedString, Timer, TimerMode, VecModel, Weak};
 use time::{Date, OffsetDateTime};
 
-use crate::{AccountAmount, AccountGroupChoice, AccountPanelRow, MainWindow, TransactionRow};
+use crate::{
+    AccountAmount, AccountGroupChoice, AccountPanelRow, ImportCsvField, ImportFileRow, MainWindow, ReapplyGroupRow,
+    TransactionRow,
+};
 
 /// The balance chart is drawn in this logical box and scaled by its viewbox.
 const CHART_WIDTH: f32 = 700.0;
@@ -43,6 +48,9 @@ const CHART_WIDTH: f32 = 700.0;
 const CHART_HEIGHT: f32 = 200.0;
 /// Padding inside the balance chart.
 const CHART_PADDING: f32 = 8.0;
+
+/// The statement formats the import file dialog offers.
+const STATEMENT_EXTENSIONS: &[&str] = &["csv", "sta", "mt940", "xml", "zip", "ofx", "qfx", "qif", "xlsx"];
 
 /// Ends the busy section even when the worker panics.
 struct BusyGuard(Busy);
@@ -85,11 +93,13 @@ pub struct TransactionsController {
     /// The open profile's slug key, for its `documents/` folder. Read at call time so a switch is visible.
     profile: Mutex<String>,
     db: Mutex<Option<Arc<Database>>>,
-    state: Mutex<TransactionsState>,
+    /// The persistent view: its private undo record must survive individual actions.
+    view: Mutex<Option<TransactionsView>>,
     busy: Busy,
     pending_search: Mutex<PendingSearch>,
     multi_delete_ids: Mutex<BTreeSet<TransactionId>>,
     jobs: crate::jobs::JobTracker,
+    reapply_excluded: Mutex<BTreeSet<ReapplyKey>>,
 }
 
 impl TransactionsController {
@@ -106,11 +116,12 @@ impl TransactionsController {
             paths,
             profile: Mutex::new(profile.into()),
             db: Mutex::new(None),
-            state: Mutex::new(TransactionsState::new(Language::En)),
+            view: Mutex::new(Some(TransactionsView::new(Language::En))),
             busy: Busy::default(),
             pending_search: Mutex::new(PendingSearch::default()),
             multi_delete_ids: Mutex::new(BTreeSet::new()),
             jobs,
+            reapply_excluded: Mutex::new(BTreeSet::new()),
         }
     }
 
@@ -265,6 +276,230 @@ impl TransactionsController {
             main.on_transactions_auto_categorize(move || {
                 this.spawn(|view, db| {
                     let _ = view.auto_categorize(db, OffsetDateTime::now_utc().date());
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_open_import(move || {
+                let language = this.language();
+                this.spawn(move |view, db| {
+                    let Some(files) = rfd::FileDialog::new()
+                        .add_filter(i18n::text(language, Key::ImportBankStatement), STATEMENT_EXTENSIONS)
+                        .pick_files()
+                    else {
+                        return;
+                    };
+                    if files.is_empty() {
+                        return;
+                    }
+                    let _ = view.open_import(db, &files, None, OffsetDateTime::now_utc().date());
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_import_account_changed(move |index| {
+                let account = this.with_state(|state| {
+                    state
+                        .accounts
+                        .get(usize::try_from(index).ok()?)
+                        .map(|account| account.id)
+                });
+                if let Some(Some(account_id)) = account {
+                    this.spawn(move |view, db| {
+                        let _ = view.select_import_account(db, account_id, OffsetDateTime::now_utc().date());
+                    });
+                }
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_import_csv_changed(move |field, value| {
+                let field = field.to_string();
+                let value = value.to_string();
+                let mapping = this.with_state(|state| {
+                    let preview = state.import_preview.as_ref()?;
+                    let csv = preview.entries.iter().find_map(|entry| entry.statement.csv.as_ref())?;
+                    let options = import_csv_options(csv, state.language);
+                    let index = options
+                        .iter()
+                        .position(|option| option.as_str() == value)
+                        .map_or(0, |index| i32::try_from(index).unwrap_or(0));
+                    Some(remap_mapping(&csv.mapping, &field, index))
+                });
+                if let Some(Some(mapping)) = mapping {
+                    this.spawn(move |view, db| {
+                        let _ = view.remap_import(db, mapping, OffsetDateTime::now_utc().date());
+                    });
+                }
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_confirm_import(move |update_balance| {
+                this.spawn(move |view, db| {
+                    let _ = view.confirm_import(db, update_balance, OffsetDateTime::now_utc().date());
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_cancel_import(move || {
+                this.update_view(TransactionsView::cancel_import);
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_reapply_rules(move || {
+                this.reapply_excluded
+                    .lock()
+                    .expect("reapply exclusions poisoned")
+                    .clear();
+                this.spawn(|view, db| {
+                    let _ = view.preview_reapply_rules(db, OffsetDateTime::now_utc().date());
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_toggle_reapply_group(move |from, to| {
+                let key = reapply_key(from, to);
+                {
+                    let mut excluded = this.reapply_excluded.lock().expect("reapply exclusions poisoned");
+                    if !excluded.remove(&key) {
+                        excluded.insert(key);
+                    }
+                }
+                this.republish();
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_confirm_reapply_rules(move || {
+                let excluded = std::mem::take(&mut *this.reapply_excluded.lock().expect("reapply exclusions poisoned"));
+                this.spawn(move |view, db| {
+                    let _ = view.confirm_reapply_rules(db, &excluded, OffsetDateTime::now_utc().date());
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_cancel_reapply_rules(move || {
+                this.reapply_excluded
+                    .lock()
+                    .expect("reapply exclusions poisoned")
+                    .clear();
+                this.update_view(TransactionsView::cancel_reapply_rules);
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_undo_reapply(move || {
+                this.reapply_excluded
+                    .lock()
+                    .expect("reapply exclusions poisoned")
+                    .clear();
+                this.spawn(|view, db| {
+                    let _ = view.undo_reapply_rules(db, OffsetDateTime::now_utc().date());
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_export_csv(move || {
+                let language = this.language();
+                let today = OffsetDateTime::now_utc().date();
+                let file_name = format!(
+                    "transactions-{:04}-{:02}-{:02}.csv",
+                    today.year(),
+                    u8::from(today.month()),
+                    today.day()
+                );
+                this.spawn(move |view, db| {
+                    let Some(path) = rfd::FileDialog::new()
+                        .add_filter(i18n::text(language, Key::ExportTransactions), &["csv"])
+                        .set_file_name(&file_name)
+                        .save_file()
+                    else {
+                        return;
+                    };
+                    let _ = view.export_csv(db, &path);
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_detail_attach_receipt(move || {
+                let Some(id) = this.selected_id() else {
+                    return;
+                };
+                let language = this.language();
+                let documents = documents_dir(&this.paths, &this.profile_key());
+                this.spawn(move |view, db| {
+                    let Some(files) = rfd::FileDialog::new()
+                        .add_filter(i18n::text(language, Key::AttachReceipt), SUPPORTED_EXTENSIONS)
+                        .pick_files()
+                    else {
+                        return;
+                    };
+                    if files.is_empty() {
+                        return;
+                    }
+                    let service = DocumentService::new(db, OcrService::without_ocr(), documents);
+                    let _ = view.attach_documents(db, &service, id, &files, OffsetDateTime::now_utc().date());
+                });
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_detail_create_rule(move || {
+                this.open_rule_dialog();
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_rule_close(move || {
+                if let Some(ui) = this.ui.upgrade() {
+                    ui.set_transactions_rule_open(false);
+                    ui.set_transactions_rule_error("".into());
+                }
+            });
+        }
+
+        {
+            let this = Arc::clone(self);
+            main.on_transactions_rule_save(move || {
+                let Some(ui) = this.ui.upgrade() else {
+                    return;
+                };
+                let language = this.language();
+                let pattern = ui.get_transactions_rule_pattern().to_string();
+                if pattern.trim().is_empty() {
+                    ui.set_transactions_rule_error(i18n::text(language, Key::ErrorPatternRequired).into());
+                    return;
+                }
+                let Some(category_id) = this.rule_category_at(ui.get_transactions_rule_category_index()) else {
+                    return;
+                };
+                ui.set_transactions_rule_open(false);
+                ui.set_transactions_rule_error("".into());
+                this.spawn(move |view, db| {
+                    let _ = view.create_rule(db, &pattern, category_id, OffsetDateTime::now_utc().date());
                 });
             });
         }
@@ -604,30 +839,47 @@ impl TransactionsController {
     /// Makes the controller use `db` and starts from a clean page for a profile.
     pub fn attach(&self, db: Arc<Database>, language: Language) {
         *self.db.lock().expect("transactions database poisoned") = Some(db);
-        let mut state = self.state.lock().expect("transactions state poisoned");
-        *state = TransactionsState::new(language);
-        let snapshot = state.clone();
-        drop(state);
+        let mut view = self.view.lock().expect("transactions view poisoned");
+        *view = Some(TransactionsView::new(language));
+        let snapshot = view.as_ref().expect("a view was just installed").state().clone();
+        drop(view);
+        self.reapply_excluded
+            .lock()
+            .expect("reapply exclusions poisoned")
+            .clear();
         self.publish(snapshot);
     }
 
     /// Clears the page, for when the profile is locked.
     pub fn reset(&self) {
         *self.db.lock().expect("transactions database poisoned") = None;
-        let language = self.state.lock().expect("transactions state poisoned").language;
-        let mut state = self.state.lock().expect("transactions state poisoned");
-        *state = TransactionsState::new(language);
-        let snapshot = state.clone();
-        drop(state);
+        let language = self
+            .view
+            .lock()
+            .expect("transactions view poisoned")
+            .as_ref()
+            .map_or(Language::En, |view| view.state().language);
+        let mut view = self.view.lock().expect("transactions view poisoned");
+        *view = Some(TransactionsView::new(language));
+        let snapshot = view.as_ref().expect("a view was just installed").state().clone();
+        drop(view);
+        self.reapply_excluded
+            .lock()
+            .expect("reapply exclusions poisoned")
+            .clear();
         self.publish(snapshot);
     }
 
     /// Applies a language change to the page's own texts.
     pub fn set_language(&self, language: Language) {
-        let mut state = self.state.lock().expect("transactions state poisoned");
-        state.language = language;
-        let snapshot = state.clone();
-        drop(state);
+        let mut view = self.view.lock().expect("transactions view poisoned");
+        if let Some(view) = view.as_mut() {
+            view.state_mut().language = language;
+        } else {
+            *view = Some(TransactionsView::new(language));
+        }
+        let snapshot = view.as_ref().expect("a view is installed").state().clone();
+        drop(view);
         self.publish(snapshot);
     }
 
@@ -682,21 +934,21 @@ impl TransactionsController {
             return;
         };
         let today = OffsetDateTime::now_utc().date();
-        let Ok(state) = self.state.try_lock() else {
+        let Some(initial) = self.with_state(|state| {
+            state
+                .custom_range
+                .or_else(|| state.month.map(|month| (month.start(), month.end())))
+                .or_else(|| {
+                    let (from, to) = state.period.range(today);
+                    from.zip(to)
+                })
+                .unwrap_or_else(|| {
+                    let year = Date::from_calendar_date(today.year(), time::Month::January, 1).expect("valid date");
+                    (year, today)
+                })
+        }) else {
             return;
         };
-        let initial = state
-            .custom_range
-            .or_else(|| state.month.map(|month| (month.start(), month.end())))
-            .or_else(|| {
-                let (from, to) = state.period.range(today);
-                from.zip(to)
-            })
-            .unwrap_or_else(|| {
-                let year = Date::from_calendar_date(today.year(), time::Month::January, 1).expect("valid date");
-                (year, today)
-            });
-        drop(state);
         ui.set_transactions_range_from(format::date(initial.0).into());
         ui.set_transactions_range_to(format::date(initial.1).into());
         ui.set_transactions_range_error("".into());
@@ -731,14 +983,18 @@ impl TransactionsController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let Ok(state) = self.state.try_lock() else {
+        let Some((currency, language, min, max)) = self.with_state(|state| {
+            (
+                state.primary_currency,
+                state.language,
+                state.min_amount.map(money::format_plain).unwrap_or_default(),
+                state.max_amount.map(money::format_plain).unwrap_or_default(),
+            )
+        }) else {
             return;
         };
-        let currency = state.primary_currency;
-        let language = state.language;
-        ui.set_transactions_amount_min(state.min_amount.map(money::format_plain).unwrap_or_default().into());
-        ui.set_transactions_amount_max(state.max_amount.map(money::format_plain).unwrap_or_default().into());
-        drop(state);
+        ui.set_transactions_amount_min(min.into());
+        ui.set_transactions_amount_max(max.into());
         let symbol = format::currency_symbol(currency);
         ui.set_transactions_amount_min_label(
             i18n::format(language, Key::MinAmountIn, &[Arg::Str(symbol.clone())]).into(),
@@ -754,9 +1010,8 @@ impl TransactionsController {
         };
         let language = self.language();
         let currency = self
-            .state
-            .try_lock()
-            .map_or(Currencies::DEFAULT, |state| state.primary_currency);
+            .with_state(|state| state.primary_currency)
+            .unwrap_or(Currencies::DEFAULT);
         let min = parse_bound(minimum, currency);
         let max = parse_bound(maximum, currency);
         if !minimum.trim().is_empty() && min.is_none() {
@@ -778,20 +1033,21 @@ impl TransactionsController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let Ok(state) = self.state.try_lock() else {
+        let Some(Some((language, text))) = self.with_state(|state| {
+            let transaction = state.transactions.iter().find(|transaction| transaction.id == id)?;
+            let language = state.language;
+            Some((
+                language,
+                format!(
+                    "{} {} {}",
+                    format::date(transaction.date),
+                    bank_text::display_description(transaction),
+                    format::money(transaction.amount, language, false),
+                ),
+            ))
+        }) else {
             return;
         };
-        let Some(transaction) = state.transactions.iter().find(|transaction| transaction.id == id) else {
-            return;
-        };
-        let language = state.language;
-        let text = format!(
-            "{} {} {}",
-            format::date(transaction.date),
-            bank_text::display_description(transaction),
-            format::money(transaction.amount, language, false),
-        );
-        drop(state);
         ui.set_transactions_delete_id(i32::try_from(id.0).unwrap_or(-1));
         ui.set_transactions_delete_title(i18n::text(language, Key::DeleteTransactionTitle).into());
         ui.set_transactions_delete_text(text.into());
@@ -802,65 +1058,66 @@ impl TransactionsController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let Ok(state) = self.state.try_lock() else {
+        let Some(Some((language, ids, count, range, totals, lines, more_text))) = self.with_state(|state| {
+            let language = state.language;
+            let bookings = state.selected_shown();
+            if bookings.is_empty() {
+                return None;
+            }
+            let count = bookings.len();
+            let ids: BTreeSet<TransactionId> = bookings.iter().map(|transaction| transaction.id).collect();
+            let from = bookings
+                .iter()
+                .map(|transaction| transaction.date)
+                .min()
+                .expect("non-empty");
+            let to = bookings
+                .iter()
+                .map(|transaction| transaction.date)
+                .max()
+                .expect("non-empty");
+            let range = if from == to {
+                format::date(from)
+            } else {
+                format!("{}–{}", format::date(from), format::date(to))
+            };
+            let totals = state
+                .selected_totals()
+                .iter()
+                .map(|(currency, minor)| {
+                    format::money(
+                        Money {
+                            minor: *minor,
+                            currency: *currency,
+                        },
+                        language,
+                        true,
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(" · ");
+            let lines = bookings
+                .iter()
+                .take(5)
+                .map(|transaction| {
+                    format!(
+                        "{} {} {}",
+                        format::date(transaction.date),
+                        bank_text::display_description(transaction),
+                        format::money(transaction.amount, language, false),
+                    )
+                })
+                .collect::<Vec<_>>();
+            let more = bookings.len().saturating_sub(5);
+            let more_text = if more > 0 {
+                i18n::format(language, Key::AndMore, &[Arg::from(more)])
+            } else {
+                String::new()
+            };
+            Some((language, ids, count, range, totals, lines, more_text))
+        }) else {
             return;
         };
-        let language = state.language;
-        let bookings = state.selected_shown();
-        if bookings.is_empty() {
-            return;
-        }
-        let count = bookings.len();
-        let ids: BTreeSet<TransactionId> = bookings.iter().map(|transaction| transaction.id).collect();
-        let from = bookings
-            .iter()
-            .map(|transaction| transaction.date)
-            .min()
-            .expect("non-empty");
-        let to = bookings
-            .iter()
-            .map(|transaction| transaction.date)
-            .max()
-            .expect("non-empty");
-        let range = if from == to {
-            format::date(from)
-        } else {
-            format!("{}–{}", format::date(from), format::date(to))
-        };
-        let totals = state
-            .selected_totals()
-            .iter()
-            .map(|(currency, minor)| {
-                format::money(
-                    Money {
-                        minor: *minor,
-                        currency: *currency,
-                    },
-                    language,
-                    true,
-                )
-            })
-            .collect::<Vec<_>>()
-            .join(" · ");
-        let lines = bookings
-            .iter()
-            .take(5)
-            .map(|transaction| {
-                format!(
-                    "{} {} {}",
-                    format::date(transaction.date),
-                    bank_text::display_description(transaction),
-                    format::money(transaction.amount, language, false),
-                )
-            })
-            .collect::<Vec<_>>();
-        let more = bookings.len().saturating_sub(5);
-        let more_text = if more > 0 {
-            i18n::format(language, Key::AndMore, &[Arg::from(more)])
-        } else {
-            String::new()
-        };
-        drop(state);
         *self.multi_delete_ids.lock().expect("transactions delete ids poisoned") = ids;
         ui.set_transactions_multi_delete_title(
             i18n::format(language, Key::DeleteTransactionsTitle, &[Arg::from(count)]).into(),
@@ -878,26 +1135,27 @@ impl TransactionsController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let Ok(state) = self.state.try_lock() else {
+        let Some((account_options, index, amount_label)) = self.with_state(|state| {
+            let language = state.language;
+            let account_options = state
+                .accounts
+                .iter()
+                .map(|account| account_label(account, language))
+                .collect::<Vec<_>>();
+            let selected_account = state
+                .account_id
+                .and_then(|id| state.accounts.iter().find(|account| account.id == id))
+                .map_or_else(|| state.primary_currency, |account| account.currency);
+            let index = state
+                .account_id
+                .and_then(|id| state.accounts.iter().position(|account| account.id == id))
+                .map_or(0, |index| i32::try_from(index).unwrap_or(0));
+            let symbol = format::currency_symbol(selected_account);
+            let amount_label = i18n::format(language, Key::AmountIn, &[Arg::Str(symbol)]);
+            (account_options, index, amount_label)
+        }) else {
             return;
         };
-        let language = state.language;
-        let account_options = state
-            .accounts
-            .iter()
-            .map(|account| account_label(account, language))
-            .collect::<Vec<_>>();
-        let selected_account = state
-            .account_id
-            .and_then(|id| state.accounts.iter().find(|account| account.id == id))
-            .map_or_else(|| state.primary_currency, |account| account.currency);
-        let index = state
-            .account_id
-            .and_then(|id| state.accounts.iter().position(|account| account.id == id))
-            .map_or(0, |index| i32::try_from(index).unwrap_or(0));
-        let symbol = format::currency_symbol(selected_account);
-        let amount_label = i18n::format(language, Key::AmountIn, &[Arg::Str(symbol)]);
-        drop(state);
         ui.set_transactions_add_account_options(ModelRc::new(VecModel::from(
             account_options.into_iter().map(SharedString::from).collect::<Vec<_>>(),
         )));
@@ -922,18 +1180,14 @@ impl TransactionsController {
             return;
         };
         let language = self.language();
-        let (account_id, currency) = {
-            let Ok(state) = self.state.try_lock() else {
-                return;
-            };
-            let Some(account) = state
+        let Some(Some((account_id, currency))) = self.with_state(|state| {
+            state
                 .accounts
                 .get(usize::try_from(account_index).unwrap_or(0))
                 .or_else(|| state.accounts.first())
-            else {
-                return;
-            };
-            (account.id, account.currency)
+                .map(|account| (account.id, account.currency))
+        }) else {
+            return;
         };
         let Some(date) = format::parse_date(date_text) else {
             ui.set_transactions_add_error(i18n::text(language, Key::EnterValidDate).into());
@@ -974,17 +1228,13 @@ impl TransactionsController {
     }
 
     fn open_detail(self: &Arc<Self>, id: TransactionId) {
-        let transaction = {
-            let Ok(state) = self.state.try_lock() else {
-                return;
-            };
+        let Some(Some(transaction)) = self.with_state(|state| {
             state
                 .transactions
                 .iter()
                 .find(|transaction| transaction.id == id)
                 .cloned()
-        };
-        let Some(transaction) = transaction else {
+        }) else {
             return;
         };
         let documents = documents_dir(&self.paths, &self.profile_key());
@@ -1004,12 +1254,9 @@ impl TransactionsController {
         if self.busy.active() {
             return false;
         }
-        let Ok(state) = self.state.try_lock() else {
+        let Some(mut view) = self.take_view() else {
             return false;
         };
-        let mut view = TransactionsView::new(state.language);
-        *view.state_mut() = state.clone();
-        drop(state);
 
         self.busy.begin();
         let generation = self.jobs.begin();
@@ -1019,7 +1266,7 @@ impl TransactionsController {
             let guard = BusyGuard(busy);
             action(&mut view, &db);
             let snapshot = view.state().clone();
-            this.publish_job(snapshot, generation);
+            this.publish_job(snapshot, generation, view);
             drop(guard);
             this.run_pending_search();
         });
@@ -1027,39 +1274,74 @@ impl TransactionsController {
     }
 
     fn update_view(&self, action: impl FnOnce(&mut TransactionsView)) {
-        let Ok(state) = self.state.try_lock() else {
+        let Ok(mut slot) = self.view.lock() else {
             return;
         };
-        let mut view = TransactionsView::new(state.language);
-        *view.state_mut() = state.clone();
-        drop(state);
-        action(&mut view);
-        self.publish(view.state().clone());
+        let Some(view) = slot.as_mut() else {
+            return;
+        };
+        action(view);
+        let snapshot = view.state().clone();
+        drop(slot);
+        self.publish(snapshot);
+    }
+
+    fn take_view(&self) -> Option<TransactionsView> {
+        self.view.lock().ok()?.take()
+    }
+
+    fn put_view(&self, view: TransactionsView) {
+        if let Ok(mut slot) = self.view.lock()
+            && slot.is_none()
+        {
+            *slot = Some(view);
+        }
+    }
+
+    fn republish(&self) {
+        if let Some(state) = self.state_snapshot() {
+            self.publish(state);
+        }
+    }
+
+    fn state_snapshot(&self) -> Option<TransactionsState> {
+        self.with_state(TransactionsState::clone)
+    }
+
+    fn with_state<T>(&self, f: impl FnOnce(&TransactionsState) -> T) -> Option<T> {
+        let slot = self.view.try_lock().ok()?;
+        let view = slot.as_ref()?;
+        Some(f(view.state()))
     }
 
     fn publish(&self, state: TransactionsState) {
-        {
-            let mut current = self.state.lock().expect("transactions state poisoned");
-            *current = state.clone();
-        }
+        let excluded = self
+            .reapply_excluded
+            .lock()
+            .map(|excluded| excluded.clone())
+            .unwrap_or_default();
         let ui = self.ui.clone();
         let _ = slint::invoke_from_event_loop(move || {
             if let Some(ui) = ui.upgrade() {
-                apply(&ui, &state);
+                apply_with_excluded(&ui, &state, &excluded);
             }
         });
     }
 
-    /// Publishes a worker's result unless the profile has been switched in the meantime.
-    fn publish_job(&self, state: TransactionsState, generation: u64) {
+    /// Returns a worker's view and publishes its result, unless the profile has been switched in the meantime: then
+    /// `reset`/`attach` has already installed a fresh view and the old one, with the old profile's data, is dropped.
+    fn publish_job(&self, state: TransactionsState, generation: u64, view: TransactionsView) {
         if !self.jobs.is_current(generation) {
             self.jobs.end();
             return;
         }
-        {
-            let mut current = self.state.lock().expect("transactions state poisoned");
-            *current = state.clone();
-        }
+        // `put_view` never replaces a view that `reset`/`attach` installed after the check above.
+        self.put_view(view);
+        let excluded = self
+            .reapply_excluded
+            .lock()
+            .map(|excluded| excluded.clone())
+            .unwrap_or_default();
         let ui = self.ui.clone();
         let jobs = self.jobs.clone();
         let _ = slint::invoke_from_event_loop(move || {
@@ -1068,7 +1350,7 @@ impl TransactionsController {
                 return;
             }
             if let Some(ui) = ui.upgrade() {
-                apply(&ui, &state);
+                apply_with_excluded(&ui, &state, &excluded);
             }
         });
     }
@@ -1078,49 +1360,92 @@ impl TransactionsController {
     }
 
     fn language(&self) -> Language {
-        self.state.try_lock().map_or(Language::En, |state| state.language)
+        self.with_state(|state| state.language).unwrap_or(Language::En)
     }
 
     fn selected_id(&self) -> Option<TransactionId> {
-        self.state
-            .try_lock()
-            .ok()
-            .and_then(|state| state.selected.as_ref().map(|transaction| transaction.id))
+        self.with_state(|state| state.selected.as_ref().map(|transaction| transaction.id))
+            .flatten()
     }
 
     fn category_filter_at(&self, index: i32) -> Option<CategoryFilter> {
         match index {
             0 => Some(CategoryFilter::Any),
             1 => Some(CategoryFilter::None),
-            _ => {
-                let state = self.state.try_lock().ok()?;
-                let category = state.categories.get(usize::try_from(index - 2).ok()?)?;
-                Some(CategoryFilter::Only(category.id))
-            }
+            _ => self.with_state(|state| {
+                state
+                    .categories
+                    .get(usize::try_from(index - 2).ok()?)
+                    .map(|category| CategoryFilter::Only(category.id))
+            })?,
         }
     }
 
-    fn category_id_at(&self, index: i32) -> Option<finglass_core::model::CategoryId> {
+    fn category_id_at(&self, index: i32) -> Option<CategoryId> {
         if index <= 0 {
             return None;
         }
-        self.state.try_lock().ok().and_then(|state| {
+        self.with_state(|state| {
             state
                 .categories
                 .get(usize::try_from(index - 1).ok()?)
                 .map(|category| category.id)
-        })
+        })?
+    }
+
+    fn rule_category_at(&self, index: i32) -> Option<CategoryId> {
+        self.with_state(|state| {
+            state
+                .categories
+                .get(usize::try_from(index).ok()?)
+                .map(|category| category.id)
+        })?
+    }
+
+    fn open_rule_dialog(&self) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        let Some(Some((pattern, category_index, categories))) = self.with_state(|state| {
+            let transaction = state.selected.as_ref()?;
+            let language = state.language;
+            let pattern = TransactionsView::new(language).rule_pattern_for(transaction);
+            let category_index = transaction
+                .category_id
+                .and_then(|id| state.categories.iter().position(|category| category.id == id))
+                .map_or(0, |index| i32::try_from(index).unwrap_or(0));
+            let categories = state
+                .categories
+                .iter()
+                .map(|category| SharedString::from(category.name.clone()))
+                .collect::<Vec<_>>();
+            Some((pattern, category_index, categories))
+        }) else {
+            return;
+        };
+        ui.set_transactions_rule_open(true);
+        ui.set_transactions_rule_pattern(pattern.into());
+        ui.set_transactions_rule_categories(ModelRc::new(VecModel::from(categories)));
+        ui.set_transactions_rule_category_index(category_index);
+        ui.set_transactions_rule_error("".into());
     }
 
     fn selection_at(&self, index: i32) -> Option<AccountSelection> {
-        let state = self.state.try_lock().ok()?;
-        let choices = selection_choices(&state);
-        choices.get(usize::try_from(index).ok()?).cloned()
+        self.with_state(|state| {
+            let choices = selection_choices(state);
+            choices.get(usize::try_from(index).ok()?).cloned()
+        })?
     }
 }
 
 /// Applies `state` to the window without touching the database.
+#[allow(dead_code)]
 pub fn apply(main: &MainWindow, state: &TransactionsState) {
+    apply_with_excluded(main, state, &BTreeSet::new());
+}
+
+/// Applies `state`, keeping the re-apply groups outside `excluded` ticked.
+fn apply_with_excluded(main: &MainWindow, state: &TransactionsState, excluded: &BTreeSet<ReapplyKey>) {
     let language = state.language;
     main.set_transactions_loading(state.is_loading);
     main.set_transactions_has_accounts(!state.accounts.is_empty());
@@ -1199,6 +1524,7 @@ pub fn apply(main: &MainWindow, state: &TransactionsState) {
 
     main.set_transactions_pending_header(pending_header(state, language).into());
     main.set_transactions_rows(ModelRc::new(VecModel::from(transaction_rows(state, language))));
+    main.set_transactions_has_transactions(!state.transactions.is_empty());
     main.set_transactions_has_balance_column(state.balances.is_some());
 
     main.set_transactions_add_category_names(string_model(add_category_names(state, language)));
@@ -1215,6 +1541,107 @@ pub fn apply(main: &MainWindow, state: &TransactionsState) {
     apply_chart(main, state, language);
     apply_selection(main, state, language);
     apply_detail(main, state, language);
+    apply_import(main, state, language);
+    apply_reapply(main, state, language, excluded);
+}
+
+fn apply_import(main: &MainWindow, state: &TransactionsState, language: Language) {
+    let Some(preview) = &state.import_preview else {
+        main.set_transactions_import_open(false);
+        return;
+    };
+    let title = if preview.files.len() <= 1 {
+        let name = preview
+            .files
+            .first()
+            .map_or_else(String::new, |file| display_name(file));
+        i18n::format(language, Key::ImportFile, &[Arg::from(name)])
+    } else {
+        i18n::format(language, Key::ImportFiles, &[Arg::from(preview.files.len())])
+    };
+    let summary = if preview.files.len() > 1 {
+        i18n::format(language, Key::BookingCount, &[Arg::from(preview.booking_count())])
+    } else {
+        String::new()
+    };
+    let selected_account = preview
+        .account_id
+        .and_then(|id| state.accounts.iter().find(|account| account.id == id));
+    let account_options = state
+        .accounts
+        .iter()
+        .map(|account| SharedString::from(account_label(account, language)))
+        .collect::<Vec<_>>();
+    let account_index = preview
+        .account_id
+        .and_then(|id| state.accounts.iter().position(|account| account.id == id))
+        .map_or(0, |index| i32::try_from(index).unwrap_or(0));
+    let csv_fields = import_csv_fields(preview, language);
+    let csv_hint = import_csv_hint(preview, language);
+    let newer_text = if import_has_balances(preview) && !preview.balance_update_allowed {
+        i18n::text(language, Key::NewerBookingsUnchanged).to_owned()
+    } else {
+        String::new()
+    };
+
+    main.set_transactions_import_open(true);
+    main.set_transactions_import_title(title.into());
+    main.set_transactions_import_summary(summary.into());
+    main.set_transactions_import_files(ModelRc::new(VecModel::from(import_file_rows(
+        preview,
+        language,
+        selected_account,
+    ))));
+    main.set_transactions_import_csv_fields(ModelRc::new(VecModel::from(csv_fields)));
+    main.set_transactions_import_csv_hint(csv_hint.into());
+    main.set_transactions_import_account_options(string_model(account_options));
+    main.set_transactions_import_account_index(account_index);
+    main.set_transactions_import_balance_allowed(preview.balance_update_allowed);
+    main.set_transactions_import_update_balance(preview.balance_update_allowed);
+    main.set_transactions_import_balance_text(i18n::text(language, Key::SetAccountBalance).to_owned().into());
+    main.set_transactions_import_newer_text(newer_text.into());
+    main.set_transactions_importing(state.is_importing);
+    main.set_transactions_import_confirm_text(
+        if state.is_importing {
+            i18n::text(language, Key::Importing).to_owned()
+        } else {
+            i18n::format(language, Key::ImportCount, &[Arg::from(preview.booking_count())])
+        }
+        .into(),
+    );
+    main.set_transactions_import_confirm_enabled(
+        !state.is_importing && preview.account_id.is_some() && preview.booking_count() > 0,
+    );
+}
+
+fn apply_reapply(main: &MainWindow, state: &TransactionsState, language: Language, excluded: &BTreeSet<ReapplyKey>) {
+    main.set_transactions_can_undo_reapply(state.can_undo_reapply);
+    let Some(preview) = &state.reapply_preview else {
+        main.set_transactions_reapply_open(false);
+        return;
+    };
+    let groups = reapply_group_rows(preview, excluded, language);
+    let ticked: usize = preview
+        .groups
+        .iter()
+        .filter(|group| !excluded.contains(&(group.from_category_id, group.to_category_id)))
+        .map(|group| group.count)
+        .sum();
+    main.set_transactions_reapply_open(true);
+    main.set_transactions_reapply_summary(
+        i18n::format(
+            language,
+            Key::ReapplyRulesSummary,
+            &[Arg::from(preview.changes.len()), Arg::from(preview.shown_count)],
+        )
+        .into(),
+    );
+    main.set_transactions_reapply_warning(i18n::text(language, Key::ReapplyRulesWarning).into());
+    main.set_transactions_reapply_groups(ModelRc::new(VecModel::from(groups)));
+    main.set_transactions_reapply_confirm_text(
+        i18n::format(language, Key::ReapplyRulesConfirm, &[Arg::from(ticked)]).into(),
+    );
+    main.set_transactions_reapply_confirm_enabled(ticked > 0);
 }
 
 fn apply_chart(main: &MainWindow, state: &TransactionsState, language: Language) {
@@ -1267,6 +1694,7 @@ fn apply_selection(main: &MainWindow, state: &TransactionsState, language: Langu
 fn apply_detail(main: &MainWindow, state: &TransactionsState, language: Language) {
     main.set_transactions_detail_category_index(0);
     main.set_transactions_detail_tax_index(0);
+    main.set_transactions_detail_can_create_rule(!state.categories.is_empty());
     let Some(transaction) = &state.selected else {
         main.set_transactions_detail_open(false);
         main.set_transactions_duplicate_open(state.pending_duplicate.is_some());
@@ -1351,6 +1779,205 @@ fn apply_duplicate(main: &MainWindow, state: &TransactionsState, language: Langu
             .into(),
         );
     }
+}
+
+/// The import dialog's file rows, including the unreadable selections.
+fn import_file_rows(
+    preview: &ImportPreview,
+    language: Language,
+    selected_account: Option<&AccountItem>,
+) -> Vec<ImportFileRow> {
+    let mut rows = Vec::with_capacity(preview.entries.len() + preview.failures.len());
+    let multi = preview.files.len() > 1;
+    for entry in &preview.entries {
+        let bookings = &entry.statement.bookings;
+        let from = bookings.iter().map(|booking| booking.date).min();
+        let to = bookings.iter().map(|booking| booking.date).max();
+        let period_text = match (from, to) {
+            (Some(from), Some(to)) if from == to => format::date(from),
+            (Some(from), Some(to)) => format!("{}–{}", format::date(from), format::date(to)),
+            _ => String::new(),
+        };
+        let mut warnings = Vec::new();
+        if entry.statement.pending_skipped > 0 {
+            warnings.push(i18n::format(
+                language,
+                Key::PendingLeftOut,
+                &[Arg::from(i64::from(entry.statement.pending_skipped))],
+            ));
+        }
+        if !entry.statement.skipped.is_empty() {
+            warnings.push(i18n::format(
+                language,
+                Key::UnreadableCount,
+                &[Arg::from(entry.statement.skipped.len())],
+            ));
+        }
+        if let (Some(account), Some(file_iban)) = (selected_account, entry.statement.account_iban.as_deref())
+            && finglass_core::iban::normalize(&account.iban) != finglass_core::iban::normalize(file_iban)
+        {
+            warnings.push(if multi {
+                i18n::format(
+                    language,
+                    Key::FileBelongsToNamed,
+                    &[Arg::from(display_name(&entry.file)), Arg::from(format::iban(file_iban))],
+                )
+            } else {
+                i18n::format(language, Key::FileBelongsTo, &[Arg::from(format::iban(file_iban))])
+            });
+        }
+        rows.push(ImportFileRow {
+            name: display_name(&entry.file).into(),
+            count_text: i18n::format(language, Key::BookingCount, &[Arg::from(bookings.len())]).into(),
+            period_text: period_text.into(),
+            warning_text: warnings.join(" · ").into(),
+            failure: false,
+        });
+    }
+    for failure in &preview.failures {
+        rows.push(ImportFileRow {
+            name: failure.file_name.clone().into(),
+            count_text: String::new().into(),
+            period_text: String::new().into(),
+            warning_text: failure.message.clone().into(),
+            failure: true,
+        });
+    }
+    rows
+}
+
+/// The CSV mapping editor's rows, empty when the preview has no CSV file.
+/// The choices of one CSV column picker: "none" and the file's headers.
+fn import_csv_options(csv: &CsvLayout, language: Language) -> Vec<SharedString> {
+    let mut options = vec![SharedString::from(i18n::text(language, Key::NoneDash))];
+    options.extend(csv.headers.iter().enumerate().map(|(index, header)| {
+        if header.trim().is_empty() {
+            SharedString::from(i18n::format(language, Key::ColumnN, &[Arg::from(index + 1)]))
+        } else {
+            SharedString::from(header.clone())
+        }
+    }));
+    options
+}
+
+/// The CSV mapping editor's rows, empty when the preview has no CSV file.
+fn import_csv_fields(preview: &ImportPreview, language: Language) -> Vec<ImportCsvField> {
+    let Some(csv) = preview.entries.iter().find_map(|entry| entry.statement.csv.as_ref()) else {
+        return Vec::new();
+    };
+    let options = import_csv_options(csv, language);
+    let fields = [
+        ("date", Key::ColDate, csv.mapping.date),
+        ("amount", Key::ColAmount, csv.mapping.amount),
+        ("debit", Key::ColDebit, csv.mapping.debit),
+        ("credit", Key::ColCredit, csv.mapping.credit),
+        ("partner", Key::ColPartner, csv.mapping.partner),
+        ("purpose", Key::ColPurpose, csv.mapping.purpose),
+        ("balance", Key::ColBalance, csv.mapping.balance),
+    ];
+    fields
+        .into_iter()
+        .map(|(field, label, index)| ImportCsvField {
+            field: field.into(),
+            label: i18n::text(language, label).into(),
+            options: ModelRc::new(VecModel::from(options.clone())),
+            index: index.map_or(0, |index| i32::try_from(index + 1).unwrap_or(0)),
+        })
+        .collect()
+}
+
+/// How many of the selected CSV files the shown columns apply to.
+fn import_csv_hint(preview: &ImportPreview, language: Language) -> String {
+    let Some(csv) = preview.entries.iter().find_map(|entry| entry.statement.csv.as_ref()) else {
+        return String::new();
+    };
+    let same = preview
+        .entries
+        .iter()
+        .filter(|entry| {
+            entry
+                .statement
+                .csv
+                .as_ref()
+                .is_some_and(|other| other.headers == csv.headers)
+        })
+        .count();
+    if preview.entries.len() > 1 {
+        i18n::format(language, Key::ColumnsApplyToSame, &[Arg::from(same)])
+    } else {
+        String::new()
+    }
+}
+
+/// Whether the newest file carries balances that could update the account.
+fn import_has_balances(preview: &ImportPreview) -> bool {
+    let newest = &preview.newest().statement;
+    newest.bookings.iter().any(|booking| booking.balance_after.is_some()) || newest.closing_balance.is_some()
+}
+
+/// The re-apply dialog's checkbox rows.
+fn reapply_group_rows(
+    preview: &ReapplyPreview,
+    excluded: &BTreeSet<ReapplyKey>,
+    language: Language,
+) -> Vec<ReapplyGroupRow> {
+    preview
+        .groups
+        .iter()
+        .map(|group| {
+            let sum = group.sum.map(|money| format::money(money, language, true)).into_iter();
+            let detail = std::iter::once(group.count.to_string())
+                .chain(sum)
+                .collect::<Vec<_>>()
+                .join(" · ");
+            ReapplyGroupRow {
+                from_id: group.from_category_id.map_or(-1, |id| id_i32(id.0)),
+                to_id: id_i32(group.to_category_id.0),
+                title: format!("{} → {}", group.from_name, group.to_name).into(),
+                detail: detail.into(),
+                ticked: !excluded.contains(&(group.from_category_id, group.to_category_id)),
+            }
+        })
+        .collect()
+}
+
+/// Applies one CSV mapping field change from the dialog.
+fn remap_mapping(mapping: &CsvMapping, field: &str, index: i32) -> CsvMapping {
+    let index = usize::try_from(index).ok().and_then(|index| index.checked_sub(1));
+    let mut mapping = mapping.clone();
+    match field {
+        "date" => mapping.date = index,
+        "amount" => {
+            mapping.amount = index;
+            if index.is_some() {
+                mapping.debit = None;
+                mapping.credit = None;
+            }
+        }
+        "debit" => {
+            mapping.debit = index;
+            if index.is_some() {
+                mapping.amount = None;
+            }
+        }
+        "credit" => {
+            mapping.credit = index;
+            if index.is_some() {
+                mapping.amount = None;
+            }
+        }
+        "partner" => mapping.partner = index,
+        "purpose" => mapping.purpose = index,
+        "balance" => mapping.balance = index,
+        _ => {}
+    }
+    mapping
+}
+
+/// The key of one re-apply group from the dialog's two ids.
+fn reapply_key(from: i32, to: i32) -> ReapplyKey {
+    let from = (from >= 0).then_some(CategoryId(i64::from(from)));
+    (from, CategoryId(i64::from(to)))
 }
 
 /// One row of the booking list, including the pending bank lines above it.
@@ -2009,6 +2636,14 @@ fn identifier(account: &AccountItem) -> String {
     }
 }
 
+/// The name a selected file shows in the import dialog.
+fn display_name(file: &std::path::Path) -> String {
+    file.file_name().map_or_else(
+        || file.to_string_lossy().into_owned(),
+        |name| name.to_string_lossy().into_owned(),
+    )
+}
+
 fn documents_dir(paths: &AppPaths, profile: &str) -> std::path::PathBuf {
     paths.profile_dir(profile).map_or_else(
         |_| paths.root().join(profile).join("documents"),
@@ -2053,7 +2688,11 @@ fn id_i32(id: i64) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use finglass_core::app::transactions::{ImportEntry, ImportFailure, ReapplyChange, ReapplyGroup};
+    use finglass_core::import::{ImportedBooking, ParsedStatement, StatementFormat};
     use finglass_core::model::{Category, CategoryId, TransactionId};
+    use slint::Model as _;
+    use std::path::PathBuf;
 
     fn money(minor: i64, currency: Currency) -> Money {
         Money { minor, currency }
@@ -2200,5 +2839,178 @@ mod tests {
         assert_eq!(chart.value, "€3.00");
         assert_eq!(chart.axis_start, "01.11.2026");
         assert_eq!(chart.axis_end, "02.11.2026");
+    }
+
+    fn imported(date: Date, minor: i64, partner: &str) -> ImportedBooking {
+        ImportedBooking {
+            date,
+            value_date: None,
+            amount: rust_decimal::Decimal::new(minor, 2),
+            currency: Some("EUR".to_owned()),
+            partner_name: Some(partner.to_owned()),
+            partner_iban: None,
+            purpose: Some("Purpose".to_owned()),
+            balance_after: None,
+            bank_reference: None,
+        }
+    }
+
+    fn preview_with(entries: Vec<ImportEntry>, failures: Vec<ImportFailure>) -> ImportPreview {
+        ImportPreview {
+            files: entries.iter().map(|entry| entry.file.clone()).collect(),
+            entries,
+            failures,
+            account_id: Some(AccountId(1)),
+            balance_update_allowed: false,
+        }
+    }
+
+    #[test]
+    fn import_file_rows_show_each_file_period_warning_and_failure() {
+        let csv = CsvLayout {
+            delimiter: ';',
+            charset_name: "UTF-8".to_owned(),
+            header_line: 1,
+            headers: vec!["Buchung".to_owned(), "Betrag".to_owned()],
+            mapping: CsvMapping {
+                date: Some(0),
+                amount: Some(1),
+                ..CsvMapping::default()
+            },
+        };
+        let statement = ParsedStatement {
+            format: StatementFormat::Csv,
+            bookings: vec![
+                imported(time::macros::date!(2026 - 10 - 02), -2_000, "Stadtwerke"),
+                imported(time::macros::date!(2026 - 10 - 15), -3_000, "Obststand"),
+            ],
+            account_iban: Some("DE89370400440532013000".to_owned()),
+            accounts: vec!["DE89370400440532013000".to_owned()],
+            skipped: vec!["line 3".to_owned()],
+            pending_skipped: 2,
+            csv: Some(csv),
+            format_detail: None,
+            closing_balance: None,
+        };
+        let preview = preview_with(
+            vec![ImportEntry {
+                file: PathBuf::from("/tmp/oktober.csv"),
+                statement,
+            }],
+            vec![ImportFailure {
+                file_name: "kaputt.csv".to_owned(),
+                message: "Unreadable".to_owned(),
+            }],
+        );
+        let rows = import_file_rows(&preview, Language::En, None);
+
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].name, "oktober.csv");
+        assert_eq!(rows[0].count_text, "2 bookings");
+        assert_eq!(rows[0].period_text, "02.10.2026–15.10.2026");
+        assert!(rows[0].warning_text.contains("2 pending left out"));
+        assert!(rows[0].warning_text.contains("1 unreadable"));
+        assert!(!rows[0].failure);
+        assert!(rows[1].failure);
+        assert_eq!(rows[1].warning_text, "Unreadable");
+        assert!(!import_has_balances(&preview));
+    }
+
+    #[test]
+    fn import_csv_fields_use_the_headers_and_one_based_indices() {
+        let csv = CsvLayout {
+            delimiter: ';',
+            charset_name: "UTF-8".to_owned(),
+            header_line: 1,
+            headers: vec!["Buchung".to_owned(), "".to_owned(), "Betrag".to_owned()],
+            mapping: CsvMapping {
+                date: Some(0),
+                amount: Some(2),
+                ..CsvMapping::default()
+            },
+        };
+        let statement = ParsedStatement {
+            format: StatementFormat::Csv,
+            bookings: vec![imported(time::macros::date!(2026 - 10 - 02), -2_000, "Stadtwerke")],
+            account_iban: None,
+            accounts: Vec::new(),
+            skipped: Vec::new(),
+            pending_skipped: 0,
+            csv: Some(csv),
+            format_detail: None,
+            closing_balance: None,
+        };
+        let preview = preview_with(
+            vec![ImportEntry {
+                file: PathBuf::from("/tmp/a.csv"),
+                statement,
+            }],
+            Vec::new(),
+        );
+        let fields = import_csv_fields(&preview, Language::En);
+
+        assert_eq!(fields.len(), 7);
+        assert_eq!(fields[0].field, "date");
+        assert_eq!(fields[0].index, 1);
+        let options = fields[0]
+            .options
+            .iter()
+            .map(|option| option.to_string())
+            .collect::<Vec<_>>();
+        assert_eq!(options[0], "— none —");
+        assert_eq!(options[1], "Buchung");
+        assert_eq!(options[2], "Column 2");
+        assert_eq!(fields[1].field, "amount");
+        assert_eq!(fields[1].index, 3);
+    }
+
+    #[test]
+    fn reapply_group_rows_keep_the_tick_state_and_format_the_sum() {
+        let preview = ReapplyPreview {
+            changes: vec![ReapplyChange {
+                transaction_id: TransactionId(1),
+                from_category_id: None,
+                to_category_id: CategoryId(7),
+            }],
+            groups: vec![ReapplyGroup {
+                from_category_id: None,
+                from_name: "Uncategorized".to_owned(),
+                to_category_id: CategoryId(7),
+                to_name: "Food".to_owned(),
+                count: 2,
+                sum: Some(money(-4_200, Currency::EUR)),
+                currency: Currency::EUR,
+            }],
+            shown_count: 3,
+        };
+        let excluded = BTreeSet::from([(None, CategoryId(7))]);
+        let rows = reapply_group_rows(&preview, &excluded, Language::En);
+
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].title, "Uncategorized → Food");
+        assert_eq!(rows[0].detail, "2 · -€42.00");
+        assert!(!rows[0].ticked);
+        assert_eq!(rows[0].from_id, -1);
+        assert_eq!(rows[0].to_id, 7);
+        assert_eq!(reapply_key(-1, 7), (None, CategoryId(7)));
+    }
+
+    #[test]
+    fn remapping_one_csv_field_clears_the_amount_alternatives() {
+        let mapping = CsvMapping {
+            amount: Some(2),
+            ..CsvMapping::default()
+        };
+        let debit = remap_mapping(&mapping, "debit", 4);
+        assert_eq!(debit.debit, Some(3));
+        assert_eq!(debit.amount, None);
+
+        let amount = remap_mapping(&debit, "amount", 2);
+        assert_eq!(amount.amount, Some(1));
+        assert_eq!(amount.debit, None);
+        assert_eq!(amount.credit, None);
+
+        let none = remap_mapping(&mapping, "amount", 0);
+        assert_eq!(none.amount, None);
     }
 }
