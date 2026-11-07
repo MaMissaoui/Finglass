@@ -15,6 +15,8 @@ pub const APP_NAME: &str = "Finglass";
 /// The app version, from the workspace manifest.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+pub mod import;
+
 #[cfg(test)]
 mod tests {
     use super::*;
