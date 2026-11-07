@@ -2,6 +2,7 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 mod dashboard;
+mod reports;
 mod shell;
 
 slint::include_modules!();

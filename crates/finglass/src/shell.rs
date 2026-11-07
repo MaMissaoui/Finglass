@@ -7,8 +7,9 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use finglass_core::app;
-use finglass_core::app::dashboard::{DashboardState, NavigationArgs};
+use finglass_core::app::dashboard::DashboardState;
 use finglass_core::app::prefs::ThemePref;
+use finglass_core::app::transactions::{Period, StartArgs};
 use finglass_core::app::unlock::{UnlockError, UnlockMode};
 use finglass_core::db::Database;
 use finglass_core::i18n::{self, Key, Language};
@@ -20,6 +21,7 @@ use time::OffsetDateTime;
 use zeroize::Zeroizing;
 
 use crate::dashboard;
+use crate::reports::ReportsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
 
 const SLUG: &str = "default";
@@ -32,8 +34,9 @@ pub(crate) struct ShellState {
     pub(crate) theme: Mutex<ThemePref>,
     pub(crate) db: Mutex<Option<Arc<Database>>>,
     pub(crate) dashboard: Mutex<DashboardState>,
-    /// The filter the dashboard last asked the Transactions page to show; M4c reads it.
-    pub(crate) navigation: Mutex<NavigationArgs>,
+    pub(crate) reports: Arc<ReportsController>,
+    /// The filter the dashboard or a report last asked the Transactions page to show; M4c reads it.
+    pub(crate) navigation: Mutex<StartArgs>,
 }
 
 /// Runs the app shell against `paths`.
@@ -43,17 +46,18 @@ pub(crate) struct ShellState {
 pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     let initial_language = system_language();
     let today = OffsetDateTime::now_utc().date();
+    let unlock = UnlockWindow::new()?;
+    let main = MainWindow::new()?;
+    let paths = Arc::new(paths);
+    let reports = Arc::new(ReportsController::new(main.as_weak()));
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
         db: Mutex::new(None),
         dashboard: Mutex::new(DashboardState::new(initial_language, today)),
-        navigation: Mutex::new(NavigationArgs::all()),
+        reports,
+        navigation: Mutex::new(StartArgs::default()),
     });
-
-    let unlock = UnlockWindow::new()?;
-    let main = MainWindow::new()?;
-    let paths = Arc::new(paths);
 
     install_translations_unlock(&unlock, initial_language);
     install_translations_main(&main, initial_language);
@@ -203,15 +207,22 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
 }
 
 fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
+    state.reports.wire(main);
+
     {
         let main_weak = main.as_weak();
         let state = state.clone();
         main.on_navigate(move |screen| {
             if let Some(ui) = main_weak.upgrade() {
                 let dashboard = screen.as_str() == "dashboard";
+                let reports = screen.as_str() == "reports";
                 ui.set_current_screen(screen);
                 if dashboard {
                     dashboard::spawn_load(&ui, &state, None);
+                }
+                if reports {
+                    ui.set_reports_tab("summary".into());
+                    state.reports.open_page();
                 }
             }
         });
@@ -255,14 +266,19 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 return;
             };
             let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+            let month = (dashboard.selected_month != dashboard.current_month).then_some(dashboard.selected_month);
             let args = if category_id < 0 {
-                NavigationArgs::uncategorized(dashboard.selected_month, dashboard.current_month)
+                StartArgs {
+                    month,
+                    uncategorized_only: true,
+                    ..Default::default()
+                }
             } else {
-                NavigationArgs::category(
-                    dashboard.selected_month,
-                    dashboard.current_month,
-                    CategoryId(i64::from(category_id)),
-                )
+                StartArgs {
+                    month,
+                    category_id: Some(CategoryId(i64::from(category_id))),
+                    ..Default::default()
+                }
             };
             drop(dashboard);
             *state.navigation.lock().expect("navigation state poisoned") = args;
@@ -278,7 +294,11 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 return;
             };
             let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
-            let args = NavigationArgs::uncategorized(dashboard.selected_month, dashboard.current_month);
+            let args = StartArgs {
+                month: (dashboard.selected_month != dashboard.current_month).then_some(dashboard.selected_month),
+                uncategorized_only: true,
+                ..Default::default()
+            };
             drop(dashboard);
             *state.navigation.lock().expect("navigation state poisoned") = args;
             ui.set_current_screen("transactions".into());
@@ -292,7 +312,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             let Some(ui) = main_weak.upgrade() else {
                 return;
             };
-            *state.navigation.lock().expect("navigation state poisoned") = NavigationArgs::all();
+            *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
             ui.set_current_screen("transactions".into());
         });
     }
@@ -304,7 +324,10 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             let Some(ui) = main_weak.upgrade() else {
                 return;
             };
-            *state.navigation.lock().expect("navigation state poisoned") = NavigationArgs::partner(partner.to_string());
+            *state.navigation.lock().expect("navigation state poisoned") = StartArgs {
+                partner: Some(partner.to_string()),
+                ..Default::default()
+            };
             ui.set_current_screen("transactions".into());
         });
     }
@@ -324,6 +347,47 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             if let Some(ui) = main_weak.upgrade() {
                 ui.set_current_screen("settings".into());
             }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_reports_open_category(move |category_id| {
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            let today = OffsetDateTime::now_utc().date();
+            let Some(snapshot) = state.reports.snapshot() else {
+                return;
+            };
+            let Some(report) = snapshot.tax_report.as_ref() else {
+                return;
+            };
+            if !crate::reports::linkable(report, today) {
+                return;
+            }
+
+            let period = if report.from.year() == today.year() {
+                Period::ThisYear
+            } else {
+                Period::LastYear
+            };
+            let args = if category_id < 0 {
+                StartArgs {
+                    period: Some(period),
+                    uncategorized_only: true,
+                    ..Default::default()
+                }
+            } else {
+                StartArgs {
+                    period: Some(period),
+                    category_id: Some(CategoryId(i64::from(category_id))),
+                    ..Default::default()
+                }
+            };
+            *state.navigation.lock().expect("navigation state poisoned") = args;
+            ui.set_current_screen("transactions".into());
         });
     }
 
@@ -424,6 +488,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             *state.language.lock().expect("language state poisoned") = language;
             apply_language_main(&ui, language);
             dashboard::spawn_load(&ui, &state, None);
+            state.reports.set_language(language);
 
             let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
                 return;
@@ -505,6 +570,7 @@ fn spawn_open_work(
     main_weak: Weak<MainWindow>,
     state: Arc<ShellState>,
 ) {
+    state.reports.reset();
     thread::spawn(move || {
         let outcome = work().and_then(|db| {
             let db = Arc::new(db);
@@ -534,6 +600,7 @@ fn spawn_open_work(
                     main.set_theme_pref(prefs.theme.code().into());
                     main.set_language(prefs.language.code().into());
                     main.set_audit_rows(audit_model(rows));
+                    state.reports.attach(db.clone(), prefs.language);
                     *state.db.lock().expect("database state poisoned") = Some(db);
 
                     dashboard::spawn_load(&main, &state, None);

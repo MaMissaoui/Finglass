@@ -5,6 +5,7 @@ import { DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice } from "comp
 export component CategorySplit inherits Rectangle {
     in property <[DashboardCategoryRow]> rows;
     in property <string> transfers-note;
+    in property <bool> selectable: true;
 
     callback select(int);
 
@@ -79,7 +80,7 @@ export component CategorySplit inherits Rectangle {
 
                     Text {
                         text: "›";
-                        visible: !row.is-more;
+                        visible: !row.is-more && root.selectable;
                         width: 14px;
                         color: Theme.muted-text;
                         font-size: 16px;
@@ -89,7 +90,7 @@ export component CategorySplit inherits Rectangle {
                 }
 
                 TouchArea {
-                    enabled: !row.is-more;
+                    enabled: !row.is-more && root.selectable;
                     clicked => {
                         root.select(row.category-id);
                     }

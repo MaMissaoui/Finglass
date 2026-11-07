@@ -10,19 +10,26 @@ use std::rc::Rc;
 use finglass_core::app;
 use finglass_core::app::dashboard::{DashboardState, DashboardView};
 use finglass_core::app::prefs::ThemePref;
+use finglass_core::app::reports::ReportsState;
 use finglass_core::audit::{self, Actor};
 use finglass_core::db::Database;
 use finglass_core::i18n::{self, Key, Language};
-use finglass_core::model::{AccountId, AccountType, CategoryId, NewAccount, NewCategory, NewTransaction};
+use finglass_core::model::{
+    AccountId, AccountType, CategoryId, NewAccount, NewCategory, NewDocument, NewTransaction, TransactionId,
+};
 use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
-use finglass_core::repo::{accounts, categories, transactions};
+use finglass_core::repo::{accounts, categories, documents, transactions};
 use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
 use slint::platform::{Platform, PlatformError, WindowAdapter};
 use slint::{Color, ComponentHandle, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel};
 use time::macros::date;
 
 slint::include_modules!();
+
+#[allow(dead_code)]
+#[path = "../src/reports.rs"]
+mod reports;
 
 const SLUG: &str = "default";
 
@@ -146,6 +153,227 @@ fn renders_the_app_shell() {
         assert_varied(&buffer, "settings-fr-light");
         let _ = ui.hide();
     }
+
+    let report_temp = tempfile::tempdir().unwrap();
+    let report_paths = AppPaths::resolve(Some(report_temp.path().as_os_str().to_owned()), None).unwrap();
+    let report_db = app::unlock::create(
+        &report_paths,
+        SLUG,
+        "correct horse battery staple",
+        "correct horse battery staple",
+        true,
+    )
+    .unwrap();
+    seed_reports(&report_db);
+
+    let reports_en = {
+        let mut state = ReportsState::new(Language::En, today);
+        state.load_tax_report(&report_db, 2026);
+        state.load_recurring(&report_db, today);
+        state
+    };
+    let reports_de = {
+        let mut state = ReportsState::new(Language::De, today);
+        state.load_tax_report(&report_db, 2026);
+        state.load_recurring(&report_db, today);
+        state
+    };
+
+    for (tab, name) in [
+        ("summary", "reports-summary-en-light"),
+        ("tax", "reports-tax-en-light"),
+        ("monthly", "reports-monthly-en-light"),
+        ("category", "reports-category-en-light"),
+        ("recurring", "reports-recurring-en-light"),
+    ] {
+        render_reports(&window, &rows, &reports_en, tab, name, 1100, 720);
+    }
+
+    render_reports(
+        &window,
+        &rows,
+        &reports_de,
+        "summary",
+        "reports-summary-de-dark",
+        1100,
+        720,
+    );
+    render_reports(&window, &rows, &reports_de, "tax", "reports-tax-de-dark", 1100, 720);
+
+    let mut missing = reports_en.clone();
+    missing.set_missing_receipts_only(true);
+    render_reports(
+        &window,
+        &rows,
+        &missing,
+        "tax",
+        "reports-tax-missing-en-light",
+        1100,
+        720,
+    );
+    render_reports(
+        &window,
+        &rows,
+        &reports_en,
+        "tax",
+        "reports-tax-narrow-en-light",
+        900,
+        720,
+    );
+}
+
+fn render_reports(
+    window: &Rc<MinimalSoftwareWindow>,
+    rows: &[app::AuditRow],
+    state: &ReportsState,
+    tab: &str,
+    name: &str,
+    width: u32,
+    height: u32,
+) {
+    let theme = if name.ends_with("dark") {
+        ThemePref::Dark
+    } else {
+        ThemePref::Light
+    };
+    let ui = MainWindow::new().unwrap();
+    configure_main(&ui, state.language, theme, "reports", rows);
+    reports::apply(&ui, state);
+    ui.set_reports_tab(tab.into());
+    ui.show().unwrap();
+    let buffer = render(window, name, width, height);
+    assert_varied(&buffer, name);
+    let _ = ui.hide();
+}
+
+fn seed_reports(db: &Database) {
+    let eur = account(
+        db,
+        "DE89370400440532013000",
+        500_000,
+        Currency::EUR,
+        AccountType::Checking,
+    );
+    let usd_currency = Currency::new("USD").unwrap();
+    let usd = account(
+        db,
+        "DE44500105175407324931",
+        50_000,
+        usd_currency,
+        AccountType::Checking,
+    );
+
+    let salary = category(db, "Salary", "#4CAF50", true, false, None);
+    let donations = category(db, "Donations", "#9C27B0", true, false, None);
+    let health = category(db, "Health", "#2196F3", true, false, None);
+    let handwerk = category(db, "Handwerk", "#FF5722", true, false, None);
+    let food = category(db, "Food", "#FFC107", false, false, Some(30_000));
+    let travel = category(db, "Travel", "#00BCD4", true, false, None);
+
+    for month in 1..=10 {
+        let day = time::Date::from_calendar_date(2026, time::Month::try_from(month).unwrap(), 1).unwrap();
+        txn(db, eur, Currency::EUR, day, 250_000, "Employer GmbH", Some(salary));
+    }
+
+    for month in 5..=9 {
+        let day = time::Date::from_calendar_date(2026, time::Month::try_from(month).unwrap(), 10).unwrap();
+        txn(db, eur, Currency::EUR, day, -999, "Spotify", None);
+        txn(db, usd, usd_currency, day, -1_199, "Cloud Service", None);
+    }
+
+    let donation = txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 03 - 05),
+        -10_000,
+        "Beispielhilfe e. V.",
+        Some(donations),
+    );
+    txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 09 - 06),
+        -5_000,
+        "Beispielhilfe e. V.",
+        Some(donations),
+    );
+    txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 04 - 12),
+        -8_900,
+        "Beispiel-Krankenkasse",
+        Some(health),
+    );
+    txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 08 - 20),
+        -2_500,
+        "Apotheke am Ring",
+        Some(health),
+    );
+    txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 06 - 20),
+        -25_000,
+        "Beispiel Werk GmbH",
+        Some(handwerk),
+    );
+    txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 10 - 02),
+        -12_000,
+        "Example Market",
+        Some(food),
+    );
+    txn(
+        db,
+        usd,
+        usd_currency,
+        date!(2026 - 07 - 07),
+        -4_500,
+        "US Travel",
+        Some(travel),
+    );
+    txn(db, usd, usd_currency, date!(2026 - 10 - 06), -3_000, "US shop", None);
+    txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 09 - 28),
+        -2_550,
+        "Apotheke am Ring",
+        None,
+    );
+    txn(
+        db,
+        eur,
+        Currency::EUR,
+        date!(2026 - 10 - 08),
+        -9_890,
+        "Beispiel-Krankenkasse",
+        None,
+    );
+
+    documents::create(
+        db,
+        NewDocument {
+            file_name: "spende.pdf".to_owned(),
+            stored_path: "documents/spende.pdf".to_owned(),
+            mime_type: "application/pdf".to_owned(),
+            transaction_id: Some(donation),
+        },
+    )
+    .unwrap();
 }
 
 fn seed_dashboard(db: &Database) {
@@ -283,7 +511,7 @@ fn txn(
     minor: i64,
     partner: &str,
     category: Option<CategoryId>,
-) {
+) -> TransactionId {
     let hash = format!("{}-{}-{}-{}", account.0, day, minor, partner);
     transactions::insert_planned(
         db,
@@ -295,13 +523,19 @@ fn txn(
             partner_name: Some(partner.to_owned()),
             purpose: None,
             category_id: category,
-            import_hash: hash,
+            import_hash: hash.clone(),
             created_at: time::OffsetDateTime::now_utc(),
             is_new: false,
             tax_override: None,
         }],
     )
     .unwrap();
+    transactions::list_for_account(db, account, None, None)
+        .unwrap()
+        .into_iter()
+        .find(|transaction| transaction.import_hash == hash)
+        .expect("the inserted booking")
+        .id
 }
 
 fn apply_dashboard(ui: &MainWindow, state: &DashboardState) {

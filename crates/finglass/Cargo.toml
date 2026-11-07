@@ -21,6 +21,8 @@ slint = { version = "1.18.1", default-features = false, features = [
 ] }
 time = "0.3"
 zeroize = "1"
+open = "5"
+rfd = "0.15"
 
 [dev-dependencies]
 png = "0.18"
