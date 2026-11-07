@@ -144,6 +144,15 @@ export struct BankAccountRow {
     new-count: int,
 }
 
+// One entry of a bank card's menu. `action` is the callback value the adapter understands.
+export struct BankMenuItem {
+    action: string,
+    label: string,
+    checked: bool,
+    danger: bool,
+    enabled: bool,
+}
+
 // One bank card on the Accounts page. `bank-id` is -1 for accounts without a bank.
 export struct AccountsBankCard {
     bank-id: int,
@@ -154,6 +163,11 @@ export struct AccountsBankCard {
     account-count-text: string,
     totals: [AccountAmount],
     accounts: [BankAccountRow],
+    syncing: bool,
+    sync-step: string,
+    sync-enabled: bool,
+    pin-text: string,
+    menu: [BankMenuItem],
 }
 
 // One row of the Transactions list: a booking or a pending bank line.

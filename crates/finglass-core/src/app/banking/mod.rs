@@ -317,6 +317,32 @@ impl BankingState {
         self.refresh(db, service)
     }
 
+    /// Deletes an online bank login and its accounts.
+    ///
+    /// Refused while this state syncs (the sync still inserts rows) or while the profile is busy (an import may do
+    /// the same). The service forgets the remembered PIN and the FinTS login before it deletes the row.
+    pub fn remove_bank(
+        &mut self,
+        db: &Database,
+        service: &BankingService,
+        busy: &Busy,
+        id: BankConnectionId,
+    ) -> BankResult<()> {
+        if self.is_syncing() {
+            return Err(self.record_error_key(Key::ErrorConnectionBusy));
+        }
+        if busy.active() {
+            return Err(self.record_error_key(Key::ErrorDeleteWhileBusy));
+        }
+        if let Err(error) = service.remove_bank(db, id) {
+            return Err(self.record_service_error(error));
+        }
+        let _ = self.refresh(db, service);
+        self.error = None;
+        self.message = Some(i18n::text(self.language, Key::MessageBankRemoved).to_owned());
+        Ok(())
+    }
+
     /// Validates a history start typed as "dd.MM.yyyy"; returns an error text or `None`.
     #[must_use]
     pub fn validate_sync_from(&self, input: &str, today: Date) -> Option<String> {

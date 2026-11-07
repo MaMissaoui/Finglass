@@ -757,6 +757,37 @@ fn include_in_sync_all_is_refused_while_a_sync_runs() {
 }
 
 #[test]
+fn remove_bank_is_refused_while_syncing_and_while_the_profile_is_busy() {
+    let (temp, db) = database();
+    let bank = online_bank(&db, "Sparkasse", "user");
+    let gateway = Arc::new(TestGateway::default());
+    let (service, _) = service_for(&temp, gateway);
+    let mut state = BankingState::new(Language::En);
+    state.load(&db, &service).unwrap();
+    let busy = Busy::default();
+
+    state.syncing_bank = Some(bank);
+    let error = state.remove_bank(&db, &service, &busy, bank).unwrap_err();
+    assert_eq!(error.message, i18n::text(Language::En, Key::ErrorConnectionBusy));
+    assert!(repo::bank_connections::get_item(&db, bank).unwrap().is_some());
+
+    state.syncing_bank = None;
+    busy.begin();
+    let error = state.remove_bank(&db, &service, &busy, bank).unwrap_err();
+    assert_eq!(error.message, i18n::text(Language::En, Key::ErrorDeleteWhileBusy));
+    assert!(repo::bank_connections::get_item(&db, bank).unwrap().is_some());
+    busy.end();
+
+    state.remove_bank(&db, &service, &busy, bank).unwrap();
+    assert!(repo::bank_connections::get_item(&db, bank).unwrap().is_none());
+    assert!(state.banks.is_empty());
+    assert_eq!(
+        state.message.as_deref(),
+        Some(i18n::text(Language::En, Key::MessageBankRemoved))
+    );
+}
+
+#[test]
 fn history_from_stores_the_date_audits_it_and_syncs_with_it() {
     let (temp, db) = database();
     let bank = online_bank(&db, "Sparkasse", "user");
