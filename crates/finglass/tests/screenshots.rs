@@ -8,13 +8,19 @@ use std::path::Path;
 use std::rc::Rc;
 
 use finglass_core::app;
+use finglass_core::app::dashboard::{DashboardState, DashboardView};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::audit::{self, Actor};
+use finglass_core::db::Database;
 use finglass_core::i18n::{self, Key, Language};
+use finglass_core::model::{AccountId, AccountType, CategoryId, NewAccount, NewCategory, NewTransaction};
+use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
+use finglass_core::repo::{accounts, categories, transactions};
 use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
 use slint::platform::{Platform, PlatformError, WindowAdapter};
-use slint::{ComponentHandle, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel};
+use slint::{Color, ComponentHandle, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel};
+use time::macros::date;
 
 slint::include_modules!();
 
@@ -49,7 +55,9 @@ fn renders_the_app_shell() {
     audit::log(&db, "PROFILE_OPENED", Actor::User, "Profile default opened").unwrap();
     app::prefs::save_theme(&db, ThemePref::Dark).unwrap();
     app::prefs::save_language(&db, Language::De).unwrap();
+    seed_dashboard(&db);
     let rows = app::audit::recent(&db, 100).unwrap();
+    let today = date!(2026 - 10 - 15);
 
     {
         let ui = UnlockWindow::new().unwrap();
@@ -76,11 +84,48 @@ fn renders_the_app_shell() {
     }
 
     {
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&db, today).unwrap();
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
         ui.show().unwrap();
-        let buffer = render(&window, "main-dashboard-en-light", 1100, 720);
-        assert_varied(&buffer, "main-dashboard-en-light");
+        let buffer = render(&window, "dashboard-en-light", 1100, 720);
+        assert_varied(&buffer, "dashboard-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut dashboard = DashboardState::new(Language::De, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.show().unwrap();
+        let buffer = render(&window, "dashboard-de-dark", 1100, 720);
+        assert_varied(&buffer, "dashboard-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let first_run_temp = tempfile::tempdir().unwrap();
+        let first_run_paths = AppPaths::resolve(Some(first_run_temp.path().as_os_str().to_owned()), None).unwrap();
+        let first_run_db = app::unlock::create(
+            &first_run_paths,
+            SLUG,
+            "correct horse battery staple",
+            "correct horse battery staple",
+            true,
+        )
+        .unwrap();
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&first_run_db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.show().unwrap();
+        let buffer = render(&window, "dashboard-first-run-en", 1100, 720);
+        assert_varied(&buffer, "dashboard-first-run-en");
         let _ = ui.hide();
     }
 
@@ -101,6 +146,372 @@ fn renders_the_app_shell() {
         assert_varied(&buffer, "settings-fr-light");
         let _ = ui.hide();
     }
+}
+
+fn seed_dashboard(db: &Database) {
+    let checking = account(
+        db,
+        "DE89370400440532013000",
+        245_037,
+        Currency::EUR,
+        AccountType::Checking,
+    );
+    let usd_currency = Currency::new("USD").unwrap();
+    let dollar = account(
+        db,
+        "DE44500105175407324931",
+        50_000,
+        usd_currency,
+        AccountType::Checking,
+    );
+    let loan = account(db, "DE44500105175407324930", -500_000, Currency::EUR, AccountType::Loan);
+    let food = category(db, "Food", "#FF5722", false, false, Some(30_000));
+    let donations = category(db, "Donations", "#3BC7B0", true, false, None);
+    let transfers = category(db, "Own transfers", "#4CAF50", false, true, None);
+
+    for month in 6..=10 {
+        let day = time::Date::from_calendar_date(2026, time::Month::try_from(month).unwrap(), 2).unwrap();
+        txn(db, checking, Currency::EUR, day, -12_000, "Example Market", Some(food));
+        let payday = time::Date::from_calendar_date(2026, time::Month::try_from(month).unwrap(), 3).unwrap();
+        txn(
+            db,
+            checking,
+            Currency::EUR,
+            payday,
+            150_000 + i64::from(month) * 1_000,
+            "Employer GmbH",
+            None,
+        );
+    }
+
+    txn(
+        db,
+        checking,
+        Currency::EUR,
+        date!(2026 - 03 - 05),
+        -10_000,
+        "Example Aid",
+        Some(donations),
+    );
+    txn(
+        db,
+        checking,
+        Currency::EUR,
+        date!(2026 - 09 - 06),
+        -5_000,
+        "Example Aid",
+        Some(donations),
+    );
+    txn(
+        db,
+        checking,
+        Currency::EUR,
+        date!(2026 - 10 - 04),
+        -20_000,
+        "Own transfer",
+        Some(transfers),
+    );
+    txn(
+        db,
+        checking,
+        Currency::EUR,
+        date!(2026 - 10 - 05),
+        -1_500,
+        "Corner Kiosk",
+        None,
+    );
+    txn(db, dollar, usd_currency, date!(2026 - 10 - 06), -3_000, "US shop", None);
+    txn(db, loan, Currency::EUR, date!(2026 - 10 - 07), -1_000, "Interest", None);
+
+    for month in 6..=9 {
+        let day = time::Date::from_calendar_date(2026, time::Month::try_from(month).unwrap(), 10).unwrap();
+        txn(db, checking, Currency::EUR, day, -999, "Spotify", None);
+    }
+}
+
+fn account(db: &Database, iban: &str, balance: i64, currency: Currency, account_type: AccountType) -> AccountId {
+    accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: None,
+            iban: Some(iban.to_owned()),
+            account_number: None,
+            currency,
+            account_type,
+            balance: Money {
+                minor: balance,
+                currency,
+            },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap()
+}
+
+fn category(
+    db: &Database,
+    name: &str,
+    color: &str,
+    tax_relevant: bool,
+    is_transfer: bool,
+    budget: Option<i64>,
+) -> CategoryId {
+    categories::create(
+        db,
+        NewCategory {
+            name: name.to_owned(),
+            color: color.to_owned(),
+            budget_limit: budget.map(|minor| Money {
+                minor,
+                currency: Currency::EUR,
+            }),
+            is_tax_relevant: tax_relevant,
+            is_transfer,
+        },
+    )
+    .unwrap()
+}
+
+fn txn(
+    db: &Database,
+    account: AccountId,
+    currency: Currency,
+    day: time::Date,
+    minor: i64,
+    partner: &str,
+    category: Option<CategoryId>,
+) {
+    let hash = format!("{}-{}-{}-{}", account.0, day, minor, partner);
+    transactions::insert_planned(
+        db,
+        account,
+        vec![NewTransaction {
+            booking_date: day,
+            amount: Money { minor, currency },
+            balance_after: None,
+            partner_name: Some(partner.to_owned()),
+            purpose: None,
+            category_id: category,
+            import_hash: hash,
+            created_at: time::OffsetDateTime::now_utc(),
+            is_new: false,
+            tax_override: None,
+        }],
+    )
+    .unwrap();
+}
+
+fn apply_dashboard(ui: &MainWindow, state: &DashboardState) {
+    ui.set_dashboard_loading(state.is_loading);
+    ui.set_dashboard_first_run(state.is_first_run());
+    ui.set_dashboard_show_content(state.has_figures());
+    ui.set_dashboard_error_text(state.error.clone().unwrap_or_default().into());
+
+    if let Some(view) = &state.view {
+        apply_dashboard_view(ui, view, state.language);
+    }
+}
+
+fn apply_dashboard_view(ui: &MainWindow, view: &DashboardView, language: Language) {
+    ui.set_dashboard_month_label(view.month_label.clone().into());
+    ui.set_dashboard_previous_enabled(view.previous_enabled);
+    ui.set_dashboard_next_enabled(view.next_enabled);
+    ui.set_dashboard_is_current_month(view.is_current_month);
+    ui.set_dashboard_available_title(view.available_title.clone().into());
+    ui.set_dashboard_available_value(view.available_value.clone().into());
+    ui.set_dashboard_available_subtitle(view.available_subtitle.clone().into());
+    ui.set_dashboard_available_tone(
+        match view.available_tone {
+            finglass_core::app::BalanceTone::Positive => "positive",
+            finglass_core::app::BalanceTone::Zero => "zero",
+            finglass_core::app::BalanceTone::Negative => "negative",
+        }
+        .into(),
+    );
+    ui.set_dashboard_income_title(view.income_title.clone().into());
+    ui.set_dashboard_income_value(view.income_value.clone().into());
+    ui.set_dashboard_expenses_title(view.expenses_title.clone().into());
+    ui.set_dashboard_expenses_value(view.expenses_value.clone().into());
+    ui.set_dashboard_pending_title(view.pending_title.clone().into());
+    ui.set_dashboard_pending_value(view.pending_value.clone().into());
+    ui.set_dashboard_pending_subtitle(view.pending_subtitle.clone().into());
+    ui.set_dashboard_pending_enabled(view.pending_enabled);
+    ui.set_dashboard_expenses_section_title(view.expenses_section_title.clone().into());
+    ui.set_dashboard_expenses_empty_text(view.expenses_empty_text.clone().into());
+    ui.set_dashboard_expense_rows(category_model(&view.expense_rows));
+    ui.set_dashboard_transfers_note(view.transfers_note.clone().unwrap_or_default().into());
+    ui.set_dashboard_chart_title(view.chart_title.clone().into());
+    ui.set_dashboard_chart_empty_text(view.chart_empty_text.clone().unwrap_or_default().into());
+    ui.set_dashboard_chart_axis_top(view.chart_axis_top.clone().into());
+    ui.set_dashboard_chart_axis_mid(view.chart_axis_mid.clone().into());
+    ui.set_dashboard_chart_axis_zero(view.chart_axis_zero.clone().into());
+    ui.set_dashboard_month_bars(month_model(view));
+    ui.set_dashboard_income_legend(view.income_legend.clone().into());
+    ui.set_dashboard_expenses_legend(view.expenses_legend.clone().into());
+    ui.set_dashboard_partial_note(view.partial_month_note.clone().into());
+    ui.set_dashboard_budgets_title(view.budgets_title.clone().into());
+    ui.set_dashboard_budget_rows(budget_model(view));
+    ui.set_dashboard_has_budgets(!view.budgets.is_empty());
+    ui.set_dashboard_month_progress(view.month_progress);
+    ui.set_dashboard_tax_title(view.tax_title.clone().into());
+    ui.set_dashboard_tax_hint(view.tax_hint.clone().into());
+    ui.set_dashboard_tax_value(view.tax_value.clone().into());
+    ui.set_dashboard_tax_slices(tax_model(view, language));
+    ui.set_dashboard_upcoming_title(view.upcoming_title.clone().into());
+    ui.set_dashboard_upcoming_rows(upcoming_model(view));
+    ui.set_dashboard_has_upcoming(!view.upcoming.is_empty());
+    ui.set_dashboard_recent_title(view.recent_title.clone().into());
+    ui.set_dashboard_recent_empty_text(view.recent_empty_text.clone().into());
+    ui.set_dashboard_recent_rows(transaction_model(view));
+    ui.set_dashboard_view_all_label(view.view_all_label.clone().into());
+}
+
+fn category_model(rows: &[finglass_core::app::CategoryRowView]) -> ModelRc<DashboardCategoryRow> {
+    ModelRc::new(VecModel::from(
+        rows.iter()
+            .map(|row| DashboardCategoryRow {
+                label: row.label.clone().into(),
+                percent_text: row.percent_text.clone().into(),
+                amount_text: row.amount_text.clone().into(),
+                colour: color(&row.color),
+                category_id: row.category_id.map_or(-1, |id| i32::try_from(id.0).unwrap_or(-1)),
+                is_more: row.is_more,
+                fraction: row.fraction,
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn month_model(view: &DashboardView) -> ModelRc<DashboardMonthBar> {
+    ModelRc::new(VecModel::from(
+        view.month_bars
+            .iter()
+            .map(|bar| DashboardMonthBar {
+                label: bar.label.clone().into(),
+                income_fraction: bar.income_fraction,
+                expenses_fraction: bar.expenses_fraction,
+                partial: bar.partial,
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn budget_model(view: &DashboardView) -> ModelRc<DashboardBudgetRow> {
+    ModelRc::new(VecModel::from(
+        view.budgets
+            .iter()
+            .map(|row| DashboardBudgetRow {
+                name: row.name.clone().into(),
+                amount_text: row.amount_text.clone().into(),
+                rest_text: row.rest_text.clone().into(),
+                ratio: row.ratio,
+                over: row.is_over,
+                warning: row.warning,
+                colour: color(&row.color),
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn upcoming_model(view: &DashboardView) -> ModelRc<DashboardUpcomingRow> {
+    ModelRc::new(VecModel::from(
+        view.upcoming
+            .iter()
+            .map(|row| DashboardUpcomingRow {
+                date_text: row.date_text.clone().into(),
+                title: row.name.clone().into(),
+                meta: row.meta.clone().into(),
+                amount_text: row.amount_text.clone().into(),
+                expense: !row.is_income,
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn transaction_model(view: &DashboardView) -> ModelRc<DashboardTransactionRow> {
+    ModelRc::new(VecModel::from(
+        view.recent_transactions
+            .iter()
+            .map(|row| DashboardTransactionRow {
+                date_text: row.date_text.clone().into(),
+                title: row.title.clone().into(),
+                meta: row.meta.clone().into(),
+                amount_text: row.amount_text.clone().into(),
+                expense: row.is_expense,
+                partner: row.partner.clone().unwrap_or_default().into(),
+            })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn tax_model(view: &DashboardView, language: Language) -> ModelRc<DashboardTaxSlice> {
+    let mut slices = view.tax_deductions_by_category.clone();
+    if slices.len() > 6 {
+        let rest = slices.split_off(5);
+        let minor: i64 = rest.iter().map(|slice| slice.amount.minor).sum();
+        let currency = rest[0].amount.currency;
+        slices.push(finglass_core::app::CategorySliceView {
+            label: i18n::text(language, Key::ChartOther).to_owned(),
+            amount: Money { minor, currency },
+            color: "#9E9E9E".to_owned(),
+            category_id: None,
+            fraction: 0.0,
+        });
+    }
+
+    let total: i64 = slices.iter().map(|slice| slice.amount.minor).sum();
+    let mut start = -90.0_f32;
+    let rows = slices
+        .into_iter()
+        .map(|slice| {
+            let sweep = if total > 0 {
+                (slice.amount.minor as f32 / total as f32 * 360.0 - 1.0).max(0.5)
+            } else {
+                0.0
+            };
+            let arc = arc_commands(start, sweep);
+            start += slice.amount.minor as f32 / total.max(1) as f32 * 360.0;
+            DashboardTaxSlice {
+                label: slice.label.into(),
+                amount_text: finglass_core::format::money(slice.amount, language, false).into(),
+                colour: color(&slice.color),
+                arc: arc.into(),
+            }
+        })
+        .collect::<Vec<_>>();
+
+    ModelRc::new(VecModel::from(rows))
+}
+
+fn arc_commands(start_degrees: f32, sweep_degrees: f32) -> String {
+    const CENTER: f32 = 80.0;
+    const RADIUS: f32 = 70.0;
+    let start = start_degrees.to_radians();
+    let end = (start_degrees + sweep_degrees).to_radians();
+    let x1 = CENTER + RADIUS * start.cos();
+    let y1 = CENTER + RADIUS * start.sin();
+    let x2 = CENTER + RADIUS * end.cos();
+    let y2 = CENTER + RADIUS * end.sin();
+    let large_arc = if sweep_degrees > 180.0 { 1 } else { 0 };
+    format!("M {x1:.2} {y1:.2} A {RADIUS:.2} {RADIUS:.2} 0 {large_arc} 1 {x2:.2} {y2:.2}")
+}
+
+fn color(hex: &str) -> Color {
+    let text = hex.trim().trim_start_matches('#');
+    if text.len() == 6
+        && let Ok(value) = u32::from_str_radix(text, 16)
+    {
+        return Color::from_rgb_u8(
+            ((value >> 16) & 0xFF) as u8,
+            ((value >> 8) & 0xFF) as u8,
+            (value & 0xFF) as u8,
+        );
+    }
+
+    Color::from_rgb_u8(117, 117, 117)
 }
 
 fn configure_unlock(ui: &UnlockWindow, language: Language, theme: ThemePref, mode: &str, error: &str) {

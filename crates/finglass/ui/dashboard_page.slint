@@ -1,0 +1,770 @@
+import { ScrollView, Spinner } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import {
+    DashboardBudgetRow,
+    DashboardCategoryRow,
+    DashboardMonthBar,
+    DashboardTaxSlice,
+    DashboardTransactionRow,
+    DashboardUpcomingRow,
+    PrimaryButton,
+    TextButton,
+} from "components.slint";
+import { CategorySplit, IncomeExpenseChart, TaxDonut } from "charts.slint";
+
+// A dashboard card: a surface with a hairline outline and a heading.
+component Card inherits Rectangle {
+    in property <string> title;
+    in property <bool> show-title: true;
+
+    background: Theme.surface;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    VerticalLayout {
+        padding: 16px;
+        spacing: 12px;
+        alignment: start;
+
+        if (root.show-title) : Text {
+            text: root.title;
+            color: Theme.text;
+            font-size: 15px;
+            font-weight: 600;
+            overflow: elide;
+        }
+
+        @children
+    }
+}
+
+// A headline figure with a coloured accent and an optional second line.
+component StatCard inherits Rectangle {
+    in property <string> title;
+    in property <string> value;
+    in property <string> subtitle;
+    in property <color> accent;
+    in property <color> value-color: Theme.text;
+    in property <bool> interactive: false;
+
+    callback clicked;
+
+    background: Theme.surface;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    VerticalLayout {
+        padding: 16px;
+        spacing: 8px;
+        alignment: start;
+
+        HorizontalLayout {
+            spacing: 8px;
+
+            Text {
+                text: root.title;
+                height: 30px;
+                color: Theme.muted-text;
+                font-size: 12px;
+                vertical-alignment: center;
+                wrap: word-wrap;
+                horizontal-stretch: 1;
+            }
+
+            Rectangle {
+                width: 10px;
+                height: 10px;
+                border-radius: 5px;
+                background: root.accent;
+            }
+        }
+
+        Text {
+            text: root.value;
+            color: root.value-color;
+            font-size: 24px;
+            font-weight: 700;
+            overflow: elide;
+        }
+
+        Text {
+            text: root.subtitle;
+            color: Theme.muted-text;
+            font-size: 11px;
+            wrap: word-wrap;
+        }
+    }
+
+    TouchArea {
+        enabled: root.interactive;
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+// One booking in a dashboard list: date, title and meta, right-aligned amount.
+component LedgerRow inherits Rectangle {
+    in property <string> date-text;
+    in property <string> title;
+    in property <string> meta;
+    in property <string> amount-text;
+    in property <bool> expense: true;
+    in property <bool> interactive: false;
+
+    callback clicked;
+
+    height: 44px;
+    background: transparent;
+
+    HorizontalLayout {
+        spacing: 12px;
+
+        Text {
+            text: root.date-text;
+            width: 90px;
+            color: Theme.text;
+            font-size: 12px;
+            vertical-alignment: center;
+        }
+
+        VerticalLayout {
+            spacing: 1px;
+            horizontal-stretch: 1;
+            alignment: center;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 500;
+                overflow: elide;
+            }
+
+            Text {
+                text: root.meta;
+                color: Theme.muted-text;
+                font-size: 11px;
+                overflow: elide;
+            }
+        }
+
+        Text {
+            text: root.amount-text;
+            color: root.expense ? Theme.error : Theme.success;
+            font-size: 13px;
+            font-weight: 600;
+            vertical-alignment: center;
+            horizontal-alignment: right;
+        }
+    }
+
+    TouchArea {
+        enabled: root.interactive;
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+// One budget: name, spent of limit, progress bar and what is left.
+component BudgetRow inherits Rectangle {
+    in property <DashboardBudgetRow> budget;
+    in property <float> month-progress;
+
+    height: 56px;
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 4px;
+
+        HorizontalLayout {
+            spacing: 8px;
+
+            Text {
+                text: root.budget.name;
+                color: Theme.text;
+                font-size: 12px;
+                vertical-alignment: center;
+                overflow: elide;
+                horizontal-stretch: 1;
+            }
+
+            Text {
+                text: root.budget.amount-text;
+                color: root.budget.over ? Theme.error : Theme.text;
+                font-size: 12px;
+                font-weight: 600;
+                vertical-alignment: center;
+                horizontal-alignment: right;
+            }
+        }
+
+        Rectangle {
+            height: 6px;
+            border-radius: 3px;
+            background: Theme.divider;
+            clip: true;
+
+            Rectangle {
+                width: parent.width * root.budget.ratio;
+                height: parent.height;
+                border-radius: 3px;
+                background: root.budget.over ? Theme.error : (root.budget.warning ? Theme.warning : root.budget.colour);
+            }
+
+            Rectangle {
+                x: parent.width * root.month-progress - 1px;
+                width: 2px;
+                height: parent.height;
+                background: Theme.text;
+            }
+        }
+
+        Text {
+            text: root.budget.rest-text;
+            color: root.budget.over ? Theme.error : Theme.muted-text;
+            font-size: 11px;
+        }
+    }
+}
+
+// A small round month arrow.
+component MonthArrow inherits Rectangle {
+    in property <string> label;
+    in property <bool> enabled: true;
+
+    callback clicked;
+
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background: transparent;
+
+    Text {
+        text: root.label;
+        color: root.enabled ? Theme.text : Theme.divider;
+        font-size: 20px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+// The first-run card: three setup steps, then no empty figures.
+component GettingStartedCard inherits Rectangle {
+    callback add-bank;
+    callback open-settings;
+
+    width: 640px;
+    height: card-layout.preferred-height;
+    background: Theme.surface;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    card-layout := VerticalLayout {
+        padding: 24px;
+        spacing: 16px;
+        alignment: start;
+
+        Text {
+            text: Tr.t("WelcomeTitle");
+            color: Theme.text;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        Text {
+            text: Tr.t("GettingStartedIntro");
+            color: Theme.muted-text;
+            font-size: 13px;
+        }
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: start;
+
+            Rectangle {
+                width: 28px;
+                height: 28px;
+                border-radius: 14px;
+                background: Theme.selected;
+
+                Text {
+                    text: "1";
+                    color: Theme.on-selected;
+                    font-size: 13px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+
+            VerticalLayout {
+                spacing: 4px;
+                horizontal-stretch: 1;
+
+                Text {
+                    text: Tr.t("StepAddBank");
+                    color: Theme.text;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+                Text {
+                    text: Tr.t("StepAddBankHint");
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+                PrimaryButton {
+                    width: 140px;
+                    text: Tr.t("AddBank");
+                    clicked => {
+                        root.add-bank();
+                    }
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: start;
+
+            Rectangle {
+                width: 28px;
+                height: 28px;
+                border-radius: 14px;
+                background: Theme.selected;
+
+                Text {
+                    text: "2";
+                    color: Theme.on-selected;
+                    font-size: 13px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+
+            VerticalLayout {
+                spacing: 4px;
+                horizontal-stretch: 1;
+
+                Text {
+                    text: Tr.t("StepSync");
+                    color: Theme.text;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+                Text {
+                    text: Tr.t("StepSyncHint");
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: start;
+
+            Rectangle {
+                width: 28px;
+                height: 28px;
+                border-radius: 14px;
+                background: Theme.selected;
+
+                Text {
+                    text: "3";
+                    color: Theme.on-selected;
+                    font-size: 13px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+
+            VerticalLayout {
+                spacing: 4px;
+                horizontal-stretch: 1;
+
+                Text {
+                    text: Tr.t("StepCategorize");
+                    color: Theme.text;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+                Text {
+                    text: Tr.t("StepCategorizeHint");
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+                TextButton {
+                    text: Tr.t("OpenSettings");
+                    clicked => {
+                        root.open-settings();
+                    }
+                }
+            }
+        }
+    }
+}
+
+export component DashboardPage inherits Rectangle {
+    in property <bool> loading;
+    in property <bool> first-run;
+    in property <bool> show-content;
+    in property <string> error-text;
+
+    in property <string> month-label;
+    in property <bool> previous-enabled;
+    in property <bool> next-enabled;
+    in property <bool> is-current-month;
+
+    in property <string> available-title;
+    in property <string> available-value;
+    in property <string> available-subtitle;
+    in property <string> available-tone;
+    in property <string> income-title;
+    in property <string> income-value;
+    in property <string> expenses-title;
+    in property <string> expenses-value;
+    in property <string> pending-title;
+    in property <string> pending-value;
+    in property <string> pending-subtitle;
+    in property <bool> pending-enabled;
+
+    in property <string> expenses-section-title;
+    in property <string> expenses-empty-text;
+    in property <[DashboardCategoryRow]> expense-rows;
+    in property <string> transfers-note;
+
+    in property <string> chart-title;
+    in property <string> chart-empty-text;
+    in property <string> chart-axis-top;
+    in property <string> chart-axis-mid;
+    in property <string> chart-axis-zero;
+    in property <[DashboardMonthBar]> month-bars;
+    in property <string> income-legend;
+    in property <string> expenses-legend;
+    in property <string> partial-note;
+
+    in property <string> budgets-title;
+    in property <[DashboardBudgetRow]> budget-rows;
+    in property <bool> has-budgets;
+    in property <float> month-progress;
+
+    in property <string> tax-title;
+    in property <string> tax-hint;
+    in property <string> tax-value;
+    in property <[DashboardTaxSlice]> tax-slices;
+
+    in property <string> upcoming-title;
+    in property <[DashboardUpcomingRow]> upcoming-rows;
+    in property <bool> has-upcoming;
+
+    in property <string> recent-title;
+    in property <string> recent-empty-text;
+    in property <[DashboardTransactionRow]> recent-rows;
+    in property <string> view-all-label;
+
+    callback previous-month;
+    callback next-month;
+    callback current-month;
+    callback open-category(int);
+    callback open-uncategorized;
+    callback open-all;
+    callback open-partner(string);
+    callback open-accounts;
+    callback open-settings;
+    callback dismiss-error;
+
+    background: Theme.background;
+
+    ScrollView {
+        VerticalLayout {
+            padding: 24px;
+            spacing: 24px;
+            alignment: start;
+
+            if (root.error-text != "") : Rectangle {
+                background: Theme.surface;
+                border-radius: 8px;
+                border-width: 1px;
+                border-color: Theme.error;
+
+                HorizontalLayout {
+                    padding: 12px;
+                    spacing: 12px;
+
+                    Text {
+                        text: root.error-text;
+                        color: Theme.error;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                        wrap: word-wrap;
+                        horizontal-stretch: 1;
+                    }
+
+                    TextButton {
+                        text: Tr.t("Dismiss");
+                        clicked => {
+                            root.dismiss-error();
+                        }
+                    }
+                }
+            }
+
+            if (root.first-run) : GettingStartedCard {
+                add-bank => {
+                    root.open-accounts();
+                }
+                open-settings => {
+                    root.open-settings();
+                }
+            }
+
+            if (!root.first-run && !root.show-content && root.loading) : Rectangle {
+                height: 240px;
+                background: transparent;
+
+                Spinner {
+                    width: 32px;
+                    height: 32px;
+                }
+            }
+
+            if (!root.first-run && root.show-content) : VerticalLayout {
+                spacing: 24px;
+                alignment: start;
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    MonthArrow {
+                        label: "‹";
+                        enabled: root.previous-enabled;
+                        clicked => {
+                            root.previous-month();
+                        }
+                    }
+
+                    Rectangle {
+                        height: 32px;
+                        border-radius: 16px;
+                        border-width: 1px;
+                        border-color: Theme.divider;
+                        background: Theme.surface;
+
+                        HorizontalLayout {
+                            padding-left: 14px;
+                            padding-right: 14px;
+
+                            Text {
+                                text: root.month-label;
+                                color: Theme.text;
+                                font-size: 13px;
+                                font-weight: 600;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+
+                    MonthArrow {
+                        label: "›";
+                        enabled: root.next-enabled;
+                        clicked => {
+                            root.next-month();
+                        }
+                    }
+
+                    if (!root.is-current-month) : TextButton {
+                        text: Tr.t("CurrentMonth");
+                        clicked => {
+                            root.current-month();
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 16px;
+                    height: 168px;
+
+                    StatCard {
+                        horizontal-stretch: 1;
+                        title: root.available-title;
+                        value: root.available-value;
+                        subtitle: root.available-subtitle;
+                        accent: Theme.primary;
+                        value-color: root.available-tone == "negative" ? Theme.error : (root.available-tone == "positive" ? Theme.success : Theme.text);
+                    }
+
+                    StatCard {
+                        horizontal-stretch: 1;
+                        title: root.income-title;
+                        value: root.income-value;
+                        subtitle: "";
+                        accent: Theme.success;
+                        value-color: Theme.success;
+                    }
+
+                    StatCard {
+                        horizontal-stretch: 1;
+                        title: root.expenses-title;
+                        value: root.expenses-value;
+                        subtitle: "";
+                        accent: Theme.error;
+                        value-color: Theme.error;
+                    }
+
+                    StatCard {
+                        horizontal-stretch: 1;
+                        title: root.pending-title;
+                        value: root.pending-value;
+                        subtitle: root.pending-subtitle;
+                        accent: Theme.warning;
+                        value-color: root.pending-enabled ? Theme.warning : Theme.success;
+                        interactive: root.pending-enabled;
+                        clicked => {
+                            root.open-uncategorized();
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 16px;
+                    height: 300px;
+
+                    Card {
+                        horizontal-stretch: 1;
+                        title: root.expenses-section-title;
+
+                        if (root.expense-rows.length == 0) : Text {
+                            text: root.expenses-empty-text;
+                            color: Theme.muted-text;
+                            font-size: 13px;
+                            wrap: word-wrap;
+                        }
+
+                        if (root.expense-rows.length > 0) : CategorySplit {
+                            rows: root.expense-rows;
+                            transfers-note: root.transfers-note;
+                            select(category-id) => {
+                                root.open-category(category-id);
+                            }
+                        }
+                    }
+
+                    Card {
+                        horizontal-stretch: 1;
+                        title: root.chart-title;
+
+                        IncomeExpenseChart {
+                            bars: root.month-bars;
+                            axis-top: root.chart-axis-top;
+                            axis-mid: root.chart-axis-mid;
+                            axis-zero: root.chart-axis-zero;
+                            empty-text: root.chart-empty-text;
+                            income-label: root.income-legend;
+                            expenses-label: root.expenses-legend;
+                            partial-note: root.partial-note;
+                        }
+                    }
+                }
+
+                if (root.has-upcoming) : Card {
+                    title: root.upcoming-title;
+
+                    for payment in root.upcoming-rows : LedgerRow {
+                        date-text: payment.date-text;
+                        title: payment.title;
+                        meta: payment.meta;
+                        amount-text: payment.amount-text;
+                        expense: payment.expense;
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 16px;
+
+                    if (root.has-budgets) : Card {
+                        horizontal-stretch: 1;
+                        title: root.budgets-title;
+
+                        for budget in root.budget-rows : BudgetRow {
+                            budget: budget;
+                            month-progress: root.month-progress;
+                        }
+                    }
+
+                    Card {
+                        horizontal-stretch: 1;
+                        title: root.tax-title;
+
+                        if (root.tax-slices.length == 0) : Text {
+                            text: root.tax-hint;
+                            color: Theme.muted-text;
+                            font-size: 13px;
+                            wrap: word-wrap;
+                        }
+
+                        if (root.tax-slices.length > 0) : TaxDonut {
+                            slices: root.tax-slices;
+                            total-text: root.tax-value;
+                        }
+                    }
+                }
+
+                Card {
+                    title: root.recent-title;
+
+                    HorizontalLayout {
+                        alignment: end;
+
+                        TextButton {
+                            text: root.view-all-label;
+                            clicked => {
+                                root.open-all();
+                            }
+                        }
+                    }
+
+                    if (root.recent-rows.length == 0) : Text {
+                        text: root.recent-empty-text;
+                        color: Theme.muted-text;
+                        font-size: 13px;
+                    }
+
+                    for booking in root.recent-rows : LedgerRow {
+                        date-text: booking.date-text;
+                        title: booking.title;
+                        meta: booking.meta;
+                        amount-text: booking.amount-text;
+                        expense: booking.expense;
+                        interactive: true;
+                        clicked => {
+                            if (booking.partner != "") {
+                                root.open-partner(booking.partner);
+                            } else {
+                                root.open-all();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

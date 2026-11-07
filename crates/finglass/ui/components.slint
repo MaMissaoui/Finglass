@@ -1,5 +1,62 @@
 import { Theme } from "theme.slint";
 
+// One legend row of the dashboard's spending split.
+export struct DashboardCategoryRow {
+    label: string,
+    percent-text: string,
+    amount-text: string,
+    colour: color,
+    category-id: int,
+    is-more: bool,
+    fraction: float,
+}
+
+// One month of the dashboard's income-vs-expenses chart.
+export struct DashboardMonthBar {
+    label: string,
+    income-fraction: float,
+    expenses-fraction: float,
+    partial: bool,
+}
+
+// One budget row on the dashboard.
+export struct DashboardBudgetRow {
+    name: string,
+    amount-text: string,
+    rest-text: string,
+    ratio: float,
+    over: bool,
+    warning: bool,
+    colour: color,
+}
+
+// One recurring payment due in the next 30 days.
+export struct DashboardUpcomingRow {
+    date-text: string,
+    title: string,
+    meta: string,
+    amount-text: string,
+    expense: bool,
+}
+
+// One recent booking on the dashboard.
+export struct DashboardTransactionRow {
+    date-text: string,
+    title: string,
+    meta: string,
+    amount-text: string,
+    expense: bool,
+    partner: string,
+}
+
+// One arc of the dashboard's tax donut.
+export struct DashboardTaxSlice {
+    label: string,
+    amount-text: string,
+    colour: color,
+    arc: string,
+}
+
 // A filled action button in the brand colour. The fluent widgets keep their own palette; the
 // surfaces and primary actions that belong to Finglass use Theme directly.
 export component PrimaryButton inherits Rectangle {

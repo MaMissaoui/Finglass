@@ -1,0 +1,356 @@
+import { Theme } from "theme.slint";
+import { DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice } from "components.slint";
+
+// The spending split: one horizontal 100% bar and one legend row per category.
+export component CategorySplit inherits Rectangle {
+    in property <[DashboardCategoryRow]> rows;
+    in property <string> transfers-note;
+
+    callback select(int);
+
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 12px;
+
+        Rectangle {
+            height: 12px;
+            border-radius: 6px;
+            background: Theme.divider;
+            clip: true;
+
+            HorizontalLayout {
+                spacing: 1px;
+
+                for row in root.rows : Rectangle {
+                    visible: row.fraction > 0.0;
+                    horizontal-stretch: row.fraction;
+                    background: row.colour;
+                }
+            }
+        }
+
+        VerticalLayout {
+            spacing: 4px;
+
+            for row in root.rows : Rectangle {
+                height: 28px;
+                border-radius: 6px;
+                background: transparent;
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    padding-left: 4px;
+                    padding-right: 4px;
+
+                    Rectangle {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 5px;
+                        background: row.colour;
+                    }
+
+                    Text {
+                        text: row.label;
+                        color: row.is-more ? Theme.muted-text : Theme.text;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                    }
+
+                    Text {
+                        text: row.percent-text;
+                        width: 48px;
+                        color: row.is-more ? Theme.muted-text : Theme.text;
+                        font-size: 13px;
+                        horizontal-alignment: right;
+                        vertical-alignment: center;
+                    }
+
+                    Text {
+                        text: row.amount-text;
+                        width: 96px;
+                        color: row.is-more ? Theme.muted-text : Theme.text;
+                        font-size: 13px;
+                        horizontal-alignment: right;
+                        vertical-alignment: center;
+                    }
+
+                    Text {
+                        text: "›";
+                        visible: !row.is-more;
+                        width: 14px;
+                        color: Theme.muted-text;
+                        font-size: 16px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+
+                TouchArea {
+                    enabled: !row.is-more;
+                    clicked => {
+                        root.select(row.category-id);
+                    }
+                }
+            }
+        }
+
+        if (root.transfers-note != "") : Text {
+            text: root.transfers-note;
+            color: Theme.muted-text;
+            font-size: 12px;
+        }
+    }
+}
+
+// Grouped income/expense bars for six months, on an axis from zero to a round maximum.
+export component IncomeExpenseChart inherits Rectangle {
+    in property <[DashboardMonthBar]> bars;
+    in property <string> axis-top;
+    in property <string> axis-mid;
+    in property <string> axis-zero;
+    in property <string> empty-text;
+    in property <string> income-label;
+    in property <string> expenses-label;
+    in property <string> partial-note;
+
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 4px;
+
+        if (root.empty-text != "") : Text {
+            text: root.empty-text;
+            color: Theme.muted-text;
+            font-size: 13px;
+            wrap: word-wrap;
+        }
+
+        if (root.empty-text == "") : VerticalLayout {
+            spacing: 2px;
+
+            HorizontalLayout {
+                spacing: 8px;
+
+                VerticalLayout {
+                    width: 64px;
+                    height: 160px;
+                    alignment: space-between;
+
+                    Text {
+                        text: root.axis-top;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        horizontal-alignment: right;
+                        overflow: elide;
+                    }
+                    Text {
+                        text: root.axis-mid;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        horizontal-alignment: right;
+                        overflow: elide;
+                    }
+                    Text {
+                        text: root.axis-zero;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        horizontal-alignment: right;
+                        overflow: elide;
+                    }
+                }
+
+                Rectangle {
+                    height: 160px;
+                    horizontal-stretch: 1;
+                    background: transparent;
+
+                    Rectangle {
+                        y: 0px;
+                        width: parent.width;
+                        height: 1px;
+                        background: Theme.divider;
+                    }
+                    Rectangle {
+                        y: parent.height / 2;
+                        width: parent.width;
+                        height: 1px;
+                        background: Theme.divider;
+                    }
+                    Rectangle {
+                        y: parent.height - self.height;
+                        width: parent.width;
+                        height: 1px;
+                        background: Theme.divider;
+                    }
+
+                    HorizontalLayout {
+                        for bar in root.bars : Rectangle {
+                            horizontal-stretch: 1;
+                            background: transparent;
+
+                            Rectangle {
+                                x: parent.width * 0.16;
+                                width: parent.width * 0.30;
+                                height: parent.height * bar.income-fraction;
+                                y: parent.height - self.height;
+                                border-radius: 3px;
+                                background: Theme.success;
+                                opacity: bar.partial ? 0.45 : 1.0;
+                            }
+
+                            Rectangle {
+                                x: parent.width * 0.54;
+                                width: parent.width * 0.30;
+                                height: parent.height * bar.expenses-fraction;
+                                y: parent.height - self.height;
+                                border-radius: 3px;
+                                background: Theme.error;
+                                opacity: bar.partial ? 0.45 : 1.0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                padding-left: 72px;
+
+                for bar in root.bars : Text {
+                    text: bar.label;
+                    // Equal slots under the bars, whatever the label length.
+                    min-width: 0px;
+                    preferred-width: 0px;
+                    horizontal-stretch: 1;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    horizontal-alignment: center;
+                    overflow: elide;
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 16px;
+                alignment: start;
+
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Rectangle {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 5px;
+                        background: Theme.success;
+                    }
+                    Text {
+                        text: root.income-label;
+                        color: Theme.text;
+                        font-size: 11px;
+                        vertical-alignment: center;
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Rectangle {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 5px;
+                        background: Theme.error;
+                    }
+                    Text {
+                        text: root.expenses-label;
+                        color: Theme.text;
+                        font-size: 11px;
+                        vertical-alignment: center;
+                    }
+                }
+
+                Text {
+                    text: root.partial-note;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}
+
+// The tax card's donut: one stroked arc per slice and a legend beside it.
+export component TaxDonut inherits Rectangle {
+    in property <[DashboardTaxSlice]> slices;
+    in property <string> total-text;
+
+    background: transparent;
+
+    HorizontalLayout {
+        spacing: 16px;
+
+        Rectangle {
+            width: 160px;
+            height: 160px;
+            background: transparent;
+
+            Path {
+                commands: "M 80 10 A 70 70 0 1 1 80 150 A 70 70 0 1 1 80 10";
+                stroke: Theme.divider;
+                stroke-width: 20px;
+                fill: transparent;
+            }
+
+            for slice in root.slices : Path {
+                commands: slice.arc;
+                stroke: slice.colour;
+                stroke-width: 20px;
+                fill: transparent;
+            }
+
+            Text {
+                text: root.total-text;
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+
+        VerticalLayout {
+            spacing: 6px;
+            horizontal-stretch: 1;
+            alignment: start;
+
+            for slice in root.slices : HorizontalLayout {
+                spacing: 8px;
+
+                Rectangle {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 5px;
+                    background: slice.colour;
+                }
+
+                Text {
+                    text: slice.label;
+                    color: Theme.text;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    horizontal-stretch: 1;
+                }
+
+                Text {
+                    text: slice.amount-text;
+                    color: Theme.text;
+                    font-size: 12px;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

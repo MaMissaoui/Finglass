@@ -6,6 +6,7 @@
 pub mod account_panel;
 pub mod accounts;
 pub mod audit;
+pub mod dashboard;
 pub mod documents;
 pub mod prefs;
 pub mod reports;
@@ -16,6 +17,10 @@ pub mod unlock;
 pub use account_panel::{AccountSelection, AppError};
 pub use accounts::{AccountDetail, AccountItem, AccountsState, Busy};
 pub use audit::AuditRow;
+pub use dashboard::{
+    BalanceTone, BudgetRowView, CategoryRowView, CategorySliceView, DashboardState, DashboardView, MonthBarView,
+    NavigationArgs, TransactionRowView, UpcomingRowView,
+};
 pub use documents::{DocumentCounts, DocumentTab, DocumentsState};
 pub use prefs::{Prefs, ThemePref};
 pub use reports::ReportsState;

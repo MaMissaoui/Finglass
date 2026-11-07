@@ -1705,6 +1705,7 @@ dependencies = [
  "slint",
  "slint-build",
  "tempfile",
+ "time",
  "zeroize",
 ]
 

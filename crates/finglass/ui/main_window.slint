@@ -1,7 +1,17 @@
 import { Theme } from "theme.slint";
 import { Tr } from "translations.slint";
-import { NavItem, TextButton } from "components.slint";
+import {
+    DashboardBudgetRow,
+    DashboardCategoryRow,
+    DashboardMonthBar,
+    DashboardTaxSlice,
+    DashboardTransactionRow,
+    DashboardUpcomingRow,
+    NavItem,
+    TextButton,
+} from "components.slint";
 import { AuditRow } from "models.slint";
+import { DashboardPage } from "dashboard_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
 
 // The main window: sidebar navigation, placeholder screens and the settings sections.
@@ -18,6 +28,63 @@ export component MainWindow inherits Window {
     in property <string> change-error;
     in property <[AuditRow]> audit-rows;
 
+    in property <bool> dashboard-loading;
+    in property <bool> dashboard-first-run;
+    in property <bool> dashboard-show-content;
+    in property <string> dashboard-error-text;
+
+    in property <string> dashboard-month-label;
+    in property <bool> dashboard-previous-enabled;
+    in property <bool> dashboard-next-enabled;
+    in property <bool> dashboard-is-current-month;
+
+    in property <string> dashboard-available-title;
+    in property <string> dashboard-available-value;
+    in property <string> dashboard-available-subtitle;
+    in property <string> dashboard-available-tone;
+    in property <string> dashboard-income-title;
+    in property <string> dashboard-income-value;
+    in property <string> dashboard-expenses-title;
+    in property <string> dashboard-expenses-value;
+    in property <string> dashboard-pending-title;
+    in property <string> dashboard-pending-value;
+    in property <string> dashboard-pending-subtitle;
+    in property <bool> dashboard-pending-enabled;
+
+    in property <string> dashboard-expenses-section-title;
+    in property <string> dashboard-expenses-empty-text;
+    in property <[DashboardCategoryRow]> dashboard-expense-rows;
+    in property <string> dashboard-transfers-note;
+
+    in property <string> dashboard-chart-title;
+    in property <string> dashboard-chart-empty-text;
+    in property <string> dashboard-chart-axis-top;
+    in property <string> dashboard-chart-axis-mid;
+    in property <string> dashboard-chart-axis-zero;
+    in property <[DashboardMonthBar]> dashboard-month-bars;
+    in property <string> dashboard-income-legend;
+    in property <string> dashboard-expenses-legend;
+    in property <string> dashboard-partial-note;
+
+    in property <string> dashboard-budgets-title;
+    in property <[DashboardBudgetRow]> dashboard-budget-rows;
+    in property <bool> dashboard-has-budgets;
+    in property <float> dashboard-month-progress;
+
+    in property <string> dashboard-tax-title;
+    in property <string> dashboard-tax-hint;
+    in property <string> dashboard-tax-value;
+    in property <[DashboardTaxSlice]> dashboard-tax-slices;
+
+    in property <string> dashboard-upcoming-title;
+    in property <[DashboardUpcomingRow]> dashboard-upcoming-rows;
+    in property <bool> dashboard-has-upcoming;
+
+    in property <string> dashboard-recent-title;
+    in property <string> dashboard-recent-empty-text;
+    in property <[DashboardTransactionRow]> dashboard-recent-rows;
+    in property <string> dashboard-view-all-label;
+
     callback navigate(string);
     callback set-theme(string);
     callback set-language(string);
@@ -25,6 +92,17 @@ export component MainWindow inherits Window {
     callback close-change;
     callback change-passphrase(string, string, string, bool);
     callback dismiss-status;
+
+    callback dashboard-previous-month;
+    callback dashboard-next-month;
+    callback dashboard-current-month;
+    callback dashboard-open-category(int);
+    callback dashboard-open-uncategorized;
+    callback dashboard-open-all;
+    callback dashboard-open-partner(string);
+    callback dashboard-open-accounts;
+    callback dashboard-open-settings;
+    callback dashboard-dismiss-error;
 
     title: root.app-name;
     icon: @image-url("../../../assets/icons/finglass-256.png");
@@ -182,6 +260,76 @@ export component MainWindow inherits Window {
                 background: Theme.divider;
             }
 
+            if (root.current-screen == "dashboard") : DashboardPage {
+                loading: root.dashboard-loading;
+                first-run: root.dashboard-first-run;
+                show-content: root.dashboard-show-content;
+                error-text: root.dashboard-error-text;
+
+                month-label: root.dashboard-month-label;
+                previous-enabled: root.dashboard-previous-enabled;
+                next-enabled: root.dashboard-next-enabled;
+                is-current-month: root.dashboard-is-current-month;
+
+                available-title: root.dashboard-available-title;
+                available-value: root.dashboard-available-value;
+                available-subtitle: root.dashboard-available-subtitle;
+                available-tone: root.dashboard-available-tone;
+                income-title: root.dashboard-income-title;
+                income-value: root.dashboard-income-value;
+                expenses-title: root.dashboard-expenses-title;
+                expenses-value: root.dashboard-expenses-value;
+                pending-title: root.dashboard-pending-title;
+                pending-value: root.dashboard-pending-value;
+                pending-subtitle: root.dashboard-pending-subtitle;
+                pending-enabled: root.dashboard-pending-enabled;
+
+                expenses-section-title: root.dashboard-expenses-section-title;
+                expenses-empty-text: root.dashboard-expenses-empty-text;
+                expense-rows: root.dashboard-expense-rows;
+                transfers-note: root.dashboard-transfers-note;
+
+                chart-title: root.dashboard-chart-title;
+                chart-empty-text: root.dashboard-chart-empty-text;
+                chart-axis-top: root.dashboard-chart-axis-top;
+                chart-axis-mid: root.dashboard-chart-axis-mid;
+                chart-axis-zero: root.dashboard-chart-axis-zero;
+                month-bars: root.dashboard-month-bars;
+                income-legend: root.dashboard-income-legend;
+                expenses-legend: root.dashboard-expenses-legend;
+                partial-note: root.dashboard-partial-note;
+
+                budgets-title: root.dashboard-budgets-title;
+                budget-rows: root.dashboard-budget-rows;
+                has-budgets: root.dashboard-has-budgets;
+                month-progress: root.dashboard-month-progress;
+
+                tax-title: root.dashboard-tax-title;
+                tax-hint: root.dashboard-tax-hint;
+                tax-value: root.dashboard-tax-value;
+                tax-slices: root.dashboard-tax-slices;
+
+                upcoming-title: root.dashboard-upcoming-title;
+                upcoming-rows: root.dashboard-upcoming-rows;
+                has-upcoming: root.dashboard-has-upcoming;
+
+                recent-title: root.dashboard-recent-title;
+                recent-empty-text: root.dashboard-recent-empty-text;
+                recent-rows: root.dashboard-recent-rows;
+                view-all-label: root.dashboard-view-all-label;
+
+                previous-month => { root.dashboard-previous-month(); }
+                next-month => { root.dashboard-next-month(); }
+                current-month => { root.dashboard-current-month(); }
+                open-category(category-id) => { root.dashboard-open-category(category-id); }
+                open-uncategorized => { root.dashboard-open-uncategorized(); }
+                open-all => { root.dashboard-open-all(); }
+                open-partner(partner) => { root.dashboard-open-partner(partner); }
+                open-accounts => { root.dashboard-open-accounts(); }
+                open-settings => { root.dashboard-open-settings(); }
+                dismiss-error => { root.dashboard-dismiss-error(); }
+            }
+
             if (root.current-screen == "settings") : SettingsPage {
                 theme-pref: root.theme-pref;
                 language: root.language;
@@ -193,7 +341,7 @@ export component MainWindow inherits Window {
                 open-change => { root.open-change(); }
             }
 
-            if (root.current-screen != "settings") : VerticalLayout {
+            if (root.current-screen != "settings" && root.current-screen != "dashboard") : VerticalLayout {
                 padding: 32px;
                 spacing: 12px;
 
