@@ -1,0 +1,112 @@
+package de.findesk.fixture
+
+import de.findesk.banking.FinTSClient
+import de.findesk.data.database.DatabaseFactory
+import de.findesk.data.table.*
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.Test
+import java.io.File
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
+
+class FixtureGen {
+    @Test
+    fun generate() {
+        val dir = File(System.getenv("FIXTURE_DIR") ?: return)
+        dir.deleteRecursively()
+        dir.mkdirs()
+        val docs = File(dir, "documents").apply { mkdirs() }
+        val receipt = File(docs, "11111111-2222-3333-4444-555555555555_receipt.pdf").apply { writeText("%PDF-1.4 fixture") }
+        DatabaseFactory.init(dir.absolutePath, "fixture passphrase 1")
+        val at = LocalDateTime.of(2026, 10, 18, 9, 30, 15, 123_000_000)
+        transaction {
+            val g = AccountGroupsTable.insertAndGetId { it[name] = "Household"; it[sortOrder] = 2 }
+            val bank = BankAccessTable.insertAndGetId {
+                it[bankName] = "Fixture Bank"; it[blz] = "12030000"; it[bic] = "BYLADEM1001"; it[userId] = "fixture-user"
+                it[tanMethod] = "923"; it[serverUrl] = "https://banking.example.invalid/fints"; it[lastSync] = at
+                it[syncFrom] = LocalDate.of(2025, 1, 1); it[capabilities] = "HKSAL,HKKAZ,HKCCS,HKCDE"; it[includeInSyncAll] = false
+            }
+            val offline = BankAccessTable.insertAndGetId {
+                it[bankName] = "Cash box"; it[blz] = ""; it[bic] = ""; it[userId] = ""; it[offline] = true
+            }
+            val eur = AccountsTable.insertAndGetId {
+                it[bankAccessId] = bank; it[iban] = "DE02120300000000202051"; it[balance] = BigDecimal("-1234.56")
+                it[currency] = "EUR"; it[accountType] = "checking"; it[name] = "Giro"; it[lastUpdate] = at; it[groupId] = g.value
+            }
+            val jpy = AccountsTable.insertAndGetId {
+                it[bankAccessId] = offline; it[iban] = "cash-jpy"; it[balance] = BigDecimal("15000"); it[currency] = "JPY"
+                it[accountType] = "savings"
+            }
+            val loan = AccountsTable.insertAndGetId {
+                it[bankAccessId] = bank; it[iban] = "DE89370400440532013000"; it[balance] = BigDecimal("-200000.00")
+                it[accountType] = "loan"; it[name] = null
+            }
+            val food = CategoriesTable.insertAndGetId { it[name] = "Food"; it[color] = "#FF8800"; it[budgetLimit] = BigDecimal("250.50") }
+            val tax = CategoriesTable.insertAndGetId { it[name] = "Donations"; it[isTaxRelevant] = true }
+            val transfer = CategoriesTable.insertAndGetId { it[name] = "Own transfers"; it[isTransfer] = true }
+            RulesTable.insert { it[pattern] = "REWE"; it[categoryId] = food; it[priority] = 5; it[matchField] = "partner"; it[direction] = "expense" }
+            RulesTable.insert { it[pattern] = "Spende"; it[categoryId] = tax; it[autoApply] = false; it[taxRelevant] = true }
+            fun txn(acc: Any, d: LocalDate, amt: String, cur: String, partner: String?, purpose: String?, hash: String,
+                    cat: Any? = null, bal: String? = null, new: Boolean = false, taxO: Boolean? = null) =
+                TransactionsTable.insertAndGetId {
+                    @Suppress("UNCHECKED_CAST")
+                    it[accountId] = acc as org.jetbrains.exposed.dao.id.EntityID<Int>
+                    it[date] = d; it[amount] = BigDecimal(amt); it[currency] = cur; it[partnerName] = partner; it[this.purpose] = purpose
+                    @Suppress("UNCHECKED_CAST")
+                    it[categoryId] = cat as org.jetbrains.exposed.dao.id.EntityID<Int>?
+                    it[balanceAfter] = bal?.let(::BigDecimal); it[this.hash] = hash; it[createdAt] = at; it[isNew] = new; it[taxOverride] = taxO
+                }
+            val d1 = LocalDate.of(2026, 10, 1)
+            // CSV-style hashes (transactionHash), as a CSV import would store them
+            val t1 = txn(eur, d1, "-0.10", "EUR", "REWE Markt", "Kassenbon 1", FinTSClient.transactionHash(d1, BigDecimal("-0.10"), "REWE Markt", "Kassenbon 1"), food, new = true)
+            txn(eur, d1, "-1234567.89", "EUR", "Notary", null, FinTSClient.transactionHash(d1, BigDecimal("-1234567.89"), "Notary", null), taxO = false)
+            txn(eur, d1, "100.00", "EUR", null, "Gehalt", FinTSClient.transactionHash(d1, BigDecimal("100.00"), null, "Gehalt"), taxO = true)
+            // Bank-style hashes (importHash discriminators: bank id, balance after)
+            txn(eur, d1, "-25.00", "EUR", "Spendenverein", "Spende", FinTSClient.transactionHash(d1, BigDecimal("-25.00"), "Spendenverein", "Spende#DE02120300000000202051#B-77"), tax)
+            txn(eur, d1, "-12.30", "EUR", "Bakery", "Brot", FinTSClient.transactionHash(d1, BigDecimal("-12.30"), "Bakery", "Brot#DE02120300000000202051#987.70"), bal = "987.70")
+            txn(jpy, d1, "-1500", "JPY", "Konbini", "Snacks", FinTSClient.transactionHash(d1, BigDecimal("-1500"), "Konbini", "Snacks"))
+            txn(loan, d1, "500.00", "EUR", "Own", "Rate", FinTSClient.transactionHash(d1, BigDecimal("500.00"), "Own", "Rate"), transfer)
+            DeletedBookingsTable.insert { it[accountId] = eur; it[hash] = "h-deleted"; it[deletedAt] = at }
+            PendingBookingsTable.insert {
+                it[accountId] = eur; it[date] = LocalDate.of(2026, 10, 20); it[valueDate] = null; it[amount] = BigDecimal("-9.99")
+                it[partnerName] = "Pending shop"; it[purpose] = "vorgemerkt"; it[fetchedAt] = at
+            }
+            val doc = DocumentsTable.insertAndGetId {
+                it[fileName] = "receipt.pdf"; it[filePath] = receipt.absolutePath; it[mimeType] = "application/pdf"; it[uploadDate] = at; it[linkedTransactionId] = t1
+            }
+            val ocr = OcrTextsTable.insertAndGetId { it[documentId] = doc; it[content] = "REWE Summe 0,10"; it[language] = "de"; it[confidence] = BigDecimal("87.50") }
+            DocumentsTable.update({ DocumentsTable.id eq doc }) { it[DocumentsTable.ocrTextId] = ocr }
+            TransactionsTable.update({ TransactionsTable.id eq t1 }) { it[documentId] = doc }
+            DocumentsTable.insert {
+                it[fileName] = "outside.txt"; it[filePath] = File(dir, "outside-secret.txt").apply { writeText("secret") }.absolutePath
+                it[mimeType] = "application/pdf"; it[uploadDate] = at
+            }
+            DocumentsTable.insert { it[fileName] = "missing.pdf"; it[filePath] = File(docs, "gone.pdf").absolutePath; it[mimeType] = "application/pdf"; it[uploadDate] = at }
+            PaymentOrdersTable.insert {
+                it[createdAt] = at; it[updatedAt] = at; it[action] = "TRANSFER"; it[accountIban] = "DE02120300000000202051"
+                it[recipientName] = "Payee"; it[recipientIban] = "DE89370400440532013000"; it[amount] = BigDecimal("10.00"); it[status] = "SENT"
+            }
+            PluginsTable.insert { it[name] = "x"; it[version] = "1"; it[entryPoint] = "x.Main" }
+            fun set(k: String, v: String) = SettingsTable.insert { it[key] = k; it[value] = v; it[updatedAt] = at }
+            set("money.primary_currency", "EUR"); set("tax.suggestionKeywords", "Spende\nKita"); set("transactions.selection", "account:${eur.value}")
+            set("accountGroups.collapsed", "custom:${g.value}"); set("accounts.collapsedBanks", "${offline.value}"); set("transactions.chartCollapsed", "true")
+            set("ui.sidebarCollapsed", "false"); set("ui.dark_theme", "true"); set("fints.pinSaved.${bank.value}", "12030000|fixture-user")
+        }
+        DatabaseFactory.close()
+        // Orphans older FinDesk databases can hold (foreign keys were not enforced): raw rows with the checks off
+        de.findesk.data.database.DatabaseCrypto.open(File(dir, "findesk.db"), "fixture passphrase 1").use { c ->
+            c.createStatement().use { st ->
+                st.execute("PRAGMA foreign_keys = OFF")
+                st.execute("INSERT INTO rules (pattern, category_id, priority, auto_apply, match_field, direction) VALUES ('orphan', 99, 0, 1, 'any', 'any')")
+                st.execute("INSERT INTO rules (pattern, category_id, priority, auto_apply, match_field, direction) VALUES ('weird', 1, 0, 1, 'bogus', 'any')")
+                st.execute("INSERT INTO transactions (account_id, date, amount, currency, partner_name, purpose, category_id, hash, created_at, is_new) SELECT 1, date, -3.00, 'EUR', 'Kiosk', 'dangling category', 77, 'h-dangling-category', created_at, 0 FROM transactions LIMIT 1")
+                st.execute("INSERT INTO transactions (account_id, date, amount, currency, partner_name, purpose, hash, created_at, is_new) SELECT 99, date, -4.00, 'EUR', 'Ghost', 'orphan account', 'h-orphan-account', created_at, 0 FROM transactions LIMIT 1")
+                st.execute("INSERT INTO transactions (account_id, date, amount, currency, partner_name, purpose, hash, created_at, is_new) SELECT 1, date, -0.125, 'EUR', 'Fraction', 'three decimals', 'h-three-decimals', created_at, 0 FROM transactions LIMIT 1")
+            }
+        }
+    }
+}
