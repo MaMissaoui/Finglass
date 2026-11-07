@@ -1,0 +1,18 @@
+# Build output
+/target/
+
+# Local data: tests and dev runs use FINGLASS_HOME, but never commit a data folder by accident
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+.finglass/
+
+# Agent and editor files
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.opencode/
+.idea/
+.vscode/
+.DS_Store

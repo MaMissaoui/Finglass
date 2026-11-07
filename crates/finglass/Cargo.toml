@@ -1,0 +1,26 @@
+[package]
+name = "finglass"
+description = "Finglass desktop app: a read-only, local-first view of your finances"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+finglass-core = { path = "../finglass-core" }
+# Explicit features: no Qt backend, so a Qt install on the build machine can't change what ships.
+slint = { version = "1.18.1", default-features = false, features = [
+    "std",
+    "compat-1-2",
+    "backend-winit",
+    "renderer-femtovg",
+    "renderer-software",
+    "accessibility",
+] }
+
+[build-dependencies]
+slint-build = "1.18.1"
+
+[lints]
+workspace = true

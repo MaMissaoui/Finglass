@@ -1,0 +1,36 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <title>Finglass</title>
+  <!-- macOS app icon: the 824 px body on Apple's 1024 px grid, with the drop shadow macOS does not add itself -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#0B3D5C"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#5EEAD4"/>
+      <stop offset="1" stop-color="#ECFEFF"/>
+    </linearGradient>
+    <linearGradient id="pane" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.10"/>
+    </linearGradient>
+    <clipPath id="paneClip">
+      <rect x="112" y="168" width="288" height="232" rx="40"/>
+    </clipPath>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g transform="translate(100 100) scale(1.609375)">
+    <rect width="512" height="512" rx="115" fill="url(#bg)" filter="url(#shadow)"/>
+    <rect x="150" y="286" width="56" height="150" rx="14" fill="url(#bar)"/>
+    <rect x="228" y="214" width="56" height="222" rx="14" fill="url(#bar)"/>
+    <rect x="306" y="116" width="56" height="320" rx="14" fill="url(#bar)"/>
+    <rect x="112" y="168" width="288" height="232" rx="40" fill="url(#pane)"/>
+    <g clip-path="url(#paneClip)" fill="#FFFFFF">
+      <polygon points="150,168 214,168 112,328 112,228" opacity="0.30"/>
+      <polygon points="238,168 262,168 132,400 108,400" opacity="0.20"/>
+    </g>
+    <rect x="112" y="168" width="288" height="232" rx="40" fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="10"/>
+  </g>
+</svg>

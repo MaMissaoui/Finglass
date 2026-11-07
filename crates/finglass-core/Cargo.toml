@@ -1,0 +1,13 @@
+[package]
+name = "finglass-core"
+description = "Finglass logic without UI: data, imports, bank sync, reports"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true

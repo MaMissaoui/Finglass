@@ -1,0 +1,15 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <title>Finglass</title>
+  <!-- Simplified mark for 16–48 px: no glints, bolder bars and pane outline -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#0B3D5C"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="104" fill="url(#bg)"/>
+  <rect x="128" y="272" width="72" height="168" rx="16" fill="#CCFBF1"/>
+  <rect x="220" y="196" width="72" height="244" rx="16" fill="#ECFEFF"/>
+  <rect x="312" y="92" width="72" height="348" rx="16" fill="#FFFFFF"/>
+  <rect x="92" y="160" width="328" height="232" rx="44" fill="#FFFFFF" fill-opacity="0.22" stroke="#FFFFFF" stroke-width="28"/>
+</svg>
