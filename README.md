@@ -42,6 +42,28 @@ sudo apt-get install libfontconfig1-dev libxkbcommon-dev libxcb-shape0-dev libxc
 
 The icons in `assets/icons` are generated from the SVGs in `assets/brand` by `scripts/render-icons.sh`.
 
+## Building the macOS app
+
+`Finglass.app` and the DMG are built with [cargo-packager](https://github.com/crabnebula-dev/cargo-packager)
+0.11.8, pinned the same way in CI:
+
+```sh
+cargo install cargo-packager --version 0.11.8 --locked
+./scripts/package-macos.sh
+```
+
+The script writes `target/packager/Finglass.app` and `target/packager/Finglass_<version>_<arch>.dmg`,
+ad-hoc signs and verifies the app, and prints both paths. It needs no `sudo` and writes only under
+`target/`. The first DMG build also lets cargo-packager fetch its `create-dmg` helper.
+
+The bundle declares macOS 11.0 as its minimum: Slint's winit backend uses the Accessibility framework,
+which exists since macOS 11, and Rust's arm64 macOS target cannot target anything older. It is ad-hoc
+signed only, so Gatekeeper still warns when it is downloaded; distribution needs a Developer ID
+signature and notarization.
+
+The `Package` workflow runs the script on `macos-latest`, launches the app from the mounted DMG once
+with a fresh `FINGLASS_HOME`, and uploads the DMG as an artifact.
+
 ## License
 
 [MIT](LICENSE). The UI uses [Slint](https://slint.dev) under its royalty-free license, which is why the About screen

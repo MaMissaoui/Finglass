@@ -34,3 +34,35 @@ slint-build = "1.18.1"
 
 [lints]
 workspace = true
+
+# macOS .app and DMG metadata for cargo-packager (pinned in CI and the packaging script).
+# `version` is deliberately omitted: cargo-packager reads the package version, which is inherited
+# from [workspace.package] in the root manifest, so the bundle cannot drift from the app.
+[package.metadata.packager]
+productName = "Finglass"
+identifier = "io.github.mamissaoui.finglass"
+category = "Finance"
+# Paths are relative to this crate's manifest: cargo-packager changes into the directory that
+# holds the config before it reads icons and writes packages.
+icons = [
+    "../../assets/icons/finglass.icns",
+    "../../assets/icons/finglass-16.png",
+    "../../assets/icons/finglass-32.png",
+    "../../assets/icons/finglass-48.png",
+    "../../assets/icons/finglass-64.png",
+    "../../assets/icons/finglass-128.png",
+    "../../assets/icons/finglass-256.png",
+    "../../assets/icons/finglass-512.png",
+    "../../assets/icons/finglass-1024.png",
+]
+formats = ["app", "dmg"]
+outDir = "../../target/packager"
+beforePackagingCommand = "cargo build --release -p finglass"
+
+[package.metadata.packager.macos]
+# Slint's winit backend reaches the Accessibility framework (macOS 11+) and Rust's arm64 macOS
+# target has a deployment floor of 11.0, so the bundle states 11.0 rather than claiming older
+# systems it cannot run on.
+minimumSystemVersion = "11.0"
+# Ad-hoc signature while the project has no Developer ID; the packaging script verifies it.
+signingIdentity = "-"
