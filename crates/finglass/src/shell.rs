@@ -16,6 +16,7 @@ use finglass_core::app::transactions::{Period, StartArgs};
 use finglass_core::app::unlock::{UnlockError, UnlockMode};
 use finglass_core::db::Database;
 use finglass_core::i18n::{self, Key, Language};
+use finglass_core::instance::{InstanceError, InstanceLock};
 use finglass_core::model::{CategoryId, RuleId};
 use finglass_core::paths::AppPaths;
 use finglass_core::{APP_NAME, VERSION};
@@ -59,16 +60,20 @@ pub(crate) struct ShellState {
 /// root instead.
 pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     let initial_language = system_language();
-    let today = OffsetDateTime::now_utc().date();
+    let now = OffsetDateTime::now_utc();
+    let today = now.date();
+
+    // The instance lock comes first, before the staged restore and before any other file access.
+    let startup = prepare_startup(&paths, now);
+
     let unlock = UnlockWindow::new()?;
     install_translations_unlock(&unlock, initial_language);
     apply_theme(&unlock, ThemePref::System);
 
-    // Profile first, then the staged restore, and only then the unlock gate looks at the database.
-    let startup = match app::startup::prepare(&paths, OffsetDateTime::now_utc()) {
+    let (lock, startup) = match startup {
         Ok(startup) => startup,
-        Err(error) => {
-            configure_startup_error(&unlock, initial_language, &error.message(initial_language));
+        Err(refusal) => {
+            configure_startup_error(&unlock, initial_language, &refusal.message(initial_language));
             return unlock.run();
         }
     };
@@ -105,7 +110,47 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     wire_unlock(&unlock, &main, &paths, &state);
     wire_main(&main, &paths, &state);
 
-    unlock.run()
+    let result = unlock.run();
+    drop(lock);
+    result
+}
+
+/// Why the startup path did not reach the normal unlock gate.
+enum StartupRefusal {
+    /// Another Finglass process holds this data root's lock.
+    AlreadyRunning,
+    /// The lock could not be taken, or the profile's data could not be prepared.
+    Failed,
+}
+
+impl StartupRefusal {
+    fn message(&self, language: Language) -> String {
+        let key = match self {
+            Self::AlreadyRunning => Key::ErrorAlreadyRunning,
+            Self::Failed => Key::ErrorStartupFailed,
+        };
+        i18n::text(language, key).to_owned()
+    }
+}
+
+/// Takes the instance lock and prepares the active profile, in that order.
+///
+/// `run` keeps the returned lock alive for the whole event loop. Tests call this directly so they can check the
+/// refusal and the untouched staged restore without starting the event loop.
+fn prepare_startup(
+    paths: &AppPaths,
+    now: OffsetDateTime,
+) -> Result<(InstanceLock, app::startup::Startup), StartupRefusal> {
+    let lock = match InstanceLock::acquire(paths) {
+        Ok(lock) => lock,
+        Err(InstanceError::AlreadyRunning) => return Err(StartupRefusal::AlreadyRunning),
+        Err(InstanceError::Io(_)) => return Err(StartupRefusal::Failed),
+    };
+
+    match app::startup::prepare(paths, now) {
+        Ok(startup) => Ok((lock, startup)),
+        Err(_) => Err(StartupRefusal::Failed),
+    }
 }
 
 fn configure_startup_error(unlock: &UnlockWindow, language: Language, message: &str) {
@@ -1537,5 +1582,66 @@ mod tests {
         assert_eq!(language_from_locale("en_US"), Language::En);
         assert_eq!(language_from_locale("es_ES"), Language::En);
         assert_eq!(language_from_locale(""), Language::En);
+    }
+
+    #[test]
+    fn a_second_instance_does_not_apply_a_staged_restore() {
+        use std::fs;
+
+        use finglass_core::backup::{BackupService, PRE_RESTORE_PREFIX};
+        use finglass_core::model::{AccountType, NewAccount};
+        use finglass_core::money::{Currency, Money};
+        use finglass_core::profiles;
+        use finglass_core::repo::accounts;
+        use time::macros::datetime;
+
+        let temp = tempfile::tempdir().unwrap();
+        let paths = AppPaths::resolve(Some(temp.path().as_os_str().to_owned()), None).unwrap();
+        let passphrase = "correct horse battery staple";
+        let db = app::unlock::create(&paths, app::startup::slug_key(None), passphrase, passphrase, true).unwrap();
+        accounts::create(
+            &db,
+            NewAccount {
+                bank_connection_id: None,
+                institution: None,
+                name: Some("Account".to_owned()),
+                iban: None,
+                account_number: None,
+                currency: Currency::EUR,
+                account_type: AccountType::Checking,
+                balance: Money {
+                    minor: 0,
+                    currency: Currency::EUR,
+                },
+                balance_updated_at: None,
+                group_id: None,
+            },
+        )
+        .unwrap();
+
+        let service = BackupService::new(profiles::data_dir(&paths, None).unwrap());
+        let backup = temp.path().join("startup.zip");
+        service.create_backup(&db, &backup).unwrap();
+        service.stage_restore(&db, &backup, None).unwrap();
+        drop(db);
+
+        let held = InstanceLock::acquire(&paths).unwrap();
+        let refusal = prepare_startup(&paths, datetime!(2026-10-15 12:34:56 UTC)).unwrap_err();
+
+        assert!(
+            matches!(refusal, StartupRefusal::AlreadyRunning),
+            "a held lock must refuse the second startup"
+        );
+        assert!(
+            service.has_pending_restore(),
+            "the staged restore must still be pending"
+        );
+        let pre_restores = fs::read_dir(paths.root())
+            .unwrap()
+            .filter_map(Result::ok)
+            .filter(|entry| entry.file_name().to_string_lossy().starts_with(PRE_RESTORE_PREFIX))
+            .count();
+        assert_eq!(pre_restores, 0, "no data was moved aside");
+        drop(held);
     }
 }
