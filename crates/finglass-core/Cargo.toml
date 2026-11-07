@@ -10,10 +10,12 @@ repository.workspace = true
 [dependencies]
 dirs = "7"
 encoding_rs = "0.8.44"
+fancy-regex = "0.20"
 roxmltree = "0.21.2"
 rusqlite = { version = "0.41", features = ["bundled-sqlcipher-vendored-openssl"] }
 rust_decimal = "1.43.0"
 secrecy = "0.10"
+sha2 = "0.11"
 thiserror = "2"
 time = { version = "0.3", features = ["formatting", "macros", "parsing"] }
 unicode-normalization = "0.1"
