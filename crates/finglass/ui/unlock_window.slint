@@ -8,6 +8,7 @@ import { PrimaryButton, TextButton } from "components.slint";
 export component UnlockWindow inherits Window {
     in property <string> mode: "unlock";
     in property <string> profile-label;
+    in property <[string]> leftover-lines;
     in property <string> passphrase-hint;
     in property <bool> busy;
     in property <bool> allow-change;
@@ -137,6 +138,32 @@ export component UnlockWindow inherits Window {
                     color: Theme.warning;
                     font-size: 16px;
                     wrap: word-wrap;
+                }
+
+                if (root.leftover-lines.length > 0) : VerticalLayout {
+                    spacing: 4px;
+
+                    Text {
+                        text: Tr.t("UnencryptedLeftoversTitle");
+                        color: Theme.warning;
+                        font-size: 15px;
+                        font-weight: 600;
+                        wrap: word-wrap;
+                    }
+
+                    Text {
+                        text: Tr.t("UnencryptedLeftoversText");
+                        color: Theme.text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+
+                    for line in root.leftover-lines : Text {
+                        text: line;
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
                 }
 
                 if (!root.startup-error) : VerticalLayout {

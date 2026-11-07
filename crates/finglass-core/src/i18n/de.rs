@@ -309,6 +309,10 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PlaintextLeftoverDeletedProfile => "Gelöschtes Profil",
         Key::PlaintextLeftoverPendingRestore => "Wiederherstellung wartet auf den nächsten Start",
         Key::PlaintextLeftoverOtherProfile => "Anderes Profil",
+        Key::UnencryptedLeftoversTitle => "Unverschlüsselte Dokumente liegen noch auf der Festplatte",
+        Key::UnencryptedLeftoversText => {
+            "Finglass verschlüsselt seine Datenbank, doch die Dokumente in diesen Ordnern liegen als einfache Dateien vor. Sie stammen von Wiederherstellungen oder gelöschten Profilen. Wer diesen Datenträger lesen kann, kann sie ohne Ihre Passphrase lesen. Löschen Sie einen Ordner selbst, sobald Sie ihn nicht mehr brauchen."
+        }
         Key::EncryptionStatus => {
             "Datenbank verschlüsselt (SQLCipher, AES-256). Finglass fragt bei jedem Start nach der Passphrase; ändern können Sie sie auf dem Entsperren-Bildschirm."
         }
