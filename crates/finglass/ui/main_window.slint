@@ -1,6 +1,14 @@
 import { Theme } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
+    AccountAmount,
+    AccountDaysChoice,
+    AccountDetailRow,
+    AccountGroupChoice,
+    AccountPanelRow,
+    AccountsBankCard,
+    AccountTypeChoice,
+    AccountsFigure,
     DashboardBudgetRow,
     DashboardCategoryRow,
     DashboardMonthBar,
@@ -19,6 +27,8 @@ import {
 import { AuditRow, CategoryRow, ColourSwatch, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
+import { AccountPanel } from "account_panel.slint";
+import { AccountsPage } from "accounts_page.slint";
 import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
 import { CategoryDialog, ConfirmDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
 
@@ -224,6 +234,47 @@ export component MainWindow inherits Window {
     in property <string> reports-tax-empty-title;
     in property <string> reports-tax-empty-hint;
     in property <[ReportTaxRow]> reports-tax-rows;
+    in property <bool> accounts-loading;
+    in property <bool> accounts-show-content;
+    in property <bool> accounts-has-content;
+    // Test-only: renders the shared account panel alone for its screenshot.
+    in property <bool> accounts-panel-preview;
+    in property <string> accounts-error-text;
+    in property <string> accounts-message-text;
+    in property <[AccountsFigure]> accounts-figures;
+    in property <[AccountsBankCard]> accounts-bank-cards;
+    in property <[AccountPanelRow]> accounts-panel-rows;
+    in property <[AccountGroupChoice]> accounts-group-choices;
+    in property <string> accounts-filter-text;
+    in property <string> accounts-shown-text;
+    in property <[AccountTypeChoice]> accounts-type-choices;
+    in property <[string]> accounts-currency-codes;
+    in property <[AccountDaysChoice]> accounts-days-choices;
+
+    in property <string> accounts-dialog;
+    in property <string> accounts-dialog-title;
+    in property <string> accounts-dialog-text;
+    in property <string> accounts-dialog-error;
+    in property <string> accounts-dialog-account-label;
+    in property <string> accounts-dialog-account-name;
+    in property <string> accounts-dialog-balance;
+    in property <string> accounts-dialog-account-type;
+    in property <bool> accounts-dialog-offline;
+    in property <int> accounts-dialog-bank-id;
+    in property <int> accounts-dialog-account-id;
+
+    in property <bool> accounts-detail-open;
+    in property <string> accounts-detail-title;
+    in property <string> accounts-detail-subtitle;
+    in property <string> accounts-detail-balance;
+    in property <string> accounts-detail-tone;
+    in property <int> accounts-detail-account-id;
+    in property <int> accounts-detail-days;
+    in property <string> accounts-detail-summary;
+    in property <string> accounts-detail-path;
+    in property <string> accounts-detail-axis-top;
+    in property <string> accounts-detail-axis-bottom;
+    in property <[AccountDetailRow]> accounts-detail-rows;
 
     callback navigate(string);
     callback set-theme(string);
@@ -286,6 +337,34 @@ export component MainWindow inherits Window {
     callback reports-reset-tax-automatic(int);
     callback reports-open-category(int);
     callback reports-dismiss;
+    callback accounts-open-add-bank;
+    callback accounts-close-dialog;
+    callback accounts-submit-add-bank(string);
+    callback accounts-open-add-account(int);
+    callback accounts-submit-add-account(int, string, string, string, string, string);
+    callback accounts-open-balance(int);
+    callback accounts-submit-balance(int, string, string);
+    callback accounts-open-rename(int);
+    callback accounts-submit-rename(int, string);
+    callback accounts-open-delete-account(int);
+    callback accounts-confirm-delete-account(int);
+    callback accounts-open-delete-bank(int);
+    callback accounts-confirm-delete-bank(int);
+    callback accounts-close-detail;
+    callback accounts-select-days(int, int);
+    callback accounts-select(string, string, int, string);
+    callback accounts-toggle-group(string, string, int, string);
+    callback accounts-mark-read(string, string, int, string);
+    callback accounts-toggle-bank(int);
+    callback accounts-forget-deleted(int);
+    callback accounts-new-group(string);
+    callback accounts-rename-group(int, string);
+    callback accounts-delete-group(int);
+    callback accounts-move-group(int, bool);
+    callback accounts-move-account(int, int);
+    callback accounts-filter-changed(string);
+    callback accounts-dismiss-message;
+    callback accounts-open-detail(int);
 
     title: root.app-name;
     icon: @image-url("../../../assets/icons/finglass-256.png");
@@ -601,6 +680,68 @@ export component MainWindow inherits Window {
                 dismiss => { root.reports-dismiss(); }
             }
 
+            if (root.current-screen == "accounts") : AccountsPage {
+                loading: root.accounts-loading;
+                show-content: root.accounts-show-content;
+                has-content: root.accounts-has-content;
+                error-text: root.accounts-error-text;
+                message-text: root.accounts-message-text;
+                figures: root.accounts-figures;
+                bank-cards: root.accounts-bank-cards;
+                type-choices: root.accounts-type-choices;
+                currency-codes: root.accounts-currency-codes;
+                days-choices: root.accounts-days-choices;
+
+                dialog: root.accounts-dialog;
+                dialog-title: root.accounts-dialog-title;
+                dialog-text: root.accounts-dialog-text;
+                dialog-error: root.accounts-dialog-error;
+                dialog-account-label: root.accounts-dialog-account-label;
+                dialog-account-name: root.accounts-dialog-account-name;
+                dialog-balance: root.accounts-dialog-balance;
+                dialog-account-type: root.accounts-dialog-account-type;
+                dialog-offline: root.accounts-dialog-offline;
+                dialog-bank-id: root.accounts-dialog-bank-id;
+                dialog-account-id: root.accounts-dialog-account-id;
+
+                detail-open: root.accounts-detail-open;
+                detail-title: root.accounts-detail-title;
+                detail-subtitle: root.accounts-detail-subtitle;
+                detail-balance: root.accounts-detail-balance;
+                detail-tone: root.accounts-detail-tone;
+                detail-account-id: root.accounts-detail-account-id;
+                detail-days: root.accounts-detail-days;
+                detail-summary: root.accounts-detail-summary;
+                detail-path: root.accounts-detail-path;
+                detail-axis-top: root.accounts-detail-axis-top;
+                detail-axis-bottom: root.accounts-detail-axis-bottom;
+                detail-rows: root.accounts-detail-rows;
+
+                open-add-bank => { root.accounts-open-add-bank(); }
+                close-dialog => { root.accounts-close-dialog(); }
+                submit-add-bank(name) => { root.accounts-submit-add-bank(name); }
+                open-add-account(bank-id) => { root.accounts-open-add-account(bank-id); }
+                submit-add-account(bank-id, name, identifier, account-type, currency, balance) => {
+                    root.accounts-submit-add-account(bank-id, name, identifier, account-type, currency, balance);
+                }
+                open-balance(account-id) => { root.accounts-open-balance(account-id); }
+                submit-balance(account-id, balance, account-type) => {
+                    root.accounts-submit-balance(account-id, balance, account-type);
+                }
+                open-rename(account-id) => { root.accounts-open-rename(account-id); }
+                submit-rename(account-id, name) => { root.accounts-submit-rename(account-id, name); }
+                open-delete-account(account-id) => { root.accounts-open-delete-account(account-id); }
+                confirm-delete-account(account-id) => { root.accounts-confirm-delete-account(account-id); }
+                open-delete-bank(bank-id) => { root.accounts-open-delete-bank(bank-id); }
+                confirm-delete-bank(bank-id) => { root.accounts-confirm-delete-bank(bank-id); }
+                close-detail => { root.accounts-close-detail(); }
+                select-days(account-id, days) => { root.accounts-select-days(account-id, days); }
+                toggle-bank(bank-id) => { root.accounts-toggle-bank(bank-id); }
+                forget-deleted(account-id) => { root.accounts-forget-deleted(account-id); }
+                dismiss-message => { root.accounts-dismiss-message(); }
+                open-detail(account-id) => { root.accounts-open-detail(account-id); }
+            }
+
             if (root.current-screen == "settings") : SettingsPage {
                 theme-pref: root.theme-pref;
                 language: root.language;
@@ -639,7 +780,7 @@ export component MainWindow inherits Window {
                 reset-tax-keywords => { root.settings-reset-tax-keywords(); }
             }
 
-            if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports") : VerticalLayout {
+            if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports" && root.current-screen != "accounts") : VerticalLayout {
                 padding: 32px;
                 spacing: 12px;
 
@@ -650,6 +791,40 @@ export component MainWindow inherits Window {
                     wrap: word-wrap;
                 }
             }
+        }
+    }
+
+    // Test-only harness for the panel's own screenshot; the Transactions page hosts it later.
+    if (root.accounts-panel-preview) : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: Theme.background;
+
+        AccountPanel {
+            width: 320px;
+            height: parent.height - 48px;
+            x: (parent.width - self.width) / 2;
+            y: 24px;
+            rows: root.accounts-panel-rows;
+            groups: root.accounts-group-choices;
+            filter-text: root.accounts-filter-text;
+            shown-text: root.accounts-shown-text;
+
+            filter-changed(text) => { root.accounts-filter-changed(text); }
+            select(kind, group-kind, id, account-type) => {
+                root.accounts-select(kind, group-kind, id, account-type);
+            }
+            toggle(kind, group-kind, id, account-type) => {
+                root.accounts-toggle-group(kind, group-kind, id, account-type);
+            }
+            mark-read(kind, group-kind, id, account-type) => {
+                root.accounts-mark-read(kind, group-kind, id, account-type);
+            }
+            new-group(name) => { root.accounts-new-group(name); }
+            rename-group(id, name) => { root.accounts-rename-group(id, name); }
+            delete-group(id) => { root.accounts-delete-group(id); }
+            move-group(id, up) => { root.accounts-move-group(id, up); }
+            move-account(account-id, group-id) => { root.accounts-move-account(account-id, group-id); }
         }
     }
 

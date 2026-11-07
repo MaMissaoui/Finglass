@@ -120,6 +120,130 @@ export struct ReportSuggestionRow {
     expense: bool,
 }
 
+// One amount line in the Accounts header and in the account panel.
+export struct AccountAmount {
+    text: string,
+    // "positive", "negative", "loan", "zero" or "plain".
+    tone: string,
+}
+
+// A labelled group of figures in the Accounts header.
+export struct AccountsFigure {
+    label: string,
+    values: [AccountAmount],
+    secondary: bool,
+}
+
+// One account row inside a bank card on the Accounts page.
+export struct BankAccountRow {
+    account-id: int,
+    name: string,
+    subtitle: string,
+    balance-text: string,
+    tone: string,
+    new-count: int,
+}
+
+// One bank card on the Accounts page. `bank-id` is -1 for accounts without a bank.
+export struct AccountsBankCard {
+    bank-id: int,
+    name: string,
+    subtitle: string,
+    offline: bool,
+    collapsed: bool,
+    account-count-text: string,
+    totals: [AccountAmount],
+    accounts: [BankAccountRow],
+}
+
+// One row of the shared account panel: "all", a group or an account.
+export struct AccountPanelRow {
+    kind: string,
+    group-kind: string,
+    account-type: string,
+    id: int,
+    label: string,
+    secondary: string,
+    detail: string,
+    name: string,
+    delete-text: string,
+    selected: bool,
+    collapsed: bool,
+    new-count: int,
+    totals: [AccountAmount],
+    indent: bool,
+}
+
+// One custom group a booking can be moved into.
+export struct AccountGroupChoice {
+    id: int,
+    name: string,
+}
+
+// One account type in the account forms.
+export struct AccountTypeChoice {
+    code: string,
+    label: string,
+}
+
+// One choice of the detail view's balance-history window.
+export struct AccountDaysChoice {
+    days: int,
+    label: string,
+}
+
+// One recent booking in the account detail view.
+export struct AccountDetailRow {
+    date-text: string,
+    title: string,
+    amount-text: string,
+    expense: bool,
+}
+
+// Colours of account amounts, shared by the page and the panel.
+export global AccountTone {
+    public pure function amount-color(tone: string) -> color {
+        if (tone == "positive") {
+            return Theme.success;
+        }
+        if (tone == "negative") {
+            return Theme.error;
+        }
+        if (tone == "loan") {
+            return Theme.muted-text;
+        }
+        if (tone == "plain") {
+            return Theme.muted-text;
+        }
+        return Theme.text;
+    }
+}
+
+// A small unread-booking counter, shown only above zero.
+export component CountBadge inherits Rectangle {
+    in property <int> count;
+    in property <bool> selected;
+
+    visible: root.count > 0;
+    height: 18px;
+    min-width: 18px;
+    border-radius: 9px;
+    background: root.selected ? transparent : Theme.primary;
+    border-width: root.selected ? 1px : 0px;
+    border-color: Theme.on-selected;
+
+    Text {
+        width: parent.width;
+        text: root.count > 99 ? "99+" : "\{root.count}";
+        color: root.selected ? Theme.on-selected : Theme.on-primary;
+        font-size: 10px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+}
+
 // A filled action button in the brand colour. The fluent widgets keep their own palette; the
 // surfaces and primary actions that belong to Finglass use Theme directly.
 export component PrimaryButton inherits Rectangle {
