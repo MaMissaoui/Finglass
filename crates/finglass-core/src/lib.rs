@@ -5,12 +5,15 @@
 
 pub mod audit;
 pub mod backup;
+pub mod balance;
+pub mod dashboard;
 pub mod db;
 pub mod i18n;
 pub mod iban;
 pub mod model;
 pub mod money;
 pub mod paths;
+pub mod recurring;
 pub mod repo;
 pub mod rules;
 pub mod secret;

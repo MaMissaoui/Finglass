@@ -1,5 +1,7 @@
 //! Plain domain data. Nothing here holds a database connection.
 
+use std::collections::BTreeSet;
+
 use time::{Date, OffsetDateTime};
 
 use crate::money::{Currency, Money};
@@ -255,6 +257,130 @@ pub struct Transaction {
     pub is_new: bool,
     /// An explicit tax flag, overriding the category's.
     pub tax_override: Option<bool>,
+}
+
+/// The money flow a transaction filter selects.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
+pub enum Direction {
+    /// Both income and expenses.
+    #[default]
+    All,
+    /// Money in.
+    Income,
+    /// Money out.
+    Expenses,
+}
+
+/// Which layer decided a booking's effective tax relevance.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TaxSource {
+    /// The user's stored override (`transactions.tax_override`).
+    Manual,
+    /// A rule's tax flag, resolved at read time.
+    Rule,
+    /// The category's `is_tax_relevant` flag.
+    Category,
+    /// No layer said yes or no.
+    None,
+}
+
+/// The filter behind a transaction list.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct TransactionFilter {
+    /// The first booking date, inclusive.
+    pub start_date: Option<Date>,
+    /// The last booking date, inclusive.
+    pub end_date: Option<Date>,
+    /// Restricts to one account.
+    pub account_id: Option<AccountId>,
+    /// Restricts to these accounts; `None` means no restriction and an empty set matches nothing.
+    pub account_ids: Option<BTreeSet<AccountId>>,
+    /// Restricts to one category.
+    pub category_id: Option<CategoryId>,
+    /// Only bookings without a category.
+    pub uncategorized_only: bool,
+    /// Only bookings whose effective tax relevance is true.
+    pub tax_relevant_only: bool,
+    /// Restricts to one money flow.
+    pub direction: Direction,
+    /// A text search over partner name and purpose.
+    pub text: Option<String>,
+    /// The smallest absolute amount, inclusive.
+    pub min_amount: Option<Money>,
+    /// The largest absolute amount, inclusive.
+    pub max_amount: Option<Money>,
+    /// Only bookings in this currency.
+    pub currency: Option<Currency>,
+}
+
+/// One booking as a list or report shows it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TransactionItem {
+    /// The row id.
+    pub id: TransactionId,
+    /// The account the booking belongs to.
+    pub account_id: AccountId,
+    /// The account's IBAN, when known.
+    pub account_iban: Option<String>,
+    /// The booking date.
+    pub date: Date,
+    /// The signed amount.
+    pub amount: Money,
+    /// The bank's running balance after this booking, when reported.
+    pub balance_after: Option<Money>,
+    /// The account currency.
+    pub currency: Currency,
+    /// The other party.
+    pub partner_name: Option<String>,
+    /// The purpose text.
+    pub purpose: Option<String>,
+    /// The assigned category.
+    pub category_id: Option<CategoryId>,
+    /// The category's display name.
+    pub category_name: Option<String>,
+    /// The category's display color.
+    pub category_color: Option<String>,
+    /// Whether the booking is effectively tax relevant.
+    pub is_tax_relevant: bool,
+    /// How many documents are linked to the booking.
+    pub document_count: usize,
+    /// Whether the booking is still new to the user.
+    pub is_new: bool,
+    /// Whether the booking's category marks a transfer.
+    pub is_transfer: bool,
+    /// Which layer decided the effective tax relevance.
+    pub tax_source: TaxSource,
+    /// The deciding rule's pattern, when [`TaxSource::Rule`] decided.
+    pub tax_rule_pattern: Option<String>,
+    /// The stored manual override; `None` means automatic.
+    pub tax_override: Option<bool>,
+}
+
+impl TransactionItem {
+    /// The raw partner (else purpose, else "—"), for matching and search only.
+    pub fn raw_description(&self) -> String {
+        self.partner_name
+            .as_deref()
+            .filter(|text| !text.trim().is_empty())
+            .or_else(|| self.purpose.as_deref().filter(|text| !text.trim().is_empty()))
+            .unwrap_or("—")
+            .to_owned()
+    }
+
+    /// Whether the amount is below zero.
+    pub fn is_expense(&self) -> bool {
+        self.amount.minor < 0
+    }
+
+    /// Counts as income: money in on a normal category; transfers never do.
+    pub fn counts_as_income(&self) -> bool {
+        self.amount.minor > 0 && !self.is_transfer
+    }
+
+    /// Counts as spending: money out on a normal category; transfers never do.
+    pub fn counts_as_spending(&self) -> bool {
+        self.amount.minor < 0 && !self.is_transfer
+    }
 }
 
 /// A booking that was deleted and must not be imported again.

@@ -126,6 +126,51 @@ impl Totals {
     }
 }
 
+/// The settings key that holds the primary currency, as FinDesk stores it.
+pub const PRIMARY_CURRENCY_KEY: &str = "money.primary_currency";
+
+/// The primary currency used when the setting is absent or unreadable.
+pub const DEFAULT_PRIMARY_CURRENCY: Currency = Currency::EUR;
+
+/// Currency helpers shared by overviews and reports.
+pub struct Currencies;
+
+impl Currencies {
+    /// The settings key that holds the primary currency.
+    pub const KEY_PRIMARY: &'static str = PRIMARY_CURRENCY_KEY;
+
+    /// The default primary currency.
+    pub const DEFAULT: Currency = DEFAULT_PRIMARY_CURRENCY;
+
+    /// Reads the primary currency from the settings, falling back to [`Currencies::DEFAULT`].
+    pub fn primary(db: &crate::db::Database) -> Result<Currency, crate::db::DbError> {
+        let stored = crate::settings::get_setting(db, Self::KEY_PRIMARY)?;
+        Ok(stored
+            .filter(|text| text.len() == 3)
+            .and_then(|text| Currency::new(&text).ok())
+            .unwrap_or(Self::DEFAULT))
+    }
+
+    /// Sums `amount` per currency, primary currency first.
+    pub fn totals<T>(
+        items: &[T],
+        primary: Currency,
+        currency: impl Fn(&T) -> Currency,
+        amount: impl Fn(&T) -> i64,
+    ) -> Vec<(Currency, i64)> {
+        let mut totals: BTreeMap<Currency, i64> = BTreeMap::new();
+        for item in items {
+            *totals.entry(currency(item)).or_default() += amount(item);
+        }
+
+        let mut entries: Vec<(Currency, i64)> = totals.into_iter().collect();
+        entries.sort_by(|(left, _), (right, _)| {
+            (left != &primary, left.as_str()).cmp(&(right != &primary, right.as_str()))
+        });
+        entries
+    }
+}
+
 /// Parses a plain decimal amount using the currency's exponent.
 ///
 /// Accepts a leading sign, `.` or `,` as decimal separator, and thousands separators. When both separator characters
@@ -423,5 +468,39 @@ mod tests {
         assert!(amount(-1, eur()).is_negative());
         assert!(!amount(0, eur()).is_negative());
         assert!(!amount(1, eur()).is_negative());
+    }
+
+    #[test]
+    fn totals_put_the_primary_currency_first() {
+        let usd = Currency::new("USD").unwrap();
+        let items = [("USD", 500), ("EUR", 1000), ("USD", 250)];
+
+        let totals = Currencies::totals(&items, eur(), |item| Currency::new(item.0).unwrap(), |item| item.1);
+
+        assert_eq!(
+            totals,
+            vec![(eur(), 1000), (usd, 750)],
+            "primary first, then the other currencies"
+        );
+    }
+
+    #[test]
+    fn the_primary_currency_is_read_from_the_settings_with_the_findesk_key() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("finglass.db");
+        let pass =
+            crate::secret::Passphrase::new("correct horse battery staple", crate::secret::PassphrasePurpose::New)
+                .unwrap();
+        let db = crate::db::Database::create(&path, &pass).unwrap();
+
+        assert_eq!(Currencies::primary(&db).unwrap(), eur(), "the default when unset");
+        crate::settings::set_setting(&db, PRIMARY_CURRENCY_KEY, "USD").unwrap();
+        assert_eq!(
+            Currencies::primary(&db).unwrap().as_str(),
+            "USD",
+            "the same key FinDesk's Currencies.primary reads"
+        );
+        crate::settings::set_setting(&db, PRIMARY_CURRENCY_KEY, "EU").unwrap();
+        assert_eq!(Currencies::primary(&db).unwrap(), eur(), "invalid codes fall back");
     }
 }
