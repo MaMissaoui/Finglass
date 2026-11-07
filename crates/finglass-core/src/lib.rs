@@ -5,6 +5,7 @@
 
 pub mod audit;
 pub mod db;
+pub mod i18n;
 pub mod iban;
 pub mod model;
 pub mod money;
