@@ -774,6 +774,47 @@ pub fn forget_deleted(db: &Database, account_id: AccountId) -> Result<usize> {
     })
 }
 
+/// Lets an account's remembered deleted bookings be imported again, as the Accounts view does.
+///
+/// Ported from FinDesk's `AccountsViewModel.forgetDeletedBookings`: one transaction deletes the remembered pairs and
+/// names the count in one audit entry with the account's last four characters. When nothing is remembered, nothing is
+/// deleted and no audit entry is written; the caller shows the "nothing remembered" message.
+pub fn forget_deleted_bookings(db: &Database, account_id: AccountId) -> Result<usize> {
+    in_conn(db, |conn| {
+        let transaction = conn.unchecked_transaction()?;
+        let removed = transaction.execute("DELETE FROM deleted_bookings WHERE account_id = ?1", [account_id.0])?;
+
+        if removed > 0 {
+            let iban: Option<String> = transaction
+                .query_row("SELECT iban FROM accounts WHERE id = ?1", [account_id.0], |row| {
+                    row.get(0)
+                })
+                .optional()?;
+            let last4 = iban
+                .as_deref()
+                .map(|iban| {
+                    iban.chars()
+                        .rev()
+                        .take(4)
+                        .collect::<String>()
+                        .chars()
+                        .rev()
+                        .collect::<String>()
+                })
+                .unwrap_or_default();
+            audit::log_conn(
+                &transaction,
+                "FORGET_DELETED_BOOKINGS",
+                Actor::User,
+                &format!("Account {last4}: {removed} deleted bookings may be imported again"),
+            )?;
+        }
+
+        transaction.commit()?;
+        Ok(removed)
+    })
+}
+
 /// Whether an account has any booking yet.
 pub fn has_bookings(db: &Database, account_id: AccountId) -> Result<bool> {
     in_conn(db, |conn| {
@@ -2923,6 +2964,40 @@ mod tests {
                 .unwrap()
                 .iter()
                 .all(|entry| !entry.details.contains("One") && !entry.details.contains("Two"))
+        );
+    }
+
+    #[test]
+    fn forget_deleted_bookings_names_the_count_and_writes_nothing_when_none_are_remembered() {
+        let (_temp, db) = database();
+        let account_id = account(&db);
+        let booking = add(
+            &db,
+            account_id,
+            date!(2026 - 10 - 05),
+            -500,
+            Some("Cafe"),
+            None,
+            None,
+            "forget-view-a",
+        );
+        delete_all(&db, &[booking]).unwrap();
+        let before = audit::recent(&db, 100).unwrap().len();
+
+        assert_eq!(forget_deleted_bookings(&db, account_id).unwrap(), 1);
+        let entries = audit::recent(&db, 100).unwrap();
+        assert_eq!(entries.len(), before + 1);
+        assert_eq!(entries[0].action, "FORGET_DELETED_BOOKINGS");
+        assert_eq!(
+            entries[0].details,
+            "Account 3000: 1 deleted bookings may be imported again"
+        );
+
+        assert_eq!(forget_deleted_bookings(&db, account_id).unwrap(), 0);
+        assert_eq!(
+            audit::recent(&db, 100).unwrap().len(),
+            before + 1,
+            "nothing remembered means no mutation and no audit entry"
         );
     }
 }

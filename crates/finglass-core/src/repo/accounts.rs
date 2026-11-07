@@ -217,6 +217,43 @@ pub(crate) fn set_balance_for_import(db: &Database, id: AccountId, balance: Mone
     })
 }
 
+/// Changes an account's type and returns whether the stored type changed.
+///
+/// Ported from FinDesk's `AccountsViewModel.setAccountType` and its repository `update(accountType)`: an unchanged
+/// type stores nothing and writes no audit entry. The details use FinDesk's wording, because the Accounts view shows
+/// them in the audit log.
+pub fn set_account_type(db: &Database, id: AccountId, account_type: AccountType) -> Result<bool> {
+    in_conn(db, |conn| {
+        let transaction = conn.unchecked_transaction()?;
+        let previous: Option<String> = transaction
+            .query_row("SELECT account_type FROM accounts WHERE id = ?1", [id.0], |row| {
+                row.get(0)
+            })
+            .optional()?;
+        let Some(previous) = previous else {
+            return Err(RepoError::NotFound);
+        };
+
+        if previous == account_type.as_str() {
+            return Ok(false);
+        }
+
+        transaction.execute(
+            "UPDATE accounts SET account_type = ?1 WHERE id = ?2",
+            params![account_type.as_str(), id.0],
+        )?;
+        audit::log_conn(
+            &transaction,
+            "CHANGE_ACCOUNT_TYPE",
+            Actor::User,
+            &format!("Account {}: {previous} -> {}", id.0, account_type.as_str()),
+        )?;
+        transaction.commit()?;
+
+        Ok(true)
+    })
+}
+
 /// Deletes an account and, through the foreign keys, its bookings.
 pub fn delete(db: &Database, id: AccountId) -> Result<()> {
     in_conn(db, |conn| {
@@ -232,4 +269,77 @@ pub fn delete(db: &Database, id: AccountId) -> Result<()> {
 
         Ok(())
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::db::DbError;
+    use crate::secret::{Passphrase, PassphrasePurpose};
+
+    fn database() -> (tempfile::TempDir, Database) {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("finglass.db");
+        let pass = Passphrase::new("correct horse battery staple", PassphrasePurpose::New).unwrap();
+        let db = Database::create(&path, &pass).unwrap();
+        (temp, db)
+    }
+
+    fn account(db: &Database, account_type: AccountType) -> AccountId {
+        create(
+            db,
+            NewAccount {
+                bank_connection_id: None,
+                institution: None,
+                name: Some("Account".to_owned()),
+                iban: None,
+                account_number: None,
+                currency: crate::money::Currency::EUR,
+                account_type,
+                balance: Money {
+                    minor: 0,
+                    currency: crate::money::Currency::EUR,
+                },
+                balance_updated_at: None,
+                group_id: None,
+            },
+        )
+        .unwrap()
+    }
+
+    fn audit_count(db: &Database) -> i64 {
+        db.with_conn(|conn| {
+            conn.query_row("SELECT count(*) FROM audit_log", [], |row| row.get(0))
+                .map_err(DbError::from)
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn set_account_type_changes_the_stored_type_and_audits_only_a_change() {
+        let (_temp, db) = database();
+        let id = account(&db, AccountType::Checking);
+        let before = audit_count(&db);
+
+        assert!(set_account_type(&db, id, AccountType::Loan).unwrap());
+        assert_eq!(get(&db, id).unwrap().unwrap().account_type, AccountType::Loan);
+        assert_eq!(audit_count(&db), before + 1);
+
+        assert!(
+            !set_account_type(&db, id, AccountType::Loan).unwrap(),
+            "the same type changes nothing"
+        );
+        assert_eq!(audit_count(&db), before + 1, "and writes no second audit entry");
+
+        let entry = crate::audit::recent(&db, 1).unwrap().remove(0);
+        assert_eq!(entry.action, "CHANGE_ACCOUNT_TYPE");
+        assert_eq!(entry.details, format!("Account {}: checking -> loan", id.0));
+    }
+
+    #[test]
+    fn set_account_type_rejects_an_unknown_account() {
+        let (_temp, db) = database();
+        let error = set_account_type(&db, AccountId(999_999), AccountType::Loan).unwrap_err();
+        assert!(matches!(error, RepoError::NotFound));
+    }
 }
