@@ -64,6 +64,19 @@ signature and notarization.
 The `Package` workflow runs the script on `macos-latest`, launches the app from the mounted DMG once
 with a fresh `FINGLASS_HOME`, and uploads the DMG as an artifact.
 
+## Install on this Mac
+
+Double-click `install-mac.command` in Finder. The first build takes a few minutes and needs Rust and
+cargo-packager. From a terminal the same install is:
+
+```sh
+scripts/install-mac.sh [--install-dir <folder>] [--force]
+```
+
+It installs into `/Applications` by default. Quit Finglass first: a previous `Finglass.app` is moved to the
+Trash, never deleted. `--force` installs a checkout with uncommitted changes or a HEAD that is neither a
+`v*` release tag nor the fetched `origin/main`.
+
 ## License
 
 [MIT](LICENSE). The UI uses [Slint](https://slint.dev) under its royalty-free license, which is why the About screen

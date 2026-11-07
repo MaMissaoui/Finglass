@@ -98,6 +98,37 @@ jobs:
 
           hdiutil detach "$mount_point"
           trap - EXIT
+      - name: Install into a scratch folder twice
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          apps="$RUNNER_TEMP/apps"
+          trash="$RUNNER_TEMP/trash"
+          rm -rf "$apps" "$trash"
+          mkdir -p "$apps" "$trash"
+
+          for run in 1 2; do
+            echo "Install run $run into $apps"
+            FINGLASS_INSTALL_TRASH="$trash" ./scripts/install-mac.sh \
+              --install-dir "$apps" --force
+            if [ ! -d "$apps/Finglass.app" ]; then
+              echo "::error::no Finglass.app in $apps after install run $run"
+              exit 1
+            fi
+            codesign --verify --deep --strict "$apps/Finglass.app"
+          done
+
+          shopt -s nullglob
+          replaced=("$trash"/Finglass\ *\ \(replaced\ *\).app)
+          echo "Replaced bundles in the scratch trash: ${#replaced[@]}"
+          for bundle in "${replaced[@]}"; do
+            echo "  $bundle"
+          done
+          if [ "${#replaced[@]}" -ne 1 ]; then
+            echo "::error::expected exactly one replaced Finglass bundle in $trash, found ${#replaced[@]}"
+            exit 1
+          fi
       - name: Upload DMG
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
