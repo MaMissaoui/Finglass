@@ -171,6 +171,8 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_current_screen("dashboard".into());
     main.set_theme_pref(ThemePref::System.code().into());
     main.set_language(language.code().into());
+    main.set_sidebar_collapsed(false);
+    main.set_language_menu_open(false);
     main.set_status_text("".into());
     main.set_change_open(false);
     main.set_change_busy(false);
@@ -1294,6 +1296,31 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
 
     {
         let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_sidebar_collapsed_changed(move |collapsed| {
+            let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
+                return;
+            };
+            let language = current_language(&state);
+            let main_weak = main_weak.clone();
+            thread::spawn(move || {
+                let result = app::prefs::save_sidebar_collapsed(&db, collapsed)
+                    .and_then(|()| app::audit::recent(&db, AUDIT_LIMIT));
+                let error_text = i18n::text(language, Key::ErrorUnexpected).to_owned();
+                let _ = slint::invoke_from_event_loop(move || {
+                    if let Some(ui) = main_weak.upgrade() {
+                        match result {
+                            Ok(rows) => ui.set_audit_rows(audit_model(rows)),
+                            Err(_) => ui.set_status_text(error_text.into()),
+                        }
+                    }
+                });
+            });
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
         let paths = paths.clone();
         let state = state.clone();
         main.on_change_passphrase(move |current, passphrase, repeat, acknowledged| {
@@ -1383,6 +1410,7 @@ fn spawn_open_work(
                     apply_theme(&main, prefs.theme);
                     main.set_theme_pref(prefs.theme.code().into());
                     main.set_language(prefs.language.code().into());
+                    main.set_sidebar_collapsed(prefs.sidebar_collapsed);
                     main.set_audit_rows(audit_model(rows));
                     state.reports.attach(db.clone(), prefs.language);
                     state.documents.attach(db.clone(), prefs.language);

@@ -502,16 +502,69 @@ export component TabPill inherits Rectangle {
     }
 }
 
-// One sidebar entry: selected tint, left accent bar and a keyboard focus ring.
-export component NavItem inherits Rectangle {
+// An icon-only button for the top bar. Its accessible label replaces the visible text.
+export component IconButton inherits Rectangle {
+    in property <image> icon;
     in property <string> label;
+    in property <color> icon-color: Theme.muted-text;
+    in property <length> icon-size: 20px;
+    in property <bool> selected: false;
+
+    callback clicked;
+
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
+    accessible-role: button;
+    accessible-label: root.label;
+
+    Image {
+        width: root.icon-size;
+        height: root.icon-size;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: root.icon;
+        colorize: root.selected ? Theme.on-selected : root.icon-color;
+        accessible-role: none;
+    }
+
+    touch := TouchArea {
+        clicked => root.clicked();
+    }
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if focus.has-focus : Rectangle {
+        border-width: 2px;
+        border-color: Theme.primary;
+        border-radius: parent.border-radius;
+    }
+}
+
+// One sidebar entry: icon and label when expanded, a centred icon with an accessible label when
+// collapsed. Both variants use the same selection tint, accent bar and keyboard focus ring.
+export component SidebarItem inherits Rectangle {
+    in property <string> label;
+    in property <image> icon;
     in property <bool> selected;
+    in property <bool> collapsed;
 
     callback activated;
 
-    height: 40px;
+    height: root.collapsed ? 44px : 40px;
     border-radius: 8px;
     background: root.selected ? Theme.selected : transparent;
+    accessible-role: button;
+    accessible-label: root.label;
 
     Rectangle {
         visible: root.selected;
@@ -523,16 +576,41 @@ export component NavItem inherits Rectangle {
         background: Theme.primary;
     }
 
-    Text {
-        x: 16px;
+    if (root.collapsed) : Image {
+        width: 24px;
+        height: 24px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: root.icon;
+        colorize: root.selected ? Theme.on-selected : Theme.muted-text;
+        accessible-role: none;
+    }
+
+    if (!root.collapsed) : HorizontalLayout {
+        x: 12px;
         width: parent.width - 24px;
         height: parent.height;
-        text: root.label;
-        color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: 15px;
-        font-weight: root.selected ? 600 : 400;
-        vertical-alignment: center;
-        horizontal-alignment: left;
+        spacing: 12px;
+        cross-axis-alignment: center;
+
+        Image {
+            width: 20px;
+            height: 20px;
+            source: root.icon;
+            colorize: root.selected ? Theme.on-selected : Theme.muted-text;
+            accessible-role: none;
+        }
+
+        Text {
+            text: root.label;
+            color: root.selected ? Theme.on-selected : Theme.text;
+            font-size: 15px;
+            font-weight: root.selected ? 600 : 400;
+            vertical-alignment: center;
+            horizontal-alignment: left;
+            horizontal-stretch: 1;
+            overflow: elide;
+        }
     }
 
     TouchArea {

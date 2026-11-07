@@ -156,6 +156,73 @@ fn renders_the_app_shell() {
         let _ = ui.hide();
     }
 
+    // M2c: the top bar and the collapsible sidebar.
+    {
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.set_sidebar_collapsed(false);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-sidebar-expanded-en-light", 1100, 720);
+        assert_varied(&buffer, "topbar-sidebar-expanded-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.set_sidebar_collapsed(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-sidebar-collapsed-en-light", 1100, 720);
+        assert_varied(&buffer, "topbar-sidebar-collapsed-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut dashboard = DashboardState::new(Language::De, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.set_sidebar_collapsed(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-sidebar-collapsed-de-dark", 1100, 720);
+        assert_varied(&buffer, "topbar-sidebar-collapsed-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.set_sidebar_collapsed(false);
+        ui.set_language_menu_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-language-menu-en-light", 1100, 720);
+        assert_varied(&buffer, "topbar-language-menu-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.set_sidebar_collapsed(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-sidebar-collapsed-narrow-en-light", 900, 720);
+        assert_varied(&buffer, "topbar-sidebar-collapsed-narrow-en-light");
+        let _ = ui.hide();
+    }
+
     {
         let first_run_temp = tempfile::tempdir().unwrap();
         let first_run_paths = AppPaths::resolve(Some(first_run_temp.path().as_os_str().to_owned()), None).unwrap();
@@ -2009,6 +2076,8 @@ fn configure_main(ui: &MainWindow, language: Language, theme: ThemePref, screen:
     ui.set_current_screen(screen.into());
     ui.set_theme_pref(theme.code().into());
     ui.set_language(language.code().into());
+    ui.set_sidebar_collapsed(false);
+    ui.set_language_menu_open(false);
     ui.set_status_text("".into());
     ui.set_change_open(false);
     ui.set_change_busy(false);
