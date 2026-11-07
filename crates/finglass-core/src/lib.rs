@@ -4,6 +4,7 @@
 //! so everything that matters is testable without a window.
 
 pub mod audit;
+pub mod backup;
 pub mod db;
 pub mod i18n;
 pub mod iban;
