@@ -11,6 +11,7 @@ use std::thread;
 use finglass_core::app;
 use finglass_core::app::accounts::{AccountsState, Busy};
 use finglass_core::app::dashboard::DashboardState;
+use finglass_core::app::findesk::FindeskImportState;
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::settings::SettingsState;
 use finglass_core::app::transactions::{Period, StartArgs};
@@ -50,6 +51,8 @@ pub(crate) struct ShellState {
     /// The filter the dashboard or a report last asked the Transactions page to show; M4c reads it.
     pub(crate) navigation: Mutex<StartArgs>,
     pub(crate) settings: Mutex<SettingsState>,
+    /// The one-time FinDesk import's folder, passphrase prompt and result.
+    pub(crate) findesk: Mutex<FindeskImportState>,
     pub(crate) accounts: Mutex<AccountsState>,
     /// The Accounts page's own work guard. It is separate from the profile's busy flag, which the core reserves for
     /// sync and import work (and reads before it allows a delete).
@@ -127,6 +130,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         reports,
         navigation: Mutex::new(StartArgs::default()),
         settings: Mutex::new(SettingsState::new(initial_language)),
+        findesk: Mutex::new(FindeskImportState::new(initial_language)),
         accounts: Mutex::new(AccountsState::new(initial_language)),
         accounts_work: Busy::default(),
         documents,
@@ -221,6 +225,9 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_profile_rows(ModelRc::new(VecModel::from(Vec::<crate::ProfileRow>::new())));
     main.set_current_profile_name("".into());
     crate::settings::apply(main, &SettingsState::new(language), restored_from);
+    crate::settings::apply_findesk(main, &FindeskImportState::new(language));
+    main.set_findesk_passphrase_open(false);
+    main.set_findesk_passphrase("".into());
     main.set_accounts_dialog("".into());
     main.set_accounts_dialog_error("".into());
     main.set_accounts_detail_open(false);
@@ -1280,6 +1287,47 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        main.on_settings_import_findesk(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::import_findesk(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_settings_findesk_passphrase_submit(move |passphrase| {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::submit_findesk_passphrase(&ui, &state, &paths, passphrase.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_findesk_passphrase_cancel(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::cancel_findesk_passphrase(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_settings_findesk_report_close(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                crate::settings::close_findesk_report(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
         main.on_set_theme(move |value| {
             let Some(ui) = main_weak.upgrade() else {
                 return;
@@ -1341,6 +1389,12 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
             apply_language_main(&ui, language);
             dashboard::spawn_load(&ui, &state, None);
             state.reports.set_language(language);
+            let findesk = {
+                let mut findesk = state.findesk.lock().expect("findesk state poisoned");
+                findesk.language = language;
+                findesk.clone()
+            };
+            crate::settings::apply_findesk(&ui, &findesk);
             if ui.get_current_screen() == "settings" {
                 crate::settings::spawn_load(&ui, &state, &paths);
             }
@@ -1576,6 +1630,50 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
     }
 }
 
+/// Reloads everything the imported database changed, as a fresh unlock would: theme, language, primary currency,
+/// settings and every page's state.
+pub(crate) fn reload_after_findesk_import(
+    main: &MainWindow,
+    state: &Arc<ShellState>,
+    paths: &Arc<AppPaths>,
+) -> Option<Language> {
+    let db = state.db.lock().expect("database state poisoned").clone()?;
+    let fallback = current_language(state);
+    let prefs = app::prefs::load(&db, fallback).ok()?;
+    let rows = app::audit::recent(&db, AUDIT_LIMIT).unwrap_or_default();
+    let slug = state.slug();
+    let mut settings = SettingsState::new(prefs.language);
+    let _ = settings.load(&db, paths, slug.as_deref());
+
+    *state.language.lock().expect("language state poisoned") = prefs.language;
+    *state.theme.lock().expect("theme state poisoned") = prefs.theme;
+    *state.settings.lock().expect("settings state poisoned") = settings.clone();
+    *state.dashboard.lock().expect("dashboard state poisoned") =
+        DashboardState::new(prefs.language, OffsetDateTime::now_utc().date());
+    *state.accounts.lock().expect("accounts state poisoned") = AccountsState::new(prefs.language);
+    *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
+
+    state.reports.reset();
+    state.documents.reset();
+    state.transactions.reset();
+
+    main.set_current_screen("settings".into());
+    apply_language_main(main, prefs.language);
+    apply_theme(main, prefs.theme);
+    main.set_theme_pref(prefs.theme.code().into());
+    main.set_language(prefs.language.code().into());
+    main.set_sidebar_collapsed(prefs.sidebar_collapsed);
+    main.set_audit_rows(audit_model(rows));
+    crate::settings::apply(main, &settings, state.restored_from().as_deref());
+
+    state.reports.attach(db.clone(), prefs.language);
+    state.documents.attach(db.clone(), prefs.language);
+    state.transactions.attach(db.clone(), prefs.language);
+    dashboard::spawn_load(main, state, None);
+
+    Some(prefs.language)
+}
+
 fn spawn_open_work(
     work: impl FnOnce() -> Result<Database, UnlockError> + Send + 'static,
     language: Language,
@@ -1620,6 +1718,7 @@ fn spawn_open_work(
                     *state.language.lock().expect("language state poisoned") = prefs.language;
                     *state.theme.lock().expect("theme state poisoned") = prefs.theme;
                     *state.settings.lock().expect("settings state poisoned") = settings.clone();
+                    *state.findesk.lock().expect("findesk state poisoned") = FindeskImportState::new(prefs.language);
 
                     main.set_current_screen("dashboard".into());
                     main.set_profile_menu_open(false);
@@ -1635,6 +1734,8 @@ fn spawn_open_work(
                     main.set_rule_import_open(false);
                     main.set_settings_restore_open(false);
                     main.set_settings_restore_passphrase_open(false);
+                    main.set_findesk_passphrase_open(false);
+                    main.set_findesk_passphrase("".into());
                     main.set_accounts_dialog("".into());
                     main.set_accounts_detail_open(false);
 
@@ -1646,6 +1747,7 @@ fn spawn_open_work(
                     main.set_sidebar_collapsed(prefs.sidebar_collapsed);
                     main.set_audit_rows(audit_model(rows));
                     crate::settings::apply(&main, &settings, state.restored_from().as_deref());
+                    crate::settings::apply_findesk(&main, &FindeskImportState::new(prefs.language));
                     state.reports.attach(db.clone(), prefs.language);
                     state.documents.attach(db.clone(), prefs.language);
                     state.transactions.attach(db.clone(), prefs.language);
@@ -1776,6 +1878,7 @@ fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup:
     *state.restored_from.lock().expect("restore state poisoned") = startup.restored_from.clone();
     *state.dashboard.lock().expect("dashboard state poisoned") = DashboardState::new(language, today);
     *state.settings.lock().expect("settings state poisoned") = SettingsState::new(language);
+    *state.findesk.lock().expect("findesk state poisoned") = FindeskImportState::new(language);
     *state.accounts.lock().expect("accounts state poisoned") = AccountsState::new(language);
     *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
 
@@ -1789,6 +1892,9 @@ fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup:
 
     if let Some(main) = main {
         crate::settings::apply(main, &SettingsState::new(language), startup.restored_from.as_deref());
+        crate::settings::apply_findesk(main, &FindeskImportState::new(language));
+        main.set_findesk_passphrase_open(false);
+        main.set_findesk_passphrase("".into());
         dashboard::apply(main, &DashboardState::new(language, today));
         accounts::apply(main, &AccountsState::new(language));
         crate::transactions::apply(main, &app::transactions::TransactionsState::new(language));
@@ -1973,6 +2079,7 @@ mod tests {
             reports,
             navigation: Mutex::new(StartArgs::default()),
             settings: Mutex::new(SettingsState::new(Language::En)),
+            findesk: Mutex::new(FindeskImportState::new(Language::En)),
             accounts: Mutex::new(AccountsState::new(Language::En)),
             accounts_work: Busy::default(),
             documents,

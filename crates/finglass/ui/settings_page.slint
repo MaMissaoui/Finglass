@@ -3,6 +3,7 @@ import { Theme } from "theme.slint";
 import { Tr } from "translations.slint";
 import { ChoiceChip, PrimaryButton, TextButton } from "components.slint";
 import { AuditRow, CategoryRow, ProfileRow, RuleRow } from "models.slint";
+import { FinDeskPassphraseDialog, FinDeskReportDialog } from "settings_dialogs.slint";
 
 component SectionTitle inherits Text {
     color: Theme.text;
@@ -41,6 +42,17 @@ export component SettingsPage inherits Rectangle {
     in property <bool> backup-has-pending-restore;
     in property <string> backup-restored-text;
 
+    // One-time import from FinDesk and its result.
+    in property <bool> findesk-busy;
+    in property <bool> findesk-passphrase-open;
+    in property <string> findesk-folder;
+    in property <bool> findesk-passphrase-wrong;
+    in-out property <string> findesk-passphrase;
+    in property <bool> findesk-report-open;
+    in property <string> findesk-report-title;
+    in property <string> findesk-report-text;
+    in property <bool> findesk-report-error;
+
     in-out property <length> scroll-y;
 
     callback set-theme(string);
@@ -68,6 +80,10 @@ export component SettingsPage inherits Rectangle {
     callback create-backup;
     callback restore-backup;
     callback cancel-pending-restore;
+    callback import-findesk;
+    callback findesk-passphrase-submit(string);
+    callback findesk-passphrase-cancel;
+    callback findesk-report-close;
 
     background: Theme.background;
 
@@ -653,6 +669,43 @@ export component SettingsPage inherits Rectangle {
 
                 Divider {}
 
+                VerticalLayout {
+                    spacing: 12px;
+
+                    SectionTitle {
+                        text: Tr.t("FinDeskImportTitle");
+                    }
+
+                    Text {
+                        text: Tr.t("FinDeskImportHint");
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                        width: 640px;
+                    }
+
+                    HorizontalLayout {
+                        spacing: 12px;
+                        alignment: start;
+
+                        PrimaryButton {
+                            text: Tr.t("FinDeskImportChooseFolder");
+                            enabled: !root.findesk-busy;
+                            clicked => { root.import-findesk(); }
+                        }
+
+                        if (root.findesk-busy) : HorizontalLayout {
+                            spacing: 8px;
+                            Spinner {
+                                width: 20px;
+                                height: 20px;
+                            }
+                        }
+                    }
+                }
+
+                Divider {}
+
                 SectionTitle {
                     text: Tr.t("AuditLogLatest");
                 }
@@ -738,6 +791,22 @@ export component SettingsPage inherits Rectangle {
                 }
             }
         }
+    }
+
+    if (root.findesk-passphrase-open) : FinDeskPassphraseDialog {
+        folder: root.findesk-folder;
+        wrong: root.findesk-passphrase-wrong;
+        busy: root.findesk-busy;
+        passphrase <=> root.findesk-passphrase;
+        close => { root.findesk-passphrase-cancel(); }
+        submit(value) => { root.findesk-passphrase-submit(value); }
+    }
+
+    if (root.findesk-report-open) : FinDeskReportDialog {
+        title: root.findesk-report-title;
+        text: root.findesk-report-text;
+        is-error: root.findesk-report-error;
+        close => { root.findesk-report-close(); }
     }
 }
 

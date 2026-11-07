@@ -913,7 +913,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorFinDeskWrongPassphrase => "Die FinDesk-Passphrase ist falsch.",
         Key::ErrorFinDeskNotFinDesk => "Diese Datenbank ist keine FinDesk-Datenbank.",
         Key::ErrorFinDeskTargetNotEmpty => {
-            "Das Finglass-Profil enthält bereits Daten. Importiere in ein leeres Profil."
+            "Das Finglass-Profil enthält bereits Daten. Erstelle im Bereich Profile ein neues Profil und importiere dorthin."
         }
         Key::FinDeskImportSummary => {
             "Importiert: %d Kontogruppen, %d Bankverbindungen, %d Konten, %d Kategorien, %d Regeln, \
@@ -921,6 +921,23 @@ pub(super) fn text(key: Key) -> &'static str {
              %d Einstellungen. Übersprungen: %d Zeilen, %d Dokumente mit fehlender Datei und %d abgelehnte \
              Dokumente. %d Zahlungsaufträge blieben zurück."
         }
+        Key::FinDeskImportTitle => "Aus FinDesk importieren",
+        Key::FinDeskImportHint => {
+            "Kopiert Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente aus FinDesk in das \
+             geöffnete Profil. Zahlungsaufträge und gespeicherte PINs werden nicht importiert. Beende FinDesk zuerst."
+        }
+        Key::FinDeskImportChooseFolder => "FinDesk-Ordner wählen…",
+        Key::FinDeskPassphraseTitle => "FinDesk-Passphrase",
+        Key::FinDeskPassphraseText => {
+            "Gib die Passphrase der gewählten FinDesk-Datenbank ein. Sie wird nur für diesen Import verwendet und \
+             nicht gespeichert."
+        }
+        Key::FinDeskImportReportTitle => "FinDesk-Import abgeschlossen",
+        Key::FinDeskImportFailedTitle => "FinDesk-Import fehlgeschlagen",
+        Key::FinDeskImportSkipped => {
+            "Übersprungen: %d Zeilen ohne ihr Konto, ihre Kategorie oder ihr Dokument, %d ungültige Zeilen, %d mit Bruchteilen eines Cents und %d Einstellungen, die Finglass nicht verwendet."
+        }
+        Key::ErrorFinDeskNotAFolder => "Der gewählte Ordner ist kein FinDesk-Ordner.",
         Key::ErrorNotEncrypted => {
             "Dieser Datenordner enthält eine unverschlüsselte Datenbank, die Finglass nicht öffnen kann."
         }

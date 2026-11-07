@@ -19,6 +19,7 @@ use finglass_core::app::transactions::{Period, StartArgs, TransactionsState, Tra
 use finglass_core::audit::{self, Actor};
 use finglass_core::backup::BackupInfo;
 use finglass_core::db::Database;
+use finglass_core::findesk_import::FinDeskImportReport;
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{
@@ -470,6 +471,122 @@ fn renders_the_app_shell() {
         ui.set_settings_scroll_y(-1180.0);
         let buffer = render(&window, "settings-backup-pending-en", 1100, 720);
         assert_varied(&buffer, "settings-backup-pending-en");
+        let _ = ui.hide();
+    }
+
+    // M8d-3: the one-time FinDesk import in Settings and its dialogs.
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-1450.0);
+        let buffer = render(&window, "settings-findesk-import-en-light", 1100, 720);
+        assert_varied(&buffer, "settings-findesk-import-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-1450.0);
+        let buffer = render(&window, "settings-findesk-import-de-dark", 1100, 720);
+        assert_varied(&buffer, "settings-findesk-import-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_findesk_folder("/Users/example/.findesk".into());
+        ui.set_findesk_passphrase_wrong(false);
+        ui.set_findesk_passphrase("".into());
+        ui.set_findesk_passphrase_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-findesk-passphrase-en", 1100, 720);
+        assert_varied(&buffer, "settings-findesk-passphrase-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let report = finglass_core::findesk_import::FinDeskImportReport {
+            account_groups: finglass_core::findesk_import::ImportCounts {
+                imported: 1,
+                ..Default::default()
+            },
+            bank_connections: finglass_core::findesk_import::ImportCounts {
+                imported: 2,
+                ..Default::default()
+            },
+            accounts: finglass_core::findesk_import::ImportCounts {
+                imported: 3,
+                ..Default::default()
+            },
+            categories: finglass_core::findesk_import::ImportCounts {
+                imported: 4,
+                ..Default::default()
+            },
+            rules: finglass_core::findesk_import::ImportCounts {
+                imported: 5,
+                ..Default::default()
+            },
+            transactions: finglass_core::findesk_import::ImportCounts {
+                imported: 42,
+                skipped: 3,
+                skipped_orphan: 1,
+                skipped_invalid: 1,
+                skipped_fractional_amount: 1,
+            },
+            documents: finglass_core::findesk_import::DocumentImportCounts {
+                copied: 2,
+                skipped: 3,
+                missing: 2,
+                refused: 1,
+                skipped_invalid: 0,
+            },
+            settings: finglass_core::findesk_import::SettingsImportCounts {
+                imported: 8,
+                skipped: 2,
+            },
+            payment_orders_left_behind: 1,
+            ..FinDeskImportReport::default()
+        };
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_findesk_report_title(i18n::text(Language::En, Key::FinDeskImportReportTitle).into());
+        ui.set_findesk_report_text(app::findesk::report_text(&report, Language::En).into());
+        ui.set_findesk_report_error(false);
+        ui.set_findesk_report_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-findesk-report-en", 1100, 720);
+        assert_varied(&buffer, "settings-findesk-report-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_findesk_report_title(i18n::text(Language::En, Key::FinDeskImportFailedTitle).into());
+        ui.set_findesk_report_text(
+            finglass_core::findesk_import::FinDeskImportError::TargetNotEmpty
+                .message(Language::En)
+                .into(),
+        );
+        ui.set_findesk_report_error(true);
+        ui.set_findesk_report_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-findesk-target-not-empty-en", 1100, 720);
+        assert_varied(&buffer, "settings-findesk-target-not-empty-en");
         let _ = ui.hide();
     }
 

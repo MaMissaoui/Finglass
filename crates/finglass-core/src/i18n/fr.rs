@@ -940,7 +940,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorFinDeskWrongPassphrase => "La phrase secrète FinDesk est incorrecte.",
         Key::ErrorFinDeskNotFinDesk => "Cette base de données n'est pas une base de données FinDesk.",
         Key::ErrorFinDeskTargetNotEmpty => {
-            "Le profil Finglass contient déjà des données. Importez dans un profil vide."
+            "Le profil Finglass contient déjà des données. Créez un nouveau profil dans la section Profils et importez-y."
         }
         Key::FinDeskImportSummary => {
             "Importé : %d groupes de comptes, %d connexions bancaires, %d comptes, %d catégories, %d règles, \
@@ -948,6 +948,23 @@ pub(super) fn text(key: Key) -> &'static str {
              %d paramètres. Ignoré : %d lignes, %d documents avec un fichier manquant et %d documents refusés. \
              %d ordres de paiement laissés de côté."
         }
+        Key::FinDeskImportTitle => "Importer depuis FinDesk",
+        Key::FinDeskImportHint => {
+            "Copie les comptes, connexions bancaires, catégories, règles, écritures et documents de FinDesk dans le \
+             profil ouvert. Les ordres de paiement et les codes PIN mémorisés ne sont pas importés. Quittez FinDesk d'abord."
+        }
+        Key::FinDeskImportChooseFolder => "Choisir le dossier FinDesk…",
+        Key::FinDeskPassphraseTitle => "Phrase secrète FinDesk",
+        Key::FinDeskPassphraseText => {
+            "Saisissez la phrase secrète de la base FinDesk sélectionnée. Elle n'est utilisée que pour cet import et \
+             n'est pas enregistrée."
+        }
+        Key::FinDeskImportReportTitle => "Import FinDesk terminé",
+        Key::FinDeskImportFailedTitle => "Échec de l'import FinDesk",
+        Key::FinDeskImportSkipped => {
+            "Ignorés : %d lignes sans leur compte, catégorie ou document, %d lignes invalides, %d avec une fraction de centime et %d paramètres que Finglass n'utilise pas."
+        }
+        Key::ErrorFinDeskNotAFolder => "Le dossier choisi n'est pas un dossier FinDesk.",
         Key::ErrorNotEncrypted => {
             "Ce dossier de données contient une base non chiffrée que Finglass ne peut pas ouvrir."
         }
