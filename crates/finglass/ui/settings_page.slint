@@ -35,6 +35,11 @@ export component SettingsPage inherits Rectangle {
     in-out property <string> tax-keywords;
     in property <string> tax-keywords-count;
 
+    // Backup & restore.
+    in property <bool> backup-busy;
+    in property <bool> backup-has-pending-restore;
+    in property <string> backup-restored-text;
+
     in-out property <length> scroll-y;
 
     callback set-theme(string);
@@ -55,6 +60,9 @@ export component SettingsPage inherits Rectangle {
     callback export-rules;
     callback save-tax-keywords(string);
     callback reset-tax-keywords;
+    callback create-backup;
+    callback restore-backup;
+    callback cancel-pending-restore;
 
     background: Theme.background;
 
@@ -477,6 +485,75 @@ export component SettingsPage inherits Rectangle {
                     PrimaryButton {
                         text: Tr.t("ChangePassphrase");
                         clicked => { root.open-change(); }
+                    }
+                }
+
+                Divider {}
+
+                VerticalLayout {
+                    spacing: 12px;
+
+                    SectionTitle {
+                        text: Tr.t("BackupAndRestore");
+                    }
+
+                    Text {
+                        text: Tr.t("BackupHint");
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                        width: 640px;
+                    }
+
+                    HorizontalLayout {
+                        spacing: 12px;
+                        alignment: start;
+
+                        PrimaryButton {
+                            text: Tr.t("CreateBackup");
+                            enabled: !root.backup-busy;
+                            clicked => { root.create-backup(); }
+                        }
+
+                        TextButton {
+                            text: Tr.t("RestoreFromBackup");
+                            enabled: !root.backup-busy && !root.backup-has-pending-restore;
+                            clicked => { root.restore-backup(); }
+                        }
+
+                        if (root.backup-busy) : HorizontalLayout {
+                            spacing: 8px;
+                            Spinner {
+                                width: 20px;
+                                height: 20px;
+                            }
+                        }
+                    }
+
+                    if (root.backup-has-pending-restore) : HorizontalLayout {
+                        spacing: 12px;
+
+                        Text {
+                            text: Tr.t("RestoreWaiting");
+                            color: Theme.warning;
+                            font-size: 13px;
+                            vertical-alignment: center;
+                            horizontal-stretch: 1;
+                            wrap: word-wrap;
+                        }
+
+                        TextButton {
+                            text: Tr.t("CancelRestore");
+                            enabled: !root.backup-busy;
+                            clicked => { root.cancel-pending-restore(); }
+                        }
+                    }
+
+                    if (root.backup-restored-text != "") : Text {
+                        text: root.backup-restored-text;
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
                     }
                 }
 

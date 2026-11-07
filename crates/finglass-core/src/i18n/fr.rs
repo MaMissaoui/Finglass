@@ -950,6 +950,9 @@ pub(super) fn text(key: Key) -> &'static str {
             "Ce dossier de données contient une base non chiffrée que Finglass ne peut pas ouvrir."
         }
         Key::ErrorDatabaseTooNew => "Cette base de données a été créée par une version plus récente de Finglass.",
+        Key::ErrorStartupFailed => {
+            "Finglass n'a pas pu préparer les données de ce profil au démarrage. Quittez Finglass et réessayez."
+        }
         Key::ErrorUnexpected => "une erreur inattendue",
     }
 }

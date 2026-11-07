@@ -11,6 +11,7 @@ pub mod documents;
 pub mod prefs;
 pub mod reports;
 pub mod settings;
+pub mod startup;
 pub mod transactions;
 pub mod unlock;
 

@@ -4,7 +4,7 @@
 
 use std::collections::HashSet;
 use std::io::BufWriter;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use finglass_core::account_grouping::{self, AccountItem as GroupingAccount, BalanceTone, GroupKey, LOAN_TYPE};
@@ -14,8 +14,9 @@ use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountIte
 use finglass_core::app::dashboard::{DashboardState, DashboardView};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
-use finglass_core::app::settings::SettingsState;
+use finglass_core::app::settings::{RestoreCandidate, SettingsState};
 use finglass_core::audit::{self, Actor};
+use finglass_core::backup::BackupInfo;
 use finglass_core::db::Database;
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
@@ -101,6 +102,16 @@ fn renders_the_app_shell() {
         ui.show().unwrap();
         let buffer = render(&window, "unlock-wrong-de", 560, 700);
         assert_varied(&buffer, "unlock-wrong-de");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = UnlockWindow::new().unwrap();
+        configure_unlock(&ui, Language::En, ThemePref::Light, "unlock", "");
+        ui.set_restored(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "unlock-restored-en", 560, 760);
+        assert_varied(&buffer, "unlock-restored-en");
         let _ = ui.hide();
     }
 
@@ -243,6 +254,63 @@ fn renders_the_app_shell() {
         ui.set_settings_scroll_y(-835.0);
         let buffer = render(&window, "settings-rules-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-rules-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-1180.0);
+        let buffer = render(&window, "settings-backup-en-light", 1100, 720);
+        assert_varied(&buffer, "settings-backup-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-1180.0);
+        let buffer = render(&window, "settings-backup-de-dark", 1100, 720);
+        assert_varied(&buffer, "settings-backup-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut settings = settings_state(&db, &paths, Language::En);
+        settings.has_pending_restore = true;
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-1180.0);
+        let buffer = render(&window, "settings-backup-pending-en", 1100, 720);
+        assert_varied(&buffer, "settings-backup-pending-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut settings = settings_state(&db, &paths, Language::En);
+        settings.restore_candidate = Some(RestoreCandidate {
+            backup: PathBuf::from("/tmp/finglass-backup-2026-10-15.zip"),
+            info: BackupInfo {
+                created: "2026-10-15T12:34:56Z".to_owned(),
+                app_version: finglass_core::VERSION.to_owned(),
+                transactions: 42,
+                documents: 3,
+            },
+        });
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-restore-dialog-en", 1100, 720);
+        assert_varied(&buffer, "settings-restore-dialog-en");
         let _ = ui.hide();
     }
 
@@ -1443,6 +1511,46 @@ fn apply_settings(ui: &MainWindow, state: &SettingsState) {
         i18n::format(state.language, Key::TaxKeywordsCount, &[Arg::from(keyword_count)]).into(),
     );
 
+    ui.set_settings_backup_busy(state.is_busy);
+    ui.set_settings_has_pending_restore(state.has_pending_restore);
+    ui.set_settings_backup_restored_text("".into());
+    match &state.restore_candidate {
+        Some(candidate) => {
+            ui.set_settings_restore_title(
+                i18n::format(
+                    state.language,
+                    Key::RestoreFileTitle,
+                    &[Arg::from(file_name(&candidate.backup))],
+                )
+                .into(),
+            );
+            let created = i18n::format(
+                state.language,
+                Key::RestoreCreated,
+                &[
+                    Arg::from(candidate.info.created.clone()),
+                    Arg::from(candidate.info.transactions),
+                    Arg::from(candidate.info.documents),
+                ],
+            );
+            let explanation = i18n::text(state.language, Key::RestoreExplanation);
+            ui.set_settings_restore_text(format!("{created}\n\n{explanation}").into());
+            ui.set_settings_restore_open(true);
+        }
+        None => ui.set_settings_restore_open(false),
+    }
+    ui.set_settings_restore_passphrase_wrong(state.restore_passphrase_wrong);
+    match &state.restore_passphrase_for {
+        Some(backup) => {
+            ui.set_settings_restore_passphrase_file(file_name(backup).into());
+            ui.set_settings_restore_passphrase_open(true);
+        }
+        None => {
+            ui.set_settings_restore_passphrase_open(false);
+            ui.set_settings_restore_passphrase("".into());
+        }
+    }
+
     ui.set_category_dialog_swatches(colour_model());
     ui.set_rule_dialog_categories(string_model(
         state.categories.iter().map(|category| category.name.as_str()),
@@ -1473,6 +1581,12 @@ fn apply_settings(ui: &MainWindow, state: &SettingsState) {
     ));
 
     apply_rule_import(ui, state);
+}
+
+fn file_name(path: &Path) -> String {
+    path.file_name()
+        .map(|name| name.to_string_lossy().into_owned())
+        .unwrap_or_else(|| path.display().to_string())
 }
 
 fn has_duplicate_colours(state: &SettingsState) -> bool {

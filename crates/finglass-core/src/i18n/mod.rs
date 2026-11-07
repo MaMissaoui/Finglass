@@ -898,6 +898,7 @@ pub enum Key {
     FinDeskImportSummary,
     ErrorNotEncrypted,
     ErrorDatabaseTooNew,
+    ErrorStartupFailed,
     ErrorUnexpected,
 }
 
@@ -1729,6 +1730,7 @@ impl Key {
         Key::FinDeskImportSummary,
         Key::ErrorNotEncrypted,
         Key::ErrorDatabaseTooNew,
+        Key::ErrorStartupFailed,
         Key::ErrorUnexpected,
     ];
 
