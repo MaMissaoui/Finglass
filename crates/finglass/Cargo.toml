@@ -9,17 +9,10 @@ repository.workspace = true
 
 [dependencies]
 finglass-core = { path = "../finglass-core" }
+finglass-ui = { path = "../finglass-ui" }
 rfd = "0.15.4"
-# Explicit features: no Qt backend, so a Qt install on the build machine can't change what ships.
-slint = { version = "1.18.1", default-features = false, features = [
-    "std",
-    "compat-1-2",
-    "backend-winit",
-    "renderer-femtovg",
-    "renderer-software",
-    "software-renderer-systemfonts",
-    "accessibility",
-] }
+# The UI crate selects Slint's backend and renderer features so the generated code is compiled once.
+slint = { version = "1.18.1", default-features = false }
 time = "0.3"
 zeroize = "1"
 open = "5"
@@ -30,9 +23,6 @@ secrecy = "0.10"
 rust_decimal = "1.43.0"
 tempfile = "3"
 time = { version = "0.3", features = ["macros"] }
-
-[build-dependencies]
-slint-build = "1.18.1"
 
 [lints]
 workspace = true

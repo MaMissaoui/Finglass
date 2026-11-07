@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "crates/finglass/Cargo.toml"
+      - "crates/finglass-ui/**"
       - "scripts/**"
       - "assets/icons/**"
       - ".github/workflows/package.yml"

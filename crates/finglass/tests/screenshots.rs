@@ -40,19 +40,8 @@ use slint::{
 use time::macros::date;
 use time::{Date, OffsetDateTime};
 
-slint::include_modules!();
-
-#[allow(dead_code)]
-#[path = "../src/jobs.rs"]
-mod jobs;
-
-#[allow(dead_code)]
-#[path = "../src/reports.rs"]
-mod reports;
-
-#[allow(dead_code)]
-#[path = "../src/transactions.rs"]
-mod transactions_page;
+use finglass::{reports, transactions as transactions_page};
+use finglass_ui::*;
 
 const SLUG: &str = "default";
 

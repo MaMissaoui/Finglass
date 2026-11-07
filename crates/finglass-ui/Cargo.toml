@@ -1,0 +1,33 @@
+[package]
+name = "finglass-ui"
+description = "The compiled Slint UI for the Finglass desktop app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+# Generated code only, no tests: without this, `cargo test` and `clippy --all-targets` would compile the
+# whole UI a second time as an empty test harness.
+[lib]
+test = false
+doctest = false
+
+[dependencies]
+# Explicit features: no Qt backend, so a Qt install on the build machine can't change what ships.
+slint = { version = "1.18.1", default-features = false, features = [
+    "std",
+    "compat-1-2",
+    "backend-winit",
+    "renderer-femtovg",
+    "renderer-software",
+    "software-renderer-systemfonts",
+    "accessibility",
+] }
+
+[build-dependencies]
+slint-build = "1.18.1"
+
+[lints]
+workspace = true

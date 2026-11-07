@@ -105,7 +105,7 @@ pub struct TransactionsController {
 impl TransactionsController {
     /// Builds a controller for one main window and data folder.
     #[must_use]
-    pub fn new(
+    pub(crate) fn new(
         ui: Weak<MainWindow>,
         paths: Arc<AppPaths>,
         profile: impl Into<String>,

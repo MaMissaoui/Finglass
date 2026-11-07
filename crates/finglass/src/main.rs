@@ -1,19 +1,6 @@
 // Hide the console window on Windows release builds.
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
-mod accounts;
-mod banking;
-mod dashboard;
-mod documents;
-mod jobs;
-mod migration;
-mod reports;
-mod settings;
-mod shell;
-mod transactions;
-
-slint::include_modules!();
-
 /// Whether `--version` appears among the command-line arguments.
 ///
 /// Parsed by hand so the version query stays dependency-free and, more importantly, so it can run
@@ -30,7 +17,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let paths = finglass_core::paths::AppPaths::from_env()?;
-    shell::run(paths)?;
+    finglass::run(paths)?;
     Ok(())
 }
 

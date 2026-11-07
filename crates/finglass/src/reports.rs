@@ -51,7 +51,7 @@ pub struct ReportsController {
 impl ReportsController {
     /// Builds a controller for one main window.
     #[must_use]
-    pub fn new(ui: Weak<MainWindow>, jobs: crate::jobs::JobTracker) -> Self {
+    pub(crate) fn new(ui: Weak<MainWindow>, jobs: crate::jobs::JobTracker) -> Self {
         Self {
             ui,
             db: Mutex::new(None),
@@ -515,7 +515,7 @@ impl ReportsController {
 }
 
 /// Writes one state snapshot to the Slint window on the event loop.
-pub(crate) fn apply(ui: &MainWindow, state: &ReportsState) {
+pub fn apply(ui: &MainWindow, state: &ReportsState) {
     let language = state.language;
     let report = state.tax_report.as_ref();
 
