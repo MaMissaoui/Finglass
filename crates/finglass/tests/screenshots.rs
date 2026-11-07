@@ -526,6 +526,18 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_scroll_y(-1900.0);
+        let buffer = render(&window, "settings-about-bank-codes-en", 1100, 720);
+        assert_varied(&buffer, "settings-about-bank-codes-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
         ui.set_findesk_folder("/Users/example/.findesk".into());
         ui.set_findesk_passphrase_wrong(false);
         ui.set_findesk_passphrase("".into());
@@ -987,6 +999,62 @@ fn renders_the_app_shell() {
         ui.show().unwrap();
         let buffer = render(&window, "accounts-add-online-bank-en", 1100, 720);
         assert_varied(&buffer, "accounts-add-online-bank-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_accounts_dialog_online(true);
+        ui.set_accounts_add_bank_search("hypo".into());
+        ui.set_accounts_add_bank_suggestions(bank_suggestion_rows("hypo"));
+        ui.set_accounts_dialog("add-bank".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-add-online-bank-search-en", 1100, 720);
+        assert_varied(&buffer, "accounts-add-online-bank-search-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let directory = finglass_core::bank_directory::BankDirectory::bundled();
+        let entry = directory.lookup("10020890").expect("a HypoVereinsbank branch");
+        let mapped = finglass_core::bank_directory::fints_blz(directory, &entry.blz);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_accounts_dialog_online(true);
+        ui.set_accounts_add_bank_name(entry.name.clone().into());
+        ui.set_accounts_add_bank_blz(mapped.clone().into());
+        ui.set_accounts_add_bank_bic(entry.bic.clone().into());
+        ui.set_accounts_add_bank_search("".into());
+        ui.set_accounts_add_bank_suggestions(ModelRc::new(VecModel::from(Vec::<BankSuggestionRow>::new())));
+        ui.set_accounts_add_bank_central_note(
+            i18n::format(
+                Language::En,
+                Key::CentralBlzNote,
+                &[Arg::Str(mapped), Arg::Str(entry.blz.clone())],
+            )
+            .into(),
+        );
+        ui.set_accounts_dialog("add-bank".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-add-online-bank-central-note-en", 1100, 720);
+        assert_varied(&buffer, "accounts-add-online-bank-central-note-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.set_accounts_dialog_online(true);
+        ui.set_accounts_add_bank_search("zzzzzz".into());
+        ui.set_accounts_add_bank_suggestions(ModelRc::new(VecModel::from(Vec::<BankSuggestionRow>::new())));
+        ui.set_accounts_dialog("add-bank".into());
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-add-online-bank-no-match-de-dark", 1100, 720);
+        assert_varied(&buffer, "accounts-add-online-bank-no-match-de-dark");
         let _ = ui.hide();
     }
 
@@ -3604,6 +3672,27 @@ fn banking_state(state: &AccountsState) -> BankingState {
     banking
 }
 
+fn bank_suggestion_rows(query: &str) -> ModelRc<BankSuggestionRow> {
+    let rows = finglass_core::bank_directory::BankDirectory::bundled()
+        .search(query, 15)
+        .into_iter()
+        .map(|entry| {
+            let detail = [entry.blz.as_str(), entry.city.as_str(), entry.bic.as_str()]
+                .into_iter()
+                .filter(|part| !part.trim().is_empty())
+                .collect::<Vec<_>>()
+                .join(" · ");
+            BankSuggestionRow {
+                name: entry.name.clone().into(),
+                detail: detail.into(),
+                blz: entry.blz.clone().into(),
+                bic: entry.bic.clone().into(),
+            }
+        })
+        .collect::<Vec<_>>();
+    ModelRc::new(VecModel::from(rows))
+}
+
 fn accounts_bank_cards(state: &AccountsState, banking: &BankingState, language: Language) -> Vec<AccountsBankCard> {
     let mut cards = Vec::new();
     for bank in &state.bank_accesses {
@@ -3664,10 +3753,25 @@ fn accounts_bank_card(
 ) -> AccountsBankCard {
     let grouping_accounts: Vec<GroupingAccount> = in_bank.iter().map(|account| accounts_grouping(account)).collect();
     let totals = account_grouping::grand_total(&grouping_accounts, state.primary_currency);
+    let central_blz_hint = match item {
+        Some(item) if !item.offline && !item.blz.trim().is_empty() => {
+            let mapped = finglass_core::bank_directory::fints_blz(
+                finglass_core::bank_directory::BankDirectory::bundled(),
+                &item.blz,
+            );
+            if mapped == item.blz.trim() {
+                String::new()
+            } else {
+                i18n::format(language, Key::CentralBlzHint, &[Arg::Str(mapped)])
+            }
+        }
+        _ => String::new(),
+    };
     AccountsBankCard {
         bank_id: i32::try_from(bank_id).unwrap_or(-1),
         name: name.into(),
         subtitle: subtitle.into(),
+        central_blz_hint: central_blz_hint.into(),
         offline,
         collapsed,
         account_count_text: i18n::format(language, Key::AccountCount, &[in_bank.len().into()]).into(),

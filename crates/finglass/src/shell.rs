@@ -261,6 +261,8 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_accounts_dialog("".into());
     main.set_accounts_dialog_error("".into());
     main.set_accounts_dialog_online(false);
+    main.set_accounts_add_bank_search("".into());
+    main.set_accounts_add_bank_central_note("".into());
     main.set_accounts_detail_open(false);
 }
 
@@ -632,6 +634,35 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         main.on_accounts_open_add_bank(move || {
             if let Some(ui) = main_weak.upgrade() {
                 banking::open_add_bank(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_accounts_bank_search_changed(move |query| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::update_bank_search(&ui, query.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_pick_bank_suggestion(move |name, blz, bic| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::pick_bank_suggestion(&ui, &state, name.as_str(), blz.as_str(), bic.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_bank_blz_changed(move |name, blz, bic| {
+            if let Some(ui) = main_weak.upgrade() {
+                banking::update_bank_blz(&ui, &state, name.as_str(), blz.as_str(), bic.as_str());
             }
         });
     }

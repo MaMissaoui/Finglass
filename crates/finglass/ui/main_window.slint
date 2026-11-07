@@ -2,7 +2,7 @@ import { Theme } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
 import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
-import { AuditRow, BankingPromptChoice, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
+import { AuditRow, BankingPromptChoice, BankSuggestionRow, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
 import { AccountPanel } from "account_panel.slint";
@@ -365,6 +365,12 @@ export component MainWindow inherits Window {
     in-out property <bool> accounts-dialog-online;
     in property <int> accounts-dialog-bank-id;
     in property <int> accounts-dialog-account-id;
+    in-out property <string> accounts-add-bank-name;
+    in-out property <string> accounts-add-bank-blz;
+    in-out property <string> accounts-add-bank-bic;
+    in-out property <string> accounts-add-bank-search;
+    in property <[BankSuggestionRow]> accounts-add-bank-suggestions;
+    in property <string> accounts-add-bank-central-note;
 
     in property <bool> accounts-detail-open;
     in property <string> accounts-detail-title;
@@ -661,6 +667,9 @@ export component MainWindow inherits Window {
     callback reports-open-category(int);
     callback reports-dismiss;
     callback accounts-open-add-bank;
+    callback accounts-bank-search-changed(string);
+    callback accounts-pick-bank-suggestion(string, string, string);
+    callback accounts-bank-blz-changed(string, string, string);
     callback accounts-close-dialog;
     callback accounts-submit-add-bank(string);
     callback accounts-submit-add-online-bank(string, string, string, string, string);
@@ -1255,6 +1264,12 @@ export component MainWindow inherits Window {
                 dialog-online <=> root.accounts-dialog-online;
                 dialog-bank-id: root.accounts-dialog-bank-id;
                 dialog-account-id: root.accounts-dialog-account-id;
+                add-bank-name <=> root.accounts-add-bank-name;
+                add-bank-blz <=> root.accounts-add-bank-blz;
+                add-bank-bic <=> root.accounts-add-bank-bic;
+                add-bank-search <=> root.accounts-add-bank-search;
+                add-bank-suggestions: root.accounts-add-bank-suggestions;
+                add-bank-central-note: root.accounts-add-bank-central-note;
                 connection-name <=> root.accounts-connection-name;
                 connection-blz <=> root.accounts-connection-blz;
                 connection-user-id <=> root.accounts-connection-user-id;
@@ -1279,6 +1294,13 @@ export component MainWindow inherits Window {
                 detail-rows: root.accounts-detail-rows;
 
                 open-add-bank => { root.accounts-open-add-bank(); }
+                bank-search-changed(query) => { root.accounts-bank-search-changed(query); }
+                pick-bank-suggestion(name, blz, bic) => {
+                    root.accounts-pick-bank-suggestion(name, blz, bic);
+                }
+                bank-blz-changed(name, blz, bic) => {
+                    root.accounts-bank-blz-changed(name, blz, bic);
+                }
                 close-dialog => { root.accounts-close-dialog(); }
                 submit-add-bank(name) => { root.accounts-submit-add-bank(name); }
                 submit-add-online-bank(name, blz, bic, user-id, server-url) => {

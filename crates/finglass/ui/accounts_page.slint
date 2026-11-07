@@ -14,6 +14,7 @@ import {
     PrimaryButton,
     TextButton,
 } from "components.slint";
+import { BankSuggestionRow } from "models.slint";
 
 // A labelled group of figures in the page header.
 component FigureView inherits VerticalLayout {
@@ -63,6 +64,44 @@ component ModalCard inherits Rectangle {
         }
 
         @children
+    }
+}
+
+// One clickable bank suggestion, with the BLZ/city/BIC that disambiguate branches.
+component BankSuggestionView inherits Rectangle {
+    in property <BankSuggestionRow> suggestion;
+
+    callback picked;
+
+    height: suggestion-layout.preferred-height + 12px;
+    border-radius: 6px;
+    background: hover.has-hover ? Theme.selected : transparent;
+
+    suggestion-layout := VerticalLayout {
+        padding: 6px;
+        spacing: 1px;
+        alignment: start;
+
+        Text {
+            text: root.suggestion.name;
+            color: Theme.text;
+            font-size: 13px;
+            font-weight: 600;
+            overflow: elide;
+        }
+
+        Text {
+            text: root.suggestion.detail;
+            color: Theme.muted-text;
+            font-size: 11px;
+            overflow: elide;
+        }
+    }
+
+    hover := TouchArea {
+        clicked => {
+            root.picked();
+        }
     }
 }
 
@@ -333,6 +372,13 @@ component BankCardView inherits Rectangle {
                     overflow: elide;
                 }
 
+                if (root.card.central-blz-hint != "") : Text {
+                    text: root.card.central-blz-hint;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    overflow: elide;
+                }
+
                 if (!root.card.offline && root.card.pin-text != "") : Text {
                     text: root.card.pin-text;
                     color: Theme.muted-text;
@@ -563,6 +609,9 @@ export component AccountsPage inherits Rectangle {
     in property <[AccountDetailRow]> detail-rows;
 
     callback open-add-bank;
+    callback bank-search-changed(string);
+    callback pick-bank-suggestion(string, string, string);
+    callback bank-blz-changed(string, string, string);
     callback close-dialog;
     callback submit-add-bank(string);
     callback submit-add-online-bank(string, string, string, string, string);
@@ -590,9 +639,12 @@ export component AccountsPage inherits Rectangle {
     callback open-detail(int);
     callback open-transactions(int);
 
-    property <string> add-bank-name: "";
-    property <string> add-bank-blz: "";
-    property <string> add-bank-bic: "";
+    in-out property <string> add-bank-name: "";
+    in-out property <string> add-bank-blz: "";
+    in-out property <string> add-bank-bic: "";
+    in-out property <string> add-bank-search: "";
+    in property <[BankSuggestionRow]> add-bank-suggestions;
+    in property <string> add-bank-central-note;
     property <string> add-bank-user-id: "";
     property <string> add-bank-server-url: "";
     property <string> add-account-name: "";
@@ -609,6 +661,7 @@ export component AccountsPage inherits Rectangle {
         root.add-bank-name = "";
         root.add-bank-blz = "";
         root.add-bank-bic = "";
+        root.add-bank-search = "";
         root.add-bank-user-id = "";
         root.add-bank-server-url = "";
         root.add-account-name = "";
@@ -990,6 +1043,67 @@ export component AccountsPage inherits Rectangle {
                 }
             }
 
+            if (root.dialog-online) : VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: Tr.t("BankSearchHint");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                LineEdit {
+                    text <=> root.add-bank-search;
+                    edited(text) => {
+                        root.bank-search-changed(text);
+                    }
+                    accepted(text) => {
+                        root.bank-search-changed(text);
+                    }
+                }
+
+                if (root.add-bank-search != "") : VerticalLayout {
+                    spacing: 2px;
+
+                    if (root.add-bank-suggestions.length == 0) : Text {
+                        text: Tr.t("BankSearchNoMatch");
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+
+                    if (root.add-bank-suggestions.length > 0) : Rectangle {
+                        height: min(suggestions-layout.preferred-height, 100px);
+                        background: transparent;
+
+                        ScrollView {
+                            suggestions-layout := VerticalLayout {
+                                spacing: 2px;
+
+                                for suggestion in root.add-bank-suggestions : BankSuggestionView {
+                                    suggestion: suggestion;
+                                    picked => {
+                                        root.pick-bank-suggestion(
+                                            suggestion.name,
+                                            suggestion.blz,
+                                            suggestion.bic,
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Text {
+                    text: Tr.t("BankManualEntry");
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    wrap: word-wrap;
+                }
+            }
+
             Text {
                 text: Tr.t("BankName");
                 color: Theme.text;
@@ -1018,6 +1132,16 @@ export component AccountsPage inherits Rectangle {
 
                 LineEdit {
                     text <=> root.add-bank-blz;
+                    edited(text) => {
+                        root.bank-blz-changed(root.add-bank-name, text, root.add-bank-bic);
+                    }
+                }
+
+                if (root.add-bank-central-note != "") : Text {
+                    text: root.add-bank-central-note;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    wrap: word-wrap;
                 }
 
                 Text {

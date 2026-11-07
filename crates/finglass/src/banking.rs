@@ -13,6 +13,7 @@ use std::time::Duration;
 use finglass_core::app::accounts::{AccountsState, Busy};
 use finglass_core::app::banking::{BankItem, BankingPrompt, BankingState, PromptBridge};
 use finglass_core::app::startup::slug_key;
+use finglass_core::bank_directory::{self, BankDirectory, BankEntry};
 use finglass_core::db::Database;
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
@@ -24,7 +25,7 @@ use slint::{ComponentHandle, ModelRc, VecModel, Weak};
 
 use crate::accounts;
 use crate::shell::ShellState;
-use crate::{AccountsBankCard, BankMenuItem, BankingPromptChoice, MainWindow};
+use crate::{AccountsBankCard, BankMenuItem, BankSuggestionRow, BankingPromptChoice, MainWindow};
 
 /// FinDesk's `UiBankingInteraction` default: a dialog may wait ten minutes for the user.
 pub(crate) const PROMPT_TIMEOUT: Duration = Duration::from_secs(10 * 60);
@@ -610,6 +611,124 @@ fn refuse_if_syncing(main: &MainWindow, state: &ShellState) -> bool {
     true
 }
 
+/// The fields a bank pick or a typed BLZ fills in the add-online-bank dialog.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct AddBankFields {
+    /// The bank name.
+    pub name: String,
+    /// The BLZ stored on the connection, mapped through `fints_blz`.
+    pub blz: String,
+    /// The BIC.
+    pub bic: String,
+    /// The branch BLZ when `blz` is a central code, so the dialog can explain the mapping.
+    pub original_blz: Option<String>,
+}
+
+/// Maps a picked search suggestion to the dialog fields.
+pub(crate) fn picked_bank(directory: &BankDirectory, name: &str, blz: &str, bic: &str) -> AddBankFields {
+    let original = blz.trim();
+    let mapped = bank_directory::fints_blz(directory, original);
+    AddBankFields {
+        name: name.trim().to_owned(),
+        blz: mapped.clone(),
+        bic: bic.trim().to_owned(),
+        original_blz: (mapped.as_str() != original).then(|| original.to_owned()),
+    }
+}
+
+/// Fills an empty name and BIC from an 8-digit BLZ and maps the BLZ through `fints_blz`.
+///
+/// A BLZ that is not eight digits or not in the directory leaves every field as it was.
+pub(crate) fn typed_bank_blz(directory: &BankDirectory, name: &str, blz: &str, bic: &str) -> AddBankFields {
+    let trimmed = blz.trim();
+    let entry = (trimmed.len() == 8 && trimmed.bytes().all(|byte| byte.is_ascii_digit()))
+        .then(|| directory.lookup(trimmed))
+        .flatten();
+    let Some(entry) = entry else {
+        return AddBankFields {
+            name: name.to_owned(),
+            blz: blz.to_owned(),
+            bic: bic.to_owned(),
+            original_blz: None,
+        };
+    };
+    let mapped = bank_directory::fints_blz(directory, trimmed);
+    AddBankFields {
+        name: if name.trim().is_empty() {
+            entry.name.clone()
+        } else {
+            name.to_owned()
+        },
+        blz: mapped.clone(),
+        bic: if bic.trim().is_empty() {
+            entry.bic.clone()
+        } else {
+            bic.to_owned()
+        },
+        original_blz: (mapped.as_str() != trimmed).then(|| trimmed.to_owned()),
+    }
+}
+
+fn central_note(language: Language, fields: &AddBankFields) -> String {
+    fields.original_blz.as_ref().map_or_else(String::new, |original| {
+        i18n::format(
+            language,
+            Key::CentralBlzNote,
+            &[Arg::Str(fields.blz.clone()), Arg::Str(original.clone())],
+        )
+    })
+}
+
+fn suggestion_row(entry: &BankEntry) -> BankSuggestionRow {
+    let detail = [entry.blz.as_str(), entry.city.as_str(), entry.bic.as_str()]
+        .into_iter()
+        .filter(|part| !part.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join(" · ");
+    BankSuggestionRow {
+        name: entry.name.clone().into(),
+        detail: detail.into(),
+        blz: entry.blz.clone().into(),
+        bic: entry.bic.clone().into(),
+    }
+}
+
+fn no_suggestions() -> ModelRc<BankSuggestionRow> {
+    ModelRc::new(VecModel::from(Vec::<BankSuggestionRow>::new()))
+}
+
+/// Re-runs the in-memory bank search for the dialog's current query.
+pub(crate) fn update_bank_search(main: &MainWindow, query: &str) {
+    let suggestions = BankDirectory::bundled()
+        .search(query, 15)
+        .into_iter()
+        .map(suggestion_row)
+        .collect::<Vec<_>>();
+    main.set_accounts_add_bank_suggestions(ModelRc::new(VecModel::from(suggestions)));
+}
+
+/// Fills the dialog from a picked suggestion and clears the search.
+pub(crate) fn pick_bank_suggestion(main: &MainWindow, state: &ShellState, name: &str, blz: &str, bic: &str) {
+    let language = *state.language.lock().expect("language state poisoned");
+    let fields = picked_bank(BankDirectory::bundled(), name, blz, bic);
+    main.set_accounts_add_bank_name(fields.name.clone().into());
+    main.set_accounts_add_bank_blz(fields.blz.clone().into());
+    main.set_accounts_add_bank_bic(fields.bic.clone().into());
+    main.set_accounts_add_bank_search("".into());
+    main.set_accounts_add_bank_suggestions(no_suggestions());
+    main.set_accounts_add_bank_central_note(central_note(language, &fields).into());
+}
+
+/// Fills empty dialog fields from a hand-typed 8-digit BLZ.
+pub(crate) fn update_bank_blz(main: &MainWindow, state: &ShellState, name: &str, blz: &str, bic: &str) {
+    let language = *state.language.lock().expect("language state poisoned");
+    let fields = typed_bank_blz(BankDirectory::bundled(), name, blz, bic);
+    main.set_accounts_add_bank_name(fields.name.clone().into());
+    main.set_accounts_add_bank_blz(fields.blz.clone().into());
+    main.set_accounts_add_bank_bic(fields.bic.clone().into());
+    main.set_accounts_add_bank_central_note(central_note(language, &fields).into());
+}
+
 /// Opens the add-bank dialog unless a sync holds the profile.
 pub(crate) fn open_add_bank(main: &MainWindow, state: &Arc<ShellState>) {
     if refuse_if_syncing(main, state) {
@@ -620,6 +739,9 @@ pub(crate) fn open_add_bank(main: &MainWindow, state: &Arc<ShellState>) {
         banking.clear_messages();
     }
     main.set_accounts_dialog_online(false);
+    main.set_accounts_add_bank_search("".into());
+    main.set_accounts_add_bank_suggestions(no_suggestions());
+    main.set_accounts_add_bank_central_note("".into());
     accounts::open_add_bank(main, state);
     let banking = state_snapshot(state);
     publish(main, state, &banking);
@@ -1595,5 +1717,69 @@ mod tests {
         assert!(message.contains("Synced"), "{message}");
         assert!(gateway.busy_seen.load(Ordering::SeqCst));
         assert!(!busy.active());
+    }
+
+    fn bank_entry(blz: &str, name: &str, city: &str, bic: &str) -> finglass_core::bank_directory::BankEntry {
+        finglass_core::bank_directory::BankEntry {
+            blz: blz.to_owned(),
+            name: name.to_owned(),
+            postal_code: "80331".to_owned(),
+            city: city.to_owned(),
+            bic: bic.to_owned(),
+        }
+    }
+
+    fn hypo_directory() -> BankDirectory {
+        BankDirectory::from_entries(vec![
+            bank_entry("10020890", "UniCredit Bank - HypoVereinsbank", "Berlin", "HYVEDEMM488"),
+            bank_entry("10010010", "Postbank", "Berlin", "PBNKDEFFXXX"),
+        ])
+    }
+
+    #[test]
+    fn picking_a_suggestion_maps_the_blz_and_keeps_the_name_and_bic() {
+        let directory = hypo_directory();
+        let fields = picked_bank(
+            &directory,
+            " UniCredit Bank - HypoVereinsbank ",
+            "10020890",
+            " HYVEDEMM488 ",
+        );
+        assert_eq!(fields.name, "UniCredit Bank - HypoVereinsbank");
+        assert_eq!(fields.blz, "70020270");
+        assert_eq!(fields.bic, "HYVEDEMM488");
+        assert_eq!(fields.original_blz.as_deref(), Some("10020890"));
+    }
+
+    #[test]
+    fn typing_an_eight_digit_blz_fills_only_empty_fields() {
+        let directory = hypo_directory();
+        let empty = typed_bank_blz(&directory, "", "10020890", "");
+        assert_eq!(empty.name, "UniCredit Bank - HypoVereinsbank");
+        assert_eq!(empty.blz, "70020270");
+        assert_eq!(empty.bic, "HYVEDEMM488");
+        assert_eq!(empty.original_blz.as_deref(), Some("10020890"));
+
+        let filled = typed_bank_blz(&directory, "My bank", "10020890", "MYBIC");
+        assert_eq!(filled.name, "My bank");
+        assert_eq!(filled.blz, "70020270");
+        assert_eq!(filled.bic, "MYBIC");
+
+        let other = typed_bank_blz(&directory, "", "10010010", "");
+        assert_eq!(other.blz, "10010010");
+        assert_eq!(other.name, "Postbank");
+        assert_eq!(other.bic, "PBNKDEFFXXX");
+        assert!(other.original_blz.is_none());
+
+        let partial = typed_bank_blz(&directory, "", "1002", "");
+        assert_eq!(partial.blz, "1002");
+        assert!(partial.name.is_empty());
+        assert!(partial.original_blz.is_none());
+
+        let unknown = typed_bank_blz(&directory, "", "99999999", "");
+        assert_eq!(unknown.blz, "99999999");
+        assert!(unknown.name.is_empty());
+        assert!(unknown.bic.is_empty());
+        assert!(unknown.original_blz.is_none());
     }
 }
