@@ -516,6 +516,7 @@ pub(super) fn text(key: Key) -> &'static str {
             "Ihr Finanz-Arbeitsplatz: Konten, FinTS-Banking, Belege und Steuerberichte. Alpha-Software – nicht für echte Bankkonten."
         }
         Key::AboutTypeface => "Schrift: IBM Plex Sans (SIL Open Font License 1.1)",
+        Key::AboutBankCodesSource => "Bankleitzahlen: Quelle: Deutsche Bundesbank",
         Key::Language => "Sprache",
         Key::Categories => "Kategorien",
         Key::AddCategory => "Kategorie hinzufügen",

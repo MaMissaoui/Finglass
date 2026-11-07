@@ -530,6 +530,7 @@ pub(super) fn text(key: Key) -> &'static str {
             "Votre espace financier : comptes, banque FinTS, documents et rapports fiscaux. Logiciel alpha – pas pour de vrais comptes bancaires."
         }
         Key::AboutTypeface => "Police : IBM Plex Sans (SIL Open Font License 1.1)",
+        Key::AboutBankCodesSource => "Codes bancaires : Quelle: Deutsche Bundesbank",
         Key::Language => "Langue",
         Key::Categories => "Catégories",
         Key::AddCategory => "Ajouter une catégorie",

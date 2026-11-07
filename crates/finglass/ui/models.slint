@@ -38,6 +38,14 @@ export struct BankingPromptChoice {
     label: string,
 }
 
+// One bank suggestion in the add-online-bank dialog.
+export struct BankSuggestionRow {
+    name: string,
+    detail: string,
+    blz: string,
+    bic: string,
+}
+
 // One profile in Settings and in the top bar's dropdown.
 export struct ProfileRow {
     index: int,

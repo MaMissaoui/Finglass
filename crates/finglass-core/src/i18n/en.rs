@@ -511,6 +511,7 @@ pub(super) fn text(key: Key) -> &'static str {
             "Your financial workspace: accounts, FinTS banking, documents and tax reports. Alpha software — not for use with real bank accounts."
         }
         Key::AboutTypeface => "Typeface: IBM Plex Sans (SIL Open Font License 1.1)",
+        Key::AboutBankCodesSource => "Bank codes: Quelle: Deutsche Bundesbank",
         Key::Language => "Language",
         Key::Categories => "Categories",
         Key::AddCategory => "Add category",

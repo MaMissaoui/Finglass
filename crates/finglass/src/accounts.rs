@@ -14,6 +14,7 @@ use finglass_core::account_grouping::{
 use finglass_core::account_ids;
 use finglass_core::app::account_panel::AccountSelection;
 use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountItem, AccountsState, Busy};
+use finglass_core::bank_directory::{self, BankDirectory};
 use finglass_core::db::Database;
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
@@ -780,6 +781,7 @@ pub(crate) fn bank_cards(state: &AccountsState, language: Language) -> Vec<Accou
                 bank_id: bank.id.0,
                 name: &bank.bank_name,
                 subtitle: bank_subtitle(bank, language),
+                central_blz_hint: central_blz_hint(bank, language),
                 offline: bank.offline,
                 collapsed: state.collapsed_banks.contains(&bank.id),
                 accounts: &accounts,
@@ -800,6 +802,7 @@ pub(crate) fn bank_cards(state: &AccountsState, language: Language) -> Vec<Accou
                 bank_id: -1,
                 name: i18n::text(language, Key::AccountsWithoutBank),
                 subtitle: String::new(),
+                central_blz_hint: String::new(),
                 offline: false,
                 collapsed: false,
                 accounts: &without_bank,
@@ -815,6 +818,7 @@ struct BankCardSource<'a> {
     bank_id: i64,
     name: &'a str,
     subtitle: String,
+    central_blz_hint: String,
     offline: bool,
     collapsed: bool,
     accounts: &'a [&'a AccountItem],
@@ -833,6 +837,7 @@ fn bank_card(state: &AccountsState, source: BankCardSource<'_>, language: Langua
         bank_id: id_i32(source.bank_id),
         name: source.name.into(),
         subtitle: source.subtitle.into(),
+        central_blz_hint: source.central_blz_hint.into(),
         offline: source.offline,
         collapsed: source.collapsed,
         account_count_text: i18n::format(language, Key::AccountCount, &[source.accounts.len().into()]).into(),
@@ -856,6 +861,18 @@ fn bank_subtitle(bank: &BankAccessItem, language: Language) -> String {
         parts.push(i18n::format(language, Key::BicPrefix, &[Arg::from(bic)]));
     }
     parts.join(" · ")
+}
+
+fn central_blz_hint(bank: &BankAccessItem, language: Language) -> String {
+    if bank.offline || bank.blz.trim().is_empty() {
+        return String::new();
+    }
+    let mapped = bank_directory::fints_blz(BankDirectory::bundled(), &bank.blz);
+    if mapped == bank.blz.trim() {
+        String::new()
+    } else {
+        i18n::format(language, Key::CentralBlzHint, &[Arg::from(mapped)])
+    }
 }
 
 fn bank_account_row(account: &AccountItem, language: Language) -> BankAccountRow {
