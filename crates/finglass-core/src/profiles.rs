@@ -228,6 +228,31 @@ pub fn delete(paths: &AppPaths, slug: &str, open_slug: Option<&str>) -> Result<P
     Ok(target)
 }
 
+/// Removes a profile's registry entry without touching its folder.
+///
+/// For rolling back a profile that was just created and never became usable. Unlike [`delete`], this leaves the folder
+/// to the caller, which is what a failed migration needs after it has already emptied and removed it.
+pub(crate) fn forget_created(paths: &AppPaths, slug: &str) -> Result<()> {
+    let mut properties = load(paths)?;
+    let key = format!("{NAME_PREFIX}{slug}");
+
+    if slug == DEFAULT_KEY {
+        return Err(ProfileError::DefaultProfile);
+    }
+    if !properties.contains_key(&key) {
+        return Err(ProfileError::Unknown(slug.to_owned()));
+    }
+
+    properties.remove(&key);
+    if properties.get(KEY_ACTIVE).map(String::as_str) == Some(slug) {
+        properties.insert(KEY_ACTIVE.to_owned(), String::new());
+    }
+    save(paths, &properties)?;
+    bump_changes();
+
+    Ok(())
+}
+
 fn default_profile(properties: &BTreeMap<String, String>, paths: &AppPaths) -> Profile {
     let name = properties
         .get(&format!("{NAME_PREFIX}{DEFAULT_KEY}"))

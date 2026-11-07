@@ -15,6 +15,8 @@ use crate::model::AccountId;
 use crate::money::Currency;
 use crate::secret::{Passphrase, PassphrasePurpose};
 
+use super::import::import_in_connection;
+use super::source::FinDeskSource;
 use super::{FinDeskImportError, FinDeskImportReport, import_findesk};
 
 const FIXTURE_PASSPHRASE: &str = "fixture passphrase 1";
@@ -498,6 +500,29 @@ fn a_non_empty_target_is_refused_and_seeded_categories_are_replaced() {
     assert_eq!(names, ["Food", "Donations", "Own transfers"]);
     assert!(!names.iter().any(|name| name == "Seeded default"));
     drop(source_temp);
+}
+
+#[test]
+fn a_target_that_fills_after_the_early_check_is_refused_inside_the_transaction() {
+    let (_source_temp, source_dir) = fixture_copy();
+    let (_target_temp, target, documents_dir) = new_target();
+    let source = FinDeskSource::open(&source_dir, &passphrase(FIXTURE_PASSPHRASE, PassphrasePurpose::Unlock)).unwrap();
+    let data = source.read().unwrap();
+
+    target
+        .with_conn(|conn| {
+            conn.execute("INSERT INTO accounts (currency) VALUES ('EUR')", [])
+                .map_err(DbError::from)?;
+            let result = import_in_connection(conn, &data, &source_dir, &documents_dir, offset());
+            assert!(matches!(result, Err(FinDeskImportError::TargetNotEmpty)));
+            Ok(())
+        })
+        .unwrap();
+
+    assert_eq!(scalar_i64(&target, "SELECT count(*) FROM categories"), 0);
+    assert_eq!(scalar_i64(&target, "SELECT count(*) FROM accounts"), 1);
+    assert_eq!(scalar_i64(&target, "SELECT count(*) FROM audit_log"), 0);
+    assert!(!documents_dir.exists());
 }
 
 #[test]

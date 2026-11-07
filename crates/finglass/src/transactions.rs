@@ -96,6 +96,8 @@ pub struct TransactionsController {
     /// The persistent view: its private undo record must survive individual actions.
     view: Mutex<Option<TransactionsView>>,
     busy: Busy,
+    /// The open profile's busy flag, held while an import writes bookings. Replaced when the profile changes.
+    profile_busy: Mutex<Busy>,
     pending_search: Mutex<PendingSearch>,
     multi_delete_ids: Mutex<BTreeSet<TransactionId>>,
     jobs: crate::jobs::JobTracker,
@@ -118,6 +120,7 @@ impl TransactionsController {
             db: Mutex::new(None),
             view: Mutex::new(Some(TransactionsView::new(Language::En))),
             busy: Busy::default(),
+            profile_busy: Mutex::new(Busy::default()),
             pending_search: Mutex::new(PendingSearch::default()),
             multi_delete_ids: Mutex::new(BTreeSet::new()),
             jobs,
@@ -128,6 +131,11 @@ impl TransactionsController {
     /// Re-points the controller at another profile's folder without rebuilding it.
     pub fn set_profile(&self, profile: impl Into<String>) {
         *self.profile.lock().expect("transactions profile poisoned") = profile.into();
+    }
+
+    /// Takes the open profile's busy flag. Called whenever the shell replaces the profile, so no stale flag survives.
+    pub fn set_profile_busy(&self, busy: Busy) {
+        *self.profile_busy.lock().expect("transactions profile busy poisoned") = busy;
     }
 
     /// The profile slug key this controller currently uses, for the shell's switch test.
@@ -342,7 +350,7 @@ impl TransactionsController {
         {
             let this = Arc::clone(self);
             main.on_transactions_confirm_import(move |update_balance| {
-                this.spawn(move |view, db| {
+                this.spawn_import(move |view, db| {
                     let _ = view.confirm_import(db, update_balance, OffsetDateTime::now_utc().date());
                 });
             });
@@ -1271,6 +1279,24 @@ impl TransactionsController {
             this.run_pending_search();
         });
         true
+    }
+
+    /// Runs an import job that writes bookings while holding the profile's busy flag, on top of the controller's own.
+    fn spawn_import<F>(self: &Arc<Self>, action: F) -> bool
+    where
+        F: FnOnce(&mut TransactionsView, &Database) + Send + 'static,
+    {
+        let profile_busy = self.profile_busy();
+        self.spawn(move |view, db| {
+            profile_busy.run(|| action(view, db));
+        })
+    }
+
+    fn profile_busy(&self) -> Busy {
+        self.profile_busy
+            .lock()
+            .expect("transactions profile busy poisoned")
+            .clone()
     }
 
     fn update_view(&self, action: impl FnOnce(&mut TransactionsView)) {
@@ -2691,8 +2717,10 @@ mod tests {
     use finglass_core::app::transactions::{ImportEntry, ImportFailure, ReapplyChange, ReapplyGroup};
     use finglass_core::import::{ImportedBooking, ParsedStatement, StatementFormat};
     use finglass_core::model::{Category, CategoryId, TransactionId};
+    use finglass_core::secret::{Passphrase, PassphrasePurpose};
     use slint::Model as _;
     use std::path::PathBuf;
+    use std::sync::mpsc;
 
     fn money(minor: i64, currency: Currency) -> Money {
         Money { minor, currency }
@@ -3012,5 +3040,84 @@ mod tests {
 
         let none = remap_mapping(&mapping, "amount", 0);
         assert_eq!(none.amount, None);
+    }
+
+    fn controller() -> (tempfile::TempDir, Arc<TransactionsController>) {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = Arc::new(AppPaths::resolve(Some(temp.path().as_os_str().to_owned()), None).unwrap());
+        let passphrase = Passphrase::new("test passphrase 1", PassphrasePurpose::New).unwrap();
+        let db = Arc::new(Database::create(&temp.path().join("finglass.db"), &passphrase).unwrap());
+        let controller = Arc::new(TransactionsController::new(
+            slint::Weak::<MainWindow>::default(),
+            paths,
+            "default",
+            crate::jobs::JobTracker::new(),
+        ));
+        controller.attach(db, Language::En);
+        (temp, controller)
+    }
+
+    fn wait_until_idle(controller: &TransactionsController) {
+        let deadline = std::time::Instant::now() + Duration::from_secs(5);
+        while controller.busy.active() {
+            assert!(std::time::Instant::now() < deadline, "the job did not finish");
+            std::thread::yield_now();
+        }
+    }
+
+    /// Runs `job` on the controller and asserts whether it activated `profile_busy`.
+    fn observe_job(controller: &Arc<TransactionsController>, profile_busy: &Busy, import: bool, expected_active: bool) {
+        let (started, started_rx) = mpsc::channel();
+        let (release, release_rx) = mpsc::channel();
+        let job = move |_view: &mut TransactionsView, _db: &Database| {
+            started.send(()).unwrap();
+            release_rx.recv().unwrap();
+        };
+        let spawned = if import {
+            controller.spawn_import(job)
+        } else {
+            controller.spawn(job)
+        };
+        assert!(spawned);
+
+        started_rx.recv_timeout(Duration::from_secs(5)).unwrap();
+        assert_eq!(
+            profile_busy.active(),
+            expected_active,
+            "the profile busy state while the job runs"
+        );
+        release.send(()).unwrap();
+        wait_until_idle(controller);
+        assert!(!profile_busy.active(), "the profile busy is released afterwards");
+    }
+
+    #[test]
+    fn an_import_job_holds_the_profile_busy_and_releases_it() {
+        let (_temp, controller) = controller();
+        let profile_busy = Busy::default();
+        controller.set_profile_busy(profile_busy.clone());
+
+        observe_job(&controller, &profile_busy, true, true);
+    }
+
+    #[test]
+    fn an_ordinary_job_does_not_touch_the_profile_busy() {
+        let (_temp, controller) = controller();
+        let profile_busy = Busy::default();
+        controller.set_profile_busy(profile_busy.clone());
+
+        observe_job(&controller, &profile_busy, false, false);
+    }
+
+    #[test]
+    fn the_next_import_uses_the_replaced_profile_busy() {
+        let (_temp, controller) = controller();
+        let stale = Busy::default();
+        controller.set_profile_busy(stale.clone());
+        let current = Busy::default();
+        controller.set_profile_busy(current.clone());
+
+        observe_job(&controller, &current, true, true);
+        assert!(!stale.active(), "the previous profile's busy is not used");
     }
 }
