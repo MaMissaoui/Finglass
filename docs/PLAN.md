@@ -62,76 +62,92 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
       open), versioned migrations, settings, audit log.
 - [x] M1b: domain tables as migration 2, designed from FinDesk's tables so M8 maps one to one (no payment tables);
       money type in integer minor units; repositories for accounts, groups, categories, rules and transactions.
-- [ ] Profile management (list, create, rename, delete) with the app shell.
+- [x] M1c: profiles and the remaining repositories (#12).
+- [ ] Profile management in the app: list, create, rename, delete and the live switch (M8d-2).
 
 ### M2 — App shell
 
-- [ ] Unlock screen: create, unlock and change the passphrase.
-- [ ] Main window with sidebar navigation, light and dark theme.
-- [ ] Translations EN/DE/FR (a typed key enum and one table per language, with a test that every key exists in all
-      three).
-- [ ] Settings and About (with the AboutSlint badge).
-- [ ] Headless screenshot tests with Slint's software renderer, if it can render to an image in tests. Otherwise a
-      documented manual check.
+- [x] Unlock screen: create, unlock and change the passphrase (#11).
+- [x] Main window with sidebar navigation, light and dark theme (#11).
+- [ ] M2c: top bar (sidebar toggle, language and theme switch) and the collapsible icon sidebar.
+- [x] Translations EN/DE/FR (a typed key enum and one table per language, with a test that every key exists in all
+      three) (#7).
+- [x] Settings and About (with the AboutSlint badge) (#11, #25).
+- [x] Headless screenshot tests with Slint's software renderer, if it can render to an image in tests. Otherwise a
+      documented manual check. (Software renderer; `FINGLASS_SCREENSHOTS=<dir> cargo test -p finglass --test
+      screenshots`.)
 
 ### M3 — Accounts and imports
 
-- [ ] Manual accounts (IBAN check, currency, account type).
+- [x] Manual accounts (IBAN check, currency, account type), groups and the account panel (#18, #26).
 - [x] Parsers for CSV (bank presets and detection), MT940, camt.052/053, OFX, QIF and XLSX. FinDesk's test files are
       reused as fixtures.
-- [ ] Import preview, duplicate detection (bank booking id or running balance) and an import summary.
+- [x] Import service with duplicate detection (bank booking id or running balance) (#6).
+- [ ] Import dialog with preview and summary on the Transactions page (M4d-2).
 
 ### M4 — Transactions, categories, dashboard
 
-- [ ] Transaction list with filters (period, account, category, amount, text) and sorting.
-- [ ] Categories, rules and rule import/export; auto-categorisation on import.
-- [ ] Dashboard: balance, monthly income and expenses, expenses by category, budgets. Totals per currency, primary
-      currency for overviews.
+- [x] Transactions view state (#22).
+- [ ] Transactions page: list, filters, panel, selection, details (M4d-1); import, rules, export, receipts (M4d-2).
+- [x] Categories, rules and rule import/export; auto-categorisation on import (#6, #16, #25).
+- [x] Dashboard: balance, monthly income and expenses, expenses by category, budgets. Totals per currency, primary
+      currency for overviews (#9, #23).
 
 ### M5 — Live sync, read-only (after M0 go)
 
 - [ ] Bank connections:
-  - bank directory lookup;
-  - TAN methods: pushTAN, chipTAN flicker, photoTAN and QR;
+  - bank directory lookup: deferred until the licence of the bank list (FinDesk uses HBCI4Java's `blz.properties`)
+    is settled; until then the add-bank dialog asks for the server URL;
+  - TAN methods: pushTAN, photoTAN and QR; chipTAN flicker waits for M5b, since FinDesk's flicker rendering comes
+    from HBCI4Java and the code's format depends on the adapter;
   - TAN media.
 - [ ] "Remember PIN": only in the OS credential store (`keyring`), saved only after a successful dialog, and deleted
       when it is rejected, when the login changes or when the bank is removed.
-- [ ] Bank message text is never stored unredacted, and never in the audit log.
+- [x] Bank message text is never stored unredacted, and never in the audit log (#21).
 - [x] M5a core: `sync` (gateway port with fakes, client, service, PIN handling with profile-scoped keys and
       `credentials/bank-<id>` markers, redaction). A server-URL change also forgets the PIN (stricter than FinDesk).
       Booking texts are stored as the bank sent them; error, warning and note texts are masked.
 - [ ] M5b: the fints-rs adapter (after the M0 probe). Login state (system id, bank parameter data) goes into
       `bank_connections`' server-state columns cleared by `clear_login_state`, never into a side file.
-- [ ] M5c: bank UI and the macOS Keychain store. `FinTsClient::new` gets `AppPaths::profile_dir(slug)`;
-      `delete_profile` calls `forget_pins_for_profile` before `profiles::delete`.
+- [ ] M5c-1: `app::banking` (bank-login state, sync one/all, history start) and the prompt bridge, with an
+      `UnavailableGateway` until M5b.
+- [ ] M5c-2: the macOS Keychain store; `delete_profile` calls `forget_pins_for_profile` with it (replacing M8d-2's
+      placeholder).
+- [ ] M5c-3: bank UI on the Accounts page (add, edit, sync, sync all, history, PIN and TAN prompts).
+      `FinTsClient::new` gets `AppPaths::profile_dir(slug)`. A profile switch cancels an open prompt.
 
 ### M6 — Receipts and OCR
 
-- [ ] Receipt storage per profile, PDF text extraction, Tesseract OCR for images and scans.
-- [ ] Receipt parser (amount, date, merchant) and matching to bookings.
+- [x] Receipt storage per profile, PDF text extraction, Tesseract OCR for images and scans.
+- [x] Receipt parser (amount, date, merchant) and matching to bookings; Documents page (#10, #13, #14, #28).
 
 ### M7 — Reports and tax
 
-- [ ] Reports by period: categories, recurring costs, cost per year and month.
-- [ ] Tax groups and missing receipts; PDF and XLSX export. Printing goes through the system PDF viewer.
+- [x] Reports by period: categories, recurring costs, cost per year and month (#17, #20, #24).
+- [x] Tax groups and missing receipts; PDF and XLSX export. Printing goes through the system PDF viewer.
 
 ### M8 — Backups and FinDesk import
 
 - [x] M8a: backup and two-phase restore of the encrypted database and the documents (core).
-- [ ] M8b: Settings section for backup and restore; `apply_pending_restore` called at startup, before the unlock
+- [x] M8b: Settings section for backup and restore; `apply_pending_restore` called at startup, before the unlock
       window; after a restore staged with the backup's passphrase, the unlock screen says the backup's passphrase is
-      now needed (reuse FinDesk's wording from `UnlockViewModel.kt`).
+      now needed (reuse FinDesk's wording from `UnlockViewModel.kt`) (#29).
+- [ ] Unlock screen: list of leftover `pre-restore-*` folders and moved-aside deleted profiles, with delete
+      buttons (they can hold unencrypted documents). After M8d-2. Finglass never has plaintext database copies, so
+      FinDesk's "leftover plaintext copies" part does not apply.
+- [ ] Single-instance lock taken before `app::startup::prepare`, so a second launch can't apply a staged restore
+      while the first instance has the database open.
 - [ ] One-time import from a FinDesk database. It reads a copy you select, with its passphrase (SQLCipher 4, `cipher`
       sqlcipher, `legacy` 4), and brings over accounts, transactions, categories, rules and documents. FinDesk's
       payment orders are never imported.
   - [x] M8c core: `findesk_import` (copy opened, one transaction, ids kept, hashes verbatim, documents confined to
         FinDesk's `documents/`, no payment orders, PIN flags or capabilities). Still to do: the Settings entry point
-        with the folder picker, telling the user to quit FinDesk first.
+        with the folder picker, telling the user to quit FinDesk first (M8d-3).
 
 ### M9 — Packaging and release
 
-- [ ] macOS: `Finglass.app` and a DMG (candidate: `cargo-packager`), with the icons from `assets/icons`, and a CI job
-      that builds it and launches the app once.
+- [x] macOS: `Finglass.app` and a DMG (candidate: `cargo-packager`), with the icons from `assets/icons`, and a CI job
+      that builds it and launches the app once (#27).
 - [ ] After full functionality: Windows and Linux back in CI, MSI/EXE and DEB/RPM installers, each launched once in
       CI.
 - [ ] Signing (macOS ad-hoc first) and a release workflow.
