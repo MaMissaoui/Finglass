@@ -19,11 +19,13 @@ slint = { version = "1.18.1", default-features = false, features = [
     "software-renderer-systemfonts",
     "accessibility",
 ] }
+time = "0.3"
 zeroize = "1"
 
 [dev-dependencies]
 png = "0.18"
 tempfile = "3"
+time = { version = "0.3", features = ["macros"] }
 
 [build-dependencies]
 slint-build = "1.18.1"

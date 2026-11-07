@@ -7,15 +7,19 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use finglass_core::app;
+use finglass_core::app::dashboard::{DashboardState, NavigationArgs};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::unlock::{UnlockError, UnlockMode};
 use finglass_core::db::Database;
 use finglass_core::i18n::{self, Key, Language};
+use finglass_core::model::CategoryId;
 use finglass_core::paths::AppPaths;
 use finglass_core::{APP_NAME, VERSION};
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel, Weak};
+use time::OffsetDateTime;
 use zeroize::Zeroizing;
 
+use crate::dashboard;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
 
 const SLUG: &str = "default";
@@ -23,10 +27,13 @@ const MIN_PASSPHRASE_LENGTH: i64 = 10;
 const AUDIT_LIMIT: u32 = 100;
 
 /// Shared, thread-safe state behind the two windows.
-struct ShellState {
-    language: Mutex<Language>,
-    theme: Mutex<ThemePref>,
-    db: Mutex<Option<Arc<Database>>>,
+pub(crate) struct ShellState {
+    pub(crate) language: Mutex<Language>,
+    pub(crate) theme: Mutex<ThemePref>,
+    pub(crate) db: Mutex<Option<Arc<Database>>>,
+    pub(crate) dashboard: Mutex<DashboardState>,
+    /// The filter the dashboard last asked the Transactions page to show; M4c reads it.
+    pub(crate) navigation: Mutex<NavigationArgs>,
 }
 
 /// Runs the app shell against `paths`.
@@ -35,10 +42,13 @@ struct ShellState {
 /// root instead.
 pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     let initial_language = system_language();
+    let today = OffsetDateTime::now_utc().date();
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
         db: Mutex::new(None),
+        dashboard: Mutex::new(DashboardState::new(initial_language, today)),
+        navigation: Mutex::new(NavigationArgs::all()),
     });
 
     let unlock = UnlockWindow::new()?;
@@ -195,9 +205,136 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
 fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
     {
         let main_weak = main.as_weak();
+        let state = state.clone();
         main.on_navigate(move |screen| {
             if let Some(ui) = main_weak.upgrade() {
+                let dashboard = screen.as_str() == "dashboard";
                 ui.set_current_screen(screen);
+                if dashboard {
+                    dashboard::spawn_load(&ui, &state, None);
+                }
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_previous_month(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                dashboard::previous_month(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_next_month(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                dashboard::next_month(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_current_month(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                dashboard::current_month(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_open_category(move |category_id| {
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+            let args = if category_id < 0 {
+                NavigationArgs::uncategorized(dashboard.selected_month, dashboard.current_month)
+            } else {
+                NavigationArgs::category(
+                    dashboard.selected_month,
+                    dashboard.current_month,
+                    CategoryId(i64::from(category_id)),
+                )
+            };
+            drop(dashboard);
+            *state.navigation.lock().expect("navigation state poisoned") = args;
+            ui.set_current_screen("transactions".into());
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_open_uncategorized(move || {
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+            let args = NavigationArgs::uncategorized(dashboard.selected_month, dashboard.current_month);
+            drop(dashboard);
+            *state.navigation.lock().expect("navigation state poisoned") = args;
+            ui.set_current_screen("transactions".into());
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_open_all(move || {
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            *state.navigation.lock().expect("navigation state poisoned") = NavigationArgs::all();
+            ui.set_current_screen("transactions".into());
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_open_partner(move |partner| {
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            *state.navigation.lock().expect("navigation state poisoned") = NavigationArgs::partner(partner.to_string());
+            ui.set_current_screen("transactions".into());
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_dashboard_open_accounts(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_current_screen("accounts".into());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_dashboard_open_settings(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_current_screen("settings".into());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_dismiss_error(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                let mut dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+                dashboard.error = None;
+                dashboard::apply(&ui, &dashboard);
             }
         });
     }
@@ -286,6 +423,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
 
             *state.language.lock().expect("language state poisoned") = language;
             apply_language_main(&ui, language);
+            dashboard::spawn_load(&ui, &state, None);
 
             let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
                 return;
@@ -398,6 +536,7 @@ fn spawn_open_work(
                     main.set_audit_rows(audit_model(rows));
                     *state.db.lock().expect("database state poisoned") = Some(db);
 
+                    dashboard::spawn_load(&main, &state, None);
                     let _ = main.show();
                     let _ = ui.hide();
                 }
