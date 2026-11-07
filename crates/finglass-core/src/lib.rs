@@ -15,6 +15,7 @@ pub mod iban;
 pub mod model;
 pub mod money;
 pub mod paths;
+pub mod profiles;
 pub mod receipt;
 pub mod recurring;
 pub mod repo;

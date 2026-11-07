@@ -161,6 +161,37 @@ pub struct BankConnection {
     pub capabilities: Option<String>,
     /// Whether the connection is part of "sync all".
     pub include_in_sync_all: bool,
+    /// Whether this connection never goes online (statements are imported from files).
+    pub offline: bool,
+}
+
+/// A bank connection as the UI shows it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BankAccessItem {
+    /// The row id.
+    pub id: BankConnectionId,
+    /// The bank's name.
+    pub bank_name: String,
+    /// The German bank code; empty for an offline connection.
+    pub blz: String,
+    /// The BIC, when known. An unknown BIC is stored as an empty string.
+    pub bic: Option<String>,
+    /// The bank's user id; empty for an offline connection.
+    pub user_id: String,
+    /// The TAN method.
+    pub tan_method: Option<String>,
+    /// The FinTS server URL.
+    pub server_url: Option<String>,
+    /// The last successful sync.
+    pub last_sync: Option<OffsetDateTime>,
+    /// The bank's advertised capabilities.
+    pub capabilities: Option<String>,
+    /// The first date to sync.
+    pub sync_from: Option<Date>,
+    /// Whether the connection is part of "sync all".
+    pub include_in_sync_all: bool,
+    /// Whether this connection never goes online (statements are imported from files).
+    pub offline: bool,
 }
 
 /// A bank account.
@@ -417,6 +448,27 @@ pub struct PendingBooking {
     pub fetched_at: OffsetDateTime,
 }
 
+/// One pending line as the UI shows it.
+///
+/// Pending lines are not bookings: the bank may still change or drop them.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PendingBookingItem {
+    /// The account the booking belongs to.
+    pub account_id: AccountId,
+    /// The booking date.
+    pub date: Date,
+    /// The value date, when known.
+    pub value_date: Option<Date>,
+    /// The signed amount.
+    pub amount: Money,
+    /// The other party.
+    pub partner_name: Option<String>,
+    /// The purpose text.
+    pub purpose: Option<String>,
+    /// When the sync that fetched the line ran.
+    pub fetched_at: OffsetDateTime,
+}
+
 /// A stored document.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Document {
@@ -432,6 +484,41 @@ pub struct Document {
     pub uploaded_at: OffsetDateTime,
     /// The linked transaction.
     pub transaction_id: Option<TransactionId>,
+}
+
+/// A document as the UI shows it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DocumentItem {
+    /// The row id.
+    pub id: i64,
+    /// The original file name.
+    pub file_name: String,
+    /// The path relative to the data folder.
+    pub stored_path: String,
+    /// The MIME type.
+    pub mime_type: String,
+    /// When the document was uploaded.
+    pub uploaded_at: OffsetDateTime,
+    /// The linked transaction.
+    pub transaction_id: Option<TransactionId>,
+    /// A readable label for the linked transaction, when there is one.
+    pub transaction_label: Option<String>,
+    /// Whether an OCR text row exists for this document.
+    pub has_ocr: bool,
+    /// The OCR confidence, when known. This is not money, so it is a float.
+    pub ocr_confidence: Option<f64>,
+}
+
+impl DocumentItem {
+    /// Whether the document is a PDF.
+    pub fn is_pdf(&self) -> bool {
+        self.mime_type == "application/pdf"
+    }
+
+    /// Whether the document is an image.
+    pub fn is_image(&self) -> bool {
+        self.mime_type.starts_with("image/")
+    }
 }
 
 /// Text extracted from a document.
@@ -481,6 +568,64 @@ pub struct NewAccountGroup {
     pub name: String,
     /// The position in account lists.
     pub sort_order: i64,
+}
+
+/// The values needed to create an online bank connection.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NewBankConnection {
+    /// The bank's name.
+    pub bank_name: String,
+    /// The German bank code.
+    pub blz: String,
+    /// The BIC, when known.
+    pub bic: Option<String>,
+    /// The bank's user id.
+    pub user_id: String,
+}
+
+/// The changed values of a bank connection. `None` leaves a value unchanged.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct BankConnectionUpdate {
+    /// The FinTS server URL. A blank value clears it.
+    pub server_url: Option<String>,
+    /// The TAN method.
+    pub tan_method: Option<String>,
+    /// The bank's user id.
+    pub user_id: Option<String>,
+    /// The bank's display name. A blank value leaves it unchanged.
+    pub bank_name: Option<String>,
+    /// The German bank code.
+    pub blz: Option<String>,
+    /// The BIC. A blank value stores an empty BIC.
+    pub bic: Option<String>,
+}
+
+/// The values needed to store one pending booking.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NewPendingBooking {
+    /// The booking date.
+    pub date: Date,
+    /// The value date, when known.
+    pub value_date: Option<Date>,
+    /// The signed amount, in the account's currency.
+    pub amount: Money,
+    /// The other party.
+    pub partner_name: Option<String>,
+    /// The purpose text.
+    pub purpose: Option<String>,
+}
+
+/// The values needed to create a document.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NewDocument {
+    /// The original file name.
+    pub file_name: String,
+    /// The path relative to the data folder.
+    pub stored_path: String,
+    /// The MIME type.
+    pub mime_type: String,
+    /// The linked transaction, when already known.
+    pub transaction_id: Option<TransactionId>,
 }
 
 /// The values needed to create or update a category.
