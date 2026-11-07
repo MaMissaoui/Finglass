@@ -116,6 +116,23 @@ fn renders_the_app_shell() {
     }
 
     {
+        let ui = UnlockWindow::new().unwrap();
+        configure_unlock(
+            &ui,
+            Language::En,
+            ThemePref::Light,
+            "unlock",
+            i18n::text(Language::En, Key::ErrorAlreadyRunning),
+        );
+        ui.set_allow_change(false);
+        ui.set_startup_error(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "unlock-already-running-en", 560, 700);
+        assert_varied(&buffer, "unlock-already-running-en");
+        let _ = ui.hide();
+    }
+
+    {
         let mut dashboard = DashboardState::new(Language::En, today);
         dashboard.load(&db, today).unwrap();
         let ui = MainWindow::new().unwrap();

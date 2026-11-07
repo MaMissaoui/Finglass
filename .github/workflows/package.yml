@@ -86,13 +86,15 @@ jobs:
             echo "::error::FINGLASS_HOME was not created"
             exit 1
           fi
-          # Until the user creates or unlocks a profile, the unlock window only reads this folder.
-          if [ -n "$(ls -A "$home")" ]; then
-            echo "::error::unexpected files in FINGLASS_HOME:"
+          # Until the user creates or unlocks a profile, the unlock window only reads this folder;
+          # the instance lock creates finglass.lock and nothing else.
+          entries=$(ls -A "$home")
+          if [ "$entries" != "finglass.lock" ]; then
+            echo "::error::expected only finglass.lock in FINGLASS_HOME:"
             ls -la "$home"
             exit 1
           fi
-          echo "Launch check passed; FINGLASS_HOME stayed empty."
+          echo "Launch check passed; FINGLASS_HOME holds only the instance lock."
 
           hdiutil detach "$mount_point"
           trap - EXIT

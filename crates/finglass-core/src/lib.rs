@@ -18,6 +18,7 @@ pub mod findesk_import;
 pub mod format;
 pub mod i18n;
 pub mod iban;
+pub mod instance;
 pub mod model;
 pub mod money;
 pub mod paths;
