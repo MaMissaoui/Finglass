@@ -3,15 +3,19 @@
 //! The UI crate renders state that comes from here and sends user actions back; it holds no logic of its own,
 //! so everything that matters is testable without a window.
 
+pub mod account_grouping;
+pub mod account_ids;
 pub mod app;
 pub mod audit;
 pub mod backup;
 pub mod balance;
+pub mod bank_text;
 pub mod dashboard;
 pub mod db;
 pub mod documents;
 pub mod export;
 pub mod findesk_import;
+pub mod format;
 pub mod i18n;
 pub mod iban;
 pub mod model;
