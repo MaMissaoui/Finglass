@@ -882,6 +882,15 @@ pub enum Key {
     ErrorTaxExportFailed,
     ErrorPrintFailed,
     BackTo,
+    ComingSoon,
+    Security,
+    ThemeSystem,
+    ThemeLight,
+    ThemeDark,
+    Theme,
+    ErrorNotEncrypted,
+    ErrorDatabaseTooNew,
+    ErrorUnexpected,
 }
 
 impl Key {
@@ -1696,7 +1705,31 @@ impl Key {
         Key::ErrorTaxExportFailed,
         Key::ErrorPrintFailed,
         Key::BackTo,
+        Key::ComingSoon,
+        Key::Security,
+        Key::ThemeSystem,
+        Key::ThemeLight,
+        Key::ThemeDark,
+        Key::Theme,
+        Key::ErrorNotEncrypted,
+        Key::ErrorDatabaseTooNew,
+        Key::ErrorUnexpected,
     ];
+
+    /// Looks a key up by its variant name, as used in the Slint translation callback.
+    ///
+    /// The lookup table is built once, lazily. Unknown names return `None`; the UI then shows the
+    /// name itself, which makes a missing key obvious in a screenshot test.
+    #[must_use]
+    pub fn from_name(name: &str) -> Option<Key> {
+        use std::collections::HashMap;
+        use std::sync::OnceLock;
+
+        static NAMES: OnceLock<HashMap<String, Key>> = OnceLock::new();
+        let names = NAMES.get_or_init(|| Key::ALL.iter().map(|&key| (format!("{key:?}"), key)).collect());
+
+        names.get(name).copied()
+    }
 }
 
 /// The text of `key` in `lang`.

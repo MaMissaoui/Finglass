@@ -1,0 +1,218 @@
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import { NavItem, TextButton } from "components.slint";
+import { AuditRow } from "models.slint";
+import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
+
+// The main window: sidebar navigation, placeholder screens and the settings sections.
+export component MainWindow inherits Window {
+    in property <string> app-name: "Finglass";
+    in property <string> version;
+    in property <string> about-version-text;
+    in property <string> current-screen: "dashboard";
+    in property <string> theme-pref: "system";
+    in property <string> language: "en";
+    in property <string> status-text;
+    in property <bool> change-open;
+    in property <bool> change-busy;
+    in property <string> change-error;
+    in property <[AuditRow]> audit-rows;
+
+    callback navigate(string);
+    callback set-theme(string);
+    callback set-language(string);
+    callback open-change;
+    callback close-change;
+    callback change-passphrase(string, string, string, bool);
+    callback dismiss-status;
+
+    title: root.app-name;
+    icon: @image-url("../../../assets/icons/finglass-256.png");
+    preferred-width: 1100px;
+    preferred-height: 720px;
+    min-width: 960px;
+    min-height: 640px;
+    background: Theme.background;
+
+    property <string> title-key: {
+        if (root.current-screen == "accounts") {
+            return "NavAccounts";
+        }
+        if (root.current-screen == "transactions") {
+            return "NavTransactions";
+        }
+        if (root.current-screen == "documents") {
+            return "NavDocuments";
+        }
+        if (root.current-screen == "reports") {
+            return "NavReports";
+        }
+        if (root.current-screen == "settings") {
+            return "NavSettings";
+        }
+        return "NavDashboard";
+    };
+
+    property <string> screen-title: Tr.t(root.title-key);
+
+    HorizontalLayout {
+        Rectangle {
+            width: 240px;
+            background: Theme.sidebar;
+
+            VerticalLayout {
+                padding: 16px;
+                spacing: 4px;
+
+                Rectangle {
+                    height: 56px;
+                    background: transparent;
+
+                    HorizontalLayout {
+                        spacing: 10px;
+
+                        Image {
+                            source: @image-url("../../../assets/icons/finglass-256.png");
+                            width: 36px;
+                            height: 36px;
+                            image-fit: contain;
+                        }
+                        Text {
+                            text: root.app-name;
+                            color: Theme.text;
+                            font-size: 22px;
+                            font-weight: 700;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+
+                Rectangle {
+                    height: 20px;
+                    background: transparent;
+                }
+
+                NavItem {
+                    label: Tr.t("NavDashboard");
+                    selected: root.current-screen == "dashboard";
+                    activated => { root.navigate("dashboard"); }
+                }
+                NavItem {
+                    label: Tr.t("NavAccounts");
+                    selected: root.current-screen == "accounts";
+                    activated => { root.navigate("accounts"); }
+                }
+                NavItem {
+                    label: Tr.t("NavTransactions");
+                    selected: root.current-screen == "transactions";
+                    activated => { root.navigate("transactions"); }
+                }
+                NavItem {
+                    label: Tr.t("NavDocuments");
+                    selected: root.current-screen == "documents";
+                    activated => { root.navigate("documents"); }
+                }
+                NavItem {
+                    label: Tr.t("NavReports");
+                    selected: root.current-screen == "reports";
+                    activated => { root.navigate("reports"); }
+                }
+                NavItem {
+                    label: Tr.t("NavSettings");
+                    selected: root.current-screen == "settings";
+                    activated => { root.navigate("settings"); }
+                }
+
+                Rectangle {
+                    vertical-stretch: 1;
+                    background: transparent;
+                }
+
+                Text {
+                    text: root.version;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                }
+            }
+        }
+
+        Rectangle {
+            width: 1px;
+            background: Theme.divider;
+        }
+
+        VerticalLayout {
+            Rectangle {
+                height: 64px;
+                background: Theme.surface;
+
+                HorizontalLayout {
+                    padding-left: 24px;
+                    padding-right: 24px;
+                    spacing: 12px;
+
+                    Text {
+                        text: root.screen-title;
+                        color: Theme.text;
+                        font-size: 24px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                    }
+
+                    Rectangle {
+                        horizontal-stretch: 1;
+                        background: transparent;
+                    }
+
+                    if (root.status-text != "") : Text {
+                        text: root.status-text;
+                        color: Theme.error;
+                        font-size: 12px;
+                        vertical-alignment: center;
+                    }
+                    if (root.status-text != "") : TextButton {
+                        text: Tr.t("Dismiss");
+                        clicked => { root.dismiss-status(); }
+                    }
+                }
+            }
+
+            Rectangle {
+                height: 1px;
+                background: Theme.divider;
+            }
+
+            if (root.current-screen == "settings") : SettingsPage {
+                theme-pref: root.theme-pref;
+                language: root.language;
+                about-version-text: root.about-version-text;
+                audit-rows: root.audit-rows;
+
+                set-theme(value) => { root.set-theme(value); }
+                set-language(value) => { root.set-language(value); }
+                open-change => { root.open-change(); }
+            }
+
+            if (root.current-screen != "settings") : VerticalLayout {
+                padding: 32px;
+                spacing: 12px;
+
+                Text {
+                    text: Tr.t("ComingSoon");
+                    color: Theme.muted-text;
+                    font-size: 15px;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+
+    if (root.change-open) : ChangePassphraseDialog {
+        busy: root.change-busy;
+        error-text: root.change-error;
+        close => { root.close-change(); }
+        submit(current, new-passphrase, repeat, acknowledged) => {
+            root.change-passphrase(current, new-passphrase, repeat, acknowledged);
+        }
+    }
+}

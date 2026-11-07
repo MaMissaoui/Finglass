@@ -1,0 +1,241 @@
+import { CheckBox, LineEdit, Spinner } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import { PrimaryButton, TextButton } from "components.slint";
+
+// Port of FinDesk's UnlockScreen without its encrypt-plaintext mode: a new profile chooses a
+// passphrase, an encrypted profile unlocks, and the Change mode replaces the passphrase.
+export component UnlockWindow inherits Window {
+    in property <string> mode: "unlock";
+    in property <string> profile-label;
+    in property <string> passphrase-hint;
+    in property <bool> busy;
+    in property <bool> allow-change;
+    in property <string> error-text;
+
+    callback unlock(string);
+    callback create(string, string, bool);
+    callback change(string, string, string, bool);
+    callback show-change(bool);
+
+    property <string> passphrase;
+    property <string> repeat;
+    property <string> current;
+    property <bool> show-passphrase;
+    property <bool> acknowledged;
+
+    title: Tr.t("UnlockWindowTitle");
+    icon: @image-url("../../../assets/icons/finglass-256.png");
+    preferred-width: 560px;
+    preferred-height: 760px;
+    min-width: 420px;
+    min-height: 620px;
+    background: Theme.background;
+
+    function heading() -> string {
+        if (root.mode == "create") {
+            return Tr.t("CreatePassphraseHeading");
+        }
+        if (root.mode == "change") {
+            return Tr.t("ChangePassphrase");
+        }
+        return Tr.t("UnlockHeading");
+    }
+
+    function body() -> string {
+        if (root.mode == "create") {
+            return Tr.t("CreatePassphraseText");
+        }
+        if (root.mode == "change") {
+            return Tr.t("ChangePassphraseText");
+        }
+        return Tr.t("UnlockText");
+    }
+
+    function action-label() -> string {
+        if (root.mode == "unlock") {
+            return Tr.t("Unlock");
+        }
+        if (root.mode == "change") {
+            return Tr.t("ChangeAndOpen");
+        }
+        return Tr.t("EncryptAndOpen");
+    }
+
+    function busy-label() -> string {
+        return root.mode == "unlock" ? Tr.t("Unlocking") : Tr.t("Encrypting");
+    }
+
+    function submit() {
+        if (root.busy) {
+            return;
+        }
+        if (root.mode == "unlock") {
+            root.unlock(root.passphrase);
+        } else if (root.mode == "change") {
+            root.change(root.current, root.passphrase, root.repeat, root.acknowledged);
+        } else {
+            root.create(root.passphrase, root.repeat, root.acknowledged);
+        }
+    }
+
+    VerticalLayout {
+        alignment: center;
+        padding: 32px;
+
+        HorizontalLayout {
+            alignment: center;
+
+            VerticalLayout {
+                width: 440px;
+                spacing: 12px;
+
+                Image {
+                    source: @image-url("../../../assets/icons/finglass-256.png");
+                    width: 56px;
+                    height: 56px;
+                    image-fit: contain;
+                }
+
+                Text {
+                    text: root.heading();
+                    color: Theme.text;
+                    font-size: 24px;
+                    font-weight: 600;
+                    wrap: word-wrap;
+                }
+
+                if (root.profile-label != "") : Text {
+                    text: root.profile-label;
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                }
+
+                Text {
+                    text: root.body();
+                    color: Theme.text;
+                    font-size: 14px;
+                    wrap: word-wrap;
+                }
+
+                if (root.mode == "change") : VerticalLayout {
+                    spacing: 6px;
+                    Text {
+                        text: Tr.t("CurrentPassphrase");
+                        color: Theme.text;
+                        font-size: 13px;
+                        font-weight: 600;
+                    }
+                    LineEdit {
+                        enabled: !root.busy;
+                        text <=> root.current;
+                        input-type: root.show-passphrase ? InputType.text : InputType.password;
+                        accepted(text) => { root.submit(); }
+                    }
+                }
+
+                VerticalLayout {
+                    spacing: 6px;
+                    Text {
+                        text: root.mode == "unlock" ? Tr.t("Passphrase") : Tr.t("NewPassphrase");
+                        color: Theme.text;
+                        font-size: 13px;
+                        font-weight: 600;
+                    }
+                    LineEdit {
+                        enabled: !root.busy;
+                        text <=> root.passphrase;
+                        input-type: root.show-passphrase ? InputType.text : InputType.password;
+                        accepted(text) => { root.submit(); }
+                    }
+                }
+
+                if (root.mode != "unlock") : VerticalLayout {
+                    spacing: 6px;
+                    Text {
+                        text: Tr.t("RepeatPassphrase");
+                        color: Theme.text;
+                        font-size: 13px;
+                        font-weight: 600;
+                    }
+                    LineEdit {
+                        enabled: !root.busy;
+                        text <=> root.repeat;
+                        input-type: root.show-passphrase ? InputType.text : InputType.password;
+                        accepted(text) => { root.submit(); }
+                    }
+                }
+
+                CheckBox {
+                    enabled: !root.busy;
+                    text: Tr.t("ShowPassphrase");
+                    checked <=> root.show-passphrase;
+                }
+
+                if (root.mode != "unlock" && root.passphrase-hint != "") : Text {
+                    text: root.passphrase-hint;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                if (root.mode == "create") : Text {
+                    text: Tr.t("DocumentsNotEncrypted");
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                if (root.mode != "unlock") : CheckBox {
+                    enabled: !root.busy;
+                    text: Tr.t("PassphraseNoRecovery");
+                    checked <=> root.acknowledged;
+                }
+
+                if (root.error-text != "") : Text {
+                    text: root.error-text;
+                    color: Theme.error;
+                    font-size: 14px;
+                    wrap: word-wrap;
+                }
+
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+
+                    PrimaryButton {
+                        text: root.action-label();
+                        enabled: !root.busy;
+                        clicked => { root.submit(); }
+                    }
+
+                    if (root.busy) : HorizontalLayout {
+                        spacing: 8px;
+                        Spinner {
+                            width: 20px;
+                            height: 20px;
+                        }
+                        Text {
+                            text: root.busy-label();
+                            color: Theme.muted-text;
+                            font-size: 13px;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+
+                if (root.mode == "unlock" && root.allow-change) : TextButton {
+                    text: Tr.t("ChangePassphrase");
+                    enabled: !root.busy;
+                    clicked => { root.show-change(true); }
+                }
+
+                if (root.mode == "change") : TextButton {
+                    text: Tr.t("Back");
+                    enabled: !root.busy;
+                    clicked => { root.show-change(false); }
+                }
+            }
+        }
+    }
+}

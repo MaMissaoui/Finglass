@@ -1,0 +1,30 @@
+import { Palette } from "std-widgets.slint";
+
+// Finglass's palettes. The window sets `mode` to system, light or dark; in system mode the fluent
+// style's colour-scheme is followed so the app matches the desktop.
+export global Theme {
+    in property <string> mode: "system";
+    in property <bool> dark: mode == "system" ? Palette.color-scheme == ColorScheme.dark : mode == "dark";
+
+    // Brand
+    out property <color> primary: dark ? #5EEAD4 : #0D9488;
+    out property <color> primary-hover: dark ? #99F6E4 : #0F766E;
+    out property <color> on-primary: dark ? #042F2E : #FFFFFF;
+
+    // Surfaces
+    out property <color> sidebar: dark ? #232429 : #ECEFF4;
+    out property <color> background: dark ? #1C1B1F : #F5F7FA;
+    out property <color> surface: dark ? #232529 : #FFFFFF;
+    out property <color> divider: dark ? #49454F : #E5E7EB;
+    out property <color> text: dark ? #E6E1E5 : #2F2F2F;
+    out property <color> muted-text: dark ? #CAC4D0 : #5B6472;
+
+    // Selection
+    out property <color> selected: dark ? #134E4A : #CCFBF1;
+    out property <color> on-selected: dark ? #99F6E4 : #134E4A;
+
+    // Semantic colours from FinDesk's Color.kt
+    out property <color> error: dark ? #F87171 : #DC2626;
+    out property <color> success: dark ? #34D399 : #098765;
+    out property <color> warning: #F59E0B;
+}

@@ -32,7 +32,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::InvalidDateRange => "The end date must be after the start date",
         Key::PatternInvalid => "Enter a valid regular expression",
         Key::OpticalTanCode => "Optical TAN code for a TAN generator. Hold the TAN generator against the bars.",
-        Key::WindowTitle => "FinDesk - Your Financial Workspace",
+        Key::WindowTitle => "Finglass - Your Financial Workspace",
         Key::NavDashboard => "Dashboard",
         Key::NavAccounts => "Accounts",
         Key::NavTransactions
@@ -63,7 +63,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::CadenceMonthly => "Monthly",
         Key::CadenceQuarterly => "Quarterly",
         Key::CadenceYearly => "Yearly",
-        Key::WelcomeTitle => "Welcome to FinDesk",
+        Key::WelcomeTitle => "Welcome to Finglass",
         Key::AddAccount => "Add account",
         Key::AvailableBalance => "Available",
         Key::LoansSubtitle => "Loans %1$s · net %2$s",
@@ -140,7 +140,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ConnectionSettings => "Connection settings",
         Key::RenameConnection => "Rename",
         Key::ConnectionName | Key::ColName | Key::Name => "Name",
-        Key::ConnectionNameHint => "Only shown in FinDesk, e.g. “DKB business”. The bank login stays the same.",
+        Key::ConnectionNameHint => "Only shown in Finglass, e.g. “DKB business”. The bank login stays the same.",
         Key::AddAccountShort | Key::DetailAccount | Key::ColAccount => "Account",
         Key::RemoveBank => "Remove bank",
         Key::NoAccountsYet => "No accounts yet",
@@ -181,7 +181,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::RecentBookings => "Recent bookings",
         Key::NoneInPeriod => "None in this period",
         Key::HistoryReconstructed => {
-            "History is reconstructed from the current balance and the bookings FinDesk knows about."
+            "History is reconstructed from the current balance and the bookings Finglass knows about."
         }
         Key::AllTransactions => "All transactions",
         Key::DeleteAccountTitle => "Delete account?",
@@ -193,18 +193,18 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::AccountTypeLabel => "Account type",
         Key::LoanBalanceHint => "Enter what you still owe as a negative amount, e.g. -12,000.00.",
         Key::AccountName => "Account name",
-        Key::AccountNameHint => "Only shown in FinDesk. Leave empty to show “%s”.",
+        Key::AccountNameHint => "Only shown in Finglass. Leave empty to show “%s”.",
         Key::RemoveBankTitle => "Remove %s?",
         Key::RemoveBankText => "This deletes the bank, all of its accounts and their transactions.",
         Key::CentralBlzNote => {
-            "This bank's online banking uses bank code %1$s for all branches, so FinDesk uses it instead of %2$s."
+            "This bank's online banking uses bank code %1$s for all branches, so Finglass uses it instead of %2$s."
         }
         Key::CentralBlzHint => "Online banking for this bank uses bank code %s.",
         Key::UseBlz => "Use %s",
         Key::BlzNotInDirectory => "Not in the bank list. Check the bank code.",
         Key::BlzOtherBank => "This bank code belongs to %s, not to this connection's bank.",
         Key::LoginResetNote => {
-            "Changing the bank code, user ID or server URL resets FinDesk's registration with the bank. The next sync registers again and may ask you to confirm with a TAN."
+            "Changing the bank code, user ID or server URL resets Finglass's registration with the bank. The next sync registers again and may ask you to confirm with a TAN."
         }
         Key::Import => "Import",
         Key::AutoCategorize => "Auto-categorize",
@@ -254,7 +254,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::FileBelongsToNamed => "%s belongs to %s, not the selected account.",
         Key::ColumnsApplyToSame => "Column changes apply to the %d {1:file|files} with these columns.",
         Key::ImportFilesSkipped => "%d {1:file is|files are} skipped because {1:it|they} could not be read.",
-        Key::UnlockWindowTitle => "Unlock FinDesk",
+        Key::UnlockWindowTitle => "Unlock Finglass",
         Key::UnlockProfile => "Profile: %s",
         Key::UnlockHeading => "Enter your passphrase",
         Key::UnlockText => "Your data is encrypted. Enter the passphrase to open it.",
@@ -266,16 +266,16 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::Unlock => "Unlock",
         Key::ChangePassphrase => "Change passphrase",
         Key::ChangePassphraseText => {
-            "Enter the current passphrase and choose a new one. FinDesk re-encrypts your data and then opens it."
+            "Enter the current passphrase and choose a new one. Finglass re-encrypts your data and then opens it."
         }
         Key::ChangeAndOpen => "Change and open",
         Key::CreatePassphraseHeading => "Protect your data with a passphrase",
         Key::CreatePassphraseText => {
-            "FinDesk encrypts its database: accounts, transactions, settings and bank connection keys. You enter this passphrase every time FinDesk starts."
+            "Finglass encrypts its database: accounts, transactions, settings and bank connection keys. You enter this passphrase every time Finglass starts."
         }
         Key::EncryptPassphraseHeading => "Encrypt your data",
         Key::EncryptPassphraseText => {
-            "Your data isn't encrypted yet. Choose a passphrase: FinDesk encrypts the database now and asks for the passphrase every time it starts."
+            "Your data isn't encrypted yet. Choose a passphrase: Finglass encrypts the database now and asks for the passphrase every time it starts."
         }
         Key::PassphraseHint => "At least %d characters. A few unrelated words are easy to remember and hard to guess.",
         Key::DocumentsNotEncrypted => {
@@ -290,26 +290,26 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PassphraseSpaces => "The passphrase can't start or end with a space.",
         Key::PassphraseMismatch => "The passphrases don't match.",
         Key::PassphraseAcknowledge => "Confirm that you understand there's no recovery.",
-        Key::UnlockFailed => "FinDesk couldn't open the database: %s",
+        Key::UnlockFailed => "Finglass couldn't open the database: %s",
         Key::RestoredEncryptedHint => {
             "A backup was restored. Enter the passphrase that was in effect when the backup was made."
         }
         Key::RestoredPlainHint => "A backup without encryption was restored.",
         Key::PlaintextLeftoversTitle => "Unencrypted copies of the database are still on disk",
         Key::PlaintextLeftoversText => {
-            "FinDesk encrypts the database it opens, but these copies in the data folder were left behind by earlier restores, deleted profiles or profiles that were never opened. Anyone who can read this disk can read them without your passphrase. Delete the ones you no longer need."
+            "Finglass encrypts the database it opens, but these copies in the data folder were left behind by earlier restores, deleted profiles or profiles that were never opened. Anyone who can read this disk can read them without your passphrase. Delete the ones you no longer need."
         }
         Key::PlaintextLeftoverPreRestore => "Replaced by a restore",
         Key::PlaintextLeftoverDeletedProfile => "Deleted profile",
         Key::PlaintextLeftoverPendingRestore => "Restore waiting for the next start",
         Key::PlaintextLeftoverOtherProfile => "Another profile",
         Key::EncryptionStatus => {
-            "Database encrypted (SQLCipher, AES-256). FinDesk asks for the passphrase at every start; you can change it on the unlock screen."
+            "Database encrypted (SQLCipher, AES-256). Finglass asks for the passphrase at every start; you can change it on the unlock screen."
         }
         Key::EncryptionOff => "Database not encrypted (development or test mode).",
         Key::BackupPassphraseTitle => "Passphrase of this backup",
         Key::BackupPassphraseText => {
-            "This backup was made with a different passphrase. Enter that passphrase to check the backup. FinDesk asks for it again at the next start."
+            "This backup was made with a different passphrase. Enter that passphrase to check the backup. Finglass asks for it again at the next start."
         }
         Key::BackupNote => "Backups stay encrypted with the passphrase in effect when they are made.",
         Key::Edit => "Edit",
@@ -325,7 +325,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::SwitchProfile => "Open at next start",
         Key::ProfileOpen => "open now",
         Key::ProfileNextStart => "opens at next start",
-        Key::RestartToOpenProfile => "Restart FinDesk to open %s.",
+        Key::RestartToOpenProfile => "Restart Finglass to open %s.",
         Key::WrongCurrencySkipped => {
             "%1$d {1:booking is|bookings are} in another currency than this %2$s account and will be skipped."
         }
@@ -497,9 +497,9 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::MenuImportStatement => "Import Bank Statement…",
         Key::MenuMinimize => "Minimize",
         Key::MenuZoom => "Zoom",
-        Key::MenuGitHub => "FinDesk on GitHub",
+        Key::MenuGitHub => "Finglass on GitHub",
         Key::MenuReportProblem => "Report a Problem…",
-        Key::AboutTitle => "About FinDesk",
+        Key::AboutTitle => "About Finglass",
         Key::AboutVersion => "Version %s",
         Key::AboutText => {
             "Your financial workspace: accounts, FinTS banking, documents and tax reports. Alpha software — not for use with real bank accounts."
@@ -587,7 +587,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::RuleFileErrorAppliesTo => "Unknown applies_to value: %s (any, expense, income)",
         Key::RuleFileErrorPriority => "Priority is not a whole number: %s",
         Key::RuleFileErrorAutoApply => "auto_apply must be true or false: %s",
-        Key::ErrorRuleFileHeader => "Not a FinDesk rule file: the header line is missing or wrong",
+        Key::ErrorRuleFileHeader => "Not a Finglass rule file: the header line is missing or wrong",
         Key::ErrorRuleFileTooLarge => "Rule file too large (at most 1 MB and 5000 rules)",
         Key::ErrorRuleFileEncoding => "The rule file is not valid UTF-8 text",
         Key::DataAndOcr => "Data & OCR",
@@ -600,7 +600,7 @@ pub(super) fn text(key: Key) -> &'static str {
         }
         Key::CreateBackup => "Create backup",
         Key::RestoreFromBackup => "Restore from backup…",
-        Key::RestoreWaiting => "A restore is waiting. Restart FinDesk to apply it.",
+        Key::RestoreWaiting => "A restore is waiting. Restart Finglass to apply it.",
         Key::CancelRestore => "Cancel restore",
         Key::BackupRestoredAt => "Backup restored at this start. Your previous data is in %s",
         Key::AuditLogLatest => "Audit log (latest 100)",
@@ -662,7 +662,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::MessageExportedCount => "Exported %d {1:transaction|transactions} to %s",
         Key::MessageBackupSaved => "Backup saved to %s (%d {2:transaction|transactions}, %d {3:document|documents})",
         Key::MessageRestorePrepared => {
-            "Restore prepared. Restart FinDesk to finish; your current data will be kept in a pre-restore folder."
+            "Restore prepared. Restart Finglass to finish; your current data will be kept in a pre-restore folder."
         }
         Key::MessageRestoreCancelled => "Pending restore cancelled",
         Key::MessageProfileMoved => "Profile moved to %s",
@@ -721,7 +721,9 @@ pub(super) fn text(key: Key) -> &'static str {
             "The bank's server sent an answer that isn't FinTS (%s). Check the FinTS server URL in the connection settings. If it is right, the bank may be blocking the request: try again later or capture a protocol trace in Settings."
         }
         Key::ErrorBankRejectedPin => "The bank rejected the PIN",
-        Key::ErrorPassportReset => "FinDesk could not reset its stored bank registration. Remove and re-add this bank.",
+        Key::ErrorPassportReset => {
+            "Finglass could not reset its stored bank registration. Remove and re-add this bank."
+        }
         Key::ProtocolTraceTitle => "FinTS protocol trace",
         Key::ProtocolTraceHint => {
             "Collect a log of the next online-banking dialogs to help diagnose connection problems. PIN, TAN, user id and account numbers are masked, but the log contains your bank's full answers: names, purposes, amounts and balances. Read it before you share it. Traces stay in memory until you save them and are never sent automatically."
@@ -750,9 +752,9 @@ pub(super) fn text(key: Key) -> &'static str {
             "…%s: the bank sends no balance for this account. Enter it with “Edit balance”; a loan as a negative amount."
         }
         Key::SyncGapNotFetched => {
-            "Bookings from %s to %s were not fetched: FinDesk fetches at most the last %d days. Use “Fetch history from…” to get them (the bank may ask for a TAN)."
+            "Bookings from %s to %s were not fetched: Finglass fetches at most the last %d days. Use “Fetch history from…” to get them (the bank may ask for a TAN)."
         }
-        Key::SyncAccountWithoutIban => "%s: the bank lists this account without an IBAN; FinDesk can't store it yet.",
+        Key::SyncAccountWithoutIban => "%s: the bank lists this account without an IBAN; Finglass can't store it yet.",
         Key::SyncBalanceOtherCurrency => {
             "…%s: the bank reported the balance in %s, but the account is kept in %s; the balance was not changed."
         }
@@ -779,8 +781,8 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorDocumentTooLarge => "%s is too large (the limit is %d MB)",
         Key::ErrorImageTooLarge => "%s has too many pixels to read",
         Key::ReportUnknownCategory => "Unknown",
-        Key::ReportTitleTax => "FinDesk Tax Report %d",
-        Key::ReportTitleRange => "FinDesk Report %s",
+        Key::ReportTitleTax => "Finglass Tax Report %d",
+        Key::ReportTitleRange => "Finglass Report %s",
         Key::PdfGenerated => "Generated %s",
         Key::PdfSummary => "Summary",
         Key::PdfTaxRelevantExpenses => "Tax-relevant expenses",
@@ -799,7 +801,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::FlickerSize => "Size",
         Key::FlickerHint => "Hold the TAN generator against the bars so its arrows line up with the triangles.",
         Key::TanLabel => "TAN",
-        Key::AppLogo => "FinDesk logo",
+        Key::AppLogo => "Finglass logo",
         Key::EditCategoryNamed => "Edit category: %s",
         Key::EditRuleNamed => "Edit rule: %s",
         Key::OpenPreviewNamed => "Open preview: %s",
@@ -882,5 +884,14 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::MessagePrintSent => "Sent to the printer",
         Key::ErrorTaxExportFailed => "The export of the tax report failed",
         Key::ErrorPrintFailed => "Printing failed",
+        Key::ComingSoon => "This screen is coming in a later milestone.",
+        Key::Security => "Security",
+        Key::ThemeSystem => "System",
+        Key::ThemeLight => "Light",
+        Key::ThemeDark => "Dark",
+        Key::Theme => "Theme",
+        Key::ErrorNotEncrypted => "This data folder contains an unencrypted database, which Finglass cannot open.",
+        Key::ErrorDatabaseTooNew => "This database was created by a newer version of Finglass.",
+        Key::ErrorUnexpected => "an unexpected error",
     }
 }

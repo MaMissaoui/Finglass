@@ -3,6 +3,7 @@
 //! The UI crate renders state that comes from here and sends user actions back; it holds no logic of its own,
 //! so everything that matters is testable without a window.
 
+pub mod app;
 pub mod audit;
 pub mod backup;
 pub mod balance;

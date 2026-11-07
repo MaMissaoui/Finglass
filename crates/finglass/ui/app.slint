@@ -1,43 +1,8 @@
-import { AboutSlint, VerticalBox } from "std-widgets.slint";
+// The app shell's exported windows, globals and models. build.rs compiles this file; every other
+// .slint file is imported from here.
 
-// Placeholder window until the first milestone: the logo, the version, and the AboutSlint
-// attribution that Slint's royalty-free license asks for in the About screen.
-export component AppWindow inherits Window {
-    in property <string> app-name;
-    in property <string> version;
-
-    title: app-name;
-    icon: @image-url("../../../assets/icons/finglass-256.png");
-    preferred-width: 720px;
-    preferred-height: 480px;
-    min-width: 480px;
-    min-height: 360px;
-
-    VerticalBox {
-        alignment: center;
-        spacing: 16px;
-
-        Image {
-            source: @image-url("../../../assets/icons/finglass-256.png");
-            height: 128px;
-            image-fit: contain;
-        }
-
-        Text {
-            text: app-name;
-            font-size: 32px;
-            font-weight: 650;
-            horizontal-alignment: center;
-        }
-
-        Text {
-            text: "Version " + version + " · read-only, local-first";
-            horizontal-alignment: center;
-            opacity: 0.7;
-        }
-
-        AboutSlint {
-            height: 120px;
-        }
-    }
-}
+export { MainWindow } from "main_window.slint";
+export { UnlockWindow } from "unlock_window.slint";
+export { AuditRow } from "models.slint";
+export { Theme } from "theme.slint";
+export { Tr } from "translations.slint";
