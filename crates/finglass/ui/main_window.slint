@@ -1,29 +1,7 @@
 import { Theme } from "theme.slint";
+import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
-import {
-    AccountAmount,
-    AccountDaysChoice,
-    AccountDetailRow,
-    AccountGroupChoice,
-    AccountPanelRow,
-    AccountsBankCard,
-    AccountTypeChoice,
-    AccountsFigure,
-    DashboardBudgetRow,
-    DashboardCategoryRow,
-    DashboardMonthBar,
-    DashboardTaxSlice,
-    DashboardTransactionRow,
-    DashboardUpcomingRow,
-    NavItem,
-    ReportAmountRow,
-    ReportMonthlyRow,
-    ReportRecurringRow,
-    ReportSuggestionRow,
-    ReportTaxRow,
-    ReportVendorRow,
-    TextButton,
-} from "components.slint";
+import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, NavItem, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, TextButton } from "components.slint";
 import { AuditRow, CategoryRow, ColourSwatch, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
@@ -276,6 +254,33 @@ export component MainWindow inherits Window {
     in property <string> accounts-detail-axis-bottom;
     in property <[AccountDetailRow]> accounts-detail-rows;
 
+    // Documents page state, mapped from finglass_core::app::documents::DocumentsState.
+    in property <[DocumentRow]> document-rows;
+    in property <string> documents-tab: "all";
+    in property <string> documents-tab-all-label;
+    in property <string> documents-tab-unlinked-label;
+    in property <string> documents-tab-linked-label;
+    in property <string> documents-search-query;
+    in property <bool> documents-ocr-available: true;
+    in property <string> documents-ocr-hint;
+    in property <bool> documents-uploading;
+    in property <string> documents-progress-text;
+    in property <bool> documents-loading;
+    in property <string> documents-error;
+    in property <string> documents-message;
+    in property <bool> documents-has-selection;
+    in property <string> documents-selected-name;
+    in property <bool> documents-selected-linked;
+    in property <string> documents-selected-link-label;
+    in property <string> documents-selected-ocr-heading;
+    in property <string> documents-selected-ocr-text;
+    in property <string> documents-preview-kind: "none";
+    in property <image> documents-preview;
+    in property <[DocumentLinkRow]> documents-suggestions;
+    in property <[DocumentLinkRow]> documents-candidates;
+    in property <string> documents-candidate-query;
+    in property <string> documents-delete-text;
+
     callback navigate(string);
     callback set-theme(string);
     callback set-language(string);
@@ -365,6 +370,19 @@ export component MainWindow inherits Window {
     callback accounts-filter-changed(string);
     callback accounts-dismiss-message;
     callback accounts-open-detail(int);
+
+    callback documents-set-tab(string);
+    callback documents-search(string);
+    callback documents-select(int);
+    callback documents-close-detail;
+    callback documents-link(int);
+    callback documents-unlink;
+    callback documents-reprocess;
+    callback documents-confirm-delete;
+    callback documents-upload;
+    callback documents-open;
+    callback documents-candidate-query-changed(string);
+    callback documents-dismiss;
 
     title: root.app-name;
     icon: @image-url("../../../assets/icons/finglass-256.png");
@@ -780,7 +798,48 @@ export component MainWindow inherits Window {
                 reset-tax-keywords => { root.settings-reset-tax-keywords(); }
             }
 
-            if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports" && root.current-screen != "accounts") : VerticalLayout {
+            if (root.current-screen == "documents") : DocumentsPage {
+                rows: root.document-rows;
+                tab: root.documents-tab;
+                tab-all-label: root.documents-tab-all-label;
+                tab-unlinked-label: root.documents-tab-unlinked-label;
+                tab-linked-label: root.documents-tab-linked-label;
+                search-query: root.documents-search-query;
+                ocr-available: root.documents-ocr-available;
+                ocr-hint: root.documents-ocr-hint;
+                uploading: root.documents-uploading;
+                progress-text: root.documents-progress-text;
+                loading: root.documents-loading;
+                error-text: root.documents-error;
+                message-text: root.documents-message;
+                has-selection: root.documents-has-selection;
+                selected-name: root.documents-selected-name;
+                selected-linked: root.documents-selected-linked;
+                selected-link-label: root.documents-selected-link-label;
+                selected-ocr-heading: root.documents-selected-ocr-heading;
+                selected-ocr-text: root.documents-selected-ocr-text;
+                preview-kind: root.documents-preview-kind;
+                preview: root.documents-preview;
+                suggestions: root.documents-suggestions;
+                candidates: root.documents-candidates;
+                candidate-query: root.documents-candidate-query;
+                delete-text: root.documents-delete-text;
+
+                set-tab(value) => { root.documents-set-tab(value); }
+                search(value) => { root.documents-search(value); }
+                select(id) => { root.documents-select(id); }
+                close-detail => { root.documents-close-detail(); }
+                link(id) => { root.documents-link(id); }
+                unlink => { root.documents-unlink(); }
+                reprocess => { root.documents-reprocess(); }
+                delete => { root.documents-confirm-delete(); }
+                upload => { root.documents-upload(); }
+                open => { root.documents-open(); }
+                candidate-query-changed(value) => { root.documents-candidate-query-changed(value); }
+                dismiss => { root.documents-dismiss(); }
+            }
+
+            if (root.current-screen != "settings" && root.current-screen != "dashboard" && root.current-screen != "reports" && root.current-screen != "accounts" && root.current-screen != "documents") : VerticalLayout {
                 padding: 32px;
                 spacing: 12px;
 

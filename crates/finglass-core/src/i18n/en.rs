@@ -670,6 +670,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::MessageSavedTo => "Saved %s",
         Key::PinNotSaved => "The PIN could not be saved in the system's secure credential store.",
         Key::MessageUploaded => "Uploaded %d {1:file|files}, text extracted from %d",
+        Key::UploadProgress => "Uploading %1$d of %2$d…",
         Key::MessageDocumentLinked => "Document linked",
         Key::MessageDocumentDeleted => "Document deleted",
         Key::MessageNoTextExtracted => "No text could be extracted",

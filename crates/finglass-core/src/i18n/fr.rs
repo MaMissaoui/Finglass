@@ -699,6 +699,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::MessageSavedTo => "%s enregistré",
         Key::PinNotSaved => "Le PIN n'a pas pu être enregistré dans le magasin d'identifiants sécurisé du système.",
         Key::MessageUploaded => "%d {1:fichier importé|fichiers importés}, texte extrait de %d",
+        Key::UploadProgress => "Téléversement de %1$d sur %2$d…",
         Key::MessageDocumentLinked => "Document lié",
         Key::MessageDocumentDeleted => "Document supprimé",
         Key::MessageNoTextExtracted => "Aucun texte n'a pu être extrait",

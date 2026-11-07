@@ -24,6 +24,7 @@ use zeroize::Zeroizing;
 
 use crate::accounts;
 use crate::dashboard;
+use crate::documents::DocumentsController;
 use crate::reports::ReportsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
 
@@ -45,6 +46,7 @@ pub(crate) struct ShellState {
     /// The Accounts page's own work guard. It is separate from the profile's busy flag, which the core reserves for
     /// sync and import work (and reads before it allows a delete).
     pub(crate) accounts_work: Busy,
+    pub(crate) documents: Arc<DocumentsController>,
 }
 
 /// Runs the app shell against `paths`.
@@ -58,6 +60,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     let main = MainWindow::new()?;
     let paths = Arc::new(paths);
     let reports = Arc::new(ReportsController::new(main.as_weak()));
+    let documents = Arc::new(DocumentsController::new(main.as_weak(), paths.clone(), SLUG));
     let state = Arc::new(ShellState {
         language: Mutex::new(initial_language),
         theme: Mutex::new(ThemePref::System),
@@ -68,6 +71,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         settings: Mutex::new(SettingsState::new(initial_language)),
         accounts: Mutex::new(AccountsState::new(initial_language)),
         accounts_work: Busy::default(),
+        documents,
     });
 
     install_translations_unlock(&unlock, initial_language);
@@ -223,6 +227,7 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
 
 fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
     state.reports.wire(main);
+    state.documents.wire(main);
 
     {
         let main_weak = main.as_weak();
@@ -231,12 +236,16 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
         main.on_navigate(move |screen| {
             if let Some(ui) = main_weak.upgrade() {
                 let dashboard = screen.as_str() == "dashboard";
+                let screen_is_documents = screen.as_str() == "documents";
                 let reports = screen.as_str() == "reports";
                 let settings = screen.as_str() == "settings";
                 let accounts_screen = screen.as_str() == "accounts";
                 ui.set_current_screen(screen);
                 if dashboard {
                     dashboard::spawn_load(&ui, &state, None);
+                }
+                if screen_is_documents {
+                    state.documents.open_page();
                 }
                 if reports {
                     ui.set_reports_tab("summary".into());
@@ -1091,6 +1100,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
             if ui.get_current_screen() == "settings" {
                 crate::settings::spawn_load(&ui, &state, &paths);
             }
+            state.documents.set_language(language);
 
             let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
                 return;
@@ -1173,6 +1183,7 @@ fn spawn_open_work(
     state: Arc<ShellState>,
 ) {
     state.reports.reset();
+    state.documents.reset();
     thread::spawn(move || {
         let outcome = work().and_then(|db| {
             let db = Arc::new(db);
@@ -1203,6 +1214,7 @@ fn spawn_open_work(
                     main.set_language(prefs.language.code().into());
                     main.set_audit_rows(audit_model(rows));
                     state.reports.attach(db.clone(), prefs.language);
+                    state.documents.attach(db.clone(), prefs.language);
                     *state.db.lock().expect("database state poisoned") = Some(db);
 
                     dashboard::spawn_load(&main, &state, None);
