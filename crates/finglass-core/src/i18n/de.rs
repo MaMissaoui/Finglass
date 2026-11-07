@@ -926,6 +926,9 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorStartupFailed => {
             "Finglass konnte die Daten dieses Profils beim Start nicht vorbereiten. Beenden Sie Finglass und versuchen Sie es erneut."
         }
+        Key::ErrorOnlineSyncUnavailable => "Online-Synchronisierung ist in diesem Build noch nicht verfügbar.",
+        Key::ErrorServerUrlRequired => "Die FinTS-Server-URL ist erforderlich",
+        Key::ErrorServerUrlMustBeHttps => "Die FinTS-Server-URL muss mit https:// beginnen",
         Key::ErrorUnexpected => "ein unerwarteter Fehler",
     }
 }
