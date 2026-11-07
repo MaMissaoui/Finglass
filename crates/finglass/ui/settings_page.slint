@@ -1,0 +1,347 @@
+import { AboutSlint, CheckBox, LineEdit, ScrollView, Spinner } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import { ChoiceChip, PrimaryButton, TextButton } from "components.slint";
+import { AuditRow } from "models.slint";
+
+component SectionTitle inherits Text {
+    color: Theme.text;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+component Divider inherits Rectangle {
+    height: 1px;
+    background: Theme.divider;
+}
+
+export component SettingsPage inherits Rectangle {
+    in property <string> theme-pref;
+    in property <string> language;
+    in property <string> about-version-text;
+    in property <[AuditRow]> audit-rows;
+
+    callback set-theme(string);
+    callback set-language(string);
+    callback open-change;
+
+    background: Theme.background;
+
+    ScrollView {
+        VerticalLayout {
+            padding: 32px;
+            spacing: 16px;
+
+            SectionTitle {
+                text: Tr.t("Appearance");
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                Text {
+                    text: Tr.t("Theme");
+                    width: 120px;
+                    color: Theme.text;
+                    font-size: 14px;
+                    vertical-alignment: center;
+                }
+                ChoiceChip {
+                    label: Tr.t("ThemeSystem");
+                    selected: root.theme-pref == "system";
+                    clicked => { root.set-theme("system"); }
+                }
+                ChoiceChip {
+                    label: Tr.t("ThemeLight");
+                    selected: root.theme-pref == "light";
+                    clicked => { root.set-theme("light"); }
+                }
+                ChoiceChip {
+                    label: Tr.t("ThemeDark");
+                    selected: root.theme-pref == "dark";
+                    clicked => { root.set-theme("dark"); }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                Text {
+                    text: Tr.t("Language");
+                    width: 120px;
+                    color: Theme.text;
+                    font-size: 14px;
+                    vertical-alignment: center;
+                }
+                ChoiceChip {
+                    label: "EN";
+                    selected: root.language == "en";
+                    clicked => { root.set-language("en"); }
+                }
+                ChoiceChip {
+                    label: "DE";
+                    selected: root.language == "de";
+                    clicked => { root.set-language("de"); }
+                }
+                ChoiceChip {
+                    label: "FR";
+                    selected: root.language == "fr";
+                    clicked => { root.set-language("fr"); }
+                }
+            }
+
+            Divider {}
+
+            SectionTitle {
+                text: Tr.t("Security");
+            }
+
+            VerticalLayout {
+                spacing: 10px;
+                Text {
+                    text: Tr.t("ChangePassphraseText");
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                    wrap: word-wrap;
+                }
+                PrimaryButton {
+                    text: Tr.t("ChangePassphrase");
+                    clicked => { root.open-change(); }
+                }
+            }
+
+            Divider {}
+
+            SectionTitle {
+                text: Tr.t("AuditLogLatest");
+            }
+
+            if (root.audit-rows.length == 0) : Text {
+                text: Tr.t("AuditLogEmpty");
+                color: Theme.muted-text;
+                font-size: 13px;
+            }
+
+            for row in root.audit-rows : HorizontalLayout {
+                spacing: 12px;
+                Text {
+                    text: row.time;
+                    width: 130px;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                }
+                Text {
+                    text: row.action;
+                    width: 190px;
+                    color: Theme.text;
+                    font-size: 12px;
+                    font-weight: 600;
+                    overflow: elide;
+                }
+                Text {
+                    text: row.actor;
+                    width: 70px;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    overflow: elide;
+                }
+                Text {
+                    text: row.details;
+                    color: Theme.muted-text;
+                    font-size: 12px;
+                    overflow: elide;
+                    horizontal-stretch: 1;
+                }
+            }
+
+            Divider {}
+
+            SectionTitle {
+                text: Tr.t("AboutTitle");
+            }
+
+            HorizontalLayout {
+                spacing: 16px;
+
+                Image {
+                    source: @image-url("../../../assets/icons/finglass-256.png");
+                    width: 64px;
+                    height: 64px;
+                    image-fit: contain;
+                }
+
+                VerticalLayout {
+                    spacing: 6px;
+                    Text {
+                        text: "Finglass";
+                        color: Theme.text;
+                        font-size: 20px;
+                        font-weight: 600;
+                    }
+                    Text {
+                        text: root.about-version-text;
+                        color: Theme.text;
+                        font-size: 14px;
+                    }
+                    Text {
+                        text: Tr.t("AboutText");
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+
+            AboutSlint {
+                height: 100px;
+            }
+        }
+    }
+}
+
+// The Security section's dialog. It reuses the Change mode's fields and validation.
+export component ChangePassphraseDialog inherits Rectangle {
+    in property <bool> busy;
+    in property <string> error-text;
+
+    callback close;
+    callback submit(string, string, string, bool);
+
+    property <string> current;
+    property <string> new-passphrase;
+    property <string> repeat;
+    property <bool> show-passphrase;
+    property <bool> acknowledged;
+
+    width: 100%;
+    height: 100%;
+    background: #00000080;
+
+    function send() {
+        if (root.busy) {
+            return;
+        }
+        root.submit(root.current, root.new-passphrase, root.repeat, root.acknowledged);
+    }
+
+    Rectangle {
+        width: 440px;
+        height: dialog.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: Theme.divider;
+        background: Theme.surface;
+
+        dialog := VerticalLayout {
+            padding: 24px;
+            spacing: 10px;
+
+            Text {
+                text: Tr.t("ChangePassphrase");
+                color: Theme.text;
+                font-size: 22px;
+                font-weight: 600;
+            }
+
+            Text {
+                text: Tr.t("ChangePassphraseText");
+                color: Theme.muted-text;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            Text {
+                text: Tr.t("CurrentPassphrase");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                enabled: !root.busy;
+                text <=> root.current;
+                input-type: root.show-passphrase ? InputType.text : InputType.password;
+                accepted(text) => { root.send(); }
+            }
+
+            Text {
+                text: Tr.t("NewPassphrase");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                enabled: !root.busy;
+                text <=> root.new-passphrase;
+                input-type: root.show-passphrase ? InputType.text : InputType.password;
+                accepted(text) => { root.send(); }
+            }
+
+            Text {
+                text: Tr.t("RepeatPassphrase");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            LineEdit {
+                enabled: !root.busy;
+                text <=> root.repeat;
+                input-type: root.show-passphrase ? InputType.text : InputType.password;
+                accepted(text) => { root.send(); }
+            }
+
+            CheckBox {
+                enabled: !root.busy;
+                text: Tr.t("ShowPassphrase");
+                checked <=> root.show-passphrase;
+            }
+
+            CheckBox {
+                enabled: !root.busy;
+                text: Tr.t("PassphraseNoRecovery");
+                checked <=> root.acknowledged;
+            }
+
+            if (root.error-text != "") : Text {
+                text: root.error-text;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("ChangePassphrase");
+                    enabled: !root.busy;
+                    clicked => { root.send(); }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    enabled: !root.busy;
+                    clicked => { root.close(); }
+                }
+
+                if (root.busy) : HorizontalLayout {
+                    spacing: 8px;
+                    Spinner {
+                        width: 20px;
+                        height: 20px;
+                    }
+                    Text {
+                        text: Tr.t("Encrypting");
+                        color: Theme.muted-text;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+    }
+}

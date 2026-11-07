@@ -16,8 +16,14 @@ slint = { version = "1.18.1", default-features = false, features = [
     "backend-winit",
     "renderer-femtovg",
     "renderer-software",
+    "software-renderer-systemfonts",
     "accessibility",
 ] }
+zeroize = "1"
+
+[dev-dependencies]
+png = "0.18"
+tempfile = "3"
 
 [build-dependencies]
 slint-build = "1.18.1"

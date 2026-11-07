@@ -1,0 +1,14 @@
+// Every user-visible string comes from finglass-core's i18n table through this global.
+//
+// Passing the language into the callback makes every binding that calls `t` re-evaluate when the
+// language changes, without duplicating the table in Slint.
+
+export global Tr {
+    in property <string> language: "en";
+
+    pure callback text(key: string, language: string) -> string;
+
+    public pure function t(key: string) -> string {
+        return text(key, language);
+    }
+}

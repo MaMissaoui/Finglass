@@ -1,0 +1,186 @@
+import { Theme } from "theme.slint";
+
+// A filled action button in the brand colour. The fluent widgets keep their own palette; the
+// surfaces and primary actions that belong to Finglass use Theme directly.
+export component PrimaryButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> enabled: true;
+
+    callback clicked;
+
+    height: 36px;
+    min-width: 120px;
+    border-radius: 6px;
+    background: !root.enabled ? Theme.divider : (touch.has-hover ? Theme.primary-hover : Theme.primary);
+
+    border-width: focus.has-focus ? 2px : 0px;
+    border-color: Theme.on-primary;
+
+    Text {
+        text: root.text;
+        color: root.enabled ? Theme.on-primary : Theme.muted-text;
+        font-size: 14px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            if (root.enabled) {
+                root.clicked();
+            }
+        }
+    }
+
+    focus := FocusScope {
+        enabled <=> root.enabled;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+}
+
+// A small selectable pill for the theme and language choices.
+export component ChoiceChip inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+
+    callback clicked;
+
+    height: 32px;
+    min-width: 84px;
+    border-radius: 16px;
+    background: root.selected ? Theme.primary : Theme.surface;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: root.selected ? Theme.primary : (focus.has-focus ? Theme.primary : Theme.divider);
+
+    Text {
+        text: root.label;
+        color: root.selected ? Theme.on-primary : Theme.text;
+        font-size: 13px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        clicked => root.clicked();
+    }
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+}
+
+// A link-like text action for secondary navigation such as "Change passphrase" and "Back".
+export component TextButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> enabled: true;
+
+    callback clicked;
+
+    height: 28px;
+    min-width: 80px;
+    background: transparent;
+
+    Text {
+        text: root.text;
+        color: !root.enabled ? Theme.muted-text : (touch.has-hover ? Theme.primary-hover : Theme.primary);
+        font-size: 13px;
+        font-weight: 600;
+        horizontal-alignment: left;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            if (root.enabled) {
+                root.clicked();
+            }
+        }
+    }
+
+    focus := FocusScope {
+        enabled <=> root.enabled;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if focus.has-focus : Rectangle {
+        border-width: 2px;
+        border-color: Theme.primary;
+        border-radius: 4px;
+    }
+}
+
+// One sidebar entry: selected tint, left accent bar and a keyboard focus ring.
+export component NavItem inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+
+    callback activated;
+
+    height: 40px;
+    border-radius: 8px;
+    background: root.selected ? Theme.selected : transparent;
+
+    Rectangle {
+        visible: root.selected;
+        x: 0px;
+        y: 8px;
+        width: 3px;
+        height: parent.height - 16px;
+        border-radius: 2px;
+        background: Theme.primary;
+    }
+
+    Text {
+        x: 16px;
+        width: parent.width - 24px;
+        height: parent.height;
+        text: root.label;
+        color: root.selected ? Theme.on-selected : Theme.text;
+        font-size: 15px;
+        font-weight: root.selected ? 600 : 400;
+        vertical-alignment: center;
+        horizontal-alignment: left;
+    }
+
+    TouchArea {
+        clicked => root.activated();
+    }
+
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.activated();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if focus.has-focus : Rectangle {
+        border-width: 2px;
+        border-color: Theme.primary;
+        border-radius: parent.border-radius;
+    }
+}

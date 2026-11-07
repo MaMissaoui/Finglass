@@ -46,6 +46,16 @@ const PAYMENT_NAME_EXCEPTIONS: &[&str] = &[
 ];
 
 #[test]
+fn every_key_name_round_trips() {
+    for &key in Key::ALL {
+        let name = format!("{key:?}");
+        assert_eq!(Key::from_name(&name), Some(key), "{name}");
+    }
+    assert_eq!(Key::from_name("NoSuchKey"), None);
+    assert_eq!(Key::from_name(""), None);
+}
+
+#[test]
 fn every_key_has_text_in_every_language() {
     for &key in Key::ALL {
         for &lang in Language::ALL {
