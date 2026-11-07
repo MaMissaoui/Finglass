@@ -42,6 +42,7 @@ pub use credentials::{CredentialStore, MemoryCredentialStore, NoCredentialStore}
 pub use failures::{BankResult, BankingError, GatewayError};
 pub use gateway::{
     AccountSnapshot, FetchOutcome, FinTsAccount, FinTsBalance, FinTsConnection, FinTsGateway, FinTsTransaction,
+    UnavailableGateway,
 };
 pub use interaction::{BankingInteraction, PinEntry, TanChallenge, TanMethod};
 pub use service::{BankingService, ImportResult, SyncReport};

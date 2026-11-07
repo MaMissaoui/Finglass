@@ -899,6 +899,9 @@ pub enum Key {
     ErrorNotEncrypted,
     ErrorDatabaseTooNew,
     ErrorStartupFailed,
+    ErrorOnlineSyncUnavailable,
+    ErrorServerUrlRequired,
+    ErrorServerUrlMustBeHttps,
     ErrorUnexpected,
 }
 
@@ -1731,6 +1734,9 @@ impl Key {
         Key::ErrorNotEncrypted,
         Key::ErrorDatabaseTooNew,
         Key::ErrorStartupFailed,
+        Key::ErrorOnlineSyncUnavailable,
+        Key::ErrorServerUrlRequired,
+        Key::ErrorServerUrlMustBeHttps,
         Key::ErrorUnexpected,
     ];
 

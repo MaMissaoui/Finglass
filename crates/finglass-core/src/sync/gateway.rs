@@ -7,6 +7,8 @@
 use rust_decimal::Decimal;
 use time::{Date, OffsetDateTime};
 
+use crate::i18n::{self, Key, Language};
+
 use super::capabilities::BankCapabilities;
 use super::failures::GatewayError;
 use super::interaction::BankingInteraction;
@@ -161,4 +163,43 @@ pub trait FinTsGateway: Send + Sync {
         since: &dyn Fn(&str) -> Option<Date>,
         to: Date,
     ) -> Result<FetchOutcome, GatewayError>;
+}
+
+/// The gateway wired in until the real FinTS adapter (M5b) exists. It never touches the network and always fails with
+/// a localized "not available in this build" message.
+#[derive(Debug, Clone, Copy)]
+pub struct UnavailableGateway {
+    language: Language,
+}
+
+impl UnavailableGateway {
+    /// Builds the placeholder gateway with the language of its user-visible message.
+    pub fn new(language: Language) -> Self {
+        Self { language }
+    }
+
+    /// The language of the message.
+    pub fn language(&self) -> Language {
+        self.language
+    }
+}
+
+impl Default for UnavailableGateway {
+    fn default() -> Self {
+        Self::new(Language::En)
+    }
+}
+
+impl FinTsGateway for UnavailableGateway {
+    fn fetch_all(
+        &self,
+        _connection: &FinTsConnection,
+        _interaction: &dyn BankingInteraction,
+        _since: &dyn Fn(&str) -> Option<Date>,
+        _to: Date,
+    ) -> Result<FetchOutcome, GatewayError> {
+        Err(GatewayError::Other(
+            i18n::text(self.language, Key::ErrorOnlineSyncUnavailable).to_owned(),
+        ))
+    }
 }
