@@ -851,6 +851,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorBankOffline => "Cette banque est hors ligne : rien n'est envoyé à la banque.",
         Key::BankOnlineMode => "Banque en ligne (FinTS)",
         Key::BankOfflineMode => "Hors ligne (import de relevés uniquement)",
+        Key::AccountsWithoutBank => "Comptes sans banque",
         Key::ReapplyRules => "Réappliquer les règles aux opérations affichées",
         Key::ReapplyRulesTitle => "Réappliquer les règles ?",
         Key::ReapplyRulesSummary => {

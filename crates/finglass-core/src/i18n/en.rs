@@ -812,6 +812,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ErrorBankOffline => "This bank is offline: nothing is sent to the bank.",
         Key::BankOnlineMode => "Online banking (FinTS)",
         Key::BankOfflineMode => "Offline (import statements only)",
+        Key::AccountsWithoutBank => "Accounts without a bank",
         Key::ReapplyRules => "Re-apply rules to shown bookings",
         Key::ReapplyRulesTitle => "Re-apply rules?",
         Key::ReapplyRulesSummary => "New category for %1$d of %2$d shown {2:booking|bookings}.",

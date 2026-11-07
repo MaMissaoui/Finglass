@@ -7,25 +7,32 @@ use std::io::BufWriter;
 use std::path::Path;
 use std::rc::Rc;
 
+use finglass_core::account_grouping::{self, AccountItem as GroupingAccount, BalanceTone, GroupKey, LOAN_TYPE};
+use finglass_core::account_ids;
 use finglass_core::app;
+use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountItem, AccountsState};
 use finglass_core::app::dashboard::{DashboardState, DashboardView};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
 use finglass_core::app::settings::SettingsState;
 use finglass_core::audit::{self, Actor};
 use finglass_core::db::Database;
+use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{
-    AccountId, AccountType, CategoryId, NewAccount, NewCategory, NewDocument, NewRule, NewTransaction, RuleDirection,
-    RuleField, TransactionId,
+    AccountId, AccountType, BankAccessItem, CategoryId, NewAccount, NewAccountGroup, NewCategory, NewDocument, NewRule,
+    NewTransaction, RuleDirection, RuleField, TransactionId,
 };
 use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
-use finglass_core::repo::{accounts, categories, documents, rules, transactions};
+use finglass_core::repo::{account_groups, accounts, bank_connections, categories, documents, rules, transactions};
 use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
 use slint::platform::{Platform, PlatformError, WindowAdapter};
-use slint::{Color, ComponentHandle, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel};
+use slint::{
+    Color, ComponentHandle, Model, ModelRc, PhysicalSize, Rgb8Pixel, SharedPixelBuffer, SharedString, VecModel,
+};
 use time::macros::date;
+use time::{Date, OffsetDateTime};
 
 slint::include_modules!();
 
@@ -399,6 +406,264 @@ fn renders_the_app_shell() {
         900,
         720,
     );
+    let accounts_temp = tempfile::tempdir().unwrap();
+    let accounts_paths = AppPaths::resolve(Some(accounts_temp.path().as_os_str().to_owned()), None).unwrap();
+    let accounts_db = app::unlock::create(
+        &accounts_paths,
+        SLUG,
+        "correct horse battery staple",
+        "correct horse battery staple",
+        true,
+    )
+    .unwrap();
+    let seeded = seed_accounts(&accounts_db);
+    let mut accounts_state = AccountsState::new(Language::En);
+    accounts_state.load_accounts(&accounts_db).unwrap();
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-en-light", 1100, 720);
+        assert_varied(&buffer, "accounts-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut german = accounts_state.clone();
+        german.language = Language::De;
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "accounts", &rows);
+        apply_accounts(&ui, &german);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-de-dark", 1100, 720);
+        assert_varied(&buffer, "accounts-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut panel_state = accounts_state.clone();
+        panel_state.language = Language::En;
+        if let Some(group) = panel_state
+            .groups
+            .iter()
+            .find(|group| group.key == GroupKey::Type("checking".to_owned()))
+        {
+            panel_state.collapsed.insert(group.key.id());
+        }
+        let panel_rows = accounts_panel_rows(&panel_state, Language::En);
+        assert!(
+            panel_rows.iter().any(|row| row.kind == "group" && row.collapsed),
+            "the panel screenshot shows a collapsed group"
+        );
+        assert!(
+            panel_rows.iter().any(|row| row.kind == "all" && row.new_count > 0),
+            "the panel screenshot shows unread badges"
+        );
+        assert!(
+            panel_rows
+                .iter()
+                .any(|row| row.kind == "all" && row.totals.row_count() == 2),
+            "the panel screenshot shows two currencies"
+        );
+
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &panel_state);
+        ui.set_accounts_panel_preview(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "account-panel-en-light", 360, 720);
+        assert_varied(&buffer, "account-panel-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let bank = accounts_state.bank_accesses[0].clone();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state);
+        ui.show().unwrap();
+        ui.set_accounts_dialog_title(
+            i18n::format(Language::En, Key::AddAccountAt, &[Arg::from(bank.bank_name.as_str())]).into(),
+        );
+        ui.set_accounts_dialog_offline(bank.offline);
+        ui.set_accounts_dialog_bank_id(i32::try_from(bank.id.0).unwrap_or(-1));
+        ui.set_accounts_dialog_account_id(-1);
+        ui.set_accounts_dialog_account_type("credit_card".into());
+        ui.set_accounts_dialog_error("".into());
+        ui.set_accounts_dialog("add-account".into());
+        let buffer = render(&window, "accounts-add-account-en", 1100, 720);
+        assert_varied(&buffer, "accounts-add-account-en");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut detail = accounts_state.clone();
+        detail.language = Language::En;
+        detail
+            .open_detail_default(&accounts_db, seeded.checking, today)
+            .unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &detail);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-detail-en-light", 1100, 720);
+        assert_varied(&buffer, "accounts-detail-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let empty_temp = tempfile::tempdir().unwrap();
+        let empty_paths = AppPaths::resolve(Some(empty_temp.path().as_os_str().to_owned()), None).unwrap();
+        let empty_db = app::unlock::create(
+            &empty_paths,
+            SLUG,
+            "correct horse battery staple",
+            "correct horse battery staple",
+            true,
+        )
+        .unwrap();
+        let mut empty = AccountsState::new(Language::En);
+        empty.load_accounts(&empty_db).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &empty);
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-empty-en", 1100, 720);
+        assert_varied(&buffer, "accounts-empty-en");
+        let _ = ui.hide();
+    }
+}
+
+struct SeededAccounts {
+    checking: AccountId,
+}
+
+fn seed_accounts(db: &Database) -> SeededAccounts {
+    let offline = bank_connections::create_offline(db, "Bank Norwegian").unwrap();
+    let usd = Currency::new("USD").unwrap();
+
+    let checking = accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: Some(offline.id),
+            institution: None,
+            name: Some("Haushalt".to_owned()),
+            iban: Some("DE89370400440532013000".to_owned()),
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::Checking,
+            balance: Money {
+                minor: 245_037,
+                currency: Currency::EUR,
+            },
+            balance_updated_at: Some(OffsetDateTime::now_utc()),
+            group_id: None,
+        },
+    )
+    .unwrap();
+
+    let dollar = accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: Some(offline.id),
+            institution: None,
+            name: Some("Dollar".to_owned()),
+            iban: Some("DE44500105175407324931".to_owned()),
+            account_number: None,
+            currency: usd,
+            account_type: AccountType::Savings,
+            balance: Money {
+                minor: 50_000,
+                currency: usd,
+            },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap();
+
+    accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: None,
+            iban: Some("DE44500105175407324930".to_owned()),
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::Loan,
+            balance: Money {
+                minor: -500_000,
+                currency: Currency::EUR,
+            },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap();
+
+    accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: None,
+            iban: Some(account_ids::card("4321")),
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::CreditCard,
+            balance: Money {
+                minor: -4_510,
+                currency: Currency::EUR,
+            },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap();
+
+    let group = account_groups::create(
+        db,
+        NewAccountGroup {
+            name: "Reisen".to_owned(),
+            sort_order: 1,
+        },
+    )
+    .unwrap();
+    accounts::set_group(db, dollar, Some(group)).unwrap();
+
+    for (day, minor, partner, new) in [
+        (date!(2026 - 09 - 02), 150_000, "Employer GmbH", false),
+        (date!(2026 - 09 - 12), -12_000, "Example Market", true),
+        (date!(2026 - 10 - 02), 150_000, "Employer GmbH", false),
+        (date!(2026 - 10 - 05), -1_500, "Corner Kiosk", false),
+        (date!(2026 - 10 - 09), -3_200, "Example Market", false),
+    ] {
+        transactions::insert_planned(
+            db,
+            checking,
+            vec![NewTransaction {
+                booking_date: day,
+                amount: Money {
+                    minor,
+                    currency: Currency::EUR,
+                },
+                balance_after: None,
+                partner_name: Some(partner.to_owned()),
+                purpose: None,
+                category_id: None,
+                import_hash: format!("{}-{day}-{minor}", checking.0),
+                created_at: OffsetDateTime::now_utc(),
+                is_new: new,
+                tax_override: None,
+            }],
+        )
+        .unwrap();
+    }
+
+    SeededAccounts { checking }
 }
 
 fn render_reports(
@@ -1412,4 +1677,547 @@ fn write_png(directory: &Path, name: &str, buffer: &SharedPixelBuffer<Rgb8Pixel>
     encoder.set_depth(png::BitDepth::Eight);
     let mut writer = encoder.write_header().expect("png header");
     writer.write_image_data(buffer.as_bytes()).expect("png data");
+}
+
+const ACCOUNTS_CURRENCY_CODES: [&str; 6] = ["EUR", "USD", "GBP", "CHF", "JPY", "CAD"];
+const ACCOUNTS_DETAIL_DAYS: [i64; 3] = [30, 90, 365];
+
+fn apply_accounts(ui: &MainWindow, state: &AccountsState) {
+    let language = state.language;
+    let has_content = !state.bank_accesses.is_empty() || !state.accounts.is_empty();
+
+    ui.set_accounts_loading(state.is_loading);
+    ui.set_accounts_show_content(state.is_loading || has_content);
+    ui.set_accounts_has_content(has_content);
+    ui.set_accounts_error_text(state.error.clone().unwrap_or_default().into());
+    ui.set_accounts_message_text(state.message.clone().unwrap_or_default().into());
+    ui.set_accounts_figures(accounts_figures(state, language));
+    ui.set_accounts_bank_cards(ModelRc::new(VecModel::from(accounts_bank_cards(state, language))));
+    ui.set_accounts_panel_rows(ModelRc::new(VecModel::from(accounts_panel_rows(state, language))));
+    ui.set_accounts_group_choices(ModelRc::new(VecModel::from(
+        state
+            .custom_groups
+            .iter()
+            .map(|group| AccountGroupChoice {
+                id: i32::try_from(group.id.0).unwrap_or(-1),
+                name: group.name.clone().into(),
+            })
+            .collect::<Vec<AccountGroupChoice>>(),
+    )));
+    ui.set_accounts_filter_text(state.account_filter_text.clone().into());
+    ui.set_accounts_shown_text(accounts_shown_text(state, language).into());
+    ui.set_accounts_type_choices(ModelRc::new(VecModel::from(
+        ACCOUNT_TYPE_CODES
+            .iter()
+            .map(|code| AccountTypeChoice {
+                code: (*code).into(),
+                label: accounts_type_label(code, language).into(),
+            })
+            .collect::<Vec<AccountTypeChoice>>(),
+    )));
+    ui.set_accounts_currency_codes(ModelRc::new(VecModel::from(
+        ACCOUNTS_CURRENCY_CODES
+            .iter()
+            .map(|code| (*code).into())
+            .collect::<Vec<SharedString>>(),
+    )));
+    ui.set_accounts_days_choices(ModelRc::new(VecModel::from(
+        ACCOUNTS_DETAIL_DAYS
+            .iter()
+            .map(|days| AccountDaysChoice {
+                days: i32::try_from(*days).unwrap_or_default(),
+                label: accounts_days_label(*days, language).into(),
+            })
+            .collect::<Vec<AccountDaysChoice>>(),
+    )));
+
+    apply_accounts_detail(ui, state, language);
+}
+
+fn apply_accounts_detail(ui: &MainWindow, state: &AccountsState, language: Language) {
+    let Some(detail) = &state.detail else {
+        ui.set_accounts_detail_open(false);
+        ui.set_accounts_detail_rows(ModelRc::new(VecModel::from(Vec::<AccountDetailRow>::new())));
+        ui.set_accounts_detail_days(90);
+        return;
+    };
+
+    ui.set_accounts_detail_open(true);
+    ui.set_accounts_detail_title(accounts_detail_title(detail, language).into());
+    ui.set_accounts_detail_subtitle(accounts_identifier(&detail.account).into());
+    ui.set_accounts_detail_balance(format::money(detail.account.balance, language, false).into());
+    ui.set_accounts_detail_tone(accounts_tone(&detail.account).into());
+    ui.set_accounts_detail_account_id(i32::try_from(detail.account.id.0).unwrap_or(-1));
+    ui.set_accounts_detail_days(i32::try_from(detail.days).unwrap_or(90));
+    ui.set_accounts_detail_summary(
+        i18n::format(
+            language,
+            Key::LastDaysSummary,
+            &[
+                detail.days.into(),
+                format::money(detail.income_in_period, language, false).into(),
+                format::money(detail.expenses_in_period, language, false).into(),
+            ],
+        )
+        .into(),
+    );
+    let (path, top, bottom) = accounts_balance_path(&detail.history, language);
+    ui.set_accounts_detail_path(path.into());
+    ui.set_accounts_detail_axis_top(top.into());
+    ui.set_accounts_detail_axis_bottom(bottom.into());
+    ui.set_accounts_detail_rows(ModelRc::new(VecModel::from(
+        detail
+            .recent
+            .iter()
+            .map(|transaction| AccountDetailRow {
+                date_text: format::date(transaction.date).into(),
+                title: transaction.raw_description().into(),
+                amount_text: format::money(transaction.amount, language, true).into(),
+                expense: transaction.amount.minor < 0,
+            })
+            .collect::<Vec<AccountDetailRow>>(),
+    )));
+}
+
+fn accounts_figures(state: &AccountsState, language: Language) -> ModelRc<AccountsFigure> {
+    let all_accounts: Vec<GroupingAccount> = state.accounts.iter().map(accounts_grouping).collect();
+    let loans: Vec<GroupingAccount> = state
+        .accounts
+        .iter()
+        .filter(|account| account.account_type == LOAN_TYPE)
+        .map(accounts_grouping)
+        .collect();
+
+    let mut figures = Vec::new();
+    if !state.accounts.is_empty() {
+        let label_key = if loans.is_empty() {
+            Key::AccountsTotalLabel
+        } else {
+            Key::AccountsNetLabel
+        };
+        figures.push(AccountsFigure {
+            label: i18n::format(language, label_key, &[state.accounts.len().into()]).into(),
+            values: accounts_amounts(&state.grand_total, &all_accounts, language, state.grand_total.len() > 1),
+            secondary: false,
+        });
+    }
+    if !loans.is_empty() {
+        let totals = account_grouping::grand_total(&loans, state.primary_currency);
+        figures.push(AccountsFigure {
+            label: i18n::text(language, Key::AccountsLoansLabel).into(),
+            values: accounts_amounts(&totals, &loans, language, true),
+            secondary: true,
+        });
+    }
+    ModelRc::new(VecModel::from(figures))
+}
+
+fn accounts_amounts(
+    totals: &[(Currency, i64)],
+    accounts: &[GroupingAccount],
+    language: Language,
+    plain: bool,
+) -> ModelRc<AccountAmount> {
+    ModelRc::new(VecModel::from(
+        totals
+            .iter()
+            .map(|(currency, minor)| AccountAmount {
+                text: format::money(
+                    Money {
+                        minor: *minor,
+                        currency: *currency,
+                    },
+                    language,
+                    false,
+                )
+                .into(),
+                tone: if plain {
+                    "plain".to_owned()
+                } else {
+                    accounts_tone_code(account_grouping::balance_tone(accounts, *currency)).to_owned()
+                }
+                .into(),
+            })
+            .collect::<Vec<AccountAmount>>(),
+    ))
+}
+
+fn accounts_bank_cards(state: &AccountsState, language: Language) -> Vec<AccountsBankCard> {
+    let mut cards = Vec::new();
+    for bank in &state.bank_accesses {
+        let in_bank: Vec<&AccountItem> = state
+            .accounts
+            .iter()
+            .filter(|account| account.bank_access_id == Some(bank.id))
+            .collect();
+        cards.push(accounts_bank_card(
+            bank.id.0,
+            &bank.bank_name,
+            accounts_bank_subtitle(bank, language),
+            bank.offline,
+            state.collapsed_banks.contains(&bank.id),
+            &in_bank,
+            state,
+            language,
+        ));
+    }
+
+    let without_bank: Vec<&AccountItem> = state
+        .accounts
+        .iter()
+        .filter(|account| account.bank_access_id.is_none())
+        .collect();
+    if !without_bank.is_empty() {
+        cards.push(accounts_bank_card(
+            -1,
+            i18n::text(language, Key::AccountsWithoutBank),
+            String::new(),
+            false,
+            false,
+            &without_bank,
+            state,
+            language,
+        ));
+    }
+    cards
+}
+
+#[allow(clippy::too_many_arguments)]
+fn accounts_bank_card(
+    bank_id: i64,
+    name: &str,
+    subtitle: String,
+    offline: bool,
+    collapsed: bool,
+    in_bank: &[&AccountItem],
+    state: &AccountsState,
+    language: Language,
+) -> AccountsBankCard {
+    let grouping_accounts: Vec<GroupingAccount> = in_bank.iter().map(|account| accounts_grouping(account)).collect();
+    let totals = account_grouping::grand_total(&grouping_accounts, state.primary_currency);
+    AccountsBankCard {
+        bank_id: i32::try_from(bank_id).unwrap_or(-1),
+        name: name.into(),
+        subtitle: subtitle.into(),
+        offline,
+        collapsed,
+        account_count_text: i18n::format(language, Key::AccountCount, &[in_bank.len().into()]).into(),
+        totals: accounts_amounts(&totals, &grouping_accounts, language, false),
+        accounts: ModelRc::new(VecModel::from(
+            in_bank
+                .iter()
+                .map(|account| BankAccountRow {
+                    account_id: i32::try_from(account.id.0).unwrap_or(-1),
+                    name: accounts_label(account, language).into(),
+                    subtitle: accounts_subtitle(account, language).into(),
+                    balance_text: format::money(account.balance, language, false).into(),
+                    tone: accounts_tone(account).into(),
+                    new_count: i32::try_from(account.new_count).unwrap_or(i32::MAX),
+                })
+                .collect::<Vec<BankAccountRow>>(),
+        )),
+    }
+}
+
+fn accounts_bank_subtitle(bank: &BankAccessItem, language: Language) -> String {
+    if bank.offline {
+        return i18n::text(language, Key::BankOfflineHint).to_owned();
+    }
+    let mut parts = vec![i18n::format(language, Key::BlzPrefix, &[Arg::from(bank.blz.as_str())])];
+    if let Some(bic) = bank.bic.as_deref().map(str::trim).filter(|bic| !bic.is_empty()) {
+        parts.push(i18n::format(language, Key::BicPrefix, &[Arg::from(bic)]));
+    }
+    parts.join(" · ")
+}
+
+fn accounts_panel_rows(state: &AccountsState, language: Language) -> Vec<AccountPanelRow> {
+    let visible: std::collections::BTreeSet<AccountId> = state
+        .filtered_accounts()
+        .into_iter()
+        .map(|account| account.id)
+        .collect();
+    let filtering = !state.account_filter_text.trim().is_empty();
+    let all_accounts: Vec<GroupingAccount> = state.accounts.iter().map(accounts_grouping).collect();
+    let all_new: i64 = state.accounts.iter().map(|account| account.new_count).sum();
+
+    let mut rows = vec![AccountPanelRow {
+        kind: "all".into(),
+        group_kind: "".into(),
+        account_type: "".into(),
+        id: -1,
+        label: i18n::text(language, Key::AllAccounts).into(),
+        secondary: "".into(),
+        detail: "".into(),
+        name: "".into(),
+        delete_text: "".into(),
+        selected: state.selection == app::AccountSelection::All,
+        collapsed: false,
+        new_count: i32::try_from(all_new).unwrap_or(i32::MAX),
+        totals: accounts_amounts(&state.grand_total, &all_accounts, language, state.grand_total.len() > 1),
+        indent: false,
+    }];
+
+    for group in &state.groups {
+        let matching: Vec<&GroupingAccount> = group
+            .accounts
+            .iter()
+            .filter(|account| visible.contains(&account.id))
+            .collect();
+        if filtering && matching.is_empty() {
+            continue;
+        }
+        let collapsed = state.collapsed.contains(&group.key.id());
+        let selected = match &state.selection {
+            app::AccountSelection::Group(key) => key.id() == group.key.id(),
+            _ => false,
+        };
+        let (group_kind, account_type, id, name) = match &group.key {
+            GroupKey::Type(account_type) => ("type", account_type.as_str(), -1, String::new()),
+            GroupKey::Custom(group_id) => (
+                "custom",
+                "",
+                i32::try_from(group_id.0).unwrap_or(-1),
+                group.name.clone().unwrap_or_default(),
+            ),
+        };
+        let label = group
+            .name
+            .clone()
+            .unwrap_or_else(|| accounts_type_label(account_type, language));
+        let delete_text = if group_kind == "custom" {
+            i18n::format(language, Key::DeleteGroupText, &[Arg::from(name.as_str())])
+        } else {
+            String::new()
+        };
+        rows.push(AccountPanelRow {
+            kind: "group".into(),
+            group_kind: group_kind.into(),
+            account_type: account_type.into(),
+            id,
+            label: label.into(),
+            secondary: "".into(),
+            detail: "".into(),
+            name: name.into(),
+            delete_text: delete_text.into(),
+            selected,
+            collapsed,
+            new_count: i32::try_from(group.new_count).unwrap_or(i32::MAX),
+            totals: accounts_amounts(&group.totals, &group.accounts, language, false),
+            indent: false,
+        });
+
+        if collapsed {
+            continue;
+        }
+        for account in matching {
+            let Some(full) = state.accounts.iter().find(|item| item.id == account.id) else {
+                continue;
+            };
+            let secondary = if full.name.is_some() {
+                accounts_digits(full)
+                    .map(|digits| format!("…{digits}"))
+                    .unwrap_or_default()
+            } else {
+                String::new()
+            };
+            let detail = full
+                .last_update
+                .map(|updated| i18n::format(language, Key::LastFetched, &[Arg::from(format::date(updated.date()))]))
+                .unwrap_or_default();
+            rows.push(AccountPanelRow {
+                kind: "account".into(),
+                group_kind: "".into(),
+                account_type: account.account_type.clone().into(),
+                id: i32::try_from(account.id.0).unwrap_or(-1),
+                label: accounts_label(full, language).into(),
+                secondary: secondary.into(),
+                detail: detail.into(),
+                name: "".into(),
+                delete_text: "".into(),
+                selected: state.selection == app::AccountSelection::Account(account.id),
+                collapsed: false,
+                new_count: i32::try_from(account.new_count).unwrap_or(i32::MAX),
+                totals: ModelRc::new(VecModel::from(vec![AccountAmount {
+                    text: format::money(account.balance, language, false).into(),
+                    tone: accounts_tone_code(account_grouping::balance_tone(
+                        &group.accounts,
+                        account.balance.currency,
+                    ))
+                    .into(),
+                }])),
+                indent: true,
+            });
+        }
+    }
+    rows
+}
+
+fn accounts_shown_text(state: &AccountsState, language: Language) -> String {
+    if state.account_filter_text.trim().is_empty() {
+        return String::new();
+    }
+    i18n::format(
+        language,
+        Key::AccountsShown,
+        &[state.filtered_accounts().len().into(), state.accounts.len().into()],
+    )
+}
+
+fn accounts_detail_title(detail: &AccountDetail, language: Language) -> String {
+    let label = accounts_label(&detail.account, language);
+    if detail.account.bank_name.is_empty() {
+        label
+    } else {
+        format!("{} · {label}", detail.account.bank_name)
+    }
+}
+
+fn accounts_balance_path(history: &[(Date, Money)], language: Language) -> (String, String, String) {
+    if history.is_empty() {
+        return (String::new(), String::new(), String::new());
+    }
+    let low = history.iter().map(|(_, money)| money.minor).min().unwrap_or_default();
+    let high = history.iter().map(|(_, money)| money.minor).max().unwrap_or_default();
+    let currency = history[0].1.currency;
+    let span = high - low;
+    let mut path = String::new();
+    for (index, (_, money)) in history.iter().enumerate() {
+        let x = if history.len() > 1 {
+            index as f32 / (history.len() - 1) as f32 * 700.0
+        } else {
+            350.0
+        };
+        let ratio = if span == 0 {
+            0.5
+        } else {
+            (money.minor - low) as f32 / span as f32
+        };
+        let y = 6.0 + (1.0 - ratio) * 188.0;
+        if index == 0 {
+            path.push_str(&format!("M {x:.2} {y:.2}"));
+        } else {
+            path.push_str(&format!(" L {x:.2} {y:.2}"));
+        }
+    }
+    (
+        path,
+        format::whole_money(Money { minor: high, currency }, language),
+        format::whole_money(Money { minor: low, currency }, language),
+    )
+}
+
+fn accounts_grouping(account: &AccountItem) -> GroupingAccount {
+    GroupingAccount {
+        id: account.id,
+        name: account.name.clone(),
+        currency: account.currency,
+        balance: account.balance,
+        account_type: account.account_type.clone(),
+        group_id: account.group_id,
+        new_count: account.new_count,
+    }
+}
+
+fn accounts_label(account: &AccountItem, language: Language) -> String {
+    if let Some(name) = account.name.as_deref().map(str::trim).filter(|name| !name.is_empty()) {
+        return name.to_owned();
+    }
+    let account_type = accounts_type_label(&account.account_type, language);
+    match accounts_digits(account) {
+        Some(digits) => format!("{account_type} …{digits}"),
+        None => account_type,
+    }
+}
+
+fn accounts_digits(account: &AccountItem) -> Option<String> {
+    let source = if !account.iban.trim().is_empty() {
+        account.iban.trim()
+    } else {
+        account.account_number.as_deref().unwrap_or("").trim()
+    };
+    if source.is_empty() {
+        return None;
+    }
+    let count = source.chars().count();
+    Some(source.chars().skip(count.saturating_sub(4)).collect())
+}
+
+fn accounts_subtitle(account: &AccountItem, language: Language) -> String {
+    let display = if !account.iban.trim().is_empty() {
+        account_ids::display(account.iban.trim())
+    } else {
+        account
+            .account_number
+            .as_deref()
+            .map(str::trim)
+            .filter(|number| !number.is_empty())
+            .map(str::to_owned)
+            .unwrap_or_default()
+    };
+    let mut subtitle = match (account.name.is_some(), display.is_empty()) {
+        (true, false) => format!("{} · {display}", accounts_type_label(&account.account_type, language)),
+        (true, true) => accounts_type_label(&account.account_type, language),
+        (false, _) => display,
+    };
+    if let Some(updated) = account.last_update {
+        let fetched = i18n::format(language, Key::LastFetched, &[Arg::from(format::date(updated.date()))]);
+        if subtitle.is_empty() {
+            subtitle = fetched;
+        } else {
+            subtitle.push_str(" · ");
+            subtitle.push_str(&fetched);
+        }
+    }
+    subtitle
+}
+
+fn accounts_identifier(account: &AccountItem) -> String {
+    if !account.iban.trim().is_empty() {
+        account_ids::display(account.iban.trim())
+    } else {
+        account
+            .account_number
+            .as_deref()
+            .map(str::trim)
+            .filter(|number| !number.is_empty())
+            .map(str::to_owned)
+            .unwrap_or_default()
+    }
+}
+
+fn accounts_type_label(account_type: &str, language: Language) -> String {
+    let key = match account_type {
+        "checking" => Some(Key::TypeChecking),
+        "savings" => Some(Key::TypeSavings),
+        "credit_card" => Some(Key::TypeCreditCard),
+        LOAN_TYPE => Some(Key::TypeLoan),
+        "depot" => Some(Key::TypeDepot),
+        _ => None,
+    };
+    key.map(|key| i18n::text(language, key).to_owned())
+        .unwrap_or_else(|| account_type.to_owned())
+}
+
+fn accounts_tone(account: &AccountItem) -> &'static str {
+    accounts_tone_code(account_grouping::balance_tone_value(
+        account.balance,
+        account.account_type == LOAN_TYPE,
+    ))
+}
+
+fn accounts_tone_code(tone: BalanceTone) -> &'static str {
+    match tone {
+        BalanceTone::Positive => "positive",
+        BalanceTone::Negative => "negative",
+        BalanceTone::Loan => "loan",
+        BalanceTone::Zero => "zero",
+    }
+}
+
+fn accounts_days_label(days: i64, language: Language) -> String {
+    if days == 365 {
+        i18n::text(language, Key::OneYear).to_owned()
+    } else {
+        i18n::format(language, Key::DaysCount, &[days.into()])
+    }
 }

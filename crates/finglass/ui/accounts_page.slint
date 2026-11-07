@@ -1,0 +1,1168 @@
+import { ComboBox, LineEdit, ScrollView, Spinner } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import {
+    AccountDaysChoice,
+    AccountDetailRow,
+    AccountsBankCard,
+    AccountTypeChoice,
+    AccountsFigure,
+    AccountTone,
+    BankAccountRow,
+    ChoiceChip,
+    CountBadge,
+    PrimaryButton,
+    TextButton,
+} from "components.slint";
+
+// A labelled group of figures in the page header.
+component FigureView inherits VerticalLayout {
+    in property <AccountsFigure> figure;
+
+    spacing: 2px;
+    alignment: start;
+
+    Text {
+        text: root.figure.label;
+        color: Theme.muted-text;
+        font-size: 12px;
+        overflow: elide;
+    }
+
+    for amount in root.figure.values : Text {
+        text: amount.text;
+        color: root.figure.secondary ? Theme.muted-text : AccountTone.amount-color(amount.tone);
+        font-size: root.figure.secondary ? 18px : 24px;
+        font-weight: 600;
+        overflow: elide;
+    }
+}
+
+// A centred dialog card on a dimmed background.
+component ModalCard inherits Rectangle {
+    in property <string> title;
+    in property <length> dialog-width: 480px;
+
+    width: root.dialog-width;
+    height: content.preferred-height;
+    background: Theme.surface;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    content := VerticalLayout {
+        padding: 24px;
+        spacing: 10px;
+
+        Text {
+            text: root.title;
+            color: Theme.text;
+            font-size: 22px;
+            font-weight: 600;
+            wrap: word-wrap;
+        }
+
+        @children
+    }
+}
+
+// One account inside a bank card, with its inline action strip.
+component BankAccountView inherits Rectangle {
+    in property <BankAccountRow> account;
+
+    callback open-detail;
+    callback rename-account;
+    callback edit-balance;
+    callback forget-deleted;
+    callback delete-account;
+
+    property <bool> menu-open: false;
+
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 0px;
+
+        Rectangle {
+            height: 52px;
+            background: touch.has-hover ? Theme.background : transparent;
+
+            touch := TouchArea {
+                clicked => {
+                    root.menu-open = false;
+                    root.open-detail();
+                }
+            }
+
+            HorizontalLayout {
+                padding-left: 6px;
+                padding-right: 6px;
+                spacing: 8px;
+
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 1px;
+
+                    Text {
+                        text: root.account.name;
+                        color: Theme.text;
+                        font-size: 14px;
+                        font-weight: root.account.new-count > 0 ? 700 : 500;
+                        overflow: elide;
+                    }
+
+                    Text {
+                        text: root.account.subtitle;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        overflow: elide;
+                    }
+                }
+
+                CountBadge {
+                    count: root.account.new-count;
+                    selected: false;
+                }
+
+                Text {
+                    text: root.account.balance-text;
+                    color: AccountTone.amount-color(root.account.tone);
+                    font-size: 15px;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                    horizontal-alignment: right;
+                }
+
+                Rectangle {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 12px;
+                    background: dot.has-hover ? Theme.divider : transparent;
+
+                    Text {
+                        text: "⋯";
+                        color: Theme.muted-text;
+                        font-size: 16px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+
+                    dot := TouchArea {
+                        clicked => {
+                            root.menu-open = !root.menu-open;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (root.menu-open) : Rectangle {
+            height: actions.preferred-height;
+            background: Theme.background;
+
+            actions := HorizontalLayout {
+                padding-left: 6px;
+                padding-right: 6px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                spacing: 10px;
+                alignment: start;
+
+                TextButton {
+                    text: Tr.t("MenuDetails");
+                    clicked => {
+                        root.menu-open = false;
+                        root.open-detail();
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("RenameAccount");
+                    clicked => {
+                        root.menu-open = false;
+                        root.rename-account();
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("EditBalance");
+                    clicked => {
+                        root.menu-open = false;
+                        root.edit-balance();
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("AllowDeletedAgain");
+                    clicked => {
+                        root.menu-open = false;
+                        root.forget-deleted();
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("DeleteAccount");
+                    clicked => {
+                        root.menu-open = false;
+                        root.delete-account();
+                    }
+                }
+            }
+        }
+    }
+}
+
+// One bank connection (or the accounts without a bank) with its account rows.
+component BankCardView inherits Rectangle {
+    in property <AccountsBankCard> card;
+
+    callback toggle;
+    callback add-account;
+    callback remove-bank;
+    callback open-detail(int);
+    callback open-rename(int);
+    callback open-balance(int);
+    callback forget-deleted(int);
+    callback delete-account(int);
+
+    height: card-content.preferred-height;
+    background: Theme.surface;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    card-content := VerticalLayout {
+        padding: 16px;
+        spacing: 8px;
+        alignment: start;
+
+        HorizontalLayout {
+            spacing: 8px;
+
+            if (root.card.bank-id >= 0) : Rectangle {
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background: chevron.has-hover ? Theme.divider : transparent;
+
+                Text {
+                    text: root.card.collapsed ? "▸" : "▾";
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                chevron := TouchArea {
+                    clicked => {
+                        root.toggle();
+                    }
+                }
+            }
+
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                spacing: 1px;
+
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    Text {
+                        text: root.card.name;
+                        color: Theme.text;
+                        font-size: 15px;
+                        font-weight: 600;
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                    }
+
+                    if (root.card.collapsed) : Text {
+                        text: root.card.account-count-text;
+                        color: Theme.muted-text;
+                        font-size: 11px;
+                        vertical-alignment: center;
+                    }
+
+                    if (root.card.collapsed) : VerticalLayout {
+                        spacing: 0px;
+                        alignment: end;
+
+                        for amount in root.card.totals : Text {
+                            text: amount.text;
+                            color: AccountTone.amount-color(amount.tone);
+                            font-size: 12px;
+                            font-weight: 600;
+                            horizontal-alignment: right;
+                        }
+                    }
+                }
+
+                if (root.card.subtitle != "") : Text {
+                    text: root.card.subtitle;
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    overflow: elide;
+                }
+            }
+
+            if (root.card.bank-id >= 0) : TextButton {
+                text: "+ " + Tr.t("AddAccountShort");
+                clicked => {
+                    root.add-account();
+                }
+            }
+
+            if (root.card.bank-id >= 0 && root.card.offline) : TextButton {
+                text: Tr.t("RemoveBank");
+                clicked => {
+                    root.remove-bank();
+                }
+            }
+        }
+
+        if (!root.card.collapsed) : Rectangle {
+            height: 1px;
+            background: Theme.divider;
+        }
+
+        if (!root.card.collapsed) : VerticalLayout {
+            spacing: 0px;
+
+            if (root.card.accounts.length == 0) : Text {
+                text: Tr.t("NoAccountsYet");
+                color: Theme.muted-text;
+                font-size: 13px;
+            }
+
+            for account in root.card.accounts : BankAccountView {
+                account: account;
+                open-detail => {
+                    root.open-detail(account.account-id);
+                }
+                rename-account => {
+                    root.open-rename(account.account-id);
+                }
+                edit-balance => {
+                    root.open-balance(account.account-id);
+                }
+                forget-deleted => {
+                    root.forget-deleted(account.account-id);
+                }
+                delete-account => {
+                    root.delete-account(account.account-id);
+                }
+            }
+        }
+    }
+}
+
+// The empty accounts page: no bank and no account yet.
+component EmptyAccounts inherits Rectangle {
+    callback add-bank;
+
+    vertical-stretch: 1;
+    background: transparent;
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 12px;
+
+        HorizontalLayout {
+            alignment: center;
+
+            Rectangle {
+                width: 64px;
+                height: 56px;
+                background: transparent;
+
+                Path {
+                    commands: "M 8 24 L 32 8 L 56 24 Z M 14 24 L 14 48 L 20 48 L 20 24 Z M 26 24 L 26 48 L 32 48 L 32 24 Z M 38 24 L 38 48 L 44 48 L 44 24 Z M 50 24 L 50 48 L 56 48 L 56 24 Z M 8 48 L 56 48 L 56 54 L 8 54 Z";
+                    fill: Theme.muted-text;
+                }
+            }
+        }
+
+        Text {
+            text: Tr.t("NoBanksYet");
+            color: Theme.text;
+            font-size: 18px;
+            font-weight: 600;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            width: 620px;
+            text: Tr.t("NoBanksDescription");
+            color: Theme.muted-text;
+            font-size: 13px;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+
+        HorizontalLayout {
+            alignment: center;
+
+            PrimaryButton {
+                width: 150px;
+                text: Tr.t("AddBank");
+                clicked => {
+                    root.add-bank();
+                }
+            }
+        }
+    }
+}
+
+// The Accounts page: the header figures and the bank cards across the full width.
+export component AccountsPage inherits Rectangle {
+    in property <bool> loading;
+    in property <bool> show-content;
+    in property <bool> has-content;
+    in property <string> error-text;
+    in property <string> message-text;
+
+    in property <[AccountsFigure]> figures;
+    in property <[AccountsBankCard]> bank-cards;
+
+    in property <[AccountTypeChoice]> type-choices;
+    in property <[string]> currency-codes;
+    in property <[AccountDaysChoice]> days-choices;
+
+    in property <string> dialog;
+    in property <string> dialog-title;
+    in property <string> dialog-text;
+    in property <string> dialog-account-label;
+    in property <string> dialog-account-name;
+    in property <string> dialog-balance;
+    in property <string> dialog-error;
+    in property <string> dialog-account-type;
+    in property <bool> dialog-offline;
+    in property <int> dialog-bank-id;
+    in property <int> dialog-account-id;
+
+    in property <bool> detail-open;
+    in property <string> detail-title;
+    in property <string> detail-subtitle;
+    in property <string> detail-balance;
+    in property <string> detail-tone;
+    in property <int> detail-account-id;
+    in property <int> detail-days;
+    in property <string> detail-summary;
+    in property <string> detail-path;
+    in property <string> detail-axis-top;
+    in property <string> detail-axis-bottom;
+    in property <[AccountDetailRow]> detail-rows;
+
+    callback open-add-bank;
+    callback close-dialog;
+    callback submit-add-bank(string);
+    callback open-add-account(int);
+    callback submit-add-account(int, string, string, string, string, string);
+    callback open-balance(int);
+    callback submit-balance(int, string, string);
+    callback open-rename(int);
+    callback submit-rename(int, string);
+    callback open-delete-account(int);
+    callback confirm-delete-account(int);
+    callback open-delete-bank(int);
+    callback confirm-delete-bank(int);
+    callback close-detail;
+    callback select-days(int, int);
+    callback toggle-bank(int);
+    callback forget-deleted(int);
+    callback dismiss-message;
+    callback open-detail(int);
+
+    property <string> add-bank-name: "";
+    property <string> add-account-name: "";
+    property <string> add-account-identifier: "";
+    property <string> add-account-balance: "0";
+    property <string> form-type-code: "checking";
+    property <string> form-currency: "EUR";
+    property <string> balance-input;
+    property <string> balance-type-code: "checking";
+    property <string> rename-input;
+
+    changed dialog => {
+        root.add-bank-name = "";
+        root.add-account-name = "";
+        root.add-account-identifier = "";
+        root.add-account-balance = "0";
+        root.form-type-code = root.dialog-account-type;
+        root.form-currency = "EUR";
+        root.balance-input = root.dialog-balance;
+        root.balance-type-code = root.dialog-account-type;
+        root.rename-input = root.dialog-account-name;
+    }
+
+    // The adapter sets the values before it opens the dialog; these handlers also fill the forms when a
+    // caller sets only the value (for example the screenshot test).
+    changed dialog-account-type => {
+        root.form-type-code = root.dialog-account-type;
+        root.balance-type-code = root.dialog-account-type;
+    }
+
+    changed dialog-balance => {
+        root.balance-input = root.dialog-balance;
+    }
+
+    changed dialog-account-name => {
+        root.rename-input = root.dialog-account-name;
+    }
+
+    background: Theme.background;
+
+    VerticalLayout {
+        padding: 24px;
+        spacing: 16px;
+
+        if (root.show-content) : HorizontalLayout {
+            spacing: 32px;
+
+            for figure in root.figures : FigureView {
+                figure: figure;
+            }
+
+            Rectangle {
+                horizontal-stretch: 1;
+                background: transparent;
+            }
+
+            PrimaryButton {
+                text: Tr.t("AddBank");
+                clicked => {
+                    root.open-add-bank();
+                }
+            }
+        }
+
+        if (root.error-text != "" || root.message-text != "") : Rectangle {
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: root.error-text != "" ? Theme.error : Theme.success;
+
+            HorizontalLayout {
+                padding: 12px;
+                spacing: 12px;
+
+                Text {
+                    text: root.error-text != "" ? root.error-text : root.message-text;
+                    color: root.error-text != "" ? Theme.error : Theme.success;
+                    font-size: 13px;
+                    vertical-alignment: center;
+                    wrap: word-wrap;
+                    horizontal-stretch: 1;
+                }
+
+                TextButton {
+                    text: Tr.t("Dismiss");
+                    clicked => {
+                        root.dismiss-message();
+                    }
+                }
+            }
+        }
+
+        if (root.loading && !root.has-content) : Rectangle {
+            vertical-stretch: 1;
+            background: transparent;
+
+            Spinner {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        if (!root.loading && !root.has-content) : EmptyAccounts {
+            add-bank => {
+                root.open-add-bank();
+            }
+        }
+
+        if (root.has-content) : ScrollView {
+            vertical-stretch: 1;
+
+            VerticalLayout {
+                spacing: 16px;
+
+                for card in root.bank-cards : BankCardView {
+                    card: card;
+                    toggle => {
+                        root.toggle-bank(card.bank-id);
+                    }
+                    add-account => {
+                        root.open-add-account(card.bank-id);
+                    }
+                    remove-bank => {
+                        root.open-delete-bank(card.bank-id);
+                    }
+                    open-detail(account-id) => {
+                        root.open-detail(account-id);
+                    }
+                    open-rename(account-id) => {
+                        root.open-rename(account-id);
+                    }
+                    open-balance(account-id) => {
+                        root.open-balance(account-id);
+                    }
+                    forget-deleted(account-id) => {
+                        root.forget-deleted(account-id);
+                    }
+                    delete-account(account-id) => {
+                        root.open-delete-account(account-id);
+                    }
+                }
+            }
+        }
+    }
+
+    // The account detail panel.
+    if (root.detail-open) : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #00000080;
+
+        Rectangle {
+            width: 780px;
+            height: min(detail-content.preferred-height, parent.height - 48px);
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            background: Theme.surface;
+            border-radius: 12px;
+            border-width: 1px;
+            border-color: Theme.divider;
+
+            ScrollView {
+                detail-content := VerticalLayout {
+                    padding: 24px;
+                    spacing: 12px;
+
+                Text {
+                    text: root.detail-title;
+                    color: Theme.text;
+                    font-size: 20px;
+                    font-weight: 600;
+                    wrap: word-wrap;
+                }
+
+                HorizontalLayout {
+                    spacing: 16px;
+
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        spacing: 2px;
+
+                        Text {
+                            text: root.detail-subtitle;
+                            color: Theme.muted-text;
+                            font-size: 12px;
+                            overflow: elide;
+                        }
+
+                        Text {
+                            text: root.detail-balance;
+                            color: AccountTone.amount-color(root.detail-tone);
+                            font-size: 24px;
+                            font-weight: 700;
+                        }
+                    }
+
+                    for day in root.days-choices : ChoiceChip {
+                        label: day.label;
+                        selected: day.days == root.detail-days;
+                        clicked => {
+                            root.select-days(root.detail-account-id, day.days);
+                        }
+                    }
+                }
+
+                Text {
+                    text: root.detail-summary;
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                }
+
+                // The axis sits left of the line: highest balance at the top, lowest at the bottom.
+                HorizontalLayout {
+                    width: 700px;
+                    height: 200px;
+                    spacing: 8px;
+
+                    VerticalLayout {
+                        width: 64px;
+
+                        Text {
+                            text: root.detail-axis-top;
+                            color: Theme.muted-text;
+                            font-size: 11px;
+                            horizontal-alignment: right;
+                        }
+
+                        Rectangle {
+                            vertical-stretch: 1;
+                        }
+
+                        Text {
+                            text: root.detail-axis-bottom;
+                            color: Theme.muted-text;
+                            font-size: 11px;
+                            horizontal-alignment: right;
+                        }
+                    }
+
+                    Rectangle {
+                        horizontal-stretch: 1;
+                        background: transparent;
+
+                        Path {
+                            commands: root.detail-path;
+                            stroke: Theme.primary;
+                            stroke-width: 2px;
+                            fill: transparent;
+                        }
+                    }
+                }
+
+                Text {
+                    text: Tr.t("RecentBookings");
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                if (root.detail-rows.length == 0) : Text {
+                    text: Tr.t("NoneInPeriod");
+                    color: Theme.muted-text;
+                    font-size: 13px;
+                }
+
+                for booking in root.detail-rows : HorizontalLayout {
+                    spacing: 12px;
+
+                    Text {
+                        text: booking.date-text;
+                        width: 90px;
+                        color: Theme.muted-text;
+                        font-size: 12px;
+                        vertical-alignment: center;
+                    }
+
+                    Text {
+                        text: booking.title;
+                        color: Theme.text;
+                        font-size: 12px;
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                    }
+
+                    Text {
+                        text: booking.amount-text;
+                        color: booking.expense ? Theme.error : Theme.success;
+                        font-size: 12px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                        horizontal-alignment: right;
+                    }
+                }
+
+                Text {
+                    text: Tr.t("HistoryReconstructed");
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                    wrap: word-wrap;
+                }
+
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+
+                    TextButton {
+                        text: Tr.t("RenameAccount");
+                        clicked => {
+                            root.open-rename(root.detail-account-id);
+                        }
+                    }
+
+                    TextButton {
+                        text: Tr.t("Close");
+                        clicked => {
+                            root.close-detail();
+                        }
+                    }
+                }
+            }
+            }
+        }
+    }
+
+    // The dialogs sit above the detail panel.
+    if (root.dialog != "") : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #00000080;
+
+        if (root.dialog == "add-bank") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: Tr.t("AddBank");
+
+            Text {
+                text: Tr.t("BankOfflineMode");
+                color: Theme.muted-text;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+
+            Text {
+                text: Tr.t("BankName");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.add-bank-name;
+                accepted(text) => {
+                    if (text != "") {
+                        root.submit-add-bank(text);
+                    }
+                }
+            }
+
+            if (root.dialog-error != "") : Text {
+                text: root.dialog-error;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Add");
+                    enabled: root.add-bank-name != "";
+                    clicked => {
+                        root.submit-add-bank(root.add-bank-name);
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+
+        if (root.dialog == "add-account") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: root.dialog-title;
+            dialog-width: 540px;
+
+            Text {
+                text: Tr.t("AccountName");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.add-account-name;
+            }
+
+            Text {
+                text: root.dialog-offline ? Tr.t("IbanOrCardLast4") : Tr.t("Iban");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.add-account-identifier;
+            }
+
+            Text {
+                text: Tr.t("AccountTypeLabel");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            HorizontalLayout {
+                spacing: 6px;
+
+                for choice in root.type-choices : ChoiceChip {
+                    label: choice.label;
+                    selected: root.form-type-code == choice.code;
+                    clicked => {
+                        root.form-type-code = choice.code;
+                    }
+                }
+            }
+
+            Text {
+                text: Tr.t("ColCurrency");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            ComboBox {
+                model: root.currency-codes;
+                current-value <=> root.form-currency;
+            }
+
+            Text {
+                text: Tr.t("ColBalance");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.add-account-balance;
+            }
+
+            if (root.form-type-code == "loan") : Text {
+                text: Tr.t("LoanBalanceHint");
+                color: Theme.muted-text;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+
+            if (root.dialog-error != "") : Text {
+                text: root.dialog-error;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Add");
+                    enabled: root.add-account-identifier != "" && root.add-account-balance != "";
+                    clicked => {
+                        root.submit-add-account(
+                            root.dialog-bank-id,
+                            root.add-account-name,
+                            root.add-account-identifier,
+                            root.form-type-code,
+                            root.form-currency,
+                            root.add-account-balance,
+                        );
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+
+        if (root.dialog == "balance") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: Tr.t("UpdateBalance");
+
+            Text {
+                text: root.dialog-account-label;
+                color: Theme.muted-text;
+                font-size: 12px;
+                overflow: elide;
+            }
+
+            Text {
+                text: Tr.t("AccountTypeLabel");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            HorizontalLayout {
+                spacing: 6px;
+
+                for choice in root.type-choices : ChoiceChip {
+                    label: choice.label;
+                    selected: root.balance-type-code == choice.code;
+                    clicked => {
+                        root.balance-type-code = choice.code;
+                    }
+                }
+            }
+
+            Text {
+                text: Tr.t("ColBalance");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.balance-input;
+                accepted(text) => {
+                    if (text != "") {
+                        root.submit-balance(root.dialog-account-id, text, root.balance-type-code);
+                    }
+                }
+            }
+
+            if (root.balance-type-code == "loan") : Text {
+                text: Tr.t("LoanBalanceHint");
+                color: Theme.muted-text;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+
+            if (root.dialog-error != "") : Text {
+                text: root.dialog-error;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    enabled: root.balance-input != "";
+                    clicked => {
+                        root.submit-balance(root.dialog-account-id, root.balance-input, root.balance-type-code);
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+
+        if (root.dialog == "rename") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: Tr.t("RenameAccount");
+
+            Text {
+                text: Tr.t("AccountName");
+                color: Theme.text;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            LineEdit {
+                text <=> root.rename-input;
+                accepted(text) => {
+                    root.submit-rename(root.dialog-account-id, text);
+                }
+            }
+
+            if (root.dialog-error != "") : Text {
+                text: root.dialog-error;
+                color: Theme.error;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    clicked => {
+                        root.submit-rename(root.dialog-account-id, root.rename-input);
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+
+        if (root.dialog == "delete-account") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: root.dialog-title;
+
+            Text {
+                text: root.dialog-text;
+                color: Theme.muted-text;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("Delete");
+                    clicked => {
+                        root.confirm-delete-account(root.dialog-account-id);
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+
+        if (root.dialog == "delete-bank") : ModalCard {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            title: root.dialog-title;
+
+            Text {
+                text: root.dialog-text;
+                color: Theme.muted-text;
+                font-size: 13px;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+                alignment: start;
+
+                PrimaryButton {
+                    text: Tr.t("RemoveBank");
+                    clicked => {
+                        root.confirm-delete-bank(root.dialog-bank-id);
+                    }
+                }
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
+            }
+        }
+    }
+}

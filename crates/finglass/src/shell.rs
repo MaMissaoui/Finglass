@@ -7,6 +7,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use finglass_core::app;
+use finglass_core::app::accounts::{AccountsState, Busy};
 use finglass_core::app::dashboard::DashboardState;
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::settings::SettingsState;
@@ -21,6 +22,7 @@ use slint::{ComponentHandle, ModelRc, SharedString, VecModel, Weak};
 use time::OffsetDateTime;
 use zeroize::Zeroizing;
 
+use crate::accounts;
 use crate::dashboard;
 use crate::reports::ReportsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
@@ -39,6 +41,10 @@ pub(crate) struct ShellState {
     /// The filter the dashboard or a report last asked the Transactions page to show; M4c reads it.
     pub(crate) navigation: Mutex<StartArgs>,
     pub(crate) settings: Mutex<SettingsState>,
+    pub(crate) accounts: Mutex<AccountsState>,
+    /// The Accounts page's own work guard. It is separate from the profile's busy flag, which the core reserves for
+    /// sync and import work (and reads before it allows a delete).
+    pub(crate) accounts_work: Busy,
 }
 
 /// Runs the app shell against `paths`.
@@ -60,6 +66,8 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         reports,
         navigation: Mutex::new(StartArgs::default()),
         settings: Mutex::new(SettingsState::new(initial_language)),
+        accounts: Mutex::new(AccountsState::new(initial_language)),
+        accounts_work: Busy::default(),
     });
 
     install_translations_unlock(&unlock, initial_language);
@@ -89,6 +97,9 @@ fn configure_main_window(main: &MainWindow, language: Language) {
     main.set_change_error("".into());
     main.set_audit_rows(empty_audit_model());
     crate::settings::apply(main, &SettingsState::new(language));
+    main.set_accounts_dialog("".into());
+    main.set_accounts_dialog_error("".into());
+    main.set_accounts_detail_open(false);
 }
 
 fn configure_unlock_window(unlock: &UnlockWindow, paths: &AppPaths, language: Language) {
@@ -222,6 +233,7 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 let dashboard = screen.as_str() == "dashboard";
                 let reports = screen.as_str() == "reports";
                 let settings = screen.as_str() == "settings";
+                let accounts_screen = screen.as_str() == "accounts";
                 ui.set_current_screen(screen);
                 if dashboard {
                     dashboard::spawn_load(&ui, &state, None);
@@ -232,6 +244,9 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 }
                 if settings {
                     crate::settings::spawn_load(&ui, &state, &paths);
+                }
+                if accounts_screen {
+                    accounts::spawn_load(&ui, &state);
                 }
             }
         });
@@ -343,9 +358,11 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
 
     {
         let main_weak = main.as_weak();
+        let state = state.clone();
         main.on_dashboard_open_accounts(move || {
             if let Some(ui) = main_weak.upgrade() {
                 ui.set_current_screen("accounts".into());
+                accounts::spawn_load(&ui, &state);
             }
         });
     }
@@ -408,6 +425,317 @@ fn wire_main(main: &MainWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) 
                 let mut dashboard = state.dashboard.lock().expect("dashboard state poisoned");
                 dashboard.error = None;
                 dashboard::apply(&ui, &dashboard);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_add_bank(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::open_add_bank(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_accounts_close_dialog(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::close_dialog(&ui);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_submit_add_bank(move |name| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::submit_add_bank(&ui, &state, name.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_add_account(move |bank_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::open_add_account(&ui, &state, bank_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_submit_add_account(move |bank_id, name, identifier, account_type, currency, balance| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::submit_add_account(
+                    &ui,
+                    &state,
+                    &accounts::AddAccountRequest {
+                        bank_id,
+                        name: name.as_str(),
+                        identifier: identifier.as_str(),
+                        account_type: account_type.as_str(),
+                        currency: currency.as_str(),
+                        balance: balance.as_str(),
+                    },
+                );
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_balance(move |account_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::open_balance(&ui, &state, account_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_submit_balance(move |account_id, balance, account_type| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::submit_balance(&ui, &state, account_id, balance.as_str(), account_type.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_rename(move |account_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::open_rename(&ui, &state, account_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_submit_rename(move |account_id, name| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::submit_rename(&ui, &state, account_id, name.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_delete_account(move |account_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::open_delete_account(&ui, &state, account_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_confirm_delete_account(move |account_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::confirm_delete_account(&ui, &state, account_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_delete_bank(move |bank_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::open_delete_bank(&ui, &state, bank_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_confirm_delete_bank(move |bank_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::confirm_delete_bank(&ui, &state, bank_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_close_detail(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::close_detail(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_select_days(move |account_id, days| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::select_days(&ui, &state, account_id, days);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_select(move |kind, group_kind, id, account_type| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::select(
+                    &ui,
+                    &state,
+                    kind.as_str(),
+                    group_kind.as_str(),
+                    id,
+                    account_type.as_str(),
+                );
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_toggle_group(move |kind, group_kind, id, account_type| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::toggle_group(
+                    &ui,
+                    &state,
+                    kind.as_str(),
+                    group_kind.as_str(),
+                    id,
+                    account_type.as_str(),
+                );
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_mark_read(move |kind, group_kind, id, account_type| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::mark_read(
+                    &ui,
+                    &state,
+                    kind.as_str(),
+                    group_kind.as_str(),
+                    id,
+                    account_type.as_str(),
+                );
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_toggle_bank(move |bank_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::toggle_bank(&ui, &state, bank_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_forget_deleted(move |account_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::forget_deleted(&ui, &state, account_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_new_group(move |name| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::new_group(&ui, &state, name.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_rename_group(move |id, name| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::rename_group(&ui, &state, id, name.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_delete_group(move |id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::delete_group(&ui, &state, id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_move_group(move |id, up| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::move_group(&ui, &state, id, up);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_move_account(move |account_id, group_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::move_account(&ui, &state, account_id, group_id);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_filter_changed(move |text| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::filter_changed(&ui, &state, text.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_dismiss_message(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::dismiss_message(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_accounts_open_detail(move |account_id| {
+            if let Some(ui) = main_weak.upgrade() {
+                accounts::open_detail(&ui, &state, account_id);
             }
         });
     }

@@ -1,0 +1,603 @@
+import { LineEdit, ScrollView } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Tr } from "translations.slint";
+import {
+    AccountAmount,
+    AccountGroupChoice,
+    AccountPanelRow,
+    AccountTone,
+    ChoiceChip,
+    CountBadge,
+    TextButton,
+} from "components.slint";
+
+// The per-currency totals of one row, one line per currency, primary first.
+component PanelAmounts inherits VerticalLayout {
+    in property <[AccountAmount]> amounts;
+    in property <bool> selected;
+
+    alignment: end;
+    spacing: 0px;
+
+    for amount in root.amounts : Text {
+        text: amount.text;
+        color: root.selected ? Theme.on-selected : AccountTone.amount-color(amount.tone);
+        font-size: 12px;
+        font-weight: 600;
+        horizontal-alignment: right;
+        overflow: elide;
+    }
+}
+
+component ChevronButton inherits Rectangle {
+    in property <bool> collapsed;
+
+    callback clicked;
+
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background: touch.has-hover ? Theme.divider : transparent;
+
+    Text {
+        text: root.collapsed ? "▸" : "▾";
+        color: Theme.muted-text;
+        font-size: 12px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+component DotButton inherits Rectangle {
+    callback clicked;
+
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: touch.has-hover ? Theme.divider : transparent;
+
+    Text {
+        text: "⋯";
+        color: Theme.muted-text;
+        font-size: 16px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+// One compact action in a row's action strip. Unlike TextButton it may shrink to its label.
+component PanelAction inherits Rectangle {
+    in property <string> label;
+
+    callback clicked;
+
+    height: 24px;
+    min-width: 0px;
+    background: transparent;
+
+    Text {
+        text: root.label;
+        color: touch.has-hover ? Theme.primary-hover : Theme.primary;
+        font-size: 11px;
+        font-weight: 600;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+// One row of the panel: "All accounts", a group header or an account.
+component PanelRowView inherits Rectangle {
+    in property <AccountPanelRow> item;
+
+    callback select;
+    callback toggle;
+    callback mark-read;
+    callback rename-requested(int, string);
+    callback delete-requested(int, string);
+    callback move-requested(int);
+    callback move-up;
+    callback move-down;
+
+    property <bool> actions-open: false;
+    property <bool> has-menu: root.item.new-count > 0 || root.item.kind == "account" || (root.item.kind == "group" && root.item.group-kind == "custom");
+
+    background: transparent;
+
+    VerticalLayout {
+        spacing: 0px;
+
+        Rectangle {
+            height: root.item.kind == "account" ? 42px : 36px;
+            background: root.item.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
+
+            // The row's own click target sits below the chevron and the menu button.
+            touch := TouchArea {
+                clicked => {
+                    root.select();
+                }
+            }
+
+            Rectangle {
+                visible: root.item.selected;
+                x: 0px;
+                y: 4px;
+                width: 3px;
+                height: parent.height - 8px;
+                border-radius: 2px;
+                background: Theme.primary;
+            }
+
+            HorizontalLayout {
+                padding-left: root.item.indent ? 24px : 6px;
+                padding-right: 6px;
+                spacing: 6px;
+
+                if (root.item.kind == "group") : ChevronButton {
+                    collapsed: root.item.collapsed;
+                    clicked => {
+                        root.actions-open = false;
+                        root.toggle();
+                    }
+                }
+
+                if (root.item.kind == "account") : Rectangle {
+                    width: 12px;
+                    background: transparent;
+                }
+
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 0px;
+
+                    Text {
+                        text: root.item.label;
+                        color: root.item.selected ? Theme.on-selected : Theme.text;
+                        font-size: root.item.kind == "all" ? 14px : 13px;
+                        font-weight: root.item.kind == "all" || root.item.kind == "group" ? 600 : (root.item.new-count > 0 ? 700 : 500);
+                        overflow: elide;
+                    }
+
+                    if (root.item.secondary != "") : Text {
+                        text: root.item.secondary;
+                        color: root.item.selected ? Theme.on-selected : Theme.muted-text;
+                        font-size: 10px;
+                        overflow: elide;
+                    }
+
+                    if (root.item.detail != "") : Text {
+                        text: root.item.detail;
+                        color: root.item.selected ? Theme.on-selected : Theme.muted-text;
+                        font-size: 10px;
+                        overflow: elide;
+                    }
+                }
+
+                CountBadge {
+                    count: root.item.new-count;
+                    selected: root.item.selected;
+                }
+
+                PanelAmounts {
+                    amounts: root.item.totals;
+                    selected: root.item.selected;
+                }
+
+                if (root.has-menu) : DotButton {
+                    clicked => {
+                        root.actions-open = !root.actions-open;
+                    }
+                }
+            }
+        }
+
+        if (root.actions-open) : Rectangle {
+            height: strip.preferred-height;
+            background: Theme.background;
+
+            strip := HorizontalLayout {
+                padding-left: 24px;
+                padding-right: 6px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                spacing: 10px;
+                alignment: start;
+
+                if (root.item.new-count > 0) : PanelAction {
+                    label: Tr.t("MarkAsRead");
+                    clicked => {
+                        root.actions-open = false;
+                        root.mark-read();
+                    }
+                }
+
+                if (root.item.kind == "group" && root.item.group-kind == "custom") : PanelAction {
+                    label: Tr.t("RenameGroup");
+                    clicked => {
+                        root.actions-open = false;
+                        root.rename-requested(root.item.id, root.item.name);
+                    }
+                }
+
+                if (root.item.kind == "group" && root.item.group-kind == "custom") : PanelAction {
+                    label: Tr.t("MoveUp");
+                    clicked => {
+                        root.actions-open = false;
+                        root.move-up();
+                    }
+                }
+
+                if (root.item.kind == "group" && root.item.group-kind == "custom") : PanelAction {
+                    label: Tr.t("MoveDown");
+                    clicked => {
+                        root.actions-open = false;
+                        root.move-down();
+                    }
+                }
+
+                if (root.item.kind == "group" && root.item.group-kind == "custom") : PanelAction {
+                    label: Tr.t("Delete");
+                    clicked => {
+                        root.actions-open = false;
+                        root.delete-requested(root.item.id, root.item.delete-text);
+                    }
+                }
+
+                if (root.item.kind == "account") : PanelAction {
+                    label: Tr.t("MoveToGroup");
+                    clicked => {
+                        root.actions-open = false;
+                        root.move-requested(root.item.id);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The shared account panel: filter, "All accounts" with its per-currency total, groups with their
+// accounts, and the group actions. The Transactions page reuses it later.
+export component AccountPanel inherits Rectangle {
+    in property <[AccountPanelRow]> rows;
+    in property <[AccountGroupChoice]> groups;
+    in property <string> filter-text;
+    in property <string> shown-text;
+
+    callback filter-changed(string);
+    callback select(string, string, int, string);
+    callback toggle(string, string, int, string);
+    callback mark-read(string, string, int, string);
+    callback new-group(string);
+    callback rename-group(int, string);
+    callback delete-group(int);
+    callback move-group(int, bool);
+    callback move-account(int, int);
+
+    property <bool> creating: false;
+    property <string> create-name: "";
+    property <int> renaming-id: -1;
+    property <string> rename-name: "";
+    property <int> deleting-id: -1;
+    property <string> deleting-text: "";
+    property <int> moving-account-id: -1;
+    property <int> move-group-id: -1;
+
+    function reset-form() {
+        root.creating = false;
+        root.renaming-id = -1;
+        root.deleting-id = -1;
+        root.moving-account-id = -1;
+    }
+
+    function start-rename(id: int, name: string) {
+        root.reset-form();
+        root.renaming-id = id;
+        root.rename-name = name;
+    }
+
+    function start-delete(id: int, text: string) {
+        root.reset-form();
+        root.deleting-id = id;
+        root.deleting-text = text;
+    }
+
+    function start-move(id: int) {
+        root.reset-form();
+        root.moving-account-id = id;
+        root.move-group-id = -1;
+    }
+
+    background: Theme.surface;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: Theme.divider;
+
+    VerticalLayout {
+        padding: 8px;
+        spacing: 6px;
+
+        LineEdit {
+            placeholder-text: Tr.t("FilterAccounts");
+            text: root.filter-text;
+            edited(text) => {
+                root.filter-changed(text);
+            }
+        }
+
+        if (root.shown-text != "") : Text {
+            text: root.shown-text;
+            color: Theme.muted-text;
+            font-size: 11px;
+        }
+
+        ScrollView {
+            vertical-stretch: 1;
+
+            VerticalLayout {
+                spacing: 0px;
+
+                for panel-row in root.rows : PanelRowView {
+                    item: panel-row;
+                    select => {
+                        root.select(panel-row.kind, panel-row.group-kind, panel-row.id, panel-row.account-type);
+                    }
+                    toggle => {
+                        root.toggle(panel-row.kind, panel-row.group-kind, panel-row.id, panel-row.account-type);
+                    }
+                    mark-read => {
+                        root.mark-read(panel-row.kind, panel-row.group-kind, panel-row.id, panel-row.account-type);
+                    }
+                    rename-requested(id, name) => {
+                        root.start-rename(id, name);
+                    }
+                    delete-requested(id, text) => {
+                        root.start-delete(id, text);
+                    }
+                    move-requested(id) => {
+                        root.start-move(id);
+                    }
+                    move-up => {
+                        root.move-group(panel-row.id, true);
+                    }
+                    move-down => {
+                        root.move-group(panel-row.id, false);
+                    }
+                }
+            }
+        }
+
+        if (root.creating) : Rectangle {
+            background: Theme.background;
+            border-radius: 8px;
+            height: create-form.preferred-height;
+
+            create-form := VerticalLayout {
+                padding: 8px;
+                spacing: 6px;
+
+                Text {
+                    text: Tr.t("NewGroup");
+                    color: Theme.text;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+
+                Text {
+                    text: Tr.t("GroupName");
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                }
+
+                LineEdit {
+                    text <=> root.create-name;
+                    accepted(text) => {
+                        if (text != "") {
+                            root.new-group(text);
+                            root.reset-form();
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    PanelAction {
+                        label: Tr.t("Save");
+                        clicked => {
+                            if (root.create-name != "") {
+                                root.new-group(root.create-name);
+                                root.reset-form();
+                            }
+                        }
+                    }
+
+                    PanelAction {
+                        label: Tr.t("Cancel");
+                        clicked => {
+                            root.reset-form();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (root.renaming-id >= 0) : Rectangle {
+            background: Theme.background;
+            border-radius: 8px;
+            height: rename-form.preferred-height;
+
+            rename-form := VerticalLayout {
+                padding: 8px;
+                spacing: 6px;
+
+                Text {
+                    text: Tr.t("RenameGroup");
+                    color: Theme.text;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+
+                Text {
+                    text: Tr.t("GroupName");
+                    color: Theme.muted-text;
+                    font-size: 11px;
+                }
+
+                LineEdit {
+                    text <=> root.rename-name;
+                    accepted(text) => {
+                        if (text != "") {
+                            root.rename-group(root.renaming-id, text);
+                            root.reset-form();
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    PanelAction {
+                        label: Tr.t("Save");
+                        clicked => {
+                            if (root.rename-name != "") {
+                                root.rename-group(root.renaming-id, root.rename-name);
+                                root.reset-form();
+                            }
+                        }
+                    }
+
+                    PanelAction {
+                        label: Tr.t("Cancel");
+                        clicked => {
+                            root.reset-form();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (root.deleting-id >= 0) : Rectangle {
+            background: Theme.background;
+            border-radius: 8px;
+            height: delete-form.preferred-height;
+
+            delete-form := VerticalLayout {
+                padding: 8px;
+                spacing: 6px;
+
+                Text {
+                    text: root.deleting-text;
+                    color: Theme.text;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    PanelAction {
+                        label: Tr.t("Delete");
+                        clicked => {
+                            root.delete-group(root.deleting-id);
+                            root.reset-form();
+                        }
+                    }
+
+                    PanelAction {
+                        label: Tr.t("Cancel");
+                        clicked => {
+                            root.reset-form();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (root.moving-account-id >= 0) : Rectangle {
+            background: Theme.background;
+            border-radius: 8px;
+            height: move-form.preferred-height;
+
+            move-form := VerticalLayout {
+                padding: 8px;
+                spacing: 6px;
+
+                Text {
+                    text: Tr.t("MoveToGroup");
+                    color: Theme.text;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+
+                ChoiceChip {
+                    label: Tr.t("DefaultGroup");
+                    selected: root.move-group-id < 0;
+                    clicked => {
+                        root.move-group-id = -1;
+                    }
+                }
+
+                for group in root.groups : ChoiceChip {
+                    label: group.name;
+                    selected: root.move-group-id == group.id;
+                    clicked => {
+                        root.move-group-id = group.id;
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+
+                    PanelAction {
+                        label: Tr.t("Save");
+                        clicked => {
+                            root.move-account(root.moving-account-id, root.move-group-id);
+                            root.reset-form();
+                        }
+                    }
+
+                    PanelAction {
+                        label: Tr.t("Cancel");
+                        clicked => {
+                            root.reset-form();
+                        }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 1px;
+            background: Theme.divider;
+        }
+
+        TextButton {
+            text: Tr.t("NewGroup");
+            clicked => {
+                root.reset-form();
+                root.creating = true;
+            }
+        }
+    }
+}
