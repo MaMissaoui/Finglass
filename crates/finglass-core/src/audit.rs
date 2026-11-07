@@ -2,6 +2,7 @@
 //!
 //! Every user-visible change is recorded here. Details must never contain secrets or bank message text.
 
+use rusqlite::Connection;
 use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
 
@@ -59,17 +60,23 @@ pub struct AuditEntry {
 ///
 /// `details` must never contain secrets or bank message text.
 pub fn log(db: &Database, action: &str, actor: Actor, details: &str) -> Result<(), DbError> {
+    db.with_conn(|conn| log_conn(conn, action, actor, details))
+}
+
+/// Appends an entry through an existing connection.
+///
+/// The repository layer uses this inside a transaction, where [`log`] cannot be used because the database mutex is
+/// not re-entrant. `details` must never contain secrets or bank message text.
+pub fn log_conn(conn: &Connection, action: &str, actor: Actor, details: &str) -> Result<(), DbError> {
     let now = OffsetDateTime::now_utc()
         .format(&Rfc3339)
         .map_err(|err| DbError::Io(std::io::Error::other(err)))?;
 
-    db.with_conn(|conn| {
-        conn.execute(
-            "INSERT INTO audit_log (at, action, actor, details) VALUES (?1, ?2, ?3, ?4)",
-            (now, action, actor.as_str(), details),
-        )?;
-        Ok(())
-    })
+    conn.execute(
+        "INSERT INTO audit_log (at, action, actor, details) VALUES (?1, ?2, ?3, ?4)",
+        (now, action, actor.as_str(), details),
+    )?;
+    Ok(())
 }
 
 /// Reads the newest entries first.
