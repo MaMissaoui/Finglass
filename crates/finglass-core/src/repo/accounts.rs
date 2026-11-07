@@ -6,7 +6,7 @@ use time::OffsetDateTime;
 use crate::audit::{self, Actor};
 use crate::db::Database;
 use crate::model::{Account, AccountGroupId, AccountId, AccountType, BankConnectionId, NewAccount};
-use crate::money::Money;
+use crate::money::{Currency, Money};
 
 use super::{RepoError, Result, format_timestamp, id_and_name, id_only, in_conn, parse_currency, parse_timestamp};
 
@@ -254,6 +254,50 @@ pub fn set_account_type(db: &Database, id: AccountId, account_type: AccountType)
     })
 }
 
+/// Changes an account's currency and its balance in one transaction, with one audit entry.
+///
+/// The sync uses this when the old EUR fallback stored the wrong currency. An unchanged currency stores nothing and
+/// writes no audit entry. The details use the account id only, never an IBAN.
+pub fn set_currency(
+    db: &Database,
+    id: AccountId,
+    currency: Currency,
+    balance: Money,
+    at: OffsetDateTime,
+) -> Result<bool> {
+    if balance.currency != currency {
+        return Err(RepoError::CurrencyMismatch);
+    }
+    in_conn(db, |conn| {
+        let transaction = conn.unchecked_transaction()?;
+        let previous: Option<String> = transaction
+            .query_row("SELECT currency FROM accounts WHERE id = ?1", [id.0], |row| row.get(0))
+            .optional()?;
+        let Some(previous) = previous else {
+            return Err(RepoError::NotFound);
+        };
+
+        if parse_currency(&previous)? == currency {
+            return Ok(false);
+        }
+
+        let at = format_timestamp(at)?;
+        transaction.execute(
+            "UPDATE accounts SET currency = ?1, balance_minor = ?2, balance_updated_at = ?3 WHERE id = ?4",
+            params![currency.as_str(), balance.minor, at, id.0],
+        )?;
+        audit::log_conn(
+            &transaction,
+            "CORRECT_ACCOUNT_CURRENCY",
+            Actor::User,
+            &format!("Account {}: {previous} -> {}", id.0, currency.as_str()),
+        )?;
+        transaction.commit()?;
+
+        Ok(true)
+    })
+}
+
 /// Deletes an account and, through the foreign keys, its bookings.
 pub fn delete(db: &Database, id: AccountId) -> Result<()> {
     in_conn(db, |conn| {
@@ -341,5 +385,51 @@ mod tests {
         let (_temp, db) = database();
         let error = set_account_type(&db, AccountId(999_999), AccountType::Loan).unwrap_err();
         assert!(matches!(error, RepoError::NotFound));
+    }
+
+    #[test]
+    fn set_currency_changes_currency_and_balance_and_audits_it_once() {
+        let (_temp, db) = database();
+        let id = account(&db, AccountType::Checking);
+        let before = audit_count(&db);
+        let chf = Currency::new("CHF").unwrap();
+
+        assert!(
+            set_currency(
+                &db,
+                id,
+                chf,
+                Money {
+                    minor: 8_850,
+                    currency: chf,
+                },
+                OffsetDateTime::now_utc(),
+            )
+            .unwrap()
+        );
+
+        let stored = get(&db, id).unwrap().unwrap();
+        assert_eq!(stored.currency, chf);
+        assert_eq!(stored.balance.minor, 8_850);
+        assert_eq!(audit_count(&db), before + 1);
+        let entry = crate::audit::recent(&db, 1).unwrap().remove(0);
+        assert_eq!(entry.action, "CORRECT_ACCOUNT_CURRENCY");
+        assert_eq!(entry.details, format!("Account {}: EUR -> CHF", id.0));
+
+        assert!(
+            !set_currency(
+                &db,
+                id,
+                chf,
+                Money {
+                    minor: 8_850,
+                    currency: chf,
+                },
+                OffsetDateTime::now_utc(),
+            )
+            .unwrap(),
+            "the same currency changes nothing"
+        );
+        assert_eq!(audit_count(&db), before + 1, "and writes no second audit entry");
     }
 }

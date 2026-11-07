@@ -166,7 +166,7 @@ pub struct BankConnection {
 }
 
 /// A bank connection as the UI shows it.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct BankAccessItem {
     /// The row id.
     pub id: BankConnectionId,
@@ -192,6 +192,26 @@ pub struct BankAccessItem {
     pub include_in_sync_all: bool,
     /// Whether this connection never goes online (statements are imported from files).
     pub offline: bool,
+}
+
+impl std::fmt::Debug for BankAccessItem {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("BankAccessItem")
+            .field("id", &self.id)
+            .field("bank_name", &self.bank_name)
+            .field("blz", &self.blz)
+            .field("bic", &self.bic)
+            .field("user_id", &"***")
+            .field("tan_method", &self.tan_method)
+            .field("server_url", &self.server_url)
+            .field("last_sync", &self.last_sync)
+            .field("capabilities", &self.capabilities)
+            .field("sync_from", &self.sync_from)
+            .field("include_in_sync_all", &self.include_in_sync_all)
+            .field("offline", &self.offline)
+            .finish()
+    }
 }
 
 /// A bank account.

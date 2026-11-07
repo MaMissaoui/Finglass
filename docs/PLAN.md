@@ -97,6 +97,13 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [ ] "Remember PIN": only in the OS credential store (`keyring`), saved only after a successful dialog, and deleted
       when it is rejected, when the login changes or when the bank is removed.
 - [ ] Bank message text is never stored unredacted, and never in the audit log.
+- [x] M5a core: `sync` (gateway port with fakes, client, service, PIN handling with profile-scoped keys and
+      `credentials/bank-<id>` markers, redaction). A server-URL change also forgets the PIN (stricter than FinDesk).
+      Booking texts are stored as the bank sent them; error, warning and note texts are masked.
+- [ ] M5b: the fints-rs adapter (after the M0 probe). Login state (system id, bank parameter data) goes into
+      `bank_connections`' server-state columns cleared by `clear_login_state`, never into a side file.
+- [ ] M5c: bank UI and the macOS Keychain store. `FinTsClient::new` gets `AppPaths::profile_dir(slug)`;
+      `delete_profile` calls `forget_pins_for_profile` before `profiles::delete`.
 
 ### M6 — Receipts and OCR
 

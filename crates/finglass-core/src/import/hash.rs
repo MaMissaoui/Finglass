@@ -37,6 +37,30 @@ pub fn transaction_hash(date: Date, amount: Decimal, partner: Option<&str>, purp
     hash
 }
 
+/// Hash for bank-imported bookings, ported from FinDesk's `FinTSClient.importHash`.
+///
+/// The discriminator is the bank's booking id, else the running balance after
+/// `stripTrailingZeros().toPlainString()`, else the prima-nota number, else empty. It keeps two identical purchases on
+/// the same day apart, while a re-fetch of the same booking keeps its hash.
+#[allow(clippy::too_many_arguments)] // Mirrors FinDesk's importHash argument list one to one.
+pub fn import_hash(
+    date: Date,
+    amount: Decimal,
+    partner_name: Option<&str>,
+    purpose: Option<&str>,
+    iban: &str,
+    bank_id: Option<&str>,
+    balance_after: Option<Decimal>,
+    prima_nota: Option<&str>,
+) -> String {
+    let discriminator = bank_id
+        .map(str::to_owned)
+        .or_else(|| balance_after.map(plain_amount))
+        .unwrap_or_else(|| prima_nota.unwrap_or("").to_owned());
+    let purpose = format!("{}#{}#{}", purpose.unwrap_or(""), iban, discriminator);
+    transaction_hash(date, amount, partner_name, Some(&purpose))
+}
+
 /// Dedup hashes for one file.
 ///
 /// Identifies a booking by its fields plus the bank reference or running balance; without either, by
@@ -243,6 +267,85 @@ mod tests {
                 Some("Bäcker"),
                 Some("Kaffee#DE89370400440532013000#file:100")
             )
+        );
+    }
+    #[test]
+    fn import_hash_uses_the_bank_id_first() {
+        // shasum -a 256 of:
+        // 2026-10-03|-45.67|REWE Markt GmbH|REWE SAGT DANKE 1234#DE89370400440532013000#booking-1
+        let expected = "cf4a97fe46f89bcde826419e4f4cd02a80351138ace839e137e006154e97987f";
+        assert_eq!(
+            import_hash(
+                date!(2026 - 10 - 03),
+                "-45.67".parse().unwrap(),
+                Some("REWE Markt GmbH"),
+                Some("REWE SAGT DANKE 1234"),
+                "DE89370400440532013000",
+                Some("booking-1"),
+                Some("949.830".parse().unwrap()),
+                Some("PN-9"),
+            ),
+            expected
+        );
+    }
+
+    #[test]
+    fn import_hash_uses_the_running_balance_when_there_is_no_bank_id() {
+        // shasum -a 256 of:
+        // 2026-10-03|-4.5|BAECKEREI|Kaffee#DE89370400440532013000#949.83
+        let expected = "46df355d0820dee9487a228a2a2f40e97c5e34a3f04017ac4e09a84255bb3ae0";
+        assert_eq!(
+            import_hash(
+                date!(2026 - 10 - 03),
+                "-4.50".parse().unwrap(),
+                Some("BAECKEREI"),
+                Some("Kaffee"),
+                "DE89370400440532013000",
+                None,
+                Some("949.830".parse().unwrap()),
+                Some("PN-9"),
+            ),
+            expected
+        );
+    }
+
+    #[test]
+    fn import_hash_uses_the_prima_nota_when_there_is_neither_id_nor_balance() {
+        // shasum -a 256 of:
+        // 2026-01-02|100||#DE44500105175407324931#PN-123
+        let expected = "23b0646bbea98f9dbca26e24589f86095798bd717d21e3737abac40cb55cae91";
+        assert_eq!(
+            import_hash(
+                date!(2026 - 01 - 02),
+                "100.00".parse().unwrap(),
+                None,
+                None,
+                "DE44500105175407324931",
+                None,
+                None,
+                Some("PN-123"),
+            ),
+            expected
+        );
+    }
+
+    #[test]
+    fn import_hash_uses_an_empty_discriminator_as_the_last_resort() {
+        // shasum -a 256 of:
+        // 2025-12-31|-0.1|Zero|#DE89370400440532013000#
+        let expected = "6b805ba4fa4c0e531d9275235b0d0581b109d0548b094fc79059348d2cadd988";
+        assert_eq!(
+            import_hash(
+                date!(2025 - 12 - 31),
+                "-0.10".parse().unwrap(),
+                Some("Zero"),
+                Some(""),
+                "DE89370400440532013000",
+                None,
+                None,
+                None,
+            ),
+            expected
         );
     }
 }
