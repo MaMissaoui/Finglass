@@ -100,10 +100,10 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 
 ### M5 — Live sync, read-only (after M0 go)
 
+- [x] M5d: bank directory lookup in the add-bank dialog: search by name, BLZ, BIC or IBAN in the Bundesbank's bank
+      code file, shipped unchanged with "Quelle: Deutsche Bundesbank"; HypoVereinsbank branches map to the central
+      FinTS BLZ (#45). Server URLs wait for the DK registration decision above.
 - [ ] Bank connections:
-  - bank directory lookup (M5d): search by name, BLZ, BIC or IBAN in the Bundesbank's bank code file, shipped
-    unchanged with "Quelle: Deutsche Bundesbank" (its terms allow passing it on unaltered). Server URLs wait for the
-    DK registration decision above;
   - TAN methods: pushTAN, photoTAN and QR; chipTAN flicker waits for M5b, since FinDesk's flicker rendering comes
     from HBCI4Java and the code's format depends on the adapter;
   - TAN media.
@@ -156,14 +156,18 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
   - [x] M8d-3: Settings entry, folder picker starting in FinDesk's data folder, passphrase, report, reload (#38).
   - [ ] Follow-up: run the empty-target check inside the import transaction, not just before it.
 
-- [ ] M8g: first-run migration from the FinDesk install on this Mac: offered once when Finglass has no data and
+- [x] M8g: first-run migration from the FinDesk install on this Mac: offered once when Finglass has no data and
       FinDesk is found; every FinDesk profile becomes a Finglass profile with the same name, FinDesk's data is only
-      read.
+      read (#46). A copy taken while FinDesk writes is refused and can be retried.
+  - [ ] Follow-up: if a move fails after a named profile was created, that profile is left half-filled.
 
 ### M9 — Packaging and release
 
 - [x] macOS: `Finglass.app` and a DMG (candidate: `cargo-packager`), with the icons from `assets/icons`, and a CI job
       that builds it and launches the app once (#27).
+- [x] M9b: `install-mac.command` / `scripts/install-mac.sh` build the app and install it into `/Applications`; the
+      previous app goes to the Trash (#44).
+- [x] CI speed: lint as its own job, line tables only (#47); the Slint UI compiled once in `finglass-ui` (#48).
 - [ ] After full functionality: Windows and Linux back in CI, MSI/EXE and DEB/RPM installers, each launched once in
       CI.
 - [ ] Signing (macOS ad-hoc first) and a release workflow.
