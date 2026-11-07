@@ -3,6 +3,12 @@
 //! The UI crate renders state that comes from here and sends user actions back; it holds no logic of its own,
 //! so everything that matters is testable without a window.
 
+pub mod audit;
+pub mod db;
+pub mod paths;
+pub mod secret;
+pub mod settings;
+
 /// The product name, as shown in window titles and the About dialog.
 pub const APP_NAME: &str = "Finglass";
 
