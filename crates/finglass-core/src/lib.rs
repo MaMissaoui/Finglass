@@ -9,6 +9,7 @@ pub mod backup;
 pub mod balance;
 pub mod dashboard;
 pub mod db;
+pub mod documents;
 pub mod export;
 pub mod i18n;
 pub mod iban;
