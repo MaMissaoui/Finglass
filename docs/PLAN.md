@@ -109,12 +109,16 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [x] M5a core: `sync` (gateway port with fakes, client, service, PIN handling with profile-scoped keys and
       `credentials/bank-<id>` markers, redaction). A server-URL change also forgets the PIN (stricter than FinDesk).
       Booking texts are stored as the bank sent them; error, warning and note texts are masked.
+- [ ] M5b prerequisites, from the M5c-3 review: a sync is one FinTS dialog per login, so two syncs of one bank must
+      never overlap (the UI keeps the live claim; re-check once a real gateway can block for minutes).
+- [ ] FinTS protocol trace (FinDesk's Settings switch and "save trace"): only the i18n keys exist. It records what
+      the adapter sends and receives, so it comes with M5b, with the same masking as the bank message text.
 - [ ] M5b: the fints-rs adapter (after the M0 probe). Login state (system id, bank parameter data) goes into
       `bank_connections`' server-state columns cleared by `clear_login_state`, never into a side file.
 - [x] M5c-1: `app::banking` (bank-login state, sync one/all, history start) and the prompt bridge, with an
       `UnavailableGateway` until M5b (#31).
 - [x] M5c-2: the macOS Keychain store; `delete_profile` calls `forget_pins_for_profile` with it (#37).
-- [ ] M5c-3: bank UI on the Accounts page (add, edit, sync, sync all, history, PIN and TAN prompts).
+- [x] M5c-3: bank UI on the Accounts page (add, edit, sync, sync all, history, PIN and TAN prompts) (#42).
       `FinTsClient::new` gets `AppPaths::profile_dir(slug)`. A profile switch cancels an open prompt. Online banks
       are deleted through `BankingState::remove_bank`; one profile `Busy` is shared by sync and the Accounts deletes.
 - [ ] Follow-up: statement imports and the FinDesk import don't take the profile `Busy` yet.
