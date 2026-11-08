@@ -131,6 +131,9 @@ component ModalCard inherits Rectangle {
     height: min(content.preferred-height, root.dialog-max-height);
     background: Theme.surface;
     border-radius: Radius.dialog;
+    drop-shadow-color: Theme.shadow;
+    drop-shadow-blur: 24px;
+    drop-shadow-offset-y: 8px;
 
     ScrollView {
         content := VerticalLayout {
@@ -270,6 +273,9 @@ component TypeSelectPill inherits Rectangle {
         Rectangle {
             background: Theme.surface;
             border-radius: Radius.panel;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -1434,7 +1440,7 @@ export component AccountsPage inherits Rectangle {
 
                     Text {
                         text: booking.amount-text;
-                        color: booking.expense ? Theme.error : Theme.success;
+                        color: booking.expense ? Theme.money-out : Theme.money-in;
                         font-size: Type.label-small-size;
                         font-weight: Type.label-small-weight;
                         vertical-alignment: center;

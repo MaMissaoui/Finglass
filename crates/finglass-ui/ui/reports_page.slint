@@ -28,11 +28,11 @@ component ReportTab inherits Rectangle {
 
     height: 44px;
     horizontal-stretch: 1;
-    background: transparent;
+    background: root.selected ? Theme.selected : transparent;
 
     Text {
         text: root.text;
-        color: root.selected ? Theme.primary : Theme.muted-text;
+        color: root.selected ? Theme.on-selected : Theme.muted-text;
         font-size: Type.label-size;
         font-weight: Type.label-weight;
         horizontal-alignment: center;
@@ -150,7 +150,7 @@ component ReportStat inherits Rectangle {
             // FinDesk shrinks the value (TextAutoSize) in narrow cards; Slint can't size text to its
             // box, so narrow windows step down once and the value elides rather than push the row
             // past the page.
-            font-size: root.compact ? 18px : Type.headline-size;
+            font-size: root.compact ? 18px : Type.amount-size;
             font-weight: Type.amount-weight;
             overflow: elide;
         }
@@ -576,6 +576,7 @@ export component ReportsPage inherits Rectangle {
             border-radius: Radius.panel;
             border-width: 1px;
             border-color: Theme.divider;
+            clip: true;
 
             HorizontalLayout {
                 spacing: 0px;
@@ -635,7 +636,7 @@ export component ReportsPage inherits Rectangle {
                                 title: Tr.t("RecurringPayments");
                                 value: root.recurring-count;
                                 icon: @image-url("icons/refresh.svg");
-                                accent: Theme.primary;
+                                accent: Theme.muted-text;
                             }
                             ReportStat {
                             compact: root.compact;
@@ -643,8 +644,8 @@ export component ReportsPage inherits Rectangle {
                                 title: Tr.t("CostPerYear");
                                 value: root.recurring-yearly;
                                 icon: @image-url("icons/remove_circle_outline.svg");
-                                accent: Theme.error;
-                                value-color: Theme.error;
+                                accent: Theme.muted-text;
+                                value-color: Theme.money-out;
                             }
                             ReportStat {
                             compact: root.compact;
@@ -652,8 +653,8 @@ export component ReportsPage inherits Rectangle {
                                 title: Tr.t("PerMonth");
                                 value: root.recurring-monthly;
                                 icon: @image-url("icons/date_range.svg");
-                                accent: Theme.warning;
-                                value-color: Theme.error;
+                                accent: Theme.muted-text;
+                                value-color: Theme.money-out;
                             }
                         }
 
@@ -767,7 +768,7 @@ export component ReportsPage inherits Rectangle {
                                     Text {
                                         text: row.amount-text;
                                         width: RecurringLayout.amount-width;
-                                        color: row.income ? Theme.success : Theme.error;
+                                        color: row.income ? Theme.money-in : Theme.money-out;
                                         font-size: Type.body-size;
                                         horizontal-alignment: right;
                                         vertical-alignment: center;
@@ -829,8 +830,8 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("TotalIncome");
                             value: root.income-value;
                             icon: @image-url("icons/add_circle_outline.svg");
-                            accent: Theme.success;
-                            value-color: Theme.success;
+                            accent: Theme.muted-text;
+                            value-color: Theme.money-in;
                         }
                         ReportStat {
                             compact: root.compact;
@@ -838,8 +839,8 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("TotalExpenses");
                             value: root.expenses-value;
                             icon: @image-url("icons/remove_circle_outline.svg");
-                            accent: Theme.error;
-                            value-color: Theme.error;
+                            accent: Theme.muted-text;
+                            value-color: Theme.money-out;
                         }
                         ReportStat {
                             compact: root.compact;
@@ -847,8 +848,8 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("NetIncome");
                             icon: @image-url("icons/reports.svg");
                             value: root.net-value;
-                            accent: Theme.primary;
-                            value-color: root.net-tone == "negative" ? Theme.error : (root.net-tone == "positive" ? Theme.success : Theme.text);
+                            accent: Theme.muted-text;
+                            value-color: root.net-tone == "negative" ? Theme.alert : Theme.money-in;
                         }
                         ReportStat {
                             compact: root.compact;
@@ -856,7 +857,7 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("TaxRelevantAmount");
                             value: root.tax-value;
                             icon: @image-url("icons/info.svg");
-                            accent: Theme.warning;
+                            accent: Theme.muted-text;
                         }
                     }
 
@@ -901,7 +902,7 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("StatTransactions");
                             value: root.stat-transactions;
                             icon: @image-url("icons/transactions.svg");
-                            accent: Theme.primary;
+                            accent: Theme.muted-text;
                         }
                         ReportStat {
                             compact: root.compact;
@@ -909,7 +910,7 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("CategoriesUsed");
                             value: root.stat-categories;
                             icon: @image-url("icons/transactions.svg");
-                            accent: Theme.primary;
+                            accent: Theme.muted-text;
                         }
                         ReportStat {
                             compact: root.compact;
@@ -917,8 +918,8 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("AvgMonthlyExpenses");
                             value: root.stat-average;
                             icon: @image-url("icons/date_range.svg");
-                            accent: Theme.primary;
-                            value-color: Theme.error;
+                            accent: Theme.muted-text;
+                            value-color: Theme.money-out;
                         }
                         ReportStat {
                             compact: root.compact;
@@ -926,7 +927,7 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("HighestMonth");
                             value: root.stat-highest;
                             icon: @image-url("icons/reports.svg");
-                            accent: Theme.primary;
+                            accent: Theme.muted-text;
                         }
                     }
                 }
@@ -1012,7 +1013,7 @@ export component ReportsPage inherits Rectangle {
                                 horizontal-stretch: 1;
                                 preferred-width: 0px;
                                 min-width: 0px;
-                                color: row.income-zero ? Theme.text : Theme.success;
+                                color: row.income-zero ? Theme.text : Theme.money-in;
                                 font-size: Type.body-size;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
@@ -1022,7 +1023,7 @@ export component ReportsPage inherits Rectangle {
                                 horizontal-stretch: 1;
                                 preferred-width: 0px;
                                 min-width: 0px;
-                                color: row.expenses-zero ? Theme.text : Theme.error;
+                                color: row.expenses-zero ? Theme.text : Theme.money-out;
                                 font-size: Type.body-size;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
@@ -1032,7 +1033,7 @@ export component ReportsPage inherits Rectangle {
                                 horizontal-stretch: 1;
                                 preferred-width: 0px;
                                 min-width: 0px;
-                                color: row.net-zero ? Theme.text : (row.net-tone == "negative" ? Theme.error : Theme.success);
+                                color: row.net-tone == "negative" ? Theme.alert : Theme.money-in;
                                 font-size: Type.body-size;
                                 font-weight: row.net-zero ? Type.body-weight : Type.title-medium-weight;
                                 horizontal-alignment: right;
@@ -1068,7 +1069,7 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             preferred-width: 0px;
                             min-width: 0px;
-                            color: root.monthly-total-income-zero ? Theme.text : Theme.success;
+                            color: root.monthly-total-income-zero ? Theme.text : Theme.money-in;
                             font-size: Type.label-size;
                             font-weight: Type.title-medium-weight;
                             horizontal-alignment: right;
@@ -1079,7 +1080,7 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             preferred-width: 0px;
                             min-width: 0px;
-                            color: root.monthly-total-expenses-zero ? Theme.text : Theme.error;
+                            color: root.monthly-total-expenses-zero ? Theme.text : Theme.money-out;
                             font-size: Type.label-size;
                             font-weight: Type.title-medium-weight;
                             horizontal-alignment: right;
@@ -1090,7 +1091,7 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             preferred-width: 0px;
                             min-width: 0px;
-                            color: root.monthly-total-net-zero ? Theme.text : (root.monthly-total-tone == "negative" ? Theme.error : Theme.success);
+                            color: root.monthly-total-tone == "negative" ? Theme.alert : Theme.money-in;
                             font-size: Type.label-size;
                             font-weight: Type.title-medium-weight;
                             horizontal-alignment: right;
@@ -1178,8 +1179,8 @@ export component ReportsPage inherits Rectangle {
                                 title: Tr.t("TaxIncomeTotal");
                                 value: root.tax-income-value;
                                 icon: @image-url("icons/add_circle_outline.svg");
-                                accent: Theme.success;
-                                value-color: Theme.success;
+                                accent: Theme.muted-text;
+                                value-color: Theme.money-in;
                             }
                             ReportStat {
                             compact: root.compact;
@@ -1187,8 +1188,8 @@ export component ReportsPage inherits Rectangle {
                                 title: Tr.t("TaxDeductionTotal");
                                 value: root.tax-deduction-value;
                                 icon: @image-url("icons/remove_circle_outline.svg");
-                                accent: Theme.error;
-                                value-color: Theme.error;
+                                accent: Theme.muted-text;
+                                value-color: Theme.money-out;
                             }
                             ReportStat {
                             compact: root.compact;
@@ -1196,8 +1197,8 @@ export component ReportsPage inherits Rectangle {
                                 title: Tr.t("NetIncome");
                                 icon: @image-url("icons/reports.svg");
                                 value: root.tax-net-value;
-                                accent: Theme.primary;
-                                value-color: root.tax-net-tone == "negative" ? Theme.error : (root.tax-net-tone == "positive" ? Theme.success : Theme.text);
+                                accent: Theme.muted-text;
+                                value-color: root.tax-net-tone == "negative" ? Theme.alert : Theme.money-in;
                             }
                             ReportStat {
                             compact: root.compact;
@@ -1206,7 +1207,7 @@ export component ReportsPage inherits Rectangle {
                                 value: root.tax-receipts-value;
                                 subtitle: root.tax-receipts-subtitle;
                                 icon: root.tax-receipts-missing ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
-                                accent: root.tax-receipts-missing ? Theme.warning : Theme.success;
+                                accent: root.tax-receipts-missing ? Theme.caution : Theme.muted-text;
                                 value-color: root.tax-receipts-missing ? Theme.text : Theme.success;
                                 interactive: root.tax-receipts-missing;
                                 clicked => { root.set-missing-only(true); }
@@ -1266,7 +1267,7 @@ export component ReportsPage inherits Rectangle {
                                     Text {
                                         text: suggestion.amount-text;
                                         width: 110px;
-                                        color: suggestion.expense ? Theme.error : Theme.success;
+                                        color: suggestion.expense ? Theme.money-out : Theme.money-in;
                                         font-size: Type.label-size;
                                         font-weight: Type.title-medium-weight;
                                         horizontal-alignment: right;
@@ -1449,7 +1450,7 @@ export component ReportsPage inherits Rectangle {
                                         Text {
                                             text: row.amount-text;
                                             width: 110px;
-                                            color: row.expense ? Theme.error : Theme.success;
+                                            color: row.expense ? Theme.money-out : Theme.money-in;
                                             font-size: Type.label-size;
                                             font-weight: Type.title-medium-weight;
                                             horizontal-alignment: right;

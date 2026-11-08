@@ -75,6 +75,9 @@ export component BankingPrompts inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         dialog-content := VerticalLayout {
             padding: 24px;

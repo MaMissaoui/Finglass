@@ -33,9 +33,13 @@ export global Type {
     out property <length> label-small-size: 12px;
     out property <int> label-small-weight: 500;
 
-    // Large KPI amounts keep a slightly larger size than the headline token.
-    out property <length> amount-size: 28px;
-    out property <int> amount-weight: 700;
+    // KPI figures: 24/600, the same size as the headline but a calmer weight.
+    out property <length> amount-size: 24px;
+    out property <int> amount-weight: 600;
+
+    // The page title in the top bar.
+    out property <length> page-title-size: 20px;
+    out property <int> page-title-weight: 600;
 }
 
 // Corner radii, named by the element they shape. Use these instead of literals so the restyle can
@@ -48,7 +52,7 @@ export global Radius {
     // 7 px category dots.
     out property <length> marker: 4px;
     // Text fields.
-    out property <length> field: 4px;
+    out property <length> field: 6px;
     // Document thumbnail page corners.
     out property <length> thumbnail: 4px;
     // Chart bars and donut segments.
@@ -64,11 +68,11 @@ export global Radius {
     // The 20 px status badge.
     out property <length> badge: 10px;
     // Dropdown menus.
-    out property <length> menu: 10px;
+    out property <length> menu: 8px;
     // 22 px status tags.
     out property <length> tag: 11px;
     // Cards and page surfaces.
-    out property <length> surface: 12px;
+    out property <length> surface: 8px;
     // 24 px round icon buttons.
     out property <length> icon: 12px;
     // 26 px colour swatches.
@@ -78,11 +82,11 @@ export global Radius {
     // 28 px round icon buttons.
     out property <length> icon-medium: 14px;
     // 32 px chips, month arrows and action pickers.
-    out property <length> control-small: 16px;
+    out property <length> control-small: 6px;
     // 40 px buttons, fields and select pills.
-    out property <length> control: 20px;
+    out property <length> control: 6px;
     // Modal dialogs.
-    out property <length> dialog: 28px;
+    out property <length> dialog: 8px;
 }
 
 // Finglass's palettes. The window sets `mode` to system, light or dark; in system mode the fluent
@@ -126,36 +130,48 @@ export global Theme {
             : mode == "dark";
 
     // Brand
-    out property <color> primary: dark ? #5EEAD4 : #0D9488;
-    out property <color> primary-hover: dark ? #99F6E4 : #0F766E;
-    out property <color> on-primary: dark ? #042F2E : #FFFFFF;
+    out property <color> primary: dark ? #4FB3B9 : #0F6E74;
+    out property <color> primary-hover: dark ? #7CCBD0 : #0B5A5F;
+    out property <color> on-primary: dark ? #0B1F21 : #FFFFFF;
 
     // Surfaces
-    out property <color> sidebar: dark ? #232429 : #ECEFF4;
-    out property <color> background: dark ? #1C1B1F : #F5F7FA;
-    out property <color> surface: dark ? #232529 : #FFFFFF;
-    out property <color> divider: dark ? #49454F : #E5E7EB;
-    out property <color> text: dark ? #E6E1E5 : #2F2F2F;
-    out property <color> muted-text: dark ? #CAC4D0 : #5B6472;
+    out property <color> sidebar: dark ? #11161C : #EEF1F4;
+    out property <color> background: dark ? #11161C : #EEF1F4;
+    out property <color> surface: dark ? #1A2129 : #FFFFFF;
+    out property <color> divider: dark ? #2C3540 : #DDE2E7;
+    out property <color> text: dark ? #E6EAEE : #1C2733;
+    out property <color> muted-text: dark ? #9AA5B1 : #5B6875;
 
     // Selection
-    out property <color> selected: dark ? #134E4A : #CCFBF1;
-    out property <color> on-selected: dark ? #99F6E4 : #134E4A;
+    out property <color> selected: dark ? #232D37 : #E4EBEF;
+    out property <color> on-selected: dark ? #E6EAEE : #1C2733;
 
-    // Semantic colours from FinDesk's Color.kt
-    out property <color> error: dark ? #F87171 : #DC2626;
-    out property <color> error-hover: dark ? #FCA5A5 : #B91C1C;
-    out property <color> success: dark ? #34D399 : #098765;
-    out property <color> warning: #F59E0B;
+    // Amounts: incoming money is green, outgoing money is ink. Alerts are for negative
+    // balances, errors and destructive confirmations only; caution marks warnings.
+    out property <color> money-in: dark ? #5CC28F : #1E7B4F;
+    out property <color> money-out: text;
+    out property <color> alert: dark ? #F2867E : #B3261E;
+    out property <color> alert-hover: dark ? #F7A9A3 : #8C1D17;
+    out property <color> caution: dark ? #E0A54A : #9A5B00;
+    out property <color> chart-in: dark ? #5CC28F : #1E7B4F;
+    out property <color> chart-out: dark ? #6E7D8C : #7A8795;
+
+    // Errors keep their own names; they use the alert values.
+    out property <color> error: alert;
+    out property <color> error-hover: alert-hover;
+    // Non-money success states (a passed check, "Text extracted") use the inflow green.
+    out property <color> success: money-in;
 
     // The scrim behind modal dialogs.
     out property <color> scrim: #00000080;
+    // The soft shadow under dialogs and floating menus.
+    out property <color> shadow: dark ? #00000099 : #1C273326;
     // Document type accents: PDF and image previews.
-    out property <color> document-pdf: #E53935;
-    out property <color> document-image: #43A047;
-    // Pale tag fill and its text for "tax relevant" markers.
-    out property <color> warning-pale: #F59E0B33;
-    out property <color> warning-strong: #B45309;
+    out property <color> document-pdf: alert;
+    out property <color> document-image: money-in;
+    // Pale tag fill and its text for "tax relevant" markers, derived from caution.
+    out property <color> warning-pale: dark ? #E0A54A66 : #9A5B0066;
+    out property <color> warning-strong: dark ? #F7D08A : #6B3F00;
 }
 
 // The fixed colours of the language flags drawn in the top bar. Identity colours, not theme.

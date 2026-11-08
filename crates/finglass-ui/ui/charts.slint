@@ -205,7 +205,7 @@ export component IncomeExpenseChart inherits Rectangle {
                                 height: parent.height * bar.income-fraction;
                                 y: parent.height - self.height;
                                 border-radius: Radius.dot;
-                                background: Theme.success;
+                                background: Theme.chart-in;
                                 opacity: bar.partial ? 0.45 : 1.0;
                             }
 
@@ -215,7 +215,7 @@ export component IncomeExpenseChart inherits Rectangle {
                                 height: parent.height * bar.expenses-fraction;
                                 y: parent.height - self.height;
                                 border-radius: Radius.dot;
-                                background: Theme.error;
+                                background: Theme.chart-out;
                                 opacity: bar.partial ? 0.45 : 1.0;
                             }
                         }
@@ -252,7 +252,7 @@ export component IncomeExpenseChart inherits Rectangle {
                             width: 10px;
                             height: 10px;
                             border-radius: Radius.bar;
-                            background: Theme.success;
+                            background: Theme.chart-in;
                         }
                     }
                     Text {
@@ -272,7 +272,7 @@ export component IncomeExpenseChart inherits Rectangle {
                             width: 10px;
                             height: 10px;
                             border-radius: Radius.bar;
-                            background: Theme.error;
+                            background: Theme.chart-out;
                         }
                     }
                     Text {

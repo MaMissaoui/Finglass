@@ -42,6 +42,8 @@ component SummaryFigure inherits VerticalLayout {
     in property <[AccountAmount]> values;
     in property <string> single-text;
     in property <bool> value-tone: true;
+    // Flow totals (in/out) use the money colours; balances use the balance colours.
+    in property <bool> flow: false;
 
     spacing: 1px;
     alignment: start;
@@ -64,7 +66,8 @@ component SummaryFigure inherits VerticalLayout {
 
     for amount in root.values : Text {
         text: amount.text;
-        color: root.value-tone ? AccountTone.amount-color(amount.tone) : Theme.text;
+        color: root.flow ? AccountTone.flow-color(amount.tone)
+                : (root.value-tone ? AccountTone.amount-color(amount.tone) : Theme.text);
         font-size: Type.title-medium-size;
         font-weight: Type.title-medium-weight;
         overflow: elide;
@@ -87,7 +90,7 @@ component DropdownPill inherits Rectangle {
 
     height: 40px;
     min-width: pill-content.preferred-width;
-    border-radius: Radius.control;
+    border-radius: self.height / 2;
     background: touch.has-hover ? Theme.background : Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
@@ -143,6 +146,9 @@ component DropdownPill inherits Rectangle {
         Rectangle {
             background: Theme.surface;
             border-radius: Radius.panel;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -228,6 +234,9 @@ component ActionPicker inherits Rectangle {
         Rectangle {
             background: Theme.surface;
             border-radius: Radius.panel;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -316,10 +325,9 @@ component TransactionRowView inherits Rectangle {
             Rectangle {
                 visible: root.item.selected;
                 x: 0px;
-                y: 4px;
+                y: 0px;
                 width: 3px;
-                height: parent.height - 8px;
-                border-radius: Radius.hairline;
+                height: parent.height;
                 background: Theme.primary;
             }
 
@@ -424,7 +432,7 @@ component TransactionRowView inherits Rectangle {
                     text: root.item.amount-text;
                     color: root.item.pending
                         ? Theme.muted-text
-                        : (root.item.expense ? Theme.error : Theme.success);
+                        : (root.item.expense ? Theme.money-out : Theme.money-in);
                     font-size: Type.label-size;
                     font-weight: root.item.is-new ? Type.label-weight : Type.label-weight;
                     font-italic: root.item.pending;
@@ -442,7 +450,7 @@ component TransactionRowView inherits Rectangle {
                         width: 16px;
                         height: 16px;
                         source: @image-url("icons/warning.svg");
-                        colorize: Theme.error;
+                        colorize: Theme.caution;
                         accessible-role: none;
                     }
 
@@ -1035,11 +1043,13 @@ export component TransactionsPage inherits Rectangle {
                     SummaryFigure {
                         label: Tr.t("SummaryIn");
                         values: root.income-amounts;
+                        flow: true;
                     }
 
                     SummaryFigure {
                         label: Tr.t("SummaryOut");
                         values: root.expense-amounts;
+                        flow: true;
                     }
 
                     if (root.has-balance) : SummaryFigure {
