@@ -332,8 +332,8 @@ component SettingsSectionRow inherits Rectangle {
         row-label := SettingsSectionLabel {
             index: root.index;
             color: Theme.text;
-            font-size: Type.title-small-size + 1px;
-            font-weight: Type.title-small-weight;
+            font-size: Type.body-large-size;
+            font-weight: Type.label-weight;
             vertical-alignment: center;
             horizontal-alignment: left;
             horizontal-stretch: 1;
@@ -718,8 +718,8 @@ export component SettingsPage inherits Rectangle {
                                 Text {
                                     text: row.name;
                                     color: Theme.text;
-                                    font-size: Type.title-small-size;
-                                    font-weight: row.open ? Type.title-small-weight : Type.body-weight;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
                                     vertical-alignment: center;
                                     horizontal-stretch: 1;
                                     overflow: elide;
@@ -836,7 +836,8 @@ export component SettingsPage inherits Rectangle {
                                 Text {
                                     text: row.name;
                                     color: Theme.text;
-                                    font-size: Type.body-size;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
                                     vertical-alignment: center;
                                     horizontal-stretch: 1;
                                     overflow: elide;
@@ -974,8 +975,8 @@ export component SettingsPage inherits Rectangle {
                                     Text {
                                         text: row.category-text;
                                         color: Theme.text;
-                                        font-size: Type.title-small-size;
-                                        font-weight: Type.title-small-weight;
+                                        font-size: Type.label-size;
+                                        font-weight: Type.label-weight;
                                         overflow: elide;
                                     }
 
@@ -1176,8 +1177,8 @@ export component SettingsPage inherits Rectangle {
                                 text: row.action;
                                 width: 190px;
                                 color: Theme.text;
-                                font-size: Type.label-small-size;
-                                font-weight: Type.label-small-weight;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                                 overflow: elide;
                             }
                             Text {
@@ -1330,8 +1331,8 @@ export component SettingsPage inherits Rectangle {
                                     Text {
                                         text: row.name;
                                         color: Theme.text;
-                                        font-size: Type.title-small-size;
-                                        font-weight: row.open ? Type.title-small-weight : Type.body-weight;
+                                        font-size: Type.label-size;
+                                        font-weight: Type.label-weight;
                                         vertical-alignment: center;
                                         horizontal-stretch: 1;
                                         overflow: elide;
@@ -1448,7 +1449,8 @@ export component SettingsPage inherits Rectangle {
                                     Text {
                                         text: row.name;
                                         color: Theme.text;
-                                        font-size: Type.body-size;
+                                        font-size: Type.label-size;
+                                        font-weight: Type.label-weight;
                                         vertical-alignment: center;
                                         horizontal-stretch: 1;
                                         overflow: elide;
@@ -1586,8 +1588,8 @@ export component SettingsPage inherits Rectangle {
                                         Text {
                                             text: row.category-text;
                                             color: Theme.text;
-                                            font-size: Type.title-small-size;
-                                            font-weight: Type.title-small-weight;
+                                            font-size: Type.label-size;
+                                            font-weight: Type.label-weight;
                                             overflow: elide;
                                         }
 
@@ -1788,8 +1790,8 @@ export component SettingsPage inherits Rectangle {
                                     text: row.action;
                                     width: 190px;
                                     color: Theme.text;
-                                    font-size: Type.label-small-size;
-                                    font-weight: Type.label-small-weight;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
                                     overflow: elide;
                                 }
                                 Text {
@@ -1964,8 +1966,8 @@ export component ChangePassphraseDialog inherits Rectangle {
             Text {
                 text: Tr.t("ChangePassphrase");
                 color: Theme.text;
-                font-size: Type.headline-size;
-                font-weight: Type.headline-weight;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
 
             Text {

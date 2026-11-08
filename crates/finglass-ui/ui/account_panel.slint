@@ -25,8 +25,8 @@ component PanelAmounts inherits VerticalLayout {
     for amount in root.amounts : Text {
         text: amount.text;
         color: root.selected ? Theme.on-selected : AccountTone.amount-color(amount.tone);
-        font-size: Type.label-small-size;
-        font-weight: Type.label-small-weight;
+        font-size: Type.body-size;
+        font-weight: Type.title-small-weight;
         horizontal-alignment: right;
         overflow: elide;
     }
@@ -219,8 +219,8 @@ component PanelRowView inherits Rectangle {
                         text: root.item.label;
                         color: root.item.selected ? Theme.on-selected
                                 : (root.item.kind == "group" ? Theme.muted-text : Theme.text);
-                        font-size: root.item.kind == "group" ? Type.label-small-size : Type.body-size;
-                        font-weight: root.item.kind == "group" ? 600 : Type.body-weight;
+                        font-size: root.item.kind == "group" ? Type.label-small-size : Type.label-size;
+                        font-weight: root.item.kind == "group" ? Type.label-small-weight : Type.label-weight;
                         overflow: elide;
                     }
 
@@ -240,7 +240,7 @@ component PanelRowView inherits Rectangle {
 
                     CountBadge {
                         count: root.item.new-count;
-                        selected: root.item.selected;
+                        selected: false;
                     }
                 }
 

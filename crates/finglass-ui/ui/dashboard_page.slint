@@ -21,8 +21,11 @@ component Card inherits Rectangle {
     in property <string> title;
     in property <bool> show-title: true;
     in property <bool> interactive: false;
+    /// An optional text action right-aligned in the title row.
+    in property <string> action-label: "";
 
     callback clicked;
+    callback action-clicked;
 
     background: Theme.surface;
     border-radius: Radius.surface;
@@ -34,12 +37,22 @@ component Card inherits Rectangle {
         spacing: 12px;
         alignment: start;
 
-        if (root.show-title) : Text {
-            text: root.title;
-            color: Theme.text;
-            font-size: Type.title-medium-size;
-            font-weight: Type.title-medium-weight;
-            overflow: elide;
+        if (root.show-title) : HorizontalLayout {
+            cross-axis-alignment: center;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: Type.title-medium-size;
+                font-weight: Type.title-medium-weight;
+                overflow: elide;
+                horizontal-stretch: 1;
+            }
+
+            if (root.action-label != "") : TextButton {
+                text: root.action-label;
+                clicked => { root.action-clicked(); }
+            }
         }
 
         @children
@@ -118,8 +131,8 @@ component StatementPanel inherits Rectangle {
         Text {
             text: root.month-label;
             color: Theme.text;
-            font-size: Type.body-large-size;
-            font-weight: Type.body-large-weight;
+            font-size: Type.title-medium-size;
+            font-weight: Type.title-medium-weight;
         }
 
         VerticalLayout {
@@ -161,8 +174,8 @@ component PendingPanel inherits Rectangle {
         Text {
             text: root.title;
             color: Theme.text;
-            font-size: Type.body-large-size;
-            font-weight: Type.body-large-weight;
+            font-size: Type.title-medium-size;
+            font-weight: Type.title-medium-weight;
             overflow: elide;
         }
 
@@ -174,15 +187,16 @@ component PendingPanel inherits Rectangle {
         }
 
         if (root.enabled && root.detail-lines.length > 0) : VerticalLayout {
-            spacing: 4px;
+            spacing: 0px;
 
             for detail in root.detail-lines : HorizontalLayout {
+                height: 28px;
                 spacing: 4px;
 
                 Text {
                     text: detail;
-                    color: Theme.muted-text;
-                    font-size: Type.body-small-size;
+                    color: Theme.text;
+                    font-size: Type.body-size;
                     vertical-alignment: center;
                     horizontal-stretch: 1;
                     overflow: elide;
@@ -202,6 +216,7 @@ component PendingPanel inherits Rectangle {
         }
 
         if (!root.enabled && root.detail-lines.length > 0) : HorizontalLayout {
+            height: 28px;
             spacing: 6px;
             alignment: start;
 
@@ -218,8 +233,8 @@ component PendingPanel inherits Rectangle {
 
             Text {
                 text: root.detail-lines[0];
-                color: Theme.muted-text;
-                font-size: Type.body-small-size;
+                color: Theme.text;
+                font-size: Type.body-size;
                 vertical-alignment: center;
                 overflow: elide;
             }
@@ -284,8 +299,8 @@ component LedgerRow inherits Rectangle {
         Text {
             text: root.amount-text;
             color: root.expense ? Theme.money-out : Theme.money-in;
-            font-size: Type.label-size;
-            font-weight: Type.label-weight;
+            font-size: Type.body-size;
+            font-weight: Type.title-small-weight;
             vertical-alignment: center;
             horizontal-alignment: right;
         }
@@ -873,16 +888,9 @@ export component DashboardPage inherits Rectangle {
 
                 Card {
                     title: root.recent-title;
-
-                    HorizontalLayout {
-                        alignment: end;
-
-                        TextButton {
-                            text: root.view-all-label;
-                            clicked => {
-                                root.open-all();
-                            }
-                        }
+                    action-label: root.view-all-label;
+                    action-clicked => {
+                        root.open-all();
                     }
 
                     if (root.recent-rows.length == 0) : Text {

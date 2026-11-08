@@ -300,14 +300,17 @@ fn renders_the_app_shell() {
         assert_varied(&buffer, "dashboard-de-light");
         // Tall enough to show the tax donut at the bottom of the page, with six slices of very
         // different sizes: each arc must stay on the ring, not stretch across the chart.
-        ui.set_dashboard_tax_slices(ModelRc::new(VecModel::from(donut_slices(&[
-            ("Steuern", 5_200.0, "#03A9F4"),
-            ("Versicherungen", 1_400.0, "#E91E63"),
-            ("Bildung", 1_100.0, "#9C27B0"),
-            ("Energie", 1_000.0, "#FF9800"),
-            ("Telefon", 600.0, "#7B1FA2"),
-            ("Sonstige", 100.0, "#9E9E9E"),
-        ]))));
+        ui.set_dashboard_tax_slices(ModelRc::new(VecModel::from(donut_slices(
+            &[
+                ("Steuern", 5_200.0, "#03A9F4"),
+                ("Versicherungen", 1_400.0, "#E91E63"),
+                ("Bildung", 1_100.0, "#9C27B0"),
+                ("Energie", 1_000.0, "#FF9800"),
+                ("Telefon", 600.0, "#7B1FA2"),
+                ("Sonstige", 100.0, "#9E9E9E"),
+            ],
+            Language::De,
+        ))));
         ui.set_dashboard_tax_value("9.400,00\u{a0}€".into());
         let buffer = render(&window, "dashboard-full-de-light", 1440, 1800);
         assert_varied(&buffer, "dashboard-full-de-light");
@@ -4703,7 +4706,7 @@ fn audit_model(rows: &[app::AuditRow]) -> ModelRc<AuditRow> {
 
 /// Donut slices for a screenshot, with the arc maths of the app's tax chart (160 × 160 box,
 /// radius 70, starting at 12 o'clock, a 1° gap between slices).
-fn donut_slices(parts: &[(&str, f32, &str)]) -> Vec<DashboardTaxSlice> {
+fn donut_slices(parts: &[(&str, f32, &str)], language: Language) -> Vec<DashboardTaxSlice> {
     let total: f32 = parts.iter().map(|part| part.1).sum();
     let mut start = -90.0_f32;
     parts
@@ -4721,9 +4724,13 @@ fn donut_slices(parts: &[(&str, f32, &str)]) -> Vec<DashboardTaxSlice> {
             );
             start += amount / total * 360.0;
             let value = u32::from_str_radix(hex.trim_start_matches('#'), 16).unwrap();
+            let money = Money {
+                minor: (amount * 100.0).round() as i64,
+                currency: Currency::EUR,
+            };
             DashboardTaxSlice {
                 label: label.into(),
-                amount_text: format!("{amount:.2}").into(),
+                amount_text: format::money(money, language, false).into(),
                 colour: Color::from_rgb_u8((value >> 16) as u8, (value >> 8) as u8, value as u8),
                 arc: arc.into(),
             }

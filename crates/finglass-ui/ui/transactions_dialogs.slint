@@ -23,9 +23,9 @@ component DetailRow inherits HorizontalLayout {
     Text {
         width: 88px;
         text: root.label;
-        color: Theme.text;
-        font-size: Type.label-size;
-        font-weight: Type.label-weight;
+        color: Theme.muted-text;
+        font-size: Type.body-small-size;
+        font-weight: Type.body-small-weight;
         vertical-alignment: center;
     }
 
@@ -103,8 +103,8 @@ export component TransactionDetailDialog inherits Rectangle {
                 Text {
                     text: root.title;
                     color: Theme.text;
-                    font-size: Type.headline-size;
-                    font-weight: Type.headline-weight;
+                    font-size: Type.title-large-size;
+                    font-weight: Type.title-large-weight;
                     wrap: word-wrap;
                 }
 
@@ -309,8 +309,8 @@ export component AddTransactionDialog inherits Rectangle {
                 Text {
                     text: Tr.t("AddTransaction");
                     color: Theme.text;
-                    font-size: Type.headline-size;
-                    font-weight: Type.headline-weight;
+                    font-size: Type.title-large-size;
+                    font-weight: Type.title-large-weight;
                 }
 
                 HorizontalLayout {
@@ -445,8 +445,8 @@ export component MultiDeleteDialog inherits Rectangle {
                 Text {
                     text: root.title;
                     color: Theme.text;
-                    font-size: Type.headline-size;
-                    font-weight: Type.headline-weight;
+                    font-size: Type.title-large-size;
+                    font-weight: Type.title-large-weight;
                     wrap: word-wrap;
                 }
 
@@ -555,8 +555,8 @@ export component ImportDialog inherits Rectangle {
                     Text {
                         text: root.title;
                         color: Theme.text;
-                        font-size: Type.headline-size;
-                        font-weight: Type.headline-weight;
+                        font-size: Type.title-large-size;
+                        font-weight: Type.title-large-weight;
                         wrap: word-wrap;
                     }
 
@@ -749,8 +749,8 @@ export component ReapplyRulesDialog inherits Rectangle {
                 Text {
                     text: Tr.t("ReapplyRulesTitle");
                     color: Theme.text;
-                    font-size: Type.headline-size;
-                    font-weight: Type.headline-weight;
+                    font-size: Type.title-large-size;
+                    font-weight: Type.title-large-weight;
                 }
 
                 Text {
@@ -856,8 +856,8 @@ export component CustomRangeDialog inherits Rectangle {
             Text {
                 text: Tr.t("CustomRange");
                 color: Theme.text;
-                font-size: Type.headline-size;
-                font-weight: Type.headline-weight;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
 
             HorizontalLayout {
@@ -945,8 +945,8 @@ export component AmountFilterDialog inherits Rectangle {
             Text {
                 text: Tr.t("AmountFilterAny");
                 color: Theme.text;
-                font-size: Type.headline-size;
-                font-weight: Type.headline-weight;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
 
             OutlinedField {

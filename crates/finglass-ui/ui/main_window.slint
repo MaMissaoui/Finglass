@@ -72,8 +72,8 @@ component LanguageMenuItem inherits Rectangle {
             horizontal-stretch: 1;
             text: root.name;
             color: root.selected ? Theme.on-selected : Theme.text;
-            font-size: Type.body-size;
-            font-weight: root.selected ? Type.title-medium-weight : Type.body-weight;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
             vertical-alignment: center;
             horizontal-alignment: left;
         }
@@ -124,8 +124,8 @@ component ProfileMenuItem inherits Rectangle {
         height: parent.height;
         text: root.name;
         color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: Type.title-small-size;
-        font-weight: root.selected ? Type.title-small-weight : Type.body-weight;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         vertical-alignment: center;
         horizontal-alignment: left;
         overflow: elide;
@@ -1264,9 +1264,7 @@ export component MainWindow inherits Window {
                         height: 36px;
                         width: profile-content.preferred-width;
                         border-radius: Radius.control;
-                        border-width: 1px;
-                        border-color: Theme.divider;
-                        background: profile-touch.has-hover || root.profile-menu-open ? Theme.background : Theme.surface;
+                        background: profile-touch.has-hover || root.profile-menu-open ? Theme.control-fill-hover : Theme.control-fill;
                         accessible-role: button;
                         accessible-label: Tr.t("SwitchProfileMenu");
 
@@ -1279,9 +1277,9 @@ export component MainWindow inherits Window {
 
                             Text {
                                 text: root.current-profile-name;
-                                color: Theme.primary;
+                                color: Theme.text;
                                 font-size: Type.label-size;
-                                font-weight: 600;
+                                font-weight: Type.label-weight;
                                 vertical-alignment: center;
                                 horizontal-stretch: 0;
                                 overflow: elide;
@@ -1291,7 +1289,7 @@ export component MainWindow inherits Window {
                                 width: 18px;
                                 height: 18px;
                                 source: @image-url("icons/keyboard_arrow_down.svg");
-                                colorize: Theme.primary;
+                                colorize: Theme.muted-text;
                                 accessible-role: none;
                             }
                         }
@@ -1308,8 +1306,8 @@ export component MainWindow inherits Window {
                     Rectangle {
                         width: 64px;
                         height: 36px;
-                        border-radius: Radius.panel;
-                        background: language-touch.has-hover || root.language-menu-open ? Theme.background : transparent;
+                        border-radius: Radius.control;
+                        background: language-touch.has-hover || root.language-menu-open ? Theme.control-fill-hover : Theme.control-fill;
                         accessible-role: button;
                         accessible-label: root.language-label;
 

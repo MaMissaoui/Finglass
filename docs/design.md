@@ -7,33 +7,58 @@ Approved by the user on 2026-11-08. Finglass first; FinDesk follows in a later, 
 A German household's books: accounts, bookings, receipts, the tax year. One careful owner who reads numbers. The
 app shows where the money stands and what needs doing, with the calm precision of a bank statement.
 
-## Colour tokens
+## Colour
 
-| Token          | Light     | Dark      | Use                                                              |
-|----------------|-----------|-----------|------------------------------------------------------------------|
-| ink            | `#1C2733` | `#E6EAEE` | text, headings, outgoing amounts                                 |
-| slate          | `#5B6875` | `#9AA5B1` | secondary text, labels, inactive icons                           |
-| paper          | `#FFFFFF` | `#1A2129` | work surfaces                                                    |
-| desk           | `#EEF1F4` | `#11161C` | window background, sidebar                                       |
-| rule           | `#DDE2E7` | `#2C3540` | hairlines, outlines                                              |
-| petrol         | `#0F6E74` | `#4FB3B9` | the one accent: primary buttons, focus ring, selection bar, links |
-| selected-fill  | `#E4EBEF` | `#232D37` | the selected row/nav item background (neutral, not mint)         |
-| selected-accent| `#DCE6EE` | `#1E3A44` | the selected Settings section row (petrol tint, no bar)          |
-| control-fill   | `#E6EAEE` | `#26303A` | filled buttons, toolbar dropdowns and page-header icon buttons   |
-| control-fill-hover | `#E1E6EA` | `#2F3A45` | their hover fill                                              |
-| inflow         | `#1E7B4F` | `#5CC28F` | incoming amounts only                                            |
-| alert          | `#B3261E` | `#F2867E` | negative balances, errors, destructive confirmation only         |
-| caution        | `#9A5B00` | `#E0A54A` | warnings ("tax-relevant", pending items)                         |
+| Token          | Light     | Dark      |
+|----------------|-----------|-----------|
+| ink            | `#1C2733` | `#E6EAEE` |
+| slate          | `#5B6875` | `#9AA5B1` |
+| paper          | `#FFFFFF` | `#1A2129` |
+| desk           | `#EEF1F4` | `#11161C` |
+| rule           | `#DDE2E7` | `#2C3540` |
+| petrol         | `#0F6E74` | `#4FB3B9` |
+| selected-fill  | `#E4EBEF` | `#232D37` |
+| selected-accent| `#DCE6EE` | `#1E3A44` |
+| control-fill   | `#E6EAEE` | `#26303A` |
+| control-fill-hover | `#E1E6EA` | `#2F3A45` |
+| inflow         | `#1E7B4F` | `#5CC28F` |
+| alert          | `#B3261E` | `#F2867E` |
+| caution        | `#9A5B00` | `#E0A54A` |
+
+### Colour roles
+
+| Role | Token | Use |
+|---|---|---|
+| Ink | `Theme.text` | content, row titles, outgoing amounts, figures ≥ 0 |
+| Slate | `Theme.muted-text` | secondary lines, labels, column headers, inactive icons, chevrons |
+| Accent | `Theme.primary` | **only** interactive text (text buttons, links), focus rings, selection bars, the period arrows |
+| Inflow | `Theme.money-in` / `success` | incoming money, success states that aren't money |
+| Alert | `Theme.error` | negative balances, errors, destructive actions |
+| Caution | `Theme.caution` | warnings, "steuerrelevant", open-task counts |
 
 Amount colours: a booking going out is ink with a leading minus; a booking coming in is inflow with "+"; a balance
 is ink when ≥ 0 and alert when < 0. Totals of expenses are ink, never red.
 
 ## Type
 
-IBM Plex Sans (bundled). Page title 20/600 in the top bar. Section titles 15/600, Settings group titles 20/600.
-Body 14/400; small body and labels 13/500 in slate, sentence case. Chart axis labels and badge counters are the only
-12/500 text. Figures in KPI positions 24/600. Amounts right-aligned in table columns. German amounts are written
-`2.450,37 €`.
+IBM Plex Sans (bundled). Every text follows the role table; use the tokens by role, never a literal size or weight
+(the only exception is the bank monogram in `components.slint`).
+
+| Role | Token | Size/weight | Use |
+|---|---|---|---|
+| Figure | `Type.amount-*` / `Type.headline-*` | 24/600 | KPI figures, the statement result, the period title (Dashboard month, Reports year) |
+| Page / dialog title | `Type.title-large-*` | 20/600 | top-bar page title, settings section title, **every dialog title**, empty-state titles |
+| Card title | `Type.title-medium-*` | 16/600 | card and panel titles, the bank name on Accounts, document detail title, the compact figures above the Transactions list |
+| Navigation | `Type.title-medium-size`; settings `Type.body-large-size` | 16/400 (600 selected); settings 15/500 | the main sidebar items; the settings section list |
+| Row title | `Type.label-*` | 14/500 | names in lists, buttons |
+| Body | `Type.body-*` | 14/400 | normal text, amounts in rows (amount rows use 14/500, see below) |
+| Secondary | `Type.body-small-*` | 13/400 | second lines, notes, help text under fields |
+| Small label | `Type.label-small-*` | 13/500 | column headers, KPI labels, group headers, counts next to a title, chips |
+| Caption | `Type.caption-*` | 12/500 | chart axis labels and badge counters only |
+
+Row amounts are one choice everywhere: `Type.body-size` with `Type.title-small-weight` (14/500), the majority in
+Accounts, Transactions, and the Dashboard's upcoming and recent lists. Amounts right-aligned in table columns.
+German amounts are written `2.450,37 €`.
 
 ## Shape and surfaces
 
