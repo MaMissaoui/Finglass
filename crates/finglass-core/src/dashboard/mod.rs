@@ -173,7 +173,7 @@ pub struct DashboardFigures {
     pub available_balance: Money,
     /// The sum of loan accounts' balances in the primary currency.
     pub loan_balance: Money,
-    /// Money available at the end of the previous month, when the history reaches that far.
+    /// Money available at the end of the previous month.
     pub carry_forward: Option<Money>,
     /// What the available accounts moved outside income and expenses.
     pub other_movements: Option<Money>,
@@ -237,8 +237,6 @@ pub struct DashboardInput<'a> {
     pub window: &'a [TransactionItem],
     /// The newest bookings, independent of the selected month.
     pub recent_transactions: &'a [TransactionItem],
-    /// Each account's oldest booking date.
-    pub oldest_by_account: &'a BTreeMap<AccountId, Date>,
     /// Count of uncategorized bookings in the selected month, in every currency.
     pub uncategorized_count: usize,
     /// Recurring payments expected soon.
@@ -380,20 +378,12 @@ impl Dashboard {
             .map(|transaction| transaction.amount.minor.abs())
             .sum();
 
-        let carry_forward_known = available_accounts.iter().all(|account| {
-            input
-                .oldest_by_account
-                .get(&account.id)
-                .is_none_or(|oldest| *oldest < month_start)
-        });
-        let carry_forward = carry_forward_known.then(|| {
-            available_accounts
-                .iter()
-                .map(|account| balance_at(account) - movement(account))
-                .sum::<i64>()
-        });
+        let carry_forward: i64 = available_accounts
+            .iter()
+            .map(|account| balance_at(account) - movement(account))
+            .sum();
         let available_movement: i64 = available_accounts.iter().map(|account| movement(account)).sum();
-        let other_movements = carry_forward.map(|_| available_movement - (monthly_income - monthly_expenses));
+        let other_movements = available_movement - (monthly_income - monthly_expenses);
 
         let last_months = (0..6)
             .map(|index| {
@@ -475,8 +465,8 @@ impl Dashboard {
             total_balance: money(total_balance, currency),
             available_balance: money(available_total, currency),
             loan_balance: money(loan_total, currency),
-            carry_forward: carry_forward.map(|minor| money(minor, currency)),
-            other_movements: other_movements.map(|minor| money(minor, currency)),
+            carry_forward: Some(money(carry_forward, currency)),
+            other_movements: Some(money(other_movements, currency)),
             balance_date: (!current_month).then_some(month_end),
             has_loans: input
                 .accounts
@@ -572,7 +562,6 @@ pub fn load_dashboard(db: &Database, today: Date, requested_month: YearMonth) ->
         None,
     )?;
     let recent_transactions = repo::transactions::find_items(db, &TransactionFilter::default(), Some(8))?;
-    let oldest_by_account = repo::transactions::oldest_date_by_account(db)?;
     let uncategorized_count = repo::transactions::find_items(
         db,
         &TransactionFilter {
@@ -607,7 +596,6 @@ pub fn load_dashboard(db: &Database, today: Date, requested_month: YearMonth) ->
         month_bookings: &month_bookings,
         window: &window,
         recent_transactions: &recent_transactions,
-        oldest_by_account: &oldest_by_account,
         uncategorized_count,
         upcoming,
     }))
@@ -1284,7 +1272,7 @@ mod tests {
     }
 
     #[test]
-    fn an_incomplete_history_hides_the_carry_forward_until_the_month_is_covered() {
+    fn an_incomplete_history_still_shows_the_carry_forward() {
         let (_temp, db) = database();
         carry_fixtures(&db);
         let savings = account(
@@ -1305,12 +1293,19 @@ mod tests {
         );
 
         let september = load(&db, YearMonth::new(2026, 9));
-        assert_eq!(september.carry_forward, None);
-        assert_eq!(september.other_movements, None);
+        assert_eq!(september.carry_forward, Some(money(150_000)));
+        assert_eq!(september.other_movements, Some(money(0)));
 
-        let october = load(&db, YearMonth::new(2026, 10));
-        assert!(october.carry_forward.is_some());
-        assert!(october.other_movements.is_some());
+        for month in [YearMonth::new(2026, 9), YearMonth::new(2026, 10)] {
+            let figures = load(&db, month);
+            let total = figures.carry_forward.unwrap().minor + figures.monthly_income.minor
+                - figures.monthly_expenses.minor
+                + figures.other_movements.unwrap().minor;
+            assert_eq!(
+                total, figures.available_balance.minor,
+                "the identity holds for {month:?} despite the incomplete history"
+            );
+        }
     }
 
     #[test]

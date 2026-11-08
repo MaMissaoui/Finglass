@@ -886,22 +886,6 @@ pub fn oldest_date(db: &Database, currency: Option<crate::money::Currency>) -> R
     })
 }
 
-/// Date of each account's oldest booking, by account id; accounts without bookings are absent.
-pub fn oldest_date_by_account(db: &Database) -> Result<BTreeMap<AccountId, Date>> {
-    in_conn(db, |conn| {
-        let mut statement =
-            conn.prepare("SELECT account_id, min(booking_date) FROM transactions GROUP BY account_id")?;
-        let mut rows = statement.query([])?;
-        let mut dates = BTreeMap::new();
-
-        while let Some(row) = rows.next()? {
-            dates.insert(AccountId(row.get(0)?), super::parse_date(&row.get::<_, String>(1)?)?);
-        }
-
-        Ok(dates)
-    })
-}
-
 #[cfg(test)]
 mod tests {
     use std::collections::BTreeSet;
@@ -1818,51 +1802,6 @@ mod tests {
             .map(|transaction| transaction.id)
             .collect();
         assert_eq!(remaining, vec![survivor]);
-    }
-
-    #[test]
-    fn oldest_date_by_account_returns_each_accounts_oldest_date() {
-        let (_temp, db) = database();
-        let first = account(&db);
-        let second = account(&db);
-        let empty = account(&db);
-        add(
-            &db,
-            first,
-            date!(2026 - 05 - 10),
-            -100,
-            Some("One"),
-            None,
-            None,
-            "oldest-a",
-        );
-        add(
-            &db,
-            first,
-            date!(2026 - 03 - 02),
-            -200,
-            Some("Two"),
-            None,
-            None,
-            "oldest-b",
-        );
-        add(
-            &db,
-            second,
-            date!(2026 - 07 - 04),
-            -300,
-            Some("Three"),
-            None,
-            None,
-            "oldest-c",
-        );
-
-        let oldest = oldest_date_by_account(&db).unwrap();
-        assert_eq!(oldest.get(&first), Some(&date!(2026 - 03 - 02)));
-        assert_eq!(oldest.get(&second), Some(&date!(2026 - 07 - 04)));
-        assert!(!oldest.contains_key(&empty), "an account without bookings is absent");
-        assert!(has_bookings(&db, first).unwrap());
-        assert!(!has_bookings(&db, empty).unwrap());
     }
 
     #[test]
