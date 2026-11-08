@@ -8,6 +8,11 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+    # A docs-only merge to main builds no DMG. Path filters don't apply to tag pushes, so a release tag
+    # always packages.
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
   pull_request:
     paths:
       - "crates/finglass/Cargo.toml"
