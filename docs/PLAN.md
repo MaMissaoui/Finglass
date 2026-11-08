@@ -154,12 +154,13 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
   - [x] M8c core: `findesk_import` (copy opened, one transaction, ids kept, hashes verbatim, documents confined to
         FinDesk's `documents/`, no payment orders, PIN flags or capabilities) (#15).
   - [x] M8d-3: Settings entry, folder picker starting in FinDesk's data folder, passphrase, report, reload (#38).
-  - [ ] Follow-up: run the empty-target check inside the import transaction, not just before it.
+  - [x] Follow-up: run the empty-target check inside the import transaction, not just before it (#51).
 
 - [x] M8g: first-run migration from the FinDesk install on this Mac: offered once when Finglass has no data and
       FinDesk is found; every FinDesk profile becomes a Finglass profile with the same name, FinDesk's data is only
       read (#46). A copy taken while FinDesk writes is refused and can be retried.
-  - [ ] Follow-up: if a move fails after a named profile was created, that profile is left half-filled.
+  - [x] Follow-up: if a move fails after a named profile was created, the files go back to staging and the empty
+        profile is removed (#51).
 
 ### M9 — Packaging and release
 
@@ -167,10 +168,27 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
       that builds it and launches the app once (#27).
 - [x] M9b: `install-mac.command` / `scripts/install-mac.sh` build the app and install it into `/Applications`; the
       previous app goes to the Trash (#44).
-- [x] CI speed: lint as its own job, line tables only (#47); the Slint UI compiled once in `finglass-ui` (#48).
+- [x] CI speed: lint as its own job, line tables only (#47); the Slint UI compiled once in `finglass-ui` (#48);
+      16 codegen units for the generated UI crate in release (#53).
+- [x] OCR helpers (tesseract, pdftoppm) found when the app is started from Finder (#52).
 - [ ] After full functionality: Windows and Linux back in CI, MSI/EXE and DEB/RPM installers, each launched once in
       CI.
-- [ ] Signing (macOS ad-hoc first) and a release workflow.
+- [x] Release workflow: a pushed `v<version>` tag publishes a GitHub pre-release with the DMG and checksums
+      (#50); first release v0.1.0.
+- [ ] Signing (macOS ad-hoc first).
+
+### M10 — UI parity with FinDesk
+
+Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
+
+- [x] One click activates every control (#54); the Dashboard opens on today's month, with FinDesk's month
+      drop-down (#55); the native macOS menu bar (#56).
+- [x] IBM Plex Sans, FinDesk's type scale and filled Material icons; the flag language selector (#57).
+- [x] Pill buttons with icons, segmented buttons, the Transactions filter pills, row alignment (#58).
+- [x] Settings as a section list (#59); the Reports header, Export menu and tables (#60).
+- [ ] Outlined text fields, form drop-downs, check boxes, dialog chrome, the unlock window and the profile
+      selector.
+- [ ] Improvements after parity.
 
 ## Done
 
