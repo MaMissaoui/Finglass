@@ -163,6 +163,9 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::OnlineUserIdOptional => "Identifiant banque en ligne (facultatif)",
         Key::NoFintsServer => "aucun serveur FinTS listé",
         Key::OnlineSyncAvailable => "sync en ligne disponible",
+        Key::OnlineSyncNotYetAvailable => {
+            "La synchronisation en ligne n'est pas encore disponible dans Finglass. Importez les relevés de votre banque dans « Opérations »."
+        }
         Key::BankSearchHint => "Rechercher une banque : nom, BLZ, BIC ou IBAN",
         Key::BankSearchNoMatch => "Aucune banque trouvée — saisissez les données ci-dessous",
         Key::BankManualEntry => "ou saisissez les données manuellement",

@@ -852,6 +852,7 @@ fn bank_card(state: &AccountsState, source: BankCardSource<'_>, language: Langua
         syncing: false,
         sync_step: "".into(),
         sync_enabled: true,
+        sync_tooltip: "".into(),
         pin_text: "".into(),
         menu: ModelRc::new(VecModel::from(Vec::<crate::BankMenuItem>::new())),
     }
@@ -865,6 +866,23 @@ fn bank_subtitle(bank: &BankAccessItem, language: Language) -> String {
     let mut parts = vec![i18n::format(language, Key::BlzPrefix, &[Arg::from(bank.blz.as_str())])];
     if let Some(bic) = bank.bic.as_deref().map(str::trim).filter(|bic| !bic.is_empty()) {
         parts.push(i18n::format(language, Key::BicPrefix, &[Arg::from(bic)]));
+    }
+    if let Some(last_sync) = bank.last_sync {
+        parts.push(i18n::format(
+            language,
+            Key::SyncedPrefix,
+            &[Arg::from(format::date_time(last_sync))],
+        ));
+    }
+    if let Some(sync_from) = bank.sync_from {
+        parts.push(i18n::format(
+            language,
+            Key::NextSyncFrom,
+            &[Arg::from(format::date(sync_from))],
+        ));
+    }
+    if !bank.include_in_sync_all {
+        parts.push(i18n::text(language, Key::NotInSyncAll).to_owned());
     }
     parts.join(" · ")
 }
@@ -1249,6 +1267,7 @@ mod tests {
     use super::*;
     use finglass_core::model::{TransactionId, TransactionItem};
     use slint::Model;
+    use time::macros::{date, datetime};
 
     fn model_rows<T: Clone>(model: &ModelRc<T>) -> Vec<T> {
         (0..model.row_count())
@@ -1410,6 +1429,29 @@ mod tests {
         assert_eq!(cards[1].bank_id, -1);
         assert_eq!(cards[1].name, i18n::text(Language::En, Key::AccountsWithoutBank));
         assert_eq!(model_rows(&cards[1].accounts).len(), 1);
+    }
+
+    #[test]
+    fn bank_subtitle_lists_each_sync_detail_only_when_it_applies() {
+        let mut online = bank(7, "Test Bank", false);
+        // The fixture starts outside Sync all, so the hint shows even before a sync ran.
+        assert_eq!(
+            bank_subtitle(&online, Language::En),
+            "BLZ 37040044 · BIC COBADEFFXXX · not in Sync all"
+        );
+        online.last_sync = Some(datetime!(2026 - 11 - 01 09:05 UTC));
+        online.sync_from = Some(date!(2026 - 01 - 01));
+        online.include_in_sync_all = true;
+        assert_eq!(
+            bank_subtitle(&online, Language::En),
+            "BLZ 37040044 · BIC COBADEFFXXX · synced 01.11.2026 09:05 · next sync from 01.01.2026"
+        );
+        online.include_in_sync_all = false;
+        online.bic = Some(String::new());
+        assert_eq!(
+            bank_subtitle(&online, Language::En),
+            "BLZ 37040044 · synced 01.11.2026 09:05 · next sync from 01.01.2026 · not in Sync all"
+        );
     }
 
     #[test]

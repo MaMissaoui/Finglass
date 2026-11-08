@@ -9,6 +9,7 @@ import {
     AccountsFigure,
     AccountTone,
     BankAccountRow,
+    BankMenuItem,
     CountBadge,
     IconButton,
     OutlinedField,
@@ -20,40 +21,68 @@ import {
 } from "components.slint";
 import { BankSuggestionRow } from "models.slint";
 
-// One entry of a bank card's menu, with a check mark for the active choice.
+// One entry of a bank card's menu, with a 24 px leading slot and a check mark for the active choice.
 component BankMenuEntry inherits Rectangle {
     in property <string> label;
     in property <bool> checked;
     in property <bool> enabled: true;
+    in property <bool> danger: false;
+    in property <bool> highlighted: false;
+    in property <string> icon-name;
 
     callback picked;
 
-    height: 28px;
-    background: touch.has-hover && root.enabled ? Theme.background : transparent;
+    function icon-source(name: string) -> image {
+        if (name == "date_range") { return @image-url("icons/date_range.svg"); }
+        if (name == "check") { return @image-url("icons/check.svg"); }
+        if (name == "edit") { return @image-url("icons/edit.svg"); }
+        if (name == "settings") { return @image-url("icons/settings.svg"); }
+        if (name == "delete") { return @image-url("icons/delete.svg"); }
+        if (name == "history") { return @image-url("icons/history.svg"); }
+        if (name == "lock") { return @image-url("icons/lock.svg"); }
+        return @image-url("icons/edit.svg");
+    }
+
+    height: max(48px, content.preferred-height + 24px);
+    background: root.highlighted && root.enabled ? Theme.selected
+            : (touch.has-hover && root.enabled ? Theme.background : transparent);
     accessible-role: button;
     accessible-label: root.label;
+    accessible-enabled: root.enabled;
+    accessible-checked: root.checked;
 
-    HorizontalLayout {
-        padding-left: 8px;
-        padding-right: 8px;
-        spacing: 6px;
+    content := HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 12px;
         cross-axis-alignment: center;
 
-        if (root.checked) : Image {
-            width: 18px;
-            height: 18px;
-            source: @image-url("icons/check.svg");
-            colorize: root.enabled ? Theme.on-selected : Theme.muted-text;
-            accessible-role: none;
+        Rectangle {
+            width: 24px;
+            height: 24px;
+            background: transparent;
+
+            if (root.icon-name != "" && (root.icon-name != "check" || root.checked)) : Image {
+                width: 24px;
+                height: 24px;
+                source: root.icon-source(root.icon-name);
+                colorize: !root.enabled ? Theme.muted-text : (root.danger ? Theme.error : Theme.text);
+                // Material dims disabled content to 38 %: the muted colour alone reads as enabled in dark mode.
+                opacity: root.enabled ? 1.0 : 0.38;
+                accessible-role: none;
+            }
         }
 
         Text {
             horizontal-stretch: 1;
             text: root.label;
-            color: root.enabled ? Theme.text : Theme.muted-text;
+            color: !root.enabled ? Theme.muted-text : (root.danger ? Theme.error : Theme.text);
+            // Material dims disabled content to 38 %: the muted colour alone reads as enabled in dark mode.
+            opacity: root.enabled ? 1.0 : 0.38;
             font-size: Type.body-size;
+            font-weight: Type.body-weight;
             vertical-alignment: center;
-            overflow: elide;
+            wrap: word-wrap;
         }
     }
 
@@ -511,7 +540,8 @@ component BankCardView inherits Rectangle {
     callback add-account;
     callback remove-bank;
     callback sync;
-    callback menu-action(string);
+    callback menu-toggle;
+    callback menu-anchor(length, length);
     callback open-detail(int);
     callback open-transactions(int);
     callback open-rename(int);
@@ -519,13 +549,23 @@ component BankCardView inherits Rectangle {
     callback forget-deleted(int);
     callback delete-account(int);
 
-    property <bool> menu-open: false;
+    in property <bool> menu-open: false;
     property <string> chevron-label: root.card.collapsed ? Tr.t("Expand") : Tr.t("Collapse");
     height: card-content.preferred-height;
     background: Theme.surface;
     border-radius: 12px;
     border-width: 1px;
     border-color: Theme.divider;
+
+    // The page anchors its floating menu to the real ⋮ button below.
+    changed menu-open => {
+        if (root.menu-open && root.card.bank-id >= 0) {
+            root.menu-anchor(
+                menu-button.absolute-position.x + menu-button.width,
+                menu-button.absolute-position.y + menu-button.height,
+            );
+        }
+    }
 
     card-content := VerticalLayout {
         padding: 16px;
@@ -580,27 +620,29 @@ component BankCardView inherits Rectangle {
                         font-size: Type.title-medium-size;
                         font-weight: Type.title-medium-weight;
                         overflow: elide;
-                        horizontal-stretch: 1;
+                        // As FinDesk: the count and total follow the name; a long name elides first.
+                        min-width: 0px;
+                        horizontal-stretch: 0;
+                        vertical-alignment: center;
                     }
 
-                    if (root.card.collapsed) : Text {
+                    Text {
                         text: root.card.account-count-text;
                         color: Theme.muted-text;
                         font-size: Type.body-small-size;
                         vertical-alignment: center;
                     }
 
-                    if (root.card.collapsed) : VerticalLayout {
-                        spacing: 0px;
-                        alignment: end;
+                    for amount in root.card.totals : Text {
+                        text: amount.text;
+                        color: AccountTone.amount-color(amount.tone);
+                        font-size: Type.body-small-size;
+                        font-weight: 500;
+                        vertical-alignment: center;
+                    }
 
-                        for amount in root.card.totals : Text {
-                            text: amount.text;
-                            color: AccountTone.amount-color(amount.tone);
-                            font-size: Type.label-small-size;
-                            font-weight: Type.label-small-weight;
-                            horizontal-alignment: right;
-                        }
+                    Rectangle {
+                        horizontal-stretch: 1;
                     }
                 }
 
@@ -613,13 +655,6 @@ component BankCardView inherits Rectangle {
 
                 if (root.card.central-blz-hint != "") : Text {
                     text: root.card.central-blz-hint;
-                    color: Theme.muted-text;
-                    font-size: Type.body-small-size;
-                    overflow: elide;
-                }
-
-                if (!root.card.offline && root.card.pin-text != "") : Text {
-                    text: root.card.pin-text;
                     color: Theme.muted-text;
                     font-size: Type.body-small-size;
                     overflow: elide;
@@ -640,9 +675,10 @@ component BankCardView inherits Rectangle {
 
             if (root.card.bank-id >= 0 && !root.card.offline && !root.card.syncing) : SecondaryButton {
                 text: Tr.t("Sync");
-                icon: @image-url("icons/sync.svg");
+                icon: @image-url("icons/refresh.svg");
                 has-icon: true;
                 enabled: root.card.sync-enabled;
+                tooltip-text: root.card.sync-tooltip;
                 clicked => {
                     root.sync();
                 }
@@ -657,34 +693,14 @@ component BankCardView inherits Rectangle {
                 }
             }
 
-            if (root.card.bank-id >= 0) : IconButton {
+            menu-button := IconButton {
+                visible: root.card.bank-id >= 0;
                 icon: @image-url("icons/more_vert.svg");
                 label: Tr.t("More");
                 tooltip-text: Tr.t("More");
                 outlined: true;
                 clicked => {
-                    root.menu-open = !root.menu-open;
-                }
-            }
-        }
-
-        if (root.menu-open && root.card.bank-id >= 0) : Rectangle {
-            height: menu-items.preferred-height;
-            background: Theme.background;
-            border-radius: 8px;
-
-            menu-items := VerticalLayout {
-                padding: 6px;
-                spacing: 2px;
-
-                for item in root.card.menu : BankMenuEntry {
-                    label: item.label;
-                    checked: item.checked;
-                    enabled: item.enabled;
-                    picked => {
-                        root.menu-open = false;
-                        root.menu-action(item.action);
-                    }
+                    root.menu-toggle();
                 }
             }
         }
@@ -802,6 +818,9 @@ export component AccountsPage inherits Rectangle {
     in property <string> sync-all-progress;
     in property <bool> sync-all-visible;
     in property <bool> sync-all-enabled;
+    // The neutral note and the disabled Sync tooltip while online sync is not available yet.
+    in property <string> online-sync-note;
+    in-out property <int> bank-menu-open: -2;
 
     in property <[AccountTypeChoice]> type-choices;
     in property <[string]> currency-codes;
@@ -891,6 +910,52 @@ export component AccountsPage inherits Rectangle {
     property <string> balance-type-code: "checking";
     property <string> rename-input;
 
+    property <[BankMenuItem]> open-menu-items;
+    property <length> bank-menu-x;
+    property <length> bank-menu-y;
+    property <bool> bank-menu-navigated: false;
+    property <int> bank-menu-selected: 0;
+
+    function open-bank-menu(bank_id: int, items: [BankMenuItem], right: length, bottom: length) {
+        root.open-menu-items = items;
+        root.bank-menu-x = max(0px, min(right - root.absolute-position.x - 300px, root.width - 308px));
+        // Prefer below the ⋮ button, flip above when the page is short, then clamp so the whole
+        // menu stays inside the page instead of being cut off at the window edge.
+        if (bottom - root.absolute-position.y + 4px + (items.length * 48px + 16px) <= root.height) {
+            root.bank-menu-y = bottom - root.absolute-position.y + 4px;
+        } else if (bottom - root.absolute-position.y - 44px - (items.length * 48px + 16px) >= 0px) {
+            root.bank-menu-y = bottom - root.absolute-position.y - 44px - (items.length * 48px + 16px);
+        } else {
+            root.bank-menu-y = max(0px, root.height - (items.length * 48px + 16px) - 8px);
+        }
+        root.bank-menu-selected = 0;
+        root.bank-menu-navigated = false;
+        root.bank-menu-open = bank_id;
+        menu-focus.focus();
+    }
+
+    function close-bank-menu() {
+        root.bank-menu-open = -2;
+    }
+
+    function bank-menu-count() -> int {
+        return root.open-menu-items.length;
+    }
+
+    function bank-menu-item-enabled(index: int) -> bool {
+        if (index < 0 || index >= root.open-menu-items.length) {
+            return false;
+        }
+        return root.open-menu-items[index].enabled;
+    }
+
+    function activate-bank-menu(index: int) {
+        if (!root.bank-menu-item-enabled(index)) {
+            return;
+        }
+        root.bank-menu(root.bank-menu-open, root.open-menu-items[index].action);
+        root.close-bank-menu();
+    }
 
     changed dialog => {
         root.add-bank-name = "";
@@ -958,9 +1023,12 @@ export component AccountsPage inherits Rectangle {
                     vertical-alignment: center;
                 }
 
-                if (root.sync-all-progress == "") : TextButton {
+                if (root.sync-all-progress == "") : SecondaryButton {
                     text: Tr.t("SyncAll");
+                    icon: @image-url("icons/refresh.svg");
+                    has-icon: true;
                     enabled: root.sync-all-enabled;
+                    tooltip-text: root.online-sync-note;
                     clicked => {
                         root.sync-all();
                     }
@@ -974,6 +1042,36 @@ export component AccountsPage inherits Rectangle {
                 enabled: !root.banking-busy;
                 clicked => {
                     root.open-add-bank();
+                }
+            }
+        }
+
+        if (root.online-sync-note != "") : Rectangle {
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+
+            HorizontalLayout {
+                padding: 12px;
+                spacing: 12px;
+                cross-axis-alignment: center;
+
+                Image {
+                    width: 20px;
+                    height: 20px;
+                    source: @image-url("icons/info.svg");
+                    colorize: Theme.muted-text;
+                    accessible-role: none;
+                }
+
+                Text {
+                    text: root.online-sync-note;
+                    color: Theme.muted-text;
+                    font-size: Type.body-size;
+                    vertical-alignment: center;
+                    wrap: word-wrap;
+                    horizontal-stretch: 1;
                 }
             }
         }
@@ -1042,6 +1140,7 @@ export component AccountsPage inherits Rectangle {
 
                 for card in root.bank-cards : BankCardView {
                     card: card;
+                    menu-open: root.bank-menu-open == card.bank-id;
                     toggle => {
                         root.toggle-bank(card.bank-id);
                     }
@@ -1054,8 +1153,11 @@ export component AccountsPage inherits Rectangle {
                     sync => {
                         root.bank-menu(card.bank-id, "sync");
                     }
-                    menu-action(action) => {
-                        root.bank-menu(card.bank-id, action);
+                    menu-toggle => {
+                        root.bank-menu-open = root.bank-menu-open == card.bank-id ? -2 : card.bank-id;
+                    }
+                    menu-anchor(right, bottom) => {
+                        root.open-bank-menu(card.bank-id, card.menu, right, bottom);
                     }
                     open-detail(account-id) => {
                         root.open-detail(account-id);
@@ -1077,6 +1179,85 @@ export component AccountsPage inherits Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    // The bank card's floating menu, anchored under the ⋮ button and drawn above the cards.
+    if (root.bank-menu-open >= 0) : Rectangle {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+
+        TouchArea {
+            clicked => {
+                root.close-bank-menu();
+            }
+        }
+
+        Rectangle {
+            x: root.bank-menu-x;
+            y: root.bank-menu-y;
+            width: 300px;
+            height: bank-menu-layout.preferred-height;
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            clip: true;
+
+            bank-menu-layout := VerticalLayout {
+                padding-top: 8px;
+                padding-bottom: 8px;
+                spacing: 0px;
+
+                for item[index] in root.open-menu-items : BankMenuEntry {
+                    label: item.label;
+                    checked: item.checked;
+                    enabled: item.enabled;
+                    danger: item.danger;
+                    highlighted: root.bank-menu-navigated && root.bank-menu-selected == index;
+                    icon-name: item.icon;
+                    picked => {
+                        root.activate-bank-menu(index);
+                    }
+                }
+            }
+        }
+    }
+
+    menu-focus := FocusScope {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+        enabled: root.bank-menu-open >= 0;
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (root.bank-menu-open < 0) {
+                return reject;
+            }
+            if (event.text == Key.Escape) {
+                root.close-bank-menu();
+                return accept;
+            }
+            if (event.text == Key.DownArrow) {
+                root.bank-menu-navigated = true;
+                root.bank-menu-selected = root.bank-menu-selected >= root.bank-menu-count() - 1
+                        ? 0 : root.bank-menu-selected + 1;
+                return accept;
+            }
+            if (event.text == Key.UpArrow) {
+                root.bank-menu-navigated = true;
+                root.bank-menu-selected = root.bank-menu-selected <= 0
+                        ? root.bank-menu-count() - 1 : root.bank-menu-selected - 1;
+                return accept;
+            }
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.activate-bank-menu(root.bank-menu-selected);
+                return accept;
+            }
+            return reject;
         }
     }
 

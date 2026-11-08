@@ -458,6 +458,8 @@ export component MainWindow inherits Window {
     in property <string> accounts-sync-all-progress;
     in property <bool> accounts-sync-all-visible;
     in property <bool> accounts-sync-all-enabled;
+    in property <string> accounts-online-sync-note;
+    in-out property <int> accounts-bank-menu-open: -2;
     in-out property <string> accounts-connection-name;
     in-out property <string> accounts-connection-blz;
     in-out property <string> accounts-connection-user-id;
@@ -1509,6 +1511,8 @@ export component MainWindow inherits Window {
                 sync-all-progress: root.accounts-sync-all-progress;
                 sync-all-visible: root.accounts-sync-all-visible;
                 sync-all-enabled: root.accounts-sync-all-enabled;
+                online-sync-note: root.accounts-online-sync-note;
+                bank-menu-open <=> root.accounts-bank-menu-open;
                 type-choices: root.accounts-type-choices;
                 currency-codes: root.accounts-currency-codes;
                 days-choices: root.accounts-days-choices;
