@@ -87,16 +87,33 @@ with a fresh `FINGLASS_HOME`, and uploads the DMG as an artifact.
 
 ## Install on this Mac
 
-Double-click `install-mac.command` in Finder. The first build takes a few minutes and needs Rust and
-cargo-packager. From a terminal the same install is:
+Double-click `install-mac.command` in Finder. It downloads and installs the newest published Finglass
+release from GitHub — pre-releases included — so it needs no Rust and no checkout. From a terminal the same
+install is:
 
 ```sh
-scripts/install-mac.sh [--install-dir <folder>] [--force]
+scripts/install-mac.sh [options]
 ```
 
-It installs into `/Applications` by default. Quit Finglass first: a previous `Finglass.app` is moved to the
-Trash, never deleted. `--force` installs a checkout with uncommitted changes or a HEAD that is neither a
-`v*` release tag nor the fetched `origin/main`.
+It installs into `/Applications` by default and picks the DMG for this Mac's architecture. The options are:
+
+- `--install-dir <folder>` puts `Finglass.app` somewhere other than `/Applications`.
+- `--version <tag>` installs that release, e.g. `v0.2.2` or `0.2.2`, instead of the newest.
+- `--reinstall` installs even when the same version is already there.
+- `--check-only` resolves, downloads and verifies the release without installing it.
+- `--help` shows the usage.
+
+Quit Finglass first: a previous `Finglass.app` is moved to the Trash, never deleted.
+
+To build and install this checkout instead, use `--from-source`:
+
+```sh
+scripts/install-mac.sh --from-source [--force] [--no-update]
+```
+
+That needs Rust 1.92+ and cargo-packager 0.11.8. On `main` it fast-forwards a clean checkout from
+`origin/main` first; `--no-update` skips that. `--force` installs a checkout with uncommitted changes or a
+HEAD that is neither a `v*` release tag nor the fetched `origin/main`.
 
 ## Releasing
 

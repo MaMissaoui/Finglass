@@ -119,7 +119,7 @@ jobs:
           for run in 1 2; do
             echo "Install run $run into $apps"
             FINGLASS_INSTALL_TRASH="$trash" ./scripts/install-mac.sh \
-              --install-dir "$apps" --force
+              --install-dir "$apps" --from-source --force
             if [ ! -d "$apps/Finglass.app" ]; then
               echo "::error::no Finglass.app in $apps after install run $run"
               exit 1

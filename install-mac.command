@@ -1,9 +1,10 @@
 #!/bin/bash
-# Double-click in Finder to build the release checked out here and install it into /Applications.
-# The first build takes a few minutes and needs Rust 1.92+ and cargo-packager 0.11.8.
-# A previous Finglass.app goes to the Trash. Quit Finglass first.
+# Double-click in Finder to install the newest published Finglass release into /Applications.
+# It needs no Rust. Use --from-source to build the checkout in this folder instead; that needs
+# Rust 1.92+ and cargo-packager 0.11.8. A previous Finglass.app goes to the Trash. Quit Finglass first.
 # Same as running `scripts/install-mac.sh` in this folder; extra arguments go to it.
-# Arguments: [--install-dir <folder>] [--force]
+# Arguments: [--install-dir <folder>] [--version <tag>] [--reinstall] [--from-source] [--force]
+#            [--no-update] [--check-only] [--help]
 
 cd "$(dirname "$0")" || exit 1
 
@@ -14,8 +15,9 @@ finish() {
 }
 trap finish EXIT
 
-echo "Building and installing Finglass — the first build takes a few minutes."
-echo "Needs Rust 1.92+ and cargo-packager 0.11.8."
+echo "Installing the latest Finglass release ..."
+echo "No Rust is needed. Use --from-source to build this checkout instead; that needs Rust 1.92+"
+echo "and cargo-packager 0.11.8."
 echo
 
 if ! ./scripts/install-mac.sh "$@"; then

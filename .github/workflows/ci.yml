@@ -49,6 +49,8 @@ jobs:
           sudo apt-get install -y libfontconfig1-dev libxkbcommon-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Test
         run: cargo test --workspace --locked
+      - name: Test the Mac installer
+        run: bash scripts/tests/install-mac.sh
 
   # Lint runs as its own job, next to the tests rather than before them.
   lint:
