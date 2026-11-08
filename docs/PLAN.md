@@ -219,6 +219,9 @@ Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
 - [x] The "Kontoauszug, modern" restyle (`docs/design.md`): design tokens (#79); palette, selection, amount
       colours and shapes (#81); the Dashboard's month statement (#82); page details (#83). The Mac installer
       installs the latest release (#80). Released as v0.3.0.
+- [x] After 0.3.0, from the user's feedback: the tax donut's arcs (#85); filled controls, round period arrows,
+      settings with icon rows and titled sections, search and filters on one line when they fit, 13 px small text,
+      an airier account list (#86). Released as v0.3.1.
 
 ## Done
 
