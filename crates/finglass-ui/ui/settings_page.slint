@@ -2,6 +2,7 @@ import { AboutSlint, ScrollView, Spinner, TextEdit } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { Checkbox, IconButton, OutlinedField, PrimaryButton, SegmentedButton, SelectPill, TextButton } from "components.slint";
+import { ReportMenuItem } from "reports_page.slint";
 import { AuditRow, CategoryRow, ProfileRow, RuleRow } from "models.slint";
 import { FinDeskPassphraseDialog, FinDeskReportDialog } from "settings_dialogs.slint";
 
@@ -46,6 +47,130 @@ component SectionHeader inherits FlexboxLayout {
     }
 
     @children
+}
+
+// The Categories header's primary action plus the secondary actions in a ⋮ overflow menu.
+component CategoriesHeaderActions inherits HorizontalLayout {
+    in property <bool> has-duplicate-colours: false;
+
+    callback add-category;
+    callback add-default-categories;
+    callback fix-duplicate-colours;
+
+    property <bool> menu-open: false;
+    property <int> menu-selected: 0;
+
+    spacing: 8px;
+    alignment: end;
+
+    function item-count() -> int {
+        return root.has-duplicate-colours ? 2 : 1;
+    }
+
+    function open-menu() {
+        root.menu-selected = 0;
+        root.menu-open = true;
+        menu.show();
+        menu-focus.focus();
+    }
+
+    function close-menu() {
+        root.menu-open = false;
+        menu.close();
+    }
+
+    function activate(index: int) {
+        if (root.has-duplicate-colours) {
+            if (index == 0) {
+                root.fix-duplicate-colours();
+            } else {
+                root.add-default-categories();
+            }
+        } else {
+            root.add-default-categories();
+        }
+        root.close-menu();
+    }
+
+    PrimaryButton {
+        text: Tr.t("AddCategory");
+        icon: @image-url("icons/add.svg");
+        has-icon: true;
+        clicked => { root.add-category(); }
+    }
+
+    IconButton {
+        icon: @image-url("icons/more_vert.svg");
+        label: Tr.t("More");
+        tooltip-text: Tr.t("More");
+        outlined: true;
+        clicked => {
+            if (root.menu-open) {
+                root.close-menu();
+            } else {
+                root.open-menu();
+            }
+        }
+    }
+
+    menu := PopupWindow {
+        x: root.width - 220px;
+        y: root.height + 4px;
+        width: 220px;
+        height: root.item-count() * 36px + 8px;
+
+        Rectangle {
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            clip: true;
+
+            VerticalLayout {
+                padding: 4px;
+                spacing: 0px;
+
+                if (root.has-duplicate-colours) : ReportMenuItem {
+                    text: Tr.t("FixDuplicateColours");
+                    highlighted: root.menu-selected == 0;
+                    picked => { root.activate(0); }
+                }
+                ReportMenuItem {
+                    text: Tr.t("AddDefaultCategories");
+                    highlighted: root.menu-selected == (root.has-duplicate-colours ? 1 : 0);
+                    picked => { root.activate(root.has-duplicate-colours ? 1 : 0); }
+                }
+            }
+        }
+    }
+
+    menu-focus := FocusScope {
+        enabled: root.menu-open;
+        // The menu entries' TouchAreas handle the mouse; without this a click would be taken for focus.
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (!root.menu-open) {
+                return reject;
+            }
+            if (event.text == Key.Escape) {
+                root.close-menu();
+                return accept;
+            }
+            if (event.text == Key.UpArrow) {
+                root.menu-selected = root.menu-selected <= 0 ? root.item-count() - 1 : root.menu-selected - 1;
+                return accept;
+            }
+            if (event.text == Key.DownArrow) {
+                root.menu-selected = root.menu-selected >= root.item-count() - 1 ? 0 : root.menu-selected + 1;
+                return accept;
+            }
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.activate(root.menu-selected);
+                return accept;
+            }
+            return reject;
+        }
+    }
 }
 
 component SectionTitle inherits HorizontalLayout {
@@ -137,7 +262,9 @@ component SettingsSectionRow inherits Rectangle {
             vertical-alignment: center;
             horizontal-alignment: left;
             horizontal-stretch: 1;
-            wrap: word-wrap;
+            min-width: 0px;
+            wrap: no-wrap;
+            overflow: elide;
         }
     }
 
@@ -179,7 +306,7 @@ component SettingsSectionList inherits VerticalLayout {
 
     callback select(int);
 
-    width: 240px;
+    width: 272px;
     spacing: 2px;
 
     for index in SettingsSections.indices : SettingsSectionRow {
@@ -656,21 +783,11 @@ export component SettingsPage inherits Rectangle {
                     SectionHeader {
                         text: Tr.t("Categories");
 
-                        if (!root.categories-empty) : PrimaryButton {
-                            text: Tr.t("AddCategory");
-                            icon: @image-url("icons/add.svg");
-                            has-icon: true;
-                            clicked => { root.add-category(); }
-                        }
-
-                        if (!root.categories-empty && root.has-duplicate-colours) : TextButton {
-                            text: Tr.t("FixDuplicateColours");
-                            clicked => { root.fix-duplicate-colours(); }
-                        }
-
-                        if (!root.categories-empty) : TextButton {
-                            text: Tr.t("AddDefaultCategories");
-                            clicked => { root.add-default-categories(); }
+                        if (!root.categories-empty) : CategoriesHeaderActions {
+                            has-duplicate-colours: root.has-duplicate-colours;
+                            add-category => { root.add-category(); }
+                            add-default-categories => { root.add-default-categories(); }
+                            fix-duplicate-colours => { root.fix-duplicate-colours(); }
                         }
                     }
                     Rectangle { height: 8px; background: transparent; }
@@ -1357,21 +1474,11 @@ export component SettingsPage inherits Rectangle {
                         SectionHeader {
                             text: Tr.t("Categories");
 
-                            if (!root.categories-empty) : PrimaryButton {
-                                text: Tr.t("AddCategory");
-                                icon: @image-url("icons/add.svg");
-                                has-icon: true;
-                                clicked => { root.add-category(); }
-                            }
-
-                            if (!root.categories-empty && root.has-duplicate-colours) : TextButton {
-                                text: Tr.t("FixDuplicateColours");
-                                clicked => { root.fix-duplicate-colours(); }
-                            }
-
-                            if (!root.categories-empty) : TextButton {
-                                text: Tr.t("AddDefaultCategories");
-                                clicked => { root.add-default-categories(); }
+                            if (!root.categories-empty) : CategoriesHeaderActions {
+                                has-duplicate-colours: root.has-duplicate-colours;
+                                add-category => { root.add-category(); }
+                                add-default-categories => { root.add-default-categories(); }
+                                fix-duplicate-colours => { root.fix-duplicate-colours(); }
                             }
                         }
                         Rectangle { height: 8px; background: transparent; }

@@ -1253,11 +1253,14 @@ fn balance_path(history: &[(Date, Money)], language: Language) -> (String, Strin
 
     let high_money = Money { minor: high, currency };
     let low_money = Money { minor: low, currency };
-    (
-        path,
-        format::whole_money(high_money, language),
-        format::whole_money(low_money, language),
-    )
+    let axis_top = format::whole_money(high_money, language);
+    // A flat line has no range: one label is enough, and it sits at the top like every other chart.
+    let axis_bottom = if high == low {
+        String::new()
+    } else {
+        format::whole_money(low_money, language)
+    };
+    (path, axis_top, axis_bottom)
 }
 
 fn grouping(account: &AccountItem) -> GroupingAccount {
@@ -1854,6 +1857,26 @@ mod tests {
         assert_eq!(
             detail_title(state.detail.as_ref().unwrap(), Language::En),
             "Test Bank · Haushalt"
+        );
+    }
+
+    #[test]
+    fn a_flat_balance_history_has_one_axis_label_and_a_centred_line() {
+        let eur = Currency::EUR;
+        let history = vec![
+            (date!(2026 - 09 - 01), money(100, eur)),
+            (date!(2026 - 09 - 15), money(100, eur)),
+            (date!(2026 - 09 - 30), money(100, eur)),
+        ];
+
+        let (path, top, bottom) = balance_path(&history, Language::De);
+
+        assert!(!top.is_empty(), "the flat history still labels its balance");
+        assert_eq!(bottom, "", "a flat history does not repeat the same label");
+        let middle = CHART_PADDING + 0.5 * (CHART_HEIGHT - 2.0 * CHART_PADDING);
+        assert!(
+            path.matches(&format!(" {middle:.2}")).count() == history.len(),
+            "the flat line stays in the vertical middle: {path}"
         );
     }
 

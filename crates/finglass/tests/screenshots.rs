@@ -533,6 +533,45 @@ fn renders_the_app_shell() {
     }
 
     {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_section(2); // Categories
+        ui.set_settings_scroll_y(0.0);
+        let buffer = render(&window, "settings-categories-de-light", 1440, 900);
+        assert_varied(&buffer, "settings-categories-de-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_section(3); // Auto-categorization rules
+        ui.set_settings_scroll_y(0.0);
+        let buffer = render(&window, "settings-rules-de-light", 1440, 900);
+        assert_varied(&buffer, "settings-rules-de-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.show().unwrap();
+        ui.set_settings_section(2); // Categories
+        ui.set_settings_scroll_y(0.0);
+        let buffer = render(&window, "settings-categories-de-narrow", 1100, 720);
+        assert_varied(&buffer, "settings-categories-de-narrow");
+        let _ = ui.hide();
+    }
+
+    {
         let settings = settings_state(&db, &paths, Language::En);
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
@@ -971,6 +1010,16 @@ fn renders_the_app_shell() {
         &window,
         &rows,
         &reports_de,
+        "recurring",
+        "reports-recurring-de-light",
+        1440,
+        900,
+    );
+
+    render_reports(
+        &window,
+        &rows,
+        &reports_de,
         "summary",
         "reports-summary-de-dark",
         1100,
@@ -1156,6 +1205,19 @@ fn renders_the_app_shell() {
         ui.show().unwrap();
         let buffer = render(&window, "accounts-detail-en-light", 1100, 720);
         assert_varied(&buffer, "accounts-detail-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut detail = accounts_state.clone();
+        detail.language = Language::De;
+        detail.open_detail_default(&accounts_db, seeded.flat, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &detail, &banking_state(&detail));
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-detail-flat-de-light", 1100, 720);
+        assert_varied(&buffer, "accounts-detail-flat-de-light");
         let _ = ui.hide();
     }
 
@@ -1536,6 +1598,24 @@ fn renders_the_app_shell() {
         "transactions-de-dark account filter field",
     );
     assert_dark_widget(&dark_transactions, 1120, 172, "transactions-de-dark period ComboBox");
+
+    // This month has only a handful of bookings, so the summary figures sit close together.
+    let transactions_month_de = {
+        let mut view = TransactionsView::new(Language::De);
+        view.start(&transactions_db, StartArgs::default(), today).unwrap();
+        view.update_period(&transactions_db, Period::ThisMonth, today).unwrap();
+        assert_eq!(view.state().period, Period::ThisMonth);
+        view.state().clone()
+    };
+    render_transactions_sized(
+        &window,
+        Language::De,
+        ThemePref::Light,
+        "transactions-month-de-light",
+        &transactions_month_de,
+        (1440, 900),
+        |_| {},
+    );
 
     // A pointer move over the first booking paints the row hover tint. The window is sized first so
     // the pointer event hits the laid-out row, then the first draw of this window includes the hover.
@@ -3110,6 +3190,7 @@ fn seed_booking(
 
 struct SeededAccounts {
     checking: AccountId,
+    flat: AccountId,
     online: finglass_core::model::BankConnectionId,
 }
 
@@ -3200,6 +3281,27 @@ fn seed_accounts(db: &Database) -> SeededAccounts {
     )
     .unwrap();
 
+    // No bookings in any period: its balance history is a flat line at one value.
+    let flat = accounts::create(
+        db,
+        NewAccount {
+            bank_connection_id: Some(offline.id),
+            institution: None,
+            name: Some("Festgeld".to_owned()),
+            iban: Some("DE89370400440532013999".to_owned()),
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::Savings,
+            balance: Money {
+                minor: 100,
+                currency: Currency::EUR,
+            },
+            balance_updated_at: Some(OffsetDateTime::now_utc()),
+            group_id: None,
+        },
+    )
+    .unwrap();
+
     accounts::create(
         db,
         NewAccount {
@@ -3281,6 +3383,7 @@ fn seed_accounts(db: &Database) -> SeededAccounts {
 
     SeededAccounts {
         checking,
+        flat,
         online: online.id,
     }
 }
@@ -3357,6 +3460,20 @@ fn seed_reports(db: &Database) {
         let day = time::Date::from_calendar_date(2026, time::Month::try_from(month).unwrap(), 10).unwrap();
         txn(db, eur, Currency::EUR, day, -999, "Spotify", None);
         txn(db, usd, usd_currency, day, -1_199, "Cloud Service", None);
+    }
+
+    // A long recurring payee next to the short ones: its two-line row must not move the columns.
+    for month in 6..=9 {
+        let day = time::Date::from_calendar_date(2026, time::Month::try_from(month).unwrap(), 15).unwrap();
+        txn(
+            db,
+            eur,
+            Currency::EUR,
+            day,
+            -2_999,
+            "Beispiel Versicherungs- und Vorsorgegesellschaft Süddeutschland AG Beitrag",
+            None,
+        );
     }
 
     let donation = txn(
@@ -5262,7 +5379,11 @@ fn accounts_balance_path(history: &[(Date, Money)], language: Language) -> (Stri
     (
         path,
         format::whole_money(Money { minor: high, currency }, language),
-        format::whole_money(Money { minor: low, currency }, language),
+        if high == low {
+            String::new()
+        } else {
+            format::whole_money(Money { minor: low, currency }, language)
+        },
     )
 }
 

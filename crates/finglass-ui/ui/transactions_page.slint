@@ -45,6 +45,7 @@ component SummaryFigure inherits VerticalLayout {
 
     spacing: 1px;
     alignment: start;
+    min-width: 64px;
 
     Text {
         text: root.label;
@@ -1022,25 +1023,29 @@ export component TransactionsPage inherits Rectangle {
             HorizontalLayout {
                 spacing: 8px;
 
-                SummaryFigure {
-                    label: Tr.t("SummaryCount");
-                    single-text: root.count-text;
-                    value-tone: false;
-                }
+                HorizontalLayout {
+                    spacing: 28px;
 
-                SummaryFigure {
-                    label: Tr.t("SummaryIn");
-                    values: root.income-amounts;
-                }
+                    SummaryFigure {
+                        label: Tr.t("SummaryCount");
+                        single-text: root.count-text;
+                        value-tone: false;
+                    }
 
-                SummaryFigure {
-                    label: Tr.t("SummaryOut");
-                    values: root.expense-amounts;
-                }
+                    SummaryFigure {
+                        label: Tr.t("SummaryIn");
+                        values: root.income-amounts;
+                    }
 
-                if (root.has-balance) : SummaryFigure {
-                    label: Tr.t("SummaryBalance");
-                    values: [{ text: root.balance-text, tone: root.balance-tone }];
+                    SummaryFigure {
+                        label: Tr.t("SummaryOut");
+                        values: root.expense-amounts;
+                    }
+
+                    if (root.has-balance) : SummaryFigure {
+                        label: Tr.t("SummaryBalance");
+                        values: [{ text: root.balance-text, tone: root.balance-tone }];
+                    }
                 }
 
                 Rectangle {
