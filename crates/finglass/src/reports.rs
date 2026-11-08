@@ -528,6 +528,14 @@ pub fn apply(ui: &MainWindow, state: &ReportsState) {
     ui.set_reports_custom(state.custom_range.is_some());
     ui.set_reports_year_label(state.selected_year.to_string().into());
     ui.set_reports_can_export_report(report.is_some_and(|report| report.transaction_count > 0));
+    ui.set_reports_export_disabled_reason(
+        report
+            .filter(|report| report.transaction_count == 0)
+            .map_or_else(String::new, |report| {
+                i18n::format(language, Key::NothingToExport, &[Arg::Str(report.title(language))])
+            })
+            .into(),
+    );
     ui.set_reports_can_export_tax(
         state
             .tax_bookings
@@ -584,6 +592,9 @@ pub fn apply(ui: &MainWindow, state: &ReportsState) {
         ui.set_reports_monthly_total_expenses(format::money(report.total_expenses, language, false).into());
         ui.set_reports_monthly_total_net(format::money(report.net_income, language, true).into());
         ui.set_reports_monthly_total_tone(tone(report.net_income).into());
+        ui.set_reports_monthly_total_income_zero(report.total_income.minor == 0);
+        ui.set_reports_monthly_total_expenses_zero(report.total_expenses.minor == 0);
+        ui.set_reports_monthly_total_net_zero(report.net_income.minor == 0);
 
         let (category_rows, transfers_note) = category_rows(report, language);
         ui.set_reports_category_rows(ModelRc::new(VecModel::from(category_rows)));

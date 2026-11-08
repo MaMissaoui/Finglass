@@ -333,6 +333,7 @@ export component MainWindow inherits Window {
     in property <string> dashboard-view-all-label;
 
     in-out property <string> reports-tab: "summary";
+    in-out property <bool> reports-export-menu-open: false;
 
     in property <string> reports-year-label;
     in property <bool> reports-custom;
@@ -349,6 +350,7 @@ export component MainWindow inherits Window {
     in property <string> reports-message-text;
     in property <bool> reports-can-export-report;
     in property <bool> reports-can-export-tax;
+    in property <string> reports-export-disabled-reason;
     in property <bool> reports-linkable;
 
     in property <string> reports-other-currency-hint;
@@ -370,6 +372,9 @@ export component MainWindow inherits Window {
     in property <string> reports-monthly-total-expenses;
     in property <string> reports-monthly-total-net;
     in property <string> reports-monthly-total-tone;
+    in property <bool> reports-monthly-total-income-zero;
+    in property <bool> reports-monthly-total-expenses-zero;
+    in property <bool> reports-monthly-total-net-zero;
 
     in property <[DashboardCategoryRow]> reports-category-rows;
     in property <string> reports-transfers-note;
@@ -1377,6 +1382,8 @@ export component MainWindow inherits Window {
                 vertical-stretch: 1;
 
                 tab: root.reports-tab;
+                compact: root.width < 1000px;
+                export-menu-open <=> root.reports-export-menu-open;
                 year-label: root.reports-year-label;
                 custom: root.reports-custom;
                 range-from: root.reports-range-from;
@@ -1392,6 +1399,7 @@ export component MainWindow inherits Window {
                 message-text: root.reports-message-text;
                 can-export-report: root.reports-can-export-report;
                 can-export-tax: root.reports-can-export-tax;
+                export-disabled-reason: root.reports-export-disabled-reason;
                 linkable: root.reports-linkable;
 
                 other-currency-hint: root.reports-other-currency-hint;
@@ -1413,6 +1421,9 @@ export component MainWindow inherits Window {
                 monthly-total-expenses: root.reports-monthly-total-expenses;
                 monthly-total-net: root.reports-monthly-total-net;
                 monthly-total-tone: root.reports-monthly-total-tone;
+                monthly-total-income-zero: root.reports-monthly-total-income-zero;
+                monthly-total-expenses-zero: root.reports-monthly-total-expenses-zero;
+                monthly-total-net-zero: root.reports-monthly-total-net-zero;
 
                 category-rows: root.reports-category-rows;
                 transfers-note: root.reports-transfers-note;
