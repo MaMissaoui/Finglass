@@ -181,7 +181,7 @@ export component UnlockWindow inherits Window {
                         Rectangle {
                             height: 28px;
                             width: chip-content.preferred-width;
-                            border-radius: Radius.chip;
+                            border-radius: self.height / 2;
                             background: Theme.selected;
 
                             chip-content := HorizontalLayout {
@@ -218,7 +218,7 @@ export component UnlockWindow inherits Window {
 
                     if (root.restored) : Text {
                         text: Tr.t("RestoredEncryptedHint");
-                        color: Theme.warning;
+                        color: Theme.caution;
                         font-size: Type.body-size;
                         wrap: word-wrap;
                     }
@@ -228,7 +228,7 @@ export component UnlockWindow inherits Window {
 
                         Text {
                             text: Tr.t("UnencryptedLeftoversTitle");
-                            color: Theme.warning;
+                            color: Theme.caution;
                             font-size: Type.title-medium-size;
                             font-weight: Type.title-medium-weight;
                             wrap: word-wrap;

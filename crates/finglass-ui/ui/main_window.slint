@@ -1223,8 +1223,8 @@ export component MainWindow inherits Window {
                     Text {
                         text: root.screen-title;
                         color: Theme.text;
-                        font-size: Type.headline-size;
-                        font-weight: Type.headline-weight;
+                        font-size: Type.page-title-size;
+                        font-weight: Type.page-title-weight;
                         // A tall box keeps accents such as the "Ü" of "Übersicht" from being clipped.
                         min-height: 48px;
                         vertical-alignment: center;
@@ -2147,6 +2147,9 @@ export component MainWindow inherits Window {
             width: 240px;
             height: 24px + (root.profile-rows.length + 1) * 36px;
             border-radius: Radius.menu;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             background: Theme.surface;
@@ -2199,6 +2202,9 @@ export component MainWindow inherits Window {
             width: 190px;
             height: 144px;
             border-radius: Radius.menu;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             background: Theme.surface;

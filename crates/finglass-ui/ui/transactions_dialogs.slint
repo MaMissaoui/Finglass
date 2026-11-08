@@ -90,6 +90,9 @@ export component TransactionDetailDialog inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         ScrollView {
             content := VerticalLayout {
@@ -107,7 +110,7 @@ export component TransactionDetailDialog inherits Rectangle {
 
                 Text {
                     text: root.amount-text;
-                    color: root.expense ? Theme.error : Theme.success;
+                    color: root.expense ? Theme.money-out : Theme.money-in;
                     font-size: Type.headline-size;
                     font-weight: Type.headline-weight;
                 }
@@ -174,7 +177,7 @@ export component TransactionDetailDialog inherits Rectangle {
                     background: Theme.background;
                     border-radius: Radius.panel;
                     border-width: 1px;
-                    border-color: Theme.warning;
+                    border-color: Theme.caution;
 
                     HorizontalLayout {
                         padding: 10px;
@@ -184,7 +187,7 @@ export component TransactionDetailDialog inherits Rectangle {
                             width: 20px;
                             height: 20px;
                             source: @image-url("icons/warning.svg");
-                            colorize: Theme.warning;
+                            colorize: Theme.caution;
                             accessible-role: none;
                         }
 
@@ -293,6 +296,9 @@ export component AddTransactionDialog inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         ScrollView {
             content := VerticalLayout {
@@ -426,6 +432,9 @@ export component MultiDeleteDialog inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         ScrollView {
             content := VerticalLayout {
@@ -528,6 +537,9 @@ export component ImportDialog inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         VerticalLayout {
             padding: 24px;
@@ -595,7 +607,7 @@ export component ImportDialog inherits Rectangle {
                             Text {
                                 horizontal-stretch: 1;
                                 text: file.warning-text;
-                                color: Theme.error;
+                                color: Theme.caution;
                                 font-size: Type.body-small-size;
                                 vertical-alignment: center;
                                 wrap: word-wrap;
@@ -724,6 +736,9 @@ export component ReapplyRulesDialog inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         ScrollView {
             content := VerticalLayout {
@@ -829,6 +844,9 @@ export component CustomRangeDialog inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         content := VerticalLayout {
             padding: 24px;
@@ -915,6 +933,9 @@ export component AmountFilterDialog inherits Rectangle {
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
 
         content := VerticalLayout {
             padding: 24px;

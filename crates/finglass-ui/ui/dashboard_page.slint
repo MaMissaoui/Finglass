@@ -100,8 +100,8 @@ component StatCard inherits Rectangle {
         Text {
             text: root.value;
             color: root.value-color;
-            font-size: Type.headline-size;
-            font-weight: 700;
+            font-size: Type.amount-size;
+            font-weight: Type.amount-weight;
             overflow: elide;
         }
 
@@ -169,7 +169,7 @@ component LedgerRow inherits Rectangle {
 
         Text {
             text: root.amount-text;
-            color: root.expense ? Theme.error : Theme.success;
+            color: root.expense ? Theme.money-out : Theme.money-in;
             font-size: Type.label-size;
             font-weight: Type.label-weight;
             vertical-alignment: center;
@@ -211,7 +211,7 @@ component BudgetRow inherits Rectangle {
 
             Text {
                 text: root.budget.amount-text;
-                color: root.budget.over ? Theme.error : Theme.text;
+                color: Theme.money-out;
                 font-size: Type.label-small-size;
                 font-weight: Type.label-small-weight;
                 vertical-alignment: center;
@@ -229,7 +229,7 @@ component BudgetRow inherits Rectangle {
                 width: parent.width * root.budget.ratio;
                 height: parent.height;
                 border-radius: Radius.dot;
-                background: root.budget.over ? Theme.error : (root.budget.warning ? Theme.warning : root.budget.colour);
+                background: root.budget.over || root.budget.warning ? Theme.caution : root.budget.colour;
             }
 
             Rectangle {
@@ -242,7 +242,7 @@ component BudgetRow inherits Rectangle {
 
         Text {
             text: root.budget.rest-text;
-            color: root.budget.over ? Theme.error : Theme.muted-text;
+            color: root.budget.over ? Theme.caution : Theme.muted-text;
             font-size: Type.body-small-size;
         }
     }
@@ -326,7 +326,7 @@ component GettingStartedCard inherits Rectangle {
             Rectangle {
                 width: 28px;
                 height: 28px;
-                border-radius: Radius.chip;
+                border-radius: self.height / 2;
                 background: Theme.selected;
 
                 Text {
@@ -377,7 +377,7 @@ component GettingStartedCard inherits Rectangle {
             Rectangle {
                 width: 28px;
                 height: 28px;
-                border-radius: Radius.chip;
+                border-radius: self.height / 2;
                 background: Theme.selected;
 
                 Text {
@@ -419,7 +419,7 @@ component GettingStartedCard inherits Rectangle {
             Rectangle {
                 width: 28px;
                 height: 28px;
-                border-radius: Radius.chip;
+                border-radius: self.height / 2;
                 background: Theme.selected;
 
                 Text {
@@ -735,9 +735,9 @@ export component DashboardPage inherits Rectangle {
                         title: root.available-title;
                         value: root.available-value;
                         subtitle: root.available-subtitle;
-                        accent: Theme.primary;
+                        accent: Theme.muted-text;
                         icon: @image-url("icons/accounts.svg");
-                        value-color: root.available-tone == "negative" ? Theme.error : (root.available-tone == "positive" ? Theme.success : Theme.text);
+                        value-color: root.available-tone == "negative" ? Theme.alert : (root.available-tone == "positive" ? Theme.text : Theme.muted-text);
                     }
 
                     StatCard {
@@ -745,9 +745,9 @@ export component DashboardPage inherits Rectangle {
                         title: root.income-title;
                         value: root.income-value;
                         subtitle: "";
-                        accent: Theme.success;
+                        accent: Theme.muted-text;
                         icon: @image-url("icons/add_circle_outline.svg");
-                        value-color: Theme.success;
+                        value-color: Theme.money-in;
                     }
 
                     StatCard {
@@ -755,9 +755,9 @@ export component DashboardPage inherits Rectangle {
                         title: root.expenses-title;
                         value: root.expenses-value;
                         subtitle: "";
-                        accent: Theme.error;
+                        accent: Theme.muted-text;
                         icon: @image-url("icons/remove_circle_outline.svg");
-                        value-color: Theme.error;
+                        value-color: Theme.money-out;
                     }
 
                     StatCard {
@@ -765,9 +765,9 @@ export component DashboardPage inherits Rectangle {
                         title: root.pending-title;
                         value: root.pending-value;
                         subtitle: root.pending-subtitle;
-                        accent: root.pending-enabled ? Theme.warning : Theme.success;
+                        accent: root.pending-enabled ? Theme.caution : Theme.muted-text;
                         icon: root.pending-enabled ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
-                        value-color: root.pending-enabled ? Theme.warning : Theme.success;
+                        value-color: root.pending-enabled ? Theme.caution : Theme.success;
                         interactive: root.pending-enabled;
                         clicked => {
                             root.open-uncategorized();
@@ -920,6 +920,9 @@ export component DashboardPage inherits Rectangle {
             width: 200px;
             height: min(root.month-options.length * 36px + 16px, 340px);
             border-radius: Radius.menu;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             background: Theme.surface;

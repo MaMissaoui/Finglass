@@ -122,6 +122,9 @@ component CategoriesHeaderActions inherits HorizontalLayout {
         Rectangle {
             background: Theme.surface;
             border-radius: Radius.panel;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -225,16 +228,16 @@ component SettingsSectionRow inherits Rectangle {
     min-height: 40px;
     border-radius: Radius.panel;
     background: root.selected ? Theme.selected : (touch.has-hover ? Theme.surface : transparent);
+    clip: true;
     accessible-role: button;
     accessible-label: row-label.text;
 
     Rectangle {
         visible: root.selected;
         x: 0px;
-        y: 8px;
+        y: 0px;
         width: 3px;
-        height: parent.height - 16px;
-        border-radius: Radius.hairline;
+        height: parent.height;
         background: Theme.primary;
     }
 
@@ -769,7 +772,7 @@ export component SettingsPage inherits Rectangle {
                                     label: Tr.t("Delete");
                                     tooltip-text: Tr.t("Delete");
                                     icon-size: 20px;
-                                    icon-color: Theme.error;
+                                    destructive: true;
                                     clicked => { root.delete-profile(row.index); }
                                 }
                             }
@@ -853,7 +856,7 @@ export component SettingsPage inherits Rectangle {
 
                                 if (row.tax-relevant) : Text {
                                     text: Tr.t("TaxRelevant");
-                                    color: Theme.warning;
+                                    color: Theme.caution;
                                     font-size: Type.label-small-size;
                                     font-weight: Type.label-small-weight;
                                     vertical-alignment: center;
@@ -886,7 +889,7 @@ export component SettingsPage inherits Rectangle {
                                     label: Tr.t("Delete");
                                     tooltip-text: Tr.t("Delete");
                                     icon-size: 20px;
-                                    icon-color: Theme.error;
+                                    destructive: true;
                                     clicked => { root.delete-category(row.id); }
                                 }
                             }
@@ -1007,7 +1010,7 @@ export component SettingsPage inherits Rectangle {
                                     label: Tr.t("Delete");
                                     tooltip-text: Tr.t("Delete");
                                     icon-size: 20px;
-                                    icon-color: Theme.error;
+                                    destructive: true;
                                     clicked => { root.delete-rule(row.id); }
                                 }
                             }
@@ -1086,7 +1089,7 @@ export component SettingsPage inherits Rectangle {
 
                             Text {
                                 text: Tr.t("RestoreWaiting");
-                                color: Theme.warning;
+                                color: Theme.caution;
                                 font-size: Type.body-size;
                                 vertical-alignment: center;
                                 horizontal-stretch: 1;
@@ -1460,7 +1463,7 @@ export component SettingsPage inherits Rectangle {
                                         label: Tr.t("Delete");
                                         tooltip-text: Tr.t("Delete");
                                         icon-size: 20px;
-                                        icon-color: Theme.error;
+                                        destructive: true;
                                         clicked => { root.delete-profile(row.index); }
                                     }
                                 }
@@ -1544,7 +1547,7 @@ export component SettingsPage inherits Rectangle {
 
                                     if (row.tax-relevant) : Text {
                                         text: Tr.t("TaxRelevant");
-                                        color: Theme.warning;
+                                        color: Theme.caution;
                                         font-size: Type.label-small-size;
                                         font-weight: Type.label-small-weight;
                                         vertical-alignment: center;
@@ -1577,7 +1580,7 @@ export component SettingsPage inherits Rectangle {
                                         label: Tr.t("Delete");
                                         tooltip-text: Tr.t("Delete");
                                         icon-size: 20px;
-                                        icon-color: Theme.error;
+                                        destructive: true;
                                         clicked => { root.delete-category(row.id); }
                                     }
                                 }
@@ -1698,7 +1701,7 @@ export component SettingsPage inherits Rectangle {
                                         label: Tr.t("Delete");
                                         tooltip-text: Tr.t("Delete");
                                         icon-size: 20px;
-                                        icon-color: Theme.error;
+                                        destructive: true;
                                         clicked => { root.delete-rule(row.id); }
                                     }
                                 }
@@ -1777,7 +1780,7 @@ export component SettingsPage inherits Rectangle {
 
                                 Text {
                                     text: Tr.t("RestoreWaiting");
-                                    color: Theme.warning;
+                                    color: Theme.caution;
                                     font-size: Type.body-size;
                                     vertical-alignment: center;
                                     horizontal-stretch: 1;
@@ -1961,6 +1964,9 @@ export component SettingsPage inherits Rectangle {
             width: root.width - 48px;
             height: 16px + 9 * 40px + 8 * 2px;
             border-radius: Radius.menu;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             background: Theme.surface;
@@ -2031,6 +2037,9 @@ export component ChangePassphraseDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
         background: Theme.surface;
 
         dialog := VerticalLayout {

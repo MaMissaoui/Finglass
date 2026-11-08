@@ -77,6 +77,9 @@ component DeleteDocumentDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         border-radius: Radius.dialog;
+        drop-shadow-color: Theme.shadow;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -373,6 +376,14 @@ export component DocumentsPage inherits Rectangle {
                                     height: 64px;
                                     background: row.selected ? Theme.selected : (row-touch.has-hover ? Theme.background : transparent);
 
+                                    Rectangle {
+                                        visible: row.selected;
+                                        x: 0px;
+                                        width: 3px;
+                                        height: parent.height;
+                                        background: Theme.primary;
+                                    }
+
                                     HorizontalLayout {
                                         padding: 16px;
                                         spacing: 12px;
@@ -391,7 +402,7 @@ export component DocumentsPage inherits Rectangle {
                                             spacing: 2px;
                                             Text {
                                                 text: row.name;
-                                                color: Theme.text;
+                                                color: row.selected ? Theme.on-selected : Theme.text;
                                                 font-size: Type.title-small-size;
                                                 font-weight: Type.title-small-weight;
                                                 overflow: elide;
@@ -399,7 +410,7 @@ export component DocumentsPage inherits Rectangle {
                                             }
                                             Text {
                                                 text: row.meta;
-                                                color: row.is-linked ? Theme.primary : Theme.muted-text;
+                                                color: row.selected ? Theme.on-selected : (row.is-linked ? Theme.primary : Theme.muted-text);
                                                 font-size: Type.body-small-size;
                                                 overflow: elide;
                                                 vertical-alignment: center;

@@ -284,18 +284,30 @@ export struct AccountDetailRow {
 
 // Colours of account amounts, shared by the page and the panel.
 export global AccountTone {
+    // A balance: ink at or above zero, alert below it, muted for loans and exactly zero.
     public pure function amount-color(tone: string) -> color {
-        if (tone == "positive") {
-            return Theme.success;
-        }
         if (tone == "negative") {
-            return Theme.error;
+            return Theme.alert;
         }
         if (tone == "loan") {
             return Theme.muted-text;
         }
         if (tone == "plain") {
             return Theme.muted-text;
+        }
+        if (tone == "zero") {
+            return Theme.muted-text;
+        }
+        return Theme.text;
+    }
+
+    // A booking or flow amount: inflow green, outflow ink.
+    public pure function flow-color(tone: string) -> color {
+        if (tone == "positive") {
+            return Theme.money-in;
+        }
+        if (tone == "negative") {
+            return Theme.money-out;
         }
         return Theme.text;
     }
@@ -469,13 +481,13 @@ export component ChoiceChip inherits Rectangle {
     height: 32px;
     min-width: 84px;
     border-radius: Radius.control-small;
-    background: root.selected ? Theme.primary : Theme.surface;
+    background: root.selected ? Theme.selected : Theme.surface;
     border-width: focus.has-focus ? 2px : 1px;
     border-color: root.selected ? Theme.primary : (focus.has-focus ? Theme.primary : Theme.divider);
 
     Text {
         text: root.label;
-        color: root.selected ? Theme.on-primary : Theme.text;
+        color: root.selected ? Theme.on-selected : Theme.text;
         font-size: Type.label-size;
         font-weight: Type.label-weight;
         horizontal-alignment: center;
@@ -603,14 +615,14 @@ export component SecondaryButton inherits Rectangle {
             width: 18px;
             height: 18px;
             source: root.icon;
-            colorize: root.enabled ? Theme.primary : Theme.muted-text;
+            colorize: root.enabled ? Theme.text : Theme.muted-text;
             opacity: root.enabled ? 1.0 : 0.38;
             accessible-role: none;
         }
 
         label := Text {
             text: root.text;
-            color: root.enabled ? Theme.primary : Theme.muted-text;
+            color: root.enabled ? Theme.text : Theme.muted-text;
             opacity: root.enabled ? 1.0 : 0.38;
             font-size: Type.label-size;
             font-weight: Type.label-weight;
@@ -674,12 +686,12 @@ export component SegmentedButton inherits Rectangle {
             horizontal-stretch: 1;
             min-width: segment-label.preferred-width + 32px;
             background: index == root.selected ? Theme.selected : transparent;
-            // The outer segments carry the pill's rounded ends themselves: the software renderer clips
-            // children to the rectangle, not to the parent's rounded corners.
-            border-top-left-radius: index == 0 ? 19px : 0px;
-            border-bottom-left-radius: index == 0 ? 19px : 0px;
-            border-top-right-radius: index == root.labels.length - 1 ? 19px : 0px;
-            border-bottom-right-radius: index == root.labels.length - 1 ? 19px : 0px;
+            // The outer segments carry the control's rounded ends themselves: the software renderer
+            // clips children to the rectangle, not to the parent's rounded corners.
+            border-top-left-radius: index == 0 ? root.border-radius - 1px : 0px;
+            border-bottom-left-radius: index == 0 ? root.border-radius - 1px : 0px;
+            border-top-right-radius: index == root.labels.length - 1 ? root.border-radius - 1px : 0px;
+            border-bottom-right-radius: index == root.labels.length - 1 ? root.border-radius - 1px : 0px;
 
             if (index > 0) : Rectangle {
                 x: 0px;
@@ -746,6 +758,8 @@ export component IconButton inherits Rectangle {
     in property <bool> selected: false;
     in property <bool> enabled: true;
     in property <bool> outlined: false;
+    /// A destructive icon (a trash in a list): muted until the pointer rests on it.
+    in property <bool> destructive: false;
     /// The accessible label shown as a tooltip while the pointer rests on the button.
     in property <string> tooltip-text: "";
 
@@ -767,7 +781,8 @@ export component IconButton inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         source: root.icon;
-        colorize: root.selected ? Theme.on-selected : root.icon-color;
+        colorize: root.selected ? Theme.on-selected
+                : (root.destructive ? (touch.has-hover ? Theme.error : Theme.muted-text) : root.icon-color);
         accessible-role: none;
     }
 
@@ -908,16 +923,16 @@ export component SidebarItem inherits Rectangle {
     height: root.collapsed ? 44px : 40px;
     border-radius: Radius.panel;
     background: root.selected ? Theme.selected : transparent;
+    clip: true;
     accessible-role: button;
     accessible-label: root.label;
 
     Rectangle {
         visible: root.selected;
         x: 0px;
-        y: 8px;
+        y: 0px;
         width: 3px;
-        height: parent.height - 16px;
-        border-radius: Radius.hairline;
+        height: parent.height;
         background: Theme.primary;
     }
 
@@ -1401,6 +1416,9 @@ export component SelectPill inherits Rectangle {
         Rectangle {
             background: Theme.surface;
             border-radius: Radius.panel;
+            drop-shadow-color: Theme.shadow;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 4px;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -1436,7 +1454,7 @@ export component Badge inherits Rectangle {
 
     height: 20px;
     border-radius: Radius.badge;
-    background: root.positive ? Theme.selected : Theme.background;
+    background: Theme.background;
 
     HorizontalLayout {
         padding-left: 8px;
