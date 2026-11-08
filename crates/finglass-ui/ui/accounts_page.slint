@@ -1,4 +1,4 @@
-import { ComboBox, LineEdit, ScrollView, Spinner } from "std-widgets.slint";
+import { ListView, ScrollView, Spinner } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
@@ -9,12 +9,13 @@ import {
     AccountsFigure,
     AccountTone,
     BankAccountRow,
-    ChoiceChip,
     CountBadge,
     IconButton,
+    OutlinedField,
     PrimaryButton,
     SecondaryButton,
     SegmentedButton,
+    SelectPill,
     TextButton,
 } from "components.slint";
 import { BankSuggestionRow } from "models.slint";
@@ -94,27 +95,177 @@ component FigureView inherits VerticalLayout {
 component ModalCard inherits Rectangle {
     in property <string> title;
     in property <length> dialog-width: 480px;
+    in property <length> dialog-max-height: 688px;
 
     width: root.dialog-width;
-    height: content.preferred-height;
+    height: min(content.preferred-height, root.dialog-max-height);
     background: Theme.surface;
-    border-radius: 12px;
-    border-width: 1px;
-    border-color: Theme.divider;
+    border-radius: 28px;
 
-    content := VerticalLayout {
-        padding: 24px;
-        spacing: 10px;
+    ScrollView {
+        content := VerticalLayout {
+            padding: 24px;
+            spacing: 16px;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
+                wrap: word-wrap;
+            }
+
+            @children
+        }
+    }
+}
+
+// The account-type drop-down: FinDesk shows it as an outlined pill with the type's own name.
+component TypeSelectPill inherits Rectangle {
+    in property <[AccountTypeChoice]> choices;
+    in property <string> code;
+    in property <bool> enabled: true;
+
+    callback chosen(string);
+
+    property <bool> menu-open: false;
+    property <int> hover: 0;
+
+    function label-for-code(code: string) -> string {
+        if (code == "checking" && root.choices.length > 0) { return root.choices[0].label; }
+        if (code == "savings" && root.choices.length > 1) { return root.choices[1].label; }
+        if (code == "credit_card" && root.choices.length > 2) { return root.choices[2].label; }
+        if (code == "loan" && root.choices.length > 3) { return root.choices[3].label; }
+        if (code == "depot" && root.choices.length > 4) { return root.choices[4].label; }
+        return code;
+    }
+
+    function open-menu() {
+        if (root.enabled && root.choices.length > 0) {
+            root.hover = 0;
+            root.menu-open = true;
+            menu.show();
+            focus.focus();
+        }
+    }
+
+    function close-menu() {
+        root.menu-open = false;
+        menu.close();
+    }
+
+    function choose(index: int) {
+        if (index >= 0 && index < root.choices.length) {
+            root.close-menu();
+            root.chosen(root.choices[index].code);
+        }
+    }
+
+    height: 40px;
+    min-width: content.preferred-width;
+    border-radius: 20px;
+    background: touch.has-hover && root.enabled ? Theme.background : Theme.surface;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: focus.has-focus ? Theme.primary : Theme.divider;
+    opacity: root.enabled ? 1.0 : 0.55;
+    accessible-role: button;
+    accessible-enabled: root.enabled;
+
+    content := HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 8px;
+        spacing: 6px;
+        cross-axis-alignment: center;
 
         Text {
-            text: root.title;
-            color: Theme.text;
-            font-size: Type.title-medium-size;
-            font-weight: Type.title-medium-weight;
-            wrap: word-wrap;
+            text: root.label-for-code(root.code);
+            color: Theme.primary;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
+            vertical-alignment: center;
+            overflow: elide;
         }
 
-        @children
+        Image {
+            width: 18px;
+            height: 18px;
+            source: @image-url("icons/arrow_drop_down.svg");
+            colorize: Theme.primary;
+            accessible-role: none;
+        }
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.open-menu(); }
+    }
+
+    focus := FocusScope {
+        enabled <=> root.enabled;
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (!root.menu-open) {
+                if (event.text == Key.Return || event.text == Key.Space || event.text == Key.DownArrow) {
+                    root.open-menu();
+                    return accept;
+                }
+                return reject;
+            }
+            if (event.text == Key.Escape) {
+                root.close-menu();
+                return accept;
+            }
+            if (event.text == Key.DownArrow) {
+                root.hover = min(root.hover + 1, root.choices.length - 1);
+                return accept;
+            }
+            if (event.text == Key.UpArrow) {
+                root.hover = max(root.hover - 1, 0);
+                return accept;
+            }
+            if (event.text == Key.Return) {
+                root.choose(root.hover);
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    menu := PopupWindow {
+        x: 0px;
+        y: root.height + 4px;
+        width: max(root.width, 220px);
+        height: min(max(root.choices.length * 36px, 36px), 320px);
+
+        Rectangle {
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            clip: true;
+
+            ListView {
+                for choice[index] in root.choices : Rectangle {
+                    height: 36px;
+                    background: choice.code == root.code || index == root.hover || row-touch.has-hover
+                            ? Theme.background : transparent;
+
+                    Text {
+                        x: 12px;
+                        width: parent.width - 24px;
+                        text: choice.label;
+                        color: choice.code == root.code || index == root.hover ? Theme.primary : Theme.text;
+                        font-size: Type.body-size;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+
+                    row-touch := TouchArea {
+                        clicked => { root.choose(index); }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1089,6 +1240,7 @@ export component AccountsPage inherits Rectangle {
         background: #00000080;
 
         if (root.dialog == "add-bank") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: Tr.t("AddBank");
@@ -1110,14 +1262,8 @@ export component AccountsPage inherits Rectangle {
             if (root.dialog-online) : VerticalLayout {
                 spacing: 8px;
 
-                Text {
-                    text: Tr.t("BankSearchHint");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("BankSearchHint");
                     text <=> root.add-bank-search;
                     edited(text) => {
                         root.bank-search-changed(text);
@@ -1168,14 +1314,8 @@ export component AccountsPage inherits Rectangle {
                 }
             }
 
-            Text {
-                text: Tr.t("BankName");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("BankName");
                 text <=> root.add-bank-name;
                 accepted(text) => {
                     if (text != "" && !root.dialog-online) {
@@ -1187,14 +1327,8 @@ export component AccountsPage inherits Rectangle {
             if (root.dialog-online) : VerticalLayout {
                 spacing: 8px;
 
-                Text {
-                    text: Tr.t("BlzDigits");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("BlzDigits");
                     text <=> root.add-bank-blz;
                     edited(text) => {
                         root.bank-blz-changed(root.add-bank-name, text, root.add-bank-bic);
@@ -1208,36 +1342,18 @@ export component AccountsPage inherits Rectangle {
                     wrap: word-wrap;
                 }
 
-                Text {
-                    text: Tr.t("BicOptional");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("BicOptional");
                     text <=> root.add-bank-bic;
                 }
 
-                Text {
-                    text: Tr.t("UserIdLogin");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("UserIdLogin");
                     text <=> root.add-bank-user-id;
                 }
 
-                Text {
-                    text: Tr.t("FintsServerUrl");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("FintsServerUrl");
                     text <=> root.add-bank-server-url;
                 }
 
@@ -1258,7 +1374,14 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Add");
@@ -1277,83 +1400,49 @@ export component AccountsPage inherits Rectangle {
                         }
                     }
                 }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => {
-                        root.close-dialog();
-                    }
-                }
             }
         }
 
         if (root.dialog == "add-account") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: root.dialog-title;
             dialog-width: 540px;
 
-            Text {
-                text: Tr.t("AccountName");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("AccountName");
                 text <=> root.add-account-name;
             }
 
-            Text {
-                text: root.dialog-offline ? Tr.t("IbanOrCardLast4") : Tr.t("Iban");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: root.dialog-offline ? Tr.t("IbanOrCardLast4") : Tr.t("Iban");
                 text <=> root.add-account-identifier;
             }
 
-            Text {
-                text: Tr.t("AccountTypeLabel");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
             HorizontalLayout {
-                spacing: 6px;
+                alignment: start;
 
-                for choice in root.type-choices : ChoiceChip {
-                    label: choice.label;
-                    selected: root.form-type-code == choice.code;
-                    clicked => {
-                        root.form-type-code = choice.code;
-                    }
+                TypeSelectPill {
+                    choices: root.type-choices;
+                    code: root.form-type-code;
+                    chosen(code) => { root.form-type-code = code; }
                 }
             }
 
-            Text {
-                text: Tr.t("ColCurrency");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
+            HorizontalLayout {
+                alignment: start;
+
+                SelectPill {
+                    label-prefix: Tr.t("ColCurrency") + ": ";
+                    value: root.form-currency;
+                    options: root.currency-codes;
+                    value-chosen(value) => { root.form-currency = value; }
+                }
             }
 
-            ComboBox {
-                model: root.currency-codes;
-                current-value <=> root.form-currency;
-            }
-
-            Text {
-                text: Tr.t("ColBalance");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("ColBalance");
                 text <=> root.add-account-balance;
             }
 
@@ -1373,7 +1462,14 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Add");
@@ -1389,17 +1485,11 @@ export component AccountsPage inherits Rectangle {
                         );
                     }
                 }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => {
-                        root.close-dialog();
-                    }
-                }
             }
         }
 
         if (root.dialog == "balance") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: Tr.t("UpdateBalance");
@@ -1411,33 +1501,18 @@ export component AccountsPage inherits Rectangle {
                 overflow: elide;
             }
 
-            Text {
-                text: Tr.t("AccountTypeLabel");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
             HorizontalLayout {
-                spacing: 6px;
+                alignment: start;
 
-                for choice in root.type-choices : ChoiceChip {
-                    label: choice.label;
-                    selected: root.balance-type-code == choice.code;
-                    clicked => {
-                        root.balance-type-code = choice.code;
-                    }
+                TypeSelectPill {
+                    choices: root.type-choices;
+                    code: root.balance-type-code;
+                    chosen(code) => { root.balance-type-code = code; }
                 }
             }
 
-            Text {
-                text: Tr.t("ColBalance");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("ColBalance");
                 text <=> root.balance-input;
                 accepted(text) => {
                     if (text != "") {
@@ -1462,7 +1537,14 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Save");
@@ -1471,29 +1553,17 @@ export component AccountsPage inherits Rectangle {
                         root.submit-balance(root.dialog-account-id, root.balance-input, root.balance-type-code);
                     }
                 }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => {
-                        root.close-dialog();
-                    }
-                }
             }
         }
 
         if (root.dialog == "rename") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: Tr.t("RenameAccount");
 
-            Text {
-                text: Tr.t("AccountName");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("AccountName");
                 text <=> root.rename-input;
                 accepted(text) => {
                     root.submit-rename(root.dialog-account-id, text);
@@ -1509,14 +1579,7 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("Save");
-                    clicked => {
-                        root.submit-rename(root.dialog-account-id, root.rename-input);
-                    }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
@@ -1524,23 +1587,25 @@ export component AccountsPage inherits Rectangle {
                         root.close-dialog();
                     }
                 }
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    clicked => {
+                        root.submit-rename(root.dialog-account-id, root.rename-input);
+                    }
+                }
             }
         }
 
         if (root.dialog == "connection") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: root.dialog-title;
             dialog-width: 520px;
 
-            Text {
-                text: Tr.t("ConnectionName");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("ConnectionName");
                 text <=> root.connection-name;
             }
 
@@ -1554,36 +1619,18 @@ export component AccountsPage inherits Rectangle {
             if (!root.dialog-offline) : VerticalLayout {
                 spacing: 8px;
 
-                Text {
-                    text: Tr.t("BlzDigits");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("BlzDigits");
                     text <=> root.connection-blz;
                 }
 
-                Text {
-                    text: Tr.t("UserIdLogin");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("UserIdLogin");
                     text <=> root.connection-user-id;
                 }
 
-                Text {
-                    text: Tr.t("FintsServerUrl");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("FintsServerUrl");
                     text <=> root.connection-server-url;
                 }
 
@@ -1612,7 +1659,14 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.close-dialog();
+                    }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Save");
@@ -1627,52 +1681,34 @@ export component AccountsPage inherits Rectangle {
                         );
                     }
                 }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => {
-                        root.close-dialog();
-                    }
-                }
             }
         }
 
         if (root.dialog == "history") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: root.dialog-title;
             dialog-width: 500px;
 
-            Text {
-                text: Tr.t("FetchHistoryDate");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("FetchHistoryDate");
                 text <=> root.history-date;
+                error: root.dialog-error != "";
+                supporting-text: root.dialog-error != "" ? root.dialog-error : Tr.t("FetchHistoryHint");
                 accepted(text) => {
                     root.submit-history(root.dialog-bank-id, text);
                 }
             }
 
-            Text {
-                text: root.dialog-error != "" ? root.dialog-error : Tr.t("FetchHistoryHint");
-                color: root.dialog-error != "" ? Theme.error : Theme.muted-text;
-                font-size: Type.body-small-size;
-                wrap: word-wrap;
-            }
-
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
 
-                PrimaryButton {
-                    text: Tr.t("Fetch");
-                    enabled: root.history-date != "";
+                TextButton {
+                    text: Tr.t("Cancel");
                     clicked => {
-                        root.submit-history(root.dialog-bank-id, root.history-date);
+                        root.close-dialog();
                     }
                 }
 
@@ -1683,16 +1719,18 @@ export component AccountsPage inherits Rectangle {
                     }
                 }
 
-                TextButton {
-                    text: Tr.t("Cancel");
+                PrimaryButton {
+                    text: Tr.t("Fetch");
+                    enabled: root.history-date != "";
                     clicked => {
-                        root.close-dialog();
+                        root.submit-history(root.dialog-bank-id, root.history-date);
                     }
                 }
             }
         }
 
         if (root.dialog == "delete-account") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: root.dialog-title;
@@ -1706,25 +1744,27 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("Delete");
-                    clicked => {
-                        root.confirm-delete-account(root.dialog-account-id);
-                    }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     clicked => {
                         root.close-dialog();
+                    }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("Delete");
+                    destructive: true;
+                    clicked => {
+                        root.confirm-delete-account(root.dialog-account-id);
                     }
                 }
             }
         }
 
         if (root.dialog == "delete-bank") : ModalCard {
+            dialog-max-height: parent.height - 32px;
             x: (parent.width - self.width) / 2;
             y: (parent.height - self.height) / 2;
             title: root.dialog-title;
@@ -1738,19 +1778,20 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("RemoveBank");
-                    clicked => {
-                        root.confirm-delete-bank(root.dialog-bank-id);
-                    }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     clicked => {
                         root.close-dialog();
+                    }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("RemoveBank");
+                    destructive: true;
+                    clicked => {
+                        root.confirm-delete-bank(root.dialog-bank-id);
                     }
                 }
             }

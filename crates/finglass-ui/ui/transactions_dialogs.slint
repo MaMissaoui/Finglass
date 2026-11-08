@@ -1,12 +1,15 @@
-import { CheckBox, ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
+import { ScrollView } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
+    Checkbox,
     ImportCsvField,
     ImportFileRow,
+    OutlinedField,
     PrimaryButton,
     ReapplyGroupRow,
     SegmentedButton,
+    SelectPill,
     TextButton,
 } from "components.slint";
 
@@ -33,31 +36,6 @@ component DetailRow inherits HorizontalLayout {
         font-size: Type.body-size;
         wrap: word-wrap;
         vertical-alignment: center;
-    }
-}
-
-// A destructive action button for the batch-delete confirmation.
-component DangerButton inherits Rectangle {
-    in property <string> text;
-
-    callback clicked;
-
-    height: 36px;
-    min-width: 120px;
-    border-radius: 6px;
-    background: touch.has-hover ? #B91C1C : Theme.error;
-
-    Text {
-        text: root.text;
-        color: #FFFFFF;
-        font-size: Type.title-small-size;
-        font-weight: Type.title-small-weight;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-    }
-
-    touch := TouchArea {
-        clicked => { root.clicked(); }
     }
 }
 
@@ -91,6 +69,16 @@ export component TransactionDetailDialog inherits Rectangle {
     callback attach-receipt;
     callback create-rule;
 
+    function category-value() -> string {
+        return root.category-index >= 0 && root.category-index < root.category-names.length
+                ? root.category-names[root.category-index] : "";
+    }
+
+    function tax-value() -> string {
+        return root.tax-index >= 0 && root.tax-index < root.tax-options.length
+                ? root.tax-options[root.tax-index] : "";
+    }
+
     width: 100%;
     height: 100%;
     background: #00000080;
@@ -101,21 +89,19 @@ export component TransactionDetailDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
         ScrollView {
             content := VerticalLayout {
                 padding: 24px;
-                spacing: 10px;
+                spacing: 16px;
                 alignment: start;
 
                 Text {
                     text: root.title;
                     color: Theme.text;
-                    font-size: Type.title-large-size;
-                    font-weight: Type.title-large-weight;
+                    font-size: Type.headline-size;
+                    font-weight: Type.headline-weight;
                     wrap: word-wrap;
                 }
 
@@ -134,21 +120,13 @@ export component TransactionDetailDialog inherits Rectangle {
 
                 HorizontalLayout {
                     spacing: 8px;
+                    alignment: start;
 
-                    Text {
-                        width: 88px;
-                        text: Tr.t("DetailCategory");
-                        color: Theme.text;
-                        font-size: Type.label-size;
-                        font-weight: Type.label-weight;
-                        vertical-alignment: center;
-                    }
-
-                    ComboBox {
-                        width: 220px;
-                        model: root.category-names;
-                        current-index <=> root.category-index;
-                        selected(value) => { root.category-selected(root.category-index); }
+                    SelectPill {
+                        label-prefix: Tr.t("DetailCategory") + ": ";
+                        value: root.category-value();
+                        options: root.category-names;
+                        chosen(index) => { root.category-selected(index); }
                     }
 
                     if (root.tax-relevant) : Rectangle {
@@ -175,13 +153,11 @@ export component TransactionDetailDialog inherits Rectangle {
                 HorizontalLayout {
                     spacing: 8px;
 
-                    Text {
-                        width: 88px;
-                        text: Tr.t("TaxMenu");
-                        color: Theme.text;
-                        font-size: Type.label-size;
-                        font-weight: Type.label-weight;
-                        vertical-alignment: center;
+                    SelectPill {
+                        label-prefix: Tr.t("TaxMenu") + ": ";
+                        value: root.tax-value();
+                        options: root.tax-options;
+                        chosen(index) => { root.tax-selected(index); }
                     }
 
                     Text {
@@ -191,13 +167,6 @@ export component TransactionDetailDialog inherits Rectangle {
                         font-size: Type.body-small-size;
                         wrap: word-wrap;
                         vertical-alignment: center;
-                    }
-
-                    ComboBox {
-                        width: 190px;
-                        model: root.tax-options;
-                        current-index <=> root.tax-index;
-                        selected(value) => { root.tax-selected(root.tax-index); }
                     }
                 }
 
@@ -271,6 +240,7 @@ export component AddTransactionDialog inherits Rectangle {
     in property <[string]> category-names;
     in property <string> amount-label;
     in property <string> error-text;
+    in property <bool> focus-amount: false;
 
     callback close;
     callback submit(int, bool, string, string, string, string, int);
@@ -291,6 +261,25 @@ export component AddTransactionDialog inherits Rectangle {
         root.partner-text = "";
         root.purpose-text = "";
         root.category-index = 0;
+        if (root.focus-amount) {
+            amount-field.focus-input();
+        }
+    }
+
+    changed focus-amount => {
+        if (root.focus-amount) {
+            amount-field.focus-input();
+        }
+    }
+
+    function account-value() -> string {
+        return root.account-index >= 0 && root.account-index < root.accounts.length
+                ? root.accounts[root.account-index] : "";
+    }
+
+    function category-value() -> string {
+        return root.category-index >= 0 && root.category-index < root.category-names.length
+                ? root.category-names[root.category-index] : "";
     }
 
     width: 100%;
@@ -303,33 +292,29 @@ export component AddTransactionDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
         ScrollView {
             content := VerticalLayout {
                 padding: 24px;
-                spacing: 10px;
+                spacing: 16px;
                 alignment: start;
 
                 Text {
                     text: Tr.t("AddTransaction");
                     color: Theme.text;
-                    font-size: Type.title-large-size;
-                    font-weight: Type.title-large-weight;
+                    font-size: Type.headline-size;
+                    font-weight: Type.headline-weight;
                 }
 
-                Text {
-                    text: Tr.t("DetailAccount");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
+                HorizontalLayout {
+                    alignment: start;
 
-                ComboBox {
-                    model: root.accounts;
-                    current-index <=> root.account-index;
+                    SelectPill {
+                        value: root.account-value();
+                        options: root.accounts;
+                        chosen(index) => { root.account-index = index; }
+                    }
                 }
 
                 HorizontalLayout {
@@ -343,60 +328,40 @@ export component AddTransactionDialog inherits Rectangle {
                     }
                 }
 
-                Text {
-                    text: Tr.t("DateFormat");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    OutlinedField {
+                        horizontal-stretch: 1;
+                        label: Tr.t("DateFormat");
+                        text <=> root.date-text;
+                    }
+
+                    amount-field := OutlinedField {
+                        horizontal-stretch: 1;
+                        label: root.amount-label;
+                        text <=> root.amount-text;
+                    }
                 }
 
-                LineEdit {
-                    text <=> root.date-text;
-                }
-
-                Text {
-                    text: root.amount-label;
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
-                    text <=> root.amount-text;
-                }
-
-                Text {
-                    text: Tr.t("PartnerPayee");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("PartnerPayee");
                     text <=> root.partner-text;
                 }
 
-                Text {
-                    text: Tr.t("Purpose");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("Purpose");
                     text <=> root.purpose-text;
                 }
 
-                Text {
-                    text: Tr.t("DetailCategory");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
+                HorizontalLayout {
+                    alignment: start;
 
-                ComboBox {
-                    model: root.category-names;
-                    current-index <=> root.category-index;
+                    SelectPill {
+                        value: root.category-value();
+                        options: root.category-names;
+                        chosen(index) => { root.category-index = index; }
+                    }
                 }
 
                 if (root.error-text != "") : Text {
@@ -408,7 +373,12 @@ export component AddTransactionDialog inherits Rectangle {
 
                 HorizontalLayout {
                     spacing: 12px;
-                    alignment: start;
+                    alignment: end;
+
+                    TextButton {
+                        text: Tr.t("Cancel");
+                        clicked => { root.close(); }
+                    }
 
                     PrimaryButton {
                         text: Tr.t("Add");
@@ -426,11 +396,6 @@ export component AddTransactionDialog inherits Rectangle {
                                 root.category-index,
                             );
                         }
-                    }
-
-                    TextButton {
-                        text: Tr.t("Cancel");
-                        clicked => { root.close(); }
                     }
                 }
             }
@@ -460,21 +425,19 @@ export component MultiDeleteDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
         ScrollView {
             content := VerticalLayout {
                 padding: 24px;
-                spacing: 10px;
+                spacing: 16px;
                 alignment: start;
 
                 Text {
                     text: root.title;
                     color: Theme.text;
-                    font-size: Type.title-large-size;
-                    font-weight: Type.title-large-weight;
+                    font-size: Type.headline-size;
+                    font-weight: Type.headline-weight;
                     wrap: word-wrap;
                 }
 
@@ -513,16 +476,17 @@ export component MultiDeleteDialog inherits Rectangle {
 
                 HorizontalLayout {
                     spacing: 12px;
-                    alignment: start;
-
-                    DangerButton {
-                        text: Tr.t("Delete");
-                        clicked => { root.confirm(); }
-                    }
+                    alignment: end;
 
                     TextButton {
                         text: Tr.t("Cancel");
                         clicked => { root.cancel(); }
+                    }
+
+                    PrimaryButton {
+                        text: Tr.t("Delete");
+                        destructive: true;
+                        clicked => { root.confirm(); }
                     }
                 }
             }
@@ -559,27 +523,30 @@ export component ImportDialog inherits Rectangle {
 
     Rectangle {
         width: 720px;
-        height: min(content.preferred-height, parent.height - 32px);
+        height: min(body.preferred-height + footer.preferred-height + 64px, parent.height - 32px);
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
-        ScrollView {
-            content := VerticalLayout {
-                padding: 16px;
-                spacing: 6px;
-                alignment: start;
+        VerticalLayout {
+            padding: 24px;
+            spacing: 16px;
 
-                Text {
-                    text: root.title;
-                    color: Theme.text;
-                    font-size: Type.title-large-size;
-                    font-weight: Type.title-large-weight;
-                    wrap: word-wrap;
-                }
+            ScrollView {
+                vertical-stretch: 1;
+
+                body := VerticalLayout {
+                    spacing: 16px;
+                    alignment: start;
+
+                    Text {
+                        text: root.title;
+                        color: Theme.text;
+                        font-size: Type.headline-size;
+                        font-weight: Type.headline-weight;
+                        wrap: word-wrap;
+                    }
 
                 if (root.summary-text != "") : Text {
                     text: root.summary-text;
@@ -587,68 +554,68 @@ export component ImportDialog inherits Rectangle {
                     font-size: Type.body-size;
                 }
 
-                for file in root.file-rows : Rectangle {
-                    height: 30px;
-                    background: transparent;
+                VerticalLayout {
+                    spacing: 0px;
 
-                    HorizontalLayout {
-                        spacing: 10px;
+                    for file in root.file-rows : Rectangle {
+                        height: 30px;
+                        background: transparent;
 
-                        Text {
-                            horizontal-stretch: 2;
-                            text: file.name;
-                            color: file.failure ? Theme.error : Theme.text;
-                            font-size: Type.body-small-size;
-                            vertical-alignment: center;
-                            overflow: elide;
-                        }
+                        HorizontalLayout {
+                            spacing: 10px;
 
-                        Text {
-                            width: 90px;
-                            text: file.count-text;
-                            color: Theme.muted-text;
-                            font-size: Type.body-small-size;
-                            horizontal-alignment: right;
-                            vertical-alignment: center;
-                        }
+                            Text {
+                                horizontal-stretch: 2;
+                                text: file.name;
+                                color: file.failure ? Theme.error : Theme.text;
+                                font-size: Type.body-small-size;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
 
-                        Text {
-                            width: 150px;
-                            text: file.period-text;
-                            color: Theme.muted-text;
-                            font-size: Type.body-small-size;
-                            horizontal-alignment: right;
-                            vertical-alignment: center;
-                            overflow: elide;
-                        }
+                            Text {
+                                width: 90px;
+                                text: file.count-text;
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                            }
 
-                        Text {
-                            horizontal-stretch: 1;
-                            text: file.warning-text;
-                            color: Theme.error;
-                            font-size: Type.body-small-size;
-                            vertical-alignment: center;
-                            wrap: word-wrap;
+                            Text {
+                                width: 150px;
+                                text: file.period-text;
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+
+                            Text {
+                                horizontal-stretch: 1;
+                                text: file.warning-text;
+                                color: Theme.error;
+                                font-size: Type.body-small-size;
+                                vertical-alignment: center;
+                                wrap: word-wrap;
+                            }
                         }
                     }
                 }
 
                 HorizontalLayout {
-                    spacing: 8px;
+                    alignment: start;
 
-                    Text {
-                        text: Tr.t("IntoAccount");
-                        color: Theme.text;
-                        font-size: Type.label-size;
-                        font-weight: Type.label-weight;
-                        vertical-alignment: center;
-                    }
-
-                    ComboBox {
-                        width: 320px;
-                        model: root.account-options;
-                        current-index <=> root.account-index;
-                        selected(value) => { root.account-selected(root.account-index); }
+                    SelectPill {
+                        label-prefix: Tr.t("IntoAccount");
+                        value: root.account-index >= 0 && root.account-index < root.account-options.length
+                                ? root.account-options[root.account-index] : "";
+                        options: root.account-options;
+                        chosen(index) => {
+                            root.account-index = index;
+                            root.account-selected(index);
+                        }
                     }
                 }
 
@@ -674,29 +641,26 @@ export component ImportDialog inherits Rectangle {
                         spacing: 8px;
                         padding-top: 2px;
 
-                        for field[index] in root.csv-fields : VerticalLayout {
+                        for field[index] in root.csv-fields : SelectPill {
                             row: Math.floor(index / 2);
                             col: Math.mod(index, 2);
-                            spacing: 2px;
-
-                            Text {
-                                text: field.label;
-                                color: Theme.text;
-                                font-size: Type.label-small-size;
-                                font-weight: Type.label-small-weight;
-                            }
-
-                            ComboBox {
-                                width: 310px;
-                                model: field.options;
-                                current-index: field.index;
-                                selected(value) => { root.csv-changed(field.field, value); }
+                            // Two equal columns inside the dialog: long column names elide (the full
+                            // text is the accessible label) instead of pushing the grid past the edge.
+                            min-width: 0px;
+                            preferred-width: 0px;
+                            horizontal-stretch: 1;
+                            label-prefix: field.label + ": ";
+                            value: field.index >= 0 && field.index < field.options.length
+                                    ? field.options[field.index] : "";
+                            options: field.options;
+                            chosen(option-index) => {
+                                root.csv-changed(field.field, field.options[option-index]);
                             }
                         }
                     }
                 }
 
-                if (root.balance-allowed) : CheckBox {
+                if (root.balance-allowed) : Checkbox {
                     checked <=> root.update-balance;
                     text: root.balance-text;
                 }
@@ -714,22 +678,23 @@ export component ImportDialog inherits Rectangle {
                     font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
+            }
+            }
 
-                HorizontalLayout {
-                    spacing: 12px;
-                    alignment: end;
+            footer := HorizontalLayout {
+                spacing: 12px;
+                alignment: end;
 
-                    TextButton {
-                        text: Tr.t("Cancel");
-                        enabled: !root.importing;
-                        clicked => { root.close(); }
-                    }
+                TextButton {
+                    text: Tr.t("Cancel");
+                    enabled: !root.importing;
+                    clicked => { root.close(); }
+                }
 
-                    PrimaryButton {
-                        text: root.confirm-text;
-                        enabled: root.confirm-enabled && !root.importing;
-                        clicked => { root.confirm(root.update-balance); }
-                    }
+                PrimaryButton {
+                    text: root.confirm-text;
+                    enabled: root.confirm-enabled && !root.importing;
+                    clicked => { root.confirm(root.update-balance); }
                 }
             }
         }
@@ -758,21 +723,19 @@ export component ReapplyRulesDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
         ScrollView {
             content := VerticalLayout {
                 padding: 24px;
-                spacing: 10px;
+                spacing: 16px;
                 alignment: start;
 
                 Text {
                     text: Tr.t("ReapplyRulesTitle");
                     color: Theme.text;
-                    font-size: Type.title-large-size;
-                    font-weight: Type.title-large-weight;
+                    font-size: Type.headline-size;
+                    font-weight: Type.headline-weight;
                 }
 
                 Text {
@@ -794,7 +757,8 @@ export component ReapplyRulesDialog inherits Rectangle {
                     padding-top: 4px;
                     padding-bottom: 4px;
 
-                    CheckBox {
+                    Checkbox {
+                        width: 40px;
                         checked: group.ticked;
                         toggled => { root.toggle(group.from-id, group.to-id); }
                     }
@@ -864,42 +828,34 @@ export component CustomRangeDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
         content := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
             alignment: start;
 
             Text {
                 text: Tr.t("CustomRange");
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
             }
 
-            Text {
-                text: Tr.t("FromDate");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
+            HorizontalLayout {
+                spacing: 8px;
 
-            LineEdit {
-                text <=> root.from-text;
-            }
+                OutlinedField {
+                    horizontal-stretch: 1;
+                    label: Tr.t("FromDate");
+                    text <=> root.from-text;
+                }
 
-            Text {
-                text: Tr.t("ToDate");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
-                text <=> root.to-text;
+                OutlinedField {
+                    horizontal-stretch: 1;
+                    label: Tr.t("ToDate");
+                    text <=> root.to-text;
+                }
             }
 
             if (root.error-text != "") : Text {
@@ -911,17 +867,17 @@ export component CustomRangeDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.close(); }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Apply");
                     enabled: root.from-text != "" && root.to-text != "";
                     clicked => { root.apply(root.from-text, root.to-text); }
-                }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => { root.close(); }
                 }
             }
         }
@@ -958,41 +914,27 @@ export component AmountFilterDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
         content := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
             alignment: start;
 
             Text {
                 text: Tr.t("AmountFilterAny");
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
             }
 
-            Text {
-                text: root.min-label;
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: root.min-label;
                 text <=> root.min-text;
             }
 
-            Text {
-                text: root.max-label;
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: root.max-label;
                 text <=> root.max-text;
             }
 
@@ -1005,11 +947,11 @@ export component AmountFilterDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
 
-                PrimaryButton {
-                    text: Tr.t("Apply");
-                    clicked => { root.apply(root.min-text, root.max-text); }
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.close(); }
                 }
 
                 TextButton {
@@ -1017,9 +959,9 @@ export component AmountFilterDialog inherits Rectangle {
                     clicked => { root.reset(); }
                 }
 
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => { root.close(); }
+                PrimaryButton {
+                    text: Tr.t("Apply");
+                    clicked => { root.apply(root.min-text, root.max-text); }
                 }
             }
         }

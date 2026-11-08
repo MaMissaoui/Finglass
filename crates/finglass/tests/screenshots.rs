@@ -917,6 +917,7 @@ fn renders_the_app_shell() {
         let ui = UnlockWindow::new().unwrap();
         configure_unlock(&ui, Language::En, ThemePref::Light, "unlock", "");
         ui.set_profile_label(i18n::format(Language::En, Key::UnlockProfile, &["Business".into()]).into());
+        ui.set_profile_name("Business".into());
         ui.set_restored(startup.restored_from.is_some());
         ui.set_passphrase("".into());
         assert_eq!(ui.get_passphrase(), "");
@@ -1581,6 +1582,60 @@ fn renders_the_app_shell() {
             );
         },
     );
+
+    // The add-booking dialog with a focused, empty field: the label floats onto the outline in the
+    // primary colour while the filled date field next to it keeps its floating label.
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "transactions", &[]);
+        ui.set_transactions_show_panel(true);
+        transactions_page::apply(&ui, &transactions_en);
+        ui.set_transactions_add_open(true);
+        ui.set_transactions_add_date(format::date(today).into());
+        ui.set_transactions_add_account_options(ModelRc::new(VecModel::from(
+            transactions_en
+                .accounts
+                .iter()
+                .map(|account| {
+                    SharedString::from(format!(
+                        "{} · {}",
+                        accounts_label(account, Language::En),
+                        account.currency.as_str()
+                    ))
+                })
+                .collect::<Vec<_>>(),
+        )));
+        ui.set_transactions_add_account_index(
+            transactions_en
+                .accounts
+                .iter()
+                .position(|account| account.id == seeded_transactions.checking)
+                .map_or(0, |index| i32::try_from(index).unwrap_or(0)),
+        );
+        ui.set_transactions_add_category_names(ModelRc::new(VecModel::from(
+            std::iter::once(SharedString::from(i18n::text(Language::En, Key::AutoRules)))
+                .chain(
+                    transactions_en
+                        .categories
+                        .iter()
+                        .map(|category| SharedString::from(category.name.clone())),
+                )
+                .collect::<Vec<_>>(),
+        )));
+        ui.set_transactions_add_amount_label(
+            i18n::format(
+                Language::En,
+                Key::AmountIn,
+                &[Arg::Str(format::currency_symbol(Currency::EUR))],
+            )
+            .into(),
+        );
+        ui.set_transactions_add_focus_amount(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "dialog-field-focused-en-light", 1440, 720);
+        assert_varied(&buffer, "dialog-field-focused-en-light");
+        let _ = ui.hide();
+    }
 
     render_transactions(
         &window,
@@ -3586,6 +3641,7 @@ fn configure_unlock(ui: &UnlockWindow, language: Language, theme: ThemePref, mod
         )
         .into(),
     );
+    ui.set_profile_name(finglass_core::profiles::DEFAULT_NAME.into());
     ui.set_passphrase_hint(i18n::format(language, Key::PassphraseHint, &[10i64.into()]).into());
 }
 

@@ -1,7 +1,7 @@
-import { AboutSlint, CheckBox, ComboBox, LineEdit, ScrollView, Spinner, TextEdit } from "std-widgets.slint";
+import { AboutSlint, ScrollView, Spinner, TextEdit } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
-import { IconButton, PrimaryButton, SegmentedButton, TextButton } from "components.slint";
+import { Checkbox, IconButton, OutlinedField, PrimaryButton, SegmentedButton, SelectPill, TextButton } from "components.slint";
 import { AuditRow, CategoryRow, ProfileRow, RuleRow } from "models.slint";
 import { FinDeskPassphraseDialog, FinDeskReportDialog } from "settings_dialogs.slint";
 
@@ -539,11 +539,12 @@ export component SettingsPage inherits Rectangle {
                                 }
                             }
 
-                            ComboBox {
-                                width: 180px;
-                                model: root.currency-options;
-                                current-index <=> root.primary-currency-index;
-                                selected(value) => { root.set-primary-currency(value); }
+                            SelectPill {
+                                label-prefix: "";
+                                value: root.primary-currency-index >= 0 && root.primary-currency-index < root.currency-options.length
+                                        ? root.currency-options[root.primary-currency-index] : "";
+                                options: root.currency-options;
+                                chosen(index) => { root.set-primary-currency(index); }
                             }
                         }
                     }
@@ -1233,11 +1234,12 @@ export component SettingsPage inherits Rectangle {
                                     }
                                 }
 
-                                ComboBox {
-                                    width: 180px;
-                                    model: root.currency-options;
-                                    current-index <=> root.primary-currency-index;
-                                    selected(value) => { root.set-primary-currency(value); }
+                                SelectPill {
+                                    label-prefix: "";
+                                    value: root.primary-currency-index >= 0 && root.primary-currency-index < root.currency-options.length
+                                            ? root.currency-options[root.primary-currency-index] : "";
+                                    options: root.currency-options;
+                                    chosen(index) => { root.set-primary-currency(index); }
                                 }
                             }
                         }
@@ -1906,20 +1908,18 @@ export component ChangePassphraseDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: Tr.t("ChangePassphrase");
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
             }
 
             Text {
@@ -1929,52 +1929,37 @@ export component ChangePassphraseDialog inherits Rectangle {
                 wrap: word-wrap;
             }
 
-            Text {
-                text: Tr.t("CurrentPassphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("CurrentPassphrase");
                 enabled: !root.busy;
                 text <=> root.current;
                 input-type: root.show-passphrase ? InputType.text : InputType.password;
                 accepted(text) => { root.send(); }
             }
 
-            Text {
-                text: Tr.t("NewPassphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("NewPassphrase");
                 enabled: !root.busy;
                 text <=> root.new-passphrase;
                 input-type: root.show-passphrase ? InputType.text : InputType.password;
                 accepted(text) => { root.send(); }
             }
 
-            Text {
-                text: Tr.t("RepeatPassphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("RepeatPassphrase");
                 enabled: !root.busy;
                 text <=> root.repeat;
                 input-type: root.show-passphrase ? InputType.text : InputType.password;
                 accepted(text) => { root.send(); }
             }
 
-            CheckBox {
+            Checkbox {
                 enabled: !root.busy;
                 text: Tr.t("ShowPassphrase");
                 checked <=> root.show-passphrase;
             }
 
-            CheckBox {
+            Checkbox {
                 enabled: !root.busy;
                 text: Tr.t("PassphraseNoRecovery");
                 checked <=> root.acknowledged;
@@ -1989,18 +1974,18 @@ export component ChangePassphraseDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("ChangePassphrase");
-                    enabled: !root.busy;
-                    clicked => { root.send(); }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     enabled: !root.busy;
                     clicked => { root.close(); }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("ChangePassphrase");
+                    enabled: !root.busy;
+                    clicked => { root.send(); }
                 }
 
                 if (root.busy) : HorizontalLayout {

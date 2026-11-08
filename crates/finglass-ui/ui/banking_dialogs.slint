@@ -1,7 +1,7 @@
-import { CheckBox, LineEdit, ScrollView } from "std-widgets.slint";
+import { ScrollView } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
-import { PrimaryButton, TextButton } from "components.slint";
+import { Checkbox, OutlinedField, PrimaryButton, TextButton } from "components.slint";
 import { BankingPromptChoice } from "models.slint";
 
 // One choice in a TAN-procedure or TAN-medium prompt.
@@ -74,19 +74,17 @@ export component BankingPrompts inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
 
         dialog-content := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
                 wrap: word-wrap;
             }
 
@@ -100,16 +98,10 @@ export component BankingPrompts inherits Rectangle {
             if (root.kind == "pin") : VerticalLayout {
                 spacing: 8px;
 
-                Text {
-                    text: root.label;
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: root.label;
                     text <=> root.pin-input;
-                    input-type: password;
+                    input-type: InputType.password;
                     accepted(value) => {
                         if (value != "") {
                             root.answer-pin(value, root.remember-checked);
@@ -122,7 +114,7 @@ export component BankingPrompts inherits Rectangle {
                 if (root.remember-visible) : VerticalLayout {
                     spacing: 1px;
 
-                    CheckBox {
+                    Checkbox {
                         checked <=> root.remember-checked;
                         text: Tr.t("RememberPinForSyncs");
                     }
@@ -180,14 +172,8 @@ export component BankingPrompts inherits Rectangle {
                     wrap: word-wrap;
                 }
 
-                Text {
-                    text: root.label;
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: root.label;
                     text <=> root.tan-input;
                     accepted(value) => {
                         if (value != "") {
@@ -200,14 +186,7 @@ export component BankingPrompts inherits Rectangle {
 
             if (root.kind == "decoupled") : HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("IConfirmedIt");
-                    clicked => {
-                        root.answer-decoupled(true);
-                    }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
@@ -215,11 +194,27 @@ export component BankingPrompts inherits Rectangle {
                         root.answer-decoupled(false);
                     }
                 }
+
+                PrimaryButton {
+                    text: Tr.t("IConfirmedIt");
+                    clicked => {
+                        root.answer-decoupled(true);
+                    }
+                }
             }
 
             if (root.kind == "pin") : HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.pin-input = "";
+                        root.remember-checked = false;
+                        root.cancel();
+                    }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Ok");
@@ -230,20 +225,18 @@ export component BankingPrompts inherits Rectangle {
                         root.remember-checked = false;
                     }
                 }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => {
-                        root.pin-input = "";
-                        root.remember-checked = false;
-                        root.cancel();
-                    }
-                }
             }
 
             if (root.kind == "choice") : HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.cancel();
+                    }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Ok");
@@ -254,18 +247,19 @@ export component BankingPrompts inherits Rectangle {
                         }
                     }
                 }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => {
-                        root.cancel();
-                    }
-                }
             }
 
             if (root.kind == "tan") : HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => {
+                        root.tan-input = "";
+                        root.cancel();
+                    }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Ok");
@@ -273,14 +267,6 @@ export component BankingPrompts inherits Rectangle {
                     clicked => {
                         root.answer-tan(root.tan-input);
                         root.tan-input = "";
-                    }
-                }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => {
-                        root.tan-input = "";
-                        root.cancel();
                     }
                 }
             }
