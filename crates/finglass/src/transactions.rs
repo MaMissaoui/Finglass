@@ -1746,6 +1746,9 @@ fn apply_chart(main: &MainWindow, state: &TransactionsState, language: Language)
 
 fn apply_selection(main: &MainWindow, state: &TransactionsState, language: Language) {
     main.set_transactions_selection_visible(!state.selected_ids.is_empty());
+    main.set_transactions_all_selected(
+        !state.transactions.is_empty() && state.selected_shown().len() == state.transactions.len(),
+    );
     main.set_transactions_selection_count_text(
         i18n::format(language, Key::SelectedCount, &[Arg::from(state.selected_ids.len())]).into(),
     );

@@ -953,32 +953,38 @@ export component SettingsPage inherits Rectangle {
                         }
 
                         for row in root.rule-rows : Rectangle {
-                            height: 56px;
+                            height: 64px;
                             background: transparent;
 
                             HorizontalLayout {
                                 spacing: 12px;
                                 cross-axis-alignment: center;
 
-                                Text {
-                                    text: row.pattern;
-                                    width: 34%;
-                                    color: Theme.text;
-                                    font-size: Type.title-small-size;
-                                    font-weight: Type.title-small-weight;
-                                    vertical-alignment: center;
-                                    overflow: elide;
+                                Rectangle {
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: Radius.marker;
+                                    background: row.colour;
                                 }
 
                                 VerticalLayout {
                                     spacing: 2px;
                                     horizontal-stretch: 1;
+                                    min-width: 0px;
                                     alignment: center;
 
                                     Text {
-                                        text: "→ " + row.category-text;
+                                        text: row.category-text;
                                         color: Theme.text;
-                                        font-size: Type.body-size;
+                                        font-size: Type.title-small-size;
+                                        font-weight: Type.title-small-weight;
+                                        overflow: elide;
+                                    }
+
+                                    Text {
+                                        text: row.pattern;
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
                                         overflow: elide;
                                     }
 
@@ -1644,32 +1650,38 @@ export component SettingsPage inherits Rectangle {
                             }
 
                             for row in root.rule-rows : Rectangle {
-                                height: 56px;
+                                height: 64px;
                                 background: transparent;
 
                                 HorizontalLayout {
                                     spacing: 12px;
                                     cross-axis-alignment: center;
 
-                                    Text {
-                                        text: row.pattern;
-                                        width: 34%;
-                                        color: Theme.text;
-                                        font-size: Type.title-small-size;
-                                        font-weight: Type.title-small-weight;
-                                        vertical-alignment: center;
-                                        overflow: elide;
+                                    Rectangle {
+                                        width: 10px;
+                                        height: 10px;
+                                        border-radius: Radius.marker;
+                                        background: row.colour;
                                     }
 
                                     VerticalLayout {
                                         spacing: 2px;
                                         horizontal-stretch: 1;
+                                        min-width: 0px;
                                         alignment: center;
 
                                         Text {
-                                            text: "→ " + row.category-text;
+                                            text: row.category-text;
                                             color: Theme.text;
-                                            font-size: Type.body-size;
+                                            font-size: Type.title-small-size;
+                                            font-weight: Type.title-small-weight;
+                                            overflow: elide;
+                                        }
+
+                                        Text {
+                                            text: row.pattern;
+                                            color: Theme.muted-text;
+                                            font-size: Type.body-small-size;
                                             overflow: elide;
                                         }
 

@@ -323,6 +323,15 @@ pub(crate) fn sync_all_visible(banking: &BankingState) -> bool {
     banking.banks.iter().any(|bank| !bank.offline)
 }
 
+/// Whether the page shows any Sync control (the per-bank button and "Sync all").
+///
+/// The buttons only appear once online sync is available; while it is not, the page's note banner is the
+/// explanation instead of a row of disabled buttons. `available` is [`ONLINE_SYNC_AVAILABLE`], passed as a
+/// parameter so both states can be tested.
+pub(crate) fn sync_controls_visible(available: bool, banking: &BankingState) -> bool {
+    available && banking.banks.iter().any(|bank| !bank.offline)
+}
+
 /// Whether "Sync all" may start now.
 pub(crate) fn sync_all_enabled(banking: &BankingState) -> bool {
     ONLINE_SYNC_AVAILABLE && sync_all_ready(banking)
@@ -352,6 +361,7 @@ pub(crate) fn apply_props(main: &MainWindow, accounts: &AccountsState, banking: 
     main.set_accounts_sync_all_progress(sync_all_text(banking).into());
     main.set_accounts_sync_all_visible(sync_all_visible(banking));
     main.set_accounts_sync_all_enabled(sync_all_enabled(banking));
+    main.set_accounts_sync_controls_visible(sync_controls_visible(ONLINE_SYNC_AVAILABLE, banking));
     main.set_accounts_online_sync_note(online_sync_note(banking).into());
     main.set_accounts_error_text(
         banking
@@ -1519,6 +1529,26 @@ mod tests {
         let offline = banking_state(vec![item(BankConnectionId(2), true, false)]);
         assert_eq!(online_sync_note(&offline), "");
         assert!(!sync_all_visible(&offline));
+    }
+
+    #[test]
+    fn sync_controls_follow_the_online_sync_flag_and_the_online_banks() {
+        let banking = banking_state(vec![
+            item(BankConnectionId(1), false, true),
+            item(BankConnectionId(2), true, false),
+        ]);
+        assert!(
+            sync_controls_visible(true, &banking),
+            "with online sync available, an online bank shows its Sync controls"
+        );
+        assert!(
+            !sync_controls_visible(false, &banking),
+            "while online sync is unavailable, no Sync control is shown"
+        );
+
+        let offline = banking_state(vec![item(BankConnectionId(3), true, false)]);
+        assert!(!sync_controls_visible(true, &offline));
+        assert!(!sync_controls_visible(false, &offline));
     }
 
     #[test]

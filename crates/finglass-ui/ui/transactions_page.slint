@@ -29,6 +29,7 @@ import {
 
 // The shared column widths of the booking list.
 global TxLayout {
+    out property <length> select-width: 24px;
     out property <length> date-width: 82px;
     out property <length> category-width: 112px;
     out property <length> amount-width: 106px;
@@ -336,6 +337,12 @@ component TransactionRowView inherits Rectangle {
                 padding-right: 4px;
                 spacing: 8px;
 
+                // The header's select-all box keeps this leading column; rows leave it empty.
+                Rectangle {
+                    width: TxLayout.select-width;
+                    background: transparent;
+                }
+
                 HorizontalLayout {
                     width: TxLayout.date-width;
                     spacing: 5px;
@@ -548,6 +555,46 @@ component TransactionRowView inherits Rectangle {
                 }
             }
         }
+    }
+}
+
+// The table header's leading select-all box. It uses the same select-all/clear-selection callbacks as
+// the selection bar, and keeps the 24 px leading column the rows reserve.
+component HeaderSelectAll inherits Rectangle {
+    in property <bool> checked;
+
+    callback toggled;
+
+    width: TxLayout.select-width;
+    height: 34px;
+    background: transparent;
+    accessible-role: checkbox;
+    accessible-label: Tr.t("SelectAll");
+    accessible-checked: root.checked;
+
+    Rectangle {
+        width: 18px;
+        height: 18px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: Radius.hairline;
+        background: root.checked ? Theme.primary : transparent;
+        border-width: 2px;
+        border-color: root.checked ? Theme.primary : Theme.muted-text;
+    }
+
+    if (root.checked) : Image {
+        width: 14px;
+        height: 14px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: @image-url("icons/check.svg");
+        colorize: Theme.on-primary;
+        accessible-role: none;
+    }
+
+    TouchArea {
+        clicked => { root.toggled(); }
     }
 }
 
@@ -777,6 +824,8 @@ component BalanceChartCard inherits Rectangle {
 // The Transactions page: the shared account panel, summary, filters, booking list and chart.
 export component TransactionsPage inherits Rectangle {
     in property <bool> show-panel;
+    // Window width ≥ 1280 px: the account panel gets 300 px instead of its narrow 258 px.
+    in property <bool> wide: false;
     in property <int> focus-search-request;
     in property <bool> loading;
     in property <bool> has-accounts;
@@ -825,6 +874,7 @@ export component TransactionsPage inherits Rectangle {
     in property <bool> chart-not-from-zero;
 
     in property <bool> selection-visible;
+    in property <bool> all-selected;
     in property <string> selection-count-text;
     in property <string> selection-totals-text;
     in property <[string]> category-names;
@@ -1002,7 +1052,7 @@ export component TransactionsPage inherits Rectangle {
         spacing: 16px;
 
         if (root.show-panel && root.has-accounts) : AccountPanel {
-            width: 258px;
+            width: root.wide ? 300px : 258px;
             rows: root.panel-rows;
             groups: root.group-choices;
             filter-text: root.panel-filter-text;
@@ -1180,11 +1230,6 @@ export component TransactionsPage inherits Rectangle {
                     opens-menu: false;
                     activated => { root.open-amount(); }
                 }
-
-                if (root.rows.length > 0 && !root.selection-visible) : TextButton {
-                    text: Tr.t("SelectAll");
-                    clicked => { root.select-all(); }
-                }
             }
 
             if (root.show-back) : TextButton {
@@ -1272,6 +1317,17 @@ export component TransactionsPage inherits Rectangle {
                             padding-left: 10px;
                             padding-right: 4px;
                             spacing: 8px;
+
+                            if (root.rows.length > 0) : HeaderSelectAll {
+                                checked: root.all-selected;
+                                toggled => {
+                                    if (root.all-selected) {
+                                        root.clear-selection();
+                                    } else {
+                                        root.select-all();
+                                    }
+                                }
+                            }
 
                             Text {
                                 width: TxLayout.date-width;

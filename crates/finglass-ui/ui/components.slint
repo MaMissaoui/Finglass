@@ -70,6 +70,8 @@ export struct DashboardTaxSlice {
 export struct ReportAmountRow {
     label: string,
     amount-text: string,
+    // The category's share of the largest category, for the summary's inline bar.
+    fraction: float,
 }
 
 // One numbered row of the Reports page's top vendors.

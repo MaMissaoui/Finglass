@@ -466,6 +466,8 @@ export component MainWindow inherits Window {
     in property <string> accounts-sync-all-progress;
     in property <bool> accounts-sync-all-visible;
     in property <bool> accounts-sync-all-enabled;
+    // Whether the Sync buttons are shown at all; they wait for ONLINE_SYNC_AVAILABLE to become true.
+    in property <bool> accounts-sync-controls-visible;
     in property <string> accounts-online-sync-note;
     in-out property <int> accounts-bank-menu-open: -2;
     in-out property <string> accounts-connection-name;
@@ -492,6 +494,8 @@ export component MainWindow inherits Window {
 
     // Transactions page state, mapped from finglass_core::app::transactions::TransactionsState.
     in-out property <bool> transactions-show-panel: true;
+    // Window width ≥ 1280 px: a wider account panel. A binding, so it also holds for the first size.
+    out property <bool> transactions-wide: root.width >= 1280px;
     changed width => {
         root.transactions-show-panel = self.width >= 1000px;
     }
@@ -542,6 +546,7 @@ export component MainWindow inherits Window {
     in property <bool> transactions-chart-not-from-zero;
 
     in property <bool> transactions-selection-visible;
+    in property <bool> transactions-all-selected;
     in property <string> transactions-selection-count-text;
     in property <string> transactions-selection-totals-text;
     in property <[string]> transactions-category-names;
@@ -1179,10 +1184,15 @@ export component MainWindow inherits Window {
                     background: transparent;
                 }
 
-                if (!root.sidebar-collapsed) : Text {
-                    text: root.version;
-                    color: Theme.muted-text;
-                    font-size: Type.body-small-size;
+                if (!root.sidebar-collapsed) : HorizontalLayout {
+                    padding-left: 48px;
+
+                    Text {
+                        text: root.version;
+                        color: Theme.muted-text;
+                        font-size: Type.body-small-size;
+                        font-weight: Type.body-weight;
+                    }
                 }
             }
         }
@@ -1249,8 +1259,8 @@ export component MainWindow inherits Window {
                     }
 
                     if (root.profile-rows.length > 1) : Rectangle {
-                        height: 40px;
-                        width: 180px;
+                        height: 36px;
+                        width: profile-content.preferred-width;
                         border-radius: Radius.control;
                         border-width: 1px;
                         border-color: Theme.divider;
@@ -1258,9 +1268,9 @@ export component MainWindow inherits Window {
                         accessible-role: button;
                         accessible-label: Tr.t("SwitchProfileMenu");
 
-                        HorizontalLayout {
-                            padding-left: 16px;
-                            padding-right: 10px;
+                        profile-content := HorizontalLayout {
+                            padding-left: 12px;
+                            padding-right: 12px;
                             alignment: center;
                             cross-axis-alignment: center;
                             spacing: 8px;
@@ -1271,7 +1281,7 @@ export component MainWindow inherits Window {
                                 font-size: Type.label-size;
                                 font-weight: 600;
                                 vertical-alignment: center;
-                                horizontal-stretch: 1;
+                                horizontal-stretch: 0;
                                 overflow: elide;
                             }
 
@@ -1542,6 +1552,7 @@ export component MainWindow inherits Window {
                 sync-all-progress: root.accounts-sync-all-progress;
                 sync-all-visible: root.accounts-sync-all-visible;
                 sync-all-enabled: root.accounts-sync-all-enabled;
+                sync-controls-visible: root.accounts-sync-controls-visible;
                 online-sync-note: root.accounts-online-sync-note;
                 bank-menu-open <=> root.accounts-bank-menu-open;
                 type-choices: root.accounts-type-choices;
@@ -1642,6 +1653,7 @@ export component MainWindow inherits Window {
                 vertical-stretch: 1;
 
                 show-panel: root.transactions-show-panel;
+                wide: root.transactions-wide;
                 focus-search-request: root.focus-search-request;
                 loading: root.transactions-loading;
                 has-accounts: root.transactions-has-accounts;
@@ -1690,6 +1702,7 @@ export component MainWindow inherits Window {
                 chart-not-from-zero: root.transactions-chart-not-from-zero;
 
                 selection-visible: root.transactions-selection-visible;
+                all-selected: root.transactions-all-selected;
                 selection-count-text: root.transactions-selection-count-text;
                 selection-totals-text: root.transactions-selection-totals-text;
                 category-names: root.transactions-category-names;
