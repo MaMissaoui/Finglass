@@ -562,6 +562,33 @@ fn renders_the_app_shell() {
         let _ = ui.hide();
     }
 
+    // The Appearance section at the wide size, in both schemes.
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_settings_section(0);
+        ui.set_settings_scroll_y(0.0);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-appearance-de-light", 1440, 900);
+        assert_varied(&buffer, "settings-appearance-de-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_settings_section(0);
+        ui.set_settings_scroll_y(0.0);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-appearance-de-dark", 1440, 900);
+        assert_varied(&buffer, "settings-appearance-de-dark");
+        let _ = ui.hide();
+    }
+
     // M2d: the fluent widgets follow the app's theme, not only the page palettes.
     {
         let settings = settings_state(&db, &paths, Language::En);
@@ -1746,12 +1773,12 @@ fn renders_the_app_shell() {
 
         window.set_size(PhysicalSize::new(1440, 720));
         window.dispatch_event(slint::platform::WindowEvent::PointerMoved {
-            position: slint::LogicalPosition { x: 760.0, y: 243.0 },
+            position: slint::LogicalPosition { x: 760.0, y: 320.0 },
         });
         let hovered = render(&window, "transactions-row-hover-en-light", 1440, 720);
         assert_ne!(
-            pixel_at(&transactions_en_light, 760, 243),
-            pixel_at(&hovered, 760, 243),
+            pixel_at(&transactions_en_light, 760, 320),
+            pixel_at(&hovered, 760, 320),
             "the pointer move paints the booking row's hover tint"
         );
         let _ = ui.hide();

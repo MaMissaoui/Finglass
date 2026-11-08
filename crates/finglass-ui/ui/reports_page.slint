@@ -11,7 +11,7 @@ import {
     ReportSuggestionRow,
     ReportTaxRow,
     ReportVendorRow,
-    IconButton,
+    PeriodNavigator,
     PrimaryButton,
     SecondaryButton,
     SegmentedButton,
@@ -508,41 +508,14 @@ export component ReportsPage inherits Rectangle {
                 }
             }
 
-            if (root.tab != "recurring" && !root.custom-edit) : HorizontalLayout {
-                spacing: 8px;
-                alignment: start;
-                cross-axis-alignment: center;
-
-                // Outlined round buttons, so the year switcher reads as navigation. They stay enabled
-                // while a year loads (a click then is ignored in Rust), so nothing flickers.
-                IconButton {
-                    icon: @image-url("icons/keyboard_arrow_left.svg");
-                    icon-color: Theme.primary;
-                    outlined: true;
-                    label: Tr.t("PreviousYear");
-                    tooltip-text: Tr.t("PreviousYear");
-                    enabled: !root.exporting;
-                    clicked => { root.change-year(-1); }
-                }
-                // A fixed width: proportional digits would move the arrows from year to year.
-                Text {
-                    width: 76px;
-                    text: root.year-label;
-                    color: Theme.text;
-                    font-size: Type.headline-size;
-                    font-weight: Type.headline-weight;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
-                }
-                IconButton {
-                    icon: @image-url("icons/keyboard_arrow_right.svg");
-                    icon-color: Theme.primary;
-                    outlined: true;
-                    label: Tr.t("NextYear");
-                    tooltip-text: Tr.t("NextYear");
-                    enabled: !root.exporting;
-                    clicked => { root.change-year(1); }
-                }
+            if (root.tab != "recurring" && !root.custom-edit) : PeriodNavigator {
+                title: root.year-label;
+                previous-enabled: !root.exporting;
+                next-enabled: !root.exporting;
+                previous-label: Tr.t("PreviousYear");
+                next-label: Tr.t("NextYear");
+                previous => { root.change-year(-1); }
+                next => { root.change-year(1); }
             }
 
             if (root.tab != "recurring" && root.custom-edit) : HorizontalLayout {

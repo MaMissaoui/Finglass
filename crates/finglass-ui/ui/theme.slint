@@ -24,13 +24,20 @@ export global Type {
     out property <length> body-size: 14px;
     out property <int> body-weight: 400;
 
-    out property <length> body-small-size: 12px;
+    out property <length> body-large-size: 15px;
+    out property <int> body-large-weight: 600;
+
+    out property <length> body-small-size: 13px;
     out property <int> body-small-weight: 400;
+
+    // Chart axis labels and badge counters: the only text smaller than 13 px.
+    out property <length> caption-size: 12px;
+    out property <int> caption-weight: 500;
 
     out property <length> label-size: 14px;
     out property <int> label-weight: 500;
 
-    out property <length> label-small-size: 12px;
+    out property <length> label-small-size: 13px;
     out property <int> label-small-weight: 500;
 
     // KPI figures: 24/600, the same size as the headline but a calmer weight.
@@ -51,8 +58,8 @@ export global Radius {
     out property <length> dot: 3px;
     // 7 px category dots.
     out property <length> marker: 4px;
-    // Text fields.
-    out property <length> field: 6px;
+    // Text fields and search fields.
+    out property <length> field: 8px;
     // Document thumbnail page corners.
     out property <length> thumbnail: 4px;
     // Chart bars and donut segments.
@@ -81,10 +88,10 @@ export global Radius {
     out property <length> chip: 14px;
     // 28 px round icon buttons.
     out property <length> icon-medium: 14px;
-    // 32 px chips, month arrows and action pickers.
-    out property <length> control-small: 6px;
-    // 40 px buttons, fields and select pills.
-    out property <length> control: 6px;
+    // Small controls and segmented tracks.
+    out property <length> control-small: 8px;
+    // Buttons, fields and toolbar controls.
+    out property <length> control: 8px;
     // Modal dialogs.
     out property <length> dialog: 8px;
 }
@@ -145,6 +152,14 @@ export global Theme {
     // Selection
     out property <color> selected: dark ? #232D37 : #E4EBEF;
     out property <color> on-selected: dark ? #E6EAEE : #1C2733;
+    // The accent tint behind a selected Settings section: petrol at roughly 15 % on paper.
+    out property <color> selected-accent: dark ? #1E3A44 : #DCE6EE;
+
+    // Filled quiet controls: buttons, toolbar dropdowns and icon buttons.
+    out property <color> control-fill: dark ? #26303A : #E6EAEE;
+    // One step darker on hover. The light value is a shade lighter than the reference so slate text
+    // keeps a 4.5:1 contrast on it; the difference is still visible.
+    out property <color> control-fill-hover: dark ? #2F3A45 : #E1E6EA;
 
     // Amounts: incoming money is green, outgoing money is ink. Alerts are for negative
     // balances, errors and destructive confirmations only; caution marks warnings.

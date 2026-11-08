@@ -75,9 +75,8 @@ component SummaryFigure inherits VerticalLayout {
     }
 }
 
-// A 40 dp outlined filter pill, matching FinDesk's DropdownSelector. It opens the same option list
-// the old ComboBoxes opened; `opens-menu: false` turns it into a plain action pill (the amount filter
-// opens its existing dialog instead).
+// A filled toolbar filter: a 36 px rounded rectangle without an outline, label and a small chevron.
+// `opens-menu: false` turns it into a plain action control (the amount filter opens its dialog).
 component DropdownPill inherits Rectangle {
     in property <string> label;
     in property <[string]> options;
@@ -89,16 +88,18 @@ component DropdownPill inherits Rectangle {
     callback chosen(int);
     callback activated;
 
-    height: 40px;
+    height: 36px;
     min-width: pill-content.preferred-width;
-    border-radius: self.height / 2;
-    background: touch.has-hover ? Theme.background : Theme.surface;
-    border-width: 1px;
-    border-color: Theme.divider;
+    border-radius: Radius.control;
+    background: touch.has-hover ? Theme.control-fill-hover : Theme.control-fill;
+    border-width: 0px;
+    border-color: Theme.primary;
+    accessible-role: button;
+    accessible-label: root.label;
 
     pill-content := HorizontalLayout {
-        padding-left: root.has-leading-icon ? 14px : 16px;
-        padding-right: 8px;
+        padding-left: root.has-leading-icon ? 12px : 14px;
+        padding-right: 10px;
         spacing: 6px;
         cross-axis-alignment: center;
 
@@ -106,13 +107,13 @@ component DropdownPill inherits Rectangle {
             width: 18px;
             height: 18px;
             source: root.leading-icon;
-            colorize: Theme.primary;
+            colorize: Theme.text;
             accessible-role: none;
         }
 
         Text {
             text: root.label;
-            color: Theme.primary;
+            color: Theme.text;
             font-size: Type.label-size;
             font-weight: Type.label-weight;
             vertical-alignment: center;
@@ -120,12 +121,35 @@ component DropdownPill inherits Rectangle {
         }
 
         Image {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             source: @image-url("icons/arrow_drop_down.svg");
-            colorize: Theme.primary;
+            colorize: Theme.muted-text;
             accessible-role: none;
         }
+    }
+
+    focus := FocusScope {
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space || event.text == Key.DownArrow) {
+                if (root.opens-menu) {
+                    menu.show();
+                } else {
+                    root.activated();
+                }
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if focus.has-focus : Rectangle {
+        width: parent.width;
+        height: parent.height;
+        border-width: 2px;
+        border-color: Theme.primary;
+        border-radius: parent.border-radius;
     }
 
     touch := TouchArea {
@@ -1052,7 +1076,7 @@ export component TransactionsPage inherits Rectangle {
         spacing: 16px;
 
         if (root.show-panel && root.has-accounts) : AccountPanel {
-            width: root.wide ? 300px : 258px;
+            width: root.wide ? 320px : 300px;
             rows: root.panel-rows;
             groups: root.group-choices;
             filter-text: root.panel-filter-text;
@@ -1117,8 +1141,7 @@ export component TransactionsPage inherits Rectangle {
                     icon: @image-url("icons/more_vert.svg");
                     label: Tr.t("More");
                     tooltip-text: Tr.t("More");
-                    icon-size: 20px;
-                    outlined: true;
+                    filled: true;
                     clicked => { root.more-menu-open = !root.more-menu-open; }
                 }
 
@@ -1174,61 +1197,79 @@ export component TransactionsPage inherits Rectangle {
                 }
             }
 
-            // One row of 40 dp controls that wraps instead of clipping, as FinDesk's FlowRow does.
-            FlexboxLayout {
-                spacing: 8px;
-                flex-wrap: wrap;
-                alignment: stretch;
-                cross-axis-alignment: center;
+            // The search field and the filter dropdowns share one line while the search field keeps
+            // at least 240 px; otherwise the search field gets its own line and the dropdowns go below
+            // it (wrapping only when even they no longer fit).
+            filter-area := Rectangle {
+                // The four dropdowns side by side. The account dropdown only appears below 1000 px, where
+                // two lines are needed anyway.
+                property <length> filters-line-width: period-pill.preferred-width + category-pill.preferred-width
+                    + direction-pill.preferred-width + amount-pill.preferred-width + 3 * 8px;
+                property <bool> one-line: root.show-panel
+                    && self.width - self.filters-line-width - 8px >= 240px;
+                height: self.one-line ? 36px : 36px + 8px + filters.height;
 
                 search-field := SearchField {
-                    horizontal-stretch: 1;
-                    min-width: 200px;
+                    x: 0px;
+                    y: 0px;
+                    width: filter-area.one-line ? filter-area.width - filters.width - 8px : filter-area.width;
+                    height: 36px;
                     text: "";
                     placeholder: Tr.t("SearchPartnerPurpose");
                     edited(text) => { root.search(text); }
                 }
 
-                DropdownPill {
-                    label: root.period-extra != "" ? root.period-extra : (root.period-index >= 0 && root.period-index < root.period-options.length ? root.period-options[root.period-index] : "");
-                    options: root.period-options;
-                    selected: root.period-extra != "" ? -1 : root.period-index;
-                    leading-icon: @image-url("icons/date_range.svg");
-                    has-leading-icon: true;
-                    chosen(index) => {
-                        if (index == root.period-options.length - 1) {
-                            root.open-range();
-                        } else {
-                            root.period-changed(index);
+                filters := FlexboxLayout {
+                    x: filter-area.one-line ? filter-area.width - self.width : 0px;
+                    y: filter-area.one-line ? 0px : 44px;
+                    width: filter-area.one-line ? filter-area.filters-line-width : filter-area.width;
+                    height: self.preferred-height;
+                    spacing: 8px;
+                    flex-wrap: wrap;
+                    alignment: start;
+                    cross-axis-alignment: center;
+
+                    period-pill := DropdownPill {
+                        label: root.period-extra != "" ? root.period-extra : (root.period-index >= 0 && root.period-index < root.period-options.length ? root.period-options[root.period-index] : "");
+                        options: root.period-options;
+                        selected: root.period-extra != "" ? -1 : root.period-index;
+                        leading-icon: @image-url("icons/date_range.svg");
+                        has-leading-icon: true;
+                        chosen(index) => {
+                            if (index == root.period-options.length - 1) {
+                                root.open-range();
+                            } else {
+                                root.period-changed(index);
+                            }
                         }
                     }
-                }
 
-                DropdownPill {
-                    label: root.category-index >= 0 && root.category-index < root.category-options.length ? root.category-options[root.category-index] : "";
-                    options: root.category-options;
-                    selected: root.category-index;
-                    chosen(index) => { root.category-changed(index); }
-                }
+                    category-pill := DropdownPill {
+                        label: root.category-index >= 0 && root.category-index < root.category-options.length ? root.category-options[root.category-index] : "";
+                        options: root.category-options;
+                        selected: root.category-index;
+                        chosen(index) => { root.category-changed(index); }
+                    }
 
-                if (!root.show-panel && root.has-accounts) : DropdownPill {
-                    label: root.account-index >= 0 && root.account-index < root.account-options.length ? root.account-options[root.account-index] : "";
-                    options: root.account-options;
-                    selected: root.account-index;
-                    chosen(index) => { root.account-changed(index); }
-                }
+                    if (!root.show-panel && root.has-accounts) : DropdownPill {
+                        label: root.account-index >= 0 && root.account-index < root.account-options.length ? root.account-options[root.account-index] : "";
+                        options: root.account-options;
+                        selected: root.account-index;
+                        chosen(index) => { root.account-changed(index); }
+                    }
 
-                DropdownPill {
-                    label: root.direction-index >= 0 && root.direction-index < root.direction-options.length ? root.direction-options[root.direction-index] : "";
-                    options: root.direction-options;
-                    selected: root.direction-index;
-                    chosen(index) => { root.direction-changed(index); }
-                }
+                    direction-pill := DropdownPill {
+                        label: root.direction-index >= 0 && root.direction-index < root.direction-options.length ? root.direction-options[root.direction-index] : "";
+                        options: root.direction-options;
+                        selected: root.direction-index;
+                        chosen(index) => { root.direction-changed(index); }
+                    }
 
-                DropdownPill {
-                    label: root.amount-label;
-                    opens-menu: false;
-                    activated => { root.open-amount(); }
+                    amount-pill := DropdownPill {
+                        label: root.amount-label;
+                        opens-menu: false;
+                        activated => { root.open-amount(); }
+                    }
                 }
             }
 

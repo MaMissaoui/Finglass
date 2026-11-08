@@ -40,8 +40,8 @@ component SectionHeader inherits FlexboxLayout {
     Text {
         text: root.text;
         color: Theme.text;
-        font-size: Type.title-medium-size;
-        font-weight: Type.title-medium-weight;
+        font-size: Type.title-large-size;
+        font-weight: Type.title-large-weight;
         vertical-alignment: center;
         horizontal-stretch: 1;
     }
@@ -103,7 +103,7 @@ component CategoriesHeaderActions inherits HorizontalLayout {
         icon: @image-url("icons/more_vert.svg");
         label: Tr.t("More");
         tooltip-text: Tr.t("More");
-        outlined: true;
+        filled: true;
         clicked => {
             if (root.menu-open) {
                 root.close-menu();
@@ -201,9 +201,90 @@ component SectionTitle inherits HorizontalLayout {
     }
 }
 
-component Divider inherits Rectangle {
-    height: 1px;
-    background: Theme.divider;
+// A two-column settings form row: a right-aligned label column, a 12 px gap and the control.
+component SettingsFormRow inherits HorizontalLayout {
+    in property <length> label-width: 150px;
+
+    min-height: 40px;
+    spacing: 12px;
+    alignment: start;
+    cross-axis-alignment: center;
+}
+
+component SettingsFormLabel inherits Text {
+    in property <length> column-width: 150px;
+
+    width: root.column-width;
+    color: Theme.text;
+    font-size: Type.body-size;
+    horizontal-alignment: right;
+    vertical-alignment: center;
+}
+
+// The Appearance form, shared by the wide and the narrow layouts.
+component AppearanceSection inherits VerticalLayout {
+    in property <string> theme-pref;
+    in property <string> language;
+    in property <int> currency-index;
+    in property <[string]> currency-options;
+
+    callback set-theme(string);
+    callback set-language(string);
+    callback set-currency(int);
+
+    alignment: start;
+    spacing: 16px;
+
+    SectionHeader { text: Tr.t("Appearance"); }
+
+    VerticalLayout {
+        spacing: 0px;
+
+        SettingsFormRow {
+            SettingsFormLabel { text: Tr.t("Theme"); }
+            SegmentedButton {
+                labels: [Tr.t("ThemeSystem"), Tr.t("ThemeLight"), Tr.t("ThemeDark")];
+                selected: root.theme-pref == "system" ? 0 : (root.theme-pref == "light" ? 1 : 2);
+                select(index) => {
+                    root.set-theme(index == 0 ? "system" : (index == 1 ? "light" : "dark"));
+                }
+            }
+        }
+
+        SettingsFormRow {
+            SettingsFormLabel { text: Tr.t("Language"); }
+            SegmentedButton {
+                labels: ["EN", "DE", "FR"];
+                selected: root.language == "en" ? 0 : (root.language == "de" ? 1 : 2);
+                select(index) => {
+                    root.set-language(index == 0 ? "en" : (index == 1 ? "de" : "fr"));
+                }
+            }
+        }
+
+        SettingsFormRow {
+            SettingsFormLabel { text: Tr.t("PrimaryCurrency"); }
+            VerticalLayout {
+                spacing: 4px;
+                alignment: center;
+
+                SelectPill {
+                    label-prefix: "";
+                    value: root.currency-index >= 0 && root.currency-index < root.currency-options.length
+                            ? root.currency-options[root.currency-index] : "";
+                    options: root.currency-options;
+                    chosen(index) => { root.set-currency(index); }
+                }
+
+                Text {
+                    text: Tr.t("PrimaryCurrencyHint");
+                    color: Theme.muted-text;
+                    font-size: Type.body-small-size;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
 }
 
 // One row of the section list, and one row of the narrow section drop-down.
@@ -225,43 +306,34 @@ component SettingsSectionRow inherits Rectangle {
             : root.index == 7 ? @image-url("icons/history.svg")
             : @image-url("icons/info.svg");
 
-    min-height: 40px;
+    min-height: 48px;
     border-radius: Radius.panel;
-    background: root.selected ? Theme.selected : (touch.has-hover ? Theme.surface : transparent);
+    background: root.selected ? Theme.selected-accent : (touch.has-hover ? Theme.control-fill : transparent);
     clip: true;
     accessible-role: button;
     accessible-label: row-label.text;
 
-    Rectangle {
-        visible: root.selected;
-        x: 0px;
-        y: 0px;
-        width: 3px;
-        height: parent.height;
-        background: Theme.primary;
-    }
-
     HorizontalLayout {
-        padding-left: 12px;
-        padding-right: 12px;
+        padding-left: 8px;
+        padding-right: 8px;
         padding-top: 8px;
         padding-bottom: 8px;
         spacing: 12px;
         cross-axis-alignment: center;
 
         Image {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             source: root.icon;
-            colorize: root.selected ? Theme.on-selected : Theme.muted-text;
+            colorize: root.selected ? Theme.text : Theme.muted-text;
             accessible-role: none;
         }
 
         row-label := SettingsSectionLabel {
             index: root.index;
-            color: root.selected ? Theme.on-selected : Theme.text;
-            font-size: Type.label-size;
-            font-weight: root.selected ? 600 : Type.label-weight;
+            color: Theme.text;
+            font-size: Type.title-small-size + 1px;
+            font-weight: Type.title-small-weight;
             vertical-alignment: center;
             horizontal-alignment: left;
             horizontal-stretch: 1;
@@ -309,8 +381,9 @@ component SettingsSectionList inherits VerticalLayout {
 
     callback select(int);
 
-    width: 272px;
-    spacing: 2px;
+    width: 320px;
+    padding: 8px;
+    spacing: 4px;
 
     for index in SettingsSections.indices : SettingsSectionRow {
         index: index;
@@ -599,88 +672,14 @@ export component SettingsPage inherits Rectangle {
                 spacing: 0;
                 alignment: start;
 
-                // Appearance
-                if (root.section == 0) : VerticalLayout {
-                    alignment: start;
-                    SectionHeader { text: Tr.t("Appearance"); }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
-
-                    VerticalLayout {
-                        spacing: 12px;
-
-                        HorizontalLayout {
-                            spacing: 12px;
-                            alignment: start;
-
-                            Text {
-                                text: Tr.t("Theme");
-                                width: 120px;
-                                color: Theme.text;
-                                font-size: Type.body-size;
-                                vertical-alignment: center;
-                            }
-                            SegmentedButton {
-                                labels: [Tr.t("ThemeSystem"), Tr.t("ThemeLight"), Tr.t("ThemeDark")];
-                                selected: root.theme-pref == "system" ? 0 : (root.theme-pref == "light" ? 1 : 2);
-                                select(index) => {
-                                    root.set-theme(index == 0 ? "system" : (index == 1 ? "light" : "dark"));
-                                }
-                            }
-                        }
-
-                        HorizontalLayout {
-                            spacing: 12px;
-                            alignment: start;
-
-                            Text {
-                                text: Tr.t("Language");
-                                width: 120px;
-                                color: Theme.text;
-                                font-size: Type.body-size;
-                                vertical-alignment: center;
-                            }
-                            SegmentedButton {
-                                labels: ["EN", "DE", "FR"];
-                                selected: root.language == "en" ? 0 : (root.language == "de" ? 1 : 2);
-                                select(index) => {
-                                    root.set-language(index == 0 ? "en" : (index == 1 ? "de" : "fr"));
-                                }
-                            }
-                        }
-
-                        HorizontalLayout {
-                            spacing: 16px;
-                            alignment: start;
-
-                            VerticalLayout {
-                                horizontal-stretch: 1;
-                                spacing: 4px;
-                                alignment: center;
-
-                                Text {
-                                    text: Tr.t("PrimaryCurrency");
-                                    color: Theme.text;
-                                    font-size: Type.body-size;
-                                }
-                                Text {
-                                    text: Tr.t("PrimaryCurrencyHint");
-                                    color: Theme.muted-text;
-                                    font-size: Type.body-small-size;
-                                    wrap: word-wrap;
-                                }
-                            }
-
-                            SelectPill {
-                                label-prefix: "";
-                                value: root.primary-currency-index >= 0 && root.primary-currency-index < root.currency-options.length
-                                        ? root.currency-options[root.primary-currency-index] : "";
-                                options: root.currency-options;
-                                chosen(index) => { root.set-primary-currency(index); }
-                            }
-                        }
-                    }
+                if (root.section == 0) : AppearanceSection {
+                    theme-pref: root.theme-pref;
+                    language: root.language;
+                    currency-index: root.primary-currency-index;
+                    currency-options: root.currency-options;
+                    set-theme(value) => { root.set-theme(value); }
+                    set-language(value) => { root.set-language(value); }
+                    set-currency(index) => { root.set-primary-currency(index); }
                 }
 
                 // Profiles
@@ -696,9 +695,7 @@ export component SettingsPage inherits Rectangle {
                             clicked => { root.new-profile(); }
                         }
                     }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     VerticalLayout {
                         spacing: 12px;
@@ -706,7 +703,7 @@ export component SettingsPage inherits Rectangle {
                         Text {
                             text: Tr.t("ProfilesHint");
                             color: Theme.muted-text;
-                            font-size: Type.body-small-size;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -715,7 +712,7 @@ export component SettingsPage inherits Rectangle {
                             background: transparent;
 
                             HorizontalLayout {
-                                spacing: 12px;
+                                spacing: 8px;
                                 cross-axis-alignment: center;
 
                                 Text {
@@ -793,9 +790,7 @@ export component SettingsPage inherits Rectangle {
                             fix-duplicate-colours => { root.fix-duplicate-colours(); }
                         }
                     }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     VerticalLayout {
                         spacing: 12px;
@@ -828,7 +823,7 @@ export component SettingsPage inherits Rectangle {
                             background: transparent;
 
                             HorizontalLayout {
-                                spacing: 12px;
+                                spacing: 8px;
                                 cross-axis-alignment: center;
 
                                 Rectangle {
@@ -910,25 +905,28 @@ export component SettingsPage inherits Rectangle {
                     SectionHeader {
                         text: Tr.t("AutoCategorizationRules");
 
-                        PrimaryButton {
-                            text: Tr.t("AddRule");
-                            enabled: !root.categories-empty;
-                            clicked => { root.add-rule(); }
-                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            alignment: end;
 
-                        TextButton {
-                            text: Tr.t("ImportRules");
-                            clicked => { root.import-rules(); }
-                        }
+                            PrimaryButton {
+                                text: Tr.t("AddRule");
+                                enabled: !root.categories-empty;
+                                clicked => { root.add-rule(); }
+                            }
 
-                        TextButton {
-                            text: Tr.t("ExportRules");
-                            clicked => { root.export-rules(); }
+                            TextButton {
+                                text: Tr.t("ImportRules");
+                                clicked => { root.import-rules(); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("ExportRules");
+                                clicked => { root.export-rules(); }
+                            }
                         }
                     }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     VerticalLayout {
                         spacing: 12px;
@@ -936,7 +934,7 @@ export component SettingsPage inherits Rectangle {
                         Text {
                             text: Tr.t("RulesHint");
                             color: Theme.muted-text;
-                            font-size: Type.body-small-size;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -957,7 +955,7 @@ export component SettingsPage inherits Rectangle {
                             background: transparent;
 
                             HorizontalLayout {
-                                spacing: 12px;
+                                spacing: 8px;
                                 cross-axis-alignment: center;
 
                                 Rectangle {
@@ -1028,9 +1026,7 @@ export component SettingsPage inherits Rectangle {
                 if (root.section == 4) : VerticalLayout {
                     alignment: start;
                     SectionHeader { text: Tr.t("Security"); }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     VerticalLayout {
                         spacing: 10px;
@@ -1051,9 +1047,7 @@ export component SettingsPage inherits Rectangle {
                 if (root.section == 5) : VerticalLayout {
                     alignment: start;
                     SectionHeader { text: Tr.t("BackupAndRestore"); }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     VerticalLayout {
                         spacing: 12px;
@@ -1061,7 +1055,7 @@ export component SettingsPage inherits Rectangle {
                         Text {
                             text: Tr.t("BackupHint");
                             color: Theme.muted-text;
-                            font-size: Type.body-small-size;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -1122,9 +1116,7 @@ export component SettingsPage inherits Rectangle {
                 if (root.section == 6) : VerticalLayout {
                     alignment: start;
                     SectionHeader { text: Tr.t("FinDeskImportTitle"); }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     VerticalLayout {
                         spacing: 12px;
@@ -1132,7 +1124,7 @@ export component SettingsPage inherits Rectangle {
                         Text {
                             text: Tr.t("FinDeskImportHint");
                             color: Theme.muted-text;
-                            font-size: Type.body-small-size;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -1161,9 +1153,7 @@ export component SettingsPage inherits Rectangle {
                 if (root.section == 7) : VerticalLayout {
                     alignment: start;
                     SectionHeader { text: Tr.t("AuditLogLatest"); }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     VerticalLayout {
                         spacing: 8px;
@@ -1212,9 +1202,7 @@ export component SettingsPage inherits Rectangle {
                 if (root.section == 8) : VerticalLayout {
                     alignment: start;
                     SectionHeader { text: Tr.t("AboutTitle"); }
-                    Rectangle { height: 8px; background: transparent; }
-                    Divider {}
-                    Rectangle { height: 12px; background: transparent; }
+                    Rectangle { height: 16px; background: transparent; }
 
                     HorizontalLayout {
                         spacing: 16px;
@@ -1242,13 +1230,13 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: Tr.t("AboutText");
                                 color: Theme.muted-text;
-                                font-size: Type.body-small-size;
+                                font-size: Type.body-size;
                                 wrap: word-wrap;
                             }
                             Text {
                                 text: Tr.t("AboutBankCodesSource");
                                 color: Theme.muted-text;
-                                font-size: Type.body-small-size;
+                                font-size: Type.body-size;
                                 wrap: word-wrap;
                             }
                         }
@@ -1296,88 +1284,14 @@ export component SettingsPage inherits Rectangle {
                     spacing: 0;
                     alignment: start;
 
-                    // Appearance
-                    if (root.section == 0) : VerticalLayout {
-                        alignment: start;
-                        SectionHeader { text: Tr.t("Appearance"); }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
-
-                        VerticalLayout {
-                            spacing: 12px;
-
-                            HorizontalLayout {
-                                spacing: 12px;
-                                alignment: start;
-
-                                Text {
-                                    text: Tr.t("Theme");
-                                    width: 120px;
-                                    color: Theme.text;
-                                    font-size: Type.body-size;
-                                    vertical-alignment: center;
-                                }
-                                SegmentedButton {
-                                    labels: [Tr.t("ThemeSystem"), Tr.t("ThemeLight"), Tr.t("ThemeDark")];
-                                    selected: root.theme-pref == "system" ? 0 : (root.theme-pref == "light" ? 1 : 2);
-                                    select(index) => {
-                                        root.set-theme(index == 0 ? "system" : (index == 1 ? "light" : "dark"));
-                                    }
-                                }
-                            }
-
-                            HorizontalLayout {
-                                spacing: 12px;
-                                alignment: start;
-
-                                Text {
-                                    text: Tr.t("Language");
-                                    width: 120px;
-                                    color: Theme.text;
-                                    font-size: Type.body-size;
-                                    vertical-alignment: center;
-                                }
-                                SegmentedButton {
-                                    labels: ["EN", "DE", "FR"];
-                                    selected: root.language == "en" ? 0 : (root.language == "de" ? 1 : 2);
-                                    select(index) => {
-                                        root.set-language(index == 0 ? "en" : (index == 1 ? "de" : "fr"));
-                                    }
-                                }
-                            }
-
-                            HorizontalLayout {
-                                spacing: 16px;
-                                alignment: start;
-
-                                VerticalLayout {
-                                    horizontal-stretch: 1;
-                                    spacing: 4px;
-                                    alignment: center;
-
-                                    Text {
-                                        text: Tr.t("PrimaryCurrency");
-                                        color: Theme.text;
-                                        font-size: Type.body-size;
-                                    }
-                                    Text {
-                                        text: Tr.t("PrimaryCurrencyHint");
-                                        color: Theme.muted-text;
-                                        font-size: Type.body-small-size;
-                                        wrap: word-wrap;
-                                    }
-                                }
-
-                                SelectPill {
-                                    label-prefix: "";
-                                    value: root.primary-currency-index >= 0 && root.primary-currency-index < root.currency-options.length
-                                            ? root.currency-options[root.primary-currency-index] : "";
-                                    options: root.currency-options;
-                                    chosen(index) => { root.set-primary-currency(index); }
-                                }
-                            }
-                        }
+                    if (root.section == 0) : AppearanceSection {
+                        theme-pref: root.theme-pref;
+                        language: root.language;
+                        currency-index: root.primary-currency-index;
+                        currency-options: root.currency-options;
+                        set-theme(value) => { root.set-theme(value); }
+                        set-language(value) => { root.set-language(value); }
+                        set-currency(index) => { root.set-primary-currency(index); }
                     }
 
                     // Profiles
@@ -1393,9 +1307,7 @@ export component SettingsPage inherits Rectangle {
                                 clicked => { root.new-profile(); }
                             }
                         }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         VerticalLayout {
                             spacing: 12px;
@@ -1403,7 +1315,7 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: Tr.t("ProfilesHint");
                                 color: Theme.muted-text;
-                                font-size: Type.body-small-size;
+                                font-size: Type.body-size;
                                 wrap: word-wrap;
                             }
 
@@ -1412,7 +1324,7 @@ export component SettingsPage inherits Rectangle {
                                 background: transparent;
 
                                 HorizontalLayout {
-                                    spacing: 12px;
+                                    spacing: 8px;
                                     cross-axis-alignment: center;
 
                                     Text {
@@ -1490,9 +1402,7 @@ export component SettingsPage inherits Rectangle {
                                 fix-duplicate-colours => { root.fix-duplicate-colours(); }
                             }
                         }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         VerticalLayout {
                             spacing: 12px;
@@ -1525,7 +1435,7 @@ export component SettingsPage inherits Rectangle {
                                 background: transparent;
 
                                 HorizontalLayout {
-                                    spacing: 12px;
+                                    spacing: 8px;
                                     cross-axis-alignment: center;
 
                                     Rectangle {
@@ -1607,25 +1517,28 @@ export component SettingsPage inherits Rectangle {
                         SectionHeader {
                             text: Tr.t("AutoCategorizationRules");
 
-                            PrimaryButton {
-                                text: Tr.t("AddRule");
-                                enabled: !root.categories-empty;
-                                clicked => { root.add-rule(); }
-                            }
+                            HorizontalLayout {
+                                spacing: 8px;
+                                alignment: end;
 
-                            TextButton {
-                                text: Tr.t("ImportRules");
-                                clicked => { root.import-rules(); }
-                            }
+                                PrimaryButton {
+                                    text: Tr.t("AddRule");
+                                    enabled: !root.categories-empty;
+                                    clicked => { root.add-rule(); }
+                                }
 
-                            TextButton {
-                                text: Tr.t("ExportRules");
-                                clicked => { root.export-rules(); }
+                                TextButton {
+                                    text: Tr.t("ImportRules");
+                                    clicked => { root.import-rules(); }
+                                }
+
+                                TextButton {
+                                    text: Tr.t("ExportRules");
+                                    clicked => { root.export-rules(); }
+                                }
                             }
                         }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         VerticalLayout {
                             spacing: 12px;
@@ -1633,7 +1546,7 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: Tr.t("RulesHint");
                                 color: Theme.muted-text;
-                                font-size: Type.body-small-size;
+                                font-size: Type.body-size;
                                 wrap: word-wrap;
                             }
 
@@ -1654,7 +1567,7 @@ export component SettingsPage inherits Rectangle {
                                 background: transparent;
 
                                 HorizontalLayout {
-                                    spacing: 12px;
+                                    spacing: 8px;
                                     cross-axis-alignment: center;
 
                                     Rectangle {
@@ -1725,9 +1638,7 @@ export component SettingsPage inherits Rectangle {
                     if (root.section == 4) : VerticalLayout {
                         alignment: start;
                         SectionHeader { text: Tr.t("Security"); }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         VerticalLayout {
                             spacing: 10px;
@@ -1748,9 +1659,7 @@ export component SettingsPage inherits Rectangle {
                     if (root.section == 5) : VerticalLayout {
                         alignment: start;
                         SectionHeader { text: Tr.t("BackupAndRestore"); }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         VerticalLayout {
                             spacing: 12px;
@@ -1758,7 +1667,7 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: Tr.t("BackupHint");
                                 color: Theme.muted-text;
-                                font-size: Type.body-small-size;
+                                font-size: Type.body-size;
                                 wrap: word-wrap;
                             }
 
@@ -1819,9 +1728,7 @@ export component SettingsPage inherits Rectangle {
                     if (root.section == 6) : VerticalLayout {
                         alignment: start;
                         SectionHeader { text: Tr.t("FinDeskImportTitle"); }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         VerticalLayout {
                             spacing: 12px;
@@ -1829,7 +1736,7 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: Tr.t("FinDeskImportHint");
                                 color: Theme.muted-text;
-                                font-size: Type.body-small-size;
+                                font-size: Type.body-size;
                                 wrap: word-wrap;
                             }
 
@@ -1858,9 +1765,7 @@ export component SettingsPage inherits Rectangle {
                     if (root.section == 7) : VerticalLayout {
                         alignment: start;
                         SectionHeader { text: Tr.t("AuditLogLatest"); }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         VerticalLayout {
                             spacing: 8px;
@@ -1909,9 +1814,7 @@ export component SettingsPage inherits Rectangle {
                     if (root.section == 8) : VerticalLayout {
                         alignment: start;
                         SectionHeader { text: Tr.t("AboutTitle"); }
-                        Rectangle { height: 8px; background: transparent; }
-                        Divider {}
-                        Rectangle { height: 12px; background: transparent; }
+                        Rectangle { height: 16px; background: transparent; }
 
                         HorizontalLayout {
                             spacing: 16px;
@@ -1939,13 +1842,13 @@ export component SettingsPage inherits Rectangle {
                                 Text {
                                     text: Tr.t("AboutText");
                                     color: Theme.muted-text;
-                                    font-size: Type.body-small-size;
+                                    font-size: Type.body-size;
                                     wrap: word-wrap;
                                 }
                                 Text {
                                     text: Tr.t("AboutBankCodesSource");
                                     color: Theme.muted-text;
-                                    font-size: Type.body-small-size;
+                                    font-size: Type.body-size;
                                     wrap: word-wrap;
                                 }
                             }
