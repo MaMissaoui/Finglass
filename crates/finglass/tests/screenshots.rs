@@ -1050,6 +1050,40 @@ fn renders_the_app_shell() {
     }
 
     {
+        let online = accounts_state
+            .bank_accesses
+            .iter()
+            .find(|bank| !bank.offline)
+            .expect("the accounts fixture has an online bank");
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking_state(&accounts_state));
+        ui.show().unwrap();
+        ui.set_accounts_bank_menu_open(i32::try_from(online.id.0).unwrap_or(-2));
+        let buffer = render(&window, "accounts-bank-menu-en-light", 1100, 900);
+        assert_varied(&buffer, "accounts-bank-menu-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut german = accounts_state.clone();
+        german.language = Language::De;
+        let online = german
+            .bank_accesses
+            .iter()
+            .find(|bank| !bank.offline)
+            .expect("the accounts fixture has an online bank");
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "accounts", &rows);
+        apply_accounts(&ui, &german, &banking_state(&german));
+        ui.show().unwrap();
+        ui.set_accounts_bank_menu_open(i32::try_from(online.id.0).unwrap_or(-2));
+        let buffer = render(&window, "accounts-bank-menu-de-dark", 1100, 900);
+        assert_varied(&buffer, "accounts-bank-menu-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
         let mut panel_state = accounts_state.clone();
         panel_state.language = Language::En;
         if let Some(group) = panel_state
@@ -3865,13 +3899,13 @@ fn apply_accounts(ui: &MainWindow, state: &AccountsState, banking: &BankingState
     ui.set_accounts_banking_busy(banking.is_syncing());
     ui.set_accounts_sync_all_progress(accounts_sync_all_text(banking).into());
     ui.set_accounts_sync_all_visible(banking.banks.iter().any(|bank| !bank.offline));
-    ui.set_accounts_sync_all_enabled(
-        !banking.is_syncing()
-            && banking
-                .banks
-                .iter()
-                .any(|bank| bank.include_in_sync_all && !bank.offline),
-    );
+    // Online sync is not available yet, so the page's Sync all stays disabled.
+    ui.set_accounts_sync_all_enabled(false);
+    ui.set_accounts_online_sync_note(if banking.banks.iter().any(|bank| !bank.offline) {
+        i18n::text(language, Key::OnlineSyncNotYetAvailable).into()
+    } else {
+        "".into()
+    });
     ui.set_accounts_figures(accounts_figures(state, language));
     ui.set_accounts_bank_cards(ModelRc::new(VecModel::from(accounts_bank_cards(
         state, banking, language,
@@ -4175,7 +4209,13 @@ fn accounts_bank_card(
             .and_then(|_| banking.sync_step.clone())
             .unwrap_or_else(|| i18n::text(language, Key::Syncing).to_owned())
             .into(),
-        sync_enabled: !banking.is_syncing(),
+        // Online sync is not available yet.
+        sync_enabled: false,
+        sync_tooltip: if item.is_some() {
+            i18n::text(language, Key::OnlineSyncNotYetAvailable).into()
+        } else {
+            "".into()
+        },
         pin_text: if item.is_none() || offline {
             String::new()
         } else if item.is_some_and(|item| item.has_saved_pin) {
@@ -4218,32 +4258,32 @@ fn accounts_bank_menu(
     language: Language,
 ) -> Vec<BankMenuItem> {
     let enabled = !banking.is_syncing();
+    let sync_enabled = false;
     let mut items = Vec::new();
     if !bank.offline {
-        for (action, key) in [("sync", Key::SyncNow), ("history", Key::FetchHistory)] {
-            items.push(BankMenuItem {
-                action: action.into(),
-                label: i18n::text(language, key).into(),
-                checked: false,
-                danger: false,
-                enabled,
-            });
-        }
-        if bank.sync_from.is_some() {
-            items.push(BankMenuItem {
-                action: "clear-history".into(),
-                label: i18n::text(language, Key::ClearHistoryStart).into(),
-                checked: false,
-                danger: false,
-                enabled,
-            });
-        }
+        items.push(BankMenuItem {
+            action: "history".into(),
+            label: i18n::text(language, Key::FetchHistory).into(),
+            checked: false,
+            danger: false,
+            enabled: sync_enabled,
+            icon: "date_range".into(),
+        });
         items.push(BankMenuItem {
             action: "include".into(),
             label: i18n::text(language, Key::IncludeInSyncAll).into(),
             checked: bank.include_in_sync_all,
             danger: false,
+            enabled: sync_enabled,
+            icon: "check".into(),
+        });
+        items.push(BankMenuItem {
+            action: "rename".into(),
+            label: i18n::text(language, Key::RenameConnection).into(),
+            checked: false,
+            danger: false,
             enabled,
+            icon: "edit".into(),
         });
         items.push(BankMenuItem {
             action: "connection".into(),
@@ -4251,7 +4291,18 @@ fn accounts_bank_menu(
             checked: false,
             danger: false,
             enabled,
+            icon: "settings".into(),
         });
+        if bank.sync_from.is_some() {
+            items.push(BankMenuItem {
+                action: "clear-history".into(),
+                label: i18n::text(language, Key::ClearHistoryStart).into(),
+                checked: false,
+                danger: false,
+                enabled,
+                icon: "history".into(),
+            });
+        }
         if bank.has_saved_pin {
             items.push(BankMenuItem {
                 action: "forget-pin".into(),
@@ -4259,6 +4310,7 @@ fn accounts_bank_menu(
                 checked: false,
                 danger: false,
                 enabled,
+                icon: "lock".into(),
             });
         }
     } else {
@@ -4268,6 +4320,7 @@ fn accounts_bank_menu(
             checked: false,
             danger: false,
             enabled,
+            icon: "edit".into(),
         });
     }
     items.push(BankMenuItem {
@@ -4276,6 +4329,7 @@ fn accounts_bank_menu(
         checked: false,
         danger: true,
         enabled: enabled && !state.busy.active(),
+        icon: "delete".into(),
     });
     items
 }
@@ -4287,6 +4341,23 @@ fn accounts_bank_subtitle(bank: &BankAccessItem, language: Language) -> String {
     let mut parts = vec![i18n::format(language, Key::BlzPrefix, &[Arg::from(bank.blz.as_str())])];
     if let Some(bic) = bank.bic.as_deref().map(str::trim).filter(|bic| !bic.is_empty()) {
         parts.push(i18n::format(language, Key::BicPrefix, &[Arg::from(bic)]));
+    }
+    if let Some(last_sync) = bank.last_sync {
+        parts.push(i18n::format(
+            language,
+            Key::SyncedPrefix,
+            &[Arg::from(format::date_time(last_sync))],
+        ));
+    }
+    if let Some(sync_from) = bank.sync_from {
+        parts.push(i18n::format(
+            language,
+            Key::NextSyncFrom,
+            &[Arg::from(format::date(sync_from))],
+        ));
+    }
+    if !bank.include_in_sync_all {
+        parts.push(i18n::text(language, Key::NotInSyncAll).to_owned());
     }
     parts.join(" · ")
 }

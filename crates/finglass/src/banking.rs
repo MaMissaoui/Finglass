@@ -33,6 +33,10 @@ pub(crate) const PROMPT_TIMEOUT: Duration = Duration::from_secs(10 * 60);
 /// The FinTS product id. The real adapter (M5b) owns registration; the placeholder gateway ignores it.
 const PRODUCT_ID: &str = "Finglass";
 
+/// Whether online sync can run. It turns true when the FinTS gateway (milestone M5b) replaces
+/// [`UnavailableGateway`].
+pub(crate) const ONLINE_SYNC_AVAILABLE: bool = false;
+
 /// A prompt bridge together with the token that keeps its callbacks from reaching a later profile's dialogs.
 pub(crate) struct BridgeHandle {
     bridge: Arc<PromptBridge>,
@@ -187,7 +191,13 @@ pub(crate) fn bank_cards(
             .clone()
             .unwrap_or_else(|| i18n::text(language, Key::Syncing).to_owned())
             .into();
-        card.sync_enabled = !banking.is_syncing();
+        card.sync_enabled = ONLINE_SYNC_AVAILABLE && !banking.is_syncing();
+        card.sync_tooltip = if ONLINE_SYNC_AVAILABLE {
+            String::new()
+        } else {
+            i18n::text(language, Key::OnlineSyncNotYetAvailable).to_owned()
+        }
+        .into();
         card.pin_text = if bank.offline {
             String::new()
         } else if bank.has_saved_pin {
@@ -203,7 +213,9 @@ pub(crate) fn bank_cards(
     cards
 }
 
-/// The menu entries of one bank card. Offline banks only rename or delete; online banks get the sync actions.
+/// The menu entries of one bank card, in FinDesk's order. Offline banks only rename or delete;
+/// online banks get the sync actions. History and "include in Sync all" stay disabled until the
+/// FinTS gateway replaces [`UnavailableGateway`].
 pub(crate) fn bank_menu(
     bank: &BankItem,
     banking: &BankingState,
@@ -211,21 +223,40 @@ pub(crate) fn bank_menu(
     language: Language,
 ) -> Vec<BankMenuItem> {
     let enabled = !banking.is_syncing();
+    let sync_enabled = ONLINE_SYNC_AVAILABLE && enabled;
     let mut items = Vec::new();
     if !bank.offline {
-        items.push(BankMenuItem {
-            action: "sync".into(),
-            label: i18n::text(language, Key::SyncNow).into(),
-            checked: false,
-            danger: false,
-            enabled: enabled && !banking.is_syncing(),
-        });
         items.push(BankMenuItem {
             action: "history".into(),
             label: i18n::text(language, Key::FetchHistory).into(),
             checked: false,
             danger: false,
+            enabled: sync_enabled,
+            icon: "date_range".into(),
+        });
+        items.push(BankMenuItem {
+            action: "include".into(),
+            label: i18n::text(language, Key::IncludeInSyncAll).into(),
+            checked: bank.include_in_sync_all,
+            danger: false,
+            enabled: sync_enabled,
+            icon: "check".into(),
+        });
+        items.push(BankMenuItem {
+            action: "rename".into(),
+            label: i18n::text(language, Key::RenameConnection).into(),
+            checked: false,
+            danger: false,
             enabled,
+            icon: "edit".into(),
+        });
+        items.push(BankMenuItem {
+            action: "connection".into(),
+            label: i18n::text(language, Key::ConnectionSettings).into(),
+            checked: false,
+            danger: false,
+            enabled,
+            icon: "settings".into(),
         });
         if bank.sync_from.is_some() {
             items.push(BankMenuItem {
@@ -234,22 +265,9 @@ pub(crate) fn bank_menu(
                 checked: false,
                 danger: false,
                 enabled,
+                icon: "history".into(),
             });
         }
-        items.push(BankMenuItem {
-            action: "include".into(),
-            label: i18n::text(language, Key::IncludeInSyncAll).into(),
-            checked: bank.include_in_sync_all,
-            danger: false,
-            enabled,
-        });
-        items.push(BankMenuItem {
-            action: "connection".into(),
-            label: i18n::text(language, Key::ConnectionSettings).into(),
-            checked: false,
-            danger: false,
-            enabled,
-        });
         if bank.has_saved_pin {
             items.push(BankMenuItem {
                 action: "forget-pin".into(),
@@ -257,6 +275,7 @@ pub(crate) fn bank_menu(
                 checked: false,
                 danger: false,
                 enabled,
+                icon: "lock".into(),
             });
         }
     } else {
@@ -266,6 +285,7 @@ pub(crate) fn bank_menu(
             checked: false,
             danger: false,
             enabled,
+            icon: "edit".into(),
         });
     }
     items.push(BankMenuItem {
@@ -274,6 +294,7 @@ pub(crate) fn bank_menu(
         checked: false,
         danger: true,
         enabled: enabled && !accounts.busy.active(),
+        icon: "delete".into(),
     });
     items
 }
@@ -304,11 +325,25 @@ pub(crate) fn sync_all_visible(banking: &BankingState) -> bool {
 
 /// Whether "Sync all" may start now.
 pub(crate) fn sync_all_enabled(banking: &BankingState) -> bool {
+    ONLINE_SYNC_AVAILABLE && sync_all_ready(banking)
+}
+
+/// Whether "Sync all" could start once online sync is available: no run in progress and at least one
+/// online bank included.
+fn sync_all_ready(banking: &BankingState) -> bool {
     !banking.is_syncing()
         && banking
             .banks
             .iter()
             .any(|bank| bank.include_in_sync_all && !bank.offline)
+}
+
+/// The note shown while online sync is not available yet, or empty when every bank is offline.
+pub(crate) fn online_sync_note(banking: &BankingState) -> String {
+    if ONLINE_SYNC_AVAILABLE || !banking.banks.iter().any(|bank| !bank.offline) {
+        return String::new();
+    }
+    i18n::text(banking.language, Key::OnlineSyncNotYetAvailable).to_owned()
 }
 
 /// Applies the banking-only page fields. The account fields are applied by [`crate::accounts::apply`].
@@ -317,6 +352,7 @@ pub(crate) fn apply_props(main: &MainWindow, accounts: &AccountsState, banking: 
     main.set_accounts_sync_all_progress(sync_all_text(banking).into());
     main.set_accounts_sync_all_visible(sync_all_visible(banking));
     main.set_accounts_sync_all_enabled(sync_all_enabled(banking));
+    main.set_accounts_online_sync_note(online_sync_note(banking).into());
     main.set_accounts_error_text(
         banking
             .error
@@ -1072,7 +1108,7 @@ pub(crate) fn handle_bank_menu(
         "history" => open_history_dialog(main, state, bank_id),
         "clear-history" => clear_history(main, state, paths, bank_id),
         "include" => set_include_in_sync_all(main, state, paths, bank_id),
-        "connection" => open_connection_dialog(main, state, bank_id),
+        "rename" | "connection" => open_connection_dialog(main, state, bank_id),
         "forget-pin" => forget_pin(main, state, paths, bank_id),
         "delete" => accounts::open_delete_bank(main, state, bank_id),
         _ => {}
@@ -1405,10 +1441,24 @@ mod tests {
             .filter_map(|index| cards[0].menu.row_data(index))
             .map(|item| item.action.to_string())
             .collect();
+        // "Sync now" left the menu; the card's Sync button is the one sync entry. Rename is now
+        // offered for online banks too, and history/include stay disabled until the gateway lands.
         assert_eq!(
             online_actions,
-            vec!["sync", "history", "include", "connection", "delete"]
+            vec!["history", "include", "rename", "connection", "delete"]
         );
+        let online_menu: Vec<BankMenuItem> = (0..cards[0].menu.row_count())
+            .filter_map(|index| cards[0].menu.row_data(index))
+            .collect();
+        let history = online_menu.iter().find(|item| item.action == "history").unwrap();
+        assert!(!history.enabled);
+        assert_eq!(history.icon, "date_range");
+        let include = online_menu.iter().find(|item| item.action == "include").unwrap();
+        assert!(!include.enabled);
+        assert!(include.checked);
+        let rename = online_menu.iter().find(|item| item.action == "rename").unwrap();
+        assert_eq!(rename.label, i18n::text(Language::En, Key::RenameConnection));
+        assert!(!online_menu.iter().any(|item| item.action == "sync"));
         let offline_actions: Vec<String> = (0..cards[1].menu.row_count())
             .filter_map(|index| cards[1].menu.row_data(index))
             .map(|item| item.action.to_string())
@@ -1429,17 +1479,46 @@ mod tests {
         assert_eq!(
             actions,
             vec![
-                "sync",
                 "history",
-                "clear-history",
                 "include",
+                "rename",
                 "connection",
+                "clear-history",
                 "forget-pin",
                 "delete"
             ]
         );
         let include = menu.iter().find(|item| item.action == "include").unwrap();
         assert!(!include.checked);
+        assert_eq!(include.icon, "check");
+        assert!(!include.enabled, "include in Sync all waits for the gateway");
+        let history = menu.iter().find(|item| item.action == "history").unwrap();
+        assert!(!history.enabled, "fetch history waits for the gateway");
+        let clear = menu.iter().find(|item| item.action == "clear-history").unwrap();
+        assert!(clear.enabled, "clearing a stored history start stays available");
+        assert_eq!(clear.icon, "history");
+        let forget = menu.iter().find(|item| item.action == "forget-pin").unwrap();
+        assert!(forget.enabled, "forgetting a saved PIN stays available");
+        assert_eq!(forget.icon, "lock");
+        assert_eq!(
+            menu.last().map(|item| (item.action.as_str(), item.icon.as_str())),
+            Some(("delete", "delete"))
+        );
+    }
+
+    #[test]
+    fn online_sync_is_not_available_yet_so_sync_all_is_disabled_and_the_note_shows() {
+        let banking = banking_state(vec![item(BankConnectionId(1), false, true)]);
+        assert!(!sync_all_enabled(&banking));
+        assert!(sync_all_visible(&banking));
+        assert_eq!(
+            online_sync_note(&banking),
+            i18n::text(Language::En, Key::OnlineSyncNotYetAvailable)
+        );
+
+        let offline = banking_state(vec![item(BankConnectionId(2), true, false)]);
+        assert_eq!(online_sync_note(&offline), "");
+        assert!(!sync_all_visible(&offline));
     }
 
     #[test]
@@ -1459,10 +1538,19 @@ mod tests {
             )
         );
         assert!(sync_all_visible(&banking));
-        assert!(!sync_all_enabled(&banking), "the running run is claimed");
+        assert!(
+            !sync_all_enabled(&banking),
+            "the running run is claimed and the gateway is not available yet"
+        );
+        assert!(!sync_all_ready(&banking), "the running run is claimed");
         banking.sync_all = None;
-        assert!(sync_all_enabled(&banking));
+        assert!(sync_all_ready(&banking));
+        assert!(
+            !sync_all_enabled(&banking),
+            "Sync all stays disabled until the FinTS gateway replaces UnavailableGateway"
+        );
         banking.banks[0].include_in_sync_all = false;
+        assert!(!sync_all_ready(&banking));
         assert!(!sync_all_enabled(&banking));
     }
 

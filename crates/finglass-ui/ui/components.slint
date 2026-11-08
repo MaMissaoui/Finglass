@@ -146,13 +146,15 @@ export struct BankAccountRow {
     new-count: int,
 }
 
-// One entry of a bank card's menu. `action` is the callback value the adapter understands.
+// One entry of a bank card's menu. `action` is the callback value the adapter understands and
+// `icon` names the Material icon the page draws in the leading slot.
 export struct BankMenuItem {
     action: string,
     label: string,
     checked: bool,
     danger: bool,
     enabled: bool,
+    icon: string,
 }
 
 // One bank card on the Accounts page. `bank-id` is -1 for accounts without a bank.
@@ -169,6 +171,7 @@ export struct AccountsBankCard {
     syncing: bool,
     sync-step: string,
     sync-enabled: bool,
+    sync-tooltip: string,
     pin-text: string,
     menu: [BankMenuItem],
 }
@@ -510,6 +513,8 @@ export component SecondaryButton inherits Rectangle {
     in property <bool> enabled: true;
     in property <image> icon;
     in property <bool> has-icon: false;
+    /// Why the button is disabled, shown while the pointer rests on it.
+    in property <string> tooltip-text: "";
 
     callback clicked;
 
@@ -532,12 +537,14 @@ export component SecondaryButton inherits Rectangle {
             height: 18px;
             source: root.icon;
             colorize: root.enabled ? Theme.primary : Theme.muted-text;
+            opacity: root.enabled ? 1.0 : 0.38;
             accessible-role: none;
         }
 
         label := Text {
             text: root.text;
             color: root.enabled ? Theme.primary : Theme.muted-text;
+            opacity: root.enabled ? 1.0 : 0.38;
             font-size: Type.label-size;
             font-weight: Type.label-weight;
             horizontal-alignment: center;
@@ -567,6 +574,10 @@ export component SecondaryButton inherits Rectangle {
             }
             return reject;
         }
+    }
+
+    if (root.tooltip-text != "") : Tooltip {
+        text: @markdown("\{root.tooltip-text}");
     }
 }
 
