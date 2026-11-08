@@ -971,6 +971,26 @@ fn renders_the_app_shell() {
         720,
     );
     render_reports(&window, &rows, &reports_de, "tax", "reports-tax-de-dark", 1100, 720);
+    render_reports(
+        &window,
+        &rows,
+        &reports_de,
+        "monthly",
+        "reports-monthly-de-dark",
+        1100,
+        720,
+    );
+    render_reports_with(
+        &window,
+        &rows,
+        &reports_en,
+        "tax",
+        "reports-export-menu-en-light",
+        (1100, 720),
+        |ui| {
+            ui.set_reports_export_menu_open(true);
+        },
+    );
 
     let mut missing = reports_en.clone();
     missing.set_missing_receipts_only(true);
@@ -2563,6 +2583,19 @@ fn render_reports(
     width: u32,
     height: u32,
 ) {
+    render_reports_with(window, rows, state, tab, name, (width, height), |_| {});
+}
+
+fn render_reports_with(
+    window: &Rc<MinimalSoftwareWindow>,
+    rows: &[app::AuditRow],
+    state: &ReportsState,
+    tab: &str,
+    name: &str,
+    size: (u32, u32),
+    setup: impl FnOnce(&MainWindow),
+) {
+    let (width, height) = size;
     let theme = if name.ends_with("dark") {
         ThemePref::Dark
     } else {
@@ -2572,6 +2605,7 @@ fn render_reports(
     configure_main(&ui, state.language, theme, "reports", rows);
     reports::apply(&ui, state);
     ui.set_reports_tab(tab.into());
+    setup(&ui);
     ui.show().unwrap();
     let buffer = render(window, name, width, height);
     assert_varied(&buffer, name);

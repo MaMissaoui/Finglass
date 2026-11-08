@@ -317,6 +317,8 @@ export component PrimaryButton inherits Rectangle {
     in property <bool> enabled: true;
     in property <image> icon;
     in property <bool> has-icon: false;
+    /// Why the button is disabled, shown while the pointer rests on it.
+    in property <string> tooltip-text: "";
 
     callback clicked;
 
@@ -375,6 +377,10 @@ export component PrimaryButton inherits Rectangle {
             }
             return reject;
         }
+    }
+
+    if (root.tooltip-text != "") : Tooltip {
+        text: @markdown("\{root.tooltip-text}");
     }
 }
 

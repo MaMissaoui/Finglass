@@ -11,6 +11,7 @@ import {
     ReportTaxRow,
     ReportVendorRow,
     IconButton,
+    PrimaryButton,
     SecondaryButton,
     SegmentedButton,
     TextButton,
@@ -100,18 +101,23 @@ component ReportStat inherits Rectangle {
     in property <image> icon;
     in property <color> value-color: Theme.text;
     in property <bool> interactive: false;
+    // Set on narrow windows, where four cards share little width.
+    in property <bool> compact: false;
 
     callback clicked;
 
-    min-height: 96px;
+    min-height: 104px;
+    // Equal widths in a row: stretch would otherwise share out space from each value's own width.
+    preferred-width: 0px;
+    min-width: 0px;
     border-radius: 12px;
     background: Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
 
     VerticalLayout {
-        padding: 14px;
-        spacing: 6px;
+        padding: root.compact ? 12px : 16px;
+        spacing: 8px;
         alignment: start;
 
         HorizontalLayout {
@@ -121,7 +127,8 @@ component ReportStat inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.muted-text;
-                font-size: Type.body-small-size;
+                font-size: Type.body-size;
+                font-weight: Type.body-weight;
                 vertical-alignment: center;
                 wrap: word-wrap;
                 horizontal-stretch: 1;
@@ -139,9 +146,12 @@ component ReportStat inherits Rectangle {
         Text {
             text: root.value;
             color: root.value-color;
-            font-size: Type.title-large-size;
-            font-weight: Type.title-large-weight;
-            wrap: word-wrap;
+            // FinDesk shrinks the value (TextAutoSize) in narrow cards; Slint can't size text to its
+            // box, so narrow windows step down once and the value elides rather than push the row
+            // past the page.
+            font-size: root.compact ? 18px : Type.headline-size;
+            font-weight: Type.amount-weight;
+            overflow: elide;
         }
 
         if (root.subtitle != "") : Text {
@@ -245,9 +255,43 @@ component ReportEmpty inherits Rectangle {
     }
 }
 
+// One entry of the Reports page's Export menu.
+component ReportMenuItem inherits Rectangle {
+    in property <string> text;
+    in property <bool> enabled: true;
+    in property <bool> highlighted: false;
+
+    callback picked;
+
+    height: 36px;
+    border-radius: 6px;
+    background: root.highlighted && root.enabled ? Theme.selected : (touch.has-hover && root.enabled ? Theme.background : transparent);
+
+    Text {
+        x: 12px;
+        width: parent.width - 24px;
+        text: root.text;
+        color: !root.enabled ? Theme.muted-text : (root.highlighted ? Theme.on-selected : Theme.text);
+        font-size: Type.body-size;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            if (root.enabled) {
+                root.picked();
+            }
+        }
+    }
+}
+
 // The Reports page, ported from FinDesk's ReportsScreen: period controls, exports, five tabs, tax
 // bookings with keyword suggestions and recurring payments.
 export component ReportsPage inherits Rectangle {
+    // Narrow window: the stat cards use a smaller value size.
+    in property <bool> compact: false;
     in property <string> tab: "summary";
 
     in property <string> year-label;
@@ -265,6 +309,8 @@ export component ReportsPage inherits Rectangle {
     in property <string> message-text;
     in property <bool> can-export-report;
     in property <bool> can-export-tax;
+    in property <string> export-disabled-reason;
+    in-out property <bool> export-menu-open: false;
     in property <bool> linkable;
 
     in property <string> other-currency-hint;
@@ -286,6 +332,9 @@ export component ReportsPage inherits Rectangle {
     in property <string> monthly-total-expenses;
     in property <string> monthly-total-net;
     in property <string> monthly-total-tone;
+    in property <bool> monthly-total-income-zero;
+    in property <bool> monthly-total-expenses-zero;
+    in property <bool> monthly-total-net-zero;
 
     in property <[DashboardCategoryRow]> category-rows;
     in property <string> transfers-note;
@@ -336,10 +385,59 @@ export component ReportsPage inherits Rectangle {
     callback dismiss;
 
     property <bool> busy: root.loading || root.exporting;
+    property <int> menu-selected: 0;
+    property <bool> menu-navigated: false;
 
     changed custom => { root.custom-edit = root.custom; }
     changed range-from => { root.from-edit = root.range-from; }
     changed range-to => { root.to-edit = root.range-to; }
+    changed tab => { root.export-menu-open = false; }
+
+    function menu-count() -> int {
+        return root.tab == "tax" ? 5 : 2;
+    }
+
+    function menu-item-enabled(index: int) -> bool {
+        if (root.tab == "tax" && index < 3) {
+            return root.can-export-tax && !root.busy;
+        }
+        return root.can-export-report && !root.busy;
+    }
+
+    function open-export-menu() {
+        root.menu-selected = 0;
+        root.menu-navigated = false;
+        root.export-menu-open = true;
+        menu-focus.focus();
+    }
+
+    function close-export-menu() {
+        root.export-menu-open = false;
+    }
+
+    function activate-menu-item(index: int) {
+        if (!root.menu-item-enabled(index)) {
+            return;
+        }
+        root.close-export-menu();
+        if (root.tab == "tax") {
+            if (index == 0) {
+                root.export-tax-xlsx();
+            } else if (index == 1) {
+                root.export-tax-pdf();
+            } else if (index == 2) {
+                root.print-tax();
+            } else if (index == 3) {
+                root.export-report-pdf();
+            } else {
+                root.export-csv();
+            }
+        } else if (index == 0) {
+            root.export-report-pdf();
+        } else {
+            root.export-csv();
+        }
+    }
 
     background: Theme.background;
 
@@ -347,10 +445,12 @@ export component ReportsPage inherits Rectangle {
         padding: 24px;
         spacing: 12px;
 
-        if (root.tab != "recurring") : HorizontalLayout {
-            spacing: 12px;
+        // One header row, as FinDesk has it: the period controls, a flexible gap and the Export menu.
+        HorizontalLayout {
+            spacing: 16px;
+            cross-axis-alignment: center;
 
-            SegmentedButton {
+            if (root.tab != "recurring") : SegmentedButton {
                 labels: [Tr.t("TaxYear"), Tr.t("CustomRange")];
                 selected: root.custom-edit ? 1 : 0;
                 select(index) => {
@@ -359,8 +459,8 @@ export component ReportsPage inherits Rectangle {
                 }
             }
 
-            if (!root.custom-edit) : HorizontalLayout {
-                spacing: 8px;
+            if (root.tab != "recurring" && !root.custom-edit) : HorizontalLayout {
+                spacing: 4px;
                 alignment: start;
                 cross-axis-alignment: center;
 
@@ -373,8 +473,8 @@ export component ReportsPage inherits Rectangle {
                 Text {
                     text: root.year-label;
                     color: Theme.text;
-                    font-size: Type.title-large-size;
-                    font-weight: Type.title-large-weight;
+                    font-size: Type.headline-size;
+                    font-weight: Type.headline-weight;
                     vertical-alignment: center;
                 }
                 IconButton {
@@ -385,8 +485,9 @@ export component ReportsPage inherits Rectangle {
                 }
             }
 
-            if (root.custom-edit) : HorizontalLayout {
+            if (root.tab != "recurring" && root.custom-edit) : HorizontalLayout {
                 spacing: 8px;
+                cross-axis-alignment: center;
 
                 DateField {
                     label: Tr.t("FromDate");
@@ -407,69 +508,28 @@ export component ReportsPage inherits Rectangle {
                 }
             }
 
+            if (root.tab != "recurring" && root.loading) : Spinner {
+                width: 20px;
+                height: 20px;
+            }
+
             Rectangle {
                 horizontal-stretch: 1;
                 background: transparent;
             }
 
-            if (root.loading) : Spinner {
+            if (root.exporting) : Spinner {
                 width: 20px;
                 height: 20px;
             }
-        }
 
-        VerticalLayout {
-            spacing: 8px;
-            alignment: end;
-
-            HorizontalLayout {
-                spacing: 8px;
-                alignment: end;
-
-                if (root.exporting) : Spinner {
-                    width: 20px;
-                    height: 20px;
-                }
-
-                SecondaryButton {
-                    text: Tr.t("ExportReport");
-                    icon: @image-url("icons/file_download.svg");
-                    has-icon: true;
-                    enabled: root.can-export-report && !root.busy;
-                    clicked => { root.export-report-pdf(); }
-                }
-                SecondaryButton {
-                    text: Tr.t("ExportCsv");
-                    icon: @image-url("icons/file_download.svg");
-                    has-icon: true;
-                    enabled: root.can-export-report && !root.busy;
-                    clicked => { root.export-csv(); }
-                }
-                SecondaryButton {
-                    text: Tr.t("ExportExcel");
-                    icon: @image-url("icons/file_download.svg");
-                    has-icon: true;
-                    enabled: root.can-export-tax && !root.busy;
-                    clicked => { root.export-tax-xlsx(); }
-                }
-            }
-
-            HorizontalLayout {
-                spacing: 8px;
-                alignment: end;
-
-                SecondaryButton {
-                    text: Tr.t("ExportPdf");
-                    icon: @image-url("icons/file_download.svg");
-                    has-icon: true;
-                    enabled: root.can-export-tax && !root.busy;
-                    clicked => { root.export-tax-pdf(); }
-                }
-                SecondaryButton {
-                    text: Tr.t("Print");
-                    enabled: root.can-export-tax && !root.busy;
-                    clicked => { root.print-tax(); }
-                }
+            export-anchor := PrimaryButton {
+                text: Tr.t("Export");
+                icon: @image-url("icons/file_download.svg");
+                has-icon: true;
+                tooltip-text: root.export-disabled-reason;
+                enabled: root.can-export-report && !root.busy;
+                clicked => { root.open-export-menu(); }
             }
         }
 
@@ -544,6 +604,7 @@ export component ReportsPage inherits Rectangle {
                             spacing: 16px;
 
                             ReportStat {
+                            compact: root.compact;
                                 horizontal-stretch: 1;
                                 title: Tr.t("RecurringPayments");
                                 value: root.recurring-count;
@@ -551,6 +612,7 @@ export component ReportsPage inherits Rectangle {
                                 accent: Theme.primary;
                             }
                             ReportStat {
+                            compact: root.compact;
                                 horizontal-stretch: 1;
                                 title: Tr.t("CostPerYear");
                                 value: root.recurring-yearly;
@@ -559,6 +621,7 @@ export component ReportsPage inherits Rectangle {
                                 value-color: Theme.error;
                             }
                             ReportStat {
+                            compact: root.compact;
                                 horizontal-stretch: 1;
                                 title: Tr.t("PerMonth");
                                 value: root.recurring-monthly;
@@ -572,44 +635,51 @@ export component ReportsPage inherits Rectangle {
                             title: Tr.t("SubscriptionsTitle");
 
                             HorizontalLayout {
+                                height: 32px;
                                 spacing: 8px;
+                                cross-axis-alignment: center;
 
                                 Text {
                                     text: Tr.t("ColName");
                                     horizontal-stretch: 3;
                                     color: Theme.muted-text;
-                                    font-size: Type.label-small-size;
-                                    font-weight: Type.label-small-weight;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
+                                    vertical-alignment: center;
                                 }
                                 Text {
                                     text: Tr.t("ColEvery");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: Type.label-small-size;
-                                    font-weight: Type.label-small-weight;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
+                                    vertical-alignment: center;
                                 }
                                 Text {
                                     text: Tr.t("ColNext");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: Type.label-small-size;
-                                    font-weight: Type.label-small-weight;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
+                                    vertical-alignment: center;
                                 }
                                 Text {
                                     text: Tr.t("ColAmount");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: Type.label-small-size;
-                                    font-weight: Type.label-small-weight;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
                                     horizontal-alignment: right;
+                                    vertical-alignment: center;
                                 }
                                 Text {
                                     text: Tr.t("ColPerYear");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: Type.label-small-size;
-                                    font-weight: Type.label-small-weight;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
                                     horizontal-alignment: right;
+                                    vertical-alignment: center;
                                 }
                             }
 
@@ -620,13 +690,16 @@ export component ReportsPage inherits Rectangle {
 
                             for row in root.recurring-rows : Rectangle {
                                 height: 52px;
+                                horizontal-stretch: 1;
 
                                 HorizontalLayout {
                                     spacing: 8px;
+                                    cross-axis-alignment: center;
 
                                     VerticalLayout {
                                         horizontal-stretch: 3;
                                         spacing: 2px;
+                                        alignment: center;
 
                                         Text {
                                             text: row.name;
@@ -646,7 +719,7 @@ export component ReportsPage inherits Rectangle {
                                         text: row.cadence;
                                         horizontal-stretch: 1;
                                         color: Theme.text;
-                                        font-size: Type.body-small-size;
+                                        font-size: Type.body-size;
                                         vertical-alignment: center;
                                         overflow: elide;
                                     }
@@ -654,14 +727,14 @@ export component ReportsPage inherits Rectangle {
                                         text: row.next-text;
                                         horizontal-stretch: 1;
                                         color: Theme.text;
-                                        font-size: Type.body-small-size;
+                                        font-size: Type.body-size;
                                         vertical-alignment: center;
                                     }
                                     Text {
                                         text: row.amount-text;
                                         horizontal-stretch: 1;
                                         color: row.income ? Theme.success : Theme.error;
-                                        font-size: Type.body-small-size;
+                                        font-size: Type.body-size;
                                         horizontal-alignment: right;
                                         vertical-alignment: center;
                                         overflow: elide;
@@ -670,8 +743,8 @@ export component ReportsPage inherits Rectangle {
                                         text: row.yearly-text;
                                         horizontal-stretch: 1;
                                         color: Theme.text;
-                                        font-size: Type.label-small-size;
-                                        font-weight: Type.label-small-weight;
+                                        font-size: Type.body-size;
+                                        font-weight: Type.title-medium-weight;
                                         horizontal-alignment: right;
                                         vertical-alignment: center;
                                         overflow: elide;
@@ -717,6 +790,7 @@ export component ReportsPage inherits Rectangle {
                         spacing: 16px;
 
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("TotalIncome");
                             value: root.income-value;
@@ -725,6 +799,7 @@ export component ReportsPage inherits Rectangle {
                             value-color: Theme.success;
                         }
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("TotalExpenses");
                             value: root.expenses-value;
@@ -733,6 +808,7 @@ export component ReportsPage inherits Rectangle {
                             value-color: Theme.error;
                         }
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("NetIncome");
                             icon: @image-url("icons/reports.svg");
@@ -741,6 +817,7 @@ export component ReportsPage inherits Rectangle {
                             value-color: root.net-tone == "negative" ? Theme.error : (root.net-tone == "positive" ? Theme.success : Theme.text);
                         }
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("TaxRelevantAmount");
                             value: root.tax-value;
@@ -785,6 +862,7 @@ export component ReportsPage inherits Rectangle {
                         spacing: 16px;
 
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("StatTransactions");
                             value: root.stat-transactions;
@@ -792,6 +870,7 @@ export component ReportsPage inherits Rectangle {
                             accent: Theme.primary;
                         }
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("CategoriesUsed");
                             value: root.stat-categories;
@@ -799,6 +878,7 @@ export component ReportsPage inherits Rectangle {
                             accent: Theme.primary;
                         }
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("AvgMonthlyExpenses");
                             value: root.stat-average;
@@ -807,6 +887,7 @@ export component ReportsPage inherits Rectangle {
                             value-color: Theme.error;
                         }
                         ReportStat {
+                            compact: root.compact;
                             horizontal-stretch: 1;
                             title: Tr.t("HighestMonth");
                             value: root.stat-highest;
@@ -820,38 +901,52 @@ export component ReportsPage inherits Rectangle {
                     title: root.monthly-title;
 
                     HorizontalLayout {
+                        height: 36px;
                         spacing: 8px;
+                        cross-axis-alignment: center;
 
                         Text {
                             text: Tr.t("ColMonth");
                             horizontal-stretch: 1;
+                            preferred-width: 0px;
+                            min-width: 0px;
                             color: Theme.muted-text;
-                            font-size: Type.label-small-size;
-                            font-weight: Type.label-small-weight;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
+                            vertical-alignment: center;
                         }
                         Text {
                             text: Tr.t("ColIncome");
                             horizontal-stretch: 1;
+                            preferred-width: 0px;
+                            min-width: 0px;
                             color: Theme.muted-text;
-                            font-size: Type.label-small-size;
-                            font-weight: Type.label-small-weight;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                             horizontal-alignment: right;
+                            vertical-alignment: center;
                         }
                         Text {
                             text: Tr.t("ColExpenses");
                             horizontal-stretch: 1;
+                            preferred-width: 0px;
+                            min-width: 0px;
                             color: Theme.muted-text;
-                            font-size: Type.label-small-size;
-                            font-weight: Type.label-small-weight;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                             horizontal-alignment: right;
+                            vertical-alignment: center;
                         }
                         Text {
                             text: Tr.t("ColNet");
                             horizontal-stretch: 1;
+                            preferred-width: 0px;
+                            min-width: 0px;
                             color: Theme.muted-text;
-                            font-size: Type.label-small-size;
-                            font-weight: Type.label-small-weight;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                             horizontal-alignment: right;
+                            vertical-alignment: center;
                         }
                     }
 
@@ -861,14 +956,18 @@ export component ReportsPage inherits Rectangle {
                     }
 
                     for row in root.monthly-rows : Rectangle {
-                        height: 36px;
+                        height: 40px;
+                        horizontal-stretch: 1;
 
                         HorizontalLayout {
                             spacing: 8px;
+                            cross-axis-alignment: center;
 
                             Text {
                                 text: row.month;
                                 horizontal-stretch: 1;
+                                preferred-width: 0px;
+                                min-width: 0px;
                                 color: Theme.text;
                                 font-size: Type.body-size;
                                 vertical-alignment: center;
@@ -877,7 +976,9 @@ export component ReportsPage inherits Rectangle {
                             Text {
                                 text: row.income-text;
                                 horizontal-stretch: 1;
-                                color: row.income-zero ? Theme.muted-text : Theme.success;
+                                preferred-width: 0px;
+                                min-width: 0px;
+                                color: row.income-zero ? Theme.text : Theme.success;
                                 font-size: Type.body-size;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
@@ -885,7 +986,9 @@ export component ReportsPage inherits Rectangle {
                             Text {
                                 text: row.expenses-text;
                                 horizontal-stretch: 1;
-                                color: row.expenses-zero ? Theme.muted-text : Theme.error;
+                                preferred-width: 0px;
+                                min-width: 0px;
+                                color: row.expenses-zero ? Theme.text : Theme.error;
                                 font-size: Type.body-size;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
@@ -893,9 +996,11 @@ export component ReportsPage inherits Rectangle {
                             Text {
                                 text: row.net-text;
                                 horizontal-stretch: 1;
-                                color: row.net-zero ? Theme.muted-text : (row.net-tone == "negative" ? Theme.error : Theme.success);
+                                preferred-width: 0px;
+                                min-width: 0px;
+                                color: row.net-zero ? Theme.text : (row.net-tone == "negative" ? Theme.error : Theme.success);
                                 font-size: Type.body-size;
-                                font-weight: row.net-zero ? Type.body-weight : Type.body-weight;
+                                font-weight: row.net-zero ? Type.body-weight : Type.title-medium-weight;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
                             }
@@ -908,50 +1013,60 @@ export component ReportsPage inherits Rectangle {
                         }
                     }
 
-                    Rectangle {
-                        height: 1px;
-                        background: Theme.divider;
-                    }
-
                     HorizontalLayout {
-                        height: 36px;
+                        height: 40px;
+                        horizontal-stretch: 1;
                         spacing: 8px;
+                        cross-axis-alignment: center;
 
                         Text {
                             text: Tr.t("ReportTotal");
                             horizontal-stretch: 1;
+                            preferred-width: 0px;
+                            min-width: 0px;
                             color: Theme.text;
                             font-size: Type.label-size;
-                            font-weight: Type.label-weight;
+                            font-weight: Type.title-medium-weight;
                             vertical-alignment: center;
                         }
                         Text {
                             text: root.monthly-total-income;
                             horizontal-stretch: 1;
-                            color: Theme.success;
+                            preferred-width: 0px;
+                            min-width: 0px;
+                            color: root.monthly-total-income-zero ? Theme.text : Theme.success;
                             font-size: Type.label-size;
-                            font-weight: Type.label-weight;
+                            font-weight: Type.title-medium-weight;
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
                         Text {
                             text: root.monthly-total-expenses;
                             horizontal-stretch: 1;
-                            color: Theme.error;
+                            preferred-width: 0px;
+                            min-width: 0px;
+                            color: root.monthly-total-expenses-zero ? Theme.text : Theme.error;
                             font-size: Type.label-size;
-                            font-weight: Type.label-weight;
+                            font-weight: Type.title-medium-weight;
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
                         Text {
                             text: root.monthly-total-net;
                             horizontal-stretch: 1;
-                            color: root.monthly-total-tone == "negative" ? Theme.error : Theme.success;
+                            preferred-width: 0px;
+                            min-width: 0px;
+                            color: root.monthly-total-net-zero ? Theme.text : (root.monthly-total-tone == "negative" ? Theme.error : Theme.success);
                             font-size: Type.label-size;
-                            font-weight: Type.label-weight;
+                            font-weight: Type.title-medium-weight;
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
+                    }
+
+                    Rectangle {
+                        height: 1px;
+                        background: Theme.divider;
                     }
                 }
 
@@ -972,11 +1087,13 @@ export component ReportsPage inherits Rectangle {
                     SectionCard {
                         title: Tr.t("TopVendors");
 
-                        for row in root.vendor-rows : Rectangle {
-                            height: 36px;
+                        for row[index] in root.vendor-rows : Rectangle {
+                            height: 40px;
+                            horizontal-stretch: 1;
 
                             HorizontalLayout {
                                 spacing: 8px;
+                                cross-axis-alignment: center;
 
                                 Text {
                                     text: row.rank;
@@ -997,12 +1114,13 @@ export component ReportsPage inherits Rectangle {
                                     text: row.amount-text;
                                     color: Theme.text;
                                     font-size: Type.label-size;
-                                    font-weight: Type.label-weight;
+                                    font-weight: Type.title-medium-weight;
+                                    horizontal-alignment: right;
                                     vertical-alignment: center;
                                 }
                             }
 
-                            Rectangle {
+                            if (index < root.vendor-rows.length - 1) : Rectangle {
                                 y: parent.height - self.height;
                                 height: 1px;
                                 background: Theme.divider;
@@ -1021,6 +1139,7 @@ export component ReportsPage inherits Rectangle {
                             spacing: 16px;
 
                             ReportStat {
+                            compact: root.compact;
                                 horizontal-stretch: 1;
                                 title: Tr.t("TaxIncomeTotal");
                                 value: root.tax-income-value;
@@ -1029,6 +1148,7 @@ export component ReportsPage inherits Rectangle {
                                 value-color: Theme.success;
                             }
                             ReportStat {
+                            compact: root.compact;
                                 horizontal-stretch: 1;
                                 title: Tr.t("TaxDeductionTotal");
                                 value: root.tax-deduction-value;
@@ -1037,6 +1157,7 @@ export component ReportsPage inherits Rectangle {
                                 value-color: Theme.error;
                             }
                             ReportStat {
+                            compact: root.compact;
                                 horizontal-stretch: 1;
                                 title: Tr.t("NetIncome");
                                 icon: @image-url("icons/reports.svg");
@@ -1045,6 +1166,7 @@ export component ReportsPage inherits Rectangle {
                                 value-color: root.tax-net-tone == "negative" ? Theme.error : (root.tax-net-tone == "positive" ? Theme.success : Theme.text);
                             }
                             ReportStat {
+                            compact: root.compact;
                                 horizontal-stretch: 1;
                                 title: Tr.t("TaxReceipts");
                                 value: root.tax-receipts-value;
@@ -1075,7 +1197,8 @@ export component ReportsPage inherits Rectangle {
                             }
 
                             for suggestion in root.tax-suggestions : Rectangle {
-                                height: 52px;
+                                height: 56px;
+                                horizontal-stretch: 1;
 
                                 HorizontalLayout {
                                     spacing: 8px;
@@ -1083,14 +1206,15 @@ export component ReportsPage inherits Rectangle {
 
                                     Text {
                                         text: suggestion.date-text;
-                                        width: 78px;
+                                        width: 88px;
                                         color: Theme.text;
-                                        font-size: Type.body-small-size;
+                                        font-size: Type.body-size;
                                         vertical-alignment: center;
                                     }
                                     VerticalLayout {
                                         horizontal-stretch: 1;
                                         spacing: 2px;
+                                        alignment: center;
 
                                         Text {
                                             text: suggestion.title;
@@ -1107,22 +1231,20 @@ export component ReportsPage inherits Rectangle {
                                     }
                                     Text {
                                         text: suggestion.amount-text;
-                                        width: 96px;
+                                        width: 110px;
                                         color: suggestion.expense ? Theme.error : Theme.success;
                                         font-size: Type.label-size;
-                                        font-weight: Type.label-weight;
+                                        font-weight: Type.title-medium-weight;
                                         horizontal-alignment: right;
                                         vertical-alignment: center;
                                     }
                                     TextButton {
                                         text: Tr.t("Accept");
-                                        width: 84px;
                                         enabled: !root.busy;
                                         clicked => { root.accept-suggestion(suggestion.id); }
                                     }
                                     TextButton {
                                         text: Tr.t("DismissSuggestion");
-                                        width: 84px;
                                         enabled: !root.busy;
                                         clicked => { root.dismiss-suggestion(suggestion.id); }
                                     }
@@ -1155,16 +1277,16 @@ export component ReportsPage inherits Rectangle {
                                 spacing: 0px;
 
                                 if (row.kind == "section") : Text {
-                                    height: 30px;
+                                    height: 32px;
                                     text: row.title;
                                     color: Theme.text;
-                                    font-size: Type.title-small-size;
-                                    font-weight: Type.title-small-weight;
+                                    font-size: Type.title-medium-size;
+                                    font-weight: Type.title-medium-weight;
                                     vertical-alignment: bottom;
                                 }
 
                                 if (row.kind == "group") : Rectangle {
-                                    height: 48px;
+                                    height: 52px;
                                     border-radius: 8px;
                                     background: Theme.surface;
                                     border-width: 1px;
@@ -1173,14 +1295,15 @@ export component ReportsPage inherits Rectangle {
                                     HorizontalLayout {
                                         padding-left: 12px;
                                         padding-right: 12px;
-                                        spacing: 10px;
+                                        spacing: 12px;
+                                        cross-axis-alignment: center;
 
                                         VerticalLayout {
                                             alignment: center;
                                             Rectangle {
-                                                width: 10px;
-                                                height: 10px;
-                                                border-radius: 5px;
+                                                width: 12px;
+                                                height: 12px;
+                                                border-radius: 6px;
                                                 background: row.colour;
                                             }
                                         }
@@ -1188,22 +1311,22 @@ export component ReportsPage inherits Rectangle {
                                             text: row.title;
                                             horizontal-stretch: 1;
                                             color: Theme.text;
-                                            font-size: Type.title-small-size;
-                                            font-weight: Type.title-small-weight;
+                                            font-size: Type.title-medium-size;
+                                            font-weight: Type.title-medium-weight;
                                             vertical-alignment: center;
                                             overflow: elide;
                                         }
                                         Text {
                                             text: row.summary;
-                                            color: Theme.muted-text;
-                                            font-size: Type.body-small-size;
+                                            color: Theme.text;
+                                            font-size: Type.body-size;
                                             vertical-alignment: center;
                                         }
                                     }
                                 }
 
                                 if (row.kind == "booking") : Rectangle {
-                                    border-radius: 6px;
+                                    border-radius: 8px;
                                     background: Theme.surface;
                                     border-width: 1px;
                                     border-color: Theme.divider;
@@ -1215,76 +1338,91 @@ export component ReportsPage inherits Rectangle {
 
                                         Text {
                                             text: row.date-text;
-                                            width: 78px;
+                                            width: 88px;
                                             color: Theme.text;
-                                            font-size: Type.body-small-size;
+                                            font-size: Type.body-size;
                                             vertical-alignment: center;
                                         }
                                         VerticalLayout {
                                             horizontal-stretch: 1;
                                             spacing: 2px;
+                                            alignment: center;
 
-                                            Text {
-                                                text: row.title;
-                                                color: Theme.text;
-                                                font-size: Type.body-size;
-                                                overflow: elide;
-                                            }
-                                            if (row.subtitle != "") : Text {
-                                                text: row.subtitle;
-                                                color: Theme.muted-text;
-                                                font-size: Type.body-small-size;
-                                                overflow: elide;
-                                            }
-                                        }
-                                        Text {
-                                            text: row.account-text;
-                                            width: 56px;
-                                            color: Theme.muted-text;
-                                            font-size: Type.body-small-size;
-                                            vertical-alignment: center;
-                                            overflow: elide;
-                                        }
-                                        if (row.has-receipt) : Rectangle {
-                                            width: 16px;
-                                            height: 18px;
-                                            border-radius: 3px;
-                                            border-width: 1px;
-                                            border-color: Theme.primary;
-                                            background: transparent;
+                                            HorizontalLayout {
+                                                spacing: 8px;
+                                                cross-axis-alignment: center;
 
-                                            Rectangle {
-                                                x: 3px;
-                                                y: 4px;
-                                                width: parent.width - 6px;
-                                                height: 2px;
-                                                background: Theme.primary;
+                                                Text {
+                                                    text: row.title;
+                                                    horizontal-stretch: 1;
+                                                    color: Theme.text;
+                                                    font-size: Type.body-size;
+                                                    font-weight: Type.label-weight;
+                                                    vertical-alignment: center;
+                                                    overflow: elide;
+                                                }
+                                                if (row.account-text != "") : Text {
+                                                    text: row.account-text;
+                                                    color: Theme.muted-text;
+                                                    font-size: Type.body-small-size;
+                                                    vertical-alignment: center;
+                                                }
                                             }
-                                            Rectangle {
-                                                x: 3px;
-                                                y: 8px;
-                                                width: parent.width - 6px;
-                                                height: 2px;
-                                                background: Theme.primary;
+
+                                            HorizontalLayout {
+                                                spacing: 8px;
+                                                cross-axis-alignment: center;
+
+                                                Text {
+                                                    text: row.subtitle;
+                                                    horizontal-stretch: 1;
+                                                    color: Theme.muted-text;
+                                                    font-size: Type.body-small-size;
+                                                    vertical-alignment: center;
+                                                    overflow: elide;
+                                                }
+                                                if (row.has-receipt) : Rectangle {
+                                                    width: 14px;
+                                                    height: 16px;
+                                                    border-radius: 3px;
+                                                    border-width: 1px;
+                                                    border-color: Theme.primary;
+                                                    background: transparent;
+
+                                                    Rectangle {
+                                                        x: 3px;
+                                                        y: 4px;
+                                                        width: parent.width - 6px;
+                                                        height: 2px;
+                                                        background: Theme.primary;
+                                                    }
+                                                    Rectangle {
+                                                        x: 3px;
+                                                        y: 8px;
+                                                        width: parent.width - 6px;
+                                                        height: 2px;
+                                                        background: Theme.primary;
+                                                    }
+                                                }
+                                                if (row.missing-receipt) : Text {
+                                                    text: Tr.t("NoReceipt");
+                                                    color: Theme.muted-text;
+                                                    font-size: Type.body-small-size;
+                                                    vertical-alignment: center;
+                                                }
                                             }
-                                        }
-                                        if (row.missing-receipt) : Text {
-                                            text: Tr.t("NoReceipt");
-                                            color: Theme.muted-text;
-                                            font-size: Type.body-small-size;
-                                            vertical-alignment: center;
                                         }
                                         Text {
                                             text: row.amount-text;
-                                            width: 96px;
+                                            width: 110px;
                                             color: row.expense ? Theme.error : Theme.success;
                                             font-size: Type.label-size;
-                                            font-weight: Type.label-weight;
+                                            font-weight: Type.title-medium-weight;
                                             horizontal-alignment: right;
                                             vertical-alignment: center;
                                         }
                                         VerticalLayout {
-                                            width: 150px;
+                                            width: 180px;
                                             spacing: 0px;
 
                                             TextButton {
@@ -1312,6 +1450,105 @@ export component ReportsPage inherits Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    // The Export menu, anchored under the header's button. The backdrop closes it on an outside click.
+    if (root.export-menu-open) : Rectangle {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+
+        TouchArea {
+            clicked => { root.close-export-menu(); }
+        }
+
+        Rectangle {
+            x: max(0px, export-anchor.absolute-position.x - root.absolute-position.x + export-anchor.width - self.width);
+            y: export-anchor.absolute-position.y - root.absolute-position.y + export-anchor.height + 4px;
+            width: 220px;
+            height: root.tab == "tax" ? 189px : 80px;
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            clip: true;
+
+            VerticalLayout {
+                padding: 4px;
+                spacing: 0px;
+
+                if (root.tab == "tax") : ReportMenuItem {
+                    text: Tr.t("ExportExcel");
+                    enabled: root.menu-item-enabled(0);
+                    highlighted: root.menu-navigated && root.menu-selected == 0;
+                    picked => { root.activate-menu-item(0); }
+                }
+                if (root.tab == "tax") : ReportMenuItem {
+                    text: Tr.t("ExportPdf");
+                    enabled: root.menu-item-enabled(1);
+                    highlighted: root.menu-navigated && root.menu-selected == 1;
+                    picked => { root.activate-menu-item(1); }
+                }
+                if (root.tab == "tax") : ReportMenuItem {
+                    text: Tr.t("Print");
+                    enabled: root.menu-item-enabled(2);
+                    highlighted: root.menu-navigated && root.menu-selected == 2;
+                    picked => { root.activate-menu-item(2); }
+                }
+                if (root.tab == "tax") : Rectangle {
+                    height: 1px;
+                    background: Theme.divider;
+                }
+
+                ReportMenuItem {
+                    text: Tr.t("ExportReport");
+                    enabled: root.menu-item-enabled(root.tab == "tax" ? 3 : 0);
+                    highlighted: root.menu-navigated && root.menu-selected == (root.tab == "tax" ? 3 : 0);
+                    picked => { root.activate-menu-item(root.tab == "tax" ? 3 : 0); }
+                }
+                ReportMenuItem {
+                    text: Tr.t("ExportCsv");
+                    enabled: root.menu-item-enabled(root.tab == "tax" ? 4 : 1);
+                    highlighted: root.menu-navigated && root.menu-selected == (root.tab == "tax" ? 4 : 1);
+                    picked => { root.activate-menu-item(root.tab == "tax" ? 4 : 1); }
+                }
+            }
+        }
+    }
+
+    menu-focus := FocusScope {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+        enabled: root.export-menu-open;
+        // The menu entries' TouchAreas handle the mouse; without this a click would be taken for focus.
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (!root.export-menu-open) {
+                return reject;
+            }
+            if (event.text == Key.Escape) {
+                root.close-export-menu();
+                return accept;
+            }
+            if (event.text == Key.UpArrow) {
+                root.menu-navigated = true;
+                root.menu-selected = root.menu-selected <= 0 ? root.menu-count() - 1 : root.menu-selected - 1;
+                return accept;
+            }
+            if (event.text == Key.DownArrow) {
+                root.menu-navigated = true;
+                root.menu-selected = root.menu-selected >= root.menu-count() - 1 ? 0 : root.menu-selected + 1;
+                return accept;
+            }
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.activate-menu-item(root.menu-selected);
+                return accept;
+            }
+            return reject;
         }
     }
 }
