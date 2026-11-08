@@ -82,17 +82,30 @@ pub fn month_short_name(language: Language, month: u8) -> &'static str {
     names[usize::from(month.clamp(1, 12)) - 1]
 }
 
-/// `Formats.money`: a currency symbol followed by the grouped amount, two decimals.
+/// `Formats.money`: a currency symbol followed by the grouped amount, two decimals; German puts the number first
+/// with a no-break space before the trimmed symbol.
 pub fn money(amount: Money, language: Language, signed: bool) -> String {
-    let mut text = String::new();
+    let mut sign = String::new();
     if amount.minor < 0 {
-        text.push('-');
+        sign.push('-');
     } else if signed && amount.minor > 0 {
-        text.push('+');
+        sign.push('+');
     }
-    text.push_str(&crate::format::symbol_for(amount.currency));
-    text.push_str(&grouped(amount, language));
-    text
+
+    if language == Language::De {
+        format!(
+            "{sign}{}{}{}",
+            grouped(amount, language),
+            crate::format::NO_BREAK_SPACE,
+            currency_symbol(amount.currency)
+        )
+    } else {
+        format!(
+            "{sign}{}{}",
+            crate::format::symbol_for(amount.currency),
+            grouped(amount, language)
+        )
+    }
 }
 
 /// The tax-booking PDF amount without a currency symbol; same separators as [`money`].

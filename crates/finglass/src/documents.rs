@@ -12,9 +12,10 @@ use std::thread;
 use finglass_core::app::documents::{DocumentTab, DocumentsState};
 use finglass_core::db::Database;
 use finglass_core::documents::{MatchSuggestion, OcrEngine, SUPPORTED_EXTENSIONS, TesseractCli, limits};
+use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{DocumentItem, TransactionId, TransactionItem};
-use finglass_core::money::{Money, format_plain};
+use finglass_core::money::Money;
 use finglass_core::paths::AppPaths;
 use slint::{Image, ModelRc, VecModel, Weak};
 use time::OffsetDateTime;
@@ -556,6 +557,7 @@ fn apply(ui: &MainWindow, state: &DocumentsState, preview: &Preview, query: &str
     ui.set_documents_candidates(ModelRc::new(VecModel::from(candidate_rows(
         &state.link_candidates,
         query,
+        language,
     ))));
     ui.set_documents_candidate_query(query.to_owned().into());
     ui.set_documents_delete_text(delete_text(state).into());
@@ -705,7 +707,7 @@ fn suggestion_rows(suggestions: &[MatchSuggestion], language: Language) -> Vec<D
             meta: format!(
                 "{} · {}",
                 date_text(suggestion.transaction.date),
-                money_text(suggestion.transaction.amount)
+                money_text(suggestion.transaction.amount, language)
             )
             .into(),
             badge: match_badge(language, suggestion.score).into(),
@@ -714,7 +716,7 @@ fn suggestion_rows(suggestions: &[MatchSuggestion], language: Language) -> Vec<D
 }
 
 /// The link candidates for the detail panel's picker, filtered by the typed query.
-fn candidate_rows(candidates: &[TransactionItem], query: &str) -> Vec<DocumentLinkRow> {
+fn candidate_rows(candidates: &[TransactionItem], query: &str, language: Language) -> Vec<DocumentLinkRow> {
     let needle = query.trim().to_lowercase();
     if needle.is_empty() {
         return Vec::new();
@@ -727,13 +729,20 @@ fn candidate_rows(candidates: &[TransactionItem], query: &str) -> Vec<DocumentLi
                     .purpose
                     .as_deref()
                     .is_some_and(|purpose| purpose.to_lowercase().contains(&needle))
-                || money_text(transaction.amount).to_lowercase().contains(&needle)
+                || money_text(transaction.amount, language)
+                    .to_lowercase()
+                    .contains(&needle)
         })
         .take(8)
         .map(|transaction| DocumentLinkRow {
             id: i32::try_from(transaction.id.0).unwrap_or(i32::MAX),
             title: transaction.raw_description().into(),
-            meta: format!("{} · {}", date_text(transaction.date), money_text(transaction.amount)).into(),
+            meta: format!(
+                "{} · {}",
+                date_text(transaction.date),
+                money_text(transaction.amount, language)
+            )
+            .into(),
             badge: String::new().into(),
         })
         .collect()
@@ -756,19 +765,9 @@ fn date_text(value: time::Date) -> String {
     format!("{:02}.{:02}.{:04}", value.day(), value.month() as u8, value.year())
 }
 
-/// An amount with its currency symbol, in Finglass's plain formatting.
-fn money_text(money: Money) -> String {
-    let plain = format_plain(money);
-    let (sign, digits) = match plain.strip_prefix('-') {
-        Some(digits) => ("-", digits),
-        None => ("", plain.as_str()),
-    };
-    let symbol = if money.currency.as_str() == "EUR" {
-        "€".to_owned()
-    } else {
-        format!("{} ", money.currency)
-    };
-    format!("{sign}{symbol}{digits}")
+/// An amount in the app's money format, as the Documents page shows it.
+fn money_text(money: Money, language: Language) -> String {
+    format::money(money, language, false)
 }
 
 /// Builds the preview for a selected document. Images are decoded only after the size limit passed.
@@ -915,18 +914,34 @@ mod tests {
         let date = Date::from_calendar_date(2026, Month::March, 13).unwrap();
         assert_eq!(date_text(date), "13.03.2026");
         assert_eq!(
-            money_text(Money {
-                minor: -1234,
-                currency: Currency::EUR,
-            }),
+            money_text(
+                Money {
+                    minor: -1234,
+                    currency: Currency::EUR,
+                },
+                Language::En
+            ),
             "-€12.34"
         );
         assert_eq!(
-            money_text(Money {
-                minor: 500,
-                currency: Currency::new("USD").unwrap(),
-            }),
-            "USD 5.00"
+            money_text(
+                Money {
+                    minor: 500,
+                    currency: Currency::new("USD").unwrap(),
+                },
+                Language::En
+            ),
+            "$5.00"
+        );
+        assert_eq!(
+            money_text(
+                Money {
+                    minor: -1234,
+                    currency: Currency::EUR,
+                },
+                Language::De
+            ),
+            "-12,34\u{a0}€"
         );
     }
 
