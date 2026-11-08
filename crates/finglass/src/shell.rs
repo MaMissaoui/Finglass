@@ -433,6 +433,12 @@ fn settings_section_for(screen: &str, requested: Option<i32>) -> Option<i32> {
     (screen == "settings").then(|| requested.unwrap_or(SETTINGS_APPEARANCE))
 }
 
+/// Whether View > Find applies on `screen`: only the pages with a page-level search field.
+#[must_use]
+fn find_enabled(screen: &str, dialog_open: bool) -> bool {
+    !dialog_open && matches!(screen, "transactions" | "documents")
+}
+
 /// Switches to `screen` and starts the work that page needs. The sidebar and the View menu both
 /// come through here, so they cannot drift apart.
 fn navigate_to(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, screen: &str) {
@@ -502,6 +508,20 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
                 && let Some(screen) = crate::menu::page_target(index)
             {
                 navigate_to(&ui, &state, &paths, screen);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_menu_find(move || {
+            if let Some(ui) = main_weak.upgrade()
+                && find_enabled(
+                    ui.get_current_screen().as_str(),
+                    ui.get_dialog_open() || ui.get_documents_dialog_open(),
+                )
+            {
+                ui.set_focus_search_request(ui.get_focus_search_request().wrapping_add(1));
             }
         });
     }
@@ -2087,6 +2107,7 @@ fn spawn_open_work(
                     *state.db.lock().expect("database state poisoned") = Some(db);
 
                     dashboard::spawn_open(&main, &state);
+                    main.window().set_maximized(true);
                     let _ = main.show();
                     let _ = ui.hide();
                 }
@@ -2494,6 +2515,26 @@ mod tests {
             state.dashboard.lock().expect("dashboard state poisoned").selected_month,
             YearMonth::new(2026, 11)
         );
+    }
+
+    #[test]
+    fn find_is_enabled_only_on_pages_with_a_search_field() {
+        for screen in ["transactions", "documents"] {
+            assert!(find_enabled(screen, false), "{screen} has a search field");
+        }
+        for screen in ["dashboard", "accounts", "reports", "settings"] {
+            assert!(!find_enabled(screen, false), "{screen} has no page search field");
+        }
+        for screen in ["transactions", "documents"] {
+            assert!(!find_enabled(screen, true), "an open dialog disables Find on {screen}");
+        }
+    }
+
+    #[test]
+    fn the_find_menu_item_has_text_in_every_language() {
+        for &language in Language::ALL {
+            assert!(!i18n::text(language, Key::MenuFind).is_empty(), "{language:?}");
+        }
     }
 
     #[test]

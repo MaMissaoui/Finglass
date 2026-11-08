@@ -123,7 +123,7 @@ component LedgerRow inherits Rectangle {
     callback clicked;
 
     height: 44px;
-    background: transparent;
+    background: root.interactive && row-touch.has-hover ? Theme.background : transparent;
 
     HorizontalLayout {
         spacing: 12px;
@@ -167,8 +167,9 @@ component LedgerRow inherits Rectangle {
         }
     }
 
-    TouchArea {
+    row-touch := TouchArea {
         enabled: root.interactive;
+        mouse-cursor: pointer;
         clicked => {
             root.clicked();
         }
@@ -265,9 +266,14 @@ component MonthArrow inherits Rectangle {
 
     TouchArea {
         enabled: root.enabled;
+        mouse-cursor: pointer;
         clicked => {
             root.clicked();
         }
+    }
+
+    Tooltip {
+        text: @markdown("\{root.label}");
     }
 }
 
@@ -565,6 +571,7 @@ export component DashboardPage inherits Rectangle {
                     IconButton {
                         icon: @image-url("icons/close.svg");
                         label: Tr.t("Dismiss");
+                        tooltip-text: Tr.t("Dismiss");
                         icon-size: 18px;
                         clicked => {
                             root.dismiss-error();

@@ -656,6 +656,7 @@ export component MainWindow inherits Window {
     callback navigate(string);
     callback set-theme(string);
     callback menu-navigate(int);
+    callback menu-find;
     callback menu-new-transaction;
     callback menu-import-statement;
     callback menu-minimize;
@@ -888,7 +889,8 @@ export component MainWindow inherits Window {
 
     // While one of the app's modal overlays is open, the File and View items are disabled, so the
     // menu cannot stack a second dialog or switch the page out from under the open one.
-    property <bool> dialog-open:
+    in-out property <bool> documents-dialog-open: false;
+    out property <bool> dialog-open:
         root.change-open
         || root.category-dialog-open
         || root.category-delete-open
@@ -945,6 +947,13 @@ export component MainWindow inherits Window {
         Menu {
             title: Tr.t("MenuView");
 
+            MenuItem {
+                title: Tr.t("MenuFind");
+                shortcut: @keys(Control + F);
+                enabled: !root.dialog-open && !root.documents-dialog-open && (root.current-screen == "transactions" || root.current-screen == "documents");
+                activated => { root.menu-find(); }
+            }
+            MenuSeparator {}
             MenuItem {
                 title: Tr.t("NavDashboard");
                 shortcut: @keys(Control + "1");
@@ -1043,6 +1052,11 @@ export component MainWindow inherits Window {
     };
 
     property <string> screen-title: Tr.t(root.title-key);
+
+    property <string> language-label: Tr.t("ChangeLanguage") + " · " + root.native-language-name(root.language);
+    property <string> profile-label: Tr.t("SwitchProfileMenu");
+    // Incremented by View > Find; each page with a search field focuses it when this changes.
+    in-out property <int> focus-search-request: 0;
 
     function native-language-name(code: string) -> string {
         if (code == "de") {
@@ -1172,6 +1186,7 @@ export component MainWindow inherits Window {
                     IconButton {
                         icon: root.sidebar-collapsed ? @image-url("icons/menu.svg") : @image-url("icons/menu-open.svg");
                         label: root.sidebar-collapsed ? Tr.t("ExpandSidebar") : Tr.t("CollapseSidebar");
+                        tooltip-text: root.sidebar-collapsed ? Tr.t("ExpandSidebar") : Tr.t("CollapseSidebar");
                         clicked => {
                             root.sidebar-collapsed = !root.sidebar-collapsed;
                             root.sidebar-collapsed-changed(root.sidebar-collapsed);
@@ -1243,6 +1258,10 @@ export component MainWindow inherits Window {
                         profile-touch := TouchArea {
                             clicked => { root.profile-menu-open = !root.profile-menu-open; }
                         }
+
+                        Tooltip {
+                            text: @markdown("\{root.profile-label}");
+                        }
                     }
 
                     Rectangle {
@@ -1251,7 +1270,7 @@ export component MainWindow inherits Window {
                         border-radius: 8px;
                         background: language-touch.has-hover || root.language-menu-open ? Theme.background : transparent;
                         accessible-role: button;
-                        accessible-label: Tr.t("ChangeLanguage") + " · " + root.native-language-name(root.language);
+                        accessible-label: root.language-label;
 
                         HorizontalLayout {
                             alignment: center;
@@ -1287,11 +1306,16 @@ export component MainWindow inherits Window {
                                 return reject;
                             }
                         }
+
+                        Tooltip {
+                            text: @markdown("\{root.language-label}");
+                        }
                     }
 
                     IconButton {
                         icon: Theme.dark ? @image-url("icons/sun.svg") : @image-url("icons/moon.svg");
                         label: Tr.t("ToggleTheme");
+                        tooltip-text: Tr.t("ToggleTheme");
                         clicked => {
                             // "System" shows its effective mode; a click stores an explicit mode.
                             root.set-theme(Theme.dark ? "light" : "dark");
@@ -1580,6 +1604,7 @@ export component MainWindow inherits Window {
                 vertical-stretch: 1;
 
                 show-panel: root.transactions-show-panel;
+                focus-search-request: root.focus-search-request;
                 loading: root.transactions-loading;
                 has-accounts: root.transactions-has-accounts;
                 error-text: root.transactions-error-text;
@@ -1872,6 +1897,8 @@ export component MainWindow inherits Window {
                 tab-unlinked-label: root.documents-tab-unlinked-label;
                 tab-linked-label: root.documents-tab-linked-label;
                 search-query: root.documents-search-query;
+                focus-search-request: root.focus-search-request;
+                dialog-open <=> root.documents-dialog-open;
                 ocr-available: root.documents-ocr-available;
                 ocr-hint: root.documents-ocr-hint;
                 uploading: root.documents-uploading;

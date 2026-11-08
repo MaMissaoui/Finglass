@@ -468,6 +468,7 @@ export component ReportsPage inherits Rectangle {
                 IconButton {
                     icon: @image-url("icons/arrow_back.svg");
                     label: Tr.t("PreviousYear");
+                    tooltip-text: Tr.t("PreviousYear");
                     enabled: !root.busy;
                     clicked => { root.change-year(-1); }
                 }
@@ -481,6 +482,7 @@ export component ReportsPage inherits Rectangle {
                 IconButton {
                     icon: @image-url("icons/arrow_forward.svg");
                     label: Tr.t("NextYear");
+                    tooltip-text: Tr.t("NextYear");
                     enabled: !root.busy;
                     clicked => { root.change-year(1); }
                 }

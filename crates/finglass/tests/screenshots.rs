@@ -1425,7 +1425,7 @@ fn renders_the_app_shell() {
     let transactions_en = transactions_state(&transactions_db, Language::En, StartArgs::default(), today);
     let transactions_de = transactions_state(&transactions_db, Language::De, StartArgs::default(), today);
 
-    render_transactions(
+    let transactions_en_light = render_transactions(
         &window,
         Language::En,
         ThemePref::Light,
@@ -1448,6 +1448,28 @@ fn renders_the_app_shell() {
         "transactions-de-dark account filter field",
     );
     assert_dark_widget(&dark_transactions, 1120, 172, "transactions-de-dark period ComboBox");
+
+    // A pointer move over the first booking paints the row hover tint. The window is sized first so
+    // the pointer event hits the laid-out row, then the first draw of this window includes the hover.
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "transactions", &[]);
+        ui.set_transactions_show_panel(true);
+        transactions_page::apply(&ui, &transactions_en);
+        ui.show().unwrap();
+
+        window.set_size(PhysicalSize::new(1440, 720));
+        window.dispatch_event(slint::platform::WindowEvent::PointerMoved {
+            position: slint::LogicalPosition { x: 760.0, y: 243.0 },
+        });
+        let hovered = render(&window, "transactions-row-hover-en-light", 1440, 720);
+        assert_ne!(
+            pixel_at(&transactions_en_light, 760, 243),
+            pixel_at(&hovered, 760, 243),
+            "the pointer move paints the booking row's hover tint"
+        );
+        let _ = ui.hide();
+    }
 
     let account_state = transactions_state(
         &transactions_db,

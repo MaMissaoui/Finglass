@@ -40,6 +40,9 @@ component ChevronButton inherits Rectangle {
     height: 20px;
     border-radius: 10px;
     background: touch.has-hover ? Theme.divider : transparent;
+    property <string> label: root.collapsed ? Tr.t("Expand") : Tr.t("Collapse");
+    accessible-role: button;
+    accessible-label: root.label;
 
     Image {
         width: 20px;
@@ -50,19 +53,28 @@ component ChevronButton inherits Rectangle {
     }
 
     touch := TouchArea {
+        mouse-cursor: pointer;
         clicked => {
             root.clicked();
         }
+    }
+
+    Tooltip {
+        text: @markdown("\{root.label}");
     }
 }
 
 component DotButton inherits Rectangle {
     callback clicked;
 
+    property <string> label: Tr.t("More");
+
     width: 24px;
     height: 24px;
     border-radius: 12px;
     background: touch.has-hover ? Theme.divider : transparent;
+    accessible-role: button;
+    accessible-label: root.label;
 
     Image {
         width: 18px;
@@ -75,9 +87,14 @@ component DotButton inherits Rectangle {
     }
 
     touch := TouchArea {
+        mouse-cursor: pointer;
         clicked => {
             root.clicked();
         }
+    }
+
+    Tooltip {
+        text: @markdown("\{root.label}");
     }
 }
 
@@ -133,6 +150,7 @@ component PanelRowView inherits Rectangle {
 
             // The row's own click target sits below the chevron and the menu button.
             touch := TouchArea {
+                mouse-cursor: pointer;
                 clicked => {
                     root.select();
                 }

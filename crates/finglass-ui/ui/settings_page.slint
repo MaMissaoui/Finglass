@@ -142,6 +142,7 @@ component SettingsSectionRow inherits Rectangle {
     }
 
     touch := TouchArea {
+        mouse-cursor: pointer;
         clicked => { root.picked(); }
     }
 
@@ -224,6 +225,7 @@ component SettingsBanner inherits Rectangle {
         IconButton {
             icon: @image-url("icons/close.svg");
             label: Tr.t("Dismiss");
+            tooltip-text: Tr.t("Dismiss");
             icon-size: 18px;
             clicked => { root.dismiss(); }
         }
@@ -254,6 +256,7 @@ component SettingsBanner inherits Rectangle {
         IconButton {
             icon: @image-url("icons/close.svg");
             label: Tr.t("Dismiss");
+            tooltip-text: Tr.t("Dismiss");
             icon-size: 18px;
             clicked => { root.dismiss(); }
         }
@@ -629,6 +632,7 @@ export component SettingsPage inherits Rectangle {
                                 IconButton {
                                     icon: @image-url("icons/edit.svg");
                                     label: Tr.t("Edit");
+                                    tooltip-text: Tr.t("Edit");
                                     icon-size: 20px;
                                     clicked => { root.rename-profile(row.index); }
                                 }
@@ -636,6 +640,7 @@ export component SettingsPage inherits Rectangle {
                                 if (row.can-delete) : IconButton {
                                     icon: @image-url("icons/delete.svg");
                                     label: Tr.t("Delete");
+                                    tooltip-text: Tr.t("Delete");
                                     icon-size: 20px;
                                     icon-color: Theme.error;
                                     clicked => { root.delete-profile(row.index); }
@@ -754,6 +759,7 @@ export component SettingsPage inherits Rectangle {
                                 IconButton {
                                     icon: @image-url("icons/edit.svg");
                                     label: Tr.t("Edit");
+                                    tooltip-text: Tr.t("Edit");
                                     icon-size: 20px;
                                     clicked => { root.edit-category(row.id); }
                                 }
@@ -761,6 +767,7 @@ export component SettingsPage inherits Rectangle {
                                 IconButton {
                                     icon: @image-url("icons/delete.svg");
                                     label: Tr.t("Delete");
+                                    tooltip-text: Tr.t("Delete");
                                     icon-size: 20px;
                                     icon-color: Theme.error;
                                     clicked => { root.delete-category(row.id); }
@@ -873,6 +880,7 @@ export component SettingsPage inherits Rectangle {
                                 IconButton {
                                     icon: @image-url("icons/edit.svg");
                                     label: Tr.t("Edit");
+                                    tooltip-text: Tr.t("Edit");
                                     icon-size: 20px;
                                     clicked => { root.edit-rule(row.id); }
                                 }
@@ -880,6 +888,7 @@ export component SettingsPage inherits Rectangle {
                                 IconButton {
                                     icon: @image-url("icons/delete.svg");
                                     label: Tr.t("Delete");
+                                    tooltip-text: Tr.t("Delete");
                                     icon-size: 20px;
                                     icon-color: Theme.error;
                                     clicked => { root.delete-rule(row.id); }
@@ -1324,6 +1333,7 @@ export component SettingsPage inherits Rectangle {
                                     IconButton {
                                         icon: @image-url("icons/edit.svg");
                                         label: Tr.t("Edit");
+                                        tooltip-text: Tr.t("Edit");
                                         icon-size: 20px;
                                         clicked => { root.rename-profile(row.index); }
                                     }
@@ -1331,6 +1341,7 @@ export component SettingsPage inherits Rectangle {
                                     if (row.can-delete) : IconButton {
                                         icon: @image-url("icons/delete.svg");
                                         label: Tr.t("Delete");
+                                        tooltip-text: Tr.t("Delete");
                                         icon-size: 20px;
                                         icon-color: Theme.error;
                                         clicked => { root.delete-profile(row.index); }
@@ -1449,6 +1460,7 @@ export component SettingsPage inherits Rectangle {
                                     IconButton {
                                         icon: @image-url("icons/edit.svg");
                                         label: Tr.t("Edit");
+                                        tooltip-text: Tr.t("Edit");
                                         icon-size: 20px;
                                         clicked => { root.edit-category(row.id); }
                                     }
@@ -1456,6 +1468,7 @@ export component SettingsPage inherits Rectangle {
                                     IconButton {
                                         icon: @image-url("icons/delete.svg");
                                         label: Tr.t("Delete");
+                                        tooltip-text: Tr.t("Delete");
                                         icon-size: 20px;
                                         icon-color: Theme.error;
                                         clicked => { root.delete-category(row.id); }
@@ -1568,6 +1581,7 @@ export component SettingsPage inherits Rectangle {
                                     IconButton {
                                         icon: @image-url("icons/edit.svg");
                                         label: Tr.t("Edit");
+                                        tooltip-text: Tr.t("Edit");
                                         icon-size: 20px;
                                         clicked => { root.edit-rule(row.id); }
                                     }
@@ -1575,6 +1589,7 @@ export component SettingsPage inherits Rectangle {
                                     IconButton {
                                         icon: @image-url("icons/delete.svg");
                                         label: Tr.t("Delete");
+                                        tooltip-text: Tr.t("Delete");
                                         icon-size: 20px;
                                         icon-color: Theme.error;
                                         clicked => { root.delete-rule(row.id); }

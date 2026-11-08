@@ -668,6 +668,8 @@ export component IconButton inherits Rectangle {
     in property <bool> selected: false;
     in property <bool> enabled: true;
     in property <bool> outlined: false;
+    /// The accessible label shown as a tooltip while the pointer rests on the button.
+    in property <string> tooltip-text: "";
 
     callback clicked;
 
@@ -721,6 +723,10 @@ export component IconButton inherits Rectangle {
         border-color: Theme.primary;
         border-radius: parent.border-radius;
     }
+
+    if (root.tooltip-text != "") : Tooltip {
+        text: @markdown("\{root.tooltip-text}");
+    }
 }
 
 // Inline success and error banner with a dismiss action.
@@ -762,6 +768,7 @@ export component MessageBanner inherits Rectangle {
         IconButton {
             icon: @image-url("icons/close.svg");
             label: Tr.t("Dismiss");
+            tooltip-text: Tr.t("Dismiss");
             icon-size: 18px;
             clicked => { root.dismissed(); }
         }
@@ -930,6 +937,19 @@ export component SearchField inherits Rectangle {
     border-width: input.has-focus ? 2px : 1px;
     border-color: input.has-focus ? Theme.primary : Theme.divider;
 
+    /// Puts keyboard focus into the text field, used by View > Find.
+    public function focus-input() {
+        input.focus();
+    }
+
+    /// Clears the field and reports the change, as the clear action does.
+    public function clear() {
+        if (input.text != "") {
+            input.text = "";
+            root.edited("");
+        }
+    }
+
     HorizontalLayout {
         padding-left: 14px;
         padding-right: 6px;
@@ -958,6 +978,13 @@ export component SearchField inherits Rectangle {
                 enabled: root.enabled;
                 edited => { root.edited(input.text); }
                 accepted => { root.edited(input.text); }
+                key-pressed(event) => {
+                    if (event.text == Key.Escape && input.text != "") {
+                        root.clear();
+                        return accept;
+                    }
+                    return reject;
+                }
             }
 
             if (input.text == "") : Text {
@@ -975,10 +1002,11 @@ export component SearchField inherits Rectangle {
         if (input.text != "" && root.enabled) : IconButton {
             icon: @image-url("icons/close.svg");
             label: Tr.t("ClearSearch");
+            tooltip-text: Tr.t("ClearSearch");
             icon-size: 18px;
             width: 30px;
             height: 30px;
-            clicked => { root.edited(""); }
+            clicked => { root.clear(); }
         }
     }
 }
@@ -1068,6 +1096,7 @@ export component OutlinedField inherits VerticalLayout {
             height: 40px;
             icon: root.trailing-icon;
             label: root.trailing-label;
+            tooltip-text: root.trailing-label;
             enabled: root.enabled;
             clicked => { root.trailing-clicked(); }
         }

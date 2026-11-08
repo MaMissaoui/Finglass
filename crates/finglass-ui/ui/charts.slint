@@ -37,7 +37,7 @@ export component CategorySplit inherits Rectangle {
             for row in root.rows : Rectangle {
                 height: 28px;
                 border-radius: 6px;
-                background: transparent;
+                background: !row.is-more && root.selectable && row-touch.has-hover ? Theme.background : transparent;
 
                 HorizontalLayout {
                     spacing: 8px;
@@ -81,18 +81,23 @@ export component CategorySplit inherits Rectangle {
                         vertical-alignment: center;
                     }
 
-                    Image {
-                        visible: !row.is-more && root.selectable;
-                        width: 18px;
-                        height: 18px;
-                        source: @image-url("icons/keyboard_arrow_right.svg");
-                        colorize: Theme.muted-text;
-                        accessible-role: none;
+                    // Centred on the row: a fixed-size element in a HorizontalLayout sits at the top.
+                    VerticalLayout {
+                        alignment: center;
+                        Image {
+                            visible: !row.is-more && root.selectable;
+                            width: 18px;
+                            height: 18px;
+                            source: @image-url("icons/keyboard_arrow_right.svg");
+                            colorize: Theme.muted-text;
+                            accessible-role: none;
+                        }
                     }
                 }
 
-                TouchArea {
+                row-touch := TouchArea {
                     enabled: !row.is-more && root.selectable;
+                    mouse-cursor: pointer;
                     clicked => {
                         root.select(row.category-id);
                     }
