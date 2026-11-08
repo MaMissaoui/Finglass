@@ -1,5 +1,5 @@
 import { ScrollView } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     Checkbox,
@@ -81,7 +81,7 @@ export component TransactionDetailDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 560px;
@@ -89,7 +89,7 @@ export component TransactionDetailDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         ScrollView {
             content := VerticalLayout {
@@ -131,8 +131,8 @@ export component TransactionDetailDialog inherits Rectangle {
 
                     if (root.tax-relevant) : Rectangle {
                         height: 22px;
-                        border-radius: 11px;
-                        background: #F59E0B33;
+                        border-radius: Radius.tag;
+                        background: Theme.warning-pale;
 
                         HorizontalLayout {
                             padding-left: 8px;
@@ -140,7 +140,7 @@ export component TransactionDetailDialog inherits Rectangle {
 
                             Text {
                                 text: Tr.t("TaxRelevant");
-                                color: #B45309;
+                                color: Theme.warning-strong;
                                 font-size: Type.label-small-size;
                                 font-weight: Type.label-small-weight;
                                 vertical-alignment: center;
@@ -172,7 +172,7 @@ export component TransactionDetailDialog inherits Rectangle {
 
                 if (root.has-mismatch) : Rectangle {
                     background: Theme.background;
-                    border-radius: 8px;
+                    border-radius: Radius.panel;
                     border-width: 1px;
                     border-color: Theme.warning;
 
@@ -284,7 +284,7 @@ export component AddTransactionDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 500px;
@@ -292,7 +292,7 @@ export component AddTransactionDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         ScrollView {
             content := VerticalLayout {
@@ -417,7 +417,7 @@ export component MultiDeleteDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 560px;
@@ -425,7 +425,7 @@ export component MultiDeleteDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         ScrollView {
             content := VerticalLayout {
@@ -519,7 +519,7 @@ export component ImportDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 720px;
@@ -527,7 +527,7 @@ export component ImportDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         VerticalLayout {
             padding: 24px;
@@ -715,7 +715,7 @@ export component ReapplyRulesDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 560px;
@@ -723,7 +723,7 @@ export component ReapplyRulesDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         ScrollView {
             content := VerticalLayout {
@@ -820,7 +820,7 @@ export component CustomRangeDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 420px;
@@ -828,7 +828,7 @@ export component CustomRangeDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         content := VerticalLayout {
             padding: 24px;
@@ -906,7 +906,7 @@ export component AmountFilterDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 420px;
@@ -914,7 +914,7 @@ export component AmountFilterDialog inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         content := VerticalLayout {
             padding: 24px;

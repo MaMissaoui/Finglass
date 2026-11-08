@@ -1,4 +1,4 @@
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice } from "components.slint";
 
 // The spending split: one horizontal 100% bar and one legend row per category.
@@ -16,7 +16,7 @@ export component CategorySplit inherits Rectangle {
 
         Rectangle {
             height: 12px;
-            border-radius: 6px;
+            border-radius: Radius.small;
             background: Theme.divider;
             clip: true;
 
@@ -36,7 +36,7 @@ export component CategorySplit inherits Rectangle {
 
             for row in root.rows : Rectangle {
                 height: 28px;
-                border-radius: 6px;
+                border-radius: Radius.small;
                 background: !row.is-more && root.selectable && row-touch.has-hover ? Theme.background : transparent;
 
                 HorizontalLayout {
@@ -49,7 +49,7 @@ export component CategorySplit inherits Rectangle {
                         Rectangle {
                             width: 10px;
                             height: 10px;
-                            border-radius: 5px;
+                            border-radius: Radius.bar;
                             background: row.colour;
                         }
                     }
@@ -204,7 +204,7 @@ export component IncomeExpenseChart inherits Rectangle {
                                 width: parent.width * 0.30;
                                 height: parent.height * bar.income-fraction;
                                 y: parent.height - self.height;
-                                border-radius: 3px;
+                                border-radius: Radius.dot;
                                 background: Theme.success;
                                 opacity: bar.partial ? 0.45 : 1.0;
                             }
@@ -214,7 +214,7 @@ export component IncomeExpenseChart inherits Rectangle {
                                 width: parent.width * 0.30;
                                 height: parent.height * bar.expenses-fraction;
                                 y: parent.height - self.height;
-                                border-radius: 3px;
+                                border-radius: Radius.dot;
                                 background: Theme.error;
                                 opacity: bar.partial ? 0.45 : 1.0;
                             }
@@ -251,7 +251,7 @@ export component IncomeExpenseChart inherits Rectangle {
                         Rectangle {
                             width: 10px;
                             height: 10px;
-                            border-radius: 5px;
+                            border-radius: Radius.bar;
                             background: Theme.success;
                         }
                     }
@@ -271,7 +271,7 @@ export component IncomeExpenseChart inherits Rectangle {
                         Rectangle {
                             width: 10px;
                             height: 10px;
-                            border-radius: 5px;
+                            border-radius: Radius.bar;
                             background: Theme.error;
                         }
                     }
@@ -346,7 +346,7 @@ export component TaxDonut inherits Rectangle {
                     Rectangle {
                         width: 10px;
                         height: 10px;
-                        border-radius: 5px;
+                        border-radius: Radius.bar;
                         background: slice.colour;
                     }
                 }

@@ -38,6 +38,53 @@ export global Type {
     out property <int> amount-weight: 700;
 }
 
+// Corner radii, named by the element they shape. Use these instead of literals so the restyle can
+// change a whole family of shapes at once. Sizes are in logical pixels.
+export global Radius {
+    // Thin accent bars, progress tracks, checkbox boxes and flag corners.
+    out property <length> hairline: 2px;
+    // Progress fills, "new" dots, small chart bars and receipt marks.
+    out property <length> dot: 3px;
+    // 7 px category dots.
+    out property <length> marker: 4px;
+    // Text fields.
+    out property <length> field: 4px;
+    // Document thumbnail page corners.
+    out property <length> thumbnail: 4px;
+    // Chart bars and donut segments.
+    out property <length> bar: 5px;
+    // Menu rows, list rows and small pills.
+    out property <length> small: 6px;
+    // Inner panels, banners, menu bodies, sidebar items and thumbnails.
+    out property <length> panel: 8px;
+    // The 18 px unread counter badge.
+    out property <length> counter: 9px;
+    // 20 px round icon buttons.
+    out property <length> icon-small: 10px;
+    // The 20 px status badge.
+    out property <length> badge: 10px;
+    // Dropdown menus.
+    out property <length> menu: 10px;
+    // 22 px status tags.
+    out property <length> tag: 11px;
+    // Cards and page surfaces.
+    out property <length> surface: 12px;
+    // 24 px round icon buttons.
+    out property <length> icon: 12px;
+    // 26 px colour swatches.
+    out property <length> swatch: 13px;
+    // 28 px chips and step markers.
+    out property <length> chip: 14px;
+    // 28 px round icon buttons.
+    out property <length> icon-medium: 14px;
+    // 32 px chips, month arrows and action pickers.
+    out property <length> control-small: 16px;
+    // 40 px buttons, fields and select pills.
+    out property <length> control: 20px;
+    // Modal dialogs.
+    out property <length> dialog: 28px;
+}
+
 // Finglass's palettes. The window sets `mode` to system, light or dark; in system mode the fluent
 // style's colour-scheme is followed so the app matches the desktop.
 export global Theme {
@@ -100,6 +147,25 @@ export global Theme {
     out property <color> error-hover: dark ? #FCA5A5 : #B91C1C;
     out property <color> success: dark ? #34D399 : #098765;
     out property <color> warning: #F59E0B;
+
+    // The scrim behind modal dialogs.
+    out property <color> scrim: #00000080;
+    // Document type accents: PDF and image previews.
+    out property <color> document-pdf: #E53935;
+    out property <color> document-image: #43A047;
+    // Pale tag fill and its text for "tax relevant" markers.
+    out property <color> warning-pale: #F59E0B33;
+    out property <color> warning-strong: #B45309;
+}
+
+// The fixed colours of the language flags drawn in the top bar. Identity colours, not theme.
+export global FlagColours {
+    out property <color> german-black: #000000;
+    out property <color> german-red: #DD0000;
+    out property <color> german-gold: #FFCE00;
+    out property <color> french-blue: #002395;
+    out property <color> french-white: #FFFFFF;
+    out property <color> french-red: #ED2939;
 }
 
 // The eight fixed monogram backgrounds, chosen by the stable colour index from

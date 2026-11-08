@@ -1,5 +1,5 @@
 import { ScrollView, Spinner } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { Checkbox, OutlinedField, PrimaryButton, SelectPill, TextButton } from "components.slint";
 import { ColourSwatch } from "models.slint";
@@ -17,14 +17,14 @@ export component ConfirmDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 440px;
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -85,14 +85,14 @@ export component CategoryDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 500px;
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -120,7 +120,7 @@ export component CategoryDialog inherits Rectangle {
                     col: Math.mod(index, 12);
                     width: 26px;
                     height: 26px;
-                    border-radius: 13px;
+                    border-radius: Radius.swatch;
                     background: swatch.colour;
                     border-width: swatch.hex == root.colour ? 3px : 0px;
                     border-color: Theme.text;
@@ -228,14 +228,14 @@ export component RuleDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 500px;
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -355,14 +355,14 @@ export component ProfileNameDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 440px;
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -421,7 +421,7 @@ export component BackupPassphraseDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     function send() {
         if (root.busy) {
@@ -435,7 +435,7 @@ export component BackupPassphraseDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -507,7 +507,7 @@ export component FinDeskPassphraseDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     function send() {
         if (root.busy) {
@@ -521,7 +521,7 @@ export component FinDeskPassphraseDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -599,14 +599,14 @@ export component FinDeskReportDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 560px;
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
@@ -662,14 +662,14 @@ export component RuleImportDialog inherits Rectangle {
 
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 580px;
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
         background: Theme.surface;
 
         dialog := VerticalLayout {
