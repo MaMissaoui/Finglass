@@ -212,10 +212,7 @@ mod tests {
 
     #[test]
     fn dkb_matches_by_name_bic_and_blz() {
-        assert_eq!(
-            logo("DKB MAM & Sarah", Some("12030000"), Some("BYLADEM1001")),
-            Some("dkb")
-        );
+        assert_eq!(logo("DKB Privat", Some("12030000"), Some("BYLADEM1001")), Some("dkb"));
         assert_eq!(logo("Deutsche Kreditbank AG", None, None), Some("dkb"));
         assert_eq!(logo("Some Bank", None, Some("BYLADEM1001")), Some("dkb"));
         assert_eq!(logo("Some Bank", Some("12030000"), None), Some("dkb"));
@@ -283,7 +280,7 @@ mod tests {
     #[test]
     fn monogram_uses_a_short_uppercase_word_first() {
         assert_eq!(monogram("HVB Mastercard").letters, "HVB");
-        assert_eq!(monogram("DKB MAM & Sarah").letters, "DKB");
+        assert_eq!(monogram("DKB Privat").letters, "DKB");
         assert_eq!(monogram("ING").letters, "ING");
     }
 
