@@ -11,7 +11,7 @@ use std::thread;
 use finglass_core::app;
 use finglass_core::app::accounts::{AccountsState, Busy};
 use finglass_core::app::banking::BankingState;
-use finglass_core::app::dashboard::DashboardState;
+use finglass_core::app::dashboard::{DashboardState, local_today};
 use finglass_core::app::findesk::FindeskImportState;
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::settings::SettingsState;
@@ -99,7 +99,7 @@ impl ShellState {
 pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
     let initial_language = system_language();
     let now = OffsetDateTime::now_utc();
-    let today = now.date();
+    let today = local_today();
 
     // The instance lock comes first, before the staged restore and before any other file access.
     let startup = prepare_startup(&paths, now);
@@ -253,6 +253,7 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_language(language.code().into());
     main.set_sidebar_collapsed(false);
     main.set_language_menu_open(false);
+    main.set_dashboard_month_menu_open(false);
     main.set_status_text("".into());
     main.set_change_open(false);
     main.set_change_busy(false);
@@ -438,7 +439,7 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
                 let transactions_screen = screen.as_str() == "transactions";
                 ui.set_current_screen(screen);
                 if dashboard {
-                    dashboard::spawn_load(&ui, &state, None);
+                    dashboard::spawn_open(&ui, &state);
                 }
                 if screen_is_documents {
                     state.documents.open_page();
@@ -487,6 +488,16 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         main.on_dashboard_current_month(move || {
             if let Some(ui) = main_weak.upgrade() {
                 dashboard::current_month(&ui, &state);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_dashboard_select_month(move |index| {
+            if let Some(ui) = main_weak.upgrade() {
+                dashboard::select_month(&ui, &state, index);
             }
         });
     }
@@ -1870,8 +1881,7 @@ pub(crate) fn reload_after_findesk_import(
     *state.language.lock().expect("language state poisoned") = prefs.language;
     *state.theme.lock().expect("theme state poisoned") = prefs.theme;
     *state.settings.lock().expect("settings state poisoned") = settings.clone();
-    *state.dashboard.lock().expect("dashboard state poisoned") =
-        DashboardState::new(prefs.language, OffsetDateTime::now_utc().date());
+    *state.dashboard.lock().expect("dashboard state poisoned") = DashboardState::new(prefs.language, local_today());
     let busy = state.profile_busy.lock().expect("profile busy poisoned").clone();
     *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(prefs.language, busy);
     *state.banking.lock().expect("banking state poisoned") = BankingState::new(prefs.language);
@@ -1981,7 +1991,7 @@ fn spawn_open_work(
                     state.transactions.attach(db.clone(), prefs.language);
                     *state.db.lock().expect("database state poisoned") = Some(db);
 
-                    dashboard::spawn_load(&main, &state, None);
+                    dashboard::spawn_open(&main, &state);
                     let _ = main.show();
                     let _ = ui.hide();
                 }
@@ -2097,7 +2107,7 @@ fn set_settings_error_text(state: &Arc<ShellState>, main: &MainWindow, text: Str
 /// state or controller holding it are cleared, and the main window is hidden until the target unlocks.
 pub(crate) fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow>, startup: &app::startup::Startup) {
     let language = current_language(state);
-    let today = OffsetDateTime::now_utc().date();
+    let today = local_today();
     let target = app::startup::slug_key(startup.slug.as_deref()).to_owned();
 
     state.jobs.bump();
@@ -2314,7 +2324,9 @@ mod tests {
     use super::*;
     use finglass_core::app::settings::SettingsState;
     use finglass_core::app::startup::Startup;
+    use finglass_core::dashboard::YearMonth;
     use finglass_core::profiles;
+    use time::macros::date;
 
     fn shell_paths(temp: &tempfile::TempDir) -> Arc<AppPaths> {
         Arc::new(AppPaths::resolve(Some(temp.path().as_os_str().to_owned()), None).unwrap())
@@ -2341,7 +2353,7 @@ mod tests {
             theme: Mutex::new(ThemePref::System),
             db: Mutex::new(db),
             credentials: Arc::new(finglass_core::sync::credentials::NoCredentialStore),
-            dashboard: Mutex::new(DashboardState::new(Language::En, OffsetDateTime::now_utc().date())),
+            dashboard: Mutex::new(DashboardState::new(Language::En, local_today())),
             reports,
             navigation: Mutex::new(StartArgs::default()),
             settings: Mutex::new(SettingsState::new(Language::En)),
@@ -2359,6 +2371,45 @@ mod tests {
             jobs,
             switching: AtomicBool::new(false),
         })
+    }
+
+    #[test]
+    fn navigating_back_to_the_dashboard_resets_it_to_todays_month() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let state = shell_state(&paths, None, None);
+        {
+            let mut dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+            dashboard.open(date!(2026 - 10 - 15));
+            assert_eq!(dashboard.selected_month, YearMonth::new(2026, 10));
+        }
+
+        let pending = crate::dashboard::prepare_open(&state, date!(2026 - 11 - 08));
+        *state.dashboard.lock().expect("dashboard state poisoned") = pending.clone();
+
+        assert_eq!(pending.selected_month, YearMonth::new(2026, 11));
+        assert_eq!(pending.current_month, YearMonth::new(2026, 11));
+        assert_eq!(
+            state.dashboard.lock().expect("dashboard state poisoned").selected_month,
+            YearMonth::new(2026, 11)
+        );
+    }
+
+    #[test]
+    fn a_reload_on_the_dashboard_keeps_the_selected_month() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let state = shell_state(&paths, None, None);
+        {
+            let mut dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+            dashboard.begin_load(YearMonth::new(2026, 9), date!(2026 - 10 - 15));
+            dashboard.selected_month = YearMonth::new(2026, 9);
+        }
+
+        let pending = crate::dashboard::prepare_load(&state, date!(2026 - 11 - 08), None);
+
+        assert_eq!(pending.selected_month, YearMonth::new(2026, 9));
+        assert_eq!(pending.current_month, YearMonth::new(2026, 11));
     }
 
     #[test]

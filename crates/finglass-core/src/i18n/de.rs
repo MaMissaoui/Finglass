@@ -97,6 +97,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::PreviousMonth => "Voriger Monat",
         Key::NextMonth => "Nächster Monat",
         Key::CurrentMonth => "Aktueller Monat",
+        Key::SelectMonth => "Monat wählen",
         Key::IncomeInMonth => "Einnahmen im %s",
         Key::ExpensesInMonth => "Ausgaben im %s",
         Key::BudgetsInMonth => "Budgets im %s",

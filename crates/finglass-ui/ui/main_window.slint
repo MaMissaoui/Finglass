@@ -222,6 +222,9 @@ export component MainWindow inherits Window {
     in property <string> dashboard-error-text;
 
     in property <string> dashboard-month-label;
+    in property <[string]> dashboard-month-options;
+    in property <int> dashboard-month-selected;
+    in-out property <bool> dashboard-month-menu-open: false;
     in property <bool> dashboard-previous-enabled;
     in property <bool> dashboard-next-enabled;
     in property <bool> dashboard-is-current-month;
@@ -646,6 +649,7 @@ export component MainWindow inherits Window {
     callback dashboard-previous-month;
     callback dashboard-next-month;
     callback dashboard-current-month;
+    callback dashboard-select-month(int);
     callback dashboard-open-category(int);
     callback dashboard-open-uncategorized;
     callback dashboard-open-all;
@@ -1091,6 +1095,9 @@ export component MainWindow inherits Window {
                 error-text: root.dashboard-error-text;
 
                 month-label: root.dashboard-month-label;
+                month-options: root.dashboard-month-options;
+                month-selected-index: root.dashboard-month-selected;
+                month-menu-open <=> root.dashboard-month-menu-open;
                 previous-enabled: root.dashboard-previous-enabled;
                 next-enabled: root.dashboard-next-enabled;
                 is-current-month: root.dashboard-is-current-month;
@@ -1145,6 +1152,7 @@ export component MainWindow inherits Window {
                 previous-month => { root.dashboard-previous-month(); }
                 next-month => { root.dashboard-next-month(); }
                 current-month => { root.dashboard-current-month(); }
+                select-month(index) => { root.dashboard-select-month(index); }
                 open-category(category-id) => { root.dashboard-open-category(category-id); }
                 open-uncategorized => { root.dashboard-open-uncategorized(); }
                 open-all => { root.dashboard-open-all(); }

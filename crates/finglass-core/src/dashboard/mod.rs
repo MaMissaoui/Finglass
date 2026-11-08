@@ -76,6 +76,25 @@ impl YearMonth {
     }
 }
 
+/// Every month from `current` back to `earliest`, newest first, clamped to a valid range.
+///
+/// FinDesk's month header lists `generateSequence(current) { it.minusMonths(1) }` down to the oldest
+/// booking. When the two bounds cross, the current month is the only choice.
+#[must_use]
+pub fn month_options(earliest: YearMonth, current: YearMonth) -> Vec<YearMonth> {
+    let earliest = earliest.min(current);
+    let mut months = Vec::new();
+    let mut month = current;
+    loop {
+        months.push(month);
+        if month == earliest {
+            break;
+        }
+        month = month.minus_months(1);
+    }
+    months
+}
+
 /// One slice of the spending split.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChartSlice {
