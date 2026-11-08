@@ -1,7 +1,7 @@
 import { FlagColours, Radius, Theme, Type } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
-import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
+import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardStatementLine, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
 import { AuditRow, BankingPromptChoice, BankSuggestionRow, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
@@ -292,6 +292,7 @@ export component MainWindow inherits Window {
     in property <string> dashboard-available-value;
     in property <string> dashboard-available-subtitle;
     in property <string> dashboard-available-tone;
+    in property <[DashboardStatementLine]> dashboard-statement-lines;
     in property <string> dashboard-income-title;
     in property <string> dashboard-income-value;
     in property <string> dashboard-expenses-title;
@@ -299,6 +300,7 @@ export component MainWindow inherits Window {
     in property <string> dashboard-pending-title;
     in property <string> dashboard-pending-value;
     in property <string> dashboard-pending-subtitle;
+    in property <[string]> dashboard-pending-lines;
     in property <bool> dashboard-pending-enabled;
 
     in property <string> dashboard-expenses-section-title;
@@ -1374,6 +1376,7 @@ export component MainWindow inherits Window {
                 available-value: root.dashboard-available-value;
                 available-subtitle: root.dashboard-available-subtitle;
                 available-tone: root.dashboard-available-tone;
+                statement-lines: root.dashboard-statement-lines;
                 income-title: root.dashboard-income-title;
                 income-value: root.dashboard-income-value;
                 expenses-title: root.dashboard-expenses-title;
@@ -1381,7 +1384,9 @@ export component MainWindow inherits Window {
                 pending-title: root.dashboard-pending-title;
                 pending-value: root.dashboard-pending-value;
                 pending-subtitle: root.dashboard-pending-subtitle;
+                pending-lines: root.dashboard-pending-lines;
                 pending-enabled: root.dashboard-pending-enabled;
+                window-width: root.width;
 
                 expenses-section-title: root.dashboard-expenses-section-title;
                 expenses-empty-text: root.dashboard-expenses-empty-text;

@@ -289,6 +289,67 @@ fn renders_the_app_shell() {
         let _ = ui.hide();
     }
 
+    {
+        let mut dashboard = DashboardState::new(Language::De, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.show().unwrap();
+        let buffer = render(&window, "dashboard-de-light", 1440, 900);
+        assert_varied(&buffer, "dashboard-de-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let no_carry_temp = tempfile::tempdir().unwrap();
+        let no_carry_paths = AppPaths::resolve(Some(no_carry_temp.path().as_os_str().to_owned()), None).unwrap();
+        let no_carry_db = app::unlock::create(
+            &no_carry_paths,
+            SLUG,
+            "correct horse battery staple",
+            "correct horse battery staple",
+            true,
+        )
+        .unwrap();
+        let no_carry_checking = account(
+            &no_carry_db,
+            "DE89370400440532013001",
+            138_000,
+            Currency::EUR,
+            AccountType::Checking,
+        );
+        let no_carry_food = category(&no_carry_db, "Food", "#FF5722", false, false, Some(30_000));
+        txn(
+            &no_carry_db,
+            no_carry_checking,
+            Currency::EUR,
+            date!(2026 - 10 - 02),
+            -12_000,
+            "Example Market",
+            Some(no_carry_food),
+        );
+        txn(
+            &no_carry_db,
+            no_carry_checking,
+            Currency::EUR,
+            date!(2026 - 10 - 03),
+            150_000,
+            "Employer GmbH",
+            None,
+        );
+
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&no_carry_db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.show().unwrap();
+        let buffer = render(&window, "dashboard-no-carry-en-light", 1100, 720);
+        assert_varied(&buffer, "dashboard-no-carry-en-light");
+        let _ = ui.hide();
+    }
+
     // M2c: the top bar and the collapsible sidebar.
     {
         let mut dashboard = DashboardState::new(Language::En, today);
@@ -3840,6 +3901,7 @@ fn apply_dashboard_view(ui: &MainWindow, view: &DashboardView, language: Languag
         }
         .into(),
     );
+    ui.set_dashboard_statement_lines(statement_model(view));
     ui.set_dashboard_income_title(view.income_title.clone().into());
     ui.set_dashboard_income_value(view.income_value.clone().into());
     ui.set_dashboard_expenses_title(view.expenses_title.clone().into());
@@ -3847,6 +3909,12 @@ fn apply_dashboard_view(ui: &MainWindow, view: &DashboardView, language: Languag
     ui.set_dashboard_pending_title(view.pending_title.clone().into());
     ui.set_dashboard_pending_value(view.pending_value.clone().into());
     ui.set_dashboard_pending_subtitle(view.pending_subtitle.clone().into());
+    ui.set_dashboard_pending_lines(ModelRc::new(VecModel::from(
+        view.pending_lines
+            .iter()
+            .map(|line| SharedString::from(line.as_str()))
+            .collect::<Vec<_>>(),
+    )));
     ui.set_dashboard_pending_enabled(view.pending_enabled);
     ui.set_dashboard_expenses_section_title(view.expenses_section_title.clone().into());
     ui.set_dashboard_expenses_empty_text(view.expenses_empty_text.clone().into());
@@ -4253,6 +4321,26 @@ fn apply_rule_import(ui: &MainWindow, state: &SettingsState) {
     ui.set_rule_import_confirm_enabled(
         !state.is_importing_rules && (!preview.new_rules.is_empty() || !preview.categories_to_create.is_empty()),
     );
+}
+
+fn statement_model(view: &DashboardView) -> ModelRc<DashboardStatementLine> {
+    ModelRc::new(VecModel::from(
+        view.statement_lines
+            .iter()
+            .map(|line| DashboardStatementLine {
+                label: line.label.clone().into(),
+                amount_text: line.amount_text.clone().into(),
+                kind: match line.kind {
+                    finglass_core::app::dashboard::StatementLineKind::Carry => "carry",
+                    finglass_core::app::dashboard::StatementLineKind::In => "in",
+                    finglass_core::app::dashboard::StatementLineKind::Out => "out",
+                    finglass_core::app::dashboard::StatementLineKind::Movement => "movement",
+                    finglass_core::app::dashboard::StatementLineKind::Result => "result",
+                }
+                .into(),
+            })
+            .collect::<Vec<_>>(),
+    ))
 }
 
 fn category_model(rows: &[finglass_core::app::CategoryRowView]) -> ModelRc<DashboardCategoryRow> {
