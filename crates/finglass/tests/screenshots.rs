@@ -15,7 +15,7 @@ use finglass_core::account_ids;
 use finglass_core::app;
 use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountItem, AccountsState};
 use finglass_core::app::banking::{BankingState, SyncAllProgress};
-use finglass_core::app::dashboard::{DashboardState, DashboardView, month_text};
+use finglass_core::app::dashboard::{DashboardState, DashboardView, NavigationArgs, month_text};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
 use finglass_core::app::settings::{RestoreCandidate, SettingsState};
@@ -1467,6 +1467,43 @@ fn renders_the_app_shell() {
         &transactions_en,
         |_| {},
     );
+
+    // A category link on the Dashboard opens the current month's bookings and leaves a Back button.
+    {
+        let current = finglass_core::dashboard::YearMonth::from_date(today);
+        let args = NavigationArgs::category(current, current, seeded_transactions.food).start_args();
+        let mut view = TransactionsView::new(Language::En);
+        view.start(&transactions_db, args, today).unwrap();
+        let category_month = view.state().clone();
+        assert_eq!(category_month.period, Period::ThisMonth);
+        assert!(category_month.month.is_none(), "the current month is a period");
+        assert!(
+            category_month
+                .transactions
+                .iter()
+                .all(|transaction| transaction.date.year() == 2026 && u8::from(transaction.date.month()) == 10),
+            "a category link from today's Dashboard lists exactly October's bookings"
+        );
+        render_transactions(
+            &window,
+            Language::En,
+            ThemePref::Light,
+            "transactions-from-dashboard-category-en-light",
+            &category_month,
+            |ui| {
+                ui.set_back_visible(true);
+                ui.set_back_label(
+                    i18n::format(
+                        Language::En,
+                        Key::BackTo,
+                        &[i18n::text(Language::En, Key::NavDashboard).into()],
+                    )
+                    .into(),
+                );
+            },
+        );
+    }
+
     let dark_transactions = render_transactions(
         &window,
         Language::De,
@@ -2223,6 +2260,7 @@ fn document_date(value: time::OffsetDateTime) -> String {
 
 struct SeededTransactions {
     checking: AccountId,
+    food: CategoryId,
 }
 
 fn transactions_state(db: &Database, language: Language, args: StartArgs, today: Date) -> TransactionsState {
@@ -2466,7 +2504,7 @@ fn seed_transactions(db: &Database) -> SeededTransactions {
     )
     .unwrap();
 
-    SeededTransactions { checking }
+    SeededTransactions { checking, food }
 }
 
 #[allow(clippy::too_many_arguments)]

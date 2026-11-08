@@ -6,6 +6,7 @@
 
 use time::{Date, OffsetDateTime, UtcOffset};
 
+use crate::app::transactions::{Period, StartArgs};
 use crate::bank_text;
 use crate::dashboard::{self, DashboardFigures, YearMonth};
 use crate::db::Database;
@@ -39,7 +40,7 @@ pub enum BalanceTone {
 
 /// The filter a dashboard click asks the Transactions page to show.
 ///
-/// M4c reads this after a click; the Transactions page is still a placeholder here.
+/// Mirrors FinDesk's `NavigationArgs`: the current month is a period, a past month is the exact one.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct NavigationArgs {
     /// A specific past month, or `None` for the Transactions page's default period.
@@ -50,6 +51,8 @@ pub struct NavigationArgs {
     pub uncategorized_only: bool,
     /// A free-text partner search.
     pub text: Option<String>,
+    /// The period to filter by; the current month's links pass [`Period::ThisMonth`].
+    pub period: Option<Period>,
 }
 
 impl NavigationArgs {
@@ -60,24 +63,30 @@ impl NavigationArgs {
     }
 
     /// The `NavigationArgs` for one category row, as FinDesk's dashboard builds it.
+    ///
+    /// The current month keeps the plain period; a past month passes the exact month.
     #[must_use]
     pub fn category(selected: YearMonth, current: YearMonth, category_id: CategoryId) -> Self {
+        let month = past_month(selected, current);
         Self {
-            month: past_month(selected, current),
+            month,
             category_id: Some(category_id),
             uncategorized_only: false,
             text: None,
+            period: month.is_none().then_some(Period::ThisMonth),
         }
     }
 
     /// The `NavigationArgs` for the pending-tasks card and the uncategorized slice.
     #[must_use]
     pub fn uncategorized(selected: YearMonth, current: YearMonth) -> Self {
+        let month = past_month(selected, current);
         Self {
-            month: past_month(selected, current),
+            month,
             category_id: None,
             uncategorized_only: true,
             text: None,
+            period: month.is_none().then_some(Period::ThisMonth),
         }
     }
 
@@ -87,6 +96,19 @@ impl NavigationArgs {
         Self {
             text: Some(text.into()),
             ..Self::default()
+        }
+    }
+
+    /// The arguments the Transactions page starts with.
+    #[must_use]
+    pub fn start_args(&self) -> StartArgs {
+        StartArgs {
+            account_id: None,
+            uncategorized_only: self.uncategorized_only,
+            partner: self.text.clone(),
+            category_id: self.category_id,
+            period: self.period,
+            month: self.month,
         }
     }
 }
@@ -1520,7 +1542,9 @@ mod tests {
                 category_id: Some(category),
                 uncategorized_only: false,
                 text: None,
-            }
+                period: Some(Period::ThisMonth),
+            },
+            "the current month's category link keeps the plain period"
         );
         assert_eq!(
             NavigationArgs::category(past, current, category),
@@ -1529,7 +1553,20 @@ mod tests {
                 category_id: Some(category),
                 uncategorized_only: false,
                 text: None,
-            }
+                period: None,
+            },
+            "a past month's category link passes the exact month"
+        );
+        assert_eq!(
+            NavigationArgs::uncategorized(current, current),
+            NavigationArgs {
+                month: None,
+                category_id: None,
+                uncategorized_only: true,
+                text: None,
+                period: Some(Period::ThisMonth),
+            },
+            "the pending-tasks card and uncategorized slice take the same link as a category"
         );
         assert_eq!(
             NavigationArgs::uncategorized(past, current),
@@ -1538,6 +1575,7 @@ mod tests {
                 category_id: None,
                 uncategorized_only: true,
                 text: None,
+                period: None,
             }
         );
         assert_eq!(
@@ -1547,8 +1585,49 @@ mod tests {
                 category_id: None,
                 uncategorized_only: false,
                 text: Some("Bakery".to_owned()),
+                period: None,
             }
         );
+    }
+
+    #[test]
+    fn navigation_args_become_the_transactions_start_arguments() {
+        let current = YearMonth::new(2026, 10);
+        let past = YearMonth::new(2026, 8);
+        let category = CategoryId(7);
+
+        assert_eq!(
+            NavigationArgs::category(current, current, category).start_args(),
+            StartArgs {
+                category_id: Some(category),
+                period: Some(Period::ThisMonth),
+                ..StartArgs::default()
+            }
+        );
+        assert_eq!(
+            NavigationArgs::category(past, current, category).start_args(),
+            StartArgs {
+                category_id: Some(category),
+                month: Some(past),
+                ..StartArgs::default()
+            }
+        );
+        assert_eq!(
+            NavigationArgs::uncategorized(past, current).start_args(),
+            StartArgs {
+                uncategorized_only: true,
+                month: Some(past),
+                ..StartArgs::default()
+            }
+        );
+        assert_eq!(
+            NavigationArgs::partner("Bakery").start_args(),
+            StartArgs {
+                partner: Some("Bakery".to_owned()),
+                ..StartArgs::default()
+            }
+        );
+        assert_eq!(NavigationArgs::all().start_args(), StartArgs::default());
     }
 
     #[test]

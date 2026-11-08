@@ -2923,6 +2923,66 @@ fn a_month_navigation_lists_exactly_that_months_bookings_and_a_picked_period_end
 }
 
 #[test]
+fn the_current_months_category_link_lists_only_that_months_bookings() {
+    use crate::app::dashboard::NavigationArgs;
+
+    let (_temp, db, _account_id, food) = dashboard_month_fixture();
+    let today = date!(2026 - 10 - 15);
+    let current = crate::dashboard::YearMonth::from_date(today);
+    let mut vm = view();
+    vm.start(
+        &db,
+        NavigationArgs::category(current, current, food).start_args(),
+        today,
+    )
+    .unwrap();
+
+    assert_eq!(vm.state().period, Period::ThisMonth);
+    assert!(
+        vm.state().month.is_none(),
+        "the current month is a period, not an exact month"
+    );
+    assert_eq!(
+        partners(&vm),
+        vec!["Oktober Nazar".to_owned()],
+        "August's booking stays out of the current month's list"
+    );
+}
+
+#[test]
+fn a_past_months_category_and_uncategorized_links_list_exactly_that_months_bookings() {
+    use crate::app::dashboard::NavigationArgs;
+
+    let (_temp, db, _account_id, food) = dashboard_month_fixture();
+    let today = date!(2026 - 10 - 15);
+    let current = crate::dashboard::YearMonth::from_date(today);
+    let august = crate::dashboard::YearMonth::new(2026, 8);
+
+    let mut vm = view();
+    vm.start(&db, NavigationArgs::category(august, current, food).start_args(), today)
+        .unwrap();
+    assert_eq!(vm.state().month, Some(august));
+    assert_eq!(partners(&vm), vec!["August Nazar".to_owned()]);
+
+    let mut vm = view();
+    vm.start(&db, NavigationArgs::uncategorized(august, current).start_args(), today)
+        .unwrap();
+    assert_eq!(vm.state().month, Some(august));
+    assert_eq!(vm.state().category_filter, CategoryFilter::None);
+    assert_eq!(
+        vm.state().transactions.len(),
+        2,
+        "August's two uncategorized bookings, not September's or October's"
+    );
+    assert!(
+        vm.state()
+            .transactions
+            .iter()
+            .all(|transaction| transaction.date.year() == 2026 && u8::from(transaction.date.month()) == 8)
+    );
+}
+
+#[test]
 fn with_a_month_set_and_one_account_the_balance_chart_covers_only_that_month() {
     let (_temp, db, account_id, _food) = dashboard_month_fixture();
     let today = date!(2026 - 10 - 15);

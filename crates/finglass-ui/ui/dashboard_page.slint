@@ -18,6 +18,9 @@ import { CategorySplit, IncomeExpenseChart, TaxDonut } from "charts.slint";
 component Card inherits Rectangle {
     in property <string> title;
     in property <bool> show-title: true;
+    in property <bool> interactive: false;
+
+    callback clicked;
 
     background: Theme.surface;
     border-radius: 12px;
@@ -38,6 +41,13 @@ component Card inherits Rectangle {
         }
 
         @children
+    }
+
+    TouchArea {
+        enabled: root.interactive;
+        clicked => {
+            root.clicked();
+        }
     }
 }
 
@@ -531,6 +541,7 @@ export component DashboardPage inherits Rectangle {
     callback open-partner(string);
     callback open-accounts;
     callback open-settings;
+    callback open-tax;
     callback dismiss-error;
 
     background: Theme.background;
@@ -833,6 +844,9 @@ export component DashboardPage inherits Rectangle {
                     Card {
                         horizontal-stretch: 1;
                         title: root.tax-title;
+                        // The whole card opens the Tax bookings tab for the loaded month's year.
+                        interactive: true;
+                        clicked => { root.open-tax(); }
 
                         if (root.tax-slices.length == 0) : Text {
                             text: root.tax-hint;

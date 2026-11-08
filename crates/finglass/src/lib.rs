@@ -11,6 +11,7 @@ mod documents;
 mod jobs;
 mod menu;
 mod migration;
+mod nav;
 pub mod reports;
 mod settings;
 mod shell;
