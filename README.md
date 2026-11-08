@@ -44,6 +44,25 @@ sudo apt-get install libfontconfig1-dev libxkbcommon-dev libxcb-shape0-dev libxc
 
 The icons in `assets/icons` are generated from the SVGs in `assets/brand` by `scripts/render-icons.sh`.
 
+## Screenshots from your own data
+
+The headless screenshot test renders seeded fixtures by default. To review every page with your own data, point it at
+a profile folder and give it the passphrase on the command line. It copies the database (and its `-wal`/`-shm` files)
+into a temporary folder, opens only that copy, and removes it afterwards. Quit Finglass first so the copy is
+consistent. The passphrase is read into a zeroizing secret and never written to a file, a log or the output.
+
+```sh
+cd ~/Source/Github/Finglass
+read -rs 'p?Finglass passphrase: '; echo
+FINGLASS_SCREENSHOT_DATA="$HOME/.finglass" FINGLASS_SCREENSHOT_PASSPHRASE="$p" \
+  FINGLASS_SCREENSHOTS=/absolute/output/dir cargo test -p finglass --test screenshots renders_real_data
+unset p
+```
+
+For another profile, use `~/.finglass/profiles/<slug>`. The output folder must be outside the checkout; the test
+refuses a folder inside the workspace, a data folder without `finglass.db`, and a passphrase that does not open the
+copy.
+
 ## Building the macOS app
 
 `Finglass.app` and the DMG are built with [cargo-packager](https://github.com/crabnebula-dev/cargo-packager)
