@@ -339,8 +339,8 @@ export component CountBadge inherits Rectangle {
         width: parent.width;
         text: root.count > 99 ? "99+" : "\{root.count}";
         color: root.selected ? Theme.on-selected : Theme.on-primary;
-        font-size: Type.label-small-size;
-        font-weight: Type.label-small-weight;
+        font-size: Type.caption-size;
+        font-weight: Type.caption-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
         overflow: elide;
@@ -402,8 +402,8 @@ export component BankBadge inherits Rectangle {
     }
 }
 
-// A filled action button in the brand colour. Material 3's 40 dp rounded button: it grows with its
-// label instead of carrying a fixed minimum width, and an optional 18 dp icon sits before the text.
+// A filled action button in the brand colour: a 36 px rounded rectangle with no outline, and an
+// optional 18 px icon before the label.
 export component PrimaryButton inherits Rectangle {
     in property <string> text;
     in property <bool> enabled: true;
@@ -416,7 +416,7 @@ export component PrimaryButton inherits Rectangle {
 
     callback clicked;
 
-    height: 40px;
+    height: 36px;
     min-width: content.preferred-width;
     border-radius: Radius.control;
     background: !root.enabled ? Theme.divider
@@ -427,8 +427,8 @@ export component PrimaryButton inherits Rectangle {
     border-color: Theme.on-primary;
 
     content := HorizontalLayout {
-        padding-left: root.has-icon ? 16px : 24px;
-        padding-right: 24px;
+        padding-left: root.has-icon ? 12px : 14px;
+        padding-right: 14px;
         spacing: 8px;
         alignment: center;
         cross-axis-alignment: center;
@@ -594,8 +594,8 @@ export component TextButton inherits Rectangle {
     }
 }
 
-// An outlined action button for less prominent actions. Material 3's outlined button has the same
-// shape and padding as the filled one, with primary content on a transparent surface.
+// A quiet toolbar action: a filled rounded rectangle without an outline, ink content and a hover
+// fill one step darker than the resting fill.
 export component SecondaryButton inherits Rectangle {
     in property <string> text;
     in property <bool> enabled: true;
@@ -606,16 +606,16 @@ export component SecondaryButton inherits Rectangle {
 
     callback clicked;
 
-    height: 40px;
+    height: 36px;
     min-width: content.preferred-width;
     border-radius: Radius.control;
-    background: touch.has-hover && root.enabled ? Theme.background : transparent;
-    border-width: focus.has-focus ? 2px : 1px;
-    border-color: focus.has-focus ? Theme.primary : Theme.divider;
+    background: touch.has-hover && root.enabled ? Theme.control-fill-hover : Theme.control-fill;
+    border-width: focus.has-focus ? 2px : 0px;
+    border-color: Theme.primary;
 
     content := HorizontalLayout {
-        padding-left: root.has-icon ? 16px : 24px;
-        padding-right: 24px;
+        padding-left: root.has-icon ? 12px : 14px;
+        padding-right: root.has-icon ? 12px : 14px;
         spacing: 8px;
         alignment: center;
         cross-axis-alignment: center;
@@ -669,49 +669,37 @@ export component SecondaryButton inherits Rectangle {
     }
 }
 
-// An exclusive choice row in Material 3's segmented-button shape: one rounded outline, equal segments
-// and a selected segment filled with the primary container tint. Tab reaches the row; Left/Right move
-// the selection and Return/Space select it.
+// An exclusive choice row: one filled track, and the selected segment as a paper card with a
+// hairline outline. Tab reaches the row; Left/Right move the selection and Return/Space select it.
 export component SegmentedButton inherits Rectangle {
     in property <[string]> labels;
     in property <int> selected: 0;
 
     callback select(int);
 
-    height: 40px;
+    height: 36px;
     min-width: segments.preferred-width;
     border-radius: Radius.control;
-    border-width: focus.has-focus ? 2px : 1px;
-    border-color: focus.has-focus ? Theme.primary : Theme.divider;
-    background: transparent;
+    border-width: focus.has-focus ? 2px : 0px;
+    border-color: Theme.primary;
+    background: Theme.control-fill;
     clip: true;
 
     segments := HorizontalLayout {
-        spacing: 0px;
-        // Inside the outline, so the selected segment's tint doesn't cover it.
-        padding: 1px;
+        spacing: 2px;
+        padding: 2px;
 
         for label[index] in root.labels : Rectangle {
             horizontal-stretch: 1;
             min-width: segment-label.preferred-width + 32px;
-            background: index == root.selected ? Theme.selected : transparent;
-            // The outer segments carry the control's rounded ends themselves: the software renderer
-            // clips children to the rectangle, not to the parent's rounded corners.
-            border-top-left-radius: index == 0 ? root.border-radius - 1px : 0px;
-            border-bottom-left-radius: index == 0 ? root.border-radius - 1px : 0px;
-            border-top-right-radius: index == root.labels.length - 1 ? root.border-radius - 1px : 0px;
-            border-bottom-right-radius: index == root.labels.length - 1 ? root.border-radius - 1px : 0px;
-
-            if (index > 0) : Rectangle {
-                x: 0px;
-                width: 1px;
-                height: parent.height;
-                background: Theme.divider;
-            }
+            background: index == root.selected ? Theme.surface : transparent;
+            border-width: index == root.selected ? 1px : 0px;
+            border-color: Theme.divider;
+            border-radius: Radius.small;
 
             segment-label := Text {
                 text: label;
-                color: index == root.selected ? Theme.on-selected : Theme.text;
+                color: index == root.selected ? Theme.text : Theme.muted-text;
                 font-size: Type.label-size;
                 font-weight: index == root.selected ? 600 : Type.label-weight;
                 horizontal-alignment: center;
@@ -756,16 +744,17 @@ export component Card inherits Rectangle {
     border-color: Theme.divider;
 }
 
-// An icon-only button. Material 3's 40 dp circular hit area with a 24 dp icon. Its accessible label
-// replaces the visible text. `outlined` draws the outlined-icon-button ring (for example the row and
-// page menus next to a filled Add button).
+// An icon-only button. Transparent by default for list rows, or a filled toolbar control with a
+// neutral fill, an ink icon and a 36 px square hit area. A selected filled button uses the accent.
 export component IconButton inherits Rectangle {
     in property <image> icon;
     in property <string> label;
     in property <color> icon-color: Theme.muted-text;
-    in property <length> icon-size: 24px;
+    in property <length> icon-size: root.filled ? 20px : 24px;
     in property <bool> selected: false;
     in property <bool> enabled: true;
+    /// A quiet toolbar button: filled with `control-fill` and no outline.
+    in property <bool> filled: false;
     in property <bool> outlined: false;
     /// A destructive icon (a trash in a list): muted until the pointer rests on it.
     in property <bool> destructive: false;
@@ -774,12 +763,15 @@ export component IconButton inherits Rectangle {
 
     callback clicked;
 
-    width: 40px;
-    height: 40px;
+    width: root.filled ? 36px : 40px;
+    height: root.filled ? 36px : 40px;
     border-radius: Radius.control;
     opacity: root.enabled ? 1.0 : 0.45;
-    background: root.selected ? Theme.selected : (touch.has-hover && root.enabled ? Theme.background : transparent);
-    border-width: focus.has-focus ? 2px : (root.outlined ? 1px : 0px);
+    background: root.selected && root.filled ? Theme.primary
+            : root.selected ? Theme.selected
+            : root.filled ? (touch.has-hover && root.enabled ? Theme.control-fill-hover : Theme.control-fill)
+            : (touch.has-hover && root.enabled ? Theme.background : transparent);
+    border-width: focus.has-focus ? 2px : (root.outlined && !root.filled ? 1px : 0px);
     border-color: focus.has-focus ? Theme.primary : Theme.divider;
     accessible-role: button;
     accessible-label: root.label;
@@ -790,8 +782,10 @@ export component IconButton inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         source: root.icon;
-        colorize: root.selected ? Theme.on-selected
-                : (root.destructive ? (touch.has-hover ? Theme.error : Theme.muted-text) : root.icon-color);
+        colorize: root.selected && root.filled ? Theme.on-primary
+                : root.selected ? Theme.on-selected
+                : (root.destructive ? (touch.has-hover ? Theme.error : Theme.muted-text)
+                : (root.filled ? Theme.text : root.icon-color));
         accessible-role: none;
     }
 
@@ -828,6 +822,165 @@ export component IconButton inherits Rectangle {
 
     if (root.tooltip-text != "") : Tooltip {
         text: @markdown("\{root.tooltip-text}");
+    }
+}
+
+// A round 40 px period arrow with a hairline outline and an accent chevron. Disabled arrows keep the
+// slate chevron at 40 % opacity and have no hover fill.
+component PeriodArrow inherits Rectangle {
+    in property <image> icon;
+    in property <string> label;
+    in property <bool> enabled: true;
+
+    callback clicked;
+
+    width: 40px;
+    height: 40px;
+    border-radius: self.height / 2;
+    background: root.enabled && touch.has-hover ? Theme.control-fill : transparent;
+    border-width: 1px;
+    border-color: Theme.divider;
+    accessible-role: button;
+    accessible-label: root.label;
+
+    Image {
+        width: 20px;
+        height: 20px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: root.icon;
+        colorize: root.enabled ? Theme.primary : Theme.muted-text;
+        opacity: root.enabled ? 1.0 : 0.4;
+        accessible-role: none;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => {
+            if (root.enabled) {
+                root.clicked();
+            }
+        }
+    }
+
+    focus := FocusScope {
+        enabled <=> root.enabled;
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if focus.has-focus : Rectangle {
+        width: parent.width;
+        height: parent.height;
+        border-width: 2px;
+        border-color: Theme.primary;
+        border-radius: parent.border-radius;
+    }
+
+    if (root.label != "") : Tooltip {
+        text: @markdown("\{root.label}");
+    }
+}
+
+// A period switcher: previous arrow, a large title and next arrow. The title can open a menu and
+// then carries a small slate chevron. Used by the Dashboard month and the Reports year.
+export component PeriodNavigator inherits HorizontalLayout {
+    in property <string> title;
+    in property <bool> previous-enabled: true;
+    in property <bool> next-enabled: true;
+    in property <string> previous-label;
+    in property <string> next-label;
+    in property <bool> title-has-menu: false;
+
+    callback previous();
+    callback next();
+    callback title-clicked();
+
+    height: 40px;
+    spacing: 8px;
+    alignment: start;
+    cross-axis-alignment: center;
+
+    PeriodArrow {
+        icon: @image-url("icons/keyboard_arrow_left.svg");
+        label: root.previous-label;
+        enabled: root.previous-enabled;
+        clicked => { root.previous(); }
+    }
+
+    Rectangle {
+        height: 40px;
+        background: transparent;
+        accessible-role: button;
+        accessible-label: root.title;
+        accessible-enabled: root.title-has-menu;
+
+        title-content := HorizontalLayout {
+            spacing: 4px;
+            padding-left: 4px;
+            padding-right: 4px;
+            alignment: center;
+            cross-axis-alignment: center;
+
+            Text {
+                text: root.title;
+                color: Theme.text;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+
+            if (root.title-has-menu) : Image {
+                width: 16px;
+                height: 16px;
+                source: @image-url("icons/arrow_drop_down.svg");
+                colorize: Theme.muted-text;
+                accessible-role: none;
+            }
+        }
+
+        touch := TouchArea {
+            enabled: root.title-has-menu;
+            mouse-cursor: root.title-has-menu ? pointer : default;
+            clicked => {
+                if (root.title-has-menu) {
+                    root.title-clicked();
+                }
+            }
+        }
+
+        focus := FocusScope {
+            enabled: root.title-has-menu;
+            focus-on-click: false;
+            key-pressed(event) => {
+                if (event.text == Key.Return || event.text == Key.Space) {
+                    root.title-clicked();
+                    return accept;
+                }
+                return reject;
+            }
+        }
+
+        if focus.has-focus : Rectangle {
+            border-width: 2px;
+            border-color: Theme.primary;
+            border-radius: Radius.control;
+        }
+    }
+
+    PeriodArrow {
+        icon: @image-url("icons/keyboard_arrow_right.svg");
+        label: root.next-label;
+        enabled: root.next-enabled;
+        clicked => { root.next(); }
     }
 }
 
@@ -1033,10 +1186,10 @@ export component SearchField inherits Rectangle {
 
     callback edited(string);
 
-    height: 40px;
+    height: 36px;
     border-radius: Radius.control;
     background: Theme.surface;
-    border-width: input.has-focus ? 2px : 1px;
+    border-width: 1px;
     border-color: input.has-focus ? Theme.primary : Theme.divider;
 
     /// Puts keyboard focus into the text field, used by View > Find.
@@ -1314,6 +1467,8 @@ export component SelectPill inherits Rectangle {
     in property <string> value;
     in property <[string]> options;
     in property <bool> enabled: true;
+    /// A filled toolbar control instead of the outlined form selector.
+    in property <bool> filled: false;
 
     callback chosen(int);
     callback value-chosen(string);
@@ -1321,11 +1476,13 @@ export component SelectPill inherits Rectangle {
     property <bool> menu-open: false;
     property <int> hover: 0;
 
-    height: 40px;
+    height: root.filled ? 36px : 40px;
     min-width: content.preferred-width;
     border-radius: Radius.control;
-    background: touch.has-hover && root.enabled ? Theme.background : Theme.surface;
-    border-width: focus.has-focus ? 2px : 1px;
+    background: root.filled
+            ? (touch.has-hover && root.enabled ? Theme.control-fill-hover : Theme.control-fill)
+            : (touch.has-hover && root.enabled ? Theme.background : Theme.surface);
+    border-width: focus.has-focus ? 2px : (root.filled ? 0px : 1px);
     border-color: focus.has-focus ? Theme.primary : Theme.divider;
     opacity: root.enabled ? 1.0 : 0.55;
     accessible-role: button;
@@ -1362,7 +1519,7 @@ export component SelectPill inherits Rectangle {
 
         Text {
             text: root.label-prefix + root.value;
-            color: Theme.primary;
+            color: root.filled ? Theme.text : Theme.primary;
             font-size: Type.label-size;
             font-weight: Type.label-weight;
             vertical-alignment: center;
@@ -1373,7 +1530,7 @@ export component SelectPill inherits Rectangle {
             width: 18px;
             height: 18px;
             source: @image-url("icons/arrow_drop_down.svg");
-            colorize: Theme.primary;
+            colorize: root.filled ? Theme.muted-text : Theme.primary;
             accessible-role: none;
         }
     }

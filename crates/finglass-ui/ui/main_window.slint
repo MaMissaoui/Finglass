@@ -1217,6 +1217,7 @@ export component MainWindow inherits Window {
                         icon: root.sidebar-collapsed ? @image-url("icons/menu.svg") : @image-url("icons/menu-open.svg");
                         label: root.sidebar-collapsed ? Tr.t("ExpandSidebar") : Tr.t("CollapseSidebar");
                         tooltip-text: root.sidebar-collapsed ? Tr.t("ExpandSidebar") : Tr.t("CollapseSidebar");
+                        filled: true;
                         clicked => {
                             root.sidebar-collapsed = !root.sidebar-collapsed;
                             root.sidebar-collapsed-changed(root.sidebar-collapsed);
@@ -1229,6 +1230,7 @@ export component MainWindow inherits Window {
                         label: root.back-label;
                         tooltip-text: root.back-label;
                         enabled: !root.dialog-open;
+                        filled: true;
                         clicked => { root.go-back(); }
                     }
 
@@ -1355,6 +1357,7 @@ export component MainWindow inherits Window {
                         icon: Theme.dark ? @image-url("icons/sun.svg") : @image-url("icons/moon.svg");
                         label: Tr.t("ToggleTheme");
                         tooltip-text: Tr.t("ToggleTheme");
+                        filled: true;
                         clicked => {
                             // "System" shows its effective mode; a click stores an explicit mode.
                             root.set-theme(Theme.dark ? "light" : "dark");

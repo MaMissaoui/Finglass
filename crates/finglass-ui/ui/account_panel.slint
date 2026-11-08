@@ -127,6 +127,8 @@ component PanelAction inherits Rectangle {
 // One row of the panel: "All accounts", a group header or an account.
 component PanelRowView inherits Rectangle {
     in property <AccountPanelRow> item;
+    /// A group header keeps 12 px of air above it, except the first one.
+    in property <bool> group-gap: false;
 
     callback select;
     callback toggle;
@@ -145,10 +147,15 @@ component PanelRowView inherits Rectangle {
     VerticalLayout {
         spacing: 0px;
 
+        if (root.group-gap) : Rectangle {
+            height: 12px;
+            background: transparent;
+        }
+
         Rectangle {
-            // Grows with its lines (name, last 4 of the IBAN, last fetched), as FinDesk's rows do:
-            // a fixed height let the third line run into the next account.
-            min-height: root.item.kind == "account" ? 42px : 36px;
+            // Account rows are 52 px high and hold two lines: the name and the masked account
+            // number. The last-fetched note moved to the row's tooltip.
+            min-height: root.item.kind == "account" ? 52px : 36px;
             background: root.item.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
 
             // The row's own click target sits below the chevron and the menu button.
@@ -169,10 +176,10 @@ component PanelRowView inherits Rectangle {
             }
 
             HorizontalLayout {
-                padding-left: root.item.indent ? (root.item.logo != "" || root.item.logo-letters != "" ? 18px : 24px) : 6px;
-                padding-right: 6px;
-                padding-top: 6px;
-                padding-bottom: 6px;
+                padding-left: 12px;
+                padding-right: 12px;
+                padding-top: 8px;
+                padding-bottom: 8px;
                 spacing: 6px;
                 cross-axis-alignment: center;
 
@@ -186,7 +193,7 @@ component PanelRowView inherits Rectangle {
 
                 // An account's badge takes the place of this spacer, so the name keeps its room.
                 if (root.item.kind == "account" && root.item.logo == "" && root.item.logo-letters == "") : Rectangle {
-                    width: 12px;
+                    width: 20px;
                     background: transparent;
                 }
 
@@ -210,9 +217,10 @@ component PanelRowView inherits Rectangle {
 
                     Text {
                         text: root.item.label;
-                        color: root.item.selected ? Theme.on-selected : Theme.text;
-                        font-size: Type.body-size;
-                        font-weight: root.item.kind == "all" || root.item.kind == "group" ? Type.label-small-weight : (root.item.new-count > 0 ? Type.label-small-weight : Type.label-small-weight);
+                        color: root.item.selected ? Theme.on-selected
+                                : (root.item.kind == "group" ? Theme.muted-text : Theme.text);
+                        font-size: root.item.kind == "group" ? Type.label-small-size : Type.body-size;
+                        font-weight: root.item.kind == "group" ? 600 : Type.body-weight;
                         overflow: elide;
                     }
 
@@ -222,18 +230,12 @@ component PanelRowView inherits Rectangle {
                         font-size: Type.body-small-size;
                         overflow: elide;
                     }
-
-                    if (root.item.detail != "") : Text {
-                        text: root.item.detail;
-                        color: root.item.selected ? Theme.on-selected : Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        overflow: elide;
-                    }
                 }
 
                 // Own column so the unread badge cannot overlap the right-aligned amount.
                 VerticalLayout {
-                    width: 20px;
+                    // Only reserve a column when there is a badge to show.
+                    width: root.item.new-count > 0 ? 20px : 0px;
                     alignment: center;
 
                     CountBadge {
@@ -252,6 +254,10 @@ component PanelRowView inherits Rectangle {
                         root.actions-open = !root.actions-open;
                     }
                 }
+            }
+
+            if (root.item.detail != "") : Tooltip {
+                text: @markdown("\{root.item.detail}");
             }
         }
 
@@ -400,8 +406,9 @@ export component AccountPanel inherits Rectangle {
             VerticalLayout {
                 spacing: 0px;
 
-                for panel-row in root.rows : PanelRowView {
+                for panel-row[index] in root.rows : PanelRowView {
                     item: panel-row;
+                    group-gap: index > 1 && panel-row.kind == "group";
                     select => {
                         root.select(panel-row.kind, panel-row.group-kind, panel-row.id, panel-row.account-type);
                     }

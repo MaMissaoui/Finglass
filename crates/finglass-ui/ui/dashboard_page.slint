@@ -10,6 +10,7 @@ import {
     DashboardTransactionRow,
     DashboardUpcomingRow,
     IconButton,
+    PeriodNavigator,
     PrimaryButton,
     TextButton,
 } from "components.slint";
@@ -117,8 +118,8 @@ component StatementPanel inherits Rectangle {
         Text {
             text: root.month-label;
             color: Theme.text;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: Type.body-large-size;
+            font-weight: Type.body-large-weight;
         }
 
         VerticalLayout {
@@ -160,8 +161,8 @@ component PendingPanel inherits Rectangle {
         Text {
             text: root.title;
             color: Theme.text;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: Type.body-large-size;
+            font-weight: Type.body-large-weight;
             overflow: elide;
         }
 
@@ -358,45 +359,6 @@ component BudgetRow inherits Rectangle {
             color: root.budget.over ? Theme.caution : Theme.muted-text;
             font-size: Type.body-small-size;
         }
-    }
-}
-
-// A small round month arrow.
-component MonthArrow inherits Rectangle {
-    in property <image> icon;
-    in property <string> label;
-    in property <bool> enabled: true;
-
-    callback clicked;
-
-    width: 32px;
-    height: 32px;
-    border-radius: Radius.control-small;
-    background: transparent;
-    accessible-role: button;
-    accessible-label: root.label;
-
-    Image {
-        width: 24px;
-        height: 24px;
-        x: (parent.width - self.width) / 2;
-        y: (parent.height - self.height) / 2;
-        source: root.icon;
-        colorize: root.enabled ? Theme.text : Theme.muted-text;
-        opacity: root.enabled ? 1.0 : 0.45;
-        accessible-role: none;
-    }
-
-    TouchArea {
-        enabled: root.enabled;
-        mouse-cursor: pointer;
-        clicked => {
-            root.clicked();
-        }
-    }
-
-    Tooltip {
-        text: @markdown("\{root.label}");
     }
 }
 
@@ -735,103 +697,18 @@ export component DashboardPage inherits Rectangle {
                     spacing: 8px;
                     alignment: start;
 
-                    MonthArrow {
-                        icon: @image-url("icons/keyboard_arrow_left.svg");
-                        label: Tr.t("PreviousMonth");
-                        enabled: root.previous-enabled;
-                        clicked => {
-                            root.previous-month();
-                        }
-                    }
-
-                    Rectangle {
-                        height: 32px;
-                        border-radius: Radius.control-small;
-                        border-width: month-focus.has-focus || root.month-menu-open ? 2px : 1px;
-                        border-color: month-focus.has-focus || root.month-menu-open ? Theme.primary : Theme.divider;
-                        background: Theme.surface;
-                        accessible-role: button;
-                        accessible-label: Tr.t("SelectMonth");
-
-                        HorizontalLayout {
-                            padding-left: 10px;
-                            padding-right: 8px;
-                            spacing: 6px;
-                            cross-axis-alignment: center;
-
-                            Image {
-                                width: 20px;
-                                height: 20px;
-                                source: @image-url("icons/date_range.svg");
-                                colorize: Theme.muted-text;
-                                accessible-role: none;
-                            }
-
-                            Text {
-                                text: root.month-label;
-                                color: Theme.text;
-                                font-size: Type.label-size;
-                                font-weight: Type.label-weight;
-                                vertical-alignment: center;
-                            }
-
-                            Image {
-                                width: 20px;
-                                height: 20px;
-                                source: @image-url("icons/arrow_drop_down.svg");
-                                colorize: Theme.muted-text;
-                                accessible-role: none;
-                            }
-                        }
-
-                        TouchArea {
-                            clicked => {
-                                root.month-menu-index = root.month-selected-index;
-                                root.month-menu-open = !root.month-menu-open;
-                            }
-                        }
-
-                        month-focus := FocusScope {
-                            // The TouchArea underneath handles the mouse; see the buttons in components.slint.
-                            focus-on-click: false;
-                            key-pressed(event) => {
-                                if (event.text == Key.Return || event.text == Key.Space) {
-                                    if (root.month-menu-open) {
-                                        root.month-menu-open = false;
-                                        root.select-month(root.month-menu-index);
-                                    } else {
-                                        root.month-menu-index = root.month-selected-index;
-                                        root.month-menu-open = true;
-                                    }
-                                    return accept;
-                                }
-                                if (root.month-menu-open && event.text == Key.DownArrow) {
-                                    if (root.month-menu-index < root.month-options.length - 1) {
-                                        root.month-menu-index += 1;
-                                    }
-                                    return accept;
-                                }
-                                if (root.month-menu-open && event.text == Key.UpArrow) {
-                                    if (root.month-menu-index > 0) {
-                                        root.month-menu-index -= 1;
-                                    }
-                                    return accept;
-                                }
-                                if (root.month-menu-open && event.text == Key.Escape) {
-                                    root.month-menu-open = false;
-                                    return accept;
-                                }
-                                return reject;
-                            }
-                        }
-                    }
-
-                    MonthArrow {
-                        icon: @image-url("icons/keyboard_arrow_right.svg");
-                        label: Tr.t("NextMonth");
-                        enabled: root.next-enabled;
-                        clicked => {
-                            root.next-month();
+                    PeriodNavigator {
+                        title: root.month-label;
+                        previous-enabled: root.previous-enabled;
+                        next-enabled: root.next-enabled;
+                        previous-label: Tr.t("PreviousMonth");
+                        next-label: Tr.t("NextMonth");
+                        title-has-menu: true;
+                        previous => { root.previous-month(); }
+                        next => { root.next-month(); }
+                        title-clicked => {
+                            root.month-menu-index = root.month-selected-index;
+                            root.month-menu-open = !root.month-menu-open;
                         }
                     }
 
