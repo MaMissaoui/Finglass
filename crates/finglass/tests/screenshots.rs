@@ -396,6 +396,7 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
+        ui.set_settings_section(0); // Appearance
         ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-currency-en-light", 1100, 720);
         assert_varied(&buffer, "settings-currency-en-light");
@@ -408,6 +409,7 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
+        ui.set_settings_section(1); // Profiles
         ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-profiles-en-light", 1100, 720);
         assert_varied(&buffer, "settings-profiles-en-light");
@@ -420,6 +422,7 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
+        ui.set_settings_section(1); // Profiles
         ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-profiles-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-profiles-de-dark");
@@ -443,6 +446,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(1); // Profiles
         ui.set_profile_delete_open(true);
         ui.set_profile_delete_index(1);
         ui.set_profile_delete_title(i18n::format(Language::En, Key::DeleteProfile, &[Arg::from("Business")]).into());
@@ -459,6 +463,7 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
+        ui.set_settings_section(0); // Appearance
         ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-currency-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-currency-de-dark");
@@ -473,6 +478,7 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
+        ui.set_settings_section(0); // Appearance
         ui.set_settings_scroll_y(0.0);
 
         let buffer = render(&window, "theme-switch-dark", 1100, 720);
@@ -501,7 +507,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-220.0);
+        ui.set_settings_section(2); // Categories
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-categories-en-light", 1100, 720);
         assert_varied(&buffer, "settings-categories-en-light");
         let _ = ui.hide();
@@ -513,7 +520,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-220.0);
+        ui.set_settings_section(2); // Categories
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-categories-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-categories-de-dark");
         let _ = ui.hide();
@@ -525,7 +533,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-555.0);
+        ui.set_settings_section(2); // Categories, scrolled to the keywords card
+        ui.set_settings_scroll_y(-320.0);
         let buffer = render(&window, "settings-tax-keywords-en-light", 1100, 720);
         assert_varied(&buffer, "settings-tax-keywords-en-light");
         let _ = ui.hide();
@@ -537,7 +546,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-555.0);
+        ui.set_settings_section(2); // Categories, scrolled to the keywords card
+        ui.set_settings_scroll_y(-320.0);
         let buffer = render(&window, "settings-tax-keywords-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-tax-keywords-de-dark");
         let _ = ui.hide();
@@ -549,7 +559,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-835.0);
+        ui.set_settings_section(3); // Auto-categorization rules
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-rules-en-light", 1100, 720);
         assert_varied(&buffer, "settings-rules-en-light");
         let _ = ui.hide();
@@ -561,7 +572,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-835.0);
+        ui.set_settings_section(3); // Auto-categorization rules
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-rules-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-rules-de-dark");
         let _ = ui.hide();
@@ -573,7 +585,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-1180.0);
+        ui.set_settings_section(5); // Backup & restore
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-backup-en-light", 1100, 720);
         assert_varied(&buffer, "settings-backup-en-light");
         let _ = ui.hide();
@@ -585,7 +598,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-1180.0);
+        ui.set_settings_section(5); // Backup & restore
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-backup-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-backup-de-dark");
         let _ = ui.hide();
@@ -598,7 +612,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-1180.0);
+        ui.set_settings_section(5); // Backup & restore
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-backup-pending-en", 1100, 720);
         assert_varied(&buffer, "settings-backup-pending-en");
         let _ = ui.hide();
@@ -611,7 +626,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-1450.0);
+        ui.set_settings_section(6); // Import from FinDesk
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-findesk-import-en-light", 1100, 720);
         assert_varied(&buffer, "settings-findesk-import-en-light");
         let _ = ui.hide();
@@ -623,7 +639,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-1450.0);
+        ui.set_settings_section(6); // Import from FinDesk
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-findesk-import-de-dark", 1100, 720);
         assert_varied(&buffer, "settings-findesk-import-de-dark");
         let _ = ui.hide();
@@ -635,7 +652,8 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
-        ui.set_settings_scroll_y(-1900.0);
+        ui.set_settings_section(8); // About
+        ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-about-bank-codes-en", 1100, 720);
         assert_varied(&buffer, "settings-about-bank-codes-en");
         let _ = ui.hide();
@@ -646,6 +664,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(6); // Import from FinDesk
         ui.set_findesk_folder("/Users/example/.findesk".into());
         ui.set_findesk_passphrase_wrong(false);
         ui.set_findesk_passphrase("".into());
@@ -703,6 +722,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(6); // Import from FinDesk
         ui.set_findesk_report_title(i18n::text(Language::En, Key::FinDeskImportReportTitle).into());
         ui.set_findesk_report_text(app::findesk::report_text(&report, Language::En).into());
         ui.set_findesk_report_error(false);
@@ -718,6 +738,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(6); // Import from FinDesk
         ui.set_findesk_report_title(i18n::text(Language::En, Key::FinDeskImportFailedTitle).into());
         ui.set_findesk_report_text(
             finglass_core::findesk_import::FinDeskImportError::TargetNotEmpty
@@ -746,6 +767,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(5); // Backup & restore, where the restore dialog belongs
         ui.show().unwrap();
         let buffer = render(&window, "settings-restore-dialog-en", 1100, 720);
         assert_varied(&buffer, "settings-restore-dialog-en");
@@ -758,9 +780,37 @@ fn renders_the_app_shell() {
         configure_main(&ui, Language::Fr, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
         ui.show().unwrap();
+        ui.set_settings_section(0); // Appearance
         ui.set_settings_scroll_y(0.0);
         let buffer = render(&window, "settings-fr-light", 1100, 720);
         assert_varied(&buffer, "settings-fr-light");
+        let _ = ui.hide();
+    }
+
+    // The narrow window shows the section drop-down instead of the 240 px list.
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_settings_section(0); // Appearance
+        ui.set_settings_section_menu_open(false);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-narrow-en-light", 880, 720);
+        assert_varied(&buffer, "settings-narrow-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let settings = settings_state(&db, &paths, Language::En);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_settings_section(0); // Appearance
+        ui.set_settings_section_menu_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "settings-section-menu-en-light", 880, 720);
+        assert_varied(&buffer, "settings-section-menu-en-light");
         let _ = ui.hide();
     }
 
@@ -774,6 +824,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(2); // Categories
         ui.set_category_dialog_open(true);
         ui.set_category_dialog_id(i32::try_from(food.id.0).unwrap());
         ui.set_category_dialog_name(food.name.clone().into());
@@ -798,6 +849,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(3); // Auto-categorization rules
         ui.set_rule_dialog_open(true);
         ui.set_rule_dialog_id(i32::try_from(rule.id.0).unwrap());
         ui.set_rule_dialog_pattern(rule.pattern.clone().into());
@@ -843,6 +895,7 @@ fn renders_the_app_shell() {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
         apply_settings(&ui, &settings);
+        ui.set_settings_section(3); // Auto-categorization rules
         ui.set_rule_import_categorize(true);
         ui.show().unwrap();
         let buffer = render(&window, "settings-rule-import-en", 1100, 720);

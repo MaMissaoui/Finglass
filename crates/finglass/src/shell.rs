@@ -420,13 +420,36 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
     }
 }
 
+// The Settings sections, in the order `settings_page.slint` lists them. Links into Settings pass
+// the section they are about; plain navigation opens Appearance, as FinDesk does.
+pub(crate) const SETTINGS_APPEARANCE: i32 = 0;
+pub(crate) const SETTINGS_PROFILES: i32 = 1;
+pub(crate) const SETTINGS_CATEGORIES: i32 = 2;
+
+/// The Settings section a navigation opens, or `None` when it opens another screen.
+#[must_use]
+fn settings_section_for(screen: &str, requested: Option<i32>) -> Option<i32> {
+    (screen == "settings").then(|| requested.unwrap_or(SETTINGS_APPEARANCE))
+}
+
 /// Switches to `screen` and starts the work that page needs. The sidebar and the View menu both
 /// come through here, so they cannot drift apart.
 fn navigate_to(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, screen: &str) {
+    navigate_to_section(main, state, paths, screen, None);
+}
+
+/// Like [`navigate_to`], but opens Settings on `section` when the link has a purpose.
+fn navigate_to_section(
+    main: &MainWindow,
+    state: &Arc<ShellState>,
+    paths: &Arc<AppPaths>,
+    screen: &str,
+    section: Option<i32>,
+) {
     let dashboard = screen == "dashboard";
     let screen_is_documents = screen == "documents";
     let reports = screen == "reports";
-    let settings = screen == "settings";
+    let settings_section = settings_section_for(screen, section);
     let accounts_screen = screen == "accounts";
     let transactions_screen = screen == "transactions";
     main.set_current_screen(screen.into());
@@ -440,7 +463,8 @@ fn navigate_to(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>
         main.set_reports_tab("summary".into());
         state.reports.open_page();
     }
-    if settings {
+    if let Some(section) = settings_section {
+        main.set_settings_section(section);
         crate::settings::spawn_load(main, state, paths);
     }
     if accounts_screen {
@@ -657,9 +681,12 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
 
     {
         let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
         main.on_dashboard_open_settings(move || {
             if let Some(ui) = main_weak.upgrade() {
-                ui.set_current_screen("settings".into());
+                // The welcome card's step is about categories and their rules.
+                navigate_to_section(&ui, &state, &paths, "settings", Some(SETTINGS_CATEGORIES));
             }
         });
     }
@@ -1924,8 +1951,7 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         main.on_profile_manage(move || {
             if let Some(ui) = main_weak.upgrade() {
                 ui.set_profile_menu_open(false);
-                ui.set_current_screen("settings".into());
-                crate::settings::spawn_load(&ui, &state, &paths);
+                navigate_to_section(&ui, &state, &paths, "settings", Some(SETTINGS_PROFILES));
             }
         });
     }
@@ -2463,6 +2489,27 @@ mod tests {
             state.dashboard.lock().expect("dashboard state poisoned").selected_month,
             YearMonth::new(2026, 11)
         );
+    }
+
+    #[test]
+    fn settings_links_open_their_section_and_plain_navigation_opens_appearance() {
+        // Sidebar, View menu and File > Settings all navigate without a requested section.
+        assert_eq!(
+            settings_section_for("settings", None),
+            Some(SETTINGS_APPEARANCE),
+            "plain navigation opens Appearance"
+        );
+        // The dashboard welcome card's step is about categories, Manage profiles about profiles.
+        assert_eq!(
+            settings_section_for("settings", Some(SETTINGS_CATEGORIES)),
+            Some(SETTINGS_CATEGORIES)
+        );
+        assert_eq!(
+            settings_section_for("settings", Some(SETTINGS_PROFILES)),
+            Some(SETTINGS_PROFILES)
+        );
+        assert_eq!(settings_section_for("dashboard", None), None);
+        assert_eq!(settings_section_for("dashboard", Some(SETTINGS_CATEGORIES)), None);
     }
 
     #[test]

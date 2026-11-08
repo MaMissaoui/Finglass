@@ -5,6 +5,49 @@ import { IconButton, PrimaryButton, SegmentedButton, TextButton } from "componen
 import { AuditRow, CategoryRow, ProfileRow, RuleRow } from "models.slint";
 import { FinDeskPassphraseDialog, FinDeskReportDialog } from "settings_dialogs.slint";
 
+// The Settings sections, in FinDesk's order. A section's title reuses the key its header shows.
+global SettingsSections {
+    out property <[int]> indices: [0, 1, 2, 3, 4, 5, 6, 7, 8];
+}
+
+// The section's title, as a Text so a row can keep its own styling and a drop-down can read `text`.
+component SettingsSectionLabel inherits Text {
+    in property <int> index;
+
+    text: root.index == 0 ? Tr.t("Appearance")
+        : root.index == 1 ? Tr.t("Profiles")
+        : root.index == 2 ? Tr.t("Categories")
+        : root.index == 3 ? Tr.t("AutoCategorizationRules")
+        : root.index == 4 ? Tr.t("Security")
+        : root.index == 5 ? Tr.t("BackupAndRestore")
+        : root.index == 6 ? Tr.t("FinDeskImportTitle")
+        : root.index == 7 ? Tr.t("AuditLogShort")
+        : Tr.t("AboutTitle");
+}
+
+component SectionHeader inherits FlexboxLayout {
+    in property <string> text;
+
+    // Wraps the actions to a second line when a long translated title and the buttons no longer fit.
+    min-height: 48px;
+    spacing: 8px;
+    // Stretch lets the title (horizontal-stretch: 1) take the free space, so the actions sit at the
+    // end, as in FinDesk's SettingsSectionHeader.
+    alignment: stretch;
+    cross-axis-alignment: center;
+
+    Text {
+        text: root.text;
+        color: Theme.text;
+        font-size: Type.title-medium-size;
+        font-weight: Type.title-medium-weight;
+        vertical-alignment: center;
+        horizontal-stretch: 1;
+    }
+
+    @children
+}
+
 component SectionTitle inherits HorizontalLayout {
     in property <string> text;
     in property <image> icon;
@@ -14,8 +57,8 @@ component SectionTitle inherits HorizontalLayout {
     cross-axis-alignment: center;
 
     Image {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         source: root.icon;
         colorize: Theme.muted-text;
         accessible-role: none;
@@ -24,8 +67,8 @@ component SectionTitle inherits HorizontalLayout {
     Text {
         text: root.text;
         color: Theme.text;
-        font-size: Type.title-large-size;
-        font-weight: Type.title-large-weight;
+        font-size: Type.title-medium-size;
+        font-weight: Type.title-medium-weight;
         vertical-alignment: center;
     }
 }
@@ -33,6 +76,241 @@ component SectionTitle inherits HorizontalLayout {
 component Divider inherits Rectangle {
     height: 1px;
     background: Theme.divider;
+}
+
+// One row of the section list, and one row of the narrow section drop-down.
+component SettingsSectionRow inherits Rectangle {
+    in property <int> index;
+    in property <bool> selected;
+
+    callback picked;
+    callback move-up;
+    callback move-down;
+
+    property <image> icon: root.index == 0 ? @image-url("icons/palette.svg")
+            : root.index == 1 ? @image-url("icons/person.svg")
+            : root.index == 2 ? @image-url("icons/list.svg")
+            : root.index == 3 ? @image-url("icons/auto_fix_high.svg")
+            : root.index == 4 ? @image-url("icons/storage.svg")
+            : root.index == 5 ? @image-url("icons/backup.svg")
+            : root.index == 6 ? @image-url("icons/upload_file.svg")
+            : root.index == 7 ? @image-url("icons/history.svg")
+            : @image-url("icons/info.svg");
+
+    min-height: 40px;
+    border-radius: 8px;
+    background: root.selected ? Theme.selected : (touch.has-hover ? Theme.surface : transparent);
+    accessible-role: button;
+    accessible-label: row-label.text;
+
+    Rectangle {
+        visible: root.selected;
+        x: 0px;
+        y: 8px;
+        width: 3px;
+        height: parent.height - 16px;
+        border-radius: 2px;
+        background: Theme.primary;
+    }
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        spacing: 12px;
+        cross-axis-alignment: center;
+
+        Image {
+            width: 20px;
+            height: 20px;
+            source: root.icon;
+            colorize: root.selected ? Theme.on-selected : Theme.muted-text;
+            accessible-role: none;
+        }
+
+        row-label := SettingsSectionLabel {
+            index: root.index;
+            color: root.selected ? Theme.on-selected : Theme.text;
+            font-size: Type.label-size;
+            font-weight: root.selected ? 600 : Type.label-weight;
+            vertical-alignment: center;
+            horizontal-alignment: left;
+            horizontal-stretch: 1;
+            wrap: word-wrap;
+        }
+    }
+
+    touch := TouchArea {
+        clicked => { root.picked(); }
+    }
+
+    focus := FocusScope {
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.UpArrow) {
+                root.move-up();
+                return accept;
+            }
+            if (event.text == Key.DownArrow) {
+                root.move-down();
+                return accept;
+            }
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.picked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if focus.has-focus : Rectangle {
+        border-width: 2px;
+        border-color: Theme.primary;
+        border-radius: parent.border-radius;
+    }
+}
+
+component SettingsSectionList inherits VerticalLayout {
+    in property <int> selected;
+
+    callback select(int);
+
+    width: 240px;
+    spacing: 2px;
+
+    for index in SettingsSections.indices : SettingsSectionRow {
+        index: index;
+        selected: index == root.selected;
+        picked => { root.select(index); }
+        move-up => { root.select(max(0, index - 1)); }
+        move-down => { root.select(min(8, index + 1)); }
+    }
+}
+
+component SettingsBanner inherits Rectangle {
+    in property <string> error-text;
+    in property <string> message-text;
+
+    callback dismiss;
+
+    height: 46px;
+    background: Theme.surface;
+
+    if (root.error-text != "") : HorizontalLayout {
+        padding-left: 24px;
+        padding-right: 12px;
+        spacing: 12px;
+
+        Image {
+            width: 20px;
+            height: 20px;
+            source: @image-url("icons/warning.svg");
+            colorize: Theme.error;
+            accessible-role: none;
+        }
+
+        Text {
+            text: root.error-text;
+            color: Theme.error;
+            font-size: Type.body-size;
+            vertical-alignment: center;
+            horizontal-stretch: 1;
+            wrap: word-wrap;
+        }
+
+        IconButton {
+            icon: @image-url("icons/close.svg");
+            label: Tr.t("Dismiss");
+            icon-size: 18px;
+            clicked => { root.dismiss(); }
+        }
+    }
+
+    if (root.error-text == "" && root.message-text != "") : HorizontalLayout {
+        padding-left: 24px;
+        padding-right: 12px;
+        spacing: 12px;
+
+        Image {
+            width: 20px;
+            height: 20px;
+            source: @image-url("icons/check_circle.svg");
+            colorize: Theme.success;
+            accessible-role: none;
+        }
+
+        Text {
+            text: root.message-text;
+            color: Theme.success;
+            font-size: Type.body-size;
+            vertical-alignment: center;
+            horizontal-stretch: 1;
+            wrap: word-wrap;
+        }
+
+        IconButton {
+            icon: @image-url("icons/close.svg");
+            label: Tr.t("Dismiss");
+            icon-size: 18px;
+            clicked => { root.dismiss(); }
+        }
+    }
+}
+
+// The tax suggestion keywords card at the end of Categories.
+component TaxKeywordsCard inherits Rectangle {
+    in-out property <string> keywords;
+    in property <string> count;
+
+    callback save(string);
+    callback reset;
+
+    height: card.preferred-height;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: Theme.divider;
+    background: Theme.surface;
+
+    card := VerticalLayout {
+        padding: 16px;
+        spacing: 10px;
+
+        SectionTitle {
+            text: Tr.t("TaxSuggestionKeywords");
+            icon: @image-url("icons/transactions.svg");
+        }
+
+        Text {
+            text: root.count;
+            color: Theme.muted-text;
+            font-size: Type.body-small-size;
+        }
+
+        TextEdit {
+            height: 150px;
+            text: root.keywords;
+            wrap: word-wrap;
+            edited(value) => { root.keywords = value; }
+        }
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: start;
+
+            PrimaryButton {
+                text: Tr.t("Save");
+                clicked => { root.save(root.keywords); }
+            }
+
+            TextButton {
+                text: Tr.t("ResetToDefaults");
+                clicked => { root.reset(); }
+            }
+        }
+    }
 }
 
 export component SettingsPage inherits Rectangle {
@@ -72,7 +350,13 @@ export component SettingsPage inherits Rectangle {
     in property <string> findesk-report-text;
     in property <bool> findesk-report-error;
 
+    // The section shown on the right and its narrow-window drop-down.
+    in-out property <int> section: 0;
+    in-out property <bool> section-menu-open: false;
     in-out property <length> scroll-y;
+
+    property <bool> narrow: root.width < 840px;
+    property <length> menu-y: 24px + (root.settings-error != "" || root.settings-message != "" ? 46px + 12px : 0px) + 40px + 4px;
 
     callback set-theme(string);
     callback set-language(string);
@@ -106,73 +390,70 @@ export component SettingsPage inherits Rectangle {
 
     background: Theme.background;
 
-    VerticalLayout {
-        if (root.settings-error != "") : Rectangle {
-            height: 46px;
-            background: Theme.surface;
+    changed section => {
+        // A section always opens at its top; a shared scroll position would open a short one part-way down.
+        root.scroll-y = 0;
+        root.section-menu-open = false;
+    }
 
-            HorizontalLayout {
-                padding-left: 24px;
-                padding-right: 12px;
-                spacing: 12px;
+    if (root.narrow) : VerticalLayout {
+        padding: 24px;
+        spacing: 12px;
 
-                Image {
-                    width: 20px;
-                    height: 20px;
-                    source: @image-url("icons/warning.svg");
-                    colorize: Theme.error;
-                    accessible-role: none;
-                }
-
-                Text {
-                    text: root.settings-error;
-                    color: Theme.error;
-                    font-size: Type.body-size;
-                    vertical-alignment: center;
-                    horizontal-stretch: 1;
-                    wrap: word-wrap;
-                }
-
-                IconButton {
-                    icon: @image-url("icons/close.svg");
-                    label: Tr.t("Dismiss");
-                    icon-size: 18px;
-                    clicked => { root.dismiss-message(); }
-                }
-            }
+        if (root.settings-error != "" || root.settings-message != "") : SettingsBanner {
+            error-text: root.settings-error;
+            message-text: root.settings-message;
+            dismiss => { root.dismiss-message(); }
         }
 
-        if (root.settings-message != "" && root.settings-error == "") : Rectangle {
-            height: 46px;
-            background: Theme.surface;
+        Rectangle {
+            height: 40px;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: dropdown-focus.has-focus ? Theme.primary : Theme.divider;
+            background: dropdown-touch.has-hover || root.section-menu-open ? Theme.surface : Theme.background;
+            accessible-role: button;
+            accessible-label: section-label.text;
 
             HorizontalLayout {
-                padding-left: 24px;
+                padding-left: 12px;
                 padding-right: 12px;
-                spacing: 12px;
+                spacing: 8px;
+                cross-axis-alignment: center;
 
-                Image {
-                    width: 20px;
-                    height: 20px;
-                    source: @image-url("icons/check_circle.svg");
-                    colorize: Theme.success;
-                    accessible-role: none;
-                }
-
-                Text {
-                    text: root.settings-message;
-                    color: Theme.success;
-                    font-size: Type.body-size;
+                section-label := SettingsSectionLabel {
+                    index: root.section;
+                    color: Theme.text;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                     vertical-alignment: center;
                     horizontal-stretch: 1;
-                    wrap: word-wrap;
+                    overflow: elide;
                 }
 
-                IconButton {
-                    icon: @image-url("icons/close.svg");
-                    label: Tr.t("Dismiss");
-                    icon-size: 18px;
-                    clicked => { root.dismiss-message(); }
+                Image {
+                    width: 18px;
+                    height: 18px;
+                    source: @image-url("icons/arrow_drop_down.svg");
+                    colorize: Theme.muted-text;
+                    accessible-role: none;
+                }
+            }
+
+            dropdown-touch := TouchArea {
+                clicked => { root.section-menu-open = !root.section-menu-open; }
+            }
+
+            dropdown-focus := FocusScope {
+                // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+                // first press to gain focus and the user would need a second click.
+                focus-on-click: false;
+                key-pressed(event) => {
+                    if (event.text == Key.Return || event.text == Key.Space) {
+                        root.section-menu-open = !root.section-menu-open;
+                        return accept;
+                    }
+                    return reject;
                 }
             }
         }
@@ -181,97 +462,98 @@ export component SettingsPage inherits Rectangle {
             content-y <=> root.scroll-y;
 
             VerticalLayout {
-                padding: 32px;
-                spacing: 16px;
+                width: min(parent.width, 760px);
+                spacing: 0;
+                alignment: start;
 
-                SectionTitle {
-                    text: Tr.t("Appearance");
-                    icon: @image-url("icons/palette.svg");
-                }
-
-                HorizontalLayout {
-                    spacing: 12px;
+                // Appearance
+                if (root.section == 0) : VerticalLayout {
                     alignment: start;
-
-                    Text {
-                        text: Tr.t("Theme");
-                        width: 120px;
-                        color: Theme.text;
-                        font-size: Type.body-size;
-                        vertical-alignment: center;
-                    }
-                    SegmentedButton {
-                        labels: [Tr.t("ThemeSystem"), Tr.t("ThemeLight"), Tr.t("ThemeDark")];
-                        selected: root.theme-pref == "system" ? 0 : (root.theme-pref == "light" ? 1 : 2);
-                        select(index) => {
-                            root.set-theme(index == 0 ? "system" : (index == 1 ? "light" : "dark"));
-                        }
-                    }
-                }
-
-                HorizontalLayout {
-                    spacing: 12px;
-                    alignment: start;
-
-                    Text {
-                        text: Tr.t("Language");
-                        width: 120px;
-                        color: Theme.text;
-                        font-size: Type.body-size;
-                        vertical-alignment: center;
-                    }
-                    SegmentedButton {
-                        labels: ["EN", "DE", "FR"];
-                        selected: root.language == "en" ? 0 : (root.language == "de" ? 1 : 2);
-                        select(index) => {
-                            root.set-language(index == 0 ? "en" : (index == 1 ? "de" : "fr"));
-                        }
-                    }
-                }
-
-                HorizontalLayout {
-                    spacing: 16px;
-                    alignment: start;
+                    SectionHeader { text: Tr.t("Appearance"); }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
 
                     VerticalLayout {
-                        width: 460px;
-                        spacing: 4px;
-                        alignment: center;
+                        spacing: 12px;
 
-                        Text {
-                            text: Tr.t("PrimaryCurrency");
-                            color: Theme.text;
-                            font-size: Type.body-size;
-                        }
-                        Text {
-                            text: Tr.t("PrimaryCurrencyHint");
-                            color: Theme.muted-text;
-                            font-size: Type.body-small-size;
-                            wrap: word-wrap;
-                        }
-                    }
+                        HorizontalLayout {
+                            spacing: 12px;
+                            alignment: start;
 
-                    ComboBox {
-                        width: 180px;
-                        model: root.currency-options;
-                        current-index <=> root.primary-currency-index;
-                        selected(value) => { root.set-primary-currency(value); }
+                            Text {
+                                text: Tr.t("Theme");
+                                width: 120px;
+                                color: Theme.text;
+                                font-size: Type.body-size;
+                                vertical-alignment: center;
+                            }
+                            SegmentedButton {
+                                labels: [Tr.t("ThemeSystem"), Tr.t("ThemeLight"), Tr.t("ThemeDark")];
+                                selected: root.theme-pref == "system" ? 0 : (root.theme-pref == "light" ? 1 : 2);
+                                select(index) => {
+                                    root.set-theme(index == 0 ? "system" : (index == 1 ? "light" : "dark"));
+                                }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 12px;
+                            alignment: start;
+
+                            Text {
+                                text: Tr.t("Language");
+                                width: 120px;
+                                color: Theme.text;
+                                font-size: Type.body-size;
+                                vertical-alignment: center;
+                            }
+                            SegmentedButton {
+                                labels: ["EN", "DE", "FR"];
+                                selected: root.language == "en" ? 0 : (root.language == "de" ? 1 : 2);
+                                select(index) => {
+                                    root.set-language(index == 0 ? "en" : (index == 1 ? "de" : "fr"));
+                                }
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 16px;
+                            alignment: start;
+
+                            VerticalLayout {
+                                horizontal-stretch: 1;
+                                spacing: 4px;
+                                alignment: center;
+
+                                Text {
+                                    text: Tr.t("PrimaryCurrency");
+                                    color: Theme.text;
+                                    font-size: Type.body-size;
+                                }
+                                Text {
+                                    text: Tr.t("PrimaryCurrencyHint");
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    wrap: word-wrap;
+                                }
+                            }
+
+                            ComboBox {
+                                width: 180px;
+                                model: root.currency-options;
+                                current-index <=> root.primary-currency-index;
+                                selected(value) => { root.set-primary-currency(value); }
+                            }
+                        }
                     }
                 }
 
-                Divider {}
-
-                VerticalLayout {
-                    spacing: 12px;
-
-                    HorizontalLayout {
-                        spacing: 12px;
-
-                        SectionTitle {
-                            text: Tr.t("Profiles");
-                            icon: @image-url("icons/person.svg");
-                            horizontal-stretch: 1;
-                        }
+                // Profiles
+                if (root.section == 1) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader {
+                        text: Tr.t("Profiles");
 
                         PrimaryButton {
                             text: Tr.t("NewProfile");
@@ -280,106 +562,93 @@ export component SettingsPage inherits Rectangle {
                             clicked => { root.new-profile(); }
                         }
                     }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
 
-                    Text {
-                        text: Tr.t("ProfilesHint");
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        wrap: word-wrap;
-                        width: 640px;
-                    }
+                    VerticalLayout {
+                        spacing: 12px;
 
-                    for row in root.profile-rows : Rectangle {
-                        height: 46px;
-                        background: transparent;
+                        Text {
+                            text: Tr.t("ProfilesHint");
+                            color: Theme.muted-text;
+                            font-size: Type.body-small-size;
+                            wrap: word-wrap;
+                        }
 
-                        HorizontalLayout {
-                            spacing: 12px;
-                            cross-axis-alignment: center;
+                        for row in root.profile-rows : Rectangle {
+                            height: 46px;
+                            background: transparent;
 
-                            Text {
-                                text: row.name;
-                                color: Theme.text;
-                                font-size: Type.title-small-size;
-                                font-weight: row.open ? Type.title-small-weight : Type.body-weight;
-                                vertical-alignment: center;
-                                horizontal-stretch: 1;
-                                overflow: elide;
-                            }
+                            HorizontalLayout {
+                                spacing: 12px;
+                                cross-axis-alignment: center;
 
-                            if (row.open) : Rectangle {
-                                height: 22px;
-                                border-radius: 11px;
-                                background: Theme.selected;
+                                Text {
+                                    text: row.name;
+                                    color: Theme.text;
+                                    font-size: Type.title-small-size;
+                                    font-weight: row.open ? Type.title-small-weight : Type.body-weight;
+                                    vertical-alignment: center;
+                                    horizontal-stretch: 1;
+                                    overflow: elide;
+                                }
 
-                                HorizontalLayout {
-                                    padding-left: 8px;
-                                    padding-right: 8px;
+                                if (row.open) : Rectangle {
+                                    height: 22px;
+                                    border-radius: 11px;
+                                    background: Theme.selected;
 
-                                    Text {
-                                        text: Tr.t("ProfileOpen");
-                                        color: Theme.on-selected;
-                                        font-size: Type.label-small-size;
-                                        font-weight: Type.label-small-weight;
-                                        vertical-alignment: center;
+                                    HorizontalLayout {
+                                        padding-left: 8px;
+                                        padding-right: 8px;
+
+                                        Text {
+                                            text: Tr.t("ProfileOpen");
+                                            color: Theme.on-selected;
+                                            font-size: Type.label-small-size;
+                                            font-weight: Type.label-small-weight;
+                                            vertical-alignment: center;
+                                        }
                                     }
                                 }
-                            }
 
-                            if (row.next-start) : Text {
-                                text: Tr.t("ProfileNextStart");
-                                color: Theme.muted-text;
-                                font-size: Type.body-small-size;
-                                vertical-alignment: center;
-                            }
+                                if (row.next-start) : Text {
+                                    text: Tr.t("ProfileNextStart");
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    vertical-alignment: center;
+                                }
 
-                            if (row.can-switch) : TextButton {
-                                text: Tr.t("OpenProfile");
-                                clicked => { root.switch-profile(row.index); }
-                            }
+                                if (row.can-switch) : TextButton {
+                                    text: Tr.t("OpenProfile");
+                                    clicked => { root.switch-profile(row.index); }
+                                }
 
-                            IconButton {
-                                icon: @image-url("icons/edit.svg");
-                                label: Tr.t("Edit");
-                                icon-size: 20px;
-                                clicked => { root.rename-profile(row.index); }
-                            }
+                                IconButton {
+                                    icon: @image-url("icons/edit.svg");
+                                    label: Tr.t("Edit");
+                                    icon-size: 20px;
+                                    clicked => { root.rename-profile(row.index); }
+                                }
 
-                            if (row.can-delete) : IconButton {
-                                icon: @image-url("icons/delete.svg");
-                                label: Tr.t("Delete");
-                                icon-size: 20px;
-                                icon-color: Theme.error;
-                                clicked => { root.delete-profile(row.index); }
+                                if (row.can-delete) : IconButton {
+                                    icon: @image-url("icons/delete.svg");
+                                    label: Tr.t("Delete");
+                                    icon-size: 20px;
+                                    icon-color: Theme.error;
+                                    clicked => { root.delete-profile(row.index); }
+                                }
                             }
                         }
                     }
                 }
 
-                Divider {}
-
-                VerticalLayout {
-                    spacing: 12px;
-
-                    SectionTitle {
+                // Categories, including the tax suggestion keywords card.
+                if (root.section == 2) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader {
                         text: Tr.t("Categories");
-                        icon: @image-url("icons/transactions.svg");
-                    }
-
-                    if (root.categories-empty) : Text {
-                        text: Tr.t("NoCategoriesYet");
-                        color: Theme.muted-text;
-                        font-size: Type.body-size;
-                    }
-
-                    HorizontalLayout {
-                        spacing: 12px;
-                        alignment: start;
-
-                        if (root.categories-empty) : PrimaryButton {
-                            text: Tr.t("AddDefaultCategories");
-                            clicked => { root.add-default-categories(); }
-                        }
 
                         if (!root.categories-empty) : PrimaryButton {
                             text: Tr.t("AddCategory");
@@ -397,145 +666,121 @@ export component SettingsPage inherits Rectangle {
                             text: Tr.t("AddDefaultCategories");
                             clicked => { root.add-default-categories(); }
                         }
-
-                        if (root.categories-empty) : TextButton {
-                            text: Tr.t("AddCategory");
-                            icon: @image-url("icons/add.svg");
-                            has-icon: true;
-                            clicked => { root.add-category(); }
-                        }
                     }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
 
-                    for row in root.category-rows : Rectangle {
-                        height: 46px;
-                        background: transparent;
+                    VerticalLayout {
+                        spacing: 12px;
 
-                        HorizontalLayout {
+                        if (root.categories-empty) : Text {
+                            text: Tr.t("NoCategoriesYet");
+                            color: Theme.muted-text;
+                            font-size: Type.body-size;
+                        }
+
+                        if (root.categories-empty) : HorizontalLayout {
                             spacing: 12px;
-                            cross-axis-alignment: center;
+                            alignment: start;
 
-                            Rectangle {
-                                width: 12px;
-                                height: 12px;
-                                border-radius: 6px;
-                                background: row.colour;
+                            PrimaryButton {
+                                text: Tr.t("AddDefaultCategories");
+                                clicked => { root.add-default-categories(); }
                             }
 
-                            Text {
-                                text: row.name;
-                                color: Theme.text;
-                                font-size: Type.body-size;
-                                vertical-alignment: center;
-                                horizontal-stretch: 1;
-                                overflow: elide;
+                            TextButton {
+                                text: Tr.t("AddCategory");
+                                icon: @image-url("icons/add.svg");
+                                has-icon: true;
+                                clicked => { root.add-category(); }
                             }
+                        }
 
-                            if (row.transfer) : Text {
-                                text: Tr.t("CategoryTransferLabel");
-                                color: Theme.muted-text;
-                                font-size: Type.body-small-size;
-                                vertical-alignment: center;
-                            }
+                        for row in root.category-rows : Rectangle {
+                            height: 46px;
+                            background: transparent;
 
-                            if (row.tax-relevant) : Text {
-                                text: Tr.t("TaxRelevant");
-                                color: Theme.warning;
-                                font-size: Type.label-small-size;
-                                font-weight: Type.label-small-weight;
-                                vertical-alignment: center;
-                            }
+                            HorizontalLayout {
+                                spacing: 12px;
+                                cross-axis-alignment: center;
 
-                            if (row.budget-text != "") : Text {
-                                text: row.budget-text;
-                                color: Theme.muted-text;
-                                font-size: Type.body-small-size;
-                                vertical-alignment: center;
-                            }
+                                Rectangle {
+                                    width: 12px;
+                                    height: 12px;
+                                    border-radius: 6px;
+                                    background: row.colour;
+                                }
 
-                            Text {
-                                text: row.usage-text;
-                                color: Theme.muted-text;
-                                font-size: Type.body-small-size;
-                                vertical-alignment: center;
-                            }
+                                Text {
+                                    text: row.name;
+                                    color: Theme.text;
+                                    font-size: Type.body-size;
+                                    vertical-alignment: center;
+                                    horizontal-stretch: 1;
+                                    overflow: elide;
+                                }
 
-                            IconButton {
-                                icon: @image-url("icons/edit.svg");
-                                label: Tr.t("Edit");
-                                icon-size: 20px;
-                                clicked => { root.edit-category(row.id); }
-                            }
+                                if (row.transfer) : Text {
+                                    text: Tr.t("CategoryTransferLabel");
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    vertical-alignment: center;
+                                }
 
-                            IconButton {
-                                icon: @image-url("icons/delete.svg");
-                                label: Tr.t("Delete");
-                                icon-size: 20px;
-                                icon-color: Theme.error;
-                                clicked => { root.delete-category(row.id); }
+                                if (row.tax-relevant) : Text {
+                                    text: Tr.t("TaxRelevant");
+                                    color: Theme.warning;
+                                    font-size: Type.label-small-size;
+                                    font-weight: Type.label-small-weight;
+                                    vertical-alignment: center;
+                                }
+
+                                if (row.budget-text != "") : Text {
+                                    text: row.budget-text;
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    vertical-alignment: center;
+                                }
+
+                                Text {
+                                    text: row.usage-text;
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    vertical-alignment: center;
+                                }
+
+                                IconButton {
+                                    icon: @image-url("icons/edit.svg");
+                                    label: Tr.t("Edit");
+                                    icon-size: 20px;
+                                    clicked => { root.edit-category(row.id); }
+                                }
+
+                                IconButton {
+                                    icon: @image-url("icons/delete.svg");
+                                    label: Tr.t("Delete");
+                                    icon-size: 20px;
+                                    icon-color: Theme.error;
+                                    clicked => { root.delete-category(row.id); }
+                                }
                             }
+                        }
+
+                        TaxKeywordsCard {
+                            keywords <=> root.tax-keywords;
+                            count: root.tax-keywords-count;
+                            save(value) => { root.save-tax-keywords(value); }
+                            reset => { root.reset-tax-keywords(); }
                         }
                     }
                 }
 
-                Divider {}
-
-                VerticalLayout {
-                    spacing: 10px;
-
-                    SectionTitle {
-                        text: Tr.t("TaxSuggestionKeywords");
-                        icon: @image-url("icons/transactions.svg");
-                    }
-
-                    Text {
-                        text: root.tax-keywords-count;
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                    }
-
-                    TextEdit {
-                        height: 150px;
-                        text: root.tax-keywords;
-                        wrap: word-wrap;
-                        edited(value) => { root.tax-keywords = value; }
-                    }
-
-                    HorizontalLayout {
-                        spacing: 12px;
-                        alignment: start;
-
-                        PrimaryButton {
-                            text: Tr.t("Save");
-                            clicked => { root.save-tax-keywords(root.tax-keywords); }
-                        }
-
-                        TextButton {
-                            text: Tr.t("ResetToDefaults");
-                            clicked => { root.reset-tax-keywords(); }
-                        }
-                    }
-                }
-
-                Divider {}
-
-                VerticalLayout {
-                    spacing: 12px;
-
-                    SectionTitle {
+                // Auto-categorization rules
+                if (root.section == 3) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader {
                         text: Tr.t("AutoCategorizationRules");
-                        icon: @image-url("icons/auto_fix_high.svg");
-                    }
-
-                    Text {
-                        text: Tr.t("RulesHint");
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        wrap: word-wrap;
-                    }
-
-                    HorizontalLayout {
-                        spacing: 12px;
-                        alignment: start;
 
                         PrimaryButton {
                             text: Tr.t("AddRule");
@@ -553,303 +798,1062 @@ export component SettingsPage inherits Rectangle {
                             clicked => { root.export-rules(); }
                         }
                     }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
 
-                    if (root.categories-empty) : Text {
-                        text: Tr.t("HintNeedsCategory");
-                        color: Theme.muted-text;
-                        font-size: Type.body-size;
-                    }
+                    VerticalLayout {
+                        spacing: 12px;
 
-                    if (!root.categories-empty && root.rule-rows.length == 0) : Text {
-                        text: Tr.t("NoRulesYet");
-                        color: Theme.muted-text;
-                        font-size: Type.body-size;
-                    }
+                        Text {
+                            text: Tr.t("RulesHint");
+                            color: Theme.muted-text;
+                            font-size: Type.body-small-size;
+                            wrap: word-wrap;
+                        }
 
-                    for row in root.rule-rows : Rectangle {
-                        height: 56px;
-                        background: transparent;
+                        if (root.categories-empty) : Text {
+                            text: Tr.t("HintNeedsCategory");
+                            color: Theme.muted-text;
+                            font-size: Type.body-size;
+                        }
 
-                        HorizontalLayout {
-                            spacing: 12px;
-                            cross-axis-alignment: center;
+                        if (!root.categories-empty && root.rule-rows.length == 0) : Text {
+                            text: Tr.t("NoRulesYet");
+                            color: Theme.muted-text;
+                            font-size: Type.body-size;
+                        }
 
-                            Text {
-                                text: row.pattern;
-                                width: 34%;
-                                color: Theme.text;
-                                font-size: Type.title-small-size;
-                                font-weight: Type.title-small-weight;
-                                vertical-alignment: center;
-                                overflow: elide;
-                            }
+                        for row in root.rule-rows : Rectangle {
+                            height: 56px;
+                            background: transparent;
 
-                            VerticalLayout {
-                                spacing: 2px;
-                                horizontal-stretch: 1;
-                                alignment: center;
+                            HorizontalLayout {
+                                spacing: 12px;
+                                cross-axis-alignment: center;
 
                                 Text {
-                                    text: "→ " + row.category-text;
+                                    text: row.pattern;
+                                    width: 34%;
                                     color: Theme.text;
-                                    font-size: Type.body-size;
+                                    font-size: Type.title-small-size;
+                                    font-weight: Type.title-small-weight;
+                                    vertical-alignment: center;
                                     overflow: elide;
                                 }
 
-                                if (row.detail != "") : Text {
-                                    text: row.detail;
+                                VerticalLayout {
+                                    spacing: 2px;
+                                    horizontal-stretch: 1;
+                                    alignment: center;
+
+                                    Text {
+                                        text: "→ " + row.category-text;
+                                        color: Theme.text;
+                                        font-size: Type.body-size;
+                                        overflow: elide;
+                                    }
+
+                                    if (row.detail != "") : Text {
+                                        text: row.detail;
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
+                                        overflow: elide;
+                                    }
+                                }
+
+                                Text {
+                                    text: row.prio-text;
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    vertical-alignment: center;
+                                }
+
+                                IconButton {
+                                    icon: @image-url("icons/edit.svg");
+                                    label: Tr.t("Edit");
+                                    icon-size: 20px;
+                                    clicked => { root.edit-rule(row.id); }
+                                }
+
+                                IconButton {
+                                    icon: @image-url("icons/delete.svg");
+                                    label: Tr.t("Delete");
+                                    icon-size: 20px;
+                                    icon-color: Theme.error;
+                                    clicked => { root.delete-rule(row.id); }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Security
+                if (root.section == 4) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader { text: Tr.t("Security"); }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
+
+                    VerticalLayout {
+                        spacing: 10px;
+                        Text {
+                            text: Tr.t("ChangePassphraseText");
+                            color: Theme.muted-text;
+                            font-size: Type.body-size;
+                            wrap: word-wrap;
+                        }
+                        PrimaryButton {
+                            text: Tr.t("ChangePassphrase");
+                            clicked => { root.open-change(); }
+                        }
+                    }
+                }
+
+                // Backup & restore
+                if (root.section == 5) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader { text: Tr.t("BackupAndRestore"); }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
+
+                    VerticalLayout {
+                        spacing: 12px;
+
+                        Text {
+                            text: Tr.t("BackupHint");
+                            color: Theme.muted-text;
+                            font-size: Type.body-small-size;
+                            wrap: word-wrap;
+                        }
+
+                        HorizontalLayout {
+                            spacing: 12px;
+                            alignment: start;
+
+                            PrimaryButton {
+                                text: Tr.t("CreateBackup");
+                                enabled: !root.backup-busy;
+                                clicked => { root.create-backup(); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("RestoreFromBackup");
+                                enabled: !root.backup-busy && !root.backup-has-pending-restore;
+                                clicked => { root.restore-backup(); }
+                            }
+
+                            if (root.backup-busy) : HorizontalLayout {
+                                spacing: 8px;
+                                Spinner {
+                                    width: 20px;
+                                    height: 20px;
+                                }
+                            }
+                        }
+
+                        if (root.backup-has-pending-restore) : HorizontalLayout {
+                            spacing: 12px;
+
+                            Text {
+                                text: Tr.t("RestoreWaiting");
+                                color: Theme.warning;
+                                font-size: Type.body-size;
+                                vertical-alignment: center;
+                                horizontal-stretch: 1;
+                                wrap: word-wrap;
+                            }
+
+                            TextButton {
+                                text: Tr.t("CancelRestore");
+                                enabled: !root.backup-busy;
+                                clicked => { root.cancel-pending-restore(); }
+                            }
+                        }
+
+                        if (root.backup-restored-text != "") : Text {
+                            text: root.backup-restored-text;
+                            color: Theme.muted-text;
+                            font-size: Type.body-small-size;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+
+                // Import from FinDesk
+                if (root.section == 6) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader { text: Tr.t("FinDeskImportTitle"); }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
+
+                    VerticalLayout {
+                        spacing: 12px;
+
+                        Text {
+                            text: Tr.t("FinDeskImportHint");
+                            color: Theme.muted-text;
+                            font-size: Type.body-small-size;
+                            wrap: word-wrap;
+                        }
+
+                        HorizontalLayout {
+                            spacing: 12px;
+                            alignment: start;
+
+                            PrimaryButton {
+                                text: Tr.t("FinDeskImportChooseFolder");
+                                enabled: !root.findesk-busy;
+                                clicked => { root.import-findesk(); }
+                            }
+
+                            if (root.findesk-busy) : HorizontalLayout {
+                                spacing: 8px;
+                                Spinner {
+                                    width: 20px;
+                                    height: 20px;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Audit log
+                if (root.section == 7) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader { text: Tr.t("AuditLogLatest"); }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
+
+                    VerticalLayout {
+                        spacing: 8px;
+
+                        if (root.audit-rows.length == 0) : Text {
+                            text: Tr.t("AuditLogEmpty");
+                            color: Theme.muted-text;
+                            font-size: Type.body-size;
+                        }
+
+                        for row in root.audit-rows : HorizontalLayout {
+                            spacing: 12px;
+                            Text {
+                                text: row.time;
+                                width: 130px;
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                            }
+                            Text {
+                                text: row.action;
+                                width: 190px;
+                                color: Theme.text;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
+                                overflow: elide;
+                            }
+                            Text {
+                                text: row.actor;
+                                width: 70px;
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                overflow: elide;
+                            }
+                            Text {
+                                text: row.details;
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                overflow: elide;
+                                horizontal-stretch: 1;
+                            }
+                        }
+                    }
+                }
+
+                // About
+                if (root.section == 8) : VerticalLayout {
+                    alignment: start;
+                    SectionHeader { text: Tr.t("AboutTitle"); }
+                    Rectangle { height: 8px; background: transparent; }
+                    Divider {}
+                    Rectangle { height: 12px; background: transparent; }
+
+                    HorizontalLayout {
+                        spacing: 16px;
+
+                        Image {
+                            source: @image-url("../../../assets/icons/finglass-256.png");
+                            width: 64px;
+                            height: 64px;
+                            image-fit: contain;
+                        }
+
+                        VerticalLayout {
+                            spacing: 6px;
+                            Text {
+                                text: "Finglass";
+                                color: Theme.text;
+                                font-size: Type.title-large-size;
+                                font-weight: Type.title-large-weight;
+                            }
+                            Text {
+                                text: root.about-version-text;
+                                color: Theme.text;
+                                font-size: Type.body-size;
+                            }
+                            Text {
+                                text: Tr.t("AboutText");
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                wrap: word-wrap;
+                            }
+                            Text {
+                                text: Tr.t("AboutBankCodesSource");
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+
+                    AboutSlint {
+                        height: 100px;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!root.narrow) : HorizontalLayout {
+        padding: 24px;
+        spacing: 0;
+
+        SettingsSectionList {
+            selected: root.section;
+            vertical-stretch: 1;
+            select(index) => { root.section = index; }
+        }
+
+        Rectangle {
+            width: 1px;
+            background: Theme.divider;
+        }
+
+        VerticalLayout {
+            padding-left: 24px;
+            spacing: 12px;
+            horizontal-stretch: 1;
+
+            if (root.settings-error != "" || root.settings-message != "") : SettingsBanner {
+                error-text: root.settings-error;
+                message-text: root.settings-message;
+                dismiss => { root.dismiss-message(); }
+            }
+
+            ScrollView {
+                content-y <=> root.scroll-y;
+
+                VerticalLayout {
+                    width: min(parent.width, 760px);
+                    spacing: 0;
+                    alignment: start;
+
+                    // Appearance
+                    if (root.section == 0) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader { text: Tr.t("Appearance"); }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 12px;
+
+                            HorizontalLayout {
+                                spacing: 12px;
+                                alignment: start;
+
+                                Text {
+                                    text: Tr.t("Theme");
+                                    width: 120px;
+                                    color: Theme.text;
+                                    font-size: Type.body-size;
+                                    vertical-alignment: center;
+                                }
+                                SegmentedButton {
+                                    labels: [Tr.t("ThemeSystem"), Tr.t("ThemeLight"), Tr.t("ThemeDark")];
+                                    selected: root.theme-pref == "system" ? 0 : (root.theme-pref == "light" ? 1 : 2);
+                                    select(index) => {
+                                        root.set-theme(index == 0 ? "system" : (index == 1 ? "light" : "dark"));
+                                    }
+                                }
+                            }
+
+                            HorizontalLayout {
+                                spacing: 12px;
+                                alignment: start;
+
+                                Text {
+                                    text: Tr.t("Language");
+                                    width: 120px;
+                                    color: Theme.text;
+                                    font-size: Type.body-size;
+                                    vertical-alignment: center;
+                                }
+                                SegmentedButton {
+                                    labels: ["EN", "DE", "FR"];
+                                    selected: root.language == "en" ? 0 : (root.language == "de" ? 1 : 2);
+                                    select(index) => {
+                                        root.set-language(index == 0 ? "en" : (index == 1 ? "de" : "fr"));
+                                    }
+                                }
+                            }
+
+                            HorizontalLayout {
+                                spacing: 16px;
+                                alignment: start;
+
+                                VerticalLayout {
+                                    horizontal-stretch: 1;
+                                    spacing: 4px;
+                                    alignment: center;
+
+                                    Text {
+                                        text: Tr.t("PrimaryCurrency");
+                                        color: Theme.text;
+                                        font-size: Type.body-size;
+                                    }
+                                    Text {
+                                        text: Tr.t("PrimaryCurrencyHint");
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
+                                        wrap: word-wrap;
+                                    }
+                                }
+
+                                ComboBox {
+                                    width: 180px;
+                                    model: root.currency-options;
+                                    current-index <=> root.primary-currency-index;
+                                    selected(value) => { root.set-primary-currency(value); }
+                                }
+                            }
+                        }
+                    }
+
+                    // Profiles
+                    if (root.section == 1) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader {
+                            text: Tr.t("Profiles");
+
+                            PrimaryButton {
+                                text: Tr.t("NewProfile");
+                                icon: @image-url("icons/add.svg");
+                                has-icon: true;
+                                clicked => { root.new-profile(); }
+                            }
+                        }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 12px;
+
+                            Text {
+                                text: Tr.t("ProfilesHint");
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                wrap: word-wrap;
+                            }
+
+                            for row in root.profile-rows : Rectangle {
+                                height: 46px;
+                                background: transparent;
+
+                                HorizontalLayout {
+                                    spacing: 12px;
+                                    cross-axis-alignment: center;
+
+                                    Text {
+                                        text: row.name;
+                                        color: Theme.text;
+                                        font-size: Type.title-small-size;
+                                        font-weight: row.open ? Type.title-small-weight : Type.body-weight;
+                                        vertical-alignment: center;
+                                        horizontal-stretch: 1;
+                                        overflow: elide;
+                                    }
+
+                                    if (row.open) : Rectangle {
+                                        height: 22px;
+                                        border-radius: 11px;
+                                        background: Theme.selected;
+
+                                        HorizontalLayout {
+                                            padding-left: 8px;
+                                            padding-right: 8px;
+
+                                            Text {
+                                                text: Tr.t("ProfileOpen");
+                                                color: Theme.on-selected;
+                                                font-size: Type.label-small-size;
+                                                font-weight: Type.label-small-weight;
+                                                vertical-alignment: center;
+                                            }
+                                        }
+                                    }
+
+                                    if (row.next-start) : Text {
+                                        text: Tr.t("ProfileNextStart");
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
+                                        vertical-alignment: center;
+                                    }
+
+                                    if (row.can-switch) : TextButton {
+                                        text: Tr.t("OpenProfile");
+                                        clicked => { root.switch-profile(row.index); }
+                                    }
+
+                                    IconButton {
+                                        icon: @image-url("icons/edit.svg");
+                                        label: Tr.t("Edit");
+                                        icon-size: 20px;
+                                        clicked => { root.rename-profile(row.index); }
+                                    }
+
+                                    if (row.can-delete) : IconButton {
+                                        icon: @image-url("icons/delete.svg");
+                                        label: Tr.t("Delete");
+                                        icon-size: 20px;
+                                        icon-color: Theme.error;
+                                        clicked => { root.delete-profile(row.index); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Categories, including the tax suggestion keywords card.
+                    if (root.section == 2) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader {
+                            text: Tr.t("Categories");
+
+                            if (!root.categories-empty) : PrimaryButton {
+                                text: Tr.t("AddCategory");
+                                icon: @image-url("icons/add.svg");
+                                has-icon: true;
+                                clicked => { root.add-category(); }
+                            }
+
+                            if (!root.categories-empty && root.has-duplicate-colours) : TextButton {
+                                text: Tr.t("FixDuplicateColours");
+                                clicked => { root.fix-duplicate-colours(); }
+                            }
+
+                            if (!root.categories-empty) : TextButton {
+                                text: Tr.t("AddDefaultCategories");
+                                clicked => { root.add-default-categories(); }
+                            }
+                        }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 12px;
+
+                            if (root.categories-empty) : Text {
+                                text: Tr.t("NoCategoriesYet");
+                                color: Theme.muted-text;
+                                font-size: Type.body-size;
+                            }
+
+                            if (root.categories-empty) : HorizontalLayout {
+                                spacing: 12px;
+                                alignment: start;
+
+                                PrimaryButton {
+                                    text: Tr.t("AddDefaultCategories");
+                                    clicked => { root.add-default-categories(); }
+                                }
+
+                                TextButton {
+                                    text: Tr.t("AddCategory");
+                                    icon: @image-url("icons/add.svg");
+                                    has-icon: true;
+                                    clicked => { root.add-category(); }
+                                }
+                            }
+
+                            for row in root.category-rows : Rectangle {
+                                height: 46px;
+                                background: transparent;
+
+                                HorizontalLayout {
+                                    spacing: 12px;
+                                    cross-axis-alignment: center;
+
+                                    Rectangle {
+                                        width: 12px;
+                                        height: 12px;
+                                        border-radius: 6px;
+                                        background: row.colour;
+                                    }
+
+                                    Text {
+                                        text: row.name;
+                                        color: Theme.text;
+                                        font-size: Type.body-size;
+                                        vertical-alignment: center;
+                                        horizontal-stretch: 1;
+                                        overflow: elide;
+                                    }
+
+                                    if (row.transfer) : Text {
+                                        text: Tr.t("CategoryTransferLabel");
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
+                                        vertical-alignment: center;
+                                    }
+
+                                    if (row.tax-relevant) : Text {
+                                        text: Tr.t("TaxRelevant");
+                                        color: Theme.warning;
+                                        font-size: Type.label-small-size;
+                                        font-weight: Type.label-small-weight;
+                                        vertical-alignment: center;
+                                    }
+
+                                    if (row.budget-text != "") : Text {
+                                        text: row.budget-text;
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
+                                        vertical-alignment: center;
+                                    }
+
+                                    Text {
+                                        text: row.usage-text;
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
+                                        vertical-alignment: center;
+                                    }
+
+                                    IconButton {
+                                        icon: @image-url("icons/edit.svg");
+                                        label: Tr.t("Edit");
+                                        icon-size: 20px;
+                                        clicked => { root.edit-category(row.id); }
+                                    }
+
+                                    IconButton {
+                                        icon: @image-url("icons/delete.svg");
+                                        label: Tr.t("Delete");
+                                        icon-size: 20px;
+                                        icon-color: Theme.error;
+                                        clicked => { root.delete-category(row.id); }
+                                    }
+                                }
+                            }
+
+                            TaxKeywordsCard {
+                                keywords <=> root.tax-keywords;
+                                count: root.tax-keywords-count;
+                                save(value) => { root.save-tax-keywords(value); }
+                                reset => { root.reset-tax-keywords(); }
+                            }
+                        }
+                    }
+
+                    // Auto-categorization rules
+                    if (root.section == 3) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader {
+                            text: Tr.t("AutoCategorizationRules");
+
+                            PrimaryButton {
+                                text: Tr.t("AddRule");
+                                enabled: !root.categories-empty;
+                                clicked => { root.add-rule(); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("ImportRules");
+                                clicked => { root.import-rules(); }
+                            }
+
+                            TextButton {
+                                text: Tr.t("ExportRules");
+                                clicked => { root.export-rules(); }
+                            }
+                        }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 12px;
+
+                            Text {
+                                text: Tr.t("RulesHint");
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                wrap: word-wrap;
+                            }
+
+                            if (root.categories-empty) : Text {
+                                text: Tr.t("HintNeedsCategory");
+                                color: Theme.muted-text;
+                                font-size: Type.body-size;
+                            }
+
+                            if (!root.categories-empty && root.rule-rows.length == 0) : Text {
+                                text: Tr.t("NoRulesYet");
+                                color: Theme.muted-text;
+                                font-size: Type.body-size;
+                            }
+
+                            for row in root.rule-rows : Rectangle {
+                                height: 56px;
+                                background: transparent;
+
+                                HorizontalLayout {
+                                    spacing: 12px;
+                                    cross-axis-alignment: center;
+
+                                    Text {
+                                        text: row.pattern;
+                                        width: 34%;
+                                        color: Theme.text;
+                                        font-size: Type.title-small-size;
+                                        font-weight: Type.title-small-weight;
+                                        vertical-alignment: center;
+                                        overflow: elide;
+                                    }
+
+                                    VerticalLayout {
+                                        spacing: 2px;
+                                        horizontal-stretch: 1;
+                                        alignment: center;
+
+                                        Text {
+                                            text: "→ " + row.category-text;
+                                            color: Theme.text;
+                                            font-size: Type.body-size;
+                                            overflow: elide;
+                                        }
+
+                                        if (row.detail != "") : Text {
+                                            text: row.detail;
+                                            color: Theme.muted-text;
+                                            font-size: Type.body-small-size;
+                                            overflow: elide;
+                                        }
+                                    }
+
+                                    Text {
+                                        text: row.prio-text;
+                                        color: Theme.muted-text;
+                                        font-size: Type.body-small-size;
+                                        vertical-alignment: center;
+                                    }
+
+                                    IconButton {
+                                        icon: @image-url("icons/edit.svg");
+                                        label: Tr.t("Edit");
+                                        icon-size: 20px;
+                                        clicked => { root.edit-rule(row.id); }
+                                    }
+
+                                    IconButton {
+                                        icon: @image-url("icons/delete.svg");
+                                        label: Tr.t("Delete");
+                                        icon-size: 20px;
+                                        icon-color: Theme.error;
+                                        clicked => { root.delete-rule(row.id); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Security
+                    if (root.section == 4) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader { text: Tr.t("Security"); }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 10px;
+                            Text {
+                                text: Tr.t("ChangePassphraseText");
+                                color: Theme.muted-text;
+                                font-size: Type.body-size;
+                                wrap: word-wrap;
+                            }
+                            PrimaryButton {
+                                text: Tr.t("ChangePassphrase");
+                                clicked => { root.open-change(); }
+                            }
+                        }
+                    }
+
+                    // Backup & restore
+                    if (root.section == 5) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader { text: Tr.t("BackupAndRestore"); }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 12px;
+
+                            Text {
+                                text: Tr.t("BackupHint");
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                wrap: word-wrap;
+                            }
+
+                            HorizontalLayout {
+                                spacing: 12px;
+                                alignment: start;
+
+                                PrimaryButton {
+                                    text: Tr.t("CreateBackup");
+                                    enabled: !root.backup-busy;
+                                    clicked => { root.create-backup(); }
+                                }
+
+                                TextButton {
+                                    text: Tr.t("RestoreFromBackup");
+                                    enabled: !root.backup-busy && !root.backup-has-pending-restore;
+                                    clicked => { root.restore-backup(); }
+                                }
+
+                                if (root.backup-busy) : HorizontalLayout {
+                                    spacing: 8px;
+                                    Spinner {
+                                        width: 20px;
+                                        height: 20px;
+                                    }
+                                }
+                            }
+
+                            if (root.backup-has-pending-restore) : HorizontalLayout {
+                                spacing: 12px;
+
+                                Text {
+                                    text: Tr.t("RestoreWaiting");
+                                    color: Theme.warning;
+                                    font-size: Type.body-size;
+                                    vertical-alignment: center;
+                                    horizontal-stretch: 1;
+                                    wrap: word-wrap;
+                                }
+
+                                TextButton {
+                                    text: Tr.t("CancelRestore");
+                                    enabled: !root.backup-busy;
+                                    clicked => { root.cancel-pending-restore(); }
+                                }
+                            }
+
+                            if (root.backup-restored-text != "") : Text {
+                                text: root.backup-restored-text;
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+
+                    // Import from FinDesk
+                    if (root.section == 6) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader { text: Tr.t("FinDeskImportTitle"); }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 12px;
+
+                            Text {
+                                text: Tr.t("FinDeskImportHint");
+                                color: Theme.muted-text;
+                                font-size: Type.body-small-size;
+                                wrap: word-wrap;
+                            }
+
+                            HorizontalLayout {
+                                spacing: 12px;
+                                alignment: start;
+
+                                PrimaryButton {
+                                    text: Tr.t("FinDeskImportChooseFolder");
+                                    enabled: !root.findesk-busy;
+                                    clicked => { root.import-findesk(); }
+                                }
+
+                                if (root.findesk-busy) : HorizontalLayout {
+                                    spacing: 8px;
+                                    Spinner {
+                                        width: 20px;
+                                        height: 20px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Audit log
+                    if (root.section == 7) : VerticalLayout {
+                        alignment: start;
+                        SectionHeader { text: Tr.t("AuditLogLatest"); }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
+
+                        VerticalLayout {
+                            spacing: 8px;
+
+                            if (root.audit-rows.length == 0) : Text {
+                                text: Tr.t("AuditLogEmpty");
+                                color: Theme.muted-text;
+                                font-size: Type.body-size;
+                            }
+
+                            for row in root.audit-rows : HorizontalLayout {
+                                spacing: 12px;
+                                Text {
+                                    text: row.time;
+                                    width: 130px;
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                }
+                                Text {
+                                    text: row.action;
+                                    width: 190px;
+                                    color: Theme.text;
+                                    font-size: Type.label-small-size;
+                                    font-weight: Type.label-small-weight;
+                                    overflow: elide;
+                                }
+                                Text {
+                                    text: row.actor;
+                                    width: 70px;
                                     color: Theme.muted-text;
                                     font-size: Type.body-small-size;
                                     overflow: elide;
                                 }
-                            }
-
-                            Text {
-                                text: row.prio-text;
-                                color: Theme.muted-text;
-                                font-size: Type.body-small-size;
-                                vertical-alignment: center;
-                            }
-
-                            IconButton {
-                                icon: @image-url("icons/edit.svg");
-                                label: Tr.t("Edit");
-                                icon-size: 20px;
-                                clicked => { root.edit-rule(row.id); }
-                            }
-
-                            IconButton {
-                                icon: @image-url("icons/delete.svg");
-                                label: Tr.t("Delete");
-                                icon-size: 20px;
-                                icon-color: Theme.error;
-                                clicked => { root.delete-rule(row.id); }
+                                Text {
+                                    text: row.details;
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    overflow: elide;
+                                    horizontal-stretch: 1;
+                                }
                             }
                         }
                     }
-                }
 
-                Divider {}
-
-                SectionTitle {
-                    text: Tr.t("Security");
-                    icon: @image-url("icons/lock.svg");
-                }
-
-                VerticalLayout {
-                    spacing: 10px;
-                    Text {
-                        text: Tr.t("ChangePassphraseText");
-                        color: Theme.muted-text;
-                        font-size: Type.body-size;
-                        wrap: word-wrap;
-                    }
-                    PrimaryButton {
-                        text: Tr.t("ChangePassphrase");
-                        clicked => { root.open-change(); }
-                    }
-                }
-
-                Divider {}
-
-                VerticalLayout {
-                    spacing: 12px;
-
-                    SectionTitle {
-                        text: Tr.t("BackupAndRestore");
-                        icon: @image-url("icons/backup.svg");
-                    }
-
-                    Text {
-                        text: Tr.t("BackupHint");
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        wrap: word-wrap;
-                        width: 640px;
-                    }
-
-                    HorizontalLayout {
-                        spacing: 12px;
+                    // About
+                    if (root.section == 8) : VerticalLayout {
                         alignment: start;
+                        SectionHeader { text: Tr.t("AboutTitle"); }
+                        Rectangle { height: 8px; background: transparent; }
+                        Divider {}
+                        Rectangle { height: 12px; background: transparent; }
 
-                        PrimaryButton {
-                            text: Tr.t("CreateBackup");
-                            enabled: !root.backup-busy;
-                            clicked => { root.create-backup(); }
-                        }
+                        HorizontalLayout {
+                            spacing: 16px;
 
-                        TextButton {
-                            text: Tr.t("RestoreFromBackup");
-                            enabled: !root.backup-busy && !root.backup-has-pending-restore;
-                            clicked => { root.restore-backup(); }
-                        }
+                            Image {
+                                source: @image-url("../../../assets/icons/finglass-256.png");
+                                width: 64px;
+                                height: 64px;
+                                image-fit: contain;
+                            }
 
-                        if (root.backup-busy) : HorizontalLayout {
-                            spacing: 8px;
-                            Spinner {
-                                width: 20px;
-                                height: 20px;
+                            VerticalLayout {
+                                spacing: 6px;
+                                Text {
+                                    text: "Finglass";
+                                    color: Theme.text;
+                                    font-size: Type.title-large-size;
+                                    font-weight: Type.title-large-weight;
+                                }
+                                Text {
+                                    text: root.about-version-text;
+                                    color: Theme.text;
+                                    font-size: Type.body-size;
+                                }
+                                Text {
+                                    text: Tr.t("AboutText");
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    wrap: word-wrap;
+                                }
+                                Text {
+                                    text: Tr.t("AboutBankCodesSource");
+                                    color: Theme.muted-text;
+                                    font-size: Type.body-small-size;
+                                    wrap: word-wrap;
+                                }
                             }
                         }
-                    }
 
-                    if (root.backup-has-pending-restore) : HorizontalLayout {
-                        spacing: 12px;
-
-                        Text {
-                            text: Tr.t("RestoreWaiting");
-                            color: Theme.warning;
-                            font-size: Type.body-size;
-                            vertical-alignment: center;
-                            horizontal-stretch: 1;
-                            wrap: word-wrap;
-                        }
-
-                        TextButton {
-                            text: Tr.t("CancelRestore");
-                            enabled: !root.backup-busy;
-                            clicked => { root.cancel-pending-restore(); }
-                        }
-                    }
-
-                    if (root.backup-restored-text != "") : Text {
-                        text: root.backup-restored-text;
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        wrap: word-wrap;
-                    }
-                }
-
-                Divider {}
-
-                VerticalLayout {
-                    spacing: 12px;
-
-                    SectionTitle {
-                        text: Tr.t("FinDeskImportTitle");
-                        icon: @image-url("icons/storage.svg");
-                    }
-
-                    Text {
-                        text: Tr.t("FinDeskImportHint");
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        wrap: word-wrap;
-                        width: 640px;
-                    }
-
-                    HorizontalLayout {
-                        spacing: 12px;
-                        alignment: start;
-
-                        PrimaryButton {
-                            text: Tr.t("FinDeskImportChooseFolder");
-                            enabled: !root.findesk-busy;
-                            clicked => { root.import-findesk(); }
-                        }
-
-                        if (root.findesk-busy) : HorizontalLayout {
-                            spacing: 8px;
-                            Spinner {
-                                width: 20px;
-                                height: 20px;
-                            }
+                        AboutSlint {
+                            height: 100px;
                         }
                     }
                 }
+            }
+        }
+    }
 
-                Divider {}
+    // The narrow window's section menu. The backdrop closes it on a click anywhere else.
+    if (root.narrow && root.section-menu-open) : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: transparent;
 
-                SectionTitle {
-                    text: Tr.t("AuditLogLatest");
-                    icon: @image-url("icons/history.svg");
-                }
+        TouchArea {
+            clicked => { root.section-menu-open = false; }
+        }
 
-                if (root.audit-rows.length == 0) : Text {
-                    text: Tr.t("AuditLogEmpty");
-                    color: Theme.muted-text;
-                    font-size: Type.body-size;
-                }
+        Rectangle {
+            x: 24px;
+            y: root.menu-y;
+            width: root.width - 48px;
+            height: 16px + 9 * 40px + 8 * 2px;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            background: Theme.surface;
 
-                for row in root.audit-rows : HorizontalLayout {
-                    spacing: 12px;
-                    Text {
-                        text: row.time;
-                        width: 130px;
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
+            VerticalLayout {
+                padding: 8px;
+                spacing: 2px;
+
+                for index in SettingsSections.indices : SettingsSectionRow {
+                    index: index;
+                    selected: index == root.section;
+                    picked => {
+                        root.section = index;
+                        root.section-menu-open = false;
                     }
-                    Text {
-                        text: row.action;
-                        width: 190px;
-                        color: Theme.text;
-                        font-size: Type.label-small-size;
-                        font-weight: Type.label-small-weight;
-                        overflow: elide;
-                    }
-                    Text {
-                        text: row.actor;
-                        width: 70px;
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        overflow: elide;
-                    }
-                    Text {
-                        text: row.details;
-                        color: Theme.muted-text;
-                        font-size: Type.body-small-size;
-                        overflow: elide;
-                        horizontal-stretch: 1;
-                    }
-                }
-
-                Divider {}
-
-                SectionTitle {
-                    text: Tr.t("AboutTitle");
-                    icon: @image-url("icons/info.svg");
-                }
-
-                HorizontalLayout {
-                    spacing: 16px;
-
-                    Image {
-                        source: @image-url("../../../assets/icons/finglass-256.png");
-                        width: 64px;
-                        height: 64px;
-                        image-fit: contain;
-                    }
-
-                    VerticalLayout {
-                        spacing: 6px;
-                        Text {
-                            text: "Finglass";
-                            color: Theme.text;
-                            font-size: Type.title-large-size;
-                            font-weight: Type.title-large-weight;
-                        }
-                        Text {
-                            text: root.about-version-text;
-                            color: Theme.text;
-                            font-size: Type.body-size;
-                        }
-                        Text {
-                            text: Tr.t("AboutText");
-                            color: Theme.muted-text;
-                            font-size: Type.body-small-size;
-                            wrap: word-wrap;
-                        }
-                        Text {
-                            text: Tr.t("AboutBankCodesSource");
-                            color: Theme.muted-text;
-                            font-size: Type.body-small-size;
-                            wrap: word-wrap;
-                        }
-                    }
-                }
-
-                AboutSlint {
-                    height: 100px;
+                    move-up => { root.section = max(0, index - 1); }
+                    move-down => { root.section = min(8, index + 1); }
                 }
             }
         }
