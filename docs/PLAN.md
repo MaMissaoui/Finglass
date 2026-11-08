@@ -55,6 +55,26 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
 - [ ] Apply for a FinTS product registration with the Deutsche Kreditwirtschaft under the name Finglass. It must be in
       place before live sync ships. Form sent to the DK on 2026-11-08; the DK names 10–15 working days. The id is
       never committed: the build reads it from a local file or a CI secret.
+- [ ] **You, when the DK's registration number arrives:**
+  - [ ] Keep the number in your password manager. Don't paste it into a chat, an issue, a commit or any file in
+        this repository. Keep the DK's email too: changes or a deletion need the number.
+  - [ ] Store it as the repository secret the release build will read (the value is asked for without echo):
+        `gh secret set FINGLASS_FINTS_PRODUCT_ID -R MaMissaoui/Finglass`
+  - [ ] Run the M0 probe against each online bank (Volksbank, DKB, HVB). It asks for the PIN without echo and asks
+        you to confirm pushTAN in your banking app:
+
+        ```sh
+        cd ~/Source/Github/Finglass && git switch main && git pull --ff-only
+        read -rs 'id?FinTS product id: '; echo
+        FINGLASS_FINTS_PRODUCT_ID="$id" FINGLASS_PROBE_BLZ=<BLZ> FINGLASS_PROBE_USER=<login> \
+          cargo run -p finglass-probe
+        unset id
+        ```
+
+        Add `FINGLASS_PROBE_URL=<server URL>` if the probe doesn't know the bank's FinTS server.
+  - [ ] Report only each bank's last line (`RESULT: GO` or `RESULT: NO-GO (<reason>)`) to Claude; the M0 decision
+        above is then recorded. Claude then builds the product id into the app (compile-time `FINGLASS_FINTS_PRODUCT_ID`,
+        sync stays off in builds without it) together with the M5b adapter.
 - [ ] Once the DK registration is in and its terms for the FinTS institute list are known, decide how Finglass gets
       bank server URLs: the user loads the institute list they received (Finglass never redistributes it), or, only
       if the terms allow it, the list ships with the app. Until then the add-bank dialog asks for the server URL.
