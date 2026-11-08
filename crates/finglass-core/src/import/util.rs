@@ -220,7 +220,7 @@ pub(crate) fn parse_decimal(text: &str) -> Option<Decimal> {
 
 /// Parses user/file input like "1.234,56", "1,234.56", "-12.5" or "12" and rounds to two places.
 pub(crate) fn parse_amount(input: &str) -> Option<Decimal> {
-    let mut s = input.trim().replace(['€', ' '], "");
+    let mut s = input.trim().replace(['€', ' ', '\u{A0}'], "");
     if s.is_empty() {
         return None;
     }

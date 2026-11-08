@@ -70,41 +70,11 @@ fn plural<'a>(count: usize, singular: &'a str, plural: &'a str) -> &'a str {
     if count == 1 { singular } else { plural }
 }
 
-fn currency_symbol(currency: Currency) -> String {
-    match currency.as_str() {
-        "EUR" => "€".to_owned(),
-        "USD" => "$".to_owned(),
-        "GBP" => "£".to_owned(),
-        other => other.to_owned(),
-    }
-}
-
 fn format_report_money(amount: Decimal, currency: Currency) -> String {
     let minor = amount_to_money(amount, currency)
         .map(|money| money.minor)
         .unwrap_or_default();
-    let plain = crate::money::format_plain(Money {
-        minor: minor.abs(),
-        currency,
-    });
-    let (integer, fraction) = plain.split_once('.').unwrap_or((&plain, ""));
-
-    let mut reversed = String::new();
-    for (index, character) in integer.chars().rev().enumerate() {
-        if index > 0 && index % 3 == 0 {
-            reversed.push(',');
-        }
-        reversed.push(character);
-    }
-    let grouped: String = reversed.chars().rev().collect();
-    let sign = if minor < 0 { "-" } else { "" };
-    let fraction = if fraction.is_empty() {
-        String::new()
-    } else {
-        format!(".{fraction}")
-    };
-
-    format!("{sign}{}{grouped}{fraction}", currency_symbol(currency))
+    crate::format::money(Money { minor, currency }, crate::i18n::Language::En, false)
 }
 
 impl ImportReport {

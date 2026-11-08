@@ -1462,8 +1462,8 @@ mod tests {
         assert!(rows[0].net_zero);
         assert_eq!(rows[0].net_tone, "zero");
         assert_eq!(rows[1].month, "Februar 2026");
-        assert_eq!(rows[1].income_text, "€100,00");
-        assert_eq!(rows[1].net_text, "+€50,00");
+        assert_eq!(rows[1].income_text, "100,00\u{a0}€");
+        assert_eq!(rows[1].net_text, "+50,00\u{a0}€");
         assert_eq!(rows[1].net_tone, "positive");
         assert_eq!(average_monthly(&report).minor, 5_000);
         assert_eq!(highest_month(&report, Language::En), "February €50.00");

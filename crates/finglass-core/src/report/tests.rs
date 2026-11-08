@@ -474,6 +474,20 @@ fn pdf_export_writes_a_readable_report() {
 }
 
 #[test]
+fn german_pdf_export_uses_the_german_money_convention() {
+    let (_temp, db) = report_fixture();
+    let report = generate_tax_report(&db, 2026, Language::De).unwrap();
+    let bytes = PdfReportExporter.build_pdf(&report, date!(2026 - 11 - 07), Language::De);
+
+    assert_pdf(&bytes);
+    assert!(pdf_contains(&bytes, "Arbeitsmittel"));
+    assert!(
+        pdf_contains(&bytes, "3.000,00\u{a0}€"),
+        "the PDF font encodes the no-break space and the euro glyph"
+    );
+}
+
+#[test]
 fn csv_export_adds_the_shop_last_and_keeps_the_raw_partner() {
     let (temp, _db) = database();
     let file = temp.path().join("shop.csv");

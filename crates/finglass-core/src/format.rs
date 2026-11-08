@@ -12,6 +12,9 @@ use crate::i18n::Language;
 use crate::iban;
 use crate::money::{Currency, Money};
 
+/// The no-break space that keeps a number and its unit together.
+pub(crate) const NO_BREAK_SPACE: char = '\u{A0}';
+
 /// The decimal and grouping separators of `lang`, as Java's `DecimalFormatSymbols` uses them.
 fn separators(lang: Language) -> (char, char) {
     match lang {
@@ -94,6 +97,8 @@ fn group_digits(digits: &str, separator: char) -> String {
 }
 
 /// "€1,234.56" / "-€1,234.56"; with `signed`, positive amounts get a leading "+".
+///
+/// German puts the number first, separated from the trimmed symbol by a no-break space: "2.450,37 €".
 pub fn money(money: Money, lang: Language, signed: bool) -> String {
     let (decimal_separator, grouping_separator) = separators(lang);
     let exponent = money.currency.minor_exponent();
@@ -118,11 +123,16 @@ pub fn money(money: Money, lang: Language, signed: bool) -> String {
     } else {
         ""
     };
+    let symbol = symbol_for(money.currency);
 
-    format!("{sign}{}{formatted}", symbol_for(money.currency))
+    if lang == Language::De {
+        format!("{sign}{formatted}{NO_BREAK_SPACE}{}", symbol.trim())
+    } else {
+        format!("{sign}{symbol}{formatted}")
+    }
 }
 
-/// Whole currency units for chart axes: "€4,000" / "€4.000".
+/// Whole currency units for chart axes: "€4,000" / "€4.000"; German puts the number first: "4.000 €".
 pub fn whole_money(money: Money, lang: Language) -> String {
     let (_, grouping_separator) = separators(lang);
     let exponent = money.currency.minor_exponent();
@@ -136,15 +146,24 @@ pub fn whole_money(money: Money, lang: Language) -> String {
     };
     let digits = group_digits(&rounded.to_string(), grouping_separator);
     let sign = if money.minor < 0 { "-" } else { "" };
+    let symbol = symbol_for(money.currency);
 
-    format!("{sign}{}{digits}", symbol_for(money.currency))
+    if lang == Language::De {
+        format!("{sign}{digits}{NO_BREAK_SPACE}{}", symbol.trim())
+    } else {
+        format!("{sign}{symbol}{digits}")
+    }
 }
 
 /// Whole percentages of one share: "49%" in English, "49 %" with a no-break space in German and French.
 ///
 /// Tiny shares between 0 and 0.5 % read "<1%" / "<1 %"; a zero share shows "0".
 pub fn percent(share: f64, lang: Language) -> String {
-    let separator = if lang == Language::En { "" } else { "\u{a0}" };
+    let separator = if lang == Language::En {
+        String::new()
+    } else {
+        NO_BREAK_SPACE.to_string()
+    };
     let text = if share <= 0.0 {
         "0".to_owned()
     } else if share < 0.005 {
@@ -270,7 +289,7 @@ pub fn parse_decimal(text: &str) -> Option<Decimal> {
 
 /// Parses user input like "1.234,56", "1,234.56", "-12.5" or "12". Returns `None` if it isn't a number.
 pub fn parse_amount(input: &str) -> Option<Decimal> {
-    let mut text = input.trim().replace(['€', ' '], "");
+    let mut text = input.trim().replace(['€', ' ', NO_BREAK_SPACE], "");
     if text.is_empty() {
         return None;
     }
@@ -322,7 +341,7 @@ mod tests {
 
     #[test]
     fn money_uses_the_language_separators() {
-        assert_eq!(money(eur(123_450), Language::De, false), "€1.234,50");
+        assert_eq!(money(eur(123_450), Language::De, false), "1.234,50\u{a0}€");
         assert_eq!(money(eur(123_450), Language::Fr, false), "€1\u{202f}234,50");
     }
 
@@ -385,7 +404,60 @@ mod tests {
         assert_eq!(whole_money(eur(400_000), Language::En), "€4,000");
         assert_eq!(whole_money(eur(400_050), Language::En), "€4,001");
         assert_eq!(whole_money(eur(-400_049), Language::En), "-€4,000");
-        assert_eq!(whole_money(eur(400_000), Language::De), "€4.000");
+        assert_eq!(whole_money(eur(400_000), Language::De), "4.000\u{a0}€");
+    }
+
+    #[test]
+    fn german_money_puts_the_number_before_the_symbol() {
+        let chf = Currency::new("CHF").unwrap();
+        let jpy = Currency::new("JPY").unwrap();
+
+        assert_eq!(money(eur(245_037), Language::De, false), "2.450,37\u{a0}€");
+        assert_eq!(money(eur(-500_000), Language::De, false), "-5.000,00\u{a0}€");
+        assert_eq!(money(eur(43_100), Language::De, true), "+431,00\u{a0}€");
+        assert_eq!(whole_money(eur(400_000), Language::De), "4.000\u{a0}€");
+        assert_eq!(money(usd(50_000), Language::De, false), "500,00\u{a0}$");
+        assert_eq!(
+            money(
+                Money {
+                    minor: 1_200,
+                    currency: chf
+                },
+                Language::De,
+                false
+            ),
+            "12,00\u{a0}CHF"
+        );
+        assert_eq!(
+            money(
+                Money {
+                    minor: 1_234,
+                    currency: jpy
+                },
+                Language::De,
+                false
+            ),
+            "1.234\u{a0}¥"
+        );
+
+        assert_eq!(money(eur(245_037), Language::En, false), "€2,450.37");
+        assert_eq!(whole_money(eur(400_000), Language::En), "€4,000");
+        assert_eq!(money(eur(245_037), Language::Fr, false), "€2\u{202f}450,37");
+        assert_eq!(whole_money(eur(400_000), Language::Fr), "€4\u{202f}000");
+    }
+
+    #[test]
+    fn german_money_round_trips_through_parse_amount() {
+        for minor in [-456_789, 0, 43_100, 1_234_567_890_123] {
+            for signed in [false, true] {
+                let text = money(eur(minor), Language::De, signed);
+                assert_eq!(
+                    parse_amount(&text),
+                    Some(Decimal::new(minor, 2)),
+                    "round trip for {text:?}"
+                );
+            }
+        }
     }
 
     #[test]
@@ -467,6 +539,17 @@ mod tests {
         assert_eq!(parse_amount("1,234.56"), Some(Decimal::new(123_456, 2)));
         assert_eq!(parse_amount("-12,5"), Some(Decimal::new(-1_250, 2)));
         assert_eq!(parse_amount("12 €"), Some(Decimal::new(1_200, 2)));
+        assert_eq!(parse_amount("2.450,37 €"), Some(Decimal::new(245_037, 2)));
+        assert_eq!(
+            parse_amount("2.450,37\u{a0}€"),
+            Some(Decimal::new(245_037, 2)),
+            "the new German form uses a no-break space"
+        );
+        assert_eq!(
+            parse_amount("€2.450,37"),
+            Some(Decimal::new(245_037, 2)),
+            "the old German form still parses"
+        );
         assert_eq!(parse_amount("abc"), None);
         assert_eq!(parse_amount(""), None);
     }
