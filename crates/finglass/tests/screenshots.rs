@@ -5,17 +5,18 @@
 
 use std::cell::{Cell, RefCell};
 use std::collections::HashSet;
-use std::io::BufWriter;
+use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
-use std::sync::{Mutex, MutexGuard};
+use std::sync::{Arc, Mutex, MutexGuard};
+use std::time::SystemTime;
 
 use finglass_core::account_grouping::{self, AccountItem as GroupingAccount, BalanceTone, GroupKey, LOAN_TYPE};
 use finglass_core::account_ids;
 use finglass_core::app;
 use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountItem, AccountsState};
 use finglass_core::app::banking::{BankingState, SyncAllProgress};
-use finglass_core::app::dashboard::{DashboardState, DashboardView, NavigationArgs, month_text};
+use finglass_core::app::dashboard::{DashboardState, DashboardView, NavigationArgs, local_today, month_text};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
 use finglass_core::app::settings::{RestoreCandidate, SettingsState};
@@ -35,6 +36,8 @@ use finglass_core::money::{Currency, Money};
 use finglass_core::paths::AppPaths;
 use finglass_core::profiles;
 use finglass_core::repo::{account_groups, accounts, bank_connections, categories, documents, rules, transactions};
+use finglass_core::secret::{Passphrase, PassphrasePurpose};
+use finglass_core::sync::{BankingService, FinTsClient, MemoryCredentialStore, UnavailableGateway};
 use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
 use slint::platform::{Platform, PlatformError, WindowAdapter};
 use slint::{
@@ -42,11 +45,13 @@ use slint::{
 };
 use time::macros::date;
 use time::{Date, OffsetDateTime};
+use zeroize::Zeroizing;
 
 use finglass::{reports, transactions as transactions_page};
 use finglass_ui::*;
 
 const SLUG: &str = "default";
+const TEST_PASSPHRASE: &str = "correct horse battery staple";
 
 // `set_platform` installs the platform on the calling thread. Each test thread keeps its own
 // software window, and tests take turns so they never share one.
@@ -1418,7 +1423,13 @@ fn renders_the_app_shell() {
     {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "documents", &rows);
-        configure_documents(&ui, Language::En, &documents, Some(&preview_path));
+        configure_documents(
+            &ui,
+            Language::En,
+            &documents,
+            fixture_document(&documents),
+            Some(&preview_path),
+        );
         ui.show().unwrap();
         let buffer = render(&window, "documents-en-light", 1100, 720);
         assert_varied(&buffer, "documents-en-light");
@@ -1428,7 +1439,13 @@ fn renders_the_app_shell() {
     {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::De, ThemePref::Dark, "documents", &rows);
-        configure_documents(&ui, Language::De, &documents, Some(&preview_path));
+        configure_documents(
+            &ui,
+            Language::De,
+            &documents,
+            fixture_document(&documents),
+            Some(&preview_path),
+        );
         ui.show().unwrap();
         let buffer = render(&window, "documents-de-dark", 1100, 720);
         assert_varied(&buffer, "documents-de-dark");
@@ -1438,7 +1455,7 @@ fn renders_the_app_shell() {
     {
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "documents", &rows);
-        configure_documents(&ui, Language::En, &[], None);
+        configure_documents(&ui, Language::En, &[], None, None);
         ui.show().unwrap();
         let buffer = render(&window, "documents-empty-en", 1100, 720);
         assert_varied(&buffer, "documents-empty-en");
@@ -1917,6 +1934,528 @@ fn renders_the_app_shell() {
     );
 }
 
+/// Renders every page from a copy of a real profile, opt-in through three environment variables.
+///
+/// Without all three variables this test returns immediately, so normal `cargo test` and CI never touch real data.
+#[test]
+fn renders_real_data() {
+    let _serial = serial_test();
+
+    let Some(data_dir) = std::env::var_os("FINGLASS_SCREENSHOT_DATA") else {
+        return;
+    };
+    let Some(output_dir) = std::env::var_os("FINGLASS_SCREENSHOTS") else {
+        return;
+    };
+    let Ok(value) = std::env::var("FINGLASS_SCREENSHOT_PASSPHRASE") else {
+        return;
+    };
+
+    // Keep the input in `Zeroizing` only long enough to build the validated secret, then wipe it.
+    let value = Zeroizing::new(value);
+    let passphrase =
+        Passphrase::new(value.as_str(), PassphrasePurpose::Unlock).expect("the screenshot passphrase is empty");
+    drop(value);
+
+    let window = platform_window();
+    let _ = render_real_data(
+        &window,
+        &PathBuf::from(data_dir),
+        &passphrase,
+        &PathBuf::from(output_dir),
+    );
+}
+
+/// The real-data body, callable without environment variables for the self-test.
+///
+/// The original profile is never opened: its database files are copied into a fresh temporary folder, and only that
+/// copy is opened. The temporary folder removes itself at the end, including when a panic unwinds.
+fn render_real_data(
+    window: &Rc<MinimalSoftwareWindow>,
+    data_dir: &Path,
+    passphrase: &Passphrase,
+    output_dir: &Path,
+) -> Vec<String> {
+    refuse_output_inside_workspace(output_dir);
+
+    let source_database = data_dir.join("finglass.db");
+    assert!(
+        source_database.is_file(),
+        "the data directory has no finglass.db: {}",
+        data_dir.display()
+    );
+    assert!(
+        !canonical_path(output_dir).starts_with(canonical_path(data_dir)),
+        "refusing to write screenshots into the data directory: {}",
+        output_dir.display()
+    );
+
+    let copy = tempfile::tempdir().expect("a temporary folder for the copy");
+    for name in ["finglass.db", "finglass.db-wal", "finglass.db-shm"] {
+        let source = data_dir.join(name);
+        if source.is_file() {
+            std::fs::copy(&source, copy.path().join(name))
+                .unwrap_or_else(|_| panic!("could not copy {name} into the temporary folder"));
+        }
+    }
+
+    let paths =
+        AppPaths::resolve(Some(copy.path().as_os_str().to_owned()), None).expect("the temporary data folder resolves");
+    let database_file = paths
+        .database_file(SLUG)
+        .expect("the default profile has a database path");
+    let db = match Database::open(&database_file, passphrase) {
+        Ok(db) => db,
+        Err(_) => panic!("could not open the copy with the given passphrase"),
+    };
+
+    let today = local_today();
+    let rows = app::audit::recent(&db, 100).unwrap_or_default();
+    let mut names = Vec::new();
+
+    // Dashboard, on the real local date so it shows the current month.
+    let mut dashboard = DashboardState::new(Language::De, today);
+    dashboard.load(&db, today).unwrap();
+    for (theme, suffix) in [(ThemePref::Light, "light"), (ThemePref::Dark, "dark")] {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, theme, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.show().unwrap();
+        render_real_shot(
+            window,
+            output_dir,
+            &format!("real-dashboard-{suffix}"),
+            1440,
+            900,
+            &mut names,
+        );
+        let _ = ui.hide();
+    }
+
+    // Accounts, with the same in-memory credentials and offline gateway as the tests, never the Keychain.
+    let mut accounts_state = AccountsState::new(Language::De);
+    accounts_state.load_accounts(&db).unwrap();
+    let client = FinTsClient::new(
+        Arc::new(UnavailableGateway::new(Language::De)),
+        paths.profile_dir(SLUG).expect("the default profile folder"),
+        "finglass-screenshots",
+        Arc::new(MemoryCredentialStore::new()),
+    )
+    .with_language(Language::De);
+    let service = BankingService::new(client);
+    let mut banking = BankingState::new(Language::De);
+    banking.load(&db, &service).unwrap();
+
+    for (theme, suffix) in [(ThemePref::Light, "light"), (ThemePref::Dark, "dark")] {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, theme, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking);
+        ui.show().unwrap();
+        render_real_shot(
+            window,
+            output_dir,
+            &format!("real-accounts-{suffix}"),
+            1440,
+            900,
+            &mut names,
+        );
+        let _ = ui.hide();
+    }
+
+    if let Some(online) = accounts_state.bank_accesses.iter().find(|bank| !bank.offline) {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &accounts_state, &banking);
+        ui.set_accounts_bank_menu_open(i32::try_from(online.id.0).unwrap_or(-2));
+        ui.show().unwrap();
+        render_real_shot(
+            window,
+            output_dir,
+            "real-accounts-bank-menu-light",
+            1440,
+            900,
+            &mut names,
+        );
+        let _ = ui.hide();
+    }
+
+    if let Some(account) = accounts_state.accounts.first().map(|account| account.id) {
+        let mut detail = accounts_state.clone();
+        detail.open_detail_default(&db, account, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &detail, &banking);
+        ui.show().unwrap();
+        render_real_shot(window, output_dir, "real-accounts-detail-light", 1440, 900, &mut names);
+        let _ = ui.hide();
+    }
+
+    // Transactions: all accounts, the test helper's default period, plus the explicit current month.
+    let transactions = transactions_state(&db, Language::De, StartArgs::default(), today);
+    for (theme, suffix) in [(ThemePref::Light, "light"), (ThemePref::Dark, "dark")] {
+        let name = format!("real-transactions-{suffix}");
+        let buffer = render_transactions_sized(window, Language::De, theme, &name, &transactions, (1440, 900), |_| {});
+        save_real_shot(output_dir, &name, &buffer, &mut names);
+    }
+    let month = {
+        let mut view = TransactionsView::new(Language::De);
+        view.start(
+            &db,
+            StartArgs {
+                period: Some(Period::ThisMonth),
+                ..StartArgs::default()
+            },
+            today,
+        )
+        .unwrap();
+        view.state().clone()
+    };
+    let month_name = "real-transactions-month-light";
+    let buffer = render_transactions_sized(
+        window,
+        Language::De,
+        ThemePref::Light,
+        month_name,
+        &month,
+        (1440, 900),
+        |_| {},
+    );
+    save_real_shot(output_dir, month_name, &buffer, &mut names);
+
+    // Documents: the database list, with no preview because the files are not copied.
+    let document_items = documents::find_items(&db, None, false, None).unwrap_or_default();
+    for (theme, suffix) in [(ThemePref::Light, "light"), (ThemePref::Dark, "dark")] {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, theme, "documents", &rows);
+        configure_documents(&ui, Language::De, &document_items, None, None);
+        ui.show().unwrap();
+        render_real_shot(
+            window,
+            output_dir,
+            &format!("real-documents-{suffix}"),
+            1440,
+            900,
+            &mut names,
+        );
+        let _ = ui.hide();
+    }
+
+    // Reports: the current year, once per tab the page has.
+    let mut reports_state = ReportsState::new(Language::De, today);
+    reports_state.load_tax_report(&db, today.year());
+    reports_state.load_recurring(&db, today);
+    for tab in ["summary", "tax", "monthly", "category", "recurring"] {
+        for suffix in ["light", "dark"] {
+            let name = format!("real-reports-{tab}-{suffix}");
+            let buffer = render_reports_with(window, &rows, &reports_state, tab, &name, (1440, 900), |_| {});
+            save_real_shot(output_dir, &name, &buffer, &mut names);
+        }
+    }
+
+    // Settings: every section, plus Appearance in dark.
+    let settings = settings_state(&db, &paths, Language::De);
+    for (section, slug) in [
+        (0, "appearance"),
+        (1, "profiles"),
+        (2, "categories"),
+        (3, "rules"),
+        (4, "security"),
+        (5, "backup"),
+        (6, "findesk-import"),
+        (7, "audit-log"),
+        (8, "about"),
+    ] {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_settings_section(section);
+        ui.set_settings_scroll_y(0.0);
+        ui.show().unwrap();
+        render_real_shot(
+            window,
+            output_dir,
+            &format!("real-settings-{slug}-light"),
+            1440,
+            900,
+            &mut names,
+        );
+        let _ = ui.hide();
+    }
+
+    {
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "settings", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_settings_section(0);
+        ui.set_settings_scroll_y(0.0);
+        ui.show().unwrap();
+        render_real_shot(
+            window,
+            output_dir,
+            "real-settings-appearance-dark",
+            1440,
+            900,
+            &mut names,
+        );
+        let _ = ui.hide();
+    }
+
+    for name in &names {
+        println!("{name}");
+    }
+    names
+}
+
+/// The self-test for the real-data mode: an encrypted fixture in one temporary folder, screenshots in another.
+#[test]
+fn real_data_mode_renders_from_a_copy() {
+    let _serial = serial_test();
+    let window = platform_window();
+
+    let source = tempfile::tempdir().unwrap();
+    let paths = AppPaths::resolve(Some(source.path().as_os_str().to_owned()), None).unwrap();
+    {
+        let db = app::unlock::create(&paths, SLUG, TEST_PASSPHRASE, TEST_PASSPHRASE, true).unwrap();
+        seed_dashboard(&db);
+        seed_settings(&db);
+        seed_reports(&db);
+        seed_transactions(&db);
+        seed_accounts(&db);
+        let _ = seed_documents(&db, source.path());
+    }
+
+    let before = snapshot_files(source.path());
+    let passphrase = Passphrase::new(TEST_PASSPHRASE, PassphrasePurpose::Unlock).unwrap();
+    let output = tempfile::tempdir().unwrap();
+    let names = render_real_data(&window, source.path(), &passphrase, output.path());
+
+    let mut expected = vec![
+        "real-accounts-bank-menu-light".to_owned(),
+        "real-accounts-detail-light".to_owned(),
+        "real-transactions-month-light".to_owned(),
+        "real-settings-appearance-dark".to_owned(),
+    ];
+    for page in ["dashboard", "accounts", "transactions", "documents"] {
+        for suffix in ["light", "dark"] {
+            expected.push(format!("real-{page}-{suffix}"));
+        }
+    }
+    for tab in ["summary", "tax", "monthly", "category", "recurring"] {
+        for suffix in ["light", "dark"] {
+            expected.push(format!("real-reports-{tab}-{suffix}"));
+        }
+    }
+    for section in [
+        "appearance",
+        "profiles",
+        "categories",
+        "rules",
+        "security",
+        "backup",
+        "findesk-import",
+        "audit-log",
+        "about",
+    ] {
+        expected.push(format!("real-settings-{section}-light"));
+    }
+    let mut expected = expected
+        .into_iter()
+        .map(|name| format!("{name}.png"))
+        .collect::<Vec<_>>();
+    expected.sort();
+    let mut written = names.clone();
+    written.sort();
+    assert_eq!(written, expected, "the real-data mode must render every listed page");
+    for name in &names {
+        let path = output.path().join(name);
+        assert!(path.is_file(), "{name} was listed but not written");
+        let buffer = read_png(&path);
+        assert_varied(&buffer, name);
+    }
+    assert_directory_unchanged(&before, source.path());
+}
+
+#[test]
+#[should_panic(expected = "inside the workspace")]
+fn real_data_refuses_an_output_directory_inside_the_workspace() {
+    let _serial = serial_test();
+    let window = platform_window();
+
+    let source = tempfile::tempdir().unwrap();
+    let paths = AppPaths::resolve(Some(source.path().as_os_str().to_owned()), None).unwrap();
+    drop(app::unlock::create(&paths, SLUG, TEST_PASSPHRASE, TEST_PASSPHRASE, true).unwrap());
+
+    let passphrase = Passphrase::new(TEST_PASSPHRASE, PassphrasePurpose::Unlock).unwrap();
+    let workspace = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(Path::parent)
+        .expect("the workspace root");
+    let output = workspace.join("target").join("real-shots-refusal");
+    let _ = render_real_data(&window, source.path(), &passphrase, &output);
+}
+
+#[test]
+#[should_panic(expected = "no finglass.db")]
+fn real_data_refuses_a_data_directory_without_a_database() {
+    let _serial = serial_test();
+    let window = platform_window();
+
+    let source = tempfile::tempdir().unwrap();
+    let output = tempfile::tempdir().unwrap();
+    let passphrase = Passphrase::new(TEST_PASSPHRASE, PassphrasePurpose::Unlock).unwrap();
+    let _ = render_real_data(&window, source.path(), &passphrase, output.path());
+}
+
+#[test]
+fn real_data_refuses_a_wrong_passphrase_without_leaking_it() {
+    let _serial = serial_test();
+    let window = platform_window();
+
+    let source = tempfile::tempdir().unwrap();
+    let paths = AppPaths::resolve(Some(source.path().as_os_str().to_owned()), None).unwrap();
+    drop(app::unlock::create(&paths, SLUG, TEST_PASSPHRASE, TEST_PASSPHRASE, true).unwrap());
+
+    let output = tempfile::tempdir().unwrap();
+    let wrong = "this is not the passphrase";
+    let passphrase = Passphrase::new(wrong, PassphrasePurpose::Unlock).unwrap();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let _ = render_real_data(&window, source.path(), &passphrase, output.path());
+    }));
+
+    let payload = result.expect_err("a wrong passphrase must panic");
+    let message = payload
+        .downcast_ref::<&str>()
+        .map(|message| (*message).to_owned())
+        .or_else(|| payload.downcast_ref::<String>().cloned())
+        .unwrap_or_default();
+    assert_eq!(message, "could not open the copy with the given passphrase");
+    assert!(
+        !message.contains(wrong),
+        "the panic message must not contain the passphrase"
+    );
+}
+
+fn render_real_shot(
+    window: &Rc<MinimalSoftwareWindow>,
+    output_dir: &Path,
+    name: &str,
+    width: u32,
+    height: u32,
+    names: &mut Vec<String>,
+) {
+    let buffer = render(window, name, width, height);
+    assert_varied(&buffer, name);
+    save_real_shot(output_dir, name, &buffer, names);
+}
+
+fn save_real_shot(output_dir: &Path, name: &str, buffer: &SharedPixelBuffer<Rgb8Pixel>, names: &mut Vec<String>) {
+    write_png(output_dir, name, buffer);
+    names.push(format!("{name}.png"));
+}
+
+/// Refuses an output folder anywhere under this checkout.
+fn refuse_output_inside_workspace(output: &Path) {
+    let workspace = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(Path::parent)
+        .expect("the workspace root")
+        .canonicalize()
+        .expect("the workspace root canonicalizes");
+    let output = canonical_path(output);
+    assert!(
+        !output.starts_with(&workspace),
+        "refusing to write screenshots inside the workspace: {}",
+        output.display()
+    );
+}
+
+/// Canonicalizes the existing part of a path and appends the rest, so a folder that does not exist yet compares too.
+fn canonical_path(path: &Path) -> PathBuf {
+    let absolute = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        std::env::current_dir().expect("the current directory").join(path)
+    };
+
+    let mut existing = absolute.as_path();
+    let mut tail = Vec::new();
+    loop {
+        if let Ok(canonical) = existing.canonicalize() {
+            let mut result = canonical;
+            for part in tail.iter().rev() {
+                result.push(part);
+            }
+            return result;
+        }
+        let (Some(parent), Some(name)) = (existing.parent(), existing.file_name()) else {
+            return absolute;
+        };
+        tail.push(name.to_os_string());
+        existing = parent;
+    }
+}
+
+/// Every regular file at the top of `directory`, with its bytes and modification time.
+fn snapshot_files(directory: &Path) -> Vec<(String, Vec<u8>, SystemTime)> {
+    let mut files = std::fs::read_dir(directory)
+        .expect("the data directory is readable")
+        .map(|entry| entry.expect("a directory entry"))
+        .filter(|entry| entry.file_type().expect("a file type").is_file())
+        .map(|entry| {
+            let path = entry.path();
+            let name = entry.file_name().to_string_lossy().into_owned();
+            let bytes = std::fs::read(&path).expect("a data file is readable");
+            let modified = entry
+                .metadata()
+                .expect("data file metadata")
+                .modified()
+                .expect("a modification time");
+            (name, bytes, modified)
+        })
+        .collect::<Vec<_>>();
+    files.sort_by(|left, right| left.0.cmp(&right.0));
+    files
+}
+
+fn assert_directory_unchanged(before: &[(String, Vec<u8>, SystemTime)], directory: &Path) {
+    let after = snapshot_files(directory);
+    let before_names = before.iter().map(|(name, _, _)| name.as_str()).collect::<Vec<_>>();
+    let after_names = after.iter().map(|(name, _, _)| name.as_str()).collect::<Vec<_>>();
+    assert_eq!(
+        before_names, after_names,
+        "the real-data mode added or removed a file in the source directory"
+    );
+
+    for (before, after) in before.iter().zip(after.iter()) {
+        assert_eq!(before.0, after.0);
+        assert_eq!(before.1.len(), after.1.len(), "{} changed size", before.0);
+        assert!(before.1 == after.1, "{} changed contents", before.0);
+        assert_eq!(before.2, after.2, "{} changed modification time", before.0);
+    }
+}
+
+/// Reads one written screenshot back for the self-test's blank check.
+fn read_png(path: &Path) -> SharedPixelBuffer<Rgb8Pixel> {
+    let file = std::fs::File::open(path).expect("a written screenshot opens");
+    let decoder = png::Decoder::new(BufReader::new(file));
+    let mut reader = decoder.read_info().expect("a written screenshot is a PNG");
+    let mut bytes = vec![0; reader.output_buffer_size().expect("a screenshot frame size")];
+    let info = reader.next_frame(&mut bytes).expect("a written screenshot has a frame");
+    assert_eq!(info.color_type, png::ColorType::Rgb, "the screenshot is RGB");
+    assert_eq!(info.bit_depth, png::BitDepth::Eight, "the screenshot is 8-bit");
+
+    let mut buffer = SharedPixelBuffer::<Rgb8Pixel>::new(info.width, info.height);
+    let (rgb_pixels, _) = bytes[..info.buffer_size()].as_chunks::<3>();
+    for (pixel, rgb) in buffer.make_mut_slice().iter_mut().zip(rgb_pixels) {
+        *pixel = Rgb8Pixel {
+            r: rgb[0],
+            g: rgb[1],
+            b: rgb[2],
+        };
+    }
+    buffer
+}
+
 /// A mouse click lands on the control the first time, even when another control had focus first.
 #[test]
 fn one_click_activates_a_control() {
@@ -2119,8 +2658,18 @@ fn write_preview_png(path: &Path) {
     writer.write_image_data(&data).unwrap();
 }
 
-fn configure_documents(ui: &MainWindow, language: Language, items: &[DocumentItem], preview: Option<&Path>) {
-    let selected = items.iter().find(|document| document.file_name == "kassenbon.jpg");
+/// The seeded fixture's selected receipt.
+fn fixture_document(items: &[DocumentItem]) -> Option<&DocumentItem> {
+    items.iter().find(|document| document.file_name == "kassenbon.jpg")
+}
+
+fn configure_documents(
+    ui: &MainWindow,
+    language: Language,
+    items: &[DocumentItem],
+    selected: Option<&DocumentItem>,
+    preview: Option<&Path>,
+) {
     let linked = items.len();
     let unlinked = items
         .iter()
@@ -2279,13 +2828,26 @@ fn render_transactions(
     configure: impl FnOnce(&MainWindow),
 ) -> SharedPixelBuffer<Rgb8Pixel> {
     let width = if name.ends_with("narrow-en") { 900 } else { 1440 };
+    render_transactions_sized(window, language, theme, name, state, (width, 720), configure)
+}
+
+fn render_transactions_sized(
+    window: &Rc<MinimalSoftwareWindow>,
+    language: Language,
+    theme: ThemePref,
+    name: &str,
+    state: &TransactionsState,
+    size: (u32, u32),
+    configure: impl FnOnce(&MainWindow),
+) -> SharedPixelBuffer<Rgb8Pixel> {
+    let (width, height) = size;
     let ui = MainWindow::new().unwrap();
     configure_main(&ui, language, theme, "transactions", &[]);
     ui.set_transactions_show_panel(width >= 1000);
     transactions_page::apply(&ui, state);
     configure(&ui);
     ui.show().unwrap();
-    let buffer = render(window, name, width, 720);
+    let buffer = render(window, name, width, height);
     assert_varied(&buffer, name);
     let _ = ui.hide();
     buffer
@@ -2743,7 +3305,7 @@ fn render_reports_with(
     name: &str,
     size: (u32, u32),
     setup: impl FnOnce(&MainWindow),
-) {
+) -> SharedPixelBuffer<Rgb8Pixel> {
     let (width, height) = size;
     let theme = if name.ends_with("dark") {
         ThemePref::Dark
@@ -2759,6 +3321,7 @@ fn render_reports_with(
     let buffer = render(window, name, width, height);
     assert_varied(&buffer, name);
     let _ = ui.hide();
+    buffer
 }
 
 fn seed_reports(db: &Database) {
