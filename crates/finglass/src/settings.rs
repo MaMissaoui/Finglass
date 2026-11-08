@@ -1431,6 +1431,11 @@ fn rule_rows(state: &SettingsState) -> Vec<RuleRow> {
         .iter()
         .map(|category| (category.id, category.name.as_str()))
         .collect();
+    let colours: BTreeMap<CategoryId, &str> = state
+        .categories
+        .iter()
+        .map(|category| (category.id, category.color.as_str()))
+        .collect();
 
     state
         .rules
@@ -1471,6 +1476,7 @@ fn rule_rows(state: &SettingsState) -> Vec<RuleRow> {
                 id: id32(rule.id.0),
                 pattern: rule.pattern.clone().into(),
                 category_text: category_text.into(),
+                colour: color(colours.get(&rule.category_id).copied().unwrap_or("#757575")),
                 detail: restrictions.join(" · ").into(),
                 prio_text: prio_text.into(),
             }

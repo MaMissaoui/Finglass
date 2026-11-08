@@ -112,12 +112,30 @@ component FigureView inherits VerticalLayout {
         overflow: elide;
     }
 
-    for amount in root.figure.values : Text {
-        text: amount.text;
-        color: root.figure.secondary ? Theme.muted-text : AccountTone.amount-color(amount.tone);
-        font-size: root.figure.secondary ? 18px : 24px;
-        font-weight: root.figure.secondary ? Type.body-weight : Type.headline-weight;
-        overflow: elide;
+    // The currencies sit on one line, separated by a middle dot, never stacked.
+    HorizontalLayout {
+        spacing: 8px;
+
+        for amount[index] in root.figure.values : HorizontalLayout {
+            spacing: 8px;
+
+            if (index > 0) : Text {
+                text: "·";
+                color: Theme.muted-text;
+                font-size: Type.amount-size;
+                font-weight: Type.amount-weight;
+                vertical-alignment: center;
+            }
+
+            Text {
+                text: amount.text;
+                color: root.figure.secondary ? Theme.muted-text
+                        : (amount.tone == "negative" ? Theme.alert : Theme.text);
+                font-size: Type.amount-size;
+                font-weight: Type.amount-weight;
+                overflow: elide;
+            }
+        }
     }
 }
 
@@ -549,6 +567,7 @@ component BankAccountView inherits Rectangle {
 // One bank connection (or the accounts without a bank) with its account rows.
 component BankCardView inherits Rectangle {
     in property <AccountsBankCard> card;
+    in property <bool> sync-controls-visible: false;
 
     callback toggle;
     callback add-account;
@@ -694,7 +713,7 @@ component BankCardView inherits Rectangle {
                 vertical-alignment: center;
             }
 
-            if (root.card.bank-id >= 0 && !root.card.offline && !root.card.syncing) : SecondaryButton {
+            if (root.card.bank-id >= 0 && !root.card.offline && !root.card.syncing && root.sync-controls-visible) : SecondaryButton {
                 text: Tr.t("Sync");
                 icon: @image-url("icons/refresh.svg");
                 has-icon: true;
@@ -839,6 +858,8 @@ export component AccountsPage inherits Rectangle {
     in property <string> sync-all-progress;
     in property <bool> sync-all-visible;
     in property <bool> sync-all-enabled;
+    // Whether the per-bank and Sync all buttons are shown; false while online sync is unavailable.
+    in property <bool> sync-controls-visible;
     // The neutral note and the disabled Sync tooltip while online sync is not available yet.
     in property <string> online-sync-note;
     in-out property <int> bank-menu-open: -2;
@@ -1031,7 +1052,7 @@ export component AccountsPage inherits Rectangle {
                 background: transparent;
             }
 
-            if (root.sync-all-visible) : HorizontalLayout {
+            if (root.sync-all-visible && root.sync-controls-visible) : HorizontalLayout {
                 spacing: 12px;
                 alignment: center;
 
@@ -1164,6 +1185,7 @@ export component AccountsPage inherits Rectangle {
 
                 for card in root.bank-cards : BankCardView {
                     card: card;
+                    sync-controls-visible: root.sync-controls-visible;
                     menu-open: root.bank-menu-open == card.bank-id;
                     toggle => {
                         root.toggle-bank(card.bank-id);

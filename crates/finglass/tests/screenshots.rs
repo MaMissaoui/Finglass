@@ -508,6 +508,18 @@ fn renders_the_app_shell() {
     }
 
     {
+        let settings = settings_state(&db, &paths, Language::De);
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "dashboard", &rows);
+        apply_settings(&ui, &settings);
+        ui.set_profile_menu_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-profiles-de-light", 1100, 720);
+        assert_varied(&buffer, "topbar-profiles-de-light");
+        let _ = ui.hide();
+    }
+
+    {
         let settings = settings_state(&db, &paths, Language::En);
         let ui = MainWindow::new().unwrap();
         configure_main(&ui, Language::En, ThemePref::Light, "settings", &rows);
@@ -1082,6 +1094,16 @@ fn renders_the_app_shell() {
         &rows,
         &reports_de,
         "summary",
+        "reports-summary-de-light",
+        1440,
+        900,
+    );
+
+    render_reports(
+        &window,
+        &rows,
+        &reports_de,
+        "summary",
         "reports-summary-de-dark",
         1100,
         720,
@@ -1161,6 +1183,18 @@ fn renders_the_app_shell() {
         ui.show().unwrap();
         let buffer = render(&window, "accounts-de-dark", 1100, 720);
         assert_varied(&buffer, "accounts-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut german = accounts_state.clone();
+        german.language = Language::De;
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Light, "accounts", &rows);
+        apply_accounts(&ui, &german, &banking_state(&german));
+        ui.show().unwrap();
+        let buffer = render(&window, "accounts-de-light", 1440, 900);
+        assert_varied(&buffer, "accounts-de-light");
         let _ = ui.hide();
     }
 
@@ -1659,6 +1693,16 @@ fn renders_the_app_shell() {
         "transactions-de-dark account filter field",
     );
     assert_dark_widget(&dark_transactions, 1120, 172, "transactions-de-dark period ComboBox");
+
+    render_transactions_sized(
+        &window,
+        Language::De,
+        ThemePref::Light,
+        "transactions-de-light",
+        &transactions_de,
+        (1440, 900),
+        |_| {},
+    );
 
     // This month has only a handful of bookings, so the summary figures sit close together.
     let transactions_month_de = {
@@ -3056,7 +3100,7 @@ fn seed_transactions(db: &Database) -> SeededTransactions {
         NewAccount {
             bank_connection_id: None,
             institution: None,
-            name: Some("Haushalt".to_owned()),
+            name: Some("Gemeinschaftskonto Haushalt und Reisen".to_owned()),
             iban: Some("DE89370400440532013000".to_owned()),
             account_number: None,
             currency: Currency::EUR,
@@ -4136,6 +4180,11 @@ fn settings_rule_model(state: &SettingsState) -> ModelRc<RuleRow> {
                     .find(|category| category.id == rule.category_id)
                     .map(|category| category.name.clone())
                     .unwrap_or_default();
+                let colour = state
+                    .categories
+                    .iter()
+                    .find(|category| category.id == rule.category_id)
+                    .map_or_else(|| color("#757575"), |category| color(&category.color));
                 let mut category_text = category_name;
                 match rule.tax_relevant {
                     Some(true) => {
@@ -4174,6 +4223,7 @@ fn settings_rule_model(state: &SettingsState) -> ModelRc<RuleRow> {
                     id: i32::try_from(rule.id.0).unwrap(),
                     pattern: rule.pattern.clone().into(),
                     category_text: category_text.into(),
+                    colour,
                     detail: restrictions.join(" · ").into(),
                     prio_text: prio_text.into(),
                 }
@@ -4705,7 +4755,8 @@ fn apply_accounts(ui: &MainWindow, state: &AccountsState, banking: &BankingState
     ui.set_accounts_banking_busy(banking.is_syncing());
     ui.set_accounts_sync_all_progress(accounts_sync_all_text(banking).into());
     ui.set_accounts_sync_all_visible(banking.banks.iter().any(|bank| !bank.offline));
-    // Online sync is not available yet, so the page's Sync all stays disabled.
+    // Online sync is not available yet, so the page's Sync controls stay hidden.
+    ui.set_accounts_sync_controls_visible(false);
     ui.set_accounts_sync_all_enabled(false);
     ui.set_accounts_online_sync_note(if banking.banks.iter().any(|bank| !bank.offline) {
         i18n::text(language, Key::OnlineSyncNotYetAvailable).into()

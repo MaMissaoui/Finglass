@@ -173,6 +173,45 @@ component ReportStat inherits Rectangle {
     }
 }
 
+// One figure of the Reports page's calm KPI band: a 12/500 slate label over a 24/600 value.
+component ReportFigure inherits VerticalLayout {
+    in property <string> label;
+    in property <string> value;
+    in property <color> value-color: Theme.text;
+    in property <bool> compact: false;
+
+    horizontal-stretch: 1;
+    preferred-width: 0px;
+    min-width: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
+    spacing: 4px;
+    alignment: start;
+
+    Text {
+        text: root.label;
+        color: Theme.muted-text;
+        font-size: Type.label-small-size;
+        font-weight: Type.label-small-weight;
+        overflow: elide;
+    }
+
+    Text {
+        text: root.value;
+        color: root.value-color;
+        font-size: root.compact ? 20px : Type.amount-size;
+        font-weight: Type.amount-weight;
+        overflow: elide;
+    }
+}
+
+// The hairline between two figures of a KPI band.
+component FigureDivider inherits Rectangle {
+    width: 1px;
+    height: 44px;
+    background: Theme.divider;
+}
+
 // A card with a heading.
 component SectionCard inherits Rectangle {
     in property <string> title;
@@ -456,6 +495,7 @@ export component ReportsPage inherits Rectangle {
 
         // One header row, as FinDesk has it: the period controls, a flexible gap and the Export menu.
         HorizontalLayout {
+            height: 40px;
             spacing: 16px;
             cross-axis-alignment: center;
 
@@ -528,12 +568,20 @@ export component ReportsPage inherits Rectangle {
                 }
             }
 
+            if (root.tab == "recurring") : Text {
+                text: Tr.t("TabRecurring");
+                color: Theme.text;
+                font-size: Type.title-medium-size;
+                font-weight: Type.title-medium-weight;
+                vertical-alignment: center;
+            }
+
             // The spinner's place is always reserved, so starting a load doesn't shift the row.
             Rectangle {
                 width: 20px;
                 height: 20px;
 
-                if (root.tab != "recurring" && root.loading) : Spinner {
+                if (root.loading) : Spinner {
                     width: 20px;
                     height: 20px;
                 }
@@ -547,15 +595,6 @@ export component ReportsPage inherits Rectangle {
             if (root.exporting) : Spinner {
                 width: 20px;
                 height: 20px;
-            }
-
-            export-anchor := PrimaryButton {
-                text: Tr.t("Export");
-                icon: @image-url("icons/file_download.svg");
-                has-icon: true;
-                tooltip-text: root.export-disabled-reason;
-                enabled: root.can-export-report && !root.busy;
-                clicked => { root.open-export-menu(); }
             }
         }
 
@@ -580,6 +619,8 @@ export component ReportsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 0px;
+                padding-right: 8px;
+                cross-axis-alignment: center;
 
                 ReportTab {
                     text: Tr.t("TabTaxSummary");
@@ -606,6 +647,26 @@ export component ReportsPage inherits Rectangle {
                     selected: root.tab == "recurring";
                     clicked => { root.select-tab("recurring"); }
                 }
+
+                Rectangle {
+                    width: 1px;
+                    height: 24px;
+                    background: Theme.divider;
+                }
+
+                Rectangle {
+                    width: 8px;
+                    background: transparent;
+                }
+
+                export-anchor := PrimaryButton {
+                    text: Tr.t("Export");
+                    icon: @image-url("icons/file_download.svg");
+                    has-icon: true;
+                    tooltip-text: root.export-disabled-reason;
+                    enabled: root.can-export-report && !root.busy;
+                    clicked => { root.open-export-menu(); }
+                }
             }
         }
 
@@ -627,34 +688,37 @@ export component ReportsPage inherits Rectangle {
                     if (!root.recurring-empty) : VerticalLayout {
                         spacing: 16px;
 
-                        HorizontalLayout {
-                            spacing: 16px;
+                        Rectangle {
+                            background: Theme.surface;
+                            border-radius: Radius.surface;
+                            border-width: 1px;
+                            border-color: Theme.divider;
 
-                            ReportStat {
-                            compact: root.compact;
-                                horizontal-stretch: 1;
-                                title: Tr.t("RecurringPayments");
-                                value: root.recurring-count;
-                                icon: @image-url("icons/refresh.svg");
-                                accent: Theme.muted-text;
-                            }
-                            ReportStat {
-                            compact: root.compact;
-                                horizontal-stretch: 1;
-                                title: Tr.t("CostPerYear");
-                                value: root.recurring-yearly;
-                                icon: @image-url("icons/remove_circle_outline.svg");
-                                accent: Theme.muted-text;
-                                value-color: Theme.money-out;
-                            }
-                            ReportStat {
-                            compact: root.compact;
-                                horizontal-stretch: 1;
-                                title: Tr.t("PerMonth");
-                                value: root.recurring-monthly;
-                                icon: @image-url("icons/date_range.svg");
-                                accent: Theme.muted-text;
-                                value-color: Theme.money-out;
+                            HorizontalLayout {
+                                padding-top: 16px;
+                                padding-bottom: 16px;
+                                // Figures with a second currency line are taller; labels stay on one line.
+                                cross-axis-alignment: start;
+
+                                ReportFigure {
+                                    compact: root.compact;
+                                    label: Tr.t("RecurringPayments");
+                                    value: root.recurring-count;
+                                }
+                                FigureDivider {}
+                                ReportFigure {
+                                    compact: root.compact;
+                                    label: Tr.t("CostPerYear");
+                                    value: root.recurring-yearly;
+                                    value-color: Theme.money-out;
+                                }
+                                FigureDivider {}
+                                ReportFigure {
+                                    compact: root.compact;
+                                    label: Tr.t("PerMonth");
+                                    value: root.recurring-monthly;
+                                    value-color: Theme.money-out;
+                                }
                             }
                         }
 
@@ -821,43 +885,43 @@ export component ReportsPage inherits Rectangle {
                         wrap: word-wrap;
                     }
 
-                    HorizontalLayout {
-                        spacing: 16px;
+                    Rectangle {
+                        background: Theme.surface;
+                        border-radius: Radius.surface;
+                        border-width: 1px;
+                        border-color: Theme.divider;
 
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("TotalIncome");
-                            value: root.income-value;
-                            icon: @image-url("icons/add_circle_outline.svg");
-                            accent: Theme.muted-text;
-                            value-color: Theme.money-in;
-                        }
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("TotalExpenses");
-                            value: root.expenses-value;
-                            icon: @image-url("icons/remove_circle_outline.svg");
-                            accent: Theme.muted-text;
-                            value-color: Theme.money-out;
-                        }
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("NetIncome");
-                            icon: @image-url("icons/reports.svg");
-                            value: root.net-value;
-                            accent: Theme.muted-text;
-                            value-color: root.net-tone == "negative" ? Theme.alert : Theme.money-in;
-                        }
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("TaxRelevantAmount");
-                            value: root.tax-value;
-                            icon: @image-url("icons/info.svg");
-                            accent: Theme.muted-text;
+                        HorizontalLayout {
+                            padding-top: 16px;
+                            padding-bottom: 16px;
+                            cross-axis-alignment: center;
+
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("TotalIncome");
+                                value: root.income-value;
+                                value-color: Theme.money-in;
+                            }
+                            FigureDivider {}
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("TotalExpenses");
+                                value: root.expenses-value;
+                                value-color: Theme.money-out;
+                            }
+                            FigureDivider {}
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("NetIncome");
+                                value: root.net-value;
+                                value-color: root.net-tone == "negative" ? Theme.alert : Theme.money-in;
+                            }
+                            FigureDivider {}
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("TaxRelevantAmount");
+                                value: root.tax-value;
+                            }
                         }
                     }
 
@@ -871,63 +935,88 @@ export component ReportsPage inherits Rectangle {
                             wrap: word-wrap;
                         }
 
-                        for row in root.tax-relevant-rows : HorizontalLayout {
-                            height: 28px;
-                            spacing: 8px;
+                        VerticalLayout {
+                            max-width: 720px;
+                            spacing: 6px;
 
-                            Text {
-                                text: row.label;
-                                horizontal-stretch: 1;
-                                color: Theme.text;
-                                font-size: Type.body-size;
-                                vertical-alignment: center;
-                                overflow: elide;
-                            }
-                            Text {
-                                text: row.amount-text;
-                                color: Theme.text;
-                                font-size: Type.label-size;
-                                font-weight: Type.label-weight;
-                                vertical-alignment: center;
+                            for row in root.tax-relevant-rows : HorizontalLayout {
+                                height: 28px;
+                                spacing: 12px;
+                                cross-axis-alignment: center;
+
+                                Text {
+                                    text: row.label;
+                                    horizontal-stretch: 1;
+                                    color: Theme.text;
+                                    font-size: Type.body-size;
+                                    vertical-alignment: center;
+                                    overflow: elide;
+                                }
+
+                                // The track is the largest category; the fill is this category's share.
+                                Rectangle {
+                                    width: 160px;
+                                    height: 6px;
+                                    border-radius: Radius.chip;
+                                    background: Theme.divider;
+
+                                    Rectangle {
+                                        width: parent.width * row.fraction;
+                                        height: parent.height;
+                                        border-radius: Radius.chip;
+                                        background: Theme.chart-out;
+                                    }
+                                }
+
+                                Text {
+                                    width: 120px;
+                                    text: row.amount-text;
+                                    color: Theme.text;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
+                                    horizontal-alignment: right;
+                                    vertical-alignment: center;
+                                    overflow: elide;
+                                }
                             }
                         }
                     }
 
-                    HorizontalLayout {
-                        spacing: 16px;
+                    Rectangle {
+                        background: Theme.surface;
+                        border-radius: Radius.surface;
+                        border-width: 1px;
+                        border-color: Theme.divider;
 
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("StatTransactions");
-                            value: root.stat-transactions;
-                            icon: @image-url("icons/transactions.svg");
-                            accent: Theme.muted-text;
-                        }
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("CategoriesUsed");
-                            value: root.stat-categories;
-                            icon: @image-url("icons/transactions.svg");
-                            accent: Theme.muted-text;
-                        }
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("AvgMonthlyExpenses");
-                            value: root.stat-average;
-                            icon: @image-url("icons/date_range.svg");
-                            accent: Theme.muted-text;
-                            value-color: Theme.money-out;
-                        }
-                        ReportStat {
-                            compact: root.compact;
-                            horizontal-stretch: 1;
-                            title: Tr.t("HighestMonth");
-                            value: root.stat-highest;
-                            icon: @image-url("icons/reports.svg");
-                            accent: Theme.muted-text;
+                        HorizontalLayout {
+                            padding-top: 16px;
+                            padding-bottom: 16px;
+                            cross-axis-alignment: center;
+
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("StatTransactions");
+                                value: root.stat-transactions;
+                            }
+                            FigureDivider {}
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("CategoriesUsed");
+                                value: root.stat-categories;
+                            }
+                            FigureDivider {}
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("AvgMonthlyExpenses");
+                                value: root.stat-average;
+                                value-color: Theme.money-out;
+                            }
+                            FigureDivider {}
+                            ReportFigure {
+                                compact: root.compact;
+                                label: Tr.t("HighestMonth");
+                                value: root.stat-highest;
+                            }
                         }
                     }
                 }

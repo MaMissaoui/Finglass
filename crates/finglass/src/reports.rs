@@ -749,10 +749,20 @@ fn other_currency_hint_bookings(bookings: &TaxBookings, language: Language) -> S
 }
 
 fn amount_rows(rows: &[(String, Money)], language: Language) -> Vec<ReportAmountRow> {
+    let largest = rows
+        .iter()
+        .map(|(_, amount)| amount.minor.unsigned_abs())
+        .max()
+        .unwrap_or(0);
     rows.iter()
         .map(|(label, amount)| ReportAmountRow {
             label: label.clone().into(),
             amount_text: format::money(*amount, language, false).into(),
+            fraction: if largest == 0 {
+                0.0
+            } else {
+                amount.minor.unsigned_abs() as f32 / largest as f32
+            },
         })
         .collect()
 }
