@@ -5,6 +5,7 @@ import {
     DashboardBudgetRow,
     DashboardCategoryRow,
     DashboardMonthBar,
+    DashboardStatementLine,
     DashboardTaxSlice,
     DashboardTransactionRow,
     DashboardUpcomingRow,
@@ -51,70 +52,182 @@ component Card inherits Rectangle {
     }
 }
 
-// A headline figure with a coloured accent and an optional second line.
-component StatCard inherits Rectangle {
-    in property <string> title;
-    in property <string> value;
-    in property <string> subtitle;
-    in property <color> accent;
-    in property <image> icon;
-    in property <color> value-color: Theme.text;
-    in property <bool> interactive: false;
+// One line of the month statement: a label, a fixed amount column and, above the
+// result, a hairline over the amount column only.
+component StatementRow inherits Rectangle {
+    in property <DashboardStatementLine> line;
+    in property <bool> negative;
+    in property <length> amount-width: 200px;
 
-    callback clicked;
+    height: root.line.kind == "result" ? 48px : 26px;
+    background: transparent;
 
-    background: Theme.surface;
-    border-radius: Radius.surface;
-    border-width: 1px;
-    border-color: Theme.divider;
+    if (root.line.kind == "result") : Rectangle {
+        x: parent.width - root.amount-width;
+        y: 0px;
+        width: root.amount-width;
+        height: 1px;
+        background: Theme.text;
+    }
+
+    HorizontalLayout {
+        spacing: 12px;
+        padding-top: root.line.kind == "result" ? 10px : 0px;
+
+        Text {
+            text: root.line.label;
+            color: (root.line.kind == "carry" || root.line.kind == "movement") ? Theme.muted-text : Theme.text;
+            font-size: root.line.kind == "result" ? Type.title-medium-size : Type.body-size;
+            font-weight: root.line.kind == "result" ? Type.title-medium-weight : Type.body-weight;
+            vertical-alignment: center;
+            overflow: elide;
+            horizontal-stretch: 1;
+        }
+
+        Text {
+            text: root.line.amount-text;
+            width: root.amount-width;
+            horizontal-alignment: right;
+            color: root.line.kind == "in" ? Theme.money-in
+                 : root.line.kind == "out" ? Theme.money-out
+                 : (root.line.kind == "result" && root.negative) ? Theme.alert
+                 : Theme.text;
+            font-size: root.line.kind == "result" ? Type.amount-size : Type.body-size;
+            font-weight: root.line.kind == "result" ? Type.amount-weight : Type.body-weight;
+            vertical-alignment: center;
+        }
+    }
+}
+
+// The left part of the statement: the month as section title, the lines and the notes.
+component StatementPanel inherits Rectangle {
+    in property <string> month-label;
+    in property <[DashboardStatementLine]> lines;
+    in property <string> notes;
+    in property <string> tone;
+
+    max-width: 560px;
+    background: transparent;
 
     VerticalLayout {
-        padding: 14px;
-        spacing: 8px;
+        padding: 16px;
+        spacing: 12px;
         alignment: start;
 
-        HorizontalLayout {
-            spacing: 8px;
-            cross-axis-alignment: center;
+        Text {
+            text: root.month-label;
+            color: Theme.text;
+            font-size: 15px;
+            font-weight: 600;
+        }
 
-            Text {
-                text: root.title;
-                // Two lines of body text: Slint layouts don't grow for wrapped text.
-                height: 40px;
-                color: Theme.muted-text;
-                font-size: Type.body-size;
-                vertical-alignment: center;
-                wrap: word-wrap;
-                horizontal-stretch: 1;
-            }
+        VerticalLayout {
+            spacing: 2px;
+            alignment: start;
 
-            Image {
-                width: 24px;
-                height: 24px;
-                source: root.icon;
-                colorize: root.accent;
-                accessible-role: none;
+            for line in root.lines : StatementRow {
+                line: line;
+                negative: root.tone == "negative";
+                amount-width: 200px;
             }
         }
 
-        Text {
-            text: root.value;
-            color: root.value-color;
-            font-size: Type.amount-size;
-            font-weight: Type.amount-weight;
-            overflow: elide;
-        }
-
-        Text {
-            text: root.subtitle;
+        if (root.notes != "") : Text {
+            text: root.notes;
             color: Theme.muted-text;
             font-size: Type.body-small-size;
             wrap: word-wrap;
         }
     }
+}
+
+// The right part of the statement: open tasks, one click away from the uncategorized list.
+component PendingPanel inherits Rectangle {
+    in property <string> title;
+    in property <string> count-text;
+    in property <[string]> detail-lines;
+    in property <bool> enabled;
+
+    callback clicked;
+
+    background: transparent;
+
+    VerticalLayout {
+        padding: 16px;
+        spacing: 8px;
+        alignment: start;
+
+        Text {
+            text: root.title;
+            color: Theme.text;
+            font-size: 15px;
+            font-weight: 600;
+            overflow: elide;
+        }
+
+        Text {
+            text: root.count-text;
+            color: root.enabled ? Theme.caution : Theme.muted-text;
+            font-size: Type.amount-size;
+            font-weight: Type.amount-weight;
+        }
+
+        if (root.enabled && root.detail-lines.length > 0) : VerticalLayout {
+            spacing: 4px;
+
+            for detail in root.detail-lines : HorizontalLayout {
+                spacing: 4px;
+
+                Text {
+                    text: detail;
+                    color: Theme.muted-text;
+                    font-size: Type.body-small-size;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                }
+
+                VerticalLayout {
+                    alignment: center;
+                    Image {
+                        width: 16px;
+                        height: 16px;
+                        source: @image-url("icons/keyboard_arrow_right.svg");
+                        colorize: Theme.muted-text;
+                        accessible-role: none;
+                    }
+                }
+            }
+        }
+
+        if (!root.enabled && root.detail-lines.length > 0) : HorizontalLayout {
+            spacing: 6px;
+            alignment: start;
+
+            VerticalLayout {
+                alignment: center;
+                Image {
+                    width: 16px;
+                    height: 16px;
+                    source: @image-url("icons/check_circle.svg");
+                    colorize: Theme.success;
+                    accessible-role: none;
+                }
+            }
+
+            Text {
+                text: root.detail-lines[0];
+                color: Theme.muted-text;
+                font-size: Type.body-small-size;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+    }
 
     TouchArea {
-        enabled: root.interactive;
+        enabled: root.enabled;
+        mouse-cursor: pointer;
         clicked => {
             root.clicked();
         }
@@ -488,6 +601,7 @@ export component DashboardPage inherits Rectangle {
     in property <string> available-value;
     in property <string> available-subtitle;
     in property <string> available-tone;
+    in property <[DashboardStatementLine]> statement-lines;
     in property <string> income-title;
     in property <string> income-value;
     in property <string> expenses-title;
@@ -495,7 +609,10 @@ export component DashboardPage inherits Rectangle {
     in property <string> pending-title;
     in property <string> pending-value;
     in property <string> pending-subtitle;
+    in property <[string]> pending-lines;
     in property <bool> pending-enabled;
+    // The window width, so the statement can stack below 900 px even when the page is narrower.
+    in property <length> window-width: 1100px;
 
     in property <string> expenses-section-title;
     in property <string> expenses-empty-text;
@@ -726,61 +843,76 @@ export component DashboardPage inherits Rectangle {
                     }
                 }
 
-                HorizontalLayout {
-                    spacing: 12px;
-                    height: 228px;
+                Rectangle {
+                    background: Theme.surface;
+                    border-radius: Radius.surface;
+                    border-width: 1px;
+                    border-color: Theme.divider;
+                    clip: true;
 
-                    StatCard {
-                        horizontal-stretch: 1;
-                        title: root.available-title;
-                        value: root.available-value;
-                        subtitle: root.available-subtitle;
-                        accent: Theme.muted-text;
-                        icon: @image-url("icons/accounts.svg");
-                        value-color: root.available-tone == "negative" ? Theme.alert : (root.available-tone == "positive" ? Theme.text : Theme.muted-text);
-                    }
+                    VerticalLayout {
+                        if (root.window-width < 900px) : VerticalLayout {
+                            StatementPanel {
+                                month-label: root.month-label;
+                                lines: root.statement-lines;
+                                notes: root.available-subtitle;
+                                tone: root.available-tone;
+                            }
 
-                    StatCard {
-                        horizontal-stretch: 1;
-                        title: root.income-title;
-                        value: root.income-value;
-                        subtitle: "";
-                        accent: Theme.muted-text;
-                        icon: @image-url("icons/add_circle_outline.svg");
-                        value-color: Theme.money-in;
-                    }
+                            Rectangle {
+                                height: 1px;
+                                background: Theme.divider;
+                            }
 
-                    StatCard {
-                        horizontal-stretch: 1;
-                        title: root.expenses-title;
-                        value: root.expenses-value;
-                        subtitle: "";
-                        accent: Theme.muted-text;
-                        icon: @image-url("icons/remove_circle_outline.svg");
-                        value-color: Theme.money-out;
-                    }
+                            PendingPanel {
+                                title: root.pending-title;
+                                count-text: root.pending-value;
+                                detail-lines: root.pending-lines;
+                                enabled: root.pending-enabled;
+                                clicked => {
+                                    root.open-uncategorized();
+                                }
+                            }
+                        }
 
-                    StatCard {
-                        horizontal-stretch: 1;
-                        title: root.pending-title;
-                        value: root.pending-value;
-                        subtitle: root.pending-subtitle;
-                        accent: root.pending-enabled ? Theme.caution : Theme.muted-text;
-                        icon: root.pending-enabled ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
-                        value-color: root.pending-enabled ? Theme.caution : Theme.success;
-                        interactive: root.pending-enabled;
-                        clicked => {
-                            root.open-uncategorized();
+                        if (root.window-width >= 900px) : HorizontalLayout {
+                            StatementPanel {
+                                horizontal-stretch: 3;
+                                preferred-width: 0px;
+                                min-width: 0px;
+                                month-label: root.month-label;
+                                lines: root.statement-lines;
+                                notes: root.available-subtitle;
+                                tone: root.available-tone;
+                            }
+
+                            Rectangle {
+                                width: 1px;
+                                background: Theme.divider;
+                            }
+
+                            PendingPanel {
+                                horizontal-stretch: 2;
+                                preferred-width: 0px;
+                                min-width: 0px;
+                                title: root.pending-title;
+                                count-text: root.pending-value;
+                                detail-lines: root.pending-lines;
+                                enabled: root.pending-enabled;
+                                clicked => {
+                                    root.open-uncategorized();
+                                }
+                            }
                         }
                     }
                 }
 
                 HorizontalLayout {
                     spacing: 12px;
-                    height: 300px;
 
+                    // Both cards take the taller one's content height, so their bottoms line up.
                     Card {
-                        horizontal-stretch: 1;
+                        horizontal-stretch: 3;
                         title: root.expenses-section-title;
 
                         if (root.expense-rows.length == 0) : Text {
@@ -800,7 +932,7 @@ export component DashboardPage inherits Rectangle {
                     }
 
                     Card {
-                        horizontal-stretch: 1;
+                        horizontal-stretch: 2;
                         title: root.chart-title;
 
                         IncomeExpenseChart {

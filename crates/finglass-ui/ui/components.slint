@@ -51,6 +51,13 @@ export struct DashboardTransactionRow {
     partner: string,
 }
 
+// One line of the dashboard's month statement.
+export struct DashboardStatementLine {
+    label: string,
+    amount-text: string,
+    kind: string,
+}
+
 // One arc of the dashboard's tax donut.
 export struct DashboardTaxSlice {
     label: string,

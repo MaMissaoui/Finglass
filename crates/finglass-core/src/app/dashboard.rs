@@ -151,6 +151,32 @@ pub struct CategoryRowView {
     pub fraction: f32,
 }
 
+/// What a month statement line's amount means, for colours and emphasis.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StatementLineKind {
+    /// Money carried over from the previous month.
+    Carry,
+    /// Income in the loaded month.
+    In,
+    /// Spending in the loaded month.
+    Out,
+    /// Transfers and loans outside income and expenses.
+    Movement,
+    /// The available balance, below the rule.
+    Result,
+}
+
+/// One line of the dashboard's month statement.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StatementLineView {
+    /// The line's display label, already translated.
+    pub label: String,
+    /// The formatted signed amount.
+    pub amount_text: String,
+    /// What the amount means.
+    pub kind: StatementLineKind,
+}
+
 /// One month of the income-vs-expenses chart.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MonthBarView {
@@ -304,11 +330,13 @@ pub struct DashboardView {
     pub upcoming: Vec<UpcomingRowView>,
     /// The newest bookings, independent of the loaded month.
     pub recent_transactions: Vec<TransactionRowView>,
+    /// The month statement's lines, in statement order.
+    pub statement_lines: Vec<StatementLineView>,
     /// The available card's title.
     pub available_title: String,
     /// The available card's formatted value.
     pub available_value: String,
-    /// The available card's carry-forward, movement, loan and currency lines.
+    /// The available card's loan and currency notes below the statement.
     pub available_subtitle: String,
     /// The available value's colour tone.
     pub available_tone: BalanceTone,
@@ -332,6 +360,8 @@ pub struct DashboardView {
     pub pending_value: String,
     /// The pending-tasks card's subtitle.
     pub pending_subtitle: String,
+    /// The pending-tasks detail lines, one per kind, for the right-hand panel.
+    pub pending_lines: Vec<String>,
     /// Whether the pending-tasks card opens the uncategorized list.
     pub pending_enabled: bool,
     /// The expenses-by-category card's title.
@@ -414,6 +444,14 @@ impl DashboardView {
                 &[Arg::from(figures.uncategorized_count), Arg::from(unlinked_documents)],
             )
         };
+        let pending_lines = pending_subtitle.split(" · ").map(str::to_owned).collect();
+
+        let available_title = match figures.balance_date {
+            Some(date) => i18n::format(language, Key::AvailableAsOf, &[Arg::Str(format::date(date))]),
+            None => i18n::text(language, Key::AvailableBalance).to_owned(),
+        };
+        let available_value = format::money(figures.available_balance, language, false);
+        let statement_lines = statement_lines(&figures, &available_title, language);
 
         let budgets = figures
             .budgets
@@ -490,11 +528,9 @@ impl DashboardView {
             budgets,
             upcoming,
             recent_transactions,
-            available_title: match figures.balance_date {
-                Some(date) => i18n::format(language, Key::AvailableAsOf, &[Arg::Str(format::date(date))]),
-                None => i18n::text(language, Key::AvailableBalance).to_owned(),
-            },
-            available_value: format::money(figures.available_balance, language, false),
+            statement_lines,
+            available_title,
+            available_value,
             available_subtitle: available_subtitle(&figures, language),
             available_tone: balance_tone(figures.available_balance),
             income_title: month_title(
@@ -519,6 +555,7 @@ impl DashboardView {
             pending_title: i18n::text(language, Key::PendingTasks).to_owned(),
             pending_value: pending.to_string(),
             pending_subtitle,
+            pending_lines,
             pending_enabled: pending > 0,
             expenses_section_title: month_title(
                 current_loaded,
@@ -872,29 +909,67 @@ fn sum_money(amounts: impl Iterator<Item = Money>, currency: Currency) -> Money 
     }
 }
 
-fn available_subtitle(figures: &DashboardFigures, language: Language) -> String {
+fn statement_lines(figures: &DashboardFigures, available_title: &str, language: Language) -> Vec<StatementLineView> {
     let mut lines = Vec::new();
 
     if let Some(carry_forward) = figures.carry_forward {
-        lines.push(i18n::format(
-            language,
-            Key::CarryForwardFrom,
-            &[
-                Arg::Str(month_text(figures.loaded_month.minus_months(1), language)),
-                Arg::Str(format::money(carry_forward, language, false)),
-            ],
-        ));
+        lines.push(StatementLineView {
+            label: i18n::format(
+                language,
+                Key::CarryForwardLine,
+                &[Arg::Str(month_text(figures.loaded_month.minus_months(1), language))],
+            ),
+            amount_text: format::money(carry_forward, language, false),
+            kind: StatementLineKind::Carry,
+        });
     }
+
+    lines.push(StatementLineView {
+        label: i18n::text(language, Key::DirectionIncome).to_owned(),
+        amount_text: income_amount(figures.monthly_income, language),
+        kind: StatementLineKind::In,
+    });
+
+    lines.push(StatementLineView {
+        label: i18n::text(language, Key::DirectionExpenses).to_owned(),
+        amount_text: format::money(
+            Money {
+                minor: -figures.monthly_expenses.minor.abs(),
+                currency: figures.monthly_expenses.currency,
+            },
+            language,
+            false,
+        ),
+        kind: StatementLineKind::Out,
+    });
 
     if let Some(other_movements) = figures.other_movements
         && other_movements.minor != 0
     {
-        lines.push(i18n::format(
-            language,
-            Key::OtherMovements,
-            &[Arg::Str(format::money(other_movements, language, true))],
-        ));
+        lines.push(StatementLineView {
+            label: i18n::text(language, Key::OtherMovementsLabel).to_owned(),
+            amount_text: format::money(other_movements, language, true),
+            kind: StatementLineKind::Movement,
+        });
     }
+
+    lines.push(StatementLineView {
+        label: available_title.to_owned(),
+        amount_text: format::money(figures.available_balance, language, false),
+        kind: StatementLineKind::Result,
+    });
+
+    lines
+}
+
+/// Income prints with a leading `+`, including zero: "+0,00 €".
+fn income_amount(income: Money, language: Language) -> String {
+    let text = format::money(income, language, true);
+    if income.minor == 0 { format!("+{text}") } else { text }
+}
+
+fn available_subtitle(figures: &DashboardFigures, language: Language) -> String {
+    let mut lines = Vec::new();
 
     if figures.has_loans {
         lines.push(i18n::format(
@@ -1436,9 +1511,118 @@ mod tests {
         assert_eq!(view.expense_rows[0].percent_text, "100%");
         assert_eq!(view.tax_total, money(15_000));
         assert_eq!(view.tax_deductions_by_category[0].label, "Donations");
-        assert!(!view.available_subtitle.is_empty());
+        assert!(
+            view.available_subtitle.is_empty(),
+            "no loan or currency notes in this fixture"
+        );
         assert_eq!(view.chart_axis_zero, "€0.00");
         assert!(!view.view_all_label.is_empty());
+    }
+
+    #[test]
+    fn statement_lines_add_up_with_a_carry_forward_and_a_movement() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let today = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::En, today);
+        state.select_month(&db, today, YearMonth::new(2026, 8)).unwrap();
+        let view = state.view.as_ref().unwrap();
+
+        let kinds: Vec<StatementLineKind> = view.statement_lines.iter().map(|line| line.kind).collect();
+        assert_eq!(
+            kinds,
+            vec![
+                StatementLineKind::Carry,
+                StatementLineKind::In,
+                StatementLineKind::Out,
+                StatementLineKind::Movement,
+                StatementLineKind::Result,
+            ]
+        );
+        assert_eq!(view.statement_lines[0].label, "Carried over from July 2026");
+        assert_eq!(view.statement_lines[1].label, "Income");
+        assert_eq!(view.statement_lines[2].label, "Expenses");
+        assert_eq!(view.statement_lines[3].label, "Transfers and loans");
+        assert_eq!(view.statement_lines[4].label, view.available_title);
+
+        let minor = |line: &StatementLineView| {
+            format::parse_amount(&line.amount_text)
+                .expect("a statement amount parses back")
+                .mantissa()
+        };
+        let (result, parts) = view.statement_lines.split_last().unwrap();
+        let sum: i128 = parts.iter().map(minor).sum();
+        assert_eq!(sum, minor(result), "the statement adds up to the result");
+        assert_eq!(minor(result), i128::from(view.available_balance.minor));
+    }
+
+    #[test]
+    fn a_month_without_earlier_history_has_no_carry_or_movement_line() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let today = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::En, today);
+        state.select_month(&db, today, YearMonth::new(2026, 3)).unwrap();
+        let view = state.view.as_ref().unwrap();
+
+        let kinds: Vec<StatementLineKind> = view.statement_lines.iter().map(|line| line.kind).collect();
+        assert_eq!(
+            kinds,
+            vec![StatementLineKind::In, StatementLineKind::Out, StatementLineKind::Result]
+        );
+        assert!(view.carry_forward.is_none());
+        assert!(view.other_movements.is_none());
+        assert_eq!(view.statement_lines[0].amount_text, "+€0.00");
+    }
+
+    #[test]
+    fn zero_movements_hide_the_movement_line() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let today = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::En, today);
+        state.select_month(&db, today, YearMonth::new(2026, 9)).unwrap();
+        let view = state.view.as_ref().unwrap();
+
+        assert_eq!(view.other_movements, Some(money(0)));
+        assert!(
+            !view
+                .statement_lines
+                .iter()
+                .any(|line| line.kind == StatementLineKind::Movement)
+        );
+        assert_eq!(view.statement_lines[0].kind, StatementLineKind::Carry);
+    }
+
+    #[test]
+    fn the_statement_uses_german_amounts() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let today = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::De, today);
+        state.select_month(&db, today, YearMonth::new(2026, 8)).unwrap();
+        let view = state.view.as_ref().unwrap();
+
+        let amounts: Vec<&str> = view
+            .statement_lines
+            .iter()
+            .map(|line| line.amount_text.as_str())
+            .collect();
+        assert_eq!(
+            amounts,
+            vec![
+                "-2.015,00\u{a0}€",
+                "+2.000,00\u{a0}€",
+                "-135,00\u{a0}€",
+                "-200,00\u{a0}€",
+                "-350,00\u{a0}€",
+            ]
+        );
+        assert_eq!(view.statement_lines[0].label, "Übertrag aus Juli 2026");
+        assert_eq!(view.statement_lines[1].label, "Einnahmen");
+        assert_eq!(view.statement_lines[2].label, "Ausgaben");
+        assert_eq!(view.statement_lines[3].label, "Umbuchungen und Kredite");
+        assert_eq!(view.statement_lines[4].label, "Verfügbar am 31.08.2026");
     }
 
     #[test]

@@ -6,7 +6,9 @@
 use std::sync::Arc;
 use std::thread;
 
-use finglass_core::app::dashboard::{BalanceTone, DashboardState, DashboardView, local_today, month_text};
+use finglass_core::app::dashboard::{
+    BalanceTone, DashboardState, DashboardView, StatementLineKind, local_today, month_text,
+};
 use finglass_core::dashboard::YearMonth;
 use finglass_core::i18n::{self, Key, Language};
 use finglass_core::money::Money;
@@ -15,8 +17,8 @@ use time::Date;
 
 use crate::shell::ShellState;
 use crate::{
-    DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow,
-    DashboardUpcomingRow, MainWindow,
+    DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardStatementLine, DashboardTaxSlice,
+    DashboardTransactionRow, DashboardUpcomingRow, MainWindow,
 };
 
 /// Applies `state` to the window without touching the database.
@@ -43,6 +45,7 @@ fn apply_view(main: &MainWindow, view: &DashboardView, language: Language) {
     main.set_dashboard_available_value(view.available_value.clone().into());
     main.set_dashboard_available_subtitle(view.available_subtitle.clone().into());
     main.set_dashboard_available_tone(tone_code(view.available_tone).into());
+    main.set_dashboard_statement_lines(statement_model(&view.statement_lines));
     main.set_dashboard_income_title(view.income_title.clone().into());
     main.set_dashboard_income_value(view.income_value.clone().into());
     main.set_dashboard_expenses_title(view.expenses_title.clone().into());
@@ -50,6 +53,12 @@ fn apply_view(main: &MainWindow, view: &DashboardView, language: Language) {
     main.set_dashboard_pending_title(view.pending_title.clone().into());
     main.set_dashboard_pending_value(view.pending_value.clone().into());
     main.set_dashboard_pending_subtitle(view.pending_subtitle.clone().into());
+    main.set_dashboard_pending_lines(ModelRc::new(VecModel::from(
+        view.pending_lines
+            .iter()
+            .map(|line| SharedString::from(line.as_str()))
+            .collect::<Vec<_>>(),
+    )));
     main.set_dashboard_pending_enabled(view.pending_enabled);
 
     main.set_dashboard_expenses_section_title(view.expenses_section_title.clone().into());
@@ -202,6 +211,26 @@ fn tone_code(tone: BalanceTone) -> &'static str {
         BalanceTone::Zero => "zero",
         BalanceTone::Negative => "negative",
     }
+}
+
+fn statement_model(lines: &[finglass_core::app::dashboard::StatementLineView]) -> ModelRc<DashboardStatementLine> {
+    ModelRc::new(VecModel::from(
+        lines
+            .iter()
+            .map(|line| DashboardStatementLine {
+                label: line.label.clone().into(),
+                amount_text: line.amount_text.clone().into(),
+                kind: match line.kind {
+                    StatementLineKind::Carry => "carry",
+                    StatementLineKind::In => "in",
+                    StatementLineKind::Out => "out",
+                    StatementLineKind::Movement => "movement",
+                    StatementLineKind::Result => "result",
+                }
+                .into(),
+            })
+            .collect::<Vec<_>>(),
+    ))
 }
 
 fn category_model(rows: &[finglass_core::app::dashboard::CategoryRowView]) -> ModelRc<DashboardCategoryRow> {
