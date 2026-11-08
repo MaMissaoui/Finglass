@@ -53,7 +53,8 @@ Each milestone is specified by Claude, implemented by OpenCode, reviewed by Clau
   - **Go:** live sync goes ahead in M5.
   - **No-go:** Finglass ships with file imports first, and M5 waits for a library or a port of the needed parts.
 - [ ] Apply for a FinTS product registration with the Deutsche Kreditwirtschaft under the name Finglass. It must be in
-      place before live sync ships.
+      place before live sync ships. Form sent to the DK on 2026-11-08; the DK names 10–15 working days. The id is
+      never committed: the build reads it from a local file or a CI secret.
 - [ ] Once the DK registration is in and its terms for the FinTS institute list are known, decide how Finglass gets
       bank server URLs: the user loads the institute list they received (Finglass never redistributes it), or, only
       if the terms allow it, the list ships with the app. Until then the add-bank dialog asks for the server URL.
