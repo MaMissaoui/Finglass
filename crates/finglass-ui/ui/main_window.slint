@@ -104,6 +104,10 @@ export component MainWindow inherits Window {
     in property <string> about-version-text;
     in property <string> current-screen: "dashboard";
     in property <string> theme-pref: "system";
+    // Test-only: the software renderer draws an in-window fallback bar; screenshots hide it.
+    in property <bool> menu-bar-visible: true;
+    // Kept in sync by src/shell.rs so the check mark follows every theme change, including the top bar's.
+    in-out property <bool> menu-dark-theme;
     in property <string> language: "en";
     in-out property <bool> sidebar-collapsed: false;
     in-out property <bool> language-menu-open: false;
@@ -591,6 +595,13 @@ export component MainWindow inherits Window {
 
     callback navigate(string);
     callback set-theme(string);
+    callback menu-navigate(int);
+    callback menu-new-transaction;
+    callback menu-import-statement;
+    callback menu-minimize;
+    callback menu-zoom;
+    callback menu-open-github;
+    callback menu-report-problem;
     callback set-language(string);
     callback sidebar-collapsed-changed(bool);
     callback open-change;
@@ -812,6 +823,143 @@ export component MainWindow inherits Window {
         // Capture the OS scheme before apply_theme() can replace Palette.color-scheme's default
         // binding to the OS scheme.
         Theme.capture-os-scheme();
+    }
+
+    // While one of the app's modal overlays is open, the File and View items are disabled, so the
+    // menu cannot stack a second dialog or switch the page out from under the open one.
+    property <bool> dialog-open:
+        root.change-open
+        || root.category-dialog-open
+        || root.category-delete-open
+        || root.rule-dialog-open
+        || root.rule-delete-open
+        || root.rule-import-open
+        || root.settings-restore-open
+        || root.settings-restore-passphrase-open
+        || root.profile-dialog-open
+        || root.profile-delete-open
+        || root.findesk-passphrase-open
+        || root.findesk-report-open
+        || root.accounts-dialog != ""
+        || root.accounts-detail-open
+        || root.transactions-add-open
+        || root.transactions-duplicate-open
+        || root.transactions-delete-open
+        || root.transactions-multi-delete-open
+        || root.transactions-range-open
+        || root.transactions-amount-open
+        || root.transactions-import-open
+        || root.transactions-reapply-open
+        || root.transactions-rule-open
+        || root.transactions-detail-open
+        || root.banking-prompt != "";
+
+    MenuBar {
+        visible: root.menu-bar-visible;
+
+        Menu {
+            title: Tr.t("MenuFile");
+
+            MenuItem {
+                title: Tr.t("MenuNewTransaction");
+                shortcut: @keys(Control + N);
+                enabled: !root.dialog-open;
+                activated => { root.menu-new-transaction(); }
+            }
+            MenuItem {
+                title: Tr.t("MenuImportStatement");
+                shortcut: @keys(Control + Shift + I);
+                enabled: !root.dialog-open;
+                activated => { root.menu-import-statement(); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: Tr.t("MenuSettings");
+                shortcut: @keys(Control + ",");
+                enabled: !root.dialog-open;
+                activated => { root.navigate("settings"); }
+            }
+        }
+
+        Menu {
+            title: Tr.t("MenuView");
+
+            MenuItem {
+                title: Tr.t("NavDashboard");
+                shortcut: @keys(Control + "1");
+                enabled: !root.dialog-open;
+                activated => { root.menu-navigate(0); }
+            }
+            MenuItem {
+                title: Tr.t("NavAccounts");
+                shortcut: @keys(Control + "2");
+                enabled: !root.dialog-open;
+                activated => { root.menu-navigate(1); }
+            }
+            MenuItem {
+                title: Tr.t("NavTransactions");
+                shortcut: @keys(Control + "3");
+                enabled: !root.dialog-open;
+                activated => { root.menu-navigate(2); }
+            }
+            MenuItem {
+                title: Tr.t("NavDocuments");
+                shortcut: @keys(Control + "4");
+                enabled: !root.dialog-open;
+                activated => { root.menu-navigate(3); }
+            }
+            MenuItem {
+                title: Tr.t("NavReports");
+                shortcut: @keys(Control + "5");
+                enabled: !root.dialog-open;
+                activated => { root.menu-navigate(4); }
+            }
+            MenuItem {
+                title: Tr.t("NavSettings");
+                shortcut: @keys(Control + "6");
+                enabled: !root.dialog-open;
+                activated => { root.menu-navigate(5); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: Tr.t("DarkTheme");
+                shortcut: @keys(Control + Shift + D);
+                enabled: !root.dialog-open;
+                checkable: true;
+                checked <=> root.menu-dark-theme;
+                activated => {
+                    // "System" shows its effective mode; a click stores an explicit mode.
+                    root.set-theme(Theme.dark ? "light" : "dark");
+                }
+            }
+        }
+
+        Menu {
+            title: Tr.t("MenuWindow");
+
+            MenuItem {
+                title: Tr.t("MenuMinimize");
+                shortcut: @keys(Control + M);
+                activated => { root.menu-minimize(); }
+            }
+            MenuItem {
+                title: Tr.t("MenuZoom");
+                activated => { root.menu-zoom(); }
+            }
+        }
+
+        Menu {
+            title: Tr.t("MenuHelp");
+
+            MenuItem {
+                title: Tr.t("MenuGitHub");
+                activated => { root.menu-open-github(); }
+            }
+            MenuItem {
+                title: Tr.t("MenuReportProblem");
+                activated => { root.menu-report-problem(); }
+            }
+        }
     }
 
     property <string> title-key: {
