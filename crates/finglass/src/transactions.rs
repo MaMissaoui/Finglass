@@ -61,6 +61,13 @@ impl Drop for BusyGuard {
     }
 }
 
+/// A dialog the menu asked for, opened once the page it belongs to has finished loading.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum PendingOpen {
+    AddTransaction,
+    ImportStatement,
+}
+
 /// The newest search query typed while a job was running, kept until the job has finished.
 #[derive(Debug, Default, PartialEq, Eq)]
 struct PendingSearch {
@@ -99,6 +106,8 @@ pub struct TransactionsController {
     /// The open profile's busy flag, held while an import writes bookings. Replaced when the profile changes.
     profile_busy: Mutex<Busy>,
     pending_search: Mutex<PendingSearch>,
+    /// Set by the File menu, consumed after the page load that precedes it.
+    pending_open: Mutex<Option<PendingOpen>>,
     multi_delete_ids: Mutex<BTreeSet<TransactionId>>,
     jobs: crate::jobs::JobTracker,
     reapply_excluded: Mutex<BTreeSet<ReapplyKey>>,
@@ -122,6 +131,7 @@ impl TransactionsController {
             busy: Busy::default(),
             profile_busy: Mutex::new(Busy::default()),
             pending_search: Mutex::new(PendingSearch::default()),
+            pending_open: Mutex::new(None),
             multi_delete_ids: Mutex::new(BTreeSet::new()),
             jobs,
             reapply_excluded: Mutex::new(BTreeSet::new()),
@@ -291,19 +301,7 @@ impl TransactionsController {
         {
             let this = Arc::clone(self);
             main.on_transactions_open_import(move || {
-                let language = this.language();
-                this.spawn(move |view, db| {
-                    let Some(files) = rfd::FileDialog::new()
-                        .add_filter(i18n::text(language, Key::ImportBankStatement), STATEMENT_EXTENSIONS)
-                        .pick_files()
-                    else {
-                        return;
-                    };
-                    if files.is_empty() {
-                        return;
-                    }
-                    let _ = view.open_import(db, &files, None, OffsetDateTime::now_utc().date());
-                });
+                this.open_import();
             });
         }
 
@@ -855,12 +853,14 @@ impl TransactionsController {
             .lock()
             .expect("reapply exclusions poisoned")
             .clear();
+        *self.pending_open.lock().expect("transactions pending open poisoned") = None;
         self.publish(snapshot);
     }
 
     /// Clears the page, for when the profile is locked.
     pub fn reset(&self) {
         *self.db.lock().expect("transactions database poisoned") = None;
+        *self.pending_open.lock().expect("transactions pending open poisoned") = None;
         let language = self
             .view
             .lock()
@@ -893,9 +893,27 @@ impl TransactionsController {
 
     /// Opens the page, applying navigation context when one is given.
     pub fn open_page(self: &Arc<Self>, args: StartArgs) {
-        self.spawn(move |view, db| {
+        self.open_page_then(args, None);
+    }
+
+    /// Opens the page and then the add-transaction dialog, like the page's own button.
+    pub fn open_page_with_add(self: &Arc<Self>, args: StartArgs) {
+        self.open_page_then(args, Some(PendingOpen::AddTransaction));
+    }
+
+    /// Opens the page and then the statement-import dialog, like the page's own import button.
+    pub fn open_page_with_import(self: &Arc<Self>, args: StartArgs) {
+        self.open_page_then(args, Some(PendingOpen::ImportStatement));
+    }
+
+    fn open_page_then(self: &Arc<Self>, args: StartArgs, pending: Option<PendingOpen>) {
+        *self.pending_open.lock().expect("transactions pending open poisoned") = pending;
+        let started = self.spawn(move |view, db| {
             let _ = view.start(db, args, OffsetDateTime::now_utc().date());
         });
+        if !started {
+            *self.pending_open.lock().expect("transactions pending open poisoned") = None;
+        }
     }
 
     fn update_search_query(self: &Arc<Self>, query: &str) -> bool {
@@ -1139,6 +1157,22 @@ impl TransactionsController {
         ui.set_transactions_multi_delete_open(true);
     }
 
+    fn open_import(self: &Arc<Self>) {
+        let language = self.language();
+        self.spawn(move |view, db| {
+            let Some(files) = rfd::FileDialog::new()
+                .add_filter(i18n::text(language, Key::ImportBankStatement), STATEMENT_EXTENSIONS)
+                .pick_files()
+            else {
+                return;
+            };
+            if files.is_empty() {
+                return;
+            }
+            let _ = view.open_import(db, &files, None, OffsetDateTime::now_utc().date());
+        });
+    }
+
     fn open_add(&self) {
         let Some(ui) = self.ui.upgrade() else {
             return;
@@ -1356,7 +1390,7 @@ impl TransactionsController {
 
     /// Returns a worker's view and publishes its result, unless the profile has been switched in the meantime: then
     /// `reset`/`attach` has already installed a fresh view and the old one, with the old profile's data, is dropped.
-    fn publish_job(&self, state: TransactionsState, generation: u64, view: TransactionsView) {
+    fn publish_job(self: &Arc<Self>, state: TransactionsState, generation: u64, view: TransactionsView) {
         if !self.jobs.is_current(generation) {
             self.jobs.end();
             return;
@@ -1368,6 +1402,7 @@ impl TransactionsController {
             .lock()
             .map(|excluded| excluded.clone())
             .unwrap_or_default();
+        let this = Arc::clone(self);
         let ui = self.ui.clone();
         let jobs = self.jobs.clone();
         let _ = slint::invoke_from_event_loop(move || {
@@ -1377,8 +1412,23 @@ impl TransactionsController {
             }
             if let Some(ui) = ui.upgrade() {
                 apply_with_excluded(&ui, &state, &excluded);
+                this.run_pending_open();
             }
         });
+    }
+
+    /// Opens the dialog the File menu asked for after its page load finished.
+    fn run_pending_open(self: &Arc<Self>) {
+        let pending = self
+            .pending_open
+            .lock()
+            .expect("transactions pending open poisoned")
+            .take();
+        match pending {
+            Some(PendingOpen::AddTransaction) => self.open_add(),
+            Some(PendingOpen::ImportStatement) => self.open_import(),
+            None => {}
+        }
     }
 
     fn database(&self) -> Option<Arc<Database>> {

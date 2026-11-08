@@ -3522,6 +3522,8 @@ fn configure_main(ui: &MainWindow, language: Language, theme: ThemePref, screen:
     ui.set_about_version_text(i18n::format(language, Key::AboutVersion, &[finglass_core::VERSION.into()]).into());
     ui.set_current_screen(screen.into());
     ui.set_theme_pref(theme.code().into());
+    // The software renderer has no native menu bar and would draw Slint's fallback bar in the window.
+    ui.set_menu_bar_visible(false);
     ui.set_language(language.code().into());
     ui.set_sidebar_collapsed(false);
     ui.set_language_menu_open(false);

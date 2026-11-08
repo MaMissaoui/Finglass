@@ -420,6 +420,38 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
     }
 }
 
+/// Switches to `screen` and starts the work that page needs. The sidebar and the View menu both
+/// come through here, so they cannot drift apart.
+fn navigate_to(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, screen: &str) {
+    let dashboard = screen == "dashboard";
+    let screen_is_documents = screen == "documents";
+    let reports = screen == "reports";
+    let settings = screen == "settings";
+    let accounts_screen = screen == "accounts";
+    let transactions_screen = screen == "transactions";
+    main.set_current_screen(screen.into());
+    if dashboard {
+        dashboard::spawn_open(main, state);
+    }
+    if screen_is_documents {
+        state.documents.open_page();
+    }
+    if reports {
+        main.set_reports_tab("summary".into());
+        state.reports.open_page();
+    }
+    if settings {
+        crate::settings::spawn_load(main, state, paths);
+    }
+    if accounts_screen {
+        accounts::spawn_load(main, state);
+    }
+    if transactions_screen {
+        let args = std::mem::take(&mut *state.navigation.lock().expect("navigation state poisoned"));
+        state.transactions.open_page(args);
+    }
+}
+
 fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
     state.reports.wire(main);
     state.documents.wire(main);
@@ -431,35 +463,71 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         let paths = paths.clone();
         main.on_navigate(move |screen| {
             if let Some(ui) = main_weak.upgrade() {
-                let dashboard = screen.as_str() == "dashboard";
-                let screen_is_documents = screen.as_str() == "documents";
-                let reports = screen.as_str() == "reports";
-                let settings = screen.as_str() == "settings";
-                let accounts_screen = screen.as_str() == "accounts";
-                let transactions_screen = screen.as_str() == "transactions";
-                ui.set_current_screen(screen);
-                if dashboard {
-                    dashboard::spawn_open(&ui, &state);
-                }
-                if screen_is_documents {
-                    state.documents.open_page();
-                }
-                if reports {
-                    ui.set_reports_tab("summary".into());
-                    state.reports.open_page();
-                }
-                if settings {
-                    crate::settings::spawn_load(&ui, &state, &paths);
-                }
-                if accounts_screen {
-                    accounts::spawn_load(&ui, &state);
-                }
-                if transactions_screen {
-                    let args = std::mem::take(&mut *state.navigation.lock().expect("navigation state poisoned"));
-                    state.transactions.open_page(args);
-                }
+                navigate_to(&ui, &state, &paths, screen.as_str());
             }
         });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_menu_navigate(move |index| {
+            if let Some(ui) = main_weak.upgrade()
+                && let Some(screen) = crate::menu::page_target(index)
+            {
+                navigate_to(&ui, &state, &paths, screen);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_menu_new_transaction(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_current_screen("transactions".into());
+                state.transactions.open_page_with_add(StartArgs::default());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        main.on_menu_import_statement(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.set_current_screen("transactions".into());
+                state.transactions.open_page_with_import(StartArgs::default());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_menu_minimize(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                ui.window().set_minimized(true);
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        main.on_menu_zoom(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                let window = ui.window();
+                window.set_maximized(!window.is_maximized());
+            }
+        });
+    }
+
+    {
+        main.on_menu_open_github(move || crate::menu::open_help(crate::menu::GITHUB_URL));
+    }
+
+    {
+        main.on_menu_report_problem(move || crate::menu::open_help(crate::menu::REPORT_PROBLEM_URL));
     }
 
     {
@@ -2222,6 +2290,8 @@ impl HasThemeMode for MainWindow {
         let theme_global = self.global::<Theme>();
         theme_global.set_mode(theme.code().into());
         theme_global.invoke_apply_scheme();
+        // Keep the View menu's Dark theme check mark in step, including when the top bar changes the theme.
+        self.set_menu_dark_theme(theme_global.get_dark());
     }
 }
 

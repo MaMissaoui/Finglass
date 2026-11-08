@@ -9,6 +9,7 @@ mod banking;
 mod dashboard;
 mod documents;
 mod jobs;
+mod menu;
 mod migration;
 pub mod reports;
 mod settings;
