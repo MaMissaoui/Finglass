@@ -145,7 +145,9 @@ component PanelRowView inherits Rectangle {
         spacing: 0px;
 
         Rectangle {
-            height: root.item.kind == "account" ? 42px : 36px;
+            // Grows with its lines (name, last 4 of the IBAN, last fetched), as FinDesk's rows do:
+            // a fixed height let the third line run into the next account.
+            min-height: root.item.kind == "account" ? 42px : 36px;
             background: root.item.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
 
             // The row's own click target sits below the chevron and the menu button.
@@ -169,6 +171,8 @@ component PanelRowView inherits Rectangle {
             HorizontalLayout {
                 padding-left: root.item.indent ? 24px : 6px;
                 padding-right: 6px;
+                padding-top: 6px;
+                padding-bottom: 6px;
                 spacing: 6px;
                 cross-axis-alignment: center;
 
@@ -193,7 +197,7 @@ component PanelRowView inherits Rectangle {
                     Text {
                         text: root.item.label;
                         color: root.item.selected ? Theme.on-selected : Theme.text;
-                        font-size: root.item.kind == "all" ? 14px : 13px;
+                        font-size: Type.body-size;
                         font-weight: root.item.kind == "all" || root.item.kind == "group" ? Type.label-small-weight : (root.item.new-count > 0 ? Type.label-small-weight : Type.label-small-weight);
                         overflow: elide;
                     }

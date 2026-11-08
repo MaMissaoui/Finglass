@@ -461,29 +461,38 @@ export component ReportsPage inherits Rectangle {
             }
 
             if (root.tab != "recurring" && !root.custom-edit) : HorizontalLayout {
-                spacing: 4px;
+                spacing: 8px;
                 alignment: start;
                 cross-axis-alignment: center;
 
+                // Outlined round buttons, so the year switcher reads as navigation. They stay enabled
+                // while a year loads (a click then is ignored in Rust), so nothing flickers.
                 IconButton {
-                    icon: @image-url("icons/arrow_back.svg");
+                    icon: @image-url("icons/keyboard_arrow_left.svg");
+                    icon-color: Theme.primary;
+                    outlined: true;
                     label: Tr.t("PreviousYear");
                     tooltip-text: Tr.t("PreviousYear");
-                    enabled: !root.busy;
+                    enabled: !root.exporting;
                     clicked => { root.change-year(-1); }
                 }
+                // A fixed width: proportional digits would move the arrows from year to year.
                 Text {
+                    width: 76px;
                     text: root.year-label;
                     color: Theme.text;
                     font-size: Type.headline-size;
                     font-weight: Type.headline-weight;
+                    horizontal-alignment: center;
                     vertical-alignment: center;
                 }
                 IconButton {
-                    icon: @image-url("icons/arrow_forward.svg");
+                    icon: @image-url("icons/keyboard_arrow_right.svg");
+                    icon-color: Theme.primary;
+                    outlined: true;
                     label: Tr.t("NextYear");
                     tooltip-text: Tr.t("NextYear");
-                    enabled: !root.busy;
+                    enabled: !root.exporting;
                     clicked => { root.change-year(1); }
                 }
             }
@@ -511,9 +520,15 @@ export component ReportsPage inherits Rectangle {
                 }
             }
 
-            if (root.tab != "recurring" && root.loading) : Spinner {
+            // The spinner's place is always reserved, so starting a load doesn't shift the row.
+            Rectangle {
                 width: 20px;
                 height: 20px;
+
+                if (root.tab != "recurring" && root.loading) : Spinner {
+                    width: 20px;
+                    height: 20px;
+                }
             }
 
             Rectangle {
