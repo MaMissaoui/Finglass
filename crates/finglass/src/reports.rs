@@ -232,13 +232,28 @@ impl ReportsController {
     }
 
     /// Loads the selected period and the recurring payments when the page opens.
-    pub fn open_page(self: &Arc<Self>) {
+    ///
+    /// `tax_year` opens the page on the Tax bookings tab for that year, as the dashboard's tax card
+    /// does; `None` keeps the screen's own year and the summary tab.
+    pub fn open_page(self: &Arc<Self>, tax_year: Option<i32>) {
         let Some(db) = self.database() else {
             return;
         };
         let today = OffsetDateTime::now_utc().date();
 
-        if self.state.try_lock().is_ok_and(|state| state.custom_range.is_none()) {
+        if let Some(year) = tax_year {
+            // Apply the link's year at once when the state is free; the worker applies it again so a
+            // long-running load cannot swallow the link.
+            if let Ok(mut state) = self.state.try_lock() {
+                state.selected_year = year;
+                state.custom_range = None;
+                let snapshot = state.clone();
+                drop(state);
+                self.publish(snapshot);
+            }
+        }
+
+        if tax_year.is_some() || self.state.try_lock().is_ok_and(|state| state.custom_range.is_none()) {
             self.set_default_range(today);
         }
 
@@ -251,6 +266,10 @@ impl ReportsController {
             }
             let snapshot = {
                 let mut state = this.state.lock().expect("reports state poisoned");
+                if let Some(year) = tax_year {
+                    state.selected_year = year;
+                    state.custom_range = None;
+                }
                 if let Some((from, to)) = state.custom_range {
                     state.set_custom_range(&db, from, to);
                 } else {

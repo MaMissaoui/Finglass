@@ -152,6 +152,9 @@ export component MainWindow inherits Window {
     in property <string> version;
     in property <string> about-version-text;
     in property <string> current-screen: "dashboard";
+    // The Back button shows after a link; back-label is the translated "Back to %s".
+    in property <bool> back-visible: false;
+    in property <string> back-label;
     in property <string> theme-pref: "system";
     // Test-only: the software renderer draws an in-window fallback bar; screenshots hide it.
     in property <bool> menu-bar-visible: true;
@@ -656,6 +659,9 @@ export component MainWindow inherits Window {
     in property <string> documents-delete-text;
 
     callback navigate(string);
+    /// A link inside a screen: it leaves a back entry for where the user came from.
+    callback follow-navigate(string);
+    callback go-back;
     callback set-theme(string);
     callback menu-navigate(int);
     callback menu-find;
@@ -730,6 +736,7 @@ export component MainWindow inherits Window {
     callback dashboard-open-partner(string);
     callback dashboard-open-accounts;
     callback dashboard-open-settings;
+    callback dashboard-open-tax;
     callback dashboard-dismiss-error;
 
     callback reports-set-custom(bool);
@@ -954,6 +961,12 @@ export component MainWindow inherits Window {
                 shortcut: @keys(Control + F);
                 enabled: !root.dialog-open && !root.documents-dialog-open && (root.current-screen == "transactions" || root.current-screen == "documents");
                 activated => { root.menu-find(); }
+            }
+            MenuItem {
+                title: Tr.t("Back");
+                shortcut: @keys(Control + "[");
+                enabled: root.back-visible && !root.dialog-open;
+                activated => { root.go-back(); }
             }
             MenuSeparator {}
             MenuItem {
@@ -1195,6 +1208,15 @@ export component MainWindow inherits Window {
                         }
                     }
 
+                    // Back to the screen the last link left, between the sidebar toggle and the title.
+                    if (root.back-visible) : IconButton {
+                        icon: @image-url("icons/arrow_back.svg");
+                        label: root.back-label;
+                        tooltip-text: root.back-label;
+                        enabled: !root.dialog-open;
+                        clicked => { root.go-back(); }
+                    }
+
                     Text {
                         text: root.screen-title;
                         color: Theme.text;
@@ -1402,6 +1424,7 @@ export component MainWindow inherits Window {
                 open-partner(partner) => { root.dashboard-open-partner(partner); }
                 open-accounts => { root.dashboard-open-accounts(); }
                 open-settings => { root.dashboard-open-settings(); }
+                open-tax => { root.dashboard-open-tax(); }
                 dismiss-error => { root.dashboard-dismiss-error(); }
             }
 
@@ -1762,7 +1785,7 @@ export component MainWindow inherits Window {
                 close-amount => { root.transactions-close-amount(); }
                 toggle-chart => { root.transactions-toggle-chart(); }
                 auto-categorize => { root.transactions-auto-categorize(); }
-                open-accounts => { root.navigate("accounts"); }
+                open-accounts => { root.follow-navigate("accounts"); }
                 back => { root.transactions-back(); }
 
                 open-detail(id) => { root.transactions-open-detail(id); }

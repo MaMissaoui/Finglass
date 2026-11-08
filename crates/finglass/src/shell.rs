@@ -11,14 +11,14 @@ use std::thread;
 use finglass_core::app;
 use finglass_core::app::accounts::{AccountsState, Busy};
 use finglass_core::app::banking::BankingState;
-use finglass_core::app::dashboard::{DashboardState, local_today};
+use finglass_core::app::dashboard::{DashboardState, NavigationArgs, local_today};
 use finglass_core::app::findesk::FindeskImportState;
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::settings::SettingsState;
 use finglass_core::app::transactions::{Period, StartArgs};
 use finglass_core::app::unlock::{UnlockError, UnlockMode};
 use finglass_core::db::Database;
-use finglass_core::i18n::{self, Key, Language};
+use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::instance::{InstanceError, InstanceLock};
 use finglass_core::model::{CategoryId, RuleId};
 use finglass_core::paths::AppPaths;
@@ -35,6 +35,7 @@ use crate::banking;
 use crate::dashboard;
 use crate::documents::DocumentsController;
 use crate::jobs::JobTracker;
+use crate::nav::{self, NavState, PageArgs, SETTINGS_APPEARANCE, SETTINGS_CATEGORIES, SETTINGS_PROFILES};
 use crate::reports::ReportsController;
 use crate::transactions::TransactionsController;
 use crate::{AuditRow, MainWindow, Theme, Tr, UnlockWindow};
@@ -51,8 +52,8 @@ pub(crate) struct ShellState {
     pub(crate) credentials: Arc<dyn CredentialStore>,
     pub(crate) dashboard: Mutex<DashboardState>,
     pub(crate) reports: Arc<ReportsController>,
-    /// The filter the dashboard or a report last asked the Transactions page to show; M4c reads it.
-    pub(crate) navigation: Mutex<StartArgs>,
+    /// The back trail and the arguments of the page shown now.
+    pub(crate) nav: Mutex<NavState>,
     pub(crate) settings: Mutex<SettingsState>,
     /// The one-time FinDesk import's folder, passphrase prompt and result.
     pub(crate) findesk: Mutex<FindeskImportState>,
@@ -147,7 +148,7 @@ pub fn run(paths: AppPaths) -> Result<(), slint::PlatformError> {
         credentials: system_credential_store(),
         dashboard: Mutex::new(DashboardState::new(initial_language, today)),
         reports,
-        navigation: Mutex::new(StartArgs::default()),
+        nav: Mutex::new(NavState::default()),
         settings: Mutex::new(SettingsState::new(initial_language)),
         findesk: Mutex::new(FindeskImportState::new(initial_language)),
         accounts: Mutex::new(new_accounts_state(initial_language, profile_busy.clone())),
@@ -253,6 +254,8 @@ fn configure_main_window(main: &MainWindow, language: Language, restored_from: O
     main.set_theme_pref(ThemePref::System.code().into());
     main.set_language(language.code().into());
     main.set_sidebar_collapsed(false);
+    main.set_back_visible(false);
+    main.set_back_label("".into());
     main.set_language_menu_open(false);
     main.set_dashboard_month_menu_open(false);
     main.set_status_text("".into());
@@ -421,12 +424,6 @@ fn wire_unlock(unlock: &UnlockWindow, main: &MainWindow, paths: &Arc<AppPaths>, 
     }
 }
 
-// The Settings sections, in the order `settings_page.slint` lists them. Links into Settings pass
-// the section they are about; plain navigation opens Appearance, as FinDesk does.
-pub(crate) const SETTINGS_APPEARANCE: i32 = 0;
-pub(crate) const SETTINGS_PROFILES: i32 = 1;
-pub(crate) const SETTINGS_CATEGORIES: i32 = 2;
-
 /// The Settings section a navigation opens, or `None` when it opens another screen.
 #[must_use]
 fn settings_section_for(screen: &str, requested: Option<i32>) -> Option<i32> {
@@ -439,8 +436,9 @@ fn find_enabled(screen: &str, dialog_open: bool) -> bool {
     !dialog_open && matches!(screen, "transactions" | "documents")
 }
 
-/// Switches to `screen` and starts the work that page needs. The sidebar and the View menu both
-/// come through here, so they cannot drift apart.
+/// Switches to `screen` and starts the work that page needs. The sidebar, the shortcuts and the menu
+/// bar all come through here, so they cannot drift apart; choosing a page directly starts a new back
+/// trail.
 fn navigate_to(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, screen: &str) {
     navigate_to_section(main, state, paths, screen, None);
 }
@@ -453,34 +451,103 @@ fn navigate_to_section(
     screen: &str,
     section: Option<i32>,
 ) {
-    let dashboard = screen == "dashboard";
-    let screen_is_documents = screen == "documents";
-    let reports = screen == "reports";
-    let settings_section = settings_section_for(screen, section);
-    let accounts_screen = screen == "accounts";
-    let transactions_screen = screen == "transactions";
+    let Some(screen) = nav::screen_name(screen) else {
+        return;
+    };
+    let args = PageArgs {
+        settings_section: settings_section_for(screen, section),
+        ..PageArgs::default()
+    };
+    state.nav.lock().expect("navigation state poisoned").enter(args.clone());
+    open_page(main, state, paths, screen, &args);
+    apply_back(main, state);
+}
+
+/// A link inside a screen: it leaves a back entry for where the user leaves from, then opens the
+/// target. A link to the page already shown only changes its arguments.
+fn follow_link(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, target: &str, args: PageArgs) {
+    let Some(target) = nav::screen_name(target) else {
+        return;
+    };
+    let Some(from) = nav::screen_name(main.get_current_screen().as_str()) else {
+        return;
+    };
+    let leave = leaving_args(state, from);
+    state
+        .nav
+        .lock()
+        .expect("navigation state poisoned")
+        .follow(from, target, leave, args.clone());
+    open_page(main, state, paths, target, &args);
+    apply_back(main, state);
+}
+
+/// The arguments Back must reopen the page the user leaves from with.
+fn leaving_args(state: &Arc<ShellState>, from: &str) -> PageArgs {
+    if from == "dashboard" {
+        // FinDesk reopens the Dashboard on the month it left, unless that was the current month.
+        let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+        PageArgs::dashboard(dashboard.selected_month, dashboard.current_month)
+    } else {
+        state.nav.lock().expect("navigation state poisoned").current().clone()
+    }
+}
+
+/// Opens `screen` with `args`, without touching the back stack.
+fn open_page(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>, screen: &str, args: &PageArgs) {
     main.set_current_screen(screen.into());
-    if dashboard {
-        dashboard::spawn_open(main, state);
+    match screen {
+        "dashboard" => match args.dashboard_month {
+            Some(month) => dashboard::spawn_load(main, state, Some(month)),
+            None => dashboard::spawn_open(main, state),
+        },
+        "documents" => state.documents.open_page(),
+        "reports" => {
+            main.set_reports_tab(if args.reports_year.is_some() { "tax" } else { "summary" }.into());
+            state.reports.open_page(args.reports_year);
+        }
+        "settings" => {
+            let section = settings_section_for(screen, args.settings_section).unwrap_or(SETTINGS_APPEARANCE);
+            main.set_settings_section(section);
+            crate::settings::spawn_load(main, state, paths);
+        }
+        "accounts" => accounts::spawn_load(main, state),
+        "transactions" => state.transactions.open_page(args.transactions.clone()),
+        _ => {}
     }
-    if screen_is_documents {
-        state.documents.open_page();
+}
+
+/// Goes back one step, or does nothing when the stack is empty or a dialog is open.
+fn go_back(main: &MainWindow, state: &Arc<ShellState>, paths: &Arc<AppPaths>) {
+    if main.get_dialog_open() {
+        return;
     }
-    if reports {
-        main.set_reports_tab("summary".into());
-        state.reports.open_page();
+    let entry = state.nav.lock().expect("navigation state poisoned").back();
+    if let Some(entry) = entry {
+        open_page(main, state, paths, entry.screen, &entry.args);
     }
-    if let Some(section) = settings_section {
-        main.set_settings_section(section);
-        crate::settings::spawn_load(main, state, paths);
-    }
-    if accounts_screen {
-        accounts::spawn_load(main, state);
-    }
-    if transactions_screen {
-        let args = std::mem::take(&mut *state.navigation.lock().expect("navigation state poisoned"));
-        state.transactions.open_page(args);
-    }
+    apply_back(main, state);
+}
+
+/// Writes the Back button's visibility and its "Back to %s" label.
+fn apply_back(main: &MainWindow, state: &Arc<ShellState>) {
+    let (visible, label) = {
+        let nav = state.nav.lock().expect("navigation state poisoned");
+        match nav.target() {
+            Some(entry) => {
+                let language = current_language(state);
+                let text = i18n::format(
+                    language,
+                    Key::BackTo,
+                    &[Arg::Str(nav::title(entry.screen, language).to_owned())],
+                );
+                (true, text)
+            }
+            None => (false, String::new()),
+        }
+    };
+    main.set_back_visible(visible);
+    main.set_back_label(label.into());
 }
 
 fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, state: &Arc<ShellState>) {
@@ -495,6 +562,28 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         main.on_navigate(move |screen| {
             if let Some(ui) = main_weak.upgrade() {
                 navigate_to(&ui, &state, &paths, screen.as_str());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_follow_navigate(move |screen| {
+            if let Some(ui) = main_weak.upgrade() {
+                follow_link(&ui, &state, &paths, screen.as_str(), PageArgs::default());
+            }
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
+        main.on_go_back(move || {
+            if let Some(ui) = main_weak.upgrade() {
+                go_back(&ui, &state, &paths);
             }
         });
     }
@@ -531,8 +620,13 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         let state = state.clone();
         main.on_menu_new_transaction(move || {
             if let Some(ui) = main_weak.upgrade() {
+                state.nav.lock().expect("navigation state poisoned").enter(PageArgs {
+                    transactions: StartArgs::default(),
+                    ..PageArgs::default()
+                });
                 ui.set_current_screen("transactions".into());
                 state.transactions.open_page_with_add(StartArgs::default());
+                apply_back(&ui, &state);
             }
         });
     }
@@ -542,8 +636,13 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         let state = state.clone();
         main.on_menu_import_statement(move || {
             if let Some(ui) = main_weak.upgrade() {
+                state.nav.lock().expect("navigation state poisoned").enter(PageArgs {
+                    transactions: StartArgs::default(),
+                    ..PageArgs::default()
+                });
                 ui.set_current_screen("transactions".into());
                 state.transactions.open_page_with_import(StartArgs::default());
+                apply_back(&ui, &state);
             }
         });
     }
@@ -618,84 +717,96 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_dashboard_open_category(move |category_id| {
             let Some(ui) = main_weak.upgrade() else {
                 return;
             };
-            let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
-            let month = (dashboard.selected_month != dashboard.current_month).then_some(dashboard.selected_month);
-            let args = if category_id < 0 {
-                StartArgs {
-                    month,
-                    uncategorized_only: true,
-                    ..Default::default()
-                }
-            } else {
-                StartArgs {
-                    month,
-                    category_id: Some(CategoryId(i64::from(category_id))),
-                    ..Default::default()
-                }
+            let (selected, current) = {
+                let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+                (dashboard.selected_month, dashboard.current_month)
             };
-            drop(dashboard);
-            ui.set_current_screen("transactions".into());
-            state.transactions.open_page(args);
+            let navigation = if category_id < 0 {
+                NavigationArgs::uncategorized(selected, current)
+            } else {
+                NavigationArgs::category(selected, current, CategoryId(i64::from(category_id)))
+            };
+            follow_link(
+                &ui,
+                &state,
+                &paths,
+                "transactions",
+                PageArgs {
+                    transactions: navigation.start_args(),
+                    ..PageArgs::default()
+                },
+            );
         });
     }
 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_dashboard_open_uncategorized(move || {
             let Some(ui) = main_weak.upgrade() else {
                 return;
             };
-            let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
-            let args = StartArgs {
-                month: (dashboard.selected_month != dashboard.current_month).then_some(dashboard.selected_month),
-                uncategorized_only: true,
-                ..Default::default()
+            let (selected, current) = {
+                let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+                (dashboard.selected_month, dashboard.current_month)
             };
-            drop(dashboard);
-            ui.set_current_screen("transactions".into());
-            state.transactions.open_page(args);
+            follow_link(
+                &ui,
+                &state,
+                &paths,
+                "transactions",
+                PageArgs {
+                    transactions: NavigationArgs::uncategorized(selected, current).start_args(),
+                    ..PageArgs::default()
+                },
+            );
         });
     }
 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_dashboard_open_all(move || {
-            let Some(ui) = main_weak.upgrade() else {
-                return;
-            };
-            ui.set_current_screen("transactions".into());
-            state.transactions.open_page(StartArgs::default());
+            if let Some(ui) = main_weak.upgrade() {
+                follow_link(&ui, &state, &paths, "transactions", PageArgs::default());
+            }
         });
     }
 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_dashboard_open_partner(move |partner| {
-            let Some(ui) = main_weak.upgrade() else {
-                return;
-            };
-            ui.set_current_screen("transactions".into());
-            state.transactions.open_page(StartArgs {
-                partner: Some(partner.to_string()),
-                ..Default::default()
-            });
+            if let Some(ui) = main_weak.upgrade() {
+                follow_link(
+                    &ui,
+                    &state,
+                    &paths,
+                    "transactions",
+                    PageArgs {
+                        transactions: NavigationArgs::partner(partner.as_str()).start_args(),
+                        ..PageArgs::default()
+                    },
+                );
+            }
         });
     }
 
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_dashboard_open_accounts(move || {
             if let Some(ui) = main_weak.upgrade() {
-                ui.set_current_screen("accounts".into());
-                accounts::spawn_load(&ui, &state);
+                follow_link(&ui, &state, &paths, "accounts", PageArgs::default());
             }
         });
     }
@@ -707,7 +818,16 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
         main.on_dashboard_open_settings(move || {
             if let Some(ui) = main_weak.upgrade() {
                 // The welcome card's step is about categories and their rules.
-                navigate_to_section(&ui, &state, &paths, "settings", Some(SETTINGS_CATEGORIES));
+                follow_link(
+                    &ui,
+                    &state,
+                    &paths,
+                    "settings",
+                    PageArgs {
+                        settings_section: Some(SETTINGS_CATEGORIES),
+                        ..PageArgs::default()
+                    },
+                );
             }
         });
     }
@@ -715,6 +835,32 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
+        main.on_dashboard_open_tax(move || {
+            let Some(ui) = main_weak.upgrade() else {
+                return;
+            };
+            let year = {
+                let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+                dashboard.loaded_month.unwrap_or(dashboard.selected_month).year
+            };
+            follow_link(
+                &ui,
+                &state,
+                &paths,
+                "reports",
+                PageArgs {
+                    reports_year: Some(year),
+                    ..PageArgs::default()
+                },
+            );
+        });
+    }
+
+    {
+        let main_weak = main.as_weak();
+        let state = state.clone();
+        let paths = paths.clone();
         main.on_reports_open_category(move |category_id| {
             let Some(ui) = main_weak.upgrade() else {
                 return;
@@ -748,8 +894,16 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
                     ..Default::default()
                 }
             };
-            ui.set_current_screen("transactions".into());
-            state.transactions.open_page(args);
+            follow_link(
+                &ui,
+                &state,
+                &paths,
+                "transactions",
+                PageArgs {
+                    transactions: args,
+                    ..PageArgs::default()
+                },
+            );
         });
     }
 
@@ -1257,13 +1411,22 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
     {
         let main_weak = main.as_weak();
         let state = state.clone();
+        let paths = paths.clone();
         main.on_accounts_open_transactions(move |account_id| {
             if let Some(ui) = main_weak.upgrade() {
-                ui.set_current_screen("transactions".into());
-                state.transactions.open_page(StartArgs {
-                    account_id: Some(finglass_core::model::AccountId(i64::from(account_id))),
-                    ..Default::default()
-                });
+                follow_link(
+                    &ui,
+                    &state,
+                    &paths,
+                    "transactions",
+                    PageArgs {
+                        transactions: StartArgs {
+                            account_id: Some(finglass_core::model::AccountId(i64::from(account_id))),
+                            ..Default::default()
+                        },
+                        ..PageArgs::default()
+                    },
+                );
             }
         });
     }
@@ -1736,6 +1899,7 @@ fn wire_main(main: &MainWindow, unlock: &UnlockWindow, paths: &Arc<AppPaths>, st
 
             *state.language.lock().expect("language state poisoned") = language;
             apply_language_main(&ui, language);
+            apply_back(&ui, &state);
             dashboard::spawn_load(&ui, &state, None);
             state.reports.set_language(language);
             let findesk = {
@@ -2000,11 +2164,12 @@ pub(crate) fn reload_after_findesk_import(
     let busy = state.profile_busy.lock().expect("profile busy poisoned").clone();
     *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(prefs.language, busy);
     *state.banking.lock().expect("banking state poisoned") = BankingState::new(prefs.language);
-    *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
+    state.nav.lock().expect("navigation state poisoned").reset();
 
     state.reports.reset();
     state.documents.reset();
     state.transactions.reset();
+    state.nav.lock().expect("navigation state poisoned").reset();
 
     main.set_current_screen("settings".into());
     apply_language_main(main, prefs.language);
@@ -2013,6 +2178,7 @@ pub(crate) fn reload_after_findesk_import(
     main.set_language(prefs.language.code().into());
     main.set_sidebar_collapsed(prefs.sidebar_collapsed);
     main.set_audit_rows(audit_model(rows));
+    apply_back(main, state);
     crate::settings::apply(main, &settings, state.restored_from().as_deref());
 
     state.reports.attach(db.clone(), prefs.language);
@@ -2072,6 +2238,7 @@ fn spawn_open_work(
                     *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(prefs.language, busy);
                     *state.banking.lock().expect("banking state poisoned") = BankingState::new(prefs.language);
 
+                    state.nav.lock().expect("navigation state poisoned").reset();
                     main.set_current_screen("dashboard".into());
                     main.set_profile_menu_open(false);
                     main.set_profile_dialog_open(false);
@@ -2106,6 +2273,7 @@ fn spawn_open_work(
                     state.transactions.attach(db.clone(), prefs.language);
                     *state.db.lock().expect("database state poisoned") = Some(db);
 
+                    apply_back(&main, &state);
                     dashboard::spawn_open(&main, &state);
                     main.window().set_maximized(true);
                     let _ = main.show();
@@ -2238,7 +2406,7 @@ pub(crate) fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow
     state.transactions.set_profile_busy(busy.clone());
     *state.accounts.lock().expect("accounts state poisoned") = new_accounts_state(language, busy);
     *state.banking.lock().expect("banking state poisoned") = BankingState::new(language);
-    *state.navigation.lock().expect("navigation state poisoned") = StartArgs::default();
+    state.nav.lock().expect("navigation state poisoned").reset();
 
     state.reports.reset();
     state.documents.set_profile(target.clone());
@@ -2263,6 +2431,7 @@ pub(crate) fn teardown_profile(state: &Arc<ShellState>, main: Option<&MainWindow
         let banking = state.banking.lock().expect("banking state poisoned").clone();
         accounts::apply(main, &new_accounts_state(language, busy), &banking);
         crate::transactions::apply(main, &app::transactions::TransactionsState::new(language));
+        apply_back(main, state);
         // The caller hides the main window only after the unlock window is shown: Slint quits the event loop as
         // soon as no window is visible.
     }
@@ -2477,7 +2646,7 @@ mod tests {
             credentials: Arc::new(finglass_core::sync::credentials::NoCredentialStore),
             dashboard: Mutex::new(DashboardState::new(Language::En, local_today())),
             reports,
-            navigation: Mutex::new(StartArgs::default()),
+            nav: Mutex::new(NavState::default()),
             settings: Mutex::new(SettingsState::new(Language::En)),
             findesk: Mutex::new(FindeskImportState::new(Language::En)),
             accounts: Mutex::new(new_accounts_state(Language::En, Busy::default())),
@@ -2514,6 +2683,56 @@ mod tests {
         assert_eq!(
             state.dashboard.lock().expect("dashboard state poisoned").selected_month,
             YearMonth::new(2026, 11)
+        );
+    }
+
+    #[test]
+    fn leaving_the_dashboard_by_a_link_remembers_a_past_month() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let state = shell_state(&paths, None, None);
+        {
+            let mut dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+            dashboard.current_month = YearMonth::new(2026, 11);
+            dashboard.selected_month = YearMonth::new(2026, 10);
+        }
+
+        let past = leaving_args(&state, "dashboard");
+        assert_eq!(past.dashboard_month, Some(YearMonth::new(2026, 10)));
+
+        state.dashboard.lock().expect("dashboard state poisoned").selected_month = YearMonth::new(2026, 11);
+        let current = leaving_args(&state, "dashboard");
+        assert_eq!(
+            current.dashboard_month, None,
+            "the current month opens today again, as FinDesk's backArgs does"
+        );
+    }
+
+    #[test]
+    fn back_restores_the_transactions_arguments_a_link_left_with() {
+        let temp = tempfile::tempdir().unwrap();
+        let paths = shell_paths(&temp);
+        let state = shell_state(&paths, None, None);
+        let leave = PageArgs {
+            transactions: StartArgs {
+                period: Some(Period::ThisYear),
+                category_id: Some(CategoryId(4)),
+                ..StartArgs::default()
+            },
+            ..PageArgs::default()
+        };
+        state.nav.lock().expect("navigation state poisoned").follow(
+            "transactions",
+            "reports",
+            leave.clone(),
+            PageArgs::default(),
+        );
+
+        let entry = state.nav.lock().expect("navigation state poisoned").back();
+        assert_eq!(
+            entry.expect("a link leaves a back entry").args,
+            leave,
+            "Back reopens Transactions with the filters it had"
         );
     }
 
