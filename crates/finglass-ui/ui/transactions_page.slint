@@ -53,7 +53,8 @@ component SummaryFigure inherits VerticalLayout {
     Text {
         text: root.label;
         color: Theme.muted-text;
-        font-size: Type.body-small-size;
+        font-size: Type.label-small-size;
+        font-weight: Type.label-small-weight;
         overflow: elide;
     }
 
@@ -418,7 +419,7 @@ component TransactionRowView inherits Rectangle {
                             width: 16px;
                             height: 16px;
                             source: @image-url("icons/attach_file.svg");
-                            colorize: Theme.primary;
+                            colorize: Theme.muted-text;
                             accessible-role: none;
                         }
                     }
@@ -464,8 +465,8 @@ component TransactionRowView inherits Rectangle {
                     color: root.item.pending
                         ? Theme.muted-text
                         : (root.item.expense ? Theme.money-out : Theme.money-in);
-                    font-size: Type.label-size;
-                    font-weight: root.item.is-new ? Type.label-weight : Type.label-weight;
+                    font-size: Type.body-size;
+                    font-weight: Type.title-small-weight;
                     font-italic: root.item.pending;
                     horizontal-alignment: right;
                     vertical-alignment: center;
@@ -645,8 +646,8 @@ component EmptyTransactions inherits Rectangle {
         Text {
             text: Tr.t("NoTransactions");
             color: Theme.text;
-            font-size: Type.title-medium-size;
-            font-weight: Type.title-medium-weight;
+            font-size: Type.title-large-size;
+            font-weight: Type.title-large-weight;
             horizontal-alignment: center;
         }
 
@@ -762,7 +763,8 @@ component BalanceChartCard inherits Rectangle {
                 Text {
                     text: root.axis-top;
                     color: Theme.muted-text;
-                    font-size: Type.body-small-size;
+                    font-size: Type.caption-size;
+                    font-weight: Type.caption-weight;
                     horizontal-alignment: right;
                     overflow: elide;
                 }
@@ -770,7 +772,8 @@ component BalanceChartCard inherits Rectangle {
                 Text {
                     text: root.axis-bottom;
                     color: Theme.muted-text;
-                    font-size: Type.body-small-size;
+                    font-size: Type.caption-size;
+                    font-weight: Type.caption-weight;
                     horizontal-alignment: right;
                     overflow: elide;
                 }
@@ -1106,6 +1109,7 @@ export component TransactionsPage inherits Rectangle {
                 spacing: 8px;
 
                 HorizontalLayout {
+                    horizontal-stretch: 0;
                     spacing: 28px;
 
                     SummaryFigure {

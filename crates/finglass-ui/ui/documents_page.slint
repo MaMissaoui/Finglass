@@ -89,8 +89,8 @@ component DeleteDocumentDialog inherits Rectangle {
             Text {
                 text: Tr.t("DeleteDocumentTitle");
                 color: Theme.text;
-                font-size: Type.headline-size;
-                font-weight: Type.headline-weight;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
             Text {
                 text: root.text;
@@ -323,8 +323,8 @@ export component DocumentsPage inherits Rectangle {
                             Text {
                                 text: root.search-query == "" ? Tr.t("NoDocuments") : Tr.t("NoMatches");
                                 color: Theme.text;
-                                font-size: Type.title-medium-size;
-                                font-weight: Type.title-medium-weight;
+                                font-size: Type.title-large-size;
+                                font-weight: Type.title-large-weight;
                                 horizontal-alignment: center;
                             }
                         }
@@ -403,14 +403,14 @@ export component DocumentsPage inherits Rectangle {
                                             Text {
                                                 text: row.name;
                                                 color: row.selected ? Theme.on-selected : Theme.text;
-                                                font-size: Type.title-small-size;
-                                                font-weight: Type.title-small-weight;
+                                                font-size: Type.label-size;
+                                                font-weight: Type.label-weight;
                                                 overflow: elide;
                                                 vertical-alignment: center;
                                             }
                                             Text {
                                                 text: row.meta;
-                                                color: row.selected ? Theme.on-selected : (row.is-linked ? Theme.primary : Theme.muted-text);
+                                                color: row.selected ? Theme.on-selected : Theme.muted-text;
                                                 font-size: Type.body-small-size;
                                                 overflow: elide;
                                                 vertical-alignment: center;
@@ -552,9 +552,9 @@ export component DocumentsPage inherits Rectangle {
 
                         Text {
                             text: Tr.t("LinkedTransaction");
-                            color: Theme.text;
-                            font-size: Type.label-size;
-                            font-weight: Type.label-weight;
+                            color: Theme.muted-text;
+                            font-size: Type.label-small-size;
+                            font-weight: Type.label-small-weight;
                         }
 
                         if (root.selected-linked) : HorizontalLayout {
@@ -563,7 +563,7 @@ export component DocumentsPage inherits Rectangle {
                             Text {
                                 text: root.selected-link-label;
                                 horizontal-stretch: 1;
-                                color: Theme.primary;
+                                color: Theme.text;
                                 font-size: Type.body-size;
                                 overflow: elide;
                                 vertical-alignment: center;

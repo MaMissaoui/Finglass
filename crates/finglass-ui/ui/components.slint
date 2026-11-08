@@ -394,7 +394,7 @@ export component BankBadge inherits Rectangle {
         text: root.letters;
         color: #FFFFFF;
         font-size: root.size * 0.42;
-        font-weight: 600;
+        font-weight: Type.title-medium-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
         overflow: elide;
@@ -701,7 +701,7 @@ export component SegmentedButton inherits Rectangle {
                 text: label;
                 color: index == root.selected ? Theme.text : Theme.muted-text;
                 font-size: Type.label-size;
-                font-weight: index == root.selected ? 600 : Type.label-weight;
+                font-weight: index == root.selected ? Type.title-medium-weight : Type.label-weight;
                 horizontal-alignment: center;
                 vertical-alignment: center;
                 overflow: elide;
