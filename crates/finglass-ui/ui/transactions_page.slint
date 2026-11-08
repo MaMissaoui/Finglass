@@ -1,5 +1,5 @@
 import { ListView, Spinner } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     AccountAmount,
@@ -87,7 +87,7 @@ component DropdownPill inherits Rectangle {
 
     height: 40px;
     min-width: pill-content.preferred-width;
-    border-radius: 20px;
+    border-radius: Radius.control;
     background: touch.has-hover ? Theme.background : Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
@@ -142,7 +142,7 @@ component DropdownPill inherits Rectangle {
 
         Rectangle {
             background: Theme.surface;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -185,7 +185,7 @@ component ActionPicker inherits Rectangle {
 
     height: 32px;
     min-width: 104px;
-    border-radius: 16px;
+    border-radius: Radius.control-small;
     background: root.primary ? Theme.primary : Theme.surface;
     border-width: 1px;
     border-color: root.primary ? Theme.primary : Theme.divider;
@@ -227,7 +227,7 @@ component ActionPicker inherits Rectangle {
 
         Rectangle {
             background: Theme.surface;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -319,7 +319,7 @@ component TransactionRowView inherits Rectangle {
                 y: 4px;
                 width: 3px;
                 height: parent.height - 8px;
-                border-radius: 2px;
+                border-radius: Radius.hairline;
                 background: Theme.primary;
             }
 
@@ -341,7 +341,7 @@ component TransactionRowView inherits Rectangle {
                             visible: root.item.is-new;
                             width: 6px;
                             height: 6px;
-                            border-radius: 3px;
+                            border-radius: Radius.dot;
                             background: Theme.primary;
                         }
                     }
@@ -404,7 +404,7 @@ component TransactionRowView inherits Rectangle {
                         Rectangle {
                             width: 7px;
                             height: 7px;
-                            border-radius: 4px;
+                            border-radius: Radius.marker;
                             background: root.item.category-colour;
                         }
                     }
@@ -610,7 +610,7 @@ component BalanceChartCard inherits Rectangle {
 
     property <string> toggle-label: Tr.t("BalanceHistory");
 
-    border-radius: 12px;
+    border-radius: Radius.surface;
     background: Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
@@ -630,7 +630,7 @@ component BalanceChartCard inherits Rectangle {
             Rectangle {
                 width: 28px;
                 height: 28px;
-                border-radius: 14px;
+                border-radius: Radius.icon-medium;
                 background: touch.has-hover ? Theme.divider : transparent;
                 accessible-role: button;
                 accessible-label: root.toggle-label;
@@ -1073,7 +1073,7 @@ export component TransactionsPage inherits Rectangle {
             if (root.error-text != "" || root.message-text != "") : Rectangle {
                 height: 42px;
                 background: Theme.surface;
-                border-radius: 8px;
+                border-radius: Radius.panel;
                 border-width: 1px;
                 border-color: root.error-text != "" ? Theme.error : Theme.success;
 
@@ -1184,7 +1184,7 @@ export component TransactionsPage inherits Rectangle {
 
             Rectangle {
                 background: Theme.surface;
-                border-radius: 12px;
+                border-radius: Radius.surface;
                 border-width: 1px;
                 border-color: Theme.divider;
                 vertical-stretch: 1;
@@ -1536,7 +1536,7 @@ export component TransactionsPage inherits Rectangle {
             width: 260px;
             height: (root.can-undo-reapply ? 5 : 4) * 36px + 8px;
             background: Theme.surface;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;

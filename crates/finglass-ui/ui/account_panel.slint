@@ -1,5 +1,5 @@
 import { ScrollView } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     AccountAmount,
@@ -39,7 +39,7 @@ component ChevronButton inherits Rectangle {
 
     width: 20px;
     height: 20px;
-    border-radius: 10px;
+    border-radius: Radius.icon-small;
     background: touch.has-hover ? Theme.divider : transparent;
     property <string> label: root.collapsed ? Tr.t("Expand") : Tr.t("Collapse");
     accessible-role: button;
@@ -72,7 +72,7 @@ component DotButton inherits Rectangle {
 
     width: 24px;
     height: 24px;
-    border-radius: 12px;
+    border-radius: Radius.icon;
     background: touch.has-hover ? Theme.divider : transparent;
     accessible-role: button;
     accessible-label: root.label;
@@ -165,7 +165,7 @@ component PanelRowView inherits Rectangle {
                 y: 4px;
                 width: 3px;
                 height: parent.height - 8px;
-                border-radius: 2px;
+                border-radius: Radius.hairline;
                 background: Theme.primary;
             }
 
@@ -373,7 +373,7 @@ export component AccountPanel inherits Rectangle {
     }
 
     background: Theme.surface;
-    border-radius: 12px;
+    border-radius: Radius.surface;
     border-width: 1px;
     border-color: Theme.divider;
 
@@ -433,7 +433,7 @@ export component AccountPanel inherits Rectangle {
 
         if (root.creating) : Rectangle {
             background: Theme.background;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             height: create-form.preferred-height;
 
             create-form := VerticalLayout {
@@ -484,7 +484,7 @@ export component AccountPanel inherits Rectangle {
 
         if (root.renaming-id >= 0) : Rectangle {
             background: Theme.background;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             height: rename-form.preferred-height;
 
             rename-form := VerticalLayout {
@@ -535,7 +535,7 @@ export component AccountPanel inherits Rectangle {
 
         if (root.deleting-id >= 0) : Rectangle {
             background: Theme.background;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             height: delete-form.preferred-height;
 
             delete-form := VerticalLayout {
@@ -573,7 +573,7 @@ export component AccountPanel inherits Rectangle {
 
         if (root.moving-account-id >= 0) : Rectangle {
             background: Theme.background;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             height: move-form.preferred-height;
 
             move-form := VerticalLayout {

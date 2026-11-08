@@ -1,5 +1,5 @@
 import { ListView, ScrollView, Spinner } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     DashboardBudgetRow,
@@ -23,7 +23,7 @@ component Card inherits Rectangle {
     callback clicked;
 
     background: Theme.surface;
-    border-radius: 12px;
+    border-radius: Radius.surface;
     border-width: 1px;
     border-color: Theme.divider;
 
@@ -64,7 +64,7 @@ component StatCard inherits Rectangle {
     callback clicked;
 
     background: Theme.surface;
-    border-radius: 12px;
+    border-radius: Radius.surface;
     border-width: 1px;
     border-color: Theme.divider;
 
@@ -221,14 +221,14 @@ component BudgetRow inherits Rectangle {
 
         Rectangle {
             height: 6px;
-            border-radius: 3px;
+            border-radius: Radius.dot;
             background: Theme.divider;
             clip: true;
 
             Rectangle {
                 width: parent.width * root.budget.ratio;
                 height: parent.height;
-                border-radius: 3px;
+                border-radius: Radius.dot;
                 background: root.budget.over ? Theme.error : (root.budget.warning ? Theme.warning : root.budget.colour);
             }
 
@@ -258,7 +258,7 @@ component MonthArrow inherits Rectangle {
 
     width: 32px;
     height: 32px;
-    border-radius: 16px;
+    border-radius: Radius.control-small;
     background: transparent;
     accessible-role: button;
     accessible-label: root.label;
@@ -295,7 +295,7 @@ component GettingStartedCard inherits Rectangle {
     width: 640px;
     height: card-layout.preferred-height;
     background: Theme.surface;
-    border-radius: 12px;
+    border-radius: Radius.surface;
     border-width: 1px;
     border-color: Theme.divider;
 
@@ -326,7 +326,7 @@ component GettingStartedCard inherits Rectangle {
             Rectangle {
                 width: 28px;
                 height: 28px;
-                border-radius: 14px;
+                border-radius: Radius.chip;
                 background: Theme.selected;
 
                 Text {
@@ -377,7 +377,7 @@ component GettingStartedCard inherits Rectangle {
             Rectangle {
                 width: 28px;
                 height: 28px;
-                border-radius: 14px;
+                border-radius: Radius.chip;
                 background: Theme.selected;
 
                 Text {
@@ -419,7 +419,7 @@ component GettingStartedCard inherits Rectangle {
             Rectangle {
                 width: 28px;
                 height: 28px;
-                border-radius: 14px;
+                border-radius: Radius.chip;
                 background: Theme.selected;
 
                 Text {
@@ -554,7 +554,7 @@ export component DashboardPage inherits Rectangle {
 
             if (root.error-text != "") : Rectangle {
                 background: Theme.surface;
-                border-radius: 8px;
+                border-radius: Radius.panel;
                 border-width: 1px;
                 border-color: Theme.error;
 
@@ -629,7 +629,7 @@ export component DashboardPage inherits Rectangle {
 
                     Rectangle {
                         height: 32px;
-                        border-radius: 16px;
+                        border-radius: Radius.control-small;
                         border-width: month-focus.has-focus || root.month-menu-open ? 2px : 1px;
                         border-color: month-focus.has-focus || root.month-menu-open ? Theme.primary : Theme.divider;
                         background: Theme.surface;
@@ -919,7 +919,7 @@ export component DashboardPage inherits Rectangle {
             y: 60px;
             width: 200px;
             height: min(root.month-options.length * 36px + 16px, 340px);
-            border-radius: 10px;
+            border-radius: Radius.menu;
             border-width: 1px;
             border-color: Theme.divider;
             background: Theme.surface;
@@ -931,7 +931,7 @@ export component DashboardPage inherits Rectangle {
                 ListView {
                     for option[index] in root.month-options : Rectangle {
                         height: 36px;
-                        border-radius: 6px;
+                        border-radius: Radius.small;
                         background: index == root.month-menu-index ? Theme.selected : (option-touch.has-hover ? Theme.background : transparent);
                         accessible-role: button;
                         accessible-label: option;

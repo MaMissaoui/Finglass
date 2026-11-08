@@ -1,5 +1,5 @@
 import { Spinner } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { Checkbox, OutlinedField, PrimaryButton, TextButton } from "components.slint";
 import { MigrationPanel } from "migration.slint";
@@ -181,7 +181,7 @@ export component UnlockWindow inherits Window {
                         Rectangle {
                             height: 28px;
                             width: chip-content.preferred-width;
-                            border-radius: 14px;
+                            border-radius: Radius.chip;
                             background: Theme.selected;
 
                             chip-content := HorizontalLayout {

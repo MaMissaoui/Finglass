@@ -1,5 +1,5 @@
 import { ScrollView, Spinner } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     Checkbox,
@@ -62,7 +62,7 @@ component DateField inherits Rectangle {
 
     width: 128px;
     height: 34px;
-    border-radius: 6px;
+    border-radius: Radius.small;
     background: Theme.surface;
     border-width: input.has-focus ? 2px : 1px;
     border-color: input.has-focus ? Theme.primary : Theme.divider;
@@ -111,7 +111,7 @@ component ReportStat inherits Rectangle {
     // Equal widths in a row: stretch would otherwise share out space from each value's own width.
     preferred-width: 0px;
     min-width: 0px;
-    border-radius: 12px;
+    border-radius: Radius.surface;
     background: Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
@@ -177,7 +177,7 @@ component ReportStat inherits Rectangle {
 component SectionCard inherits Rectangle {
     in property <string> title;
 
-    border-radius: 12px;
+    border-radius: Radius.surface;
     background: Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
@@ -214,7 +214,7 @@ component ReportEmpty inherits Rectangle {
         Rectangle {
             width: 44px;
             height: 44px;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             border-width: 2px;
             border-color: Theme.muted-text;
             background: transparent;
@@ -224,7 +224,7 @@ component ReportEmpty inherits Rectangle {
                 y: 12px;
                 width: 8px;
                 height: 18px;
-                border-radius: 2px;
+                border-radius: Radius.hairline;
                 background: Theme.muted-text;
             }
             Rectangle {
@@ -232,7 +232,7 @@ component ReportEmpty inherits Rectangle {
                 y: 18px;
                 width: 8px;
                 height: 12px;
-                border-radius: 2px;
+                border-radius: Radius.hairline;
                 background: Theme.muted-text;
             }
         }
@@ -273,7 +273,7 @@ export component ReportMenuItem inherits Rectangle {
     callback picked;
 
     height: 36px;
-    border-radius: 6px;
+    border-radius: Radius.small;
     background: root.highlighted && root.enabled ? Theme.selected : (touch.has-hover && root.enabled ? Theme.background : transparent);
 
     Text {
@@ -573,7 +573,7 @@ export component ReportsPage inherits Rectangle {
 
         Rectangle {
             background: Theme.surface;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             border-width: 1px;
             border-color: Theme.divider;
 
@@ -1321,7 +1321,7 @@ export component ReportsPage inherits Rectangle {
 
                                 if (row.kind == "group") : Rectangle {
                                     height: 52px;
-                                    border-radius: 8px;
+                                    border-radius: Radius.panel;
                                     background: Theme.surface;
                                     border-width: 1px;
                                     border-color: Theme.divider;
@@ -1337,7 +1337,7 @@ export component ReportsPage inherits Rectangle {
                                             Rectangle {
                                                 width: 12px;
                                                 height: 12px;
-                                                border-radius: 6px;
+                                                border-radius: Radius.small;
                                                 background: row.colour;
                                             }
                                         }
@@ -1360,7 +1360,7 @@ export component ReportsPage inherits Rectangle {
                                 }
 
                                 if (row.kind == "booking") : Rectangle {
-                                    border-radius: 8px;
+                                    border-radius: Radius.panel;
                                     background: Theme.surface;
                                     border-width: 1px;
                                     border-color: Theme.divider;
@@ -1418,7 +1418,7 @@ export component ReportsPage inherits Rectangle {
                                                 if (row.has-receipt) : Rectangle {
                                                     width: 14px;
                                                     height: 16px;
-                                                    border-radius: 3px;
+                                                    border-radius: Radius.dot;
                                                     border-width: 1px;
                                                     border-color: Theme.primary;
                                                     background: transparent;
@@ -1504,7 +1504,7 @@ export component ReportsPage inherits Rectangle {
             width: 220px;
             height: root.tab == "tax" ? 189px : 80px;
             background: Theme.surface;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;

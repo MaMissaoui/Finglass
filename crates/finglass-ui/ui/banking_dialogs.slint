@@ -1,5 +1,5 @@
 import { ScrollView } from "std-widgets.slint";
-import { Theme, Type } from "theme.slint";
+import { Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { Checkbox, OutlinedField, PrimaryButton, TextButton } from "components.slint";
 import { BankingPromptChoice } from "models.slint";
@@ -12,7 +12,7 @@ component PromptChoiceRow inherits Rectangle {
     callback picked;
 
     height: 34px;
-    border-radius: 6px;
+    border-radius: Radius.small;
     background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
 
     Text {
@@ -66,7 +66,7 @@ export component BankingPrompts inherits Rectangle {
     visible: root.kind != "";
     width: 100%;
     height: 100%;
-    background: #00000080;
+    background: Theme.scrim;
 
     Rectangle {
         width: 480px;
@@ -74,7 +74,7 @@ export component BankingPrompts inherits Rectangle {
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
         background: Theme.surface;
-        border-radius: 28px;
+        border-radius: Radius.dialog;
 
         dialog-content := VerticalLayout {
             padding: 24px;
@@ -283,7 +283,7 @@ export component BankingInfoBanner inherits Rectangle {
     width: 520px;
     height: banner.preferred-height;
     background: Theme.surface;
-    border-radius: 8px;
+    border-radius: Radius.panel;
     border-width: 1px;
     border-color: Theme.divider;
 

@@ -1,4 +1,4 @@
-import { MonogramColours, Theme, Type } from "theme.slint";
+import { MonogramColours, Radius, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { ListView } from "std-widgets.slint";
 
@@ -309,7 +309,7 @@ export component CountBadge inherits Rectangle {
     visible: root.count > 0;
     height: 18px;
     min-width: 18px;
-    border-radius: 9px;
+    border-radius: Radius.counter;
     background: root.selected ? transparent : Theme.primary;
     border-width: root.selected ? 1px : 0px;
     border-color: Theme.on-selected;
@@ -397,7 +397,7 @@ export component PrimaryButton inherits Rectangle {
 
     height: 40px;
     min-width: content.preferred-width;
-    border-radius: 20px;
+    border-radius: Radius.control;
     background: !root.enabled ? Theme.divider
             : (touch.has-hover ? (root.destructive ? Theme.error-hover : Theme.primary-hover)
             : (root.destructive ? Theme.error : Theme.primary));
@@ -468,7 +468,7 @@ export component ChoiceChip inherits Rectangle {
 
     height: 32px;
     min-width: 84px;
-    border-radius: 16px;
+    border-radius: Radius.control-small;
     background: root.selected ? Theme.primary : Theme.surface;
     border-width: focus.has-focus ? 2px : 1px;
     border-color: root.selected ? Theme.primary : (focus.has-focus ? Theme.primary : Theme.divider);
@@ -512,7 +512,7 @@ export component TextButton inherits Rectangle {
 
     height: 40px;
     min-width: content.preferred-width;
-    border-radius: 20px;
+    border-radius: Radius.control;
     background: touch.has-hover && root.enabled ? Theme.background : transparent;
 
     content := HorizontalLayout {
@@ -587,7 +587,7 @@ export component SecondaryButton inherits Rectangle {
 
     height: 40px;
     min-width: content.preferred-width;
-    border-radius: 20px;
+    border-radius: Radius.control;
     background: touch.has-hover && root.enabled ? Theme.background : transparent;
     border-width: focus.has-focus ? 2px : 1px;
     border-color: focus.has-focus ? Theme.primary : Theme.divider;
@@ -659,7 +659,7 @@ export component SegmentedButton inherits Rectangle {
 
     height: 40px;
     min-width: segments.preferred-width;
-    border-radius: 20px;
+    border-radius: Radius.control;
     border-width: focus.has-focus ? 2px : 1px;
     border-color: focus.has-focus ? Theme.primary : Theme.divider;
     background: transparent;
@@ -729,7 +729,7 @@ export component SegmentedButton inherits Rectangle {
 
 // A card surface with a hairline outline.
 export component Card inherits Rectangle {
-    border-radius: 12px;
+    border-radius: Radius.surface;
     background: Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
@@ -753,7 +753,7 @@ export component IconButton inherits Rectangle {
 
     width: 40px;
     height: 40px;
-    border-radius: 20px;
+    border-radius: Radius.control;
     opacity: root.enabled ? 1.0 : 0.45;
     background: root.selected ? Theme.selected : (touch.has-hover && root.enabled ? Theme.background : transparent);
     border-width: focus.has-focus ? 2px : (root.outlined ? 1px : 0px);
@@ -815,7 +815,7 @@ export component MessageBanner inherits Rectangle {
     callback dismissed;
 
     height: 42px;
-    border-radius: 8px;
+    border-radius: Radius.panel;
     background: Theme.surface;
     border-width: 1px;
     border-color: root.is-error ? Theme.error : Theme.success;
@@ -862,7 +862,7 @@ export component TabPill inherits Rectangle {
 
     height: 36px;
     min-width: 120px;
-    border-radius: 6px;
+    border-radius: Radius.small;
     background: root.selected ? Theme.selected : Theme.surface;
     border-width: 1px;
     border-color: Theme.divider;
@@ -906,7 +906,7 @@ export component SidebarItem inherits Rectangle {
     callback activated;
 
     height: root.collapsed ? 44px : 40px;
-    border-radius: 8px;
+    border-radius: Radius.panel;
     background: root.selected ? Theme.selected : transparent;
     accessible-role: button;
     accessible-label: root.label;
@@ -917,7 +917,7 @@ export component SidebarItem inherits Rectangle {
         y: 8px;
         width: 3px;
         height: parent.height - 16px;
-        border-radius: 2px;
+        border-radius: Radius.hairline;
         background: Theme.primary;
     }
 
@@ -1010,7 +1010,7 @@ export component SearchField inherits Rectangle {
     callback edited(string);
 
     height: 40px;
-    border-radius: 20px;
+    border-radius: Radius.control;
     background: Theme.surface;
     border-width: input.has-focus ? 2px : 1px;
     border-color: input.has-focus ? Theme.primary : Theme.divider;
@@ -1122,7 +1122,7 @@ export component OutlinedField inherits VerticalLayout {
     field := Rectangle {
         height: root.multiline ? max(56px, input.preferred-height + 32px) : 56px;
         background: Theme.surface;
-        border-radius: 4px;
+        border-radius: Radius.field;
         border-width: root.error || input.has-focus ? 2px : 1px;
         border-color: root.error ? Theme.error : (input.has-focus ? Theme.primary : Theme.divider);
         clip: false;
@@ -1219,7 +1219,7 @@ export component Checkbox inherits Rectangle {
         box-area := Rectangle {
             width: 40px;
             height: 40px;
-            border-radius: 20px;
+            border-radius: Radius.control;
             background: touch.has-hover && root.enabled ? Theme.background : transparent;
 
             box := Rectangle {
@@ -1227,7 +1227,7 @@ export component Checkbox inherits Rectangle {
                 y: (parent.height - self.height) / 2;
                 width: 18px;
                 height: 18px;
-                border-radius: 2px;
+                border-radius: Radius.hairline;
                 background: root.checked ? Theme.primary : transparent;
                 border-width: 2px;
                 border-color: root.checked ? Theme.primary : (touch.has-hover ? Theme.text : Theme.muted-text);
@@ -1279,7 +1279,7 @@ export component Checkbox inherits Rectangle {
         height: parent.height;
         border-width: 2px;
         border-color: Theme.primary;
-        border-radius: 8px;
+        border-radius: Radius.panel;
     }
 }
 
@@ -1299,7 +1299,7 @@ export component SelectPill inherits Rectangle {
 
     height: 40px;
     min-width: content.preferred-width;
-    border-radius: 20px;
+    border-radius: Radius.control;
     background: touch.has-hover && root.enabled ? Theme.background : Theme.surface;
     border-width: focus.has-focus ? 2px : 1px;
     border-color: focus.has-focus ? Theme.primary : Theme.divider;
@@ -1400,7 +1400,7 @@ export component SelectPill inherits Rectangle {
 
         Rectangle {
             background: Theme.surface;
-            border-radius: 8px;
+            border-radius: Radius.panel;
             border-width: 1px;
             border-color: Theme.divider;
             clip: true;
@@ -1435,7 +1435,7 @@ export component Badge inherits Rectangle {
     in property <bool> positive: true;
 
     height: 20px;
-    border-radius: 10px;
+    border-radius: Radius.badge;
     background: root.positive ? Theme.selected : Theme.background;
 
     HorizontalLayout {

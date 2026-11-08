@@ -1,4 +1,4 @@
-import { Theme, Type } from "theme.slint";
+import { FlagColours, Radius, Theme, Type } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
 import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
@@ -18,22 +18,22 @@ component LanguageFlag inherits Rectangle {
 
     width: 20px;
     height: 14px;
-    border-radius: 2px;
+    border-radius: Radius.hairline;
     border-width: 1px;
     border-color: Theme.divider;
     clip: true;
     background: transparent;
 
     if (root.language == "de") : VerticalLayout {
-        Rectangle { background: #000000; }
-        Rectangle { background: #DD0000; }
-        Rectangle { background: #FFCE00; }
+        Rectangle { background: FlagColours.german-black; }
+        Rectangle { background: FlagColours.german-red; }
+        Rectangle { background: FlagColours.german-gold; }
     }
 
     if (root.language == "fr") : HorizontalLayout {
-        Rectangle { background: #002395; }
-        Rectangle { background: #FFFFFF; }
-        Rectangle { background: #ED2939; }
+        Rectangle { background: FlagColours.french-blue; }
+        Rectangle { background: FlagColours.french-white; }
+        Rectangle { background: FlagColours.french-red; }
     }
 
     if (root.language != "de" && root.language != "fr") : Image {
@@ -53,7 +53,7 @@ component LanguageMenuItem inherits Rectangle {
     callback picked;
 
     height: 40px;
-    border-radius: 6px;
+    border-radius: Radius.small;
     background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
     accessible-role: button;
     accessible-label: root.name;
@@ -113,7 +113,7 @@ component ProfileMenuItem inherits Rectangle {
     callback picked;
 
     height: 36px;
-    border-radius: 6px;
+    border-radius: Radius.small;
     background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
     accessible-role: button;
     accessible-label: root.name;
@@ -1249,7 +1249,7 @@ export component MainWindow inherits Window {
                     if (root.profile-rows.length > 1) : Rectangle {
                         height: 40px;
                         width: 180px;
-                        border-radius: 20px;
+                        border-radius: Radius.control;
                         border-width: 1px;
                         border-color: Theme.divider;
                         background: profile-touch.has-hover || root.profile-menu-open ? Theme.background : Theme.surface;
@@ -1294,7 +1294,7 @@ export component MainWindow inherits Window {
                     Rectangle {
                         width: 64px;
                         height: 36px;
-                        border-radius: 8px;
+                        border-radius: Radius.panel;
                         background: language-touch.has-hover || root.language-menu-open ? Theme.background : transparent;
                         accessible-role: button;
                         accessible-label: root.language-label;
@@ -2146,7 +2146,7 @@ export component MainWindow inherits Window {
             y: 58px;
             width: 240px;
             height: 24px + (root.profile-rows.length + 1) * 36px;
-            border-radius: 10px;
+            border-radius: Radius.menu;
             border-width: 1px;
             border-color: Theme.divider;
             background: Theme.surface;
@@ -2198,7 +2198,7 @@ export component MainWindow inherits Window {
             y: 58px;
             width: 190px;
             height: 144px;
-            border-radius: 10px;
+            border-radius: Radius.menu;
             border-width: 1px;
             border-color: Theme.divider;
             background: Theme.surface;
