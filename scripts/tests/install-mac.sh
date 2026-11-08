@@ -301,7 +301,7 @@ setup_source_repo() {
   local seed="$base/seed"
   local clone="$base/clone"
   mkdir -p "$base"
-  "${git_env[@]}" git init --bare -q "$bare"
+  "${git_env[@]}" git init --bare -q -b main "$bare"
   "${git_env[@]}" git init -q -b main "$seed"
   "${git_env[@]}" git -C "$seed" config user.name "Installer Test"
   "${git_env[@]}" git -C "$seed" config user.email "installer@example.invalid"
