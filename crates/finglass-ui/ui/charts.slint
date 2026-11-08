@@ -309,7 +309,15 @@ export component TaxDonut inherits Rectangle {
             height: 160px;
             background: transparent;
 
+            // Every path shares the 160 × 160 viewbox. Without it Slint scales each path to its own
+            // bounds, which stretches a short arc across the whole box.
             Path {
+                width: 160px;
+                height: 160px;
+                viewbox-x: 0;
+                viewbox-y: 0;
+                viewbox-width: 160;
+                viewbox-height: 160;
                 commands: "M 80 10 A 70 70 0 1 1 80 150 A 70 70 0 1 1 80 10";
                 stroke: Theme.divider;
                 stroke-width: 20px;
@@ -317,6 +325,12 @@ export component TaxDonut inherits Rectangle {
             }
 
             for slice in root.slices : Path {
+                width: 160px;
+                height: 160px;
+                viewbox-x: 0;
+                viewbox-y: 0;
+                viewbox-width: 160;
+                viewbox-height: 160;
                 commands: slice.arc;
                 stroke: slice.colour;
                 stroke-width: 20px;
