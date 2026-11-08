@@ -1,5 +1,5 @@
 import { CheckBox, LineEdit, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { PrimaryButton, TextButton } from "components.slint";
 import { MigrationPanel } from "migration.slint";
@@ -50,6 +50,7 @@ export component UnlockWindow inherits Window {
     in-out property <bool> migration-show-passphrase;
 
     title: Tr.t("UnlockWindowTitle");
+    default-font-family: "IBM Plex Sans";
     icon: @image-url("../../../assets/icons/finglass-256.png");
     preferred-width: 560px;
     preferred-height: 760px;
@@ -168,28 +169,28 @@ export component UnlockWindow inherits Window {
                     Text {
                         text: root.heading();
                         color: Theme.text;
-                        font-size: 24px;
-                        font-weight: 600;
+                        font-size: Type.headline-size;
+                        font-weight: Type.headline-weight;
                         wrap: word-wrap;
                     }
 
                     if (root.profile-label != "") : Text {
                         text: root.profile-label;
                         color: Theme.muted-text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
 
                     Text {
                         text: root.body();
                         color: Theme.text;
-                        font-size: 14px;
+                        font-size: Type.body-size;
                         wrap: word-wrap;
                     }
 
                     if (root.restored) : Text {
                         text: Tr.t("RestoredEncryptedHint");
                         color: Theme.warning;
-                        font-size: 16px;
+                        font-size: Type.body-size;
                         wrap: word-wrap;
                     }
 
@@ -199,22 +200,22 @@ export component UnlockWindow inherits Window {
                         Text {
                             text: Tr.t("UnencryptedLeftoversTitle");
                             color: Theme.warning;
-                            font-size: 15px;
-                            font-weight: 600;
+                            font-size: Type.title-medium-size;
+                            font-weight: Type.title-medium-weight;
                             wrap: word-wrap;
                         }
 
                         Text {
                             text: Tr.t("UnencryptedLeftoversText");
                             color: Theme.text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
 
                         for line in root.leftover-lines : Text {
                             text: line;
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
                     }
@@ -227,8 +228,8 @@ export component UnlockWindow inherits Window {
                             Text {
                                 text: Tr.t("CurrentPassphrase");
                                 color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                             }
                             LineEdit {
                                 enabled: !root.busy;
@@ -243,8 +244,8 @@ export component UnlockWindow inherits Window {
                             Text {
                                 text: root.mode == "unlock" ? Tr.t("Passphrase") : Tr.t("NewPassphrase");
                                 color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                             }
                             LineEdit {
                                 enabled: !root.busy;
@@ -259,8 +260,8 @@ export component UnlockWindow inherits Window {
                             Text {
                                 text: Tr.t("RepeatPassphrase");
                                 color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                             }
                             LineEdit {
                                 enabled: !root.busy;
@@ -279,14 +280,14 @@ export component UnlockWindow inherits Window {
                         if (root.mode != "unlock" && root.passphrase-hint != "") : Text {
                             text: root.passphrase-hint;
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
 
                         if (root.mode == "create") : Text {
                             text: Tr.t("DocumentsNotEncrypted");
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
 
@@ -299,7 +300,7 @@ export component UnlockWindow inherits Window {
                         if (root.error-text != "") : Text {
                             text: root.error-text;
                             color: Theme.error;
-                            font-size: 14px;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -322,7 +323,7 @@ export component UnlockWindow inherits Window {
                                 Text {
                                     text: root.busy-label();
                                     color: Theme.muted-text;
-                                    font-size: 13px;
+                                    font-size: Type.body-size;
                                     vertical-alignment: center;
                                 }
                             }
@@ -344,7 +345,7 @@ export component UnlockWindow inherits Window {
                     if (root.startup-error && root.error-text != "") : Text {
                         text: root.error-text;
                         color: Theme.error;
-                        font-size: 16px;
+                        font-size: Type.body-size;
                         wrap: word-wrap;
                     }
                 }

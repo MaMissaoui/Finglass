@@ -1,5 +1,5 @@
 import { CheckBox, ComboBox, LineEdit, ScrollView, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { PrimaryButton, TextButton } from "components.slint";
 import { ColourSwatch } from "models.slint";
@@ -35,15 +35,15 @@ export component ConfirmDialog inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
                 wrap: word-wrap;
             }
 
             Text {
                 text: root.text;
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -104,15 +104,15 @@ export component CategoryDialog inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: 22px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
 
             Text {
                 text: Tr.t("Name");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 text <=> root.name;
@@ -144,8 +144,8 @@ export component CategoryDialog inherits Rectangle {
             Text {
                 text: Tr.t("MonthlyBudgetOptional");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 text <=> root.budget;
@@ -174,14 +174,14 @@ export component CategoryDialog inherits Rectangle {
             Text {
                 text: Tr.t("CategoryIsTransferHint");
                 color: Theme.muted-text;
-                font-size: 11px;
+                font-size: Type.body-small-size;
                 wrap: word-wrap;
             }
 
             if (root.error-text != "") : Text {
                 text: root.error-text;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -247,15 +247,15 @@ export component RuleDialog inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: 22px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
 
             Text {
                 text: Tr.t("PatternExample");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 text <=> root.pattern;
@@ -266,8 +266,8 @@ export component RuleDialog inherits Rectangle {
             Text {
                 text: Tr.t("ColCategory");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             ComboBox {
                 model: root.categories;
@@ -280,8 +280,8 @@ export component RuleDialog inherits Rectangle {
                 Text {
                     text: Tr.t("RuleSearchIn");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
                 ComboBox {
                     model: root.field-options;
@@ -292,8 +292,8 @@ export component RuleDialog inherits Rectangle {
                 Text {
                     text: Tr.t("RuleAppliesTo");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
                 ComboBox {
                     model: root.direction-options;
@@ -303,8 +303,8 @@ export component RuleDialog inherits Rectangle {
                 Text {
                     text: Tr.t("TaxMenu");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
                 ComboBox {
                     model: root.tax-options;
@@ -314,8 +314,8 @@ export component RuleDialog inherits Rectangle {
                 Text {
                     text: Tr.t("Priority");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
                 LineEdit {
                     text <=> root.priority;
@@ -332,7 +332,7 @@ export component RuleDialog inherits Rectangle {
             if (root.error-text != "") : Text {
                 text: root.error-text;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -384,16 +384,16 @@ export component ProfileNameDialog inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
                 wrap: word-wrap;
             }
 
             Text {
                 text: Tr.t("ProfileName");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 text <=> root.name;
@@ -403,7 +403,7 @@ export component ProfileNameDialog inherits Rectangle {
             if (root.error-text != "") : Text {
                 text: root.error-text;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -464,31 +464,31 @@ export component BackupPassphraseDialog inherits Rectangle {
             Text {
                 text: Tr.t("BackupPassphraseTitle");
                 color: Theme.text;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
                 wrap: word-wrap;
             }
 
             Text {
                 text: root.file-name;
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
                 overflow: elide;
             }
 
             Text {
                 text: Tr.t("BackupPassphraseText");
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
             Text {
                 text: Tr.t("Passphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 enabled: !root.busy;
@@ -500,7 +500,7 @@ export component BackupPassphraseDialog inherits Rectangle {
             if (root.wrong) : Text {
                 text: Tr.t("WrongPassphrase");
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -562,31 +562,31 @@ export component FinDeskPassphraseDialog inherits Rectangle {
             Text {
                 text: Tr.t("FinDeskPassphraseTitle");
                 color: Theme.text;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
                 wrap: word-wrap;
             }
 
             Text {
                 text: root.folder;
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
                 overflow: elide;
             }
 
             Text {
                 text: Tr.t("FinDeskPassphraseText");
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
             Text {
                 text: Tr.t("Passphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 enabled: !root.busy;
@@ -598,7 +598,7 @@ export component FinDeskPassphraseDialog inherits Rectangle {
             if (root.wrong) : Text {
                 text: Tr.t("WrongPassphrase");
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -659,15 +659,15 @@ export component FinDeskReportDialog inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
                 wrap: word-wrap;
             }
 
             Text {
                 text: root.text;
                 color: root.is-error ? Theme.error : Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -724,8 +724,8 @@ export component RuleImportDialog inherits Rectangle {
             Text {
                 text: Tr.t("RuleImportTitle");
                 color: Theme.text;
-                font-size: 22px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
 
             ScrollView {
@@ -737,48 +737,48 @@ export component RuleImportDialog inherits Rectangle {
                     Text {
                         text: root.new-rules-text;
                         color: Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
 
                     if (root.categories-text != "") : Text {
                         text: root.categories-text;
                         color: Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
                     if (root.categories-list != "") : Text {
                         text: root.categories-list;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
 
                     if (root.duplicates-text != "") : Text {
                         text: root.duplicates-text;
                         color: Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
 
                     if (root.conflicts-text != "") : Text {
                         text: root.conflicts-text;
                         color: Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
                     if (root.conflicts-list != "") : Text {
                         text: root.conflicts-list;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
 
                     if (root.errors-text != "") : Text {
                         text: root.errors-text;
                         color: Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
                     if (root.errors-list != "") : Text {
                         text: root.errors-list;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
 

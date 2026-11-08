@@ -1,5 +1,5 @@
 import { CheckBox, LineEdit, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { PrimaryButton, TextButton } from "components.slint";
 
@@ -45,44 +45,44 @@ export component MigrationPanel inherits VerticalLayout {
         Text {
             text: Tr.t("MigrationWelcomeTitle");
             color: Theme.text;
-            font-size: 22px;
-            font-weight: 600;
+            font-size: Type.title-large-size;
+            font-weight: Type.title-large-weight;
             wrap: word-wrap;
         }
 
         Text {
             text: Tr.t("MigrationWelcomeText");
             color: Theme.text;
-            font-size: 14px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
         Text {
             text: Tr.t("MigrationProfilesLabel");
             color: Theme.text;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
         }
 
         for name in root.profile-names : Text {
             text: "• " + name;
             color: Theme.muted-text;
-            font-size: 13px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
         Text {
             text: Tr.t("MigrationCopiedText");
             color: Theme.muted-text;
-            font-size: 12px;
+            font-size: Type.body-small-size;
             wrap: word-wrap;
         }
 
         Text {
             text: Tr.t("MigrationQuitHint");
             color: Theme.warning;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
             wrap: word-wrap;
         }
 
@@ -95,7 +95,7 @@ export component MigrationPanel inherits VerticalLayout {
         if (root.error-text != "") : Text {
             text: root.error-text;
             color: Theme.error;
-            font-size: 14px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
@@ -123,15 +123,15 @@ export component MigrationPanel inherits VerticalLayout {
         Text {
             text: root.profile-heading;
             color: Theme.text;
-            font-size: 20px;
-            font-weight: 600;
+            font-size: Type.title-large-size;
+            font-weight: Type.title-large-weight;
             wrap: word-wrap;
         }
 
         Text {
             text: Tr.t("MigrationCopiedText");
             color: Theme.muted-text;
-            font-size: 12px;
+            font-size: Type.body-small-size;
             wrap: word-wrap;
         }
 
@@ -141,8 +141,8 @@ export component MigrationPanel inherits VerticalLayout {
             Text {
                 text: Tr.t("MigrationFindeskPassphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -166,8 +166,8 @@ export component MigrationPanel inherits VerticalLayout {
             Text {
                 text: Tr.t("NewPassphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -180,8 +180,8 @@ export component MigrationPanel inherits VerticalLayout {
             Text {
                 text: Tr.t("RepeatPassphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -201,14 +201,14 @@ export component MigrationPanel inherits VerticalLayout {
         if (root.passphrase-hint != "") : Text {
             text: root.passphrase-hint;
             color: Theme.muted-text;
-            font-size: 12px;
+            font-size: Type.body-small-size;
             wrap: word-wrap;
         }
 
         if (root.error-text != "") : Text {
             text: root.error-text;
             color: Theme.error;
-            font-size: 14px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
@@ -239,7 +239,7 @@ export component MigrationPanel inherits VerticalLayout {
                 Text {
                     text: Tr.t("MigrationBusy");
                     color: Theme.muted-text;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                     vertical-alignment: center;
                 }
             }
@@ -252,29 +252,29 @@ export component MigrationPanel inherits VerticalLayout {
         Text {
             text: Tr.t("MigrationSummaryTitle");
             color: Theme.text;
-            font-size: 22px;
-            font-weight: 600;
+            font-size: Type.title-large-size;
+            font-weight: Type.title-large-weight;
             wrap: word-wrap;
         }
 
         Text {
             text: Tr.t("MigrationSummaryText");
             color: Theme.text;
-            font-size: 14px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
         for line in root.summary-lines : Text {
             text: line;
             color: Theme.muted-text;
-            font-size: 13px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
         if (root.error-text != "") : Text {
             text: root.error-text;
             color: Theme.error;
-            font-size: 14px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
@@ -299,7 +299,7 @@ export component MigrationPanel inherits VerticalLayout {
                 Text {
                     text: Tr.t("MigrationBusy");
                     color: Theme.muted-text;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                     vertical-alignment: center;
                 }
             }

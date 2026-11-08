@@ -1,14 +1,33 @@
 import { AboutSlint, CheckBox, ComboBox, LineEdit, ScrollView, Spinner, TextEdit } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
-import { ChoiceChip, PrimaryButton, TextButton } from "components.slint";
+import { ChoiceChip, IconButton, PrimaryButton, TextButton } from "components.slint";
 import { AuditRow, CategoryRow, ProfileRow, RuleRow } from "models.slint";
 import { FinDeskPassphraseDialog, FinDeskReportDialog } from "settings_dialogs.slint";
 
-component SectionTitle inherits Text {
-    color: Theme.text;
-    font-size: 20px;
-    font-weight: 600;
+component SectionTitle inherits HorizontalLayout {
+    in property <string> text;
+    in property <image> icon;
+
+    spacing: 8px;
+    alignment: start;
+    cross-axis-alignment: center;
+
+    Image {
+        width: 24px;
+        height: 24px;
+        source: root.icon;
+        colorize: Theme.muted-text;
+        accessible-role: none;
+    }
+
+    Text {
+        text: root.text;
+        color: Theme.text;
+        font-size: Type.title-large-size;
+        font-weight: Type.title-large-weight;
+        vertical-alignment: center;
+    }
 }
 
 component Divider inherits Rectangle {
@@ -94,20 +113,30 @@ export component SettingsPage inherits Rectangle {
 
             HorizontalLayout {
                 padding-left: 24px;
-                padding-right: 24px;
+                padding-right: 12px;
                 spacing: 12px;
+
+                Image {
+                    width: 20px;
+                    height: 20px;
+                    source: @image-url("icons/warning.svg");
+                    colorize: Theme.error;
+                    accessible-role: none;
+                }
 
                 Text {
                     text: root.settings-error;
                     color: Theme.error;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                     vertical-alignment: center;
                     horizontal-stretch: 1;
                     wrap: word-wrap;
                 }
 
-                TextButton {
-                    text: Tr.t("Dismiss");
+                IconButton {
+                    icon: @image-url("icons/close.svg");
+                    label: Tr.t("Dismiss");
+                    icon-size: 18px;
                     clicked => { root.dismiss-message(); }
                 }
             }
@@ -119,20 +148,30 @@ export component SettingsPage inherits Rectangle {
 
             HorizontalLayout {
                 padding-left: 24px;
-                padding-right: 24px;
+                padding-right: 12px;
                 spacing: 12px;
+
+                Image {
+                    width: 20px;
+                    height: 20px;
+                    source: @image-url("icons/check_circle.svg");
+                    colorize: Theme.success;
+                    accessible-role: none;
+                }
 
                 Text {
                     text: root.settings-message;
                     color: Theme.success;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                     vertical-alignment: center;
                     horizontal-stretch: 1;
                     wrap: word-wrap;
                 }
 
-                TextButton {
-                    text: Tr.t("Dismiss");
+                IconButton {
+                    icon: @image-url("icons/close.svg");
+                    label: Tr.t("Dismiss");
+                    icon-size: 18px;
                     clicked => { root.dismiss-message(); }
                 }
             }
@@ -147,6 +186,7 @@ export component SettingsPage inherits Rectangle {
 
                 SectionTitle {
                     text: Tr.t("Appearance");
+                    icon: @image-url("icons/palette.svg");
                 }
 
                 HorizontalLayout {
@@ -157,7 +197,7 @@ export component SettingsPage inherits Rectangle {
                         text: Tr.t("Theme");
                         width: 120px;
                         color: Theme.text;
-                        font-size: 14px;
+                        font-size: Type.body-size;
                         vertical-alignment: center;
                     }
                     ChoiceChip {
@@ -185,7 +225,7 @@ export component SettingsPage inherits Rectangle {
                         text: Tr.t("Language");
                         width: 120px;
                         color: Theme.text;
-                        font-size: 14px;
+                        font-size: Type.body-size;
                         vertical-alignment: center;
                     }
                     ChoiceChip {
@@ -217,12 +257,12 @@ export component SettingsPage inherits Rectangle {
                         Text {
                             text: Tr.t("PrimaryCurrency");
                             color: Theme.text;
-                            font-size: 14px;
+                            font-size: Type.body-size;
                         }
                         Text {
                             text: Tr.t("PrimaryCurrencyHint");
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
                     }
@@ -245,8 +285,8 @@ export component SettingsPage inherits Rectangle {
 
                         SectionTitle {
                             text: Tr.t("Profiles");
+                            icon: @image-url("icons/person.svg");
                             horizontal-stretch: 1;
-                            vertical-alignment: center;
                         }
 
                         PrimaryButton {
@@ -258,7 +298,7 @@ export component SettingsPage inherits Rectangle {
                     Text {
                         text: Tr.t("ProfilesHint");
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                         width: 640px;
                     }
@@ -273,8 +313,8 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: row.name;
                                 color: Theme.text;
-                                font-size: 14px;
-                                font-weight: row.open ? 700 : 400;
+                                font-size: Type.title-small-size;
+                                font-weight: row.open ? Type.title-small-weight : Type.body-weight;
                                 vertical-alignment: center;
                                 horizontal-stretch: 1;
                                 overflow: elide;
@@ -292,8 +332,8 @@ export component SettingsPage inherits Rectangle {
                                     Text {
                                         text: Tr.t("ProfileOpen");
                                         color: Theme.on-selected;
-                                        font-size: 11px;
-                                        font-weight: 600;
+                                        font-size: Type.label-small-size;
+                                        font-weight: Type.label-small-weight;
                                         vertical-alignment: center;
                                     }
                                 }
@@ -302,7 +342,7 @@ export component SettingsPage inherits Rectangle {
                             if (row.next-start) : Text {
                                 text: Tr.t("ProfileNextStart");
                                 color: Theme.muted-text;
-                                font-size: 11px;
+                                font-size: Type.body-small-size;
                                 vertical-alignment: center;
                             }
 
@@ -311,13 +351,18 @@ export component SettingsPage inherits Rectangle {
                                 clicked => { root.switch-profile(row.index); }
                             }
 
-                            TextButton {
-                                text: Tr.t("Edit");
+                            IconButton {
+                                icon: @image-url("icons/edit.svg");
+                                label: Tr.t("Edit");
+                                icon-size: 20px;
                                 clicked => { root.rename-profile(row.index); }
                             }
 
-                            if (row.can-delete) : TextButton {
-                                text: Tr.t("Delete");
+                            if (row.can-delete) : IconButton {
+                                icon: @image-url("icons/delete.svg");
+                                label: Tr.t("Delete");
+                                icon-size: 20px;
+                                icon-color: Theme.error;
                                 clicked => { root.delete-profile(row.index); }
                             }
                         }
@@ -331,12 +376,13 @@ export component SettingsPage inherits Rectangle {
 
                     SectionTitle {
                         text: Tr.t("Categories");
+                        icon: @image-url("icons/transactions.svg");
                     }
 
                     if (root.categories-empty) : Text {
                         text: Tr.t("NoCategoriesYet");
                         color: Theme.muted-text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
 
                     HorizontalLayout {
@@ -386,7 +432,7 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: row.name;
                                 color: Theme.text;
-                                font-size: 14px;
+                                font-size: Type.body-size;
                                 vertical-alignment: center;
                                 horizontal-stretch: 1;
                                 overflow: elide;
@@ -395,39 +441,44 @@ export component SettingsPage inherits Rectangle {
                             if (row.transfer) : Text {
                                 text: Tr.t("CategoryTransferLabel");
                                 color: Theme.muted-text;
-                                font-size: 11px;
+                                font-size: Type.body-small-size;
                                 vertical-alignment: center;
                             }
 
                             if (row.tax-relevant) : Text {
                                 text: Tr.t("TaxRelevant");
                                 color: Theme.warning;
-                                font-size: 11px;
-                                font-weight: 600;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
                                 vertical-alignment: center;
                             }
 
                             if (row.budget-text != "") : Text {
                                 text: row.budget-text;
                                 color: Theme.muted-text;
-                                font-size: 12px;
+                                font-size: Type.body-small-size;
                                 vertical-alignment: center;
                             }
 
                             Text {
                                 text: row.usage-text;
                                 color: Theme.muted-text;
-                                font-size: 12px;
+                                font-size: Type.body-small-size;
                                 vertical-alignment: center;
                             }
 
-                            TextButton {
-                                text: Tr.t("Edit");
+                            IconButton {
+                                icon: @image-url("icons/edit.svg");
+                                label: Tr.t("Edit");
+                                icon-size: 20px;
                                 clicked => { root.edit-category(row.id); }
                             }
 
-                            TextButton {
-                                text: Tr.t("Delete");
+                            IconButton {
+                                icon: @image-url("icons/delete.svg");
+                                label: Tr.t("Delete");
+                                icon-size: 20px;
+                                icon-color: Theme.error;
                                 clicked => { root.delete-category(row.id); }
                             }
                         }
@@ -441,12 +492,13 @@ export component SettingsPage inherits Rectangle {
 
                     SectionTitle {
                         text: Tr.t("TaxSuggestionKeywords");
+                        icon: @image-url("icons/transactions.svg");
                     }
 
                     Text {
                         text: root.tax-keywords-count;
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                     }
 
                     TextEdit {
@@ -479,12 +531,13 @@ export component SettingsPage inherits Rectangle {
 
                     SectionTitle {
                         text: Tr.t("AutoCategorizationRules");
+                        icon: @image-url("icons/auto_fix_high.svg");
                     }
 
                     Text {
                         text: Tr.t("RulesHint");
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
 
@@ -512,13 +565,13 @@ export component SettingsPage inherits Rectangle {
                     if (root.categories-empty) : Text {
                         text: Tr.t("HintNeedsCategory");
                         color: Theme.muted-text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
 
                     if (!root.categories-empty && root.rule-rows.length == 0) : Text {
                         text: Tr.t("NoRulesYet");
                         color: Theme.muted-text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
 
                     for row in root.rule-rows : Rectangle {
@@ -532,8 +585,8 @@ export component SettingsPage inherits Rectangle {
                                 text: row.pattern;
                                 width: 34%;
                                 color: Theme.text;
-                                font-size: 14px;
-                                font-weight: 600;
+                                font-size: Type.title-small-size;
+                                font-weight: Type.title-small-weight;
                                 vertical-alignment: center;
                                 overflow: elide;
                             }
@@ -546,14 +599,14 @@ export component SettingsPage inherits Rectangle {
                                 Text {
                                     text: "→ " + row.category-text;
                                     color: Theme.text;
-                                    font-size: 13px;
+                                    font-size: Type.body-size;
                                     overflow: elide;
                                 }
 
                                 if (row.detail != "") : Text {
                                     text: row.detail;
                                     color: Theme.muted-text;
-                                    font-size: 11px;
+                                    font-size: Type.body-small-size;
                                     overflow: elide;
                                 }
                             }
@@ -561,17 +614,22 @@ export component SettingsPage inherits Rectangle {
                             Text {
                                 text: row.prio-text;
                                 color: Theme.muted-text;
-                                font-size: 12px;
+                                font-size: Type.body-small-size;
                                 vertical-alignment: center;
                             }
 
-                            TextButton {
-                                text: Tr.t("Edit");
+                            IconButton {
+                                icon: @image-url("icons/edit.svg");
+                                label: Tr.t("Edit");
+                                icon-size: 20px;
                                 clicked => { root.edit-rule(row.id); }
                             }
 
-                            TextButton {
-                                text: Tr.t("Delete");
+                            IconButton {
+                                icon: @image-url("icons/delete.svg");
+                                label: Tr.t("Delete");
+                                icon-size: 20px;
+                                icon-color: Theme.error;
                                 clicked => { root.delete-rule(row.id); }
                             }
                         }
@@ -582,6 +640,7 @@ export component SettingsPage inherits Rectangle {
 
                 SectionTitle {
                     text: Tr.t("Security");
+                    icon: @image-url("icons/lock.svg");
                 }
 
                 VerticalLayout {
@@ -589,7 +648,7 @@ export component SettingsPage inherits Rectangle {
                     Text {
                         text: Tr.t("ChangePassphraseText");
                         color: Theme.muted-text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         wrap: word-wrap;
                     }
                     PrimaryButton {
@@ -605,12 +664,13 @@ export component SettingsPage inherits Rectangle {
 
                     SectionTitle {
                         text: Tr.t("BackupAndRestore");
+                        icon: @image-url("icons/backup.svg");
                     }
 
                     Text {
                         text: Tr.t("BackupHint");
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                         width: 640px;
                     }
@@ -646,7 +706,7 @@ export component SettingsPage inherits Rectangle {
                         Text {
                             text: Tr.t("RestoreWaiting");
                             color: Theme.warning;
-                            font-size: 13px;
+                            font-size: Type.body-size;
                             vertical-alignment: center;
                             horizontal-stretch: 1;
                             wrap: word-wrap;
@@ -662,7 +722,7 @@ export component SettingsPage inherits Rectangle {
                     if (root.backup-restored-text != "") : Text {
                         text: root.backup-restored-text;
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
                 }
@@ -674,12 +734,13 @@ export component SettingsPage inherits Rectangle {
 
                     SectionTitle {
                         text: Tr.t("FinDeskImportTitle");
+                        icon: @image-url("icons/storage.svg");
                     }
 
                     Text {
                         text: Tr.t("FinDeskImportHint");
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                         width: 640px;
                     }
@@ -708,12 +769,13 @@ export component SettingsPage inherits Rectangle {
 
                 SectionTitle {
                     text: Tr.t("AuditLogLatest");
+                    icon: @image-url("icons/history.svg");
                 }
 
                 if (root.audit-rows.length == 0) : Text {
                     text: Tr.t("AuditLogEmpty");
                     color: Theme.muted-text;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                 }
 
                 for row in root.audit-rows : HorizontalLayout {
@@ -722,27 +784,27 @@ export component SettingsPage inherits Rectangle {
                         text: row.time;
                         width: 130px;
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                     }
                     Text {
                         text: row.action;
                         width: 190px;
                         color: Theme.text;
-                        font-size: 12px;
-                        font-weight: 600;
+                        font-size: Type.label-small-size;
+                        font-weight: Type.label-small-weight;
                         overflow: elide;
                     }
                     Text {
                         text: row.actor;
                         width: 70px;
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         overflow: elide;
                     }
                     Text {
                         text: row.details;
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         overflow: elide;
                         horizontal-stretch: 1;
                     }
@@ -752,6 +814,7 @@ export component SettingsPage inherits Rectangle {
 
                 SectionTitle {
                     text: Tr.t("AboutTitle");
+                    icon: @image-url("icons/info.svg");
                 }
 
                 HorizontalLayout {
@@ -769,24 +832,24 @@ export component SettingsPage inherits Rectangle {
                         Text {
                             text: "Finglass";
                             color: Theme.text;
-                            font-size: 20px;
-                            font-weight: 600;
+                            font-size: Type.title-large-size;
+                            font-weight: Type.title-large-weight;
                         }
                         Text {
                             text: root.about-version-text;
                             color: Theme.text;
-                            font-size: 14px;
+                            font-size: Type.body-size;
                         }
                         Text {
                             text: Tr.t("AboutText");
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
                         Text {
                             text: Tr.t("AboutBankCodesSource");
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
                     }
@@ -858,22 +921,22 @@ export component ChangePassphraseDialog inherits Rectangle {
             Text {
                 text: Tr.t("ChangePassphrase");
                 color: Theme.text;
-                font-size: 22px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
 
             Text {
                 text: Tr.t("ChangePassphraseText");
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
             Text {
                 text: Tr.t("CurrentPassphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 enabled: !root.busy;
@@ -885,8 +948,8 @@ export component ChangePassphraseDialog inherits Rectangle {
             Text {
                 text: Tr.t("NewPassphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 enabled: !root.busy;
@@ -898,8 +961,8 @@ export component ChangePassphraseDialog inherits Rectangle {
             Text {
                 text: Tr.t("RepeatPassphrase");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
             LineEdit {
                 enabled: !root.busy;
@@ -923,7 +986,7 @@ export component ChangePassphraseDialog inherits Rectangle {
             if (root.error-text != "") : Text {
                 text: root.error-text;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -952,7 +1015,7 @@ export component ChangePassphraseDialog inherits Rectangle {
                     Text {
                         text: Tr.t("Encrypting");
                         color: Theme.muted-text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         vertical-alignment: center;
                     }
                 }

@@ -1,5 +1,5 @@
 import { ScrollView, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     Badge,
@@ -24,7 +24,7 @@ component LinkCandidateRow inherits Rectangle {
     background: transparent;
 
     HorizontalLayout {
-        spacing: 8px;
+        spacing: 6px;
 
         VerticalLayout {
             horizontal-stretch: 1;
@@ -33,14 +33,14 @@ component LinkCandidateRow inherits Rectangle {
             Text {
                 text: root.candidate.title;
                 color: Theme.text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 overflow: elide;
                 vertical-alignment: center;
             }
             Text {
                 text: root.candidate.meta;
                 color: Theme.muted-text;
-                font-size: 11px;
+                font-size: Type.body-small-size;
                 overflow: elide;
                 vertical-alignment: center;
             }
@@ -52,6 +52,7 @@ component LinkCandidateRow inherits Rectangle {
         }
 
         TextButton {
+            min-width: 48px;
             text: Tr.t("Link");
             clicked => { root.link(root.candidate.id); }
         }
@@ -86,13 +87,13 @@ component DeleteDocumentDialog inherits Rectangle {
             Text {
                 text: Tr.t("DeleteDocumentTitle");
                 color: Theme.text;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
             }
             Text {
                 text: root.text;
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -184,7 +185,7 @@ export component DocumentsPage inherits Rectangle {
                 if (!root.ocr-available) : Text {
                     text: root.ocr-hint;
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
             }
@@ -198,7 +199,7 @@ export component DocumentsPage inherits Rectangle {
                 Text {
                     text: root.progress-text;
                     color: Theme.muted-text;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                     vertical-alignment: center;
                 }
             }
@@ -313,8 +314,8 @@ export component DocumentsPage inherits Rectangle {
                             Text {
                                 text: root.search-query == "" ? Tr.t("NoDocuments") : Tr.t("NoMatches");
                                 color: Theme.text;
-                                font-size: 16px;
-                                font-weight: 600;
+                                font-size: Type.title-medium-size;
+                                font-weight: Type.title-medium-weight;
                                 horizontal-alignment: center;
                             }
                         }
@@ -327,7 +328,7 @@ export component DocumentsPage inherits Rectangle {
                                 width: 440px;
                                 text: root.search-query == "" ? Tr.t("UploadHint") : Tr.t("TryAnotherSearch");
                                 color: Theme.muted-text;
-                                font-size: 13px;
+                                font-size: Type.body-size;
                                 horizontal-alignment: center;
                                 wrap: word-wrap;
                             }
@@ -368,11 +369,12 @@ export component DocumentsPage inherits Rectangle {
                                         padding: 16px;
                                         spacing: 12px;
 
-                                        Rectangle {
+                                        Image {
                                             width: 20px;
                                             height: 20px;
-                                            border-radius: 3px;
-                                            background: row.is-pdf ? #E53935 : #43A047;
+                                            source: row.is-pdf ? @image-url("icons/documents.svg") : @image-url("icons/image.svg");
+                                            colorize: row.is-pdf ? #E53935 : #43A047;
+                                            accessible-role: none;
                                         }
 
                                         VerticalLayout {
@@ -381,15 +383,15 @@ export component DocumentsPage inherits Rectangle {
                                             Text {
                                                 text: row.name;
                                                 color: Theme.text;
-                                                font-size: 14px;
-                                                font-weight: 600;
+                                                font-size: Type.title-small-size;
+                                                font-weight: Type.title-small-weight;
                                                 overflow: elide;
                                                 vertical-alignment: center;
                                             }
                                             Text {
                                                 text: row.meta;
                                                 color: row.is-linked ? Theme.primary : Theme.muted-text;
-                                                font-size: 12px;
+                                                font-size: Type.body-small-size;
                                                 overflow: elide;
                                                 vertical-alignment: center;
                                             }
@@ -433,8 +435,8 @@ export component DocumentsPage inherits Rectangle {
                                 text: root.selected-name;
                                 horizontal-stretch: 1;
                                 color: Theme.text;
-                                font-size: 17px;
-                                font-weight: 600;
+                                font-size: Type.title-medium-size;
+                                font-weight: Type.title-medium-weight;
                                 overflow: elide;
                                 vertical-alignment: center;
                             }
@@ -517,8 +519,8 @@ export component DocumentsPage inherits Rectangle {
                         Text {
                             text: Tr.t("LinkedTransaction");
                             color: Theme.text;
-                            font-size: 13px;
-                            font-weight: 600;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                         }
 
                         if (root.selected-linked) : HorizontalLayout {
@@ -528,12 +530,13 @@ export component DocumentsPage inherits Rectangle {
                                 text: root.selected-link-label;
                                 horizontal-stretch: 1;
                                 color: Theme.primary;
-                                font-size: 13px;
+                                font-size: Type.body-size;
                                 overflow: elide;
                                 vertical-alignment: center;
                             }
 
                             TextButton {
+                                min-width: 56px;
                                 text: Tr.t("Unlink");
                                 clicked => { root.unlink(); }
                             }
@@ -545,7 +548,7 @@ export component DocumentsPage inherits Rectangle {
                             if (root.suggestions.length > 0) : Text {
                                 text: Tr.t("SuggestedMatches");
                                 color: Theme.muted-text;
-                                font-size: 12px;
+                                font-size: Type.body-small-size;
                                 wrap: word-wrap;
                             }
 
@@ -572,8 +575,8 @@ export component DocumentsPage inherits Rectangle {
                         Text {
                             text: root.selected-ocr-heading;
                             color: Theme.text;
-                            font-size: 13px;
-                            font-weight: 600;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                         }
 
                         Rectangle {
@@ -588,7 +591,7 @@ export component DocumentsPage inherits Rectangle {
                                 Text {
                                     text: root.selected-ocr-text == "" ? Tr.t("NoTextExtracted") : root.selected-ocr-text;
                                     color: Theme.text;
-                                    font-size: 12px;
+                                    font-size: Type.body-small-size;
                                     font-family: "monospace";
                                     wrap: word-wrap;
                                 }

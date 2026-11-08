@@ -1,5 +1,5 @@
 import { CheckBox, LineEdit, ScrollView } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { PrimaryButton, TextButton } from "components.slint";
 import { BankingPromptChoice } from "models.slint";
@@ -21,7 +21,7 @@ component PromptChoiceRow inherits Rectangle {
         height: parent.height;
         text: root.label;
         color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: 14px;
+        font-size: Type.body-size;
         vertical-alignment: center;
         overflow: elide;
     }
@@ -85,15 +85,15 @@ export component BankingPrompts inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: 22px;
-                font-weight: 600;
+                font-size: Type.title-large-size;
+                font-weight: Type.title-large-weight;
                 wrap: word-wrap;
             }
 
             if (root.text != "") : Text {
                 text: root.text;
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -103,8 +103,8 @@ export component BankingPrompts inherits Rectangle {
                 Text {
                     text: root.label;
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -130,7 +130,7 @@ export component BankingPrompts inherits Rectangle {
                     Text {
                         text: Tr.t("RememberPinExplanation");
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
                 }
@@ -161,7 +161,7 @@ export component BankingPrompts inherits Rectangle {
                 Text {
                     text: root.challenge;
                     color: Theme.muted-text;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                     wrap: word-wrap;
                 }
 
@@ -176,15 +176,15 @@ export component BankingPrompts inherits Rectangle {
                 if (root.flicker-note != "") : Text {
                     text: root.flicker-note;
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
 
                 Text {
                     text: root.label;
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -308,7 +308,7 @@ export component BankingInfoBanner inherits Rectangle {
         Text {
             text: root.text;
             color: Theme.text;
-            font-size: 13px;
+            font-size: Type.body-size;
             wrap: word-wrap;
             horizontal-stretch: 1;
             vertical-alignment: center;

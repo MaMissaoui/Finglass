@@ -15,7 +15,7 @@ use crate::model::{CategoryId, TransactionId};
 use crate::money::{Currency, Money};
 use crate::recurring::Cadence;
 use crate::repo::RepoError;
-use crate::report::format::month_name;
+use crate::report::format::{month_name, month_short_name};
 
 /// The local calendar date, falling back to UTC when the machine's offset cannot be determined.
 ///
@@ -136,7 +136,7 @@ pub struct MonthBarView {
     pub year: i32,
     /// The month, 1 to 12.
     pub month: u8,
-    /// The month's display label, e.g. "September".
+    /// The month's short label for the chart, e.g. "Sep" or "Sept.".
     pub label: String,
     /// Money in, transfers excluded.
     pub income: Money,
@@ -803,7 +803,7 @@ fn month_bars(months: &[dashboard::MonthBar], language: Language) -> Vec<MonthBa
         .map(|bar| MonthBarView {
             year: bar.year,
             month: bar.month,
-            label: month_name(language, bar.month).to_owned(),
+            label: month_short_name(language, bar.month).to_owned(),
             income: bar.income,
             expenses: bar.expenses,
             income_fraction: fraction(bar.income.minor, top),

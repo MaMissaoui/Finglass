@@ -1,5 +1,43 @@
 import { Palette } from "std-widgets.slint";
 
+// IBM Plex Sans (SIL Open Font License 1.1, see fonts/OFL.txt), the same four faces as FinDesk.
+import "fonts/IBMPlexSans-Regular.ttf";
+import "fonts/IBMPlexSans-Medium.ttf";
+import "fonts/IBMPlexSans-SemiBold.ttf";
+import "fonts/IBMPlexSans-Bold.ttf";
+
+// FinDesk's Material 3 type scale, in IBM Plex Sans. Sizes are in logical pixels; weights are the
+// bundled faces (400 Regular, 500 Medium, 600 SemiBold). Use the tokens by role, not by number.
+export global Type {
+    out property <length> headline-size: 24px;
+    out property <int> headline-weight: 600;
+
+    out property <length> title-large-size: 20px;
+    out property <int> title-large-weight: 600;
+
+    out property <length> title-medium-size: 16px;
+    out property <int> title-medium-weight: 600;
+
+    out property <length> title-small-size: 14px;
+    out property <int> title-small-weight: 500;
+
+    out property <length> body-size: 14px;
+    out property <int> body-weight: 400;
+
+    out property <length> body-small-size: 12px;
+    out property <int> body-small-weight: 400;
+
+    out property <length> label-size: 14px;
+    out property <int> label-weight: 500;
+
+    out property <length> label-small-size: 12px;
+    out property <int> label-small-weight: 500;
+
+    // Large KPI amounts keep a slightly larger size than the headline token.
+    out property <length> amount-size: 28px;
+    out property <int> amount-weight: 700;
+}
+
 // Finglass's palettes. The window sets `mode` to system, light or dark; in system mode the fluent
 // style's colour-scheme is followed so the app matches the desktop.
 export global Theme {

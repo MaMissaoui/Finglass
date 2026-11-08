@@ -1,5 +1,5 @@
 import { ComboBox, LineEdit, ScrollView, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     AccountDaysChoice,
@@ -11,10 +11,58 @@ import {
     BankAccountRow,
     ChoiceChip,
     CountBadge,
+    IconButton,
     PrimaryButton,
     TextButton,
 } from "components.slint";
 import { BankSuggestionRow } from "models.slint";
+
+// One entry of a bank card's menu, with a check mark for the active choice.
+component BankMenuEntry inherits Rectangle {
+    in property <string> label;
+    in property <bool> checked;
+    in property <bool> enabled: true;
+
+    callback picked;
+
+    height: 28px;
+    background: touch.has-hover && root.enabled ? Theme.background : transparent;
+    accessible-role: button;
+    accessible-label: root.label;
+
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        spacing: 6px;
+        cross-axis-alignment: center;
+
+        if (root.checked) : Image {
+            width: 18px;
+            height: 18px;
+            source: @image-url("icons/check.svg");
+            colorize: root.enabled ? Theme.on-selected : Theme.muted-text;
+            accessible-role: none;
+        }
+
+        Text {
+            horizontal-stretch: 1;
+            text: root.label;
+            color: root.enabled ? Theme.text : Theme.muted-text;
+            font-size: Type.body-size;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            if (root.enabled) {
+                root.picked();
+            }
+        }
+    }
+}
 
 // A labelled group of figures in the page header.
 component FigureView inherits VerticalLayout {
@@ -26,7 +74,7 @@ component FigureView inherits VerticalLayout {
     Text {
         text: root.figure.label;
         color: Theme.muted-text;
-        font-size: 12px;
+        font-size: Type.body-small-size;
         overflow: elide;
     }
 
@@ -34,7 +82,7 @@ component FigureView inherits VerticalLayout {
         text: amount.text;
         color: root.figure.secondary ? Theme.muted-text : AccountTone.amount-color(amount.tone);
         font-size: root.figure.secondary ? 18px : 24px;
-        font-weight: 600;
+        font-weight: Type.body-small-weight;
         overflow: elide;
     }
 }
@@ -58,8 +106,8 @@ component ModalCard inherits Rectangle {
         Text {
             text: root.title;
             color: Theme.text;
-            font-size: 22px;
-            font-weight: 600;
+            font-size: Type.title-medium-size;
+            font-weight: Type.title-medium-weight;
             wrap: word-wrap;
         }
 
@@ -85,15 +133,15 @@ component BankSuggestionView inherits Rectangle {
         Text {
             text: root.suggestion.name;
             color: Theme.text;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
             overflow: elide;
         }
 
         Text {
             text: root.suggestion.detail;
             color: Theme.muted-text;
-            font-size: 11px;
+            font-size: Type.body-small-size;
             overflow: elide;
         }
     }
@@ -147,15 +195,15 @@ component BankAccountView inherits Rectangle {
                     Text {
                         text: root.account.name;
                         color: Theme.text;
-                        font-size: 14px;
-                        font-weight: root.account.new-count > 0 ? 700 : 500;
+                        font-size: Type.title-small-size;
+                        font-weight: root.account.new-count > 0 ? Type.title-small-weight : Type.title-small-weight;
                         overflow: elide;
                     }
 
                     Text {
                         text: root.account.subtitle;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         overflow: elide;
                     }
                 }
@@ -168,8 +216,8 @@ component BankAccountView inherits Rectangle {
                 Text {
                     text: root.account.balance-text;
                     color: AccountTone.amount-color(root.account.tone);
-                    font-size: 15px;
-                    font-weight: 700;
+                    font-size: Type.title-medium-size;
+                    font-weight: Type.title-medium-weight;
                     vertical-alignment: center;
                     horizontal-alignment: right;
                 }
@@ -183,7 +231,7 @@ component BankAccountView inherits Rectangle {
                     Text {
                         text: "☰";
                         color: Theme.muted-text;
-                        font-size: 14px;
+                        font-size: Type.body-size;
                         horizontal-alignment: center;
                         vertical-alignment: center;
                     }
@@ -202,12 +250,14 @@ component BankAccountView inherits Rectangle {
                     border-radius: 12px;
                     background: dot.has-hover ? Theme.divider : transparent;
 
-                    Text {
-                        text: "⋯";
-                        color: Theme.muted-text;
-                        font-size: 16px;
-                        horizontal-alignment: center;
-                        vertical-alignment: center;
+                    Image {
+                        width: 18px;
+                        height: 18px;
+                        x: (parent.width - self.width) / 2;
+                        y: (parent.height - self.height) / 2;
+                        source: @image-url("icons/more_vert.svg");
+                        colorize: Theme.muted-text;
+                        accessible-role: none;
                     }
 
                     dot := TouchArea {
@@ -312,12 +362,14 @@ component BankCardView inherits Rectangle {
                 border-radius: 12px;
                 background: chevron.has-hover ? Theme.divider : transparent;
 
-                Text {
-                    text: root.card.collapsed ? "▸" : "▾";
-                    color: Theme.muted-text;
-                    font-size: 13px;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
+                Image {
+                    width: 20px;
+                    height: 20px;
+                    x: (parent.width - self.width) / 2;
+                    y: (parent.height - self.height) / 2;
+                    source: root.card.collapsed ? @image-url("icons/keyboard_arrow_right.svg") : @image-url("icons/keyboard_arrow_down.svg");
+                    colorize: Theme.muted-text;
+                    accessible-role: none;
                 }
 
                 chevron := TouchArea {
@@ -338,8 +390,8 @@ component BankCardView inherits Rectangle {
                     Text {
                         text: root.card.name;
                         color: Theme.text;
-                        font-size: 15px;
-                        font-weight: 600;
+                        font-size: Type.title-medium-size;
+                        font-weight: Type.title-medium-weight;
                         overflow: elide;
                         horizontal-stretch: 1;
                     }
@@ -347,7 +399,7 @@ component BankCardView inherits Rectangle {
                     if (root.card.collapsed) : Text {
                         text: root.card.account-count-text;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         vertical-alignment: center;
                     }
 
@@ -358,8 +410,8 @@ component BankCardView inherits Rectangle {
                         for amount in root.card.totals : Text {
                             text: amount.text;
                             color: AccountTone.amount-color(amount.tone);
-                            font-size: 12px;
-                            font-weight: 600;
+                            font-size: Type.label-small-size;
+                            font-weight: Type.label-small-weight;
                             horizontal-alignment: right;
                         }
                     }
@@ -368,21 +420,21 @@ component BankCardView inherits Rectangle {
                 if (root.card.subtitle != "") : Text {
                     text: root.card.subtitle;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     overflow: elide;
                 }
 
                 if (root.card.central-blz-hint != "") : Text {
                     text: root.card.central-blz-hint;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     overflow: elide;
                 }
 
                 if (!root.card.offline && root.card.pin-text != "") : Text {
                     text: root.card.pin-text;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     overflow: elide;
                 }
             }
@@ -395,7 +447,7 @@ component BankCardView inherits Rectangle {
             if (root.card.syncing) : Text {
                 text: root.card.sync-step;
                 color: Theme.muted-text;
-                font-size: 12px;
+                font-size: Type.body-small-size;
                 vertical-alignment: center;
             }
 
@@ -421,12 +473,14 @@ component BankCardView inherits Rectangle {
                 background: bank-menu-button.has-hover ? Theme.divider : transparent;
                 // The menu is only meaningful for a real bank connection.
 
-                Text {
-                    text: "⋯";
-                    color: Theme.muted-text;
-                    font-size: 16px;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
+                Image {
+                    width: 18px;
+                    height: 18px;
+                    x: (parent.width - self.width) / 2;
+                    y: (parent.height - self.height) / 2;
+                    source: @image-url("icons/more_vert.svg");
+                    colorize: Theme.muted-text;
+                    accessible-role: none;
                 }
 
                 bank-menu-button := TouchArea {
@@ -446,10 +500,11 @@ component BankCardView inherits Rectangle {
                 padding: 6px;
                 spacing: 2px;
 
-                for item in root.card.menu : TextButton {
-                    text: item.checked ? "✓ " + item.label : item.label;
+                for item in root.card.menu : BankMenuEntry {
+                    label: item.label;
+                    checked: item.checked;
                     enabled: item.enabled;
-                    clicked => {
+                    picked => {
                         root.menu-open = false;
                         root.menu-action(item.action);
                     }
@@ -468,7 +523,7 @@ component BankCardView inherits Rectangle {
             if (root.card.accounts.length == 0) : Text {
                 text: Tr.t("NoAccountsYet");
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
             }
 
             for account in root.card.accounts : BankAccountView {
@@ -525,8 +580,8 @@ component EmptyAccounts inherits Rectangle {
         Text {
             text: Tr.t("NoBanksYet");
             color: Theme.text;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: Type.title-large-size;
+            font-weight: Type.title-large-weight;
             horizontal-alignment: center;
         }
 
@@ -534,7 +589,7 @@ component EmptyAccounts inherits Rectangle {
             width: 620px;
             text: Tr.t("NoBanksDescription");
             color: Theme.muted-text;
-            font-size: 13px;
+            font-size: Type.body-size;
             horizontal-alignment: center;
             wrap: word-wrap;
         }
@@ -719,7 +774,7 @@ export component AccountsPage inherits Rectangle {
                 if (root.sync-all-progress != "") : Text {
                     text: root.sync-all-progress;
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     vertical-alignment: center;
                 }
 
@@ -749,19 +804,30 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 padding: 12px;
+                padding-right: 4px;
                 spacing: 12px;
+
+                Image {
+                    width: 20px;
+                    height: 20px;
+                    source: root.error-text != "" ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
+                    colorize: root.error-text != "" ? Theme.error : Theme.success;
+                    accessible-role: none;
+                }
 
                 Text {
                     text: root.error-text != "" ? root.error-text : root.message-text;
                     color: root.error-text != "" ? Theme.error : Theme.success;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                     vertical-alignment: center;
                     wrap: word-wrap;
                     horizontal-stretch: 1;
                 }
 
-                TextButton {
-                    text: Tr.t("Dismiss");
+                IconButton {
+                    icon: @image-url("icons/close.svg");
+                    label: Tr.t("Dismiss");
+                    icon-size: 18px;
                     clicked => {
                         root.dismiss-message();
                     }
@@ -855,8 +921,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: root.detail-title;
                     color: Theme.text;
-                    font-size: 20px;
-                    font-weight: 600;
+                    font-size: Type.title-large-size;
+                    font-weight: Type.title-large-weight;
                     wrap: word-wrap;
                 }
 
@@ -870,15 +936,15 @@ export component AccountsPage inherits Rectangle {
                         Text {
                             text: root.detail-subtitle;
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             overflow: elide;
                         }
 
                         Text {
                             text: root.detail-balance;
                             color: AccountTone.amount-color(root.detail-tone);
-                            font-size: 24px;
-                            font-weight: 700;
+                            font-size: Type.headline-size;
+                            font-weight: Type.headline-weight;
                         }
                     }
 
@@ -894,7 +960,7 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: root.detail-summary;
                     color: Theme.muted-text;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                 }
 
                 // The axis sits left of the line: highest balance at the top, lowest at the bottom.
@@ -909,7 +975,7 @@ export component AccountsPage inherits Rectangle {
                         Text {
                             text: root.detail-axis-top;
                             color: Theme.muted-text;
-                            font-size: 11px;
+                            font-size: Type.body-small-size;
                             horizontal-alignment: right;
                         }
 
@@ -920,7 +986,7 @@ export component AccountsPage inherits Rectangle {
                         Text {
                             text: root.detail-axis-bottom;
                             color: Theme.muted-text;
-                            font-size: 11px;
+                            font-size: Type.body-small-size;
                             horizontal-alignment: right;
                         }
                     }
@@ -941,14 +1007,14 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("RecentBookings");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 if (root.detail-rows.length == 0) : Text {
                     text: Tr.t("NoneInPeriod");
                     color: Theme.muted-text;
-                    font-size: 13px;
+                    font-size: Type.body-size;
                 }
 
                 for booking in root.detail-rows : HorizontalLayout {
@@ -958,14 +1024,14 @@ export component AccountsPage inherits Rectangle {
                         text: booking.date-text;
                         width: 90px;
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         vertical-alignment: center;
                     }
 
                     Text {
                         text: booking.title;
                         color: Theme.text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         overflow: elide;
                         horizontal-stretch: 1;
                         vertical-alignment: center;
@@ -974,8 +1040,8 @@ export component AccountsPage inherits Rectangle {
                     Text {
                         text: booking.amount-text;
                         color: booking.expense ? Theme.error : Theme.success;
-                        font-size: 12px;
-                        font-weight: 600;
+                        font-size: Type.label-small-size;
+                        font-weight: Type.label-small-weight;
                         vertical-alignment: center;
                         horizontal-alignment: right;
                     }
@@ -984,7 +1050,7 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("HistoryReconstructed");
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
 
@@ -1049,8 +1115,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("BankSearchHint");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1069,7 +1135,7 @@ export component AccountsPage inherits Rectangle {
                     if (root.add-bank-suggestions.length == 0) : Text {
                         text: Tr.t("BankSearchNoMatch");
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
 
@@ -1099,7 +1165,7 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("BankManualEntry");
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
             }
@@ -1107,8 +1173,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("BankName");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1126,8 +1192,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("BlzDigits");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1140,15 +1206,15 @@ export component AccountsPage inherits Rectangle {
                 if (root.add-bank-central-note != "") : Text {
                     text: root.add-bank-central-note;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
 
                 Text {
                     text: Tr.t("BicOptional");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1158,8 +1224,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("UserIdLogin");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1169,8 +1235,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("FintsServerUrl");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1180,7 +1246,7 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("AskBankForFints");
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
             }
@@ -1188,7 +1254,7 @@ export component AccountsPage inherits Rectangle {
             if (root.dialog-error != "") : Text {
                 text: root.dialog-error;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -1232,8 +1298,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("AccountName");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1243,8 +1309,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: root.dialog-offline ? Tr.t("IbanOrCardLast4") : Tr.t("Iban");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1254,8 +1320,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("AccountTypeLabel");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             HorizontalLayout {
@@ -1273,8 +1339,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("ColCurrency");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             ComboBox {
@@ -1285,8 +1351,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("ColBalance");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1296,14 +1362,14 @@ export component AccountsPage inherits Rectangle {
             if (root.form-type-code == "loan") : Text {
                 text: Tr.t("LoanBalanceHint");
                 color: Theme.muted-text;
-                font-size: 12px;
+                font-size: Type.body-small-size;
                 wrap: word-wrap;
             }
 
             if (root.dialog-error != "") : Text {
                 text: root.dialog-error;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -1343,15 +1409,15 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: root.dialog-account-label;
                 color: Theme.muted-text;
-                font-size: 12px;
+                font-size: Type.body-small-size;
                 overflow: elide;
             }
 
             Text {
                 text: Tr.t("AccountTypeLabel");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             HorizontalLayout {
@@ -1369,8 +1435,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("ColBalance");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1385,14 +1451,14 @@ export component AccountsPage inherits Rectangle {
             if (root.balance-type-code == "loan") : Text {
                 text: Tr.t("LoanBalanceHint");
                 color: Theme.muted-text;
-                font-size: 12px;
+                font-size: Type.body-small-size;
                 wrap: word-wrap;
             }
 
             if (root.dialog-error != "") : Text {
                 text: root.dialog-error;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -1425,8 +1491,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("AccountName");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1439,7 +1505,7 @@ export component AccountsPage inherits Rectangle {
             if (root.dialog-error != "") : Text {
                 text: root.dialog-error;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -1472,8 +1538,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("ConnectionName");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1483,7 +1549,7 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("ConnectionNameHint");
                 color: Theme.muted-text;
-                font-size: 11px;
+                font-size: Type.body-small-size;
                 wrap: word-wrap;
             }
 
@@ -1493,8 +1559,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("BlzDigits");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1504,8 +1570,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("UserIdLogin");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1515,8 +1581,8 @@ export component AccountsPage inherits Rectangle {
                 Text {
                     text: Tr.t("FintsServerUrl");
                     color: Theme.text;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                 }
 
                 LineEdit {
@@ -1526,7 +1592,7 @@ export component AccountsPage inherits Rectangle {
                 if (root.connection-pin-text != "") : Text {
                     text: root.connection-pin-text;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
 
@@ -1542,7 +1608,7 @@ export component AccountsPage inherits Rectangle {
             if (root.dialog-error != "") : Text {
                 text: root.dialog-error;
                 color: Theme.error;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -1582,8 +1648,8 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: Tr.t("FetchHistoryDate");
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
             }
 
             LineEdit {
@@ -1596,7 +1662,7 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: root.dialog-error != "" ? root.dialog-error : Tr.t("FetchHistoryHint");
                 color: root.dialog-error != "" ? Theme.error : Theme.muted-text;
-                font-size: 12px;
+                font-size: Type.body-small-size;
                 wrap: word-wrap;
             }
 
@@ -1636,7 +1702,7 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: root.dialog-text;
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
@@ -1668,7 +1734,7 @@ export component AccountsPage inherits Rectangle {
             Text {
                 text: root.dialog-text;
                 color: Theme.muted-text;
-                font-size: 13px;
+                font-size: Type.body-size;
                 wrap: word-wrap;
             }
 
