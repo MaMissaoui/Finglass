@@ -1,4 +1,4 @@
-import { Theme, Type } from "theme.slint";
+import { MonogramColours, Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import { ListView } from "std-widgets.slint";
 
@@ -144,6 +144,10 @@ export struct BankAccountRow {
     balance-text: string,
     tone: string,
     new-count: int,
+    // The bank badge: an SVG id, or "" with monogram letters and a colour index.
+    logo: string,
+    logo-letters: string,
+    logo-colour: int,
 }
 
 // One entry of a bank card's menu. `action` is the callback value the adapter understands and
@@ -174,6 +178,10 @@ export struct AccountsBankCard {
     sync-tooltip: string,
     pin-text: string,
     menu: [BankMenuItem],
+    // The bank badge: an SVG id, or "" with monogram letters and a colour index.
+    logo: string,
+    logo-letters: string,
+    logo-colour: int,
 }
 
 // One row of the Transactions list: a booking or a pending bank line.
@@ -242,6 +250,10 @@ export struct AccountPanelRow {
     new-count: int,
     totals: [AccountAmount],
     indent: bool,
+    // The bank badge: an SVG id, or "" with monogram letters and a colour index.
+    logo: string,
+    logo-letters: string,
+    logo-colour: int,
 }
 
 // One custom group a booking can be moved into.
@@ -311,6 +323,61 @@ export component CountBadge inherits Rectangle {
         horizontal-alignment: center;
         vertical-alignment: center;
         overflow: elide;
+    }
+}
+
+// The bank's bundled logo on a white tile, or a coloured monogram when the bank has no logo.
+// Decorative: the bank name beside it stays the label.
+export component BankBadge inherits Rectangle {
+    /// The SVG's id, or "" for a monogram.
+    in property <string> logo;
+    /// Up to three letters for the monogram.
+    in property <string> letters;
+    /// The index into the theme's eight monogram colours.
+    in property <int> colour-index;
+    in property <length> size: 24px;
+
+    function logo-source(id: string) -> image {
+        if (id == "hypovereinsbank") { return @image-url("banks/hypovereinsbank.svg"); }
+        if (id == "dkb") { return @image-url("banks/dkb.svg"); }
+        if (id == "postbank") { return @image-url("banks/postbank.svg"); }
+        if (id == "deutsche-bank") { return @image-url("banks/deutsche-bank.svg"); }
+        if (id == "commerzbank") { return @image-url("banks/commerzbank.svg"); }
+        if (id == "santander") { return @image-url("banks/santander.svg"); }
+        if (id == "n26") { return @image-url("banks/n26.svg"); }
+        if (id == "sparkasse") { return @image-url("banks/sparkasse.svg"); }
+        if (id == "volksbank") { return @image-url("banks/volksbank.svg"); }
+        return @image-url("banks/sparkasse.svg");
+    }
+
+    visible: root.logo != "" || root.letters != "";
+    width: root.size;
+    height: root.size;
+    // A logo sits on a 25 % rounded white tile; a monogram is a circle-ish filled tile.
+    border-radius: root.logo != "" ? root.size * 0.25 : root.size / 2;
+    background: root.logo != "" ? #FFFFFF : MonogramColours.colour(root.colour-index);
+    border-width: root.logo != "" ? 1px : 0px;
+    border-color: Theme.divider;
+    accessible-role: none;
+
+    if (root.logo != "") : Image {
+        x: root.size * 0.1;
+        y: root.size * 0.1;
+        width: root.size * 0.8;
+        height: root.size * 0.8;
+        source: root.logo-source(root.logo);
+        accessible-role: none;
+    }
+
+    if (root.logo == "") : Text {
+        text: root.letters;
+        color: #FFFFFF;
+        font-size: root.size * 0.42;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: none;
     }
 }
 

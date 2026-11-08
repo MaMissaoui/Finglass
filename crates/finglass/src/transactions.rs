@@ -13,7 +13,9 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-use finglass_core::account_grouping::{self, AccountItem as GroupingAccount, BalanceTone, GroupKey, LOAN_TYPE};
+use finglass_core::account_grouping::{
+    self, AccountGroupView, AccountItem as GroupingAccount, BalanceTone, GroupKey, LOAN_TYPE,
+};
 use finglass_core::account_ids;
 use finglass_core::app::account_panel::{self, AccountSelection};
 use finglass_core::app::accounts::{AccountItem, Busy};
@@ -2165,6 +2167,31 @@ fn pending_header(state: &TransactionsState, language: Language) -> String {
     })
 }
 
+fn panel_badge(account: &AccountItem) -> crate::accounts::BadgeFields {
+    // The transactions state carries the connection's name but not its BLZ or BIC, so an online
+    // account matches by name; an account without a bank falls back to its IBAN's directory entry.
+    crate::accounts::account_badge(account, None)
+}
+
+fn panel_group_badge(state: &TransactionsState, group: &AccountGroupView) -> crate::accounts::BadgeFields {
+    if matches!(group.key, GroupKey::Custom(_)) {
+        return crate::accounts::BadgeFields::empty();
+    }
+    let mut first: Option<crate::accounts::BadgeFields> = None;
+    for grouping in &group.accounts {
+        let Some(account) = state.accounts.iter().find(|account| account.id == grouping.id) else {
+            continue;
+        };
+        let badge = panel_badge(account);
+        match &first {
+            Some(existing) if *existing != badge => return crate::accounts::BadgeFields::empty(),
+            Some(_) => {}
+            None => first = Some(badge),
+        }
+    }
+    first.unwrap_or_else(crate::accounts::BadgeFields::empty)
+}
+
 fn panel_rows(state: &TransactionsState, language: Language) -> Vec<AccountPanelRow> {
     let filtering = !state.account_filter_text.trim().is_empty();
     let all_accounts: Vec<GroupingAccount> = state.accounts.iter().map(grouping).collect();
@@ -2184,6 +2211,9 @@ fn panel_rows(state: &TransactionsState, language: Language) -> Vec<AccountPanel
         new_count: i32::try_from(all_new).unwrap_or(i32::MAX),
         totals: amounts(&state.grand_total, &all_accounts, language, state.grand_total.len() > 1),
         indent: false,
+        logo: "".into(),
+        logo_letters: "".into(),
+        logo_colour: 0,
     }];
 
     for group in &state.groups {
@@ -2221,6 +2251,7 @@ fn panel_rows(state: &TransactionsState, language: Language) -> Vec<AccountPanel
         } else {
             String::new()
         };
+        let badge = panel_group_badge(state, group);
         rows.push(AccountPanelRow {
             kind: "group".into(),
             group_kind: group_kind.into(),
@@ -2236,6 +2267,9 @@ fn panel_rows(state: &TransactionsState, language: Language) -> Vec<AccountPanel
             new_count: i32::try_from(group.new_count).unwrap_or(i32::MAX),
             totals: amounts(&group.totals, &group.accounts, language, false),
             indent: false,
+            logo: badge.logo.into(),
+            logo_letters: badge.letters.into(),
+            logo_colour: badge.colour,
         });
 
         if collapsed {
@@ -2254,6 +2288,7 @@ fn panel_rows(state: &TransactionsState, language: Language) -> Vec<AccountPanel
                 .last_update
                 .map(|updated| i18n::format(language, Key::LastFetched, &[Arg::from(format::date(updated.date()))]))
                 .unwrap_or_default();
+            let badge = panel_badge(full);
             rows.push(AccountPanelRow {
                 kind: "account".into(),
                 group_kind: "".into(),
@@ -2276,6 +2311,9 @@ fn panel_rows(state: &TransactionsState, language: Language) -> Vec<AccountPanel
                     .into(),
                 }])),
                 indent: true,
+                logo: badge.logo.into(),
+                logo_letters: badge.letters.into(),
+                logo_colour: badge.colour,
             });
         }
     }

@@ -101,3 +101,18 @@ export global Theme {
     out property <color> success: dark ? #34D399 : #098765;
     out property <color> warning: #F59E0B;
 }
+
+// The eight fixed monogram backgrounds, chosen by the stable colour index from
+// `finglass_core::bank_logo::monogram`. White SemiBold letters reach at least 4.5:1 on each.
+export global MonogramColours {
+    public pure function colour(index: int) -> color {
+        if (index == 1) { return #0E7490; }
+        if (index == 2) { return #7C3AED; }
+        if (index == 3) { return #BE123C; }
+        if (index == 4) { return #15803D; }
+        if (index == 5) { return #1D4ED8; }
+        if (index == 6) { return #A21CAF; }
+        if (index == 7) { return #C2410C; }
+        return #B45309;
+    }
+}
