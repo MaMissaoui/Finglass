@@ -15,7 +15,7 @@ use finglass_core::account_ids;
 use finglass_core::app;
 use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountItem, AccountsState};
 use finglass_core::app::banking::{BankingState, SyncAllProgress};
-use finglass_core::app::dashboard::{DashboardState, DashboardView};
+use finglass_core::app::dashboard::{DashboardState, DashboardView, month_text};
 use finglass_core::app::prefs::ThemePref;
 use finglass_core::app::reports::ReportsState;
 use finglass_core::app::settings::{RestoreCandidate, SettingsState};
@@ -256,6 +256,19 @@ fn renders_the_app_shell() {
         ui.show().unwrap();
         let buffer = render(&window, "dashboard-en-light", 1100, 720);
         assert_varied(&buffer, "dashboard-en-light");
+        let _ = ui.hide();
+    }
+
+    {
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.set_dashboard_month_menu_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "dashboard-month-menu-en-light", 1100, 720);
+        assert_varied(&buffer, "dashboard-month-menu-en-light");
         let _ = ui.hide();
     }
 
@@ -2860,6 +2873,21 @@ fn apply_dashboard(ui: &MainWindow, state: &DashboardState) {
     ui.set_dashboard_first_run(state.is_first_run());
     ui.set_dashboard_show_content(state.has_figures());
     ui.set_dashboard_error_text(state.error.clone().unwrap_or_default().into());
+    ui.set_dashboard_month_options(ModelRc::new(VecModel::from(
+        state
+            .months
+            .iter()
+            .map(|month| SharedString::from(month_text(*month, state.language)))
+            .collect::<Vec<_>>(),
+    )));
+    ui.set_dashboard_month_selected(
+        state
+            .months
+            .iter()
+            .position(|month| *month == state.selected_month)
+            .and_then(|index| i32::try_from(index).ok())
+            .unwrap_or(0),
+    );
 
     if let Some(view) = &state.view {
         apply_dashboard_view(ui, view, state.language);
@@ -3497,6 +3525,7 @@ fn configure_main(ui: &MainWindow, language: Language, theme: ThemePref, screen:
     ui.set_language(language.code().into());
     ui.set_sidebar_collapsed(false);
     ui.set_language_menu_open(false);
+    ui.set_dashboard_month_menu_open(false);
     ui.set_status_text("".into());
     ui.set_change_open(false);
     ui.set_change_busy(false);

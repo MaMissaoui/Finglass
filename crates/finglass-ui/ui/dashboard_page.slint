@@ -1,4 +1,4 @@
-import { ScrollView, Spinner } from "std-widgets.slint";
+import { ListView, ScrollView, Spinner } from "std-widgets.slint";
 import { Theme } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
@@ -246,7 +246,8 @@ component MonthArrow inherits Rectangle {
 
     Text {
         text: root.label;
-        color: root.enabled ? Theme.text : Theme.divider;
+        color: root.enabled ? Theme.text : Theme.muted-text;
+        opacity: root.enabled ? 1.0 : 0.45;
         font-size: 20px;
         horizontal-alignment: center;
         vertical-alignment: center;
@@ -429,9 +430,19 @@ export component DashboardPage inherits Rectangle {
     in property <string> error-text;
 
     in property <string> month-label;
+    in property <[string]> month-options;
+    in property <int> month-selected-index;
     in property <bool> previous-enabled;
     in property <bool> next-enabled;
     in property <bool> is-current-month;
+    in-out property <bool> month-menu-open: false;
+    property <int> month-menu-index: 0;
+
+    changed month-menu-open => {
+        if (root.month-menu-open) {
+            root.month-menu-index = root.month-selected-index;
+        }
+    }
 
     in property <string> available-title;
     in property <string> available-value;
@@ -483,6 +494,7 @@ export component DashboardPage inherits Rectangle {
     callback previous-month;
     callback next-month;
     callback current-month;
+    callback select-month(int);
     callback open-category(int);
     callback open-uncategorized;
     callback open-all;
@@ -565,13 +577,16 @@ export component DashboardPage inherits Rectangle {
                     Rectangle {
                         height: 32px;
                         border-radius: 16px;
-                        border-width: 1px;
-                        border-color: Theme.divider;
+                        border-width: month-focus.has-focus || root.month-menu-open ? 2px : 1px;
+                        border-color: month-focus.has-focus || root.month-menu-open ? Theme.primary : Theme.divider;
                         background: Theme.surface;
+                        accessible-role: button;
+                        accessible-label: Tr.t("SelectMonth");
 
                         HorizontalLayout {
                             padding-left: 14px;
-                            padding-right: 14px;
+                            padding-right: 10px;
+                            spacing: 8px;
 
                             Text {
                                 text: root.month-label;
@@ -579,6 +594,65 @@ export component DashboardPage inherits Rectangle {
                                 font-size: 13px;
                                 font-weight: 600;
                                 vertical-alignment: center;
+                            }
+
+                            VerticalLayout {
+
+                                alignment: center;
+
+                                Path {
+
+                                    width: 8px;
+
+                                    height: 5px;
+
+                                    commands: "M 0 0 L 8 0 L 4 5 Z";
+
+                                    fill: Theme.muted-text;
+
+                                }
+
+                            }
+                        }
+
+                        TouchArea {
+                            clicked => {
+                                root.month-menu-index = root.month-selected-index;
+                                root.month-menu-open = !root.month-menu-open;
+                            }
+                        }
+
+                        month-focus := FocusScope {
+                            // The TouchArea underneath handles the mouse; see the buttons in components.slint.
+                            focus-on-click: false;
+                            key-pressed(event) => {
+                                if (event.text == Key.Return || event.text == Key.Space) {
+                                    if (root.month-menu-open) {
+                                        root.month-menu-open = false;
+                                        root.select-month(root.month-menu-index);
+                                    } else {
+                                        root.month-menu-index = root.month-selected-index;
+                                        root.month-menu-open = true;
+                                    }
+                                    return accept;
+                                }
+                                if (root.month-menu-open && event.text == Key.DownArrow) {
+                                    if (root.month-menu-index < root.month-options.length - 1) {
+                                        root.month-menu-index += 1;
+                                    }
+                                    return accept;
+                                }
+                                if (root.month-menu-open && event.text == Key.UpArrow) {
+                                    if (root.month-menu-index > 0) {
+                                        root.month-menu-index -= 1;
+                                    }
+                                    return accept;
+                                }
+                                if (root.month-menu-open && event.text == Key.Escape) {
+                                    root.month-menu-open = false;
+                                    return accept;
+                                }
+                                return reject;
                             }
                         }
                     }
@@ -760,6 +834,65 @@ export component DashboardPage inherits Rectangle {
                                 root.open-partner(booking.partner);
                             } else {
                                 root.open-all();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // The month drop-down, with the same full-page backdrop as the top bar's menus.
+    if (root.month-menu-open) : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+
+        TouchArea {
+            clicked => {
+                root.month-menu-open = false;
+            }
+        }
+
+        Rectangle {
+            x: 64px;
+            y: 60px;
+            width: 200px;
+            height: min(root.month-options.length * 36px + 16px, 340px);
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            background: Theme.surface;
+            clip: true;
+
+            VerticalLayout {
+                padding: 8px;
+
+                ListView {
+                    for option[index] in root.month-options : Rectangle {
+                        height: 36px;
+                        border-radius: 6px;
+                        background: index == root.month-menu-index ? Theme.selected : (option-touch.has-hover ? Theme.background : transparent);
+                        accessible-role: button;
+                        accessible-label: option;
+
+                        Text {
+                            x: 12px;
+                            width: parent.width - 24px;
+                            height: parent.height;
+                            text: option;
+                            color: index == root.month-menu-index ? Theme.on-selected : Theme.text;
+                            font-size: 13px;
+                            vertical-alignment: center;
+                            horizontal-alignment: left;
+                            overflow: elide;
+                        }
+
+                        option-touch := TouchArea {
+                            clicked => {
+                                root.month-menu-open = false;
+                                root.month-menu-index = index;
+                                root.select-month(index);
                             }
                         }
                     }

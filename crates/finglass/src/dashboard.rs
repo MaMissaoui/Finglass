@@ -6,12 +6,12 @@
 use std::sync::Arc;
 use std::thread;
 
-use finglass_core::app::dashboard::{BalanceTone, DashboardState, DashboardView};
+use finglass_core::app::dashboard::{BalanceTone, DashboardState, DashboardView, local_today, month_text};
 use finglass_core::dashboard::YearMonth;
 use finglass_core::i18n::{self, Key, Language};
 use finglass_core::money::Money;
-use slint::{ComponentHandle, ModelRc, VecModel};
-use time::OffsetDateTime;
+use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
+use time::Date;
 
 use crate::shell::ShellState;
 use crate::{
@@ -25,6 +25,8 @@ pub fn apply(main: &MainWindow, state: &DashboardState) {
     main.set_dashboard_first_run(state.is_first_run());
     main.set_dashboard_show_content(state.has_figures());
     main.set_dashboard_error_text(state.error.clone().unwrap_or_default().into());
+    main.set_dashboard_month_options(month_option_model(state));
+    main.set_dashboard_month_selected(selected_month_index(state));
 
     if let Some(view) = &state.view {
         apply_view(main, view, state.language);
@@ -86,20 +88,44 @@ fn apply_view(main: &MainWindow, view: &DashboardView, language: Language) {
 }
 
 /// Loads the selected month on a background thread and publishes the result on the event loop.
+///
+/// `None` keeps the selected month, so a reload while the Dashboard stays open does not jump to today.
 pub fn spawn_load(main: &MainWindow, state: &Arc<ShellState>, month: Option<YearMonth>) {
+    let today = local_today();
+    let pending = prepare_load(state, today, month);
+    spawn_pending(main, state, pending, today);
+}
+
+/// Opens the Dashboard on today's month, reading the local date at this moment.
+pub fn spawn_open(main: &MainWindow, state: &Arc<ShellState>) {
+    let today = local_today();
+    let pending = prepare_open(state, today);
+    spawn_pending(main, state, pending, today);
+}
+
+/// Builds the state a load starts from, preserving the selected month when `month` is `None`.
+pub(crate) fn prepare_load(state: &Arc<ShellState>, today: Date, month: Option<YearMonth>) -> DashboardState {
+    let language = *state.language.lock().expect("language state poisoned");
+    let mut pending = state.dashboard.lock().expect("dashboard state poisoned").clone();
+    pending.language = language;
+    pending.begin_load(month.unwrap_or(pending.selected_month), today);
+    pending
+}
+
+/// Builds the state that resets the Dashboard to `today`'s month, as FinDesk's new view model does.
+pub(crate) fn prepare_open(state: &Arc<ShellState>, today: Date) -> DashboardState {
+    let language = *state.language.lock().expect("language state poisoned");
+    let mut pending = state.dashboard.lock().expect("dashboard state poisoned").clone();
+    pending.language = language;
+    pending.open(today);
+    pending
+}
+
+fn spawn_pending(main: &MainWindow, state: &Arc<ShellState>, mut pending: DashboardState, today: Date) {
     let Some(db) = state.db.lock().expect("database state poisoned").clone() else {
         return;
     };
-    let language = *state.language.lock().expect("language state poisoned");
-    let today = OffsetDateTime::now_utc().date();
 
-    let mut pending = {
-        let current = state.dashboard.lock().expect("dashboard state poisoned");
-        let mut pending = current.clone();
-        pending.language = language;
-        pending.begin_load(month.unwrap_or(current.selected_month));
-        pending
-    };
     *state.dashboard.lock().expect("dashboard state poisoned") = pending.clone();
     apply(main, &pending);
 
@@ -121,6 +147,19 @@ pub fn spawn_load(main: &MainWindow, state: &Arc<ShellState>, month: Option<Year
     });
 }
 
+/// Opens one month from the header's drop-down.
+pub fn select_month(main: &MainWindow, state: &Arc<ShellState>, index: i32) {
+    let month = {
+        let dashboard = state.dashboard.lock().expect("dashboard state poisoned");
+        usize::try_from(index)
+            .ok()
+            .and_then(|index| dashboard.months.get(index).copied())
+    };
+    if let Some(month) = month {
+        spawn_load(main, state, Some(month));
+    }
+}
+
 /// Opens the previous month.
 pub fn previous_month(main: &MainWindow, state: &Arc<ShellState>) {
     let selected = state.dashboard.lock().expect("dashboard state poisoned").selected_month;
@@ -135,8 +174,26 @@ pub fn next_month(main: &MainWindow, state: &Arc<ShellState>) {
 
 /// Opens today's month.
 pub fn current_month(main: &MainWindow, state: &Arc<ShellState>) {
-    let today = OffsetDateTime::now_utc().date();
-    spawn_load(main, state, Some(YearMonth::from_date(today)));
+    spawn_open(main, state);
+}
+
+fn month_option_model(state: &DashboardState) -> ModelRc<SharedString> {
+    ModelRc::new(VecModel::from(
+        state
+            .months
+            .iter()
+            .map(|month| SharedString::from(month_text(*month, state.language)))
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn selected_month_index(state: &DashboardState) -> i32 {
+    state
+        .months
+        .iter()
+        .position(|month| *month == state.selected_month)
+        .and_then(|index| i32::try_from(index).ok())
+        .unwrap_or(0)
 }
 
 fn tone_code(tone: BalanceTone) -> &'static str {

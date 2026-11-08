@@ -4,7 +4,7 @@
 //! clock and first-run flags, and a [`DashboardView`] whose rows and texts are ready to render.
 //! All figures come from [`crate::dashboard::load_dashboard`]; the page never recomputes money.
 
-use time::Date;
+use time::{Date, OffsetDateTime, UtcOffset};
 
 use crate::bank_text;
 use crate::dashboard::{self, DashboardFigures, YearMonth};
@@ -16,6 +16,15 @@ use crate::money::{Currency, Money};
 use crate::recurring::Cadence;
 use crate::repo::RepoError;
 use crate::report::format::month_name;
+
+/// The local calendar date, falling back to UTC when the machine's offset cannot be determined.
+///
+/// The dashboard's "today" uses the local date: near midnight UTC would otherwise show the wrong month.
+#[must_use]
+pub fn local_today() -> Date {
+    let offset = UtcOffset::current_local_offset().unwrap_or(UtcOffset::UTC);
+    OffsetDateTime::now_utc().to_offset(offset).date()
+}
 
 /// How a balance should be coloured by the page.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -552,6 +561,8 @@ pub struct DashboardState {
     pub earliest_month: YearMonth,
     /// Today's calendar month at the last load.
     pub current_month: YearMonth,
+    /// Every selectable month, newest first, from today's month back to the earliest booking.
+    pub months: Vec<YearMonth>,
     /// Whether a load is running.
     pub is_loading: bool,
     /// The last error, already localized.
@@ -574,6 +585,7 @@ impl DashboardState {
             loaded_month: None,
             earliest_month: current,
             current_month: current,
+            months: vec![current],
             is_loading: false,
             error: None,
             has_accounts: false,
@@ -596,14 +608,20 @@ impl DashboardState {
 
     /// Marks a load as running for `month` and updates the header immediately.
     ///
+    /// `today` refreshes the current month first, so a stale [`Self::current_month`] from a previous
+    /// load cannot clamp a newer month. Only the future is cut off here; the load clamps the oldest month.
+    ///
     /// The loaded month's figures stay visible until the new load publishes, exactly like FinDesk.
-    pub fn begin_load(&mut self, month: YearMonth) {
+    pub fn begin_load(&mut self, month: YearMonth, today: Date) {
+        self.current_month = YearMonth::from_date(today);
         self.selected_month = month.min(self.current_month);
+        self.months = crate::dashboard::month_options(self.earliest_month, self.current_month);
         self.is_loading = true;
         self.error = None;
 
         if let Some(view) = &mut self.view {
             view.selected_month = self.selected_month;
+            view.current_month = self.current_month;
             view.month_label = month_text(view.selected_month, self.language);
             view.is_current_month = view.selected_month == view.current_month;
             view.previous_enabled = view.selected_month > view.earliest_month;
@@ -611,9 +629,14 @@ impl DashboardState {
         }
     }
 
+    /// Opens the Dashboard on `today`'s month, as FinDesk's new view model does.
+    pub fn open(&mut self, today: Date) {
+        self.begin_load(YearMonth::from_date(today), today);
+    }
+
     /// Loads the selected month and publishes its figures.
     pub fn load(&mut self, db: &Database, today: Date) -> Result<(), RepoError> {
-        self.begin_load(self.selected_month);
+        self.begin_load(self.selected_month, today);
         match dashboard::load_dashboard(db, today, self.selected_month) {
             Ok(figures) => {
                 let unlinked_documents = match crate::repo::documents::find_items(db, None, true, None) {
@@ -628,6 +651,7 @@ impl DashboardState {
                 self.loaded_month = Some(figures.loaded_month);
                 self.earliest_month = figures.earliest_month;
                 self.current_month = figures.current_month;
+                self.months = crate::dashboard::month_options(self.earliest_month, self.current_month);
                 self.has_accounts = figures.has_accounts;
                 self.view = Some(DashboardView::from_figures(figures, unlinked_documents, self.language));
                 self.is_loading = false;
@@ -643,7 +667,7 @@ impl DashboardState {
 
     /// Selects `month` and loads it. Only the future is clamped here; the load clamps the oldest month.
     pub fn select_month(&mut self, db: &Database, today: Date, month: YearMonth) -> Result<(), RepoError> {
-        self.begin_load(month);
+        self.begin_load(month, today);
         self.load(db, today)
     }
 
@@ -671,7 +695,9 @@ fn month_title(current_loaded: bool, current_key: Key, month_key: Key, month: Ye
     }
 }
 
-fn month_text(month: YearMonth, language: Language) -> String {
+/// The display label for `month`, e.g. "November 2026".
+#[must_use]
+pub fn month_text(month: YearMonth, language: Language) -> String {
     let name = month_name(language, month.month);
     let mut characters = name.chars();
     let capitalized = match characters.next() {
@@ -1218,6 +1244,107 @@ mod tests {
         state.current_month(&db, today).unwrap();
         assert_eq!(state.selected_month, YearMonth::new(2026, 10));
         assert!(state.view.as_ref().unwrap().is_current_month);
+    }
+
+    #[test]
+    fn opening_again_after_a_month_change_shows_todays_month() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let october = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::En, october);
+        state.load(&db, october).unwrap();
+        assert_eq!(state.selected_month, YearMonth::new(2026, 10));
+
+        let november = date!(2026 - 11 - 08);
+        state.open(november);
+        state.load(&db, november).unwrap();
+
+        let view = state.view.as_ref().unwrap();
+        assert_eq!(state.selected_month, YearMonth::new(2026, 11));
+        assert_eq!(state.current_month, YearMonth::new(2026, 11));
+        assert_eq!(view.selected_month, YearMonth::new(2026, 11));
+        assert_eq!(view.current_month, YearMonth::new(2026, 11));
+        assert_eq!(view.month_label, "November 2026");
+        assert!(view.is_current_month);
+        assert!(!view.next_enabled, "next is disabled in today's month");
+    }
+
+    #[test]
+    fn a_reload_while_open_keeps_the_selected_past_month() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let october = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::En, october);
+        state.load(&db, october).unwrap();
+        state.select_month(&db, october, YearMonth::new(2026, 9)).unwrap();
+        assert_eq!(state.selected_month, YearMonth::new(2026, 9));
+
+        let november = date!(2026 - 11 - 08);
+        state.load(&db, november).unwrap();
+
+        assert_eq!(state.selected_month, YearMonth::new(2026, 9));
+        assert_eq!(state.loaded_month, Some(YearMonth::new(2026, 9)));
+        assert_eq!(state.current_month, YearMonth::new(2026, 11));
+        let view = state.view.as_ref().unwrap();
+        assert_eq!(view.month_label, "September 2026");
+        assert!(view.next_enabled, "a past month can move towards today");
+    }
+
+    #[test]
+    fn the_month_list_runs_from_today_back_to_the_earliest_booking() {
+        let earliest = YearMonth::new(2026, 8);
+        let current = YearMonth::new(2026, 11);
+        assert_eq!(
+            crate::dashboard::month_options(earliest, current),
+            vec![
+                YearMonth::new(2026, 11),
+                YearMonth::new(2026, 10),
+                YearMonth::new(2026, 9),
+                YearMonth::new(2026, 8),
+            ],
+            "newest first"
+        );
+        assert_eq!(
+            crate::dashboard::month_options(current, earliest),
+            vec![YearMonth::new(2026, 8)],
+            "crossed bounds clamp to the current month"
+        );
+    }
+
+    #[test]
+    fn selecting_before_the_earliest_or_after_the_current_month_is_clamped() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let today = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::En, today);
+        state.load(&db, today).unwrap();
+
+        state.select_month(&db, today, YearMonth::new(2026, 1)).unwrap();
+        assert_eq!(state.selected_month, YearMonth::new(2026, 3));
+
+        state.select_month(&db, today, YearMonth::new(2027, 1)).unwrap();
+        assert_eq!(state.selected_month, YearMonth::new(2026, 10));
+    }
+
+    #[test]
+    fn begin_load_refreshes_a_stale_current_month_before_clamping() {
+        let (_temp, db) = database();
+        seed_months(&db);
+        let october = date!(2026 - 10 - 15);
+        let mut state = DashboardState::new(Language::En, october);
+        state.load(&db, october).unwrap();
+        assert_eq!(state.current_month, YearMonth::new(2026, 10));
+
+        let november = date!(2026 - 11 - 08);
+        state.begin_load(YearMonth::new(2026, 11), november);
+
+        assert_eq!(state.current_month, YearMonth::new(2026, 11));
+        assert_eq!(
+            state.selected_month,
+            YearMonth::new(2026, 11),
+            "the old October current month must not clamp November"
+        );
+        assert_eq!(state.months.first(), Some(&YearMonth::new(2026, 11)));
     }
 
     #[test]
