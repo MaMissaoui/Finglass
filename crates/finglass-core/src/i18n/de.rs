@@ -491,6 +491,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::ColPerYear => "Pro Jahr",
         Key::TimesSeen => "%dx gesehen",
         Key::Appearance | Key::MenuView => "Darstellung",
+        Key::MenuFind => "Suchen",
         Key::DarkTheme => "Dunkles Design",
         Key::MenuFile => "Ablage",
         Key::MenuWindow => "Fenster",

@@ -507,6 +507,7 @@ pub(super) fn text(key: Key) -> &'static str {
         Key::DarkTheme => "Thème sombre",
         Key::MenuFile => "Fichier",
         Key::MenuView => "Présentation",
+        Key::MenuFind => "Rechercher",
         Key::MenuWindow => "Fenêtre",
         Key::MenuHelp => "Aide",
         Key::MenuSettings => "Paramètres…",

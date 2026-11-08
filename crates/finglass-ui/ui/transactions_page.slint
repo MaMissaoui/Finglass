@@ -300,6 +300,7 @@ component TransactionRowView inherits Rectangle {
     callback delete-row;
 
     property <bool> menu-open: false;
+    property <string> more-label: Tr.t("More");
 
     height: 46px + (root.menu-open && !root.item.pending ? 48px : 0px);
     background: transparent;
@@ -309,7 +310,7 @@ component TransactionRowView inherits Rectangle {
 
         Rectangle {
             height: 46px;
-            background: root.item.selected ? Theme.selected : transparent;
+            background: root.item.selected ? Theme.selected : (!root.item.pending && row-touch.has-hover ? Theme.background : transparent);
 
             Rectangle {
                 visible: root.item.selected;
@@ -457,6 +458,8 @@ component TransactionRowView inherits Rectangle {
                 Rectangle {
                     width: TxLayout.action-width;
                     background: transparent;
+                    accessible-role: button;
+                    accessible-label: root.more-label;
 
                     Image {
                         width: 18px;
@@ -471,14 +474,20 @@ component TransactionRowView inherits Rectangle {
                     if (!root.item.pending) : TouchArea {
                         clicked => { root.menu-open = !root.menu-open; }
                     }
+
+                    if (!root.item.pending) : Tooltip {
+                        text: @markdown("\{root.more-label}");
+                    }
                 }
             }
 
-            if (!root.item.pending) : TouchArea {
+            row-touch := TouchArea {
                 x: 0px;
                 y: 0px;
                 width: parent.width - TxLayout.action-width;
                 height: parent.height;
+                enabled: !root.item.pending;
+                mouse-cursor: pointer;
 
                 pointer-event(event) => {
                     if (event.kind == PointerEventKind.up && event.button == PointerEventButton.left) {
@@ -598,6 +607,8 @@ component BalanceChartCard inherits Rectangle {
 
     callback toggle;
 
+    property <string> toggle-label: Tr.t("BalanceHistory");
+
     border-radius: 12px;
     background: Theme.surface;
     border-width: 1px;
@@ -620,6 +631,8 @@ component BalanceChartCard inherits Rectangle {
                 height: 28px;
                 border-radius: 14px;
                 background: touch.has-hover ? Theme.divider : transparent;
+                accessible-role: button;
+                accessible-label: root.toggle-label;
 
                 Image {
                     width: 20px;
@@ -632,7 +645,12 @@ component BalanceChartCard inherits Rectangle {
                 }
 
                 touch := TouchArea {
+                    mouse-cursor: pointer;
                     clicked => { root.toggle(); }
+                }
+
+                Tooltip {
+                    text: @markdown("\{root.toggle-label}");
                 }
             }
 
@@ -750,6 +768,7 @@ component BalanceChartCard inherits Rectangle {
 // The Transactions page: the shared account panel, summary, filters, booking list and chart.
 export component TransactionsPage inherits Rectangle {
     in property <bool> show-panel;
+    in property <int> focus-search-request;
     in property <bool> loading;
     in property <bool> has-accounts;
     in property <string> error-text;
@@ -958,6 +977,15 @@ export component TransactionsPage inherits Rectangle {
     callback panel-move-account(int, int);
     callback panel-filter-changed(string);
 
+    /// Puts keyboard focus into the partner/purpose search field, used by View > Find.
+    public function focus-search() {
+        search-field.focus-input();
+    }
+
+    changed focus-search-request => {
+        root.focus-search();
+    }
+
     background: Theme.background;
 
     HorizontalLayout {
@@ -1023,6 +1051,7 @@ export component TransactionsPage inherits Rectangle {
                 IconButton {
                     icon: @image-url("icons/more_vert.svg");
                     label: Tr.t("More");
+                    tooltip-text: Tr.t("More");
                     icon-size: 20px;
                     outlined: true;
                     clicked => { root.more-menu-open = !root.more-menu-open; }
@@ -1073,6 +1102,7 @@ export component TransactionsPage inherits Rectangle {
                     IconButton {
                         icon: @image-url("icons/close.svg");
                         label: Tr.t("Dismiss");
+                        tooltip-text: Tr.t("Dismiss");
                         icon-size: 18px;
                         clicked => { root.dismiss-message(); }
                     }
@@ -1086,7 +1116,7 @@ export component TransactionsPage inherits Rectangle {
                 alignment: stretch;
                 cross-axis-alignment: center;
 
-                SearchField {
+                search-field := SearchField {
                     horizontal-stretch: 1;
                     min-width: 200px;
                     text: "";

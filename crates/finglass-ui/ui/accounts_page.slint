@@ -319,6 +319,8 @@ component BankAccountView inherits Rectangle {
     callback delete-account;
 
     property <bool> menu-open: false;
+    property <string> transactions-label: Tr.t("ShowTransactions");
+    property <string> more-label: Tr.t("More");
 
     background: transparent;
 
@@ -330,6 +332,7 @@ component BankAccountView inherits Rectangle {
             background: touch.has-hover ? Theme.background : transparent;
 
             touch := TouchArea {
+                mouse-cursor: pointer;
                 clicked => {
                     root.menu-open = false;
                     root.open-detail();
@@ -388,6 +391,8 @@ component BankAccountView inherits Rectangle {
                     height: 24px;
                     border-radius: 12px;
                     background: list-icon.has-hover ? Theme.divider : transparent;
+                    accessible-role: button;
+                    accessible-label: root.transactions-label;
 
                     Text {
                         text: "☰";
@@ -398,10 +403,15 @@ component BankAccountView inherits Rectangle {
                     }
 
                     list-icon := TouchArea {
+                        mouse-cursor: pointer;
                         clicked => {
                             root.menu-open = false;
                             root.open-transactions();
                         }
+                    }
+
+                    Tooltip {
+                        text: @markdown("\{root.transactions-label}");
                     }
                 }
 
@@ -410,6 +420,8 @@ component BankAccountView inherits Rectangle {
                     height: 24px;
                     border-radius: 12px;
                     background: dot.has-hover ? Theme.divider : transparent;
+                    accessible-role: button;
+                    accessible-label: root.more-label;
 
                     Image {
                         width: 18px;
@@ -422,9 +434,14 @@ component BankAccountView inherits Rectangle {
                     }
 
                     dot := TouchArea {
+                        mouse-cursor: pointer;
                         clicked => {
                             root.menu-open = !root.menu-open;
                         }
+                    }
+
+                    Tooltip {
+                        text: @markdown("\{root.more-label}");
                     }
                 }
             }
@@ -503,6 +520,7 @@ component BankCardView inherits Rectangle {
     callback delete-account(int);
 
     property <bool> menu-open: false;
+    property <string> chevron-label: root.card.collapsed ? Tr.t("Expand") : Tr.t("Collapse");
     height: card-content.preferred-height;
     background: Theme.surface;
     border-radius: 12px;
@@ -523,6 +541,8 @@ component BankCardView inherits Rectangle {
                 height: 24px;
                 border-radius: 12px;
                 background: chevron.has-hover ? Theme.divider : transparent;
+                accessible-role: button;
+                accessible-label: root.chevron-label;
 
                 Image {
                     width: 20px;
@@ -535,9 +555,14 @@ component BankCardView inherits Rectangle {
                 }
 
                 chevron := TouchArea {
+                    mouse-cursor: pointer;
                     clicked => {
                         root.toggle();
                     }
+                }
+
+                Tooltip {
+                    text: @markdown("\{root.chevron-label}");
                 }
             }
 
@@ -635,6 +660,7 @@ component BankCardView inherits Rectangle {
             if (root.card.bank-id >= 0) : IconButton {
                 icon: @image-url("icons/more_vert.svg");
                 label: Tr.t("More");
+                tooltip-text: Tr.t("More");
                 outlined: true;
                 clicked => {
                     root.menu-open = !root.menu-open;
@@ -983,6 +1009,7 @@ export component AccountsPage inherits Rectangle {
                 IconButton {
                     icon: @image-url("icons/close.svg");
                     label: Tr.t("Dismiss");
+                    tooltip-text: Tr.t("Dismiss");
                     icon-size: 18px;
                     clicked => {
                         root.dismiss-message();
