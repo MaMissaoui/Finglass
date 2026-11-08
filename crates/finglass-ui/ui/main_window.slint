@@ -194,6 +194,9 @@ export component MainWindow inherits Window {
     in-out property <string> settings-tax-keywords;
     in property <string> settings-tax-keywords-count;
     in-out property <length> settings-scroll-y;
+    // The Settings section shown on the right; links open the section they are about.
+    in-out property <int> settings-section: 0;
+    in-out property <bool> settings-section-menu-open: false;
 
     // Backup & restore section and its dialogs.
     in property <bool> settings-backup-busy;
@@ -1815,6 +1818,8 @@ export component MainWindow inherits Window {
                 findesk-report-text: root.findesk-report-text;
                 findesk-report-error: root.findesk-report-error;
                 scroll-y <=> root.settings-scroll-y;
+                section <=> root.settings-section;
+                section-menu-open <=> root.settings-section-menu-open;
 
                 set-theme(value) => { root.set-theme(value); }
                 set-language(value) => { root.set-language(value); }
