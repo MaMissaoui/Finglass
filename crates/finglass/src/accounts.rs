@@ -1575,7 +1575,7 @@ mod tests {
         let mut sparkasse = bank(8, "Sparkasse", false);
         sparkasse.blz = "37040044".to_owned();
         sparkasse.bic = Some("COLSDE33XXX".to_owned());
-        let dkb = bank(9, "DKB MAM & Sarah", true);
+        let dkb = bank(9, "DKB Privat", true);
         let norwegian = bank(10, "Bank Norwegian", true);
         let state = state_with(
             vec![
