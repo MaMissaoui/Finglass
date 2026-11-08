@@ -186,9 +186,10 @@ Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
 - [x] IBM Plex Sans, FinDesk's type scale and filled Material icons; the flag language selector (#57).
 - [x] Pill buttons with icons, segmented buttons, the Transactions filter pills, row alignment (#58).
 - [x] Settings as a section list (#59); the Reports header, Export menu and tables (#60).
-- [ ] Outlined text fields, form drop-downs, check boxes, dialog chrome, the unlock window and the profile
-      selector.
-- [ ] Improvements after parity.
+- [x] Outlined text fields, form drop-downs, check boxes, dialog chrome, the unlock window and the profile
+      selector (#62).
+- [x] Improvements after parity: the main window opens maximized as FinDesk's, ⌘F, tooltips on icon buttons,
+      row hover (#63). Released as v0.2.0.
 
 ## Done
 
