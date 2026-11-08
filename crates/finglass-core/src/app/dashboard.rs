@@ -296,7 +296,7 @@ pub struct DashboardView {
     pub loan_balance: Money,
     /// Whether the accounts include loans.
     pub has_loans: bool,
-    /// Money available at the end of the previous month, when known.
+    /// Money available at the end of the previous month.
     pub carry_forward: Option<Money>,
     /// What the available accounts moved outside income and expenses.
     pub other_movements: Option<Money>,
@@ -1557,13 +1557,14 @@ mod tests {
     }
 
     #[test]
-    fn a_month_without_earlier_history_has_no_carry_or_movement_line() {
+    fn a_statement_without_a_carry_forward_has_no_carry_or_movement_line() {
         let (_temp, db) = database();
         seed_months(&db);
         let today = date!(2026 - 10 - 15);
-        let mut state = DashboardState::new(Language::En, today);
-        state.select_month(&db, today, YearMonth::new(2026, 3)).unwrap();
-        let view = state.view.as_ref().unwrap();
+        let mut figures = dashboard::load_dashboard(&db, today, YearMonth::new(2026, 3)).unwrap();
+        figures.carry_forward = None;
+        figures.other_movements = None;
+        let view = DashboardView::from_figures(figures, 0, Language::En);
 
         let kinds: Vec<StatementLineKind> = view.statement_lines.iter().map(|line| line.kind).collect();
         assert_eq!(
