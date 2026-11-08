@@ -222,6 +222,8 @@ Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
 - [x] After 0.3.0, from the user's feedback: the tax donut's arcs (#85); filled controls, round period arrows,
       settings with icon rows and titled sections, search and filters on one line when they fit, 13 px small text,
       an airier account list (#86). Released as v0.3.1.
+- [x] After 0.3.1: the carry-forward for every month (#88); one type and colour scale on every screen (#89).
+      Released as v0.3.2.
 
 ## Done
 
