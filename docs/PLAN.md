@@ -190,6 +190,9 @@ Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
       selector (#62).
 - [x] Improvements after parity: the main window opens maximized as FinDesk's, ⌘F, tooltips on icon buttons,
       row hover (#63). Released as v0.2.0.
+- [x] After 0.2.0, from the user's feedback: passphrase focus, Reports year arrows, panel rows (#65); FinDesk's
+      bank card and ⋮ menu, online sync shown as not available yet (#66); Dashboard links on the Dashboard's month
+      and the Back trail (#67); bank logos (#68). Released as v0.2.1.
 
 ## Done
 
