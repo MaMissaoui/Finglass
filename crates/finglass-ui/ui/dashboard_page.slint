@@ -1,5 +1,5 @@
 import { ListView, ScrollView, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     DashboardBudgetRow,
@@ -8,6 +8,7 @@ import {
     DashboardTaxSlice,
     DashboardTransactionRow,
     DashboardUpcomingRow,
+    IconButton,
     PrimaryButton,
     TextButton,
 } from "components.slint";
@@ -31,8 +32,8 @@ component Card inherits Rectangle {
         if (root.show-title) : Text {
             text: root.title;
             color: Theme.text;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: Type.title-medium-size;
+            font-weight: Type.title-medium-weight;
             overflow: elide;
         }
 
@@ -46,6 +47,7 @@ component StatCard inherits Rectangle {
     in property <string> value;
     in property <string> subtitle;
     in property <color> accent;
+    in property <image> icon;
     in property <color> value-color: Theme.text;
     in property <bool> interactive: false;
 
@@ -57,7 +59,7 @@ component StatCard inherits Rectangle {
     border-color: Theme.divider;
 
     VerticalLayout {
-        padding: 16px;
+        padding: 14px;
         spacing: 8px;
         alignment: start;
 
@@ -66,26 +68,28 @@ component StatCard inherits Rectangle {
 
             Text {
                 text: root.title;
-                height: 30px;
+                // Two lines of body text: Slint layouts don't grow for wrapped text.
+                height: 40px;
                 color: Theme.muted-text;
-                font-size: 12px;
+                font-size: Type.body-size;
                 vertical-alignment: center;
                 wrap: word-wrap;
                 horizontal-stretch: 1;
             }
 
-            Rectangle {
-                width: 10px;
-                height: 10px;
-                border-radius: 5px;
-                background: root.accent;
+            Image {
+                width: 24px;
+                height: 24px;
+                source: root.icon;
+                colorize: root.accent;
+                accessible-role: none;
             }
         }
 
         Text {
             text: root.value;
             color: root.value-color;
-            font-size: 24px;
+            font-size: Type.headline-size;
             font-weight: 700;
             overflow: elide;
         }
@@ -93,7 +97,7 @@ component StatCard inherits Rectangle {
         Text {
             text: root.subtitle;
             color: Theme.muted-text;
-            font-size: 11px;
+            font-size: Type.body-small-size;
             wrap: word-wrap;
         }
     }
@@ -127,7 +131,7 @@ component LedgerRow inherits Rectangle {
             text: root.date-text;
             width: 90px;
             color: Theme.text;
-            font-size: 12px;
+            font-size: Type.body-small-size;
             vertical-alignment: center;
         }
 
@@ -139,15 +143,15 @@ component LedgerRow inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 500;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
                 overflow: elide;
             }
 
             Text {
                 text: root.meta;
                 color: Theme.muted-text;
-                font-size: 11px;
+                font-size: Type.body-small-size;
                 overflow: elide;
             }
         }
@@ -155,8 +159,8 @@ component LedgerRow inherits Rectangle {
         Text {
             text: root.amount-text;
             color: root.expense ? Theme.error : Theme.success;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
             vertical-alignment: center;
             horizontal-alignment: right;
         }
@@ -187,7 +191,7 @@ component BudgetRow inherits Rectangle {
             Text {
                 text: root.budget.name;
                 color: Theme.text;
-                font-size: 12px;
+                font-size: Type.body-small-size;
                 vertical-alignment: center;
                 overflow: elide;
                 horizontal-stretch: 1;
@@ -196,8 +200,8 @@ component BudgetRow inherits Rectangle {
             Text {
                 text: root.budget.amount-text;
                 color: root.budget.over ? Theme.error : Theme.text;
-                font-size: 12px;
-                font-weight: 600;
+                font-size: Type.label-small-size;
+                font-weight: Type.label-small-weight;
                 vertical-alignment: center;
                 horizontal-alignment: right;
             }
@@ -227,13 +231,14 @@ component BudgetRow inherits Rectangle {
         Text {
             text: root.budget.rest-text;
             color: root.budget.over ? Theme.error : Theme.muted-text;
-            font-size: 11px;
+            font-size: Type.body-small-size;
         }
     }
 }
 
 // A small round month arrow.
 component MonthArrow inherits Rectangle {
+    in property <image> icon;
     in property <string> label;
     in property <bool> enabled: true;
 
@@ -243,14 +248,18 @@ component MonthArrow inherits Rectangle {
     height: 32px;
     border-radius: 16px;
     background: transparent;
+    accessible-role: button;
+    accessible-label: root.label;
 
-    Text {
-        text: root.label;
-        color: root.enabled ? Theme.text : Theme.muted-text;
+    Image {
+        width: 24px;
+        height: 24px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: root.icon;
+        colorize: root.enabled ? Theme.text : Theme.muted-text;
         opacity: root.enabled ? 1.0 : 0.45;
-        font-size: 20px;
-        horizontal-alignment: center;
-        vertical-alignment: center;
+        accessible-role: none;
     }
 
     TouchArea {
@@ -281,19 +290,20 @@ component GettingStartedCard inherits Rectangle {
         Text {
             text: Tr.t("WelcomeTitle");
             color: Theme.text;
-            font-size: 22px;
-            font-weight: 600;
+            font-size: Type.title-large-size;
+            font-weight: Type.title-large-weight;
         }
 
         Text {
             text: Tr.t("GettingStartedIntro");
             color: Theme.muted-text;
-            font-size: 13px;
+            font-size: Type.body-size;
         }
 
         HorizontalLayout {
             spacing: 12px;
             alignment: start;
+            horizontal-stretch: 1;
 
             Rectangle {
                 width: 28px;
@@ -304,8 +314,8 @@ component GettingStartedCard inherits Rectangle {
                 Text {
                     text: "1";
                     color: Theme.on-selected;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
@@ -314,17 +324,18 @@ component GettingStartedCard inherits Rectangle {
             VerticalLayout {
                 spacing: 4px;
                 horizontal-stretch: 1;
+                width: parent.width - 40px;
 
                 Text {
                     text: Tr.t("StepAddBank");
                     color: Theme.text;
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: Type.title-small-size;
+                    font-weight: Type.title-small-weight;
                 }
                 Text {
                     text: Tr.t("StepAddBankHint");
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
                 PrimaryButton {
@@ -340,6 +351,7 @@ component GettingStartedCard inherits Rectangle {
         HorizontalLayout {
             spacing: 12px;
             alignment: start;
+            horizontal-stretch: 1;
 
             Rectangle {
                 width: 28px;
@@ -350,8 +362,8 @@ component GettingStartedCard inherits Rectangle {
                 Text {
                     text: "2";
                     color: Theme.on-selected;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
@@ -360,17 +372,18 @@ component GettingStartedCard inherits Rectangle {
             VerticalLayout {
                 spacing: 4px;
                 horizontal-stretch: 1;
+                width: parent.width - 40px;
 
                 Text {
                     text: Tr.t("StepSync");
                     color: Theme.text;
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: Type.title-small-size;
+                    font-weight: Type.title-small-weight;
                 }
                 Text {
                     text: Tr.t("StepSyncHint");
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
             }
@@ -379,6 +392,7 @@ component GettingStartedCard inherits Rectangle {
         HorizontalLayout {
             spacing: 12px;
             alignment: start;
+            horizontal-stretch: 1;
 
             Rectangle {
                 width: 28px;
@@ -389,8 +403,8 @@ component GettingStartedCard inherits Rectangle {
                 Text {
                     text: "3";
                     color: Theme.on-selected;
-                    font-size: 13px;
-                    font-weight: 600;
+                    font-size: Type.label-size;
+                    font-weight: Type.label-weight;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
@@ -399,23 +413,27 @@ component GettingStartedCard inherits Rectangle {
             VerticalLayout {
                 spacing: 4px;
                 horizontal-stretch: 1;
+                width: parent.width - 40px;
 
                 Text {
                     text: Tr.t("StepCategorize");
                     color: Theme.text;
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: Type.title-small-size;
+                    font-weight: Type.title-small-weight;
                 }
                 Text {
                     text: Tr.t("StepCategorizeHint");
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
-                TextButton {
-                    text: Tr.t("OpenSettings");
-                    clicked => {
-                        root.open-settings();
+                HorizontalLayout {
+                    alignment: start;
+                    TextButton {
+                        text: Tr.t("OpenSettings");
+                        clicked => {
+                            root.open-settings();
+                        }
                     }
                 }
             }
@@ -507,7 +525,7 @@ export component DashboardPage inherits Rectangle {
 
     ScrollView {
         VerticalLayout {
-            padding: 24px;
+            padding: 20px;
             spacing: 24px;
             alignment: start;
 
@@ -521,17 +539,27 @@ export component DashboardPage inherits Rectangle {
                     padding: 12px;
                     spacing: 12px;
 
+                    Image {
+                        width: 20px;
+                        height: 20px;
+                        source: @image-url("icons/warning.svg");
+                        colorize: Theme.error;
+                        accessible-role: none;
+                    }
+
                     Text {
                         text: root.error-text;
                         color: Theme.error;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         vertical-alignment: center;
                         wrap: word-wrap;
                         horizontal-stretch: 1;
                     }
 
-                    TextButton {
-                        text: Tr.t("Dismiss");
+                    IconButton {
+                        icon: @image-url("icons/close.svg");
+                        label: Tr.t("Dismiss");
+                        icon-size: 18px;
                         clicked => {
                             root.dismiss-error();
                         }
@@ -567,7 +595,8 @@ export component DashboardPage inherits Rectangle {
                     alignment: start;
 
                     MonthArrow {
-                        label: "‹";
+                        icon: @image-url("icons/keyboard_arrow_left.svg");
+                        label: Tr.t("PreviousMonth");
                         enabled: root.previous-enabled;
                         clicked => {
                             root.previous-month();
@@ -584,34 +613,33 @@ export component DashboardPage inherits Rectangle {
                         accessible-label: Tr.t("SelectMonth");
 
                         HorizontalLayout {
-                            padding-left: 14px;
-                            padding-right: 10px;
-                            spacing: 8px;
+                            padding-left: 10px;
+                            padding-right: 8px;
+                            spacing: 6px;
+                            cross-axis-alignment: center;
+
+                            Image {
+                                width: 20px;
+                                height: 20px;
+                                source: @image-url("icons/date_range.svg");
+                                colorize: Theme.muted-text;
+                                accessible-role: none;
+                            }
 
                             Text {
                                 text: root.month-label;
                                 color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                                 vertical-alignment: center;
                             }
 
-                            VerticalLayout {
-
-                                alignment: center;
-
-                                Path {
-
-                                    width: 8px;
-
-                                    height: 5px;
-
-                                    commands: "M 0 0 L 8 0 L 4 5 Z";
-
-                                    fill: Theme.muted-text;
-
-                                }
-
+                            Image {
+                                width: 20px;
+                                height: 20px;
+                                source: @image-url("icons/arrow_drop_down.svg");
+                                colorize: Theme.muted-text;
+                                accessible-role: none;
                             }
                         }
 
@@ -658,7 +686,8 @@ export component DashboardPage inherits Rectangle {
                     }
 
                     MonthArrow {
-                        label: "›";
+                        icon: @image-url("icons/keyboard_arrow_right.svg");
+                        label: Tr.t("NextMonth");
                         enabled: root.next-enabled;
                         clicked => {
                             root.next-month();
@@ -674,8 +703,8 @@ export component DashboardPage inherits Rectangle {
                 }
 
                 HorizontalLayout {
-                    spacing: 16px;
-                    height: 168px;
+                    spacing: 12px;
+                    height: 204px;
 
                     StatCard {
                         horizontal-stretch: 1;
@@ -683,6 +712,7 @@ export component DashboardPage inherits Rectangle {
                         value: root.available-value;
                         subtitle: root.available-subtitle;
                         accent: Theme.primary;
+                        icon: @image-url("icons/accounts.svg");
                         value-color: root.available-tone == "negative" ? Theme.error : (root.available-tone == "positive" ? Theme.success : Theme.text);
                     }
 
@@ -692,6 +722,7 @@ export component DashboardPage inherits Rectangle {
                         value: root.income-value;
                         subtitle: "";
                         accent: Theme.success;
+                        icon: @image-url("icons/add_circle_outline.svg");
                         value-color: Theme.success;
                     }
 
@@ -701,6 +732,7 @@ export component DashboardPage inherits Rectangle {
                         value: root.expenses-value;
                         subtitle: "";
                         accent: Theme.error;
+                        icon: @image-url("icons/remove_circle_outline.svg");
                         value-color: Theme.error;
                     }
 
@@ -709,7 +741,8 @@ export component DashboardPage inherits Rectangle {
                         title: root.pending-title;
                         value: root.pending-value;
                         subtitle: root.pending-subtitle;
-                        accent: Theme.warning;
+                        accent: root.pending-enabled ? Theme.warning : Theme.success;
+                        icon: root.pending-enabled ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
                         value-color: root.pending-enabled ? Theme.warning : Theme.success;
                         interactive: root.pending-enabled;
                         clicked => {
@@ -719,7 +752,7 @@ export component DashboardPage inherits Rectangle {
                 }
 
                 HorizontalLayout {
-                    spacing: 16px;
+                    spacing: 12px;
                     height: 300px;
 
                     Card {
@@ -729,7 +762,7 @@ export component DashboardPage inherits Rectangle {
                         if (root.expense-rows.length == 0) : Text {
                             text: root.expenses-empty-text;
                             color: Theme.muted-text;
-                            font-size: 13px;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -772,7 +805,7 @@ export component DashboardPage inherits Rectangle {
                 }
 
                 HorizontalLayout {
-                    spacing: 16px;
+                    spacing: 12px;
 
                     if (root.has-budgets) : Card {
                         horizontal-stretch: 1;
@@ -791,7 +824,7 @@ export component DashboardPage inherits Rectangle {
                         if (root.tax-slices.length == 0) : Text {
                             text: root.tax-hint;
                             color: Theme.muted-text;
-                            font-size: 13px;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -819,7 +852,7 @@ export component DashboardPage inherits Rectangle {
                     if (root.recent-rows.length == 0) : Text {
                         text: root.recent-empty-text;
                         color: Theme.muted-text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                     }
 
                     for booking in root.recent-rows : LedgerRow {
@@ -882,7 +915,7 @@ export component DashboardPage inherits Rectangle {
                             height: parent.height;
                             text: option;
                             color: index == root.month-menu-index ? Theme.on-selected : Theme.text;
-                            font-size: 13px;
+                            font-size: Type.body-size;
                             vertical-alignment: center;
                             horizontal-alignment: left;
                             overflow: elide;

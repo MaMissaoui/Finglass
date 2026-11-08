@@ -1,4 +1,5 @@
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
+import { Tr } from "translations.slint";
 
 // One legend row of the dashboard's spending split.
 export struct DashboardCategoryRow {
@@ -301,8 +302,8 @@ export component CountBadge inherits Rectangle {
         width: parent.width;
         text: root.count > 99 ? "99+" : "\{root.count}";
         color: root.selected ? Theme.on-selected : Theme.on-primary;
-        font-size: 10px;
-        font-weight: 600;
+        font-size: Type.label-small-size;
+        font-weight: Type.label-small-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
         overflow: elide;
@@ -318,18 +319,18 @@ export component PrimaryButton inherits Rectangle {
     callback clicked;
 
     height: 36px;
-    min-width: 120px;
+    min-width: max(120px, label.preferred-width + 28px);
     border-radius: 6px;
     background: !root.enabled ? Theme.divider : (touch.has-hover ? Theme.primary-hover : Theme.primary);
 
     border-width: focus.has-focus ? 2px : 0px;
     border-color: Theme.on-primary;
 
-    Text {
+    label := Text {
         text: root.text;
         color: root.enabled ? Theme.on-primary : Theme.muted-text;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
@@ -375,8 +376,8 @@ export component ChoiceChip inherits Rectangle {
     Text {
         text: root.label;
         color: root.selected ? Theme.on-primary : Theme.text;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
@@ -413,8 +414,8 @@ export component TextButton inherits Rectangle {
     Text {
         text: root.text;
         color: !root.enabled ? Theme.muted-text : (touch.has-hover ? Theme.primary-hover : Theme.primary);
-        font-size: 13px;
-        font-weight: 600;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         horizontal-alignment: left;
         vertical-alignment: center;
         overflow: elide;
@@ -458,17 +459,17 @@ export component SecondaryButton inherits Rectangle {
     callback clicked;
 
     height: 32px;
-    min-width: 80px;
+    min-width: max(80px, label.preferred-width + 20px);
     border-radius: 6px;
     background: touch.has-hover && root.enabled ? Theme.background : Theme.surface;
     border-width: focus.has-focus ? 2px : 1px;
     border-color: focus.has-focus ? Theme.primary : Theme.divider;
 
-    Text {
+    label := Text {
         text: root.text;
         color: root.enabled ? Theme.text : Theme.muted-text;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
         overflow: elide;
@@ -506,6 +507,65 @@ export component Card inherits Rectangle {
     border-color: Theme.divider;
 }
 
+// An icon-only button for the top bar. Its accessible label replaces the visible text.
+export component IconButton inherits Rectangle {
+    in property <image> icon;
+    in property <string> label;
+    in property <color> icon-color: Theme.muted-text;
+    in property <length> icon-size: 24px;
+    in property <bool> selected: false;
+    in property <bool> enabled: true;
+
+    callback clicked;
+
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    opacity: root.enabled ? 1.0 : 0.45;
+    background: root.selected ? Theme.selected : (touch.has-hover && root.enabled ? Theme.background : transparent);
+    accessible-role: button;
+    accessible-label: root.label;
+
+    Image {
+        width: root.icon-size;
+        height: root.icon-size;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: root.icon;
+        colorize: root.selected ? Theme.on-selected : root.icon-color;
+        accessible-role: none;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => {
+            if (root.enabled) {
+                root.clicked();
+            }
+        }
+    }
+
+    focus := FocusScope {
+        enabled <=> root.enabled;
+        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
+        // first press to gain focus and the user would need a second click.
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    if focus.has-focus : Rectangle {
+        border-width: 2px;
+        border-color: Theme.primary;
+        border-radius: parent.border-radius;
+    }
+}
+
 // Inline success and error banner with a dismiss action.
 export component MessageBanner inherits Rectangle {
     in property <string> text;
@@ -521,20 +581,30 @@ export component MessageBanner inherits Rectangle {
 
     HorizontalLayout {
         padding-left: 14px;
-        padding-right: 8px;
+        padding-right: 4px;
         spacing: 12px;
+
+        Image {
+            width: 20px;
+            height: 20px;
+            source: root.is-error ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
+            colorize: root.is-error ? Theme.error : Theme.success;
+            accessible-role: none;
+        }
 
         Text {
             horizontal-stretch: 1;
             text: root.text;
             color: root.is-error ? Theme.error : Theme.text;
-            font-size: 13px;
+            font-size: Type.body-size;
             vertical-alignment: center;
             wrap: word-wrap;
         }
 
-        TextButton {
-            text: "×";
+        IconButton {
+            icon: @image-url("icons/close.svg");
+            label: Tr.t("Dismiss");
+            icon-size: 18px;
             clicked => { root.dismissed(); }
         }
     }
@@ -557,8 +627,8 @@ export component TabPill inherits Rectangle {
     Text {
         text: root.text;
         color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
         overflow: elide;
@@ -579,57 +649,6 @@ export component TabPill inherits Rectangle {
             }
             return reject;
         }
-    }
-}
-
-// An icon-only button for the top bar. Its accessible label replaces the visible text.
-export component IconButton inherits Rectangle {
-    in property <image> icon;
-    in property <string> label;
-    in property <color> icon-color: Theme.muted-text;
-    in property <length> icon-size: 20px;
-    in property <bool> selected: false;
-
-    callback clicked;
-
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
-    accessible-role: button;
-    accessible-label: root.label;
-
-    Image {
-        width: root.icon-size;
-        height: root.icon-size;
-        x: (parent.width - self.width) / 2;
-        y: (parent.height - self.height) / 2;
-        source: root.icon;
-        colorize: root.selected ? Theme.on-selected : root.icon-color;
-        accessible-role: none;
-    }
-
-    touch := TouchArea {
-        clicked => root.clicked();
-    }
-
-    focus := FocusScope {
-        // The TouchArea underneath handles the mouse; without this the FocusScope would take the
-        // first press to gain focus and the user would need a second click.
-        focus-on-click: false;
-        key-pressed(event) => {
-            if (event.text == Key.Return || event.text == Key.Space) {
-                root.clicked();
-                return accept;
-            }
-            return reject;
-        }
-    }
-
-    if focus.has-focus : Rectangle {
-        border-width: 2px;
-        border-color: Theme.primary;
-        border-radius: parent.border-radius;
     }
 }
 
@@ -677,8 +696,8 @@ export component SidebarItem inherits Rectangle {
         cross-axis-alignment: center;
 
         Image {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             source: root.icon;
             colorize: root.selected ? Theme.on-selected : Theme.muted-text;
             accessible-role: none;
@@ -687,8 +706,8 @@ export component SidebarItem inherits Rectangle {
         Text {
             text: root.label;
             color: root.selected ? Theme.on-selected : Theme.text;
-            font-size: 15px;
-            font-weight: root.selected ? 600 : 400;
+            font-size: Type.title-medium-size;
+            font-weight: root.selected ? Type.title-medium-weight : Type.body-weight;
             vertical-alignment: center;
             horizontal-alignment: left;
             horizontal-stretch: 1;
@@ -755,21 +774,15 @@ export component SearchField inherits Rectangle {
 
     HorizontalLayout {
         padding-left: 14px;
-        padding-right: 14px;
-        spacing: 10px;
+        padding-right: 6px;
+        spacing: 8px;
 
-        // A small magnifier, drawn so the field needs no icon font, centred vertically.
-        VerticalLayout {
-            alignment: center;
-
-            Rectangle {
-                width: 16px;
-                height: 16px;
-                border-radius: 8px;
-                border-width: 2px;
-                border-color: Theme.muted-text;
-                background: transparent;
-            }
+        Image {
+            width: 20px;
+            height: 20px;
+            source: @image-url("icons/search.svg");
+            colorize: Theme.muted-text;
+            accessible-role: none;
         }
 
         Rectangle {
@@ -781,7 +794,7 @@ export component SearchField inherits Rectangle {
                 height: 100%;
                 text: root.text;
                 color: Theme.text;
-                font-size: 14px;
+                font-size: Type.body-size;
                 vertical-alignment: center;
                 enabled: root.enabled;
                 edited => { root.edited(input.text); }
@@ -794,10 +807,19 @@ export component SearchField inherits Rectangle {
                 horizontal-alignment: left;
                 text: root.placeholder;
                 color: Theme.muted-text;
-                font-size: 14px;
+                font-size: Type.body-size;
                 vertical-alignment: center;
                 overflow: elide;
             }
+        }
+
+        if (input.text != "" && root.enabled) : IconButton {
+            icon: @image-url("icons/close.svg");
+            label: Tr.t("ClearSearch");
+            icon-size: 18px;
+            width: 30px;
+            height: 30px;
+            clicked => { root.edited(""); }
         }
     }
 }
@@ -817,8 +839,8 @@ export component Badge inherits Rectangle {
         Text {
             text: root.text;
             color: root.positive ? Theme.success : Theme.muted-text;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: Type.label-small-size;
+            font-weight: Type.label-small-weight;
             vertical-alignment: center;
         }
     }

@@ -1,4 +1,4 @@
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice } from "components.slint";
 
 // The spending split: one horizontal 100% bar and one legend row per category.
@@ -44,17 +44,20 @@ export component CategorySplit inherits Rectangle {
                     padding-left: 4px;
                     padding-right: 4px;
 
-                    Rectangle {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 5px;
-                        background: row.colour;
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 5px;
+                            background: row.colour;
+                        }
                     }
 
                     Text {
                         text: row.label;
                         color: row.is-more ? Theme.muted-text : Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         vertical-alignment: center;
                         overflow: elide;
                         horizontal-stretch: 1;
@@ -64,7 +67,7 @@ export component CategorySplit inherits Rectangle {
                         text: row.percent-text;
                         width: 48px;
                         color: row.is-more ? Theme.muted-text : Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         horizontal-alignment: right;
                         vertical-alignment: center;
                     }
@@ -73,19 +76,18 @@ export component CategorySplit inherits Rectangle {
                         text: row.amount-text;
                         width: 96px;
                         color: row.is-more ? Theme.muted-text : Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         horizontal-alignment: right;
                         vertical-alignment: center;
                     }
 
-                    Text {
-                        text: "›";
+                    Image {
                         visible: !row.is-more && root.selectable;
-                        width: 14px;
-                        color: Theme.muted-text;
-                        font-size: 16px;
-                        horizontal-alignment: center;
-                        vertical-alignment: center;
+                        width: 18px;
+                        height: 18px;
+                        source: @image-url("icons/keyboard_arrow_right.svg");
+                        colorize: Theme.muted-text;
+                        accessible-role: none;
                     }
                 }
 
@@ -101,7 +103,7 @@ export component CategorySplit inherits Rectangle {
         if (root.transfers-note != "") : Text {
             text: root.transfers-note;
             color: Theme.muted-text;
-            font-size: 12px;
+            font-size: Type.body-small-size;
         }
     }
 }
@@ -125,7 +127,7 @@ export component IncomeExpenseChart inherits Rectangle {
         if (root.empty-text != "") : Text {
             text: root.empty-text;
             color: Theme.muted-text;
-            font-size: 13px;
+            font-size: Type.body-size;
             wrap: word-wrap;
         }
 
@@ -143,21 +145,21 @@ export component IncomeExpenseChart inherits Rectangle {
                     Text {
                         text: root.axis-top;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         horizontal-alignment: right;
                         overflow: elide;
                     }
                     Text {
                         text: root.axis-mid;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         horizontal-alignment: right;
                         overflow: elide;
                     }
                     Text {
                         text: root.axis-zero;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         horizontal-alignment: right;
                         overflow: elide;
                     }
@@ -226,7 +228,7 @@ export component IncomeExpenseChart inherits Rectangle {
                     preferred-width: 0px;
                     horizontal-stretch: 1;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     horizontal-alignment: center;
                     overflow: elide;
                 }
@@ -239,16 +241,19 @@ export component IncomeExpenseChart inherits Rectangle {
                 HorizontalLayout {
                     spacing: 6px;
                     alignment: start;
-                    Rectangle {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 5px;
-                        background: Theme.success;
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 5px;
+                            background: Theme.success;
+                        }
                     }
                     Text {
                         text: root.income-label;
                         color: Theme.text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         vertical-alignment: center;
                     }
                 }
@@ -256,16 +261,19 @@ export component IncomeExpenseChart inherits Rectangle {
                 HorizontalLayout {
                     spacing: 6px;
                     alignment: start;
-                    Rectangle {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 5px;
-                        background: Theme.error;
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 5px;
+                            background: Theme.error;
+                        }
                     }
                     Text {
                         text: root.expenses-label;
                         color: Theme.text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         vertical-alignment: center;
                     }
                 }
@@ -273,7 +281,7 @@ export component IncomeExpenseChart inherits Rectangle {
                 Text {
                     text: root.partial-note;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     vertical-alignment: center;
                 }
             }
@@ -313,8 +321,8 @@ export component TaxDonut inherits Rectangle {
             Text {
                 text: root.total-text;
                 color: Theme.text;
-                font-size: 13px;
-                font-weight: 700;
+                font-size: Type.label-size;
+                font-weight: Type.label-weight;
                 horizontal-alignment: center;
                 vertical-alignment: center;
             }
@@ -328,17 +336,20 @@ export component TaxDonut inherits Rectangle {
             for slice in root.slices : HorizontalLayout {
                 spacing: 8px;
 
-                Rectangle {
-                    width: 10px;
-                    height: 10px;
-                    border-radius: 5px;
-                    background: slice.colour;
+                VerticalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 5px;
+                        background: slice.colour;
+                    }
                 }
 
                 Text {
                     text: slice.label;
                     color: Theme.text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     vertical-alignment: center;
                     overflow: elide;
                     horizontal-stretch: 1;
@@ -347,8 +358,8 @@ export component TaxDonut inherits Rectangle {
                 Text {
                     text: slice.amount-text;
                     color: Theme.text;
-                    font-size: 12px;
-                    font-weight: 600;
+                    font-size: Type.label-small-size;
+                    font-weight: Type.label-small-weight;
                     vertical-alignment: center;
                 }
             }

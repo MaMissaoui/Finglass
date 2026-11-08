@@ -1,5 +1,5 @@
 import { CheckBox, ScrollView, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     DashboardCategoryRow,
@@ -10,6 +10,7 @@ import {
     ReportSuggestionRow,
     ReportTaxRow,
     ReportVendorRow,
+    IconButton,
     SecondaryButton,
     TextButton,
 } from "components.slint";
@@ -29,8 +30,8 @@ component ReportTab inherits Rectangle {
     Text {
         text: root.text;
         color: root.selected ? Theme.primary : Theme.muted-text;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
         overflow: elide;
@@ -65,8 +66,8 @@ component ReportToggle inherits Rectangle {
     Text {
         text: root.text;
         color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: Type.label-size;
+        font-weight: Type.label-weight;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
@@ -97,7 +98,7 @@ component DateField inherits Rectangle {
         height: parent.height;
         text: root.text;
         color: Theme.text;
-        font-size: 13px;
+        font-size: Type.body-size;
         vertical-alignment: center;
         single-line: true;
         enabled: root.enabled;
@@ -111,7 +112,7 @@ component DateField inherits Rectangle {
         height: parent.height;
         text: root.label;
         color: Theme.muted-text;
-        font-size: 12px;
+        font-size: Type.body-small-size;
         vertical-alignment: center;
         overflow: elide;
     }
@@ -123,6 +124,7 @@ component ReportStat inherits Rectangle {
     in property <string> value;
     in property <string> subtitle;
     in property <color> accent;
+    in property <image> icon;
     in property <color> value-color: Theme.text;
     in property <bool> interactive: false;
 
@@ -145,32 +147,33 @@ component ReportStat inherits Rectangle {
             Text {
                 text: root.title;
                 color: Theme.muted-text;
-                font-size: 12px;
+                font-size: Type.body-small-size;
                 vertical-alignment: center;
                 wrap: word-wrap;
                 horizontal-stretch: 1;
             }
 
-            Rectangle {
-                width: 10px;
-                height: 10px;
-                border-radius: 5px;
-                background: root.accent;
+            Image {
+                width: 24px;
+                height: 24px;
+                source: root.icon;
+                colorize: root.accent;
+                accessible-role: none;
             }
         }
 
         Text {
             text: root.value;
             color: root.value-color;
-            font-size: 20px;
-            font-weight: 700;
+            font-size: Type.title-large-size;
+            font-weight: Type.title-large-weight;
             wrap: word-wrap;
         }
 
         if (root.subtitle != "") : Text {
             text: root.subtitle;
             color: Theme.muted-text;
-            font-size: 11px;
+            font-size: Type.body-small-size;
             wrap: word-wrap;
         }
     }
@@ -202,8 +205,8 @@ component SectionCard inherits Rectangle {
         if (root.title != "") : Text {
             text: root.title;
             color: Theme.text;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: Type.title-medium-size;
+            font-weight: Type.title-medium-weight;
             overflow: elide;
         }
 
@@ -252,8 +255,8 @@ component ReportEmpty inherits Rectangle {
         Text {
             text: root.title;
             color: Theme.text;
-            font-size: 16px;
-            font-weight: 600;
+            font-size: Type.title-medium-size;
+            font-weight: Type.title-medium-weight;
             horizontal-alignment: center;
             wrap: word-wrap;
         }
@@ -261,7 +264,7 @@ component ReportEmpty inherits Rectangle {
         Text {
             text: root.hint;
             color: Theme.muted-text;
-            font-size: 13px;
+            font-size: Type.body-size;
             horizontal-alignment: center;
             wrap: word-wrap;
         }
@@ -397,22 +400,22 @@ export component ReportsPage inherits Rectangle {
             if (!root.custom-edit) : HorizontalLayout {
                 spacing: 8px;
 
-                SecondaryButton {
-                    text: "←";
-                    min-width: 40px;
+                IconButton {
+                    icon: @image-url("icons/arrow_back.svg");
+                    label: Tr.t("PreviousYear");
                     enabled: !root.busy;
                     clicked => { root.change-year(-1); }
                 }
                 Text {
                     text: root.year-label;
                     color: Theme.text;
-                    font-size: 20px;
-                    font-weight: 700;
+                    font-size: Type.title-large-size;
+                    font-weight: Type.title-large-weight;
                     vertical-alignment: center;
                 }
-                SecondaryButton {
-                    text: "→";
-                    min-width: 40px;
+                IconButton {
+                    icon: @image-url("icons/keyboard_arrow_right.svg");
+                    label: Tr.t("NextYear");
                     enabled: !root.busy;
                     clicked => { root.change-year(1); }
                 }
@@ -490,7 +493,7 @@ export component ReportsPage inherits Rectangle {
         if (root.range-error != "") : Text {
             text: root.range-error;
             color: Theme.error;
-            font-size: 12px;
+            font-size: Type.body-small-size;
         }
 
         if (root.message-text != "" || root.error-text != "") : MessageBanner {
@@ -561,12 +564,14 @@ export component ReportsPage inherits Rectangle {
                                 horizontal-stretch: 1;
                                 title: Tr.t("RecurringPayments");
                                 value: root.recurring-count;
+                                icon: @image-url("icons/refresh.svg");
                                 accent: Theme.primary;
                             }
                             ReportStat {
                                 horizontal-stretch: 1;
                                 title: Tr.t("CostPerYear");
                                 value: root.recurring-yearly;
+                                icon: @image-url("icons/remove_circle_outline.svg");
                                 accent: Theme.error;
                                 value-color: Theme.error;
                             }
@@ -574,6 +579,7 @@ export component ReportsPage inherits Rectangle {
                                 horizontal-stretch: 1;
                                 title: Tr.t("PerMonth");
                                 value: root.recurring-monthly;
+                                icon: @image-url("icons/date_range.svg");
                                 accent: Theme.warning;
                                 value-color: Theme.error;
                             }
@@ -589,37 +595,37 @@ export component ReportsPage inherits Rectangle {
                                     text: Tr.t("ColName");
                                     horizontal-stretch: 3;
                                     color: Theme.muted-text;
-                                    font-size: 12px;
-                                    font-weight: 600;
+                                    font-size: Type.label-small-size;
+                                    font-weight: Type.label-small-weight;
                                 }
                                 Text {
                                     text: Tr.t("ColEvery");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: 12px;
-                                    font-weight: 600;
+                                    font-size: Type.label-small-size;
+                                    font-weight: Type.label-small-weight;
                                 }
                                 Text {
                                     text: Tr.t("ColNext");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: 12px;
-                                    font-weight: 600;
+                                    font-size: Type.label-small-size;
+                                    font-weight: Type.label-small-weight;
                                 }
                                 Text {
                                     text: Tr.t("ColAmount");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: 12px;
-                                    font-weight: 600;
+                                    font-size: Type.label-small-size;
+                                    font-weight: Type.label-small-weight;
                                     horizontal-alignment: right;
                                 }
                                 Text {
                                     text: Tr.t("ColPerYear");
                                     horizontal-stretch: 1;
                                     color: Theme.muted-text;
-                                    font-size: 12px;
-                                    font-weight: 600;
+                                    font-size: Type.label-small-size;
+                                    font-weight: Type.label-small-weight;
                                     horizontal-alignment: right;
                                 }
                             }
@@ -642,14 +648,14 @@ export component ReportsPage inherits Rectangle {
                                         Text {
                                             text: row.name;
                                             color: Theme.text;
-                                            font-size: 13px;
-                                            font-weight: 600;
+                                            font-size: Type.label-size;
+                                            font-weight: Type.label-weight;
                                             overflow: elide;
                                         }
                                         Text {
                                             text: row.meta;
                                             color: Theme.muted-text;
-                                            font-size: 11px;
+                                            font-size: Type.body-small-size;
                                             overflow: elide;
                                         }
                                     }
@@ -657,7 +663,7 @@ export component ReportsPage inherits Rectangle {
                                         text: row.cadence;
                                         horizontal-stretch: 1;
                                         color: Theme.text;
-                                        font-size: 12px;
+                                        font-size: Type.body-small-size;
                                         vertical-alignment: center;
                                         overflow: elide;
                                     }
@@ -665,14 +671,14 @@ export component ReportsPage inherits Rectangle {
                                         text: row.next-text;
                                         horizontal-stretch: 1;
                                         color: Theme.text;
-                                        font-size: 12px;
+                                        font-size: Type.body-small-size;
                                         vertical-alignment: center;
                                     }
                                     Text {
                                         text: row.amount-text;
                                         horizontal-stretch: 1;
                                         color: row.income ? Theme.success : Theme.error;
-                                        font-size: 12px;
+                                        font-size: Type.body-small-size;
                                         horizontal-alignment: right;
                                         vertical-alignment: center;
                                         overflow: elide;
@@ -681,8 +687,8 @@ export component ReportsPage inherits Rectangle {
                                         text: row.yearly-text;
                                         horizontal-stretch: 1;
                                         color: Theme.text;
-                                        font-size: 12px;
-                                        font-weight: 600;
+                                        font-size: Type.label-small-size;
+                                        font-weight: Type.label-small-weight;
                                         horizontal-alignment: right;
                                         vertical-alignment: center;
                                         overflow: elide;
@@ -720,7 +726,7 @@ export component ReportsPage inherits Rectangle {
                     if (root.other-currency-hint != "") : Text {
                         text: root.other-currency-hint;
                         color: Theme.muted-text;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         wrap: word-wrap;
                     }
 
@@ -731,6 +737,7 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             title: Tr.t("TotalIncome");
                             value: root.income-value;
+                            icon: @image-url("icons/add_circle_outline.svg");
                             accent: Theme.success;
                             value-color: Theme.success;
                         }
@@ -738,12 +745,14 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             title: Tr.t("TotalExpenses");
                             value: root.expenses-value;
+                            icon: @image-url("icons/remove_circle_outline.svg");
                             accent: Theme.error;
                             value-color: Theme.error;
                         }
                         ReportStat {
                             horizontal-stretch: 1;
                             title: Tr.t("NetIncome");
+                            icon: @image-url("icons/reports.svg");
                             value: root.net-value;
                             accent: Theme.primary;
                             value-color: root.net-tone == "negative" ? Theme.error : (root.net-tone == "positive" ? Theme.success : Theme.text);
@@ -752,6 +761,7 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             title: Tr.t("TaxRelevantAmount");
                             value: root.tax-value;
+                            icon: @image-url("icons/info.svg");
                             accent: Theme.warning;
                         }
                     }
@@ -762,7 +772,7 @@ export component ReportsPage inherits Rectangle {
                         if (root.tax-relevant-empty != "") : Text {
                             text: root.tax-relevant-empty;
                             color: Theme.muted-text;
-                            font-size: 13px;
+                            font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
@@ -774,15 +784,15 @@ export component ReportsPage inherits Rectangle {
                                 text: row.label;
                                 horizontal-stretch: 1;
                                 color: Theme.text;
-                                font-size: 13px;
+                                font-size: Type.body-size;
                                 vertical-alignment: center;
                                 overflow: elide;
                             }
                             Text {
                                 text: row.amount-text;
                                 color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                                 vertical-alignment: center;
                             }
                         }
@@ -795,18 +805,21 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             title: Tr.t("StatTransactions");
                             value: root.stat-transactions;
+                            icon: @image-url("icons/transactions.svg");
                             accent: Theme.primary;
                         }
                         ReportStat {
                             horizontal-stretch: 1;
                             title: Tr.t("CategoriesUsed");
                             value: root.stat-categories;
+                            icon: @image-url("icons/transactions.svg");
                             accent: Theme.primary;
                         }
                         ReportStat {
                             horizontal-stretch: 1;
                             title: Tr.t("AvgMonthlyExpenses");
                             value: root.stat-average;
+                            icon: @image-url("icons/date_range.svg");
                             accent: Theme.primary;
                             value-color: Theme.error;
                         }
@@ -814,6 +827,7 @@ export component ReportsPage inherits Rectangle {
                             horizontal-stretch: 1;
                             title: Tr.t("HighestMonth");
                             value: root.stat-highest;
+                            icon: @image-url("icons/reports.svg");
                             accent: Theme.primary;
                         }
                     }
@@ -829,31 +843,31 @@ export component ReportsPage inherits Rectangle {
                             text: Tr.t("ColMonth");
                             horizontal-stretch: 1;
                             color: Theme.muted-text;
-                            font-size: 12px;
-                            font-weight: 600;
+                            font-size: Type.label-small-size;
+                            font-weight: Type.label-small-weight;
                         }
                         Text {
                             text: Tr.t("ColIncome");
                             horizontal-stretch: 1;
                             color: Theme.muted-text;
-                            font-size: 12px;
-                            font-weight: 600;
+                            font-size: Type.label-small-size;
+                            font-weight: Type.label-small-weight;
                             horizontal-alignment: right;
                         }
                         Text {
                             text: Tr.t("ColExpenses");
                             horizontal-stretch: 1;
                             color: Theme.muted-text;
-                            font-size: 12px;
-                            font-weight: 600;
+                            font-size: Type.label-small-size;
+                            font-weight: Type.label-small-weight;
                             horizontal-alignment: right;
                         }
                         Text {
                             text: Tr.t("ColNet");
                             horizontal-stretch: 1;
                             color: Theme.muted-text;
-                            font-size: 12px;
-                            font-weight: 600;
+                            font-size: Type.label-small-size;
+                            font-weight: Type.label-small-weight;
                             horizontal-alignment: right;
                         }
                     }
@@ -873,7 +887,7 @@ export component ReportsPage inherits Rectangle {
                                 text: row.month;
                                 horizontal-stretch: 1;
                                 color: Theme.text;
-                                font-size: 13px;
+                                font-size: Type.body-size;
                                 vertical-alignment: center;
                                 overflow: elide;
                             }
@@ -881,7 +895,7 @@ export component ReportsPage inherits Rectangle {
                                 text: row.income-text;
                                 horizontal-stretch: 1;
                                 color: row.income-zero ? Theme.muted-text : Theme.success;
-                                font-size: 13px;
+                                font-size: Type.body-size;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
                             }
@@ -889,7 +903,7 @@ export component ReportsPage inherits Rectangle {
                                 text: row.expenses-text;
                                 horizontal-stretch: 1;
                                 color: row.expenses-zero ? Theme.muted-text : Theme.error;
-                                font-size: 13px;
+                                font-size: Type.body-size;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
                             }
@@ -897,8 +911,8 @@ export component ReportsPage inherits Rectangle {
                                 text: row.net-text;
                                 horizontal-stretch: 1;
                                 color: row.net-zero ? Theme.muted-text : (row.net-tone == "negative" ? Theme.error : Theme.success);
-                                font-size: 13px;
-                                font-weight: row.net-zero ? 400 : 600;
+                                font-size: Type.body-size;
+                                font-weight: row.net-zero ? Type.body-weight : Type.body-weight;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
                             }
@@ -924,16 +938,16 @@ export component ReportsPage inherits Rectangle {
                             text: Tr.t("ReportTotal");
                             horizontal-stretch: 1;
                             color: Theme.text;
-                            font-size: 13px;
-                            font-weight: 700;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                             vertical-alignment: center;
                         }
                         Text {
                             text: root.monthly-total-income;
                             horizontal-stretch: 1;
                             color: Theme.success;
-                            font-size: 13px;
-                            font-weight: 700;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
@@ -941,8 +955,8 @@ export component ReportsPage inherits Rectangle {
                             text: root.monthly-total-expenses;
                             horizontal-stretch: 1;
                             color: Theme.error;
-                            font-size: 13px;
-                            font-weight: 700;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
@@ -950,8 +964,8 @@ export component ReportsPage inherits Rectangle {
                             text: root.monthly-total-net;
                             horizontal-stretch: 1;
                             color: root.monthly-total-tone == "negative" ? Theme.error : Theme.success;
-                            font-size: 13px;
-                            font-weight: 700;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
@@ -985,22 +999,22 @@ export component ReportsPage inherits Rectangle {
                                     text: row.rank;
                                     width: 28px;
                                     color: Theme.muted-text;
-                                    font-size: 13px;
+                                    font-size: Type.body-size;
                                     vertical-alignment: center;
                                 }
                                 Text {
                                     text: row.name;
                                     horizontal-stretch: 1;
                                     color: Theme.text;
-                                    font-size: 13px;
+                                    font-size: Type.body-size;
                                     vertical-alignment: center;
                                     overflow: elide;
                                 }
                                 Text {
                                     text: row.amount-text;
                                     color: Theme.text;
-                                    font-size: 13px;
-                                    font-weight: 600;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
                                     vertical-alignment: center;
                                 }
                             }
@@ -1027,6 +1041,7 @@ export component ReportsPage inherits Rectangle {
                                 horizontal-stretch: 1;
                                 title: Tr.t("TaxIncomeTotal");
                                 value: root.tax-income-value;
+                                icon: @image-url("icons/add_circle_outline.svg");
                                 accent: Theme.success;
                                 value-color: Theme.success;
                             }
@@ -1034,12 +1049,14 @@ export component ReportsPage inherits Rectangle {
                                 horizontal-stretch: 1;
                                 title: Tr.t("TaxDeductionTotal");
                                 value: root.tax-deduction-value;
+                                icon: @image-url("icons/remove_circle_outline.svg");
                                 accent: Theme.error;
                                 value-color: Theme.error;
                             }
                             ReportStat {
                                 horizontal-stretch: 1;
                                 title: Tr.t("NetIncome");
+                                icon: @image-url("icons/reports.svg");
                                 value: root.tax-net-value;
                                 accent: Theme.primary;
                                 value-color: root.tax-net-tone == "negative" ? Theme.error : (root.tax-net-tone == "positive" ? Theme.success : Theme.text);
@@ -1049,6 +1066,7 @@ export component ReportsPage inherits Rectangle {
                                 title: Tr.t("TaxReceipts");
                                 value: root.tax-receipts-value;
                                 subtitle: root.tax-receipts-subtitle;
+                                icon: root.tax-receipts-missing ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
                                 accent: root.tax-receipts-missing ? Theme.warning : Theme.success;
                                 value-color: root.tax-receipts-missing ? Theme.text : Theme.success;
                                 interactive: root.tax-receipts-missing;
@@ -1059,7 +1077,7 @@ export component ReportsPage inherits Rectangle {
                         if (root.tax-other-hint != "") : Text {
                             text: root.tax-other-hint;
                             color: Theme.muted-text;
-                            font-size: 12px;
+                            font-size: Type.body-small-size;
                             wrap: word-wrap;
                         }
 
@@ -1069,7 +1087,7 @@ export component ReportsPage inherits Rectangle {
                             Text {
                                 text: root.tax-suggestions-hint;
                                 color: Theme.muted-text;
-                                font-size: 12px;
+                                font-size: Type.body-small-size;
                                 wrap: word-wrap;
                             }
 
@@ -1083,7 +1101,7 @@ export component ReportsPage inherits Rectangle {
                                         text: suggestion.date-text;
                                         width: 78px;
                                         color: Theme.text;
-                                        font-size: 12px;
+                                        font-size: Type.body-small-size;
                                         vertical-alignment: center;
                                     }
                                     VerticalLayout {
@@ -1093,13 +1111,13 @@ export component ReportsPage inherits Rectangle {
                                         Text {
                                             text: suggestion.title;
                                             color: Theme.text;
-                                            font-size: 13px;
+                                            font-size: Type.body-size;
                                             overflow: elide;
                                         }
                                         Text {
                                             text: suggestion.keyword-text;
                                             color: Theme.muted-text;
-                                            font-size: 11px;
+                                            font-size: Type.body-small-size;
                                             overflow: elide;
                                         }
                                     }
@@ -1107,8 +1125,8 @@ export component ReportsPage inherits Rectangle {
                                         text: suggestion.amount-text;
                                         width: 96px;
                                         color: suggestion.expense ? Theme.error : Theme.success;
-                                        font-size: 13px;
-                                        font-weight: 600;
+                                        font-size: Type.label-size;
+                                        font-weight: Type.label-weight;
                                         horizontal-alignment: right;
                                         vertical-alignment: center;
                                     }
@@ -1156,8 +1174,8 @@ export component ReportsPage inherits Rectangle {
                                     height: 30px;
                                     text: row.title;
                                     color: Theme.text;
-                                    font-size: 14px;
-                                    font-weight: 700;
+                                    font-size: Type.title-small-size;
+                                    font-weight: Type.title-small-weight;
                                     vertical-alignment: bottom;
                                 }
 
@@ -1173,25 +1191,28 @@ export component ReportsPage inherits Rectangle {
                                         padding-right: 12px;
                                         spacing: 10px;
 
-                                        Rectangle {
-                                            width: 10px;
-                                            height: 10px;
-                                            border-radius: 5px;
-                                            background: row.colour;
+                                        VerticalLayout {
+                                            alignment: center;
+                                            Rectangle {
+                                                width: 10px;
+                                                height: 10px;
+                                                border-radius: 5px;
+                                                background: row.colour;
+                                            }
                                         }
                                         Text {
                                             text: row.title;
                                             horizontal-stretch: 1;
                                             color: Theme.text;
-                                            font-size: 14px;
-                                            font-weight: 600;
+                                            font-size: Type.title-small-size;
+                                            font-weight: Type.title-small-weight;
                                             vertical-alignment: center;
                                             overflow: elide;
                                         }
                                         Text {
                                             text: row.summary;
                                             color: Theme.muted-text;
-                                            font-size: 12px;
+                                            font-size: Type.body-small-size;
                                             vertical-alignment: center;
                                         }
                                     }
@@ -1211,7 +1232,7 @@ export component ReportsPage inherits Rectangle {
                                             text: row.date-text;
                                             width: 78px;
                                             color: Theme.text;
-                                            font-size: 12px;
+                                            font-size: Type.body-small-size;
                                             vertical-alignment: center;
                                         }
                                         VerticalLayout {
@@ -1221,13 +1242,13 @@ export component ReportsPage inherits Rectangle {
                                             Text {
                                                 text: row.title;
                                                 color: Theme.text;
-                                                font-size: 13px;
+                                                font-size: Type.body-size;
                                                 overflow: elide;
                                             }
                                             if (row.subtitle != "") : Text {
                                                 text: row.subtitle;
                                                 color: Theme.muted-text;
-                                                font-size: 11px;
+                                                font-size: Type.body-small-size;
                                                 overflow: elide;
                                             }
                                         }
@@ -1235,7 +1256,7 @@ export component ReportsPage inherits Rectangle {
                                             text: row.account-text;
                                             width: 56px;
                                             color: Theme.muted-text;
-                                            font-size: 11px;
+                                            font-size: Type.body-small-size;
                                             vertical-alignment: center;
                                             overflow: elide;
                                         }
@@ -1265,15 +1286,15 @@ export component ReportsPage inherits Rectangle {
                                         if (row.missing-receipt) : Text {
                                             text: Tr.t("NoReceipt");
                                             color: Theme.muted-text;
-                                            font-size: 11px;
+                                            font-size: Type.body-small-size;
                                             vertical-alignment: center;
                                         }
                                         Text {
                                             text: row.amount-text;
                                             width: 96px;
                                             color: row.expense ? Theme.error : Theme.success;
-                                            font-size: 13px;
-                                            font-weight: 600;
+                                            font-size: Type.label-size;
+                                            font-weight: Type.label-weight;
                                             horizontal-alignment: right;
                                             vertical-alignment: center;
                                         }

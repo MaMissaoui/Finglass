@@ -1,11 +1,12 @@
 import { ComboBox, ListView, Spinner } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     AccountAmount,
     AccountGroupChoice,
     AccountPanelRow,
     AccountTone,
+    IconButton,
     ImportCsvField,
     ImportFileRow,
     PrimaryButton,
@@ -48,23 +49,23 @@ component SummaryFigure inherits VerticalLayout {
     Text {
         text: root.label;
         color: Theme.muted-text;
-        font-size: 11px;
+        font-size: Type.body-small-size;
         overflow: elide;
     }
 
     if (root.single-text != "") : Text {
         text: root.single-text;
         color: Theme.text;
-        font-size: 17px;
-        font-weight: 600;
+        font-size: Type.title-medium-size;
+        font-weight: Type.title-medium-weight;
         overflow: elide;
     }
 
     for amount in root.values : Text {
         text: amount.text;
         color: root.value-tone ? AccountTone.amount-color(amount.tone) : Theme.text;
-        font-size: 17px;
-        font-weight: 600;
+        font-size: Type.title-medium-size;
+        font-weight: Type.title-medium-weight;
         overflow: elide;
     }
 }
@@ -85,15 +86,24 @@ component FilterButton inherits Rectangle {
 
     HorizontalLayout {
         padding-left: 12px;
-        padding-right: 12px;
+        padding-right: 8px;
+        spacing: 2px;
 
         Text {
-            text: root.text + " ▾";
+            text: root.text;
             color: root.destructive ? Theme.error : Theme.text;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
             horizontal-alignment: center;
             vertical-alignment: center;
+        }
+
+        Image {
+            width: 18px;
+            height: 18px;
+            source: @image-url("icons/arrow_drop_down.svg");
+            colorize: root.destructive ? Theme.error : Theme.muted-text;
+            accessible-role: none;
         }
     }
 
@@ -127,18 +137,19 @@ component ActionPicker inherits Rectangle {
             horizontal-stretch: 1;
             text: root.label;
             color: root.primary ? Theme.on-primary : Theme.text;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
             horizontal-alignment: center;
             vertical-alignment: center;
             overflow: elide;
         }
 
-        Text {
-            text: "▾";
-            color: root.primary ? Theme.on-primary : Theme.muted-text;
-            font-size: 11px;
-            vertical-alignment: center;
+        Image {
+            width: 18px;
+            height: 18px;
+            source: @image-url("icons/arrow_drop_down.svg");
+            colorize: root.primary ? Theme.on-primary : Theme.muted-text;
+            accessible-role: none;
         }
     }
 
@@ -169,7 +180,7 @@ component ActionPicker inherits Rectangle {
                         width: parent.width - 24px;
                         text: option;
                         color: Theme.text;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         vertical-alignment: center;
                         overflow: elide;
                     }
@@ -201,7 +212,7 @@ component MoreMenuEntry inherits Rectangle {
         width: parent.width - 24px;
         text: root.text;
         color: root.enabled ? Theme.text : Theme.muted-text;
-        font-size: 13px;
+        font-size: Type.body-size;
         vertical-alignment: center;
         overflow: elide;
     }
@@ -276,8 +287,8 @@ component TransactionRowView inherits Rectangle {
                         horizontal-stretch: 1;
                         text: root.item.date-text;
                         color: root.item.pending ? Theme.muted-text : Theme.text;
-                        font-size: 12px;
-                        font-weight: root.item.is-new ? 700 : 400;
+                        font-size: Type.label-small-size;
+                        font-weight: root.item.is-new ? Type.label-small-weight : Type.body-weight;
                         vertical-alignment: center;
                         overflow: elide;
                     }
@@ -294,24 +305,25 @@ component TransactionRowView inherits Rectangle {
                         Text {
                             text: root.item.title;
                             color: root.item.pending ? Theme.muted-text : Theme.text;
-                            font-size: 13px;
-                            font-weight: root.item.is-new ? 700 : 600;
+                            font-size: Type.label-size;
+                            font-weight: root.item.is-new ? Type.label-weight : Type.label-weight;
                             overflow: elide;
                             horizontal-stretch: 1;
                         }
 
-                        if (root.item.has-documents) : Text {
-                            text: "▤";
-                            color: Theme.primary;
-                            font-size: 11px;
-                            vertical-alignment: center;
+                        if (root.item.has-documents) : Image {
+                            width: 16px;
+                            height: 16px;
+                            source: @image-url("icons/attach_file.svg");
+                            colorize: Theme.primary;
+                            accessible-role: none;
                         }
                     }
 
                     if (root.item.subtitle != "") : Text {
                         text: root.item.subtitle;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         overflow: elide;
                     }
                 }
@@ -336,7 +348,7 @@ component TransactionRowView inherits Rectangle {
                     Text {
                         text: root.item.category-text;
                         color: root.item.pending ? Theme.muted-text : Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         vertical-alignment: center;
                         overflow: elide;
                         horizontal-stretch: 1;
@@ -349,8 +361,8 @@ component TransactionRowView inherits Rectangle {
                     color: root.item.pending
                         ? Theme.muted-text
                         : (root.item.expense ? Theme.error : Theme.success);
-                    font-size: 13px;
-                    font-weight: root.item.is-new ? 700 : 600;
+                    font-size: Type.label-size;
+                    font-weight: root.item.is-new ? Type.label-weight : Type.label-weight;
                     font-italic: root.item.pending;
                     horizontal-alignment: right;
                     vertical-alignment: center;
@@ -361,17 +373,18 @@ component TransactionRowView inherits Rectangle {
                     spacing: 4px;
                     alignment: end;
 
-                    if (root.item.balance-warning) : Text {
-                        text: "⚠";
-                        color: Theme.error;
-                        font-size: 12px;
-                        vertical-alignment: center;
+                    if (root.item.balance-warning) : Image {
+                        width: 16px;
+                        height: 16px;
+                        source: @image-url("icons/warning.svg");
+                        colorize: Theme.error;
+                        accessible-role: none;
                     }
 
                     Text {
                         text: root.item.balance-text;
                         color: AccountTone.amount-color(root.item.balance-tone);
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         vertical-alignment: center;
                         horizontal-alignment: right;
                         overflow: elide;
@@ -382,12 +395,14 @@ component TransactionRowView inherits Rectangle {
                     width: TxLayout.action-width;
                     background: transparent;
 
-                    Text {
-                        text: "⋯";
-                        color: Theme.muted-text;
-                        font-size: 16px;
-                        horizontal-alignment: center;
-                        vertical-alignment: center;
+                    Image {
+                        width: 18px;
+                        height: 18px;
+                        x: (parent.width - self.width) / 2;
+                        y: (parent.height - self.height) / 2;
+                        source: @image-url("icons/more_vert.svg");
+                        colorize: Theme.muted-text;
+                        accessible-role: none;
                     }
 
                     if (!root.item.pending) : TouchArea {
@@ -470,22 +485,22 @@ component EmptyTransactions inherits Rectangle {
         Text {
             text: "☰";
             color: Theme.muted-text;
-            font-size: 28px;
+            font-size: Type.amount-size;
             horizontal-alignment: center;
         }
 
         Text {
             text: Tr.t("NoTransactions");
             color: Theme.text;
-            font-size: 17px;
-            font-weight: 600;
+            font-size: Type.title-medium-size;
+            font-weight: Type.title-medium-weight;
             horizontal-alignment: center;
         }
 
         Text {
             text: root.has-accounts ? Tr.t("NothingMatches") : Tr.t("NoTransactionsAddBank");
             color: Theme.muted-text;
-            font-size: 13px;
+            font-size: Type.body-size;
             horizontal-alignment: center;
             wrap: word-wrap;
         }
@@ -540,12 +555,14 @@ component BalanceChartCard inherits Rectangle {
                 border-radius: 14px;
                 background: touch.has-hover ? Theme.divider : transparent;
 
-                Text {
-                    text: root.collapsed ? "▸" : "▴";
-                    color: Theme.muted-text;
-                    font-size: 13px;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
+                Image {
+                    width: 20px;
+                    height: 20px;
+                    x: (parent.width - self.width) / 2;
+                    y: (parent.height - self.height) / 2;
+                    source: root.collapsed ? @image-url("icons/keyboard_arrow_right.svg") : @image-url("icons/keyboard_arrow_down.svg");
+                    colorize: Theme.muted-text;
+                    accessible-role: none;
                 }
 
                 touch := TouchArea {
@@ -557,15 +574,15 @@ component BalanceChartCard inherits Rectangle {
                 horizontal-stretch: 1;
                 text: Tr.t("BalanceHistory");
                 color: Theme.text;
-                font-size: 14px;
-                font-weight: 600;
+                font-size: Type.title-small-size;
+                font-weight: Type.title-small-weight;
                 vertical-alignment: center;
             }
 
             if (!root.collapsed && root.not-from-zero) : Text {
                 text: Tr.t("AxisNotFromZero");
                 color: Theme.muted-text;
-                font-size: 11px;
+                font-size: Type.body-small-size;
                 vertical-alignment: center;
             }
         }
@@ -581,7 +598,7 @@ component BalanceChartCard inherits Rectangle {
                 Text {
                     text: root.axis-top;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     horizontal-alignment: right;
                     overflow: elide;
                 }
@@ -589,7 +606,7 @@ component BalanceChartCard inherits Rectangle {
                 Text {
                     text: root.axis-bottom;
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                     horizontal-alignment: right;
                     overflow: elide;
                 }
@@ -631,8 +648,8 @@ component BalanceChartCard inherits Rectangle {
                         y: 0px;
                         text: root.value-text;
                         color: Theme.text;
-                        font-size: 11px;
-                        font-weight: 600;
+                        font-size: Type.label-small-size;
+                        font-weight: Type.label-small-weight;
                         horizontal-alignment: right;
                     }
                 }
@@ -642,20 +659,20 @@ component BalanceChartCard inherits Rectangle {
                         horizontal-stretch: 1;
                         text: root.axis-start;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                     }
                     Text {
                         horizontal-stretch: 1;
                         text: root.axis-mid;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         horizontal-alignment: center;
                     }
                     Text {
                         horizontal-stretch: 1;
                         text: root.axis-end;
                         color: Theme.muted-text;
-                        font-size: 11px;
+                        font-size: Type.body-small-size;
                         horizontal-alignment: right;
                     }
                 }
@@ -908,7 +925,7 @@ export component TransactionsPage inherits Rectangle {
             spacing: 10px;
 
             HorizontalLayout {
-                spacing: 20px;
+                spacing: 8px;
 
                 SummaryFigure {
                     label: Tr.t("SummaryCount");
@@ -936,13 +953,15 @@ export component TransactionsPage inherits Rectangle {
                     background: transparent;
                 }
 
-                TextButton {
-                    text: Tr.t("More");
+                IconButton {
+                    icon: @image-url("icons/more_vert.svg");
+                    label: Tr.t("More");
+                    icon-size: 20px;
                     clicked => { root.more-menu-open = !root.more-menu-open; }
                 }
 
                 if (root.has-accounts) : PrimaryButton {
-                    width: 108px;
+                    width: 96px;
                     text: "+ " + Tr.t("Add");
                     clicked => { root.open-add(); }
                 }
@@ -957,14 +976,22 @@ export component TransactionsPage inherits Rectangle {
 
                 HorizontalLayout {
                     padding-left: 14px;
-                    padding-right: 8px;
+                    padding-right: 4px;
                     spacing: 12px;
+
+                    Image {
+                        width: 20px;
+                        height: 20px;
+                        source: root.error-text != "" ? @image-url("icons/warning.svg") : @image-url("icons/check_circle.svg");
+                        colorize: root.error-text != "" ? Theme.error : Theme.success;
+                        accessible-role: none;
+                    }
 
                     Text {
                         horizontal-stretch: 1;
                         text: root.error-text != "" ? root.error-text : root.message-text;
                         color: root.error-text != "" ? Theme.error : Theme.success;
-                        font-size: 13px;
+                        font-size: Type.body-size;
                         vertical-alignment: center;
                         wrap: word-wrap;
                     }
@@ -974,8 +1001,10 @@ export component TransactionsPage inherits Rectangle {
                         clicked => { root.undo-reapply-rules(); }
                     }
 
-                    TextButton {
-                        text: Tr.t("Dismiss");
+                    IconButton {
+                        icon: @image-url("icons/close.svg");
+                        label: Tr.t("Dismiss");
+                        icon-size: 18px;
                         clicked => { root.dismiss-message(); }
                     }
                 }
@@ -992,6 +1021,12 @@ export component TransactionsPage inherits Rectangle {
                     edited(text) => { root.search(text); }
                 }
 
+                // Keeps the period control clear of the search field at every width.
+                Rectangle {
+                    width: 16px;
+                    background: transparent;
+                }
+
                 ComboBox {
                     width: 150px;
                     model: root.period-options;
@@ -1002,7 +1037,7 @@ export component TransactionsPage inherits Rectangle {
                 if (root.period-extra != "") : Text {
                     text: root.period-extra;
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     vertical-alignment: center;
                 }
 
@@ -1079,15 +1114,15 @@ export component TransactionsPage inherits Rectangle {
                             Text {
                                 text: root.selection-count-text;
                                 color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                                 vertical-alignment: center;
                             }
 
                             Text {
                                 text: root.selection-totals-text;
                                 color: Theme.muted-text;
-                                font-size: 12px;
+                                font-size: Type.body-small-size;
                                 vertical-alignment: center;
                                 overflow: elide;
                             }
@@ -1142,32 +1177,32 @@ export component TransactionsPage inherits Rectangle {
                                 width: TxLayout.date-width;
                                 text: Tr.t("ColDate");
                                 color: Theme.muted-text;
-                                font-size: 11px;
-                                font-weight: 600;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
                                 vertical-alignment: center;
                             }
                             Text {
                                 horizontal-stretch: 1;
                                 text: Tr.t("ColDescription");
                                 color: Theme.muted-text;
-                                font-size: 11px;
-                                font-weight: 600;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
                                 vertical-alignment: center;
                             }
                             Text {
                                 width: TxLayout.category-width;
                                 text: Tr.t("ColCategory");
                                 color: Theme.muted-text;
-                                font-size: 11px;
-                                font-weight: 600;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
                                 vertical-alignment: center;
                             }
                             Text {
                                 width: TxLayout.amount-width;
                                 text: Tr.t("ColAmount");
                                 color: Theme.muted-text;
-                                font-size: 11px;
-                                font-weight: 600;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
                             }
@@ -1175,8 +1210,8 @@ export component TransactionsPage inherits Rectangle {
                                 width: TxLayout.balance-width;
                                 text: Tr.t("ColBalance");
                                 color: Theme.muted-text;
-                                font-size: 11px;
-                                font-weight: 600;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
                                 horizontal-alignment: right;
                                 vertical-alignment: center;
                             }
@@ -1202,8 +1237,8 @@ export component TransactionsPage inherits Rectangle {
                             Text {
                                 text: root.pending-header;
                                 color: Theme.muted-text;
-                                font-size: 12px;
-                                font-weight: 600;
+                                font-size: Type.label-small-size;
+                                font-weight: Type.label-small-weight;
                                 vertical-alignment: center;
                             }
                         }

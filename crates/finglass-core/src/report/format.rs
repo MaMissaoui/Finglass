@@ -61,6 +61,27 @@ pub fn month_name(language: Language, month: u8) -> &'static str {
     names[usize::from(month.clamp(1, 12)) - 1]
 }
 
+/// The short month name in the app language, like Java's `Month.getDisplayName(TextStyle.SHORT, locale)`,
+/// which FinDesk's charts use.
+pub fn month_short_name(language: Language, month: u8) -> &'static str {
+    const EN: [&str; 12] = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    const DE: [&str; 12] = [
+        "Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sept.", "Okt.", "Nov.", "Dez.",
+    ];
+    const FR: [&str; 12] = [
+        "janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc.",
+    ];
+
+    let names = match language {
+        Language::En => &EN,
+        Language::De => &DE,
+        Language::Fr => &FR,
+    };
+    names[usize::from(month.clamp(1, 12)) - 1]
+}
+
 /// `Formats.money`: a currency symbol followed by the grouped amount, two decimals.
 pub fn money(amount: Money, language: Language, signed: bool) -> String {
     let mut text = String::new();

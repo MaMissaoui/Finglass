@@ -88,6 +88,13 @@ A release is a pushed `v<version>` tag on `main`, where `<version>` is the works
 - The release notes come from `docs/releases/v<version>.md`.
 - The workflow refuses a tag that doesn't match the version, and a release without notes.
 
+## Third-party assets
+
+- The UI font is [IBM Plex Sans](https://www.ibm.com/plex/) (Regular, Medium, SemiBold and Bold) under the SIL Open
+  Font License 1.1. The font files and the licence text are in `crates/finglass-ui/ui/fonts/` (`OFL.txt`).
+- The filled icons in `crates/finglass-ui/ui/icons/` are from Google's
+  [Material icons](https://fonts.google.com/icons), licensed under Apache-2.0.
+
 ## License
 
 [MIT](LICENSE). The UI uses [Slint](https://slint.dev) under its royalty-free license, which is why the About screen

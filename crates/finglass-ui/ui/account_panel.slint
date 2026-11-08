@@ -1,5 +1,5 @@
 import { LineEdit, ScrollView } from "std-widgets.slint";
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
     AccountAmount,
@@ -22,8 +22,8 @@ component PanelAmounts inherits VerticalLayout {
     for amount in root.amounts : Text {
         text: amount.text;
         color: root.selected ? Theme.on-selected : AccountTone.amount-color(amount.tone);
-        font-size: 12px;
-        font-weight: 600;
+        font-size: Type.label-small-size;
+        font-weight: Type.label-small-weight;
         horizontal-alignment: right;
         overflow: elide;
     }
@@ -39,12 +39,12 @@ component ChevronButton inherits Rectangle {
     border-radius: 10px;
     background: touch.has-hover ? Theme.divider : transparent;
 
-    Text {
-        text: root.collapsed ? "▸" : "▾";
-        color: Theme.muted-text;
-        font-size: 12px;
-        horizontal-alignment: center;
-        vertical-alignment: center;
+    Image {
+        width: 20px;
+        height: 20px;
+        source: root.collapsed ? @image-url("icons/keyboard_arrow_right.svg") : @image-url("icons/keyboard_arrow_down.svg");
+        colorize: Theme.muted-text;
+        accessible-role: none;
     }
 
     touch := TouchArea {
@@ -62,12 +62,14 @@ component DotButton inherits Rectangle {
     border-radius: 12px;
     background: touch.has-hover ? Theme.divider : transparent;
 
-    Text {
-        text: "⋯";
-        color: Theme.muted-text;
-        font-size: 16px;
-        horizontal-alignment: center;
-        vertical-alignment: center;
+    Image {
+        width: 18px;
+        height: 18px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: @image-url("icons/more_vert.svg");
+        colorize: Theme.muted-text;
+        accessible-role: none;
     }
 
     touch := TouchArea {
@@ -90,8 +92,8 @@ component PanelAction inherits Rectangle {
     Text {
         text: root.label;
         color: touch.has-hover ? Theme.primary-hover : Theme.primary;
-        font-size: 11px;
-        font-weight: 600;
+        font-size: Type.label-small-size;
+        font-weight: Type.label-small-weight;
         vertical-alignment: center;
     }
 
@@ -171,21 +173,21 @@ component PanelRowView inherits Rectangle {
                         text: root.item.label;
                         color: root.item.selected ? Theme.on-selected : Theme.text;
                         font-size: root.item.kind == "all" ? 14px : 13px;
-                        font-weight: root.item.kind == "all" || root.item.kind == "group" ? 600 : (root.item.new-count > 0 ? 700 : 500);
+                        font-weight: root.item.kind == "all" || root.item.kind == "group" ? Type.label-small-weight : (root.item.new-count > 0 ? Type.label-small-weight : Type.label-small-weight);
                         overflow: elide;
                     }
 
                     if (root.item.secondary != "") : Text {
                         text: root.item.secondary;
                         color: root.item.selected ? Theme.on-selected : Theme.muted-text;
-                        font-size: 10px;
+                        font-size: Type.body-small-size;
                         overflow: elide;
                     }
 
                     if (root.item.detail != "") : Text {
                         text: root.item.detail;
                         color: root.item.selected ? Theme.on-selected : Theme.muted-text;
-                        font-size: 10px;
+                        font-size: Type.body-small-size;
                         overflow: elide;
                     }
                 }
@@ -344,7 +346,7 @@ export component AccountPanel inherits Rectangle {
         if (root.shown-text != "") : Text {
             text: root.shown-text;
             color: Theme.muted-text;
-            font-size: 11px;
+            font-size: Type.body-small-size;
         }
 
         ScrollView {
@@ -395,14 +397,14 @@ export component AccountPanel inherits Rectangle {
                 Text {
                     text: Tr.t("NewGroup");
                     color: Theme.text;
-                    font-size: 12px;
-                    font-weight: 600;
+                    font-size: Type.label-small-size;
+                    font-weight: Type.label-small-weight;
                 }
 
                 Text {
                     text: Tr.t("GroupName");
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                 }
 
                 LineEdit {
@@ -451,14 +453,14 @@ export component AccountPanel inherits Rectangle {
                 Text {
                     text: Tr.t("RenameGroup");
                     color: Theme.text;
-                    font-size: 12px;
-                    font-weight: 600;
+                    font-size: Type.label-small-size;
+                    font-weight: Type.label-small-weight;
                 }
 
                 Text {
                     text: Tr.t("GroupName");
                     color: Theme.muted-text;
-                    font-size: 11px;
+                    font-size: Type.body-small-size;
                 }
 
                 LineEdit {
@@ -507,7 +509,7 @@ export component AccountPanel inherits Rectangle {
                 Text {
                     text: root.deleting-text;
                     color: Theme.text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                     wrap: word-wrap;
                 }
 
@@ -545,8 +547,8 @@ export component AccountPanel inherits Rectangle {
                 Text {
                     text: Tr.t("MoveToGroup");
                     color: Theme.text;
-                    font-size: 12px;
-                    font-weight: 600;
+                    font-size: Type.label-small-size;
+                    font-weight: Type.label-small-weight;
                 }
 
                 ChoiceChip {

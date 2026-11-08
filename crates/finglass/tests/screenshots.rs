@@ -339,6 +339,20 @@ fn renders_the_app_shell() {
     }
 
     {
+        let mut dashboard = DashboardState::new(Language::De, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::De, ThemePref::Dark, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.set_sidebar_collapsed(false);
+        ui.set_language_menu_open(true);
+        ui.show().unwrap();
+        let buffer = render(&window, "topbar-language-menu-de-dark", 1100, 720);
+        assert_varied(&buffer, "topbar-language-menu-de-dark");
+        let _ = ui.hide();
+    }
+
+    {
         let mut dashboard = DashboardState::new(Language::En, today);
         dashboard.load(&db, today).unwrap();
         let ui = MainWindow::new().unwrap();

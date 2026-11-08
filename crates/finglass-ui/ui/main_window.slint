@@ -1,4 +1,4 @@
-import { Theme } from "theme.slint";
+import { Theme, Type } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
 import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
@@ -12,9 +12,42 @@ import { ChangePassphraseDialog, SettingsPage } from "settings_page.slint";
 import { BackupPassphraseDialog, CategoryDialog, ConfirmDialog, ProfileNameDialog, RuleDialog, RuleImportDialog } from "settings_dialogs.slint";
 import { BankingInfoBanner, BankingPrompts } from "banking_dialogs.slint";
 
+// The 20x14 flag of a language, drawn rather than an emoji. English uses the Union Jack.
+component LanguageFlag inherits Rectangle {
+    in property <string> language;
+
+    width: 20px;
+    height: 14px;
+    border-radius: 2px;
+    border-width: 1px;
+    border-color: Theme.divider;
+    clip: true;
+    background: transparent;
+
+    if (root.language == "de") : VerticalLayout {
+        Rectangle { background: #000000; }
+        Rectangle { background: #DD0000; }
+        Rectangle { background: #FFCE00; }
+    }
+
+    if (root.language == "fr") : HorizontalLayout {
+        Rectangle { background: #002395; }
+        Rectangle { background: #FFFFFF; }
+        Rectangle { background: #ED2939; }
+    }
+
+    if (root.language != "de" && root.language != "fr") : Image {
+        width: parent.width;
+        height: parent.height;
+        source: @image-url("icons/flag-gb.svg");
+        accessible-role: none;
+    }
+}
+
 // One language in the top bar's menu.
 component LanguageMenuItem inherits Rectangle {
     in property <string> code;
+    in property <string> name;
     in property <bool> selected;
 
     callback picked;
@@ -23,18 +56,35 @@ component LanguageMenuItem inherits Rectangle {
     border-radius: 6px;
     background: root.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
     accessible-role: button;
-    accessible-label: root.code;
+    accessible-label: root.name;
 
-    Text {
-        x: 12px;
-        width: parent.width - 24px;
-        height: parent.height;
-        text: root.code;
-        color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: 14px;
-        font-weight: root.selected ? 600 : 400;
-        vertical-alignment: center;
-        horizontal-alignment: left;
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 10px;
+        cross-axis-alignment: center;
+
+        LanguageFlag {
+            language: root.code;
+        }
+
+        Text {
+            horizontal-stretch: 1;
+            text: root.name;
+            color: root.selected ? Theme.on-selected : Theme.text;
+            font-size: Type.body-size;
+            font-weight: root.selected ? Type.title-medium-weight : Type.body-weight;
+            vertical-alignment: center;
+            horizontal-alignment: left;
+        }
+
+        if (root.selected) : Image {
+            width: 18px;
+            height: 18px;
+            source: @image-url("icons/check.svg");
+            colorize: Theme.on-selected;
+            accessible-role: none;
+        }
     }
 
     touch := TouchArea {
@@ -74,22 +124,21 @@ component ProfileMenuItem inherits Rectangle {
         height: parent.height;
         text: root.name;
         color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: 14px;
-        font-weight: root.selected ? 600 : 400;
+        font-size: Type.title-small-size;
+        font-weight: root.selected ? Type.title-small-weight : Type.body-weight;
         vertical-alignment: center;
         horizontal-alignment: left;
         overflow: elide;
     }
 
-    if (root.selected) : Text {
-        x: parent.width - 26px;
-        width: 16px;
-        height: parent.height;
-        text: "✓";
-        color: Theme.on-selected;
-        font-size: 14px;
-        vertical-alignment: center;
-        horizontal-alignment: center;
+    if (root.selected) : Image {
+        x: parent.width - 28px;
+        width: 18px;
+        height: 18px;
+        y: (parent.height - self.height) / 2;
+        source: @image-url("icons/check.svg");
+        colorize: Theme.on-selected;
+        accessible-role: none;
     }
 
     touch := TouchArea {
@@ -812,6 +861,7 @@ export component MainWindow inherits Window {
     callback documents-dismiss;
 
     title: root.app-name;
+    default-font-family: "IBM Plex Sans";
     icon: @image-url("../../../assets/icons/finglass-256.png");
     preferred-width: 1100px;
     preferred-height: 720px;
@@ -983,6 +1033,16 @@ export component MainWindow inherits Window {
 
     property <string> screen-title: Tr.t(root.title-key);
 
+    function native-language-name(code: string) -> string {
+        if (code == "de") {
+            return "Deutsch";
+        }
+        if (code == "fr") {
+            return "Français";
+        }
+        return "English";
+    }
+
     HorizontalLayout {
         Rectangle {
             width: root.sidebar-collapsed ? 72px : 240px;
@@ -1014,8 +1074,8 @@ export component MainWindow inherits Window {
                         if (!root.sidebar-collapsed) : Text {
                             text: root.app-name;
                             color: Theme.text;
-                            font-size: 22px;
-                            font-weight: 700;
+                            font-size: Type.title-large-size;
+                            font-weight: Type.title-large-weight;
                             vertical-alignment: center;
                         }
                     }
@@ -1077,7 +1137,7 @@ export component MainWindow inherits Window {
                 if (!root.sidebar-collapsed) : Text {
                     text: root.version;
                     color: Theme.muted-text;
-                    font-size: 12px;
+                    font-size: Type.body-small-size;
                 }
             }
         }
@@ -1110,8 +1170,8 @@ export component MainWindow inherits Window {
                     Text {
                         text: root.screen-title;
                         color: Theme.text;
-                        font-size: 24px;
-                        font-weight: 600;
+                        font-size: Type.headline-size;
+                        font-weight: Type.headline-weight;
                         // A tall box keeps accents such as the "Ü" of "Übersicht" from being clipped.
                         min-height: 48px;
                         vertical-alignment: center;
@@ -1125,7 +1185,7 @@ export component MainWindow inherits Window {
                     if (root.status-text != "") : Text {
                         text: root.status-text;
                         color: Theme.error;
-                        font-size: 12px;
+                        font-size: Type.body-small-size;
                         vertical-alignment: center;
                     }
                     if (root.status-text != "") : TextButton {
@@ -1153,18 +1213,19 @@ export component MainWindow inherits Window {
                             Text {
                                 text: root.current-profile-name;
                                 color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
+                                font-size: Type.label-size;
+                                font-weight: Type.label-weight;
                                 vertical-alignment: center;
                                 horizontal-stretch: 1;
                                 overflow: elide;
                             }
 
-                            Path {
-                                width: 8px;
-                                height: 5px;
-                                commands: "M 0 0 L 8 0 L 4 5 Z";
-                                fill: Theme.muted-text;
+                            Image {
+                                width: 18px;
+                                height: 18px;
+                                source: @image-url("icons/arrow_drop_down.svg");
+                                colorize: Theme.muted-text;
+                                accessible-role: none;
                             }
                         }
 
@@ -1174,31 +1235,28 @@ export component MainWindow inherits Window {
                     }
 
                     Rectangle {
-                        width: 72px;
+                        width: 64px;
                         height: 36px;
                         border-radius: 8px;
                         background: language-touch.has-hover || root.language-menu-open ? Theme.background : transparent;
                         accessible-role: button;
-                        accessible-label: Tr.t("ChangeLanguage");
+                        accessible-label: Tr.t("ChangeLanguage") + " · " + root.native-language-name(root.language);
 
                         HorizontalLayout {
                             alignment: center;
                             cross-axis-alignment: center;
                             spacing: 6px;
 
-                            Text {
-                                text: root.language == "de" ? "DE" : (root.language == "fr" ? "FR" : "EN");
-                                color: Theme.text;
-                                font-size: 13px;
-                                font-weight: 600;
-                                vertical-alignment: center;
+                            LanguageFlag {
+                                language: root.language;
                             }
 
-                            Path {
-                                width: 8px;
-                                height: 5px;
-                                commands: "M 0 0 L 8 0 L 4 5 Z";
-                                fill: Theme.muted-text;
+                            Image {
+                                width: 18px;
+                                height: 18px;
+                                source: @image-url("icons/keyboard_arrow_down.svg");
+                                colorize: Theme.muted-text;
+                                accessible-role: none;
                             }
                         }
 
@@ -1834,7 +1892,7 @@ export component MainWindow inherits Window {
                 Text {
                     text: Tr.t("ComingSoon");
                     color: Theme.muted-text;
-                    font-size: 15px;
+                    font-size: Type.body-size;
                     wrap: word-wrap;
                 }
             }
@@ -2055,9 +2113,9 @@ export component MainWindow inherits Window {
         }
 
         Rectangle {
-            x: root.width - 184px;
+            x: root.width - 214px;
             y: 58px;
-            width: 160px;
+            width: 190px;
             height: 144px;
             border-radius: 10px;
             border-width: 1px;
@@ -2069,7 +2127,8 @@ export component MainWindow inherits Window {
                 spacing: 4px;
 
                 LanguageMenuItem {
-                    code: "EN";
+                    code: "en";
+                    name: "English";
                     selected: root.language == "en";
                     picked => {
                         root.language-menu-open = false;
@@ -2077,7 +2136,8 @@ export component MainWindow inherits Window {
                     }
                 }
                 LanguageMenuItem {
-                    code: "DE";
+                    code: "de";
+                    name: "Deutsch";
                     selected: root.language == "de";
                     picked => {
                         root.language-menu-open = false;
@@ -2085,7 +2145,8 @@ export component MainWindow inherits Window {
                     }
                 }
                 LanguageMenuItem {
-                    code: "FR";
+                    code: "fr";
+                    name: "Français";
                     selected: root.language == "fr";
                     picked => {
                         root.language-menu-open = false;
