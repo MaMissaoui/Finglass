@@ -252,7 +252,11 @@ export component UnlockWindow inherits Window {
                     if (!root.startup-error) : VerticalLayout {
                         spacing: 12px;
 
-                        if (root.mode == "change") : OutlinedField {
+                        if (root.mode == "change") : current-field := OutlinedField {
+                            // Takes the keyboard focus when it appears, so the user can type at once.
+                            init => {
+                                self.focus-input();
+                            }
                             label: Tr.t("CurrentPassphrase");
                             enabled: !root.busy;
                             text <=> root.current;
@@ -261,7 +265,20 @@ export component UnlockWindow inherits Window {
                             accepted(text) => { root.submit(); }
                         }
 
-                        OutlinedField {
+                        passphrase-field := OutlinedField {
+                            // Takes the keyboard focus when the window opens or leaves "change" mode
+                            // (where the current-passphrase field above takes it), as FinDesk's.
+                            property <string> watched-mode: root.mode;
+                            init => {
+                                if (root.mode != "change") {
+                                    self.focus-input();
+                                }
+                            }
+                            changed watched-mode => {
+                                if (root.mode != "change") {
+                                    self.focus-input();
+                                }
+                            }
                             label: root.mode == "unlock" ? Tr.t("Passphrase") : Tr.t("NewPassphrase");
                             enabled: !root.busy;
                             text <=> root.passphrase;
