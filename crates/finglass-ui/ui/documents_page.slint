@@ -10,7 +10,7 @@ import {
     PrimaryButton,
     SearchField,
     SecondaryButton,
-    TabPill,
+    SegmentedButton,
     TextButton,
 } from "components.slint";
 
@@ -25,6 +25,7 @@ component LinkCandidateRow inherits Rectangle {
 
     HorizontalLayout {
         spacing: 6px;
+        cross-axis-alignment: center;
 
         VerticalLayout {
             horizontal-stretch: 1;
@@ -206,6 +207,8 @@ export component DocumentsPage inherits Rectangle {
 
             if (!root.library-empty) : PrimaryButton {
                 text: Tr.t("Upload");
+                icon: @image-url("icons/add.svg");
+                has-icon: true;
                 enabled: !root.uploading;
                 clicked => { root.upload(); }
             }
@@ -218,23 +221,15 @@ export component DocumentsPage inherits Rectangle {
         }
 
         HorizontalLayout {
-            spacing: 0px;
             alignment: start;
 
-            TabPill {
-                text: root.tab-all-label;
-                selected: root.tab == "all";
-                clicked => { root.set-tab("all"); }
-            }
-            TabPill {
-                text: root.tab-unlinked-label;
-                selected: root.tab == "unlinked";
-                clicked => { root.set-tab("unlinked"); }
-            }
-            TabPill {
-                text: root.tab-linked-label;
-                selected: root.tab == "linked";
-                clicked => { root.set-tab("linked"); }
+            SegmentedButton {
+                horizontal-stretch: 0;
+                labels: [root.tab-all-label, root.tab-unlinked-label, root.tab-linked-label];
+                selected: root.tab == "all" ? 0 : (root.tab == "unlinked" ? 1 : 2);
+                select(index) => {
+                    root.set-tab(index == 0 ? "all" : (index == 1 ? "unlinked" : "linked"));
+                }
             }
         }
 
@@ -342,6 +337,8 @@ export component DocumentsPage inherits Rectangle {
                             PrimaryButton {
                                 width: 160px;
                                 text: Tr.t("Upload");
+                                icon: @image-url("icons/add.svg");
+                                has-icon: true;
                                 enabled: !root.uploading;
                                 clicked => { root.upload(); }
                             }
@@ -368,6 +365,7 @@ export component DocumentsPage inherits Rectangle {
                                     HorizontalLayout {
                                         padding: 16px;
                                         spacing: 12px;
+                                        cross-axis-alignment: center;
 
                                         Image {
                                             width: 20px;
@@ -430,6 +428,7 @@ export component DocumentsPage inherits Rectangle {
 
                         HorizontalLayout {
                             spacing: 8px;
+                            cross-axis-alignment: center;
 
                             Text {
                                 text: root.selected-name;
@@ -447,22 +446,34 @@ export component DocumentsPage inherits Rectangle {
                             }
                         }
 
-                        HorizontalLayout {
+                        // The detail card is narrow at 1100 px; two rows keep the actions inside it.
+                        VerticalLayout {
                             spacing: 8px;
                             alignment: start;
 
-                            SecondaryButton {
-                                text: Tr.t("Open");
-                                clicked => { root.open(); }
+                            HorizontalLayout {
+                                spacing: 8px;
+                                alignment: start;
+
+                                SecondaryButton {
+                                    text: Tr.t("Open");
+                                    clicked => { root.open(); }
+                                }
+                                SecondaryButton {
+                                    text: Tr.t("ReExtractText");
+                                    enabled: !root.uploading;
+                                    clicked => { root.reprocess(); }
+                                }
                             }
-                            SecondaryButton {
-                                text: Tr.t("ReExtractText");
-                                enabled: !root.uploading;
-                                clicked => { root.reprocess(); }
-                            }
-                            SecondaryButton {
-                                text: Tr.t("Delete");
-                                clicked => { root.confirm-delete-open = true; }
+
+                            HorizontalLayout {
+                                spacing: 8px;
+                                alignment: start;
+
+                                SecondaryButton {
+                                    text: Tr.t("Delete");
+                                    clicked => { root.confirm-delete-open = true; }
+                                }
                             }
                         }
 

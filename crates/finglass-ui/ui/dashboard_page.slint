@@ -65,6 +65,7 @@ component StatCard inherits Rectangle {
 
         HorizontalLayout {
             spacing: 8px;
+            cross-axis-alignment: center;
 
             Text {
                 text: root.title;
@@ -304,6 +305,7 @@ component GettingStartedCard inherits Rectangle {
             spacing: 12px;
             alignment: start;
             horizontal-stretch: 1;
+            cross-axis-alignment: center;
 
             Rectangle {
                 width: 28px;
@@ -341,6 +343,8 @@ component GettingStartedCard inherits Rectangle {
                 PrimaryButton {
                     width: 140px;
                     text: Tr.t("AddBank");
+                    icon: @image-url("icons/add.svg");
+                    has-icon: true;
                     clicked => {
                         root.add-bank();
                     }
@@ -352,6 +356,7 @@ component GettingStartedCard inherits Rectangle {
             spacing: 12px;
             alignment: start;
             horizontal-stretch: 1;
+            cross-axis-alignment: center;
 
             Rectangle {
                 width: 28px;
@@ -393,6 +398,7 @@ component GettingStartedCard inherits Rectangle {
             spacing: 12px;
             alignment: start;
             horizontal-stretch: 1;
+            cross-axis-alignment: center;
 
             Rectangle {
                 width: 28px;
@@ -704,7 +710,7 @@ export component DashboardPage inherits Rectangle {
 
                 HorizontalLayout {
                     spacing: 12px;
-                    height: 204px;
+                    height: 228px;
 
                     StatCard {
                         horizontal-stretch: 1;

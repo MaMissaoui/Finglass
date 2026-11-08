@@ -310,29 +310,48 @@ export component CountBadge inherits Rectangle {
     }
 }
 
-// A filled action button in the brand colour. The fluent widgets keep their own palette; the
-// surfaces and primary actions that belong to Finglass use Theme directly.
+// A filled action button in the brand colour. Material 3's 40 dp rounded button: it grows with its
+// label instead of carrying a fixed minimum width, and an optional 18 dp icon sits before the text.
 export component PrimaryButton inherits Rectangle {
     in property <string> text;
     in property <bool> enabled: true;
+    in property <image> icon;
+    in property <bool> has-icon: false;
 
     callback clicked;
 
-    height: 36px;
-    min-width: max(120px, label.preferred-width + 28px);
-    border-radius: 6px;
+    height: 40px;
+    min-width: content.preferred-width;
+    border-radius: 20px;
     background: !root.enabled ? Theme.divider : (touch.has-hover ? Theme.primary-hover : Theme.primary);
 
     border-width: focus.has-focus ? 2px : 0px;
     border-color: Theme.on-primary;
 
-    label := Text {
-        text: root.text;
-        color: root.enabled ? Theme.on-primary : Theme.muted-text;
-        font-size: Type.label-size;
-        font-weight: Type.label-weight;
-        horizontal-alignment: center;
-        vertical-alignment: center;
+    content := HorizontalLayout {
+        padding-left: root.has-icon ? 16px : 24px;
+        padding-right: 24px;
+        spacing: 8px;
+        alignment: center;
+        cross-axis-alignment: center;
+
+        if (root.has-icon) : Image {
+            width: 18px;
+            height: 18px;
+            source: root.icon;
+            colorize: root.enabled ? Theme.on-primary : Theme.muted-text;
+            accessible-role: none;
+        }
+
+        label := Text {
+            text: root.text;
+            color: root.enabled ? Theme.on-primary : Theme.muted-text;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
     }
 
     touch := TouchArea {
@@ -401,24 +420,44 @@ export component ChoiceChip inherits Rectangle {
 }
 
 // A link-like text action for secondary navigation such as "Change passphrase" and "Back".
+// Material 3 text button: 40 dp high, fully rounded, 12 dp content padding and an optional icon.
 export component TextButton inherits Rectangle {
     in property <string> text;
     in property <bool> enabled: true;
+    in property <image> icon;
+    in property <bool> has-icon: false;
 
     callback clicked;
 
-    height: 28px;
-    min-width: 80px;
-    background: transparent;
+    height: 40px;
+    min-width: content.preferred-width;
+    border-radius: 20px;
+    background: touch.has-hover && root.enabled ? Theme.background : transparent;
 
-    Text {
-        text: root.text;
-        color: !root.enabled ? Theme.muted-text : (touch.has-hover ? Theme.primary-hover : Theme.primary);
-        font-size: Type.label-size;
-        font-weight: Type.label-weight;
-        horizontal-alignment: left;
-        vertical-alignment: center;
-        overflow: elide;
+    content := HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 8px;
+        alignment: start;
+        cross-axis-alignment: center;
+
+        if (root.has-icon) : Image {
+            width: 18px;
+            height: 18px;
+            source: root.icon;
+            colorize: !root.enabled ? Theme.muted-text : (touch.has-hover ? Theme.primary-hover : Theme.primary);
+            accessible-role: none;
+        }
+
+        Text {
+            text: root.text;
+            color: !root.enabled ? Theme.muted-text : (touch.has-hover ? Theme.primary-hover : Theme.primary);
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
+            horizontal-alignment: left;
+            vertical-alignment: center;
+            overflow: elide;
+        }
     }
 
     touch := TouchArea {
@@ -445,34 +484,55 @@ export component TextButton inherits Rectangle {
     }
 
     if focus.has-focus : Rectangle {
+        width: parent.width;
+        height: parent.height;
         border-width: 2px;
         border-color: Theme.primary;
-        border-radius: 4px;
+        border-radius: parent.border-radius;
     }
 }
 
-// An outlined action button for less prominent actions.
+// An outlined action button for less prominent actions. Material 3's outlined button has the same
+// shape and padding as the filled one, with primary content on a transparent surface.
 export component SecondaryButton inherits Rectangle {
     in property <string> text;
     in property <bool> enabled: true;
+    in property <image> icon;
+    in property <bool> has-icon: false;
 
     callback clicked;
 
-    height: 32px;
-    min-width: max(80px, label.preferred-width + 20px);
-    border-radius: 6px;
-    background: touch.has-hover && root.enabled ? Theme.background : Theme.surface;
+    height: 40px;
+    min-width: content.preferred-width;
+    border-radius: 20px;
+    background: touch.has-hover && root.enabled ? Theme.background : transparent;
     border-width: focus.has-focus ? 2px : 1px;
     border-color: focus.has-focus ? Theme.primary : Theme.divider;
 
-    label := Text {
-        text: root.text;
-        color: root.enabled ? Theme.text : Theme.muted-text;
-        font-size: Type.label-size;
-        font-weight: Type.label-weight;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-        overflow: elide;
+    content := HorizontalLayout {
+        padding-left: root.has-icon ? 16px : 24px;
+        padding-right: 24px;
+        spacing: 8px;
+        alignment: center;
+        cross-axis-alignment: center;
+
+        if (root.has-icon) : Image {
+            width: 18px;
+            height: 18px;
+            source: root.icon;
+            colorize: root.enabled ? Theme.primary : Theme.muted-text;
+            accessible-role: none;
+        }
+
+        label := Text {
+            text: root.text;
+            color: root.enabled ? Theme.primary : Theme.muted-text;
+            font-size: Type.label-size;
+            font-weight: Type.label-weight;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
     }
 
     touch := TouchArea {
@@ -499,6 +559,85 @@ export component SecondaryButton inherits Rectangle {
     }
 }
 
+// An exclusive choice row in Material 3's segmented-button shape: one rounded outline, equal segments
+// and a selected segment filled with the primary container tint. Tab reaches the row; Left/Right move
+// the selection and Return/Space select it.
+export component SegmentedButton inherits Rectangle {
+    in property <[string]> labels;
+    in property <int> selected: 0;
+
+    callback select(int);
+
+    height: 40px;
+    min-width: segments.preferred-width;
+    border-radius: 20px;
+    border-width: focus.has-focus ? 2px : 1px;
+    border-color: focus.has-focus ? Theme.primary : Theme.divider;
+    background: transparent;
+    clip: true;
+
+    segments := HorizontalLayout {
+        spacing: 0px;
+        // Inside the outline, so the selected segment's tint doesn't cover it.
+        padding: 1px;
+
+        for label[index] in root.labels : Rectangle {
+            horizontal-stretch: 1;
+            min-width: segment-label.preferred-width + 32px;
+            background: index == root.selected ? Theme.selected : transparent;
+            // The outer segments carry the pill's rounded ends themselves: the software renderer clips
+            // children to the rectangle, not to the parent's rounded corners.
+            border-top-left-radius: index == 0 ? 19px : 0px;
+            border-bottom-left-radius: index == 0 ? 19px : 0px;
+            border-top-right-radius: index == root.labels.length - 1 ? 19px : 0px;
+            border-bottom-right-radius: index == root.labels.length - 1 ? 19px : 0px;
+
+            if (index > 0) : Rectangle {
+                x: 0px;
+                width: 1px;
+                height: parent.height;
+                background: Theme.divider;
+            }
+
+            segment-label := Text {
+                text: label;
+                color: index == root.selected ? Theme.on-selected : Theme.text;
+                font-size: Type.label-size;
+                font-weight: index == root.selected ? 600 : Type.label-weight;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+
+            TouchArea {
+                clicked => {
+                    root.select(index);
+                }
+            }
+        }
+    }
+
+    focus := FocusScope {
+        // The TouchAreas underneath handle the mouse; see the buttons above.
+        focus-on-click: false;
+        key-pressed(event) => {
+            if (event.text == Key.LeftArrow && root.selected > 0) {
+                root.select(root.selected - 1);
+                return accept;
+            }
+            if (event.text == Key.RightArrow && root.selected < root.labels.length - 1) {
+                root.select(root.selected + 1);
+                return accept;
+            }
+            if (event.text == Key.Return || event.text == Key.Space) {
+                root.select(root.selected);
+                return accept;
+            }
+            return reject;
+        }
+    }
+}
+
 // A card surface with a hairline outline.
 export component Card inherits Rectangle {
     border-radius: 12px;
@@ -507,7 +646,9 @@ export component Card inherits Rectangle {
     border-color: Theme.divider;
 }
 
-// An icon-only button for the top bar. Its accessible label replaces the visible text.
+// An icon-only button. Material 3's 40 dp circular hit area with a 24 dp icon. Its accessible label
+// replaces the visible text. `outlined` draws the outlined-icon-button ring (for example the row and
+// page menus next to a filled Add button).
 export component IconButton inherits Rectangle {
     in property <image> icon;
     in property <string> label;
@@ -515,14 +656,17 @@ export component IconButton inherits Rectangle {
     in property <length> icon-size: 24px;
     in property <bool> selected: false;
     in property <bool> enabled: true;
+    in property <bool> outlined: false;
 
     callback clicked;
 
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
     opacity: root.enabled ? 1.0 : 0.45;
     background: root.selected ? Theme.selected : (touch.has-hover && root.enabled ? Theme.background : transparent);
+    border-width: focus.has-focus ? 2px : (root.outlined ? 1px : 0px);
+    border-color: focus.has-focus ? Theme.primary : Theme.divider;
     accessible-role: button;
     accessible-label: root.label;
 
@@ -560,6 +704,8 @@ export component IconButton inherits Rectangle {
     }
 
     if focus.has-focus : Rectangle {
+        width: parent.width;
+        height: parent.height;
         border-width: 2px;
         border-color: Theme.primary;
         border-radius: parent.border-radius;
@@ -583,6 +729,7 @@ export component MessageBanner inherits Rectangle {
         padding-left: 14px;
         padding-right: 4px;
         spacing: 12px;
+        cross-axis-alignment: center;
 
         Image {
             width: 20px;
@@ -776,6 +923,7 @@ export component SearchField inherits Rectangle {
         padding-left: 14px;
         padding-right: 6px;
         spacing: 8px;
+        cross-axis-alignment: center;
 
         Image {
             width: 20px;

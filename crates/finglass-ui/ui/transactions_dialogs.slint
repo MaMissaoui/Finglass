@@ -2,11 +2,11 @@ import { CheckBox, ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
-    ChoiceChip,
     ImportCsvField,
     ImportFileRow,
     PrimaryButton,
     ReapplyGroupRow,
+    SegmentedButton,
     TextButton,
 } from "components.slint";
 
@@ -336,16 +336,10 @@ export component AddTransactionDialog inherits Rectangle {
                     spacing: 8px;
                     alignment: start;
 
-                    ChoiceChip {
-                        label: Tr.t("Expense");
-                        selected: root.is-expense;
-                        clicked => { root.is-expense = true; }
-                    }
-
-                    ChoiceChip {
-                        label: Tr.t("Income");
-                        selected: !root.is-expense;
-                        clicked => { root.is-expense = false; }
+                    SegmentedButton {
+                        labels: [Tr.t("Expense"), Tr.t("Income")];
+                        selected: root.is-expense ? 0 : 1;
+                        select(index) => { root.is-expense = index == 0; }
                     }
                 }
 
