@@ -20,7 +20,7 @@ use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
 use finglass_core::model::{AccountGroup, AccountGroupId, AccountId, BankAccessItem, BankConnectionId};
 use finglass_core::money::{self, Currency, Money};
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 use time::{Date, OffsetDateTime};
 
 use crate::shell::ShellState;
@@ -86,6 +86,12 @@ pub fn apply(main: &MainWindow, state: &AccountsState, banking: &finglass_core::
                 label: days_label(*days, language).into(),
             })
             .collect::<Vec<AccountDaysChoice>>(),
+    )));
+    main.set_accounts_day_labels(ModelRc::new(VecModel::from(
+        DETAIL_DAYS
+            .iter()
+            .map(|days| SharedString::from(days_label(*days, language)))
+            .collect::<Vec<SharedString>>(),
     )));
 
     apply_detail(main, state, language);

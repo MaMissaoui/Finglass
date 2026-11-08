@@ -12,6 +12,7 @@ import {
     ReportVendorRow,
     IconButton,
     SecondaryButton,
+    SegmentedButton,
     TextButton,
 } from "components.slint";
 import { CategorySplit } from "charts.slint";
@@ -42,34 +43,6 @@ component ReportTab inherits Rectangle {
         width: parent.width;
         height: 2px;
         background: root.selected ? Theme.primary : transparent;
-    }
-
-    TouchArea {
-        clicked => root.clicked();
-    }
-}
-
-// A compact pill for the tax-year / custom-range choices.
-component ReportToggle inherits Rectangle {
-    in property <string> text;
-    in property <bool> selected;
-
-    callback clicked;
-
-    height: 34px;
-    min-width: 110px;
-    border-radius: 6px;
-    background: root.selected ? Theme.selected : Theme.surface;
-    border-width: 1px;
-    border-color: Theme.divider;
-
-    Text {
-        text: root.text;
-        color: root.selected ? Theme.on-selected : Theme.text;
-        font-size: Type.label-size;
-        font-weight: Type.label-weight;
-        horizontal-alignment: center;
-        vertical-alignment: center;
     }
 
     TouchArea {
@@ -143,6 +116,7 @@ component ReportStat inherits Rectangle {
 
         HorizontalLayout {
             spacing: 8px;
+            cross-axis-alignment: center;
 
             Text {
                 text: root.title;
@@ -376,29 +350,19 @@ export component ReportsPage inherits Rectangle {
         if (root.tab != "recurring") : HorizontalLayout {
             spacing: 12px;
 
-            HorizontalLayout {
-                spacing: 0px;
-
-                ReportToggle {
-                    text: Tr.t("TaxYear");
-                    selected: !root.custom-edit;
-                    clicked => {
-                        root.custom-edit = false;
-                        root.set-custom(false);
-                    }
-                }
-                ReportToggle {
-                    text: Tr.t("CustomRange");
-                    selected: root.custom-edit;
-                    clicked => {
-                        root.custom-edit = true;
-                        root.set-custom(true);
-                    }
+            SegmentedButton {
+                labels: [Tr.t("TaxYear"), Tr.t("CustomRange")];
+                selected: root.custom-edit ? 1 : 0;
+                select(index) => {
+                    root.custom-edit = index == 1;
+                    root.set-custom(index == 1);
                 }
             }
 
             if (!root.custom-edit) : HorizontalLayout {
                 spacing: 8px;
+                alignment: start;
+                cross-axis-alignment: center;
 
                 IconButton {
                     icon: @image-url("icons/arrow_back.svg");
@@ -414,7 +378,7 @@ export component ReportsPage inherits Rectangle {
                     vertical-alignment: center;
                 }
                 IconButton {
-                    icon: @image-url("icons/keyboard_arrow_right.svg");
+                    icon: @image-url("icons/arrow_forward.svg");
                     label: Tr.t("NextYear");
                     enabled: !root.busy;
                     clicked => { root.change-year(1); }
@@ -454,39 +418,58 @@ export component ReportsPage inherits Rectangle {
             }
         }
 
-        HorizontalLayout {
+        VerticalLayout {
             spacing: 8px;
             alignment: end;
 
-            if (root.exporting) : Spinner {
-                width: 20px;
-                height: 20px;
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: end;
+
+                if (root.exporting) : Spinner {
+                    width: 20px;
+                    height: 20px;
+                }
+
+                SecondaryButton {
+                    text: Tr.t("ExportReport");
+                    icon: @image-url("icons/file_download.svg");
+                    has-icon: true;
+                    enabled: root.can-export-report && !root.busy;
+                    clicked => { root.export-report-pdf(); }
+                }
+                SecondaryButton {
+                    text: Tr.t("ExportCsv");
+                    icon: @image-url("icons/file_download.svg");
+                    has-icon: true;
+                    enabled: root.can-export-report && !root.busy;
+                    clicked => { root.export-csv(); }
+                }
+                SecondaryButton {
+                    text: Tr.t("ExportExcel");
+                    icon: @image-url("icons/file_download.svg");
+                    has-icon: true;
+                    enabled: root.can-export-tax && !root.busy;
+                    clicked => { root.export-tax-xlsx(); }
+                }
             }
 
-            SecondaryButton {
-                text: Tr.t("ExportReport");
-                enabled: root.can-export-report && !root.busy;
-                clicked => { root.export-report-pdf(); }
-            }
-            SecondaryButton {
-                text: Tr.t("ExportCsv");
-                enabled: root.can-export-report && !root.busy;
-                clicked => { root.export-csv(); }
-            }
-            SecondaryButton {
-                text: Tr.t("ExportExcel");
-                enabled: root.can-export-tax && !root.busy;
-                clicked => { root.export-tax-xlsx(); }
-            }
-            SecondaryButton {
-                text: Tr.t("ExportPdf");
-                enabled: root.can-export-tax && !root.busy;
-                clicked => { root.export-tax-pdf(); }
-            }
-            SecondaryButton {
-                text: Tr.t("Print");
-                enabled: root.can-export-tax && !root.busy;
-                clicked => { root.print-tax(); }
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: end;
+
+                SecondaryButton {
+                    text: Tr.t("ExportPdf");
+                    icon: @image-url("icons/file_download.svg");
+                    has-icon: true;
+                    enabled: root.can-export-tax && !root.busy;
+                    clicked => { root.export-tax-pdf(); }
+                }
+                SecondaryButton {
+                    text: Tr.t("Print");
+                    enabled: root.can-export-tax && !root.busy;
+                    clicked => { root.print-tax(); }
+                }
             }
         }
 
@@ -1096,6 +1079,7 @@ export component ReportsPage inherits Rectangle {
 
                                 HorizontalLayout {
                                     spacing: 8px;
+                                    cross-axis-alignment: center;
 
                                     Text {
                                         text: suggestion.date-text;
@@ -1227,6 +1211,7 @@ export component ReportsPage inherits Rectangle {
                                     HorizontalLayout {
                                         padding: 10px;
                                         spacing: 8px;
+                                        cross-axis-alignment: center;
 
                                         Text {
                                             text: row.date-text;

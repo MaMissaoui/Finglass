@@ -1,7 +1,7 @@
 import { AboutSlint, CheckBox, ComboBox, LineEdit, ScrollView, Spinner, TextEdit } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
-import { ChoiceChip, IconButton, PrimaryButton, TextButton } from "components.slint";
+import { IconButton, PrimaryButton, SegmentedButton, TextButton } from "components.slint";
 import { AuditRow, CategoryRow, ProfileRow, RuleRow } from "models.slint";
 import { FinDeskPassphraseDialog, FinDeskReportDialog } from "settings_dialogs.slint";
 
@@ -200,20 +200,12 @@ export component SettingsPage inherits Rectangle {
                         font-size: Type.body-size;
                         vertical-alignment: center;
                     }
-                    ChoiceChip {
-                        label: Tr.t("ThemeSystem");
-                        selected: root.theme-pref == "system";
-                        clicked => { root.set-theme("system"); }
-                    }
-                    ChoiceChip {
-                        label: Tr.t("ThemeLight");
-                        selected: root.theme-pref == "light";
-                        clicked => { root.set-theme("light"); }
-                    }
-                    ChoiceChip {
-                        label: Tr.t("ThemeDark");
-                        selected: root.theme-pref == "dark";
-                        clicked => { root.set-theme("dark"); }
+                    SegmentedButton {
+                        labels: [Tr.t("ThemeSystem"), Tr.t("ThemeLight"), Tr.t("ThemeDark")];
+                        selected: root.theme-pref == "system" ? 0 : (root.theme-pref == "light" ? 1 : 2);
+                        select(index) => {
+                            root.set-theme(index == 0 ? "system" : (index == 1 ? "light" : "dark"));
+                        }
                     }
                 }
 
@@ -228,20 +220,12 @@ export component SettingsPage inherits Rectangle {
                         font-size: Type.body-size;
                         vertical-alignment: center;
                     }
-                    ChoiceChip {
-                        label: "EN";
-                        selected: root.language == "en";
-                        clicked => { root.set-language("en"); }
-                    }
-                    ChoiceChip {
-                        label: "DE";
-                        selected: root.language == "de";
-                        clicked => { root.set-language("de"); }
-                    }
-                    ChoiceChip {
-                        label: "FR";
-                        selected: root.language == "fr";
-                        clicked => { root.set-language("fr"); }
+                    SegmentedButton {
+                        labels: ["EN", "DE", "FR"];
+                        selected: root.language == "en" ? 0 : (root.language == "de" ? 1 : 2);
+                        select(index) => {
+                            root.set-language(index == 0 ? "en" : (index == 1 ? "de" : "fr"));
+                        }
                     }
                 }
 
@@ -291,6 +275,8 @@ export component SettingsPage inherits Rectangle {
 
                         PrimaryButton {
                             text: Tr.t("NewProfile");
+                            icon: @image-url("icons/add.svg");
+                            has-icon: true;
                             clicked => { root.new-profile(); }
                         }
                     }
@@ -309,6 +295,7 @@ export component SettingsPage inherits Rectangle {
 
                         HorizontalLayout {
                             spacing: 12px;
+                            cross-axis-alignment: center;
 
                             Text {
                                 text: row.name;
@@ -396,6 +383,8 @@ export component SettingsPage inherits Rectangle {
 
                         if (!root.categories-empty) : PrimaryButton {
                             text: Tr.t("AddCategory");
+                            icon: @image-url("icons/add.svg");
+                            has-icon: true;
                             clicked => { root.add-category(); }
                         }
 
@@ -411,6 +400,8 @@ export component SettingsPage inherits Rectangle {
 
                         if (root.categories-empty) : TextButton {
                             text: Tr.t("AddCategory");
+                            icon: @image-url("icons/add.svg");
+                            has-icon: true;
                             clicked => { root.add-category(); }
                         }
                     }
@@ -421,6 +412,7 @@ export component SettingsPage inherits Rectangle {
 
                         HorizontalLayout {
                             spacing: 12px;
+                            cross-axis-alignment: center;
 
                             Rectangle {
                                 width: 12px;
@@ -580,6 +572,7 @@ export component SettingsPage inherits Rectangle {
 
                         HorizontalLayout {
                             spacing: 12px;
+                            cross-axis-alignment: center;
 
                             Text {
                                 text: row.pattern;

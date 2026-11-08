@@ -2367,7 +2367,7 @@ fn amount_label(state: &TransactionsState, language: Language) -> String {
 }
 
 fn period_options(language: Language) -> Vec<SharedString> {
-    [
+    let mut options = [
         Key::PeriodThisMonth,
         Key::PeriodLastMonth,
         Key::PeriodLast3Months,
@@ -2377,7 +2377,9 @@ fn period_options(language: Language) -> Vec<SharedString> {
     ]
     .into_iter()
     .map(|key| i18n::text(language, key).into())
-    .collect()
+    .collect::<Vec<SharedString>>();
+    options.push(i18n::text(language, Key::PeriodCustomRange).into());
+    options
 }
 
 fn period_at(index: i32) -> Option<Period> {

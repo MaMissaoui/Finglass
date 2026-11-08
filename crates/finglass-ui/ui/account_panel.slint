@@ -8,6 +8,7 @@ import {
     AccountTone,
     ChoiceChip,
     CountBadge,
+    SearchField,
     TextButton,
 } from "components.slint";
 
@@ -150,6 +151,7 @@ component PanelRowView inherits Rectangle {
                 padding-left: root.item.indent ? 24px : 6px;
                 padding-right: 6px;
                 spacing: 6px;
+                cross-axis-alignment: center;
 
                 if (root.item.kind == "group") : ChevronButton {
                     collapsed: root.item.collapsed;
@@ -192,9 +194,15 @@ component PanelRowView inherits Rectangle {
                     }
                 }
 
-                CountBadge {
-                    count: root.item.new-count;
-                    selected: root.item.selected;
+                // Own column so the unread badge cannot overlap the right-aligned amount.
+                VerticalLayout {
+                    width: 20px;
+                    alignment: center;
+
+                    CountBadge {
+                        count: root.item.new-count;
+                        selected: root.item.selected;
+                    }
                 }
 
                 PanelAmounts {
@@ -335,9 +343,9 @@ export component AccountPanel inherits Rectangle {
         padding: 8px;
         spacing: 6px;
 
-        LineEdit {
-            placeholder-text: Tr.t("FilterAccounts");
+        SearchField {
             text: root.filter-text;
+            placeholder: Tr.t("FilterAccounts");
             edited(text) => {
                 root.filter-changed(text);
             }
@@ -596,6 +604,8 @@ export component AccountPanel inherits Rectangle {
 
         TextButton {
             text: Tr.t("NewGroup");
+            icon: @image-url("icons/add.svg");
+            has-icon: true;
             clicked => {
                 root.reset-form();
                 root.creating = true;

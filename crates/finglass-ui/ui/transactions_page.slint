@@ -1,4 +1,4 @@
-import { ComboBox, ListView, Spinner } from "std-widgets.slint";
+import { ListView, Spinner } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
@@ -70,45 +70,106 @@ component SummaryFigure inherits VerticalLayout {
     }
 }
 
-// A pill-shaped filter control with a dropdown arrow.
-component FilterButton inherits Rectangle {
-    in property <string> text;
-    in property <bool> destructive: false;
+// A 40 dp outlined filter pill, matching FinDesk's DropdownSelector. It opens the same option list
+// the old ComboBoxes opened; `opens-menu: false` turns it into a plain action pill (the amount filter
+// opens its existing dialog instead).
+component DropdownPill inherits Rectangle {
+    in property <string> label;
+    in property <[string]> options;
+    in property <int> selected: 0;
+    in property <image> leading-icon;
+    in property <bool> has-leading-icon: false;
+    in property <bool> opens-menu: true;
 
-    callback clicked;
+    callback chosen(int);
+    callback activated;
 
-    height: 36px;
-    min-width: 96px;
-    border-radius: 18px;
+    height: 40px;
+    min-width: pill-content.preferred-width;
+    border-radius: 20px;
     background: touch.has-hover ? Theme.background : Theme.surface;
     border-width: 1px;
-    border-color: root.destructive ? Theme.error : Theme.divider;
+    border-color: Theme.divider;
 
-    HorizontalLayout {
-        padding-left: 12px;
+    pill-content := HorizontalLayout {
+        padding-left: root.has-leading-icon ? 14px : 16px;
         padding-right: 8px;
-        spacing: 2px;
+        spacing: 6px;
+        cross-axis-alignment: center;
+
+        if (root.has-leading-icon) : Image {
+            width: 18px;
+            height: 18px;
+            source: root.leading-icon;
+            colorize: Theme.primary;
+            accessible-role: none;
+        }
 
         Text {
-            text: root.text;
-            color: root.destructive ? Theme.error : Theme.text;
+            text: root.label;
+            color: Theme.primary;
             font-size: Type.label-size;
             font-weight: Type.label-weight;
-            horizontal-alignment: center;
             vertical-alignment: center;
+            overflow: elide;
         }
 
         Image {
             width: 18px;
             height: 18px;
             source: @image-url("icons/arrow_drop_down.svg");
-            colorize: root.destructive ? Theme.error : Theme.muted-text;
+            colorize: Theme.primary;
             accessible-role: none;
         }
     }
 
     touch := TouchArea {
-        clicked => { root.clicked(); }
+        clicked => {
+            if (root.opens-menu) {
+                menu.show();
+            } else {
+                root.activated();
+            }
+        }
+    }
+
+    menu := PopupWindow {
+        x: 0px;
+        y: root.height + 4px;
+        width: max(root.width, 220px);
+        height: min(root.options.length * 36px, 320px);
+
+        Rectangle {
+            background: Theme.surface;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Theme.divider;
+            clip: true;
+
+            ListView {
+                for option[index] in root.options : Rectangle {
+                    height: 36px;
+                    background: index == root.selected || row-touch.has-hover ? Theme.background : transparent;
+
+                    Text {
+                        x: 12px;
+                        width: parent.width - 24px;
+                        text: option;
+                        color: index == root.selected ? Theme.primary : Theme.text;
+                        font-size: Type.body-size;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+
+                    row-touch := TouchArea {
+                        clicked => {
+                            menu.close();
+                            root.chosen(index);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -240,7 +301,7 @@ component TransactionRowView inherits Rectangle {
 
     property <bool> menu-open: false;
 
-    height: 46px + (root.menu-open && !root.item.pending ? 28px : 0px);
+    height: 46px + (root.menu-open && !root.item.pending ? 48px : 0px);
     background: transparent;
 
     VerticalLayout {
@@ -301,6 +362,7 @@ component TransactionRowView inherits Rectangle {
 
                     HorizontalLayout {
                         spacing: 5px;
+                        cross-axis-alignment: center;
 
                         Text {
                             text: root.item.title;
@@ -372,6 +434,7 @@ component TransactionRowView inherits Rectangle {
                     width: TxLayout.balance-width;
                     spacing: 4px;
                     alignment: end;
+                    cross-axis-alignment: center;
 
                     if (root.item.balance-warning) : Image {
                         width: 16px;
@@ -432,7 +495,7 @@ component TransactionRowView inherits Rectangle {
         }
 
         if (root.menu-open && !root.item.pending) : Rectangle {
-            height: 28px;
+            height: 48px;
             background: Theme.background;
 
             HorizontalLayout {
@@ -440,6 +503,7 @@ component TransactionRowView inherits Rectangle {
                 padding-right: 6px;
                 spacing: 12px;
                 alignment: start;
+                cross-axis-alignment: center;
 
                 TextButton {
                     text: Tr.t("OpenDetails");
@@ -511,6 +575,8 @@ component EmptyTransactions inherits Rectangle {
             PrimaryButton {
                 width: 150px;
                 text: Tr.t("AddBank");
+                icon: @image-url("icons/add.svg");
+                has-icon: true;
                 clicked => { root.add-bank(); }
             }
         }
@@ -957,12 +1023,14 @@ export component TransactionsPage inherits Rectangle {
                     icon: @image-url("icons/more_vert.svg");
                     label: Tr.t("More");
                     icon-size: 20px;
+                    outlined: true;
                     clicked => { root.more-menu-open = !root.more-menu-open; }
                 }
 
                 if (root.has-accounts) : PrimaryButton {
-                    width: 96px;
-                    text: "+ " + Tr.t("Add");
+                    text: Tr.t("Add");
+                    icon: @image-url("icons/add.svg");
+                    has-icon: true;
                     clicked => { root.open-add(); }
                 }
             }
@@ -1010,75 +1078,61 @@ export component TransactionsPage inherits Rectangle {
                 }
             }
 
-            HorizontalLayout {
+            // One row of 40 dp controls that wraps instead of clipping, as FinDesk's FlowRow does.
+            FlexboxLayout {
                 spacing: 8px;
+                flex-wrap: wrap;
+                alignment: stretch;
+                cross-axis-alignment: center;
 
                 SearchField {
                     horizontal-stretch: 1;
-                    min-width: 180px;
+                    min-width: 200px;
                     text: "";
                     placeholder: Tr.t("SearchPartnerPurpose");
                     edited(text) => { root.search(text); }
                 }
 
-                // Keeps the period control clear of the search field at every width.
-                Rectangle {
-                    width: 16px;
-                    background: transparent;
+                DropdownPill {
+                    label: root.period-extra != "" ? root.period-extra : (root.period-index >= 0 && root.period-index < root.period-options.length ? root.period-options[root.period-index] : "");
+                    options: root.period-options;
+                    selected: root.period-extra != "" ? -1 : root.period-index;
+                    leading-icon: @image-url("icons/date_range.svg");
+                    has-leading-icon: true;
+                    chosen(index) => {
+                        if (index == root.period-options.length - 1) {
+                            root.open-range();
+                        } else {
+                            root.period-changed(index);
+                        }
+                    }
                 }
 
-                ComboBox {
-                    width: 150px;
-                    model: root.period-options;
-                    current-index <=> root.period-index;
-                    selected(value) => { root.period-changed(root.period-index); }
+                DropdownPill {
+                    label: root.category-index >= 0 && root.category-index < root.category-options.length ? root.category-options[root.category-index] : "";
+                    options: root.category-options;
+                    selected: root.category-index;
+                    chosen(index) => { root.category-changed(index); }
                 }
 
-                if (root.period-extra != "") : Text {
-                    text: root.period-extra;
-                    color: Theme.muted-text;
-                    font-size: Type.body-small-size;
-                    vertical-alignment: center;
+                if (!root.show-panel && root.has-accounts) : DropdownPill {
+                    label: root.account-index >= 0 && root.account-index < root.account-options.length ? root.account-options[root.account-index] : "";
+                    options: root.account-options;
+                    selected: root.account-index;
+                    chosen(index) => { root.account-changed(index); }
                 }
 
-                FilterButton {
-                    text: Tr.t("PeriodCustomRange");
-                    clicked => { root.open-range(); }
-                }
-            }
-
-            HorizontalLayout {
-                spacing: 8px;
-
-                ComboBox {
-                    width: 160px;
-                    model: root.category-options;
-                    current-index <=> root.category-index;
-                    selected(value) => { root.category-changed(root.category-index); }
+                DropdownPill {
+                    label: root.direction-index >= 0 && root.direction-index < root.direction-options.length ? root.direction-options[root.direction-index] : "";
+                    options: root.direction-options;
+                    selected: root.direction-index;
+                    chosen(index) => { root.direction-changed(index); }
                 }
 
-                ComboBox {
-                    width: 140px;
-                    model: root.direction-options;
-                    current-index <=> root.direction-index;
-                    selected(value) => { root.direction-changed(root.direction-index); }
-                }
-
-                FilterButton {
-                    text: root.amount-label;
-                    clicked => { root.open-amount(); }
-                }
-
-                if (!root.show-panel && root.has-accounts) : ComboBox {
-                    width: 190px;
-                    model: root.account-options;
-                    current-index <=> root.account-index;
-                    selected(value) => { root.account-changed(root.account-index); }
-                }
-
-                Rectangle {
-                    horizontal-stretch: 1;
-                    background: transparent;
+                DropdownPill {
+                    label: root.amount-label;
+                    opens-menu: false;
+                    activated => { root.open-amount(); }
                 }
 
                 if (root.rows.length > 0 && !root.selection-visible) : TextButton {

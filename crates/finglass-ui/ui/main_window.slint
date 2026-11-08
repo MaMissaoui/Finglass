@@ -411,6 +411,7 @@ export component MainWindow inherits Window {
     in property <[AccountTypeChoice]> accounts-type-choices;
     in property <[string]> accounts-currency-codes;
     in property <[AccountDaysChoice]> accounts-days-choices;
+    in property <[string]> accounts-day-labels;
 
     in property <string> accounts-dialog;
     in property <string> accounts-dialog-title;
@@ -1471,6 +1472,7 @@ export component MainWindow inherits Window {
                 type-choices: root.accounts-type-choices;
                 currency-codes: root.accounts-currency-codes;
                 days-choices: root.accounts-days-choices;
+                day-labels: root.accounts-day-labels;
 
                 dialog: root.accounts-dialog;
                 dialog-title: root.accounts-dialog-title;

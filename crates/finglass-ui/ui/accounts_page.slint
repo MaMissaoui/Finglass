@@ -13,6 +13,8 @@ import {
     CountBadge,
     IconButton,
     PrimaryButton,
+    SecondaryButton,
+    SegmentedButton,
     TextButton,
 } from "components.slint";
 import { BankSuggestionRow } from "models.slint";
@@ -74,7 +76,8 @@ component FigureView inherits VerticalLayout {
     Text {
         text: root.figure.label;
         color: Theme.muted-text;
-        font-size: Type.body-small-size;
+        font-size: Type.label-small-size;
+        font-weight: Type.label-small-weight;
         overflow: elide;
     }
 
@@ -82,7 +85,7 @@ component FigureView inherits VerticalLayout {
         text: amount.text;
         color: root.figure.secondary ? Theme.muted-text : AccountTone.amount-color(amount.tone);
         font-size: root.figure.secondary ? 18px : 24px;
-        font-weight: Type.body-small-weight;
+        font-weight: root.figure.secondary ? Type.body-weight : Type.headline-weight;
         overflow: elide;
     }
 }
@@ -186,6 +189,7 @@ component BankAccountView inherits Rectangle {
                 padding-left: 6px;
                 padding-right: 6px;
                 spacing: 8px;
+                cross-axis-alignment: center;
 
                 VerticalLayout {
                     horizontal-stretch: 1;
@@ -208,9 +212,15 @@ component BankAccountView inherits Rectangle {
                     }
                 }
 
-                CountBadge {
-                    count: root.account.new-count;
-                    selected: false;
+                // The badge has its own column so it can never sit on top of the amount.
+                VerticalLayout {
+                    width: 20px;
+                    alignment: center;
+
+                    CountBadge {
+                        count: root.account.new-count;
+                        selected: false;
+                    }
                 }
 
                 Text {
@@ -355,6 +365,7 @@ component BankCardView inherits Rectangle {
 
         HorizontalLayout {
             spacing: 8px;
+            cross-axis-alignment: center;
 
             if (root.card.bank-id >= 0) : Rectangle {
                 width: 24px;
@@ -451,8 +462,10 @@ component BankCardView inherits Rectangle {
                 vertical-alignment: center;
             }
 
-            if (root.card.bank-id >= 0 && !root.card.offline && !root.card.syncing) : TextButton {
+            if (root.card.bank-id >= 0 && !root.card.offline && !root.card.syncing) : SecondaryButton {
                 text: Tr.t("Sync");
+                icon: @image-url("icons/sync.svg");
+                has-icon: true;
                 enabled: root.card.sync-enabled;
                 clicked => {
                     root.sync();
@@ -460,33 +473,20 @@ component BankCardView inherits Rectangle {
             }
 
             if (root.card.bank-id >= 0) : TextButton {
-                text: "+ " + Tr.t("AddAccountShort");
+                text: Tr.t("AddAccountShort");
+                icon: @image-url("icons/add.svg");
+                has-icon: true;
                 clicked => {
                     root.add-account();
                 }
             }
 
-            if (root.card.bank-id >= 0) : Rectangle {
-                width: 24px;
-                height: 24px;
-                border-radius: 12px;
-                background: bank-menu-button.has-hover ? Theme.divider : transparent;
-                // The menu is only meaningful for a real bank connection.
-
-                Image {
-                    width: 18px;
-                    height: 18px;
-                    x: (parent.width - self.width) / 2;
-                    y: (parent.height - self.height) / 2;
-                    source: @image-url("icons/more_vert.svg");
-                    colorize: Theme.muted-text;
-                    accessible-role: none;
-                }
-
-                bank-menu-button := TouchArea {
-                    clicked => {
-                        root.menu-open = !root.menu-open;
-                    }
+            if (root.card.bank-id >= 0) : IconButton {
+                icon: @image-url("icons/more_vert.svg");
+                label: Tr.t("More");
+                outlined: true;
+                clicked => {
+                    root.menu-open = !root.menu-open;
                 }
             }
         }
@@ -600,6 +600,8 @@ component EmptyAccounts inherits Rectangle {
             PrimaryButton {
                 width: 150px;
                 text: Tr.t("AddBank");
+                icon: @image-url("icons/add.svg");
+                has-icon: true;
                 clicked => {
                     root.add-bank();
                 }
@@ -627,6 +629,7 @@ export component AccountsPage inherits Rectangle {
     in property <[AccountTypeChoice]> type-choices;
     in property <[string]> currency-codes;
     in property <[AccountDaysChoice]> days-choices;
+    in property <[string]> day-labels;
 
     in property <string> dialog;
     in property <string> dialog-title;
@@ -789,6 +792,8 @@ export component AccountsPage inherits Rectangle {
 
             PrimaryButton {
                 text: Tr.t("AddBank");
+                icon: @image-url("icons/add.svg");
+                has-icon: true;
                 enabled: !root.banking-busy;
                 clicked => {
                     root.open-add-bank();
@@ -948,11 +953,11 @@ export component AccountsPage inherits Rectangle {
                         }
                     }
 
-                    for day in root.days-choices : ChoiceChip {
-                        label: day.label;
-                        selected: day.days == root.detail-days;
-                        clicked => {
-                            root.select-days(root.detail-account-id, day.days);
+                    SegmentedButton {
+                        labels: root.day-labels;
+                        selected: root.detail-days == 365 ? 2 : (root.detail-days == 90 ? 1 : 0);
+                        select(index) => {
+                            root.select-days(root.detail-account-id, root.days-choices[index].days);
                         }
                     }
                 }
@@ -1091,20 +1096,13 @@ export component AccountsPage inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 6px;
+                alignment: start;
 
-                ChoiceChip {
-                    label: Tr.t("BankOnlineMode");
-                    selected: root.dialog-online;
-                    clicked => {
-                        root.dialog-online = true;
-                    }
-                }
-
-                ChoiceChip {
-                    label: Tr.t("BankOfflineMode");
-                    selected: !root.dialog-online;
-                    clicked => {
-                        root.dialog-online = false;
+                SegmentedButton {
+                    labels: [Tr.t("BankOnlineMode"), Tr.t("BankOfflineMode")];
+                    selected: root.dialog-online ? 0 : 1;
+                    select(index) => {
+                        root.dialog-online = index == 0;
                     }
                 }
             }

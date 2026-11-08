@@ -3748,6 +3748,12 @@ fn apply_accounts(ui: &MainWindow, state: &AccountsState, banking: &BankingState
             })
             .collect::<Vec<AccountDaysChoice>>(),
     )));
+    ui.set_accounts_day_labels(ModelRc::new(VecModel::from(
+        ACCOUNTS_DETAIL_DAYS
+            .iter()
+            .map(|days| SharedString::from(accounts_days_label(*days, language)))
+            .collect::<Vec<SharedString>>(),
+    )));
 
     apply_accounts_detail(ui, state, language);
 }
