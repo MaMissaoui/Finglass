@@ -445,6 +445,9 @@ export component MainWindow inherits Window {
 
     in property <bool> accounts-detail-open;
     in property <string> accounts-detail-title;
+    in property <string> accounts-detail-logo;
+    in property <string> accounts-detail-letters;
+    in property <int> accounts-detail-colour;
     in property <string> accounts-detail-subtitle;
     in property <string> accounts-detail-balance;
     in property <string> accounts-detail-tone;
@@ -1571,6 +1574,9 @@ export component MainWindow inherits Window {
 
                 detail-open: root.accounts-detail-open;
                 detail-title: root.accounts-detail-title;
+                detail-logo: root.accounts-detail-logo;
+                detail-letters: root.accounts-detail-letters;
+                detail-colour: root.accounts-detail-colour;
                 detail-subtitle: root.accounts-detail-subtitle;
                 detail-balance: root.accounts-detail-balance;
                 detail-tone: root.accounts-detail-tone;

@@ -4005,6 +4005,14 @@ fn apply_accounts_detail(ui: &MainWindow, state: &AccountsState, language: Langu
 
     ui.set_accounts_detail_open(true);
     ui.set_accounts_detail_title(accounts_detail_title(detail, language).into());
+    let bank = detail
+        .account
+        .bank_access_id
+        .and_then(|id| state.bank_accesses.iter().find(|bank| bank.id == id));
+    let badge = accounts_account_badge(&detail.account, bank);
+    ui.set_accounts_detail_logo(badge.logo.into());
+    ui.set_accounts_detail_letters(badge.letters.into());
+    ui.set_accounts_detail_colour(badge.colour);
     ui.set_accounts_detail_subtitle(accounts_identifier(&detail.account).into());
     ui.set_accounts_detail_balance(format::money(detail.account.balance, language, false).into());
     ui.set_accounts_detail_tone(accounts_tone(&detail.account).into());
@@ -4146,6 +4154,96 @@ fn bank_suggestion_rows(query: &str) -> ModelRc<BankSuggestionRow> {
     ModelRc::new(VecModel::from(rows))
 }
 
+#[derive(Clone, PartialEq, Eq)]
+struct Badge {
+    logo: String,
+    letters: String,
+    colour: i32,
+}
+
+impl Badge {
+    fn empty() -> Self {
+        Self {
+            logo: String::new(),
+            letters: String::new(),
+            colour: 0,
+        }
+    }
+
+    fn for_name(name: &str, blz: Option<&str>, bic: Option<&str>) -> Self {
+        let monogram = finglass_core::bank_logo::monogram(name);
+        Self {
+            logo: finglass_core::bank_logo::bank_logo(name, blz, bic)
+                .map(|logo| logo.id().to_owned())
+                .unwrap_or_default(),
+            letters: monogram.letters,
+            colour: i32::from(monogram.colour),
+        }
+    }
+
+    fn for_bank(bank: &BankAccessItem) -> Self {
+        if bank.offline {
+            return Self::for_name(&bank.bank_name, None, None);
+        }
+        Self::for_name(
+            &bank.bank_name,
+            Some(bank.blz.as_str()).filter(|blz| !blz.trim().is_empty()),
+            bank.bic.as_deref().filter(|bic| !bic.trim().is_empty()),
+        )
+    }
+}
+
+fn accounts_iban_blz(iban: &str) -> Option<String> {
+    let chars: Vec<char> = iban.chars().filter(|character| !character.is_whitespace()).collect();
+    if chars.len() < 12 || chars[0] != 'D' || chars[1] != 'E' {
+        return None;
+    }
+    let blz: String = chars[4..12].iter().collect();
+    if blz.chars().all(|character| character.is_ascii_digit()) {
+        Some(blz)
+    } else {
+        None
+    }
+}
+
+fn accounts_account_badge(account: &AccountItem, bank: Option<&BankAccessItem>) -> Badge {
+    if let Some(bank) = bank {
+        return Badge::for_bank(bank);
+    }
+    if !account.bank_name.trim().is_empty() {
+        return Badge::for_name(&account.bank_name, None, None);
+    }
+    let Some(blz) = accounts_iban_blz(&account.iban) else {
+        return Badge::empty();
+    };
+    match finglass_core::bank_directory::BankDirectory::bundled().lookup(&blz) {
+        Some(entry) => Badge::for_name(&entry.name, Some(&blz), Some(&entry.bic)),
+        None => Badge::empty(),
+    }
+}
+
+fn accounts_group_badge(state: &AccountsState, group: &finglass_core::account_grouping::AccountGroupView) -> Badge {
+    if matches!(group.key, GroupKey::Custom(_)) {
+        return Badge::empty();
+    }
+    let mut first: Option<Badge> = None;
+    for grouping in &group.accounts {
+        let Some(account) = state.accounts.iter().find(|account| account.id == grouping.id) else {
+            continue;
+        };
+        let bank = account
+            .bank_access_id
+            .and_then(|id| state.bank_accesses.iter().find(|bank| bank.id == id));
+        let badge = accounts_account_badge(account, bank);
+        match &first {
+            Some(existing) if *existing != badge => return Badge::empty(),
+            Some(_) => {}
+            None => first = Some(badge),
+        }
+    }
+    first.unwrap_or_else(Badge::empty)
+}
+
 fn accounts_bank_cards(state: &AccountsState, banking: &BankingState, language: Language) -> Vec<AccountsBankCard> {
     let mut cards = Vec::new();
     for bank in &state.bank_accesses {
@@ -4161,6 +4259,7 @@ fn accounts_bank_cards(state: &AccountsState, banking: &BankingState, language: 
             accounts_bank_subtitle(bank, language),
             bank.offline,
             state.collapsed_banks.contains(&bank.id),
+            Badge::for_bank(bank),
             &in_bank,
             state,
             item,
@@ -4181,6 +4280,7 @@ fn accounts_bank_cards(state: &AccountsState, banking: &BankingState, language: 
             String::new(),
             false,
             false,
+            Badge::empty(),
             &without_bank,
             state,
             None,
@@ -4198,6 +4298,7 @@ fn accounts_bank_card(
     subtitle: String,
     offline: bool,
     collapsed: bool,
+    card_badge: Badge,
     in_bank: &[&AccountItem],
     state: &AccountsState,
     item: Option<&finglass_core::app::banking::BankItem>,
@@ -4232,13 +4333,22 @@ fn accounts_bank_card(
         accounts: ModelRc::new(VecModel::from(
             in_bank
                 .iter()
-                .map(|account| BankAccountRow {
-                    account_id: i32::try_from(account.id.0).unwrap_or(-1),
-                    name: accounts_label(account, language).into(),
-                    subtitle: accounts_subtitle(account, language).into(),
-                    balance_text: format::money(account.balance, language, false).into(),
-                    tone: accounts_tone(account).into(),
-                    new_count: i32::try_from(account.new_count).unwrap_or(i32::MAX),
+                .map(|account| {
+                    let bank = account
+                        .bank_access_id
+                        .and_then(|id| state.bank_accesses.iter().find(|bank| bank.id == id));
+                    let badge = accounts_account_badge(account, bank);
+                    BankAccountRow {
+                        account_id: i32::try_from(account.id.0).unwrap_or(-1),
+                        name: accounts_label(account, language).into(),
+                        subtitle: accounts_subtitle(account, language).into(),
+                        balance_text: format::money(account.balance, language, false).into(),
+                        tone: accounts_tone(account).into(),
+                        new_count: i32::try_from(account.new_count).unwrap_or(i32::MAX),
+                        logo: badge.logo.into(),
+                        logo_letters: badge.letters.into(),
+                        logo_colour: badge.colour,
+                    }
                 })
                 .collect::<Vec<BankAccountRow>>(),
         )),
@@ -4268,6 +4378,9 @@ fn accounts_bank_card(
             item.map(|item| accounts_bank_menu(item, banking, state, language))
                 .unwrap_or_default(),
         )),
+        logo: card_badge.logo.into(),
+        logo_letters: card_badge.letters.into(),
+        logo_colour: card_badge.colour,
     }
 }
 
@@ -4425,6 +4538,9 @@ fn accounts_panel_rows(state: &AccountsState, language: Language) -> Vec<Account
         new_count: i32::try_from(all_new).unwrap_or(i32::MAX),
         totals: accounts_amounts(&state.grand_total, &all_accounts, language, state.grand_total.len() > 1),
         indent: false,
+        logo: "".into(),
+        logo_letters: "".into(),
+        logo_colour: 0,
     }];
 
     for group in &state.groups {
@@ -4459,6 +4575,7 @@ fn accounts_panel_rows(state: &AccountsState, language: Language) -> Vec<Account
         } else {
             String::new()
         };
+        let badge = accounts_group_badge(state, group);
         rows.push(AccountPanelRow {
             kind: "group".into(),
             group_kind: group_kind.into(),
@@ -4474,6 +4591,9 @@ fn accounts_panel_rows(state: &AccountsState, language: Language) -> Vec<Account
             new_count: i32::try_from(group.new_count).unwrap_or(i32::MAX),
             totals: accounts_amounts(&group.totals, &group.accounts, language, false),
             indent: false,
+            logo: badge.logo.into(),
+            logo_letters: badge.letters.into(),
+            logo_colour: badge.colour,
         });
 
         if collapsed {
@@ -4494,6 +4614,10 @@ fn accounts_panel_rows(state: &AccountsState, language: Language) -> Vec<Account
                 .last_update
                 .map(|updated| i18n::format(language, Key::LastFetched, &[Arg::from(format::date(updated.date()))]))
                 .unwrap_or_default();
+            let bank = full
+                .bank_access_id
+                .and_then(|id| state.bank_accesses.iter().find(|bank| bank.id == id));
+            let badge = accounts_account_badge(full, bank);
             rows.push(AccountPanelRow {
                 kind: "account".into(),
                 group_kind: "".into(),
@@ -4516,6 +4640,9 @@ fn accounts_panel_rows(state: &AccountsState, language: Language) -> Vec<Account
                     .into(),
                 }])),
                 indent: true,
+                logo: badge.logo.into(),
+                logo_letters: badge.letters.into(),
+                logo_colour: badge.colour,
             });
         }
     }

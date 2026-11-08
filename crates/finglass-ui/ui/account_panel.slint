@@ -6,6 +6,7 @@ import {
     AccountGroupChoice,
     AccountPanelRow,
     AccountTone,
+    BankBadge,
     ChoiceChip,
     CountBadge,
     OutlinedField,
@@ -169,7 +170,7 @@ component PanelRowView inherits Rectangle {
             }
 
             HorizontalLayout {
-                padding-left: root.item.indent ? 24px : 6px;
+                padding-left: root.item.indent ? (root.item.logo != "" || root.item.logo-letters != "" ? 18px : 24px) : 6px;
                 padding-right: 6px;
                 padding-top: 6px;
                 padding-bottom: 6px;
@@ -184,9 +185,23 @@ component PanelRowView inherits Rectangle {
                     }
                 }
 
-                if (root.item.kind == "account") : Rectangle {
+                // An account's badge takes the place of this spacer, so the name keeps its room.
+                if (root.item.kind == "account" && root.item.logo == "" && root.item.logo-letters == "") : Rectangle {
                     width: 12px;
                     background: transparent;
+                }
+
+                // Only rows that stand for one bank get a badge; the narrow panel keeps it at 20 px so the
+                // names stay readable.
+                if (root.item.logo != "" || root.item.logo-letters != "") : VerticalLayout {
+                    alignment: center;
+
+                    BankBadge {
+                        logo: root.item.logo;
+                        letters: root.item.logo-letters;
+                        colour-index: root.item.logo-colour;
+                        size: 20px;
+                    }
                 }
 
                 VerticalLayout {

@@ -15,6 +15,7 @@ use finglass_core::account_ids;
 use finglass_core::app::account_panel::AccountSelection;
 use finglass_core::app::accounts::{ACCOUNT_TYPE_CODES, AccountDetail, AccountItem, AccountsState, Busy};
 use finglass_core::bank_directory::{self, BankDirectory};
+use finglass_core::bank_logo::{bank_logo, monogram};
 use finglass_core::db::Database;
 use finglass_core::format;
 use finglass_core::i18n::{self, Arg, Key, Language};
@@ -107,6 +108,10 @@ fn apply_detail(main: &MainWindow, state: &AccountsState, language: Language) {
 
     main.set_accounts_detail_open(true);
     main.set_accounts_detail_title(detail_title(detail, language).into());
+    let badge = account_badge(&detail.account, bank_for(state, &detail.account));
+    main.set_accounts_detail_logo(badge.logo.into());
+    main.set_accounts_detail_letters(badge.letters.into());
+    main.set_accounts_detail_colour(badge.colour);
     main.set_accounts_detail_subtitle(account_identifier(&detail.account).into());
     main.set_accounts_detail_balance(format::money(detail.account.balance, language, false).into());
     main.set_accounts_detail_tone(account_tone(&detail.account).into());
@@ -773,6 +778,103 @@ fn amounts(
     ModelRc::new(VecModel::from(rows))
 }
 
+/// The badge fields that the Slint row and card structs carry.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct BadgeFields {
+    pub logo: String,
+    pub letters: String,
+    pub colour: i32,
+}
+
+impl BadgeFields {
+    pub(crate) fn empty() -> Self {
+        Self {
+            logo: String::new(),
+            letters: String::new(),
+            colour: 0,
+        }
+    }
+
+    fn for_name(name: &str, blz: Option<&str>, bic: Option<&str>) -> Self {
+        let monogram = monogram(name);
+        Self {
+            logo: bank_logo(name, blz, bic)
+                .map(|logo| logo.id().to_owned())
+                .unwrap_or_default(),
+            letters: monogram.letters,
+            colour: i32::from(monogram.colour),
+        }
+    }
+}
+
+/// The bank connection of an account, when it has one.
+fn bank_for<'a>(state: &'a AccountsState, account: &AccountItem) -> Option<&'a BankAccessItem> {
+    account
+        .bank_access_id
+        .and_then(|id| state.bank_accesses.iter().find(|bank| bank.id == id))
+}
+
+/// The badge of an account: from its connection, or from its German IBAN's bank directory entry.
+pub(crate) fn account_badge(account: &AccountItem, bank: Option<&BankAccessItem>) -> BadgeFields {
+    if let Some(bank) = bank {
+        // Offline connections have no BLZ or BIC, so they match by name only.
+        let (blz, bic) = if bank.offline {
+            (None, None)
+        } else {
+            (
+                Some(bank.blz.as_str()).filter(|blz| !blz.trim().is_empty()),
+                bank.bic.as_deref().filter(|bic| !bic.trim().is_empty()),
+            )
+        };
+        return BadgeFields::for_name(&bank.bank_name, blz, bic);
+    }
+    if !account.bank_name.trim().is_empty() {
+        // Offline accounts match by name only; their bank connection has no BLZ or BIC.
+        return BadgeFields::for_name(&account.bank_name, None, None);
+    }
+    let Some(blz) = iban_blz(&account.iban) else {
+        return BadgeFields::empty();
+    };
+    match BankDirectory::bundled().lookup(&blz) {
+        Some(entry) => BadgeFields::for_name(&entry.name, Some(&blz), Some(&entry.bic)),
+        None => BadgeFields::empty(),
+    }
+}
+
+/// The BLZ from a German IBAN (characters 5-12), when the identifier is a German IBAN.
+fn iban_blz(iban: &str) -> Option<String> {
+    let chars: Vec<char> = iban.chars().filter(|character| !character.is_whitespace()).collect();
+    if chars.len() < 12 || chars[0] != 'D' || chars[1] != 'E' {
+        return None;
+    }
+    let blz: String = chars[4..12].iter().collect();
+    if blz.chars().all(|character| character.is_ascii_digit()) {
+        Some(blz)
+    } else {
+        None
+    }
+}
+
+/// The badge of a group row, but only when every account in it stands for the same bank.
+fn group_badge(state: &AccountsState, group: &AccountGroupView) -> BadgeFields {
+    if matches!(group.key, GroupKey::Custom(_)) {
+        return BadgeFields::empty();
+    }
+    let mut first: Option<BadgeFields> = None;
+    for grouping in &group.accounts {
+        let Some(account) = state.accounts.iter().find(|account| account.id == grouping.id) else {
+            continue;
+        };
+        let badge = account_badge(account, bank_for(state, account));
+        match &first {
+            Some(existing) if *existing != badge => return BadgeFields::empty(),
+            Some(_) => {}
+            None => first = Some(badge),
+        }
+    }
+    first.unwrap_or_else(BadgeFields::empty)
+}
+
 pub(crate) fn bank_cards(state: &AccountsState, language: Language) -> Vec<AccountsBankCard> {
     let mut cards = Vec::new();
     for bank in &state.bank_accesses {
@@ -786,6 +888,8 @@ pub(crate) fn bank_cards(state: &AccountsState, language: Language) -> Vec<Accou
             BankCardSource {
                 bank_id: bank.id.0,
                 name: &bank.bank_name,
+                blz: &bank.blz,
+                bic: bank.bic.as_deref(),
                 subtitle: bank_subtitle(bank, language),
                 central_blz_hint: central_blz_hint(bank, language),
                 offline: bank.offline,
@@ -807,6 +911,8 @@ pub(crate) fn bank_cards(state: &AccountsState, language: Language) -> Vec<Accou
             BankCardSource {
                 bank_id: -1,
                 name: i18n::text(language, Key::AccountsWithoutBank),
+                blz: "",
+                bic: None,
                 subtitle: String::new(),
                 central_blz_hint: String::new(),
                 offline: false,
@@ -823,6 +929,8 @@ pub(crate) fn bank_cards(state: &AccountsState, language: Language) -> Vec<Accou
 struct BankCardSource<'a> {
     bank_id: i64,
     name: &'a str,
+    blz: &'a str,
+    bic: Option<&'a str>,
     subtitle: String,
     central_blz_hint: String,
     offline: bool,
@@ -836,8 +944,21 @@ fn bank_card(state: &AccountsState, source: BankCardSource<'_>, language: Langua
     let rows = source
         .accounts
         .iter()
-        .map(|account| bank_account_row(account, language))
+        .map(|account| bank_account_row(state, account, language))
         .collect::<Vec<BankAccountRow>>();
+    let badge = if source.bank_id < 0 {
+        // The card groups accounts from several banks, so it has no single badge.
+        BadgeFields::empty()
+    } else if source.offline {
+        // Offline connections have no BLZ or BIC, so they match by name only.
+        BadgeFields::for_name(source.name, None, None)
+    } else {
+        BadgeFields::for_name(
+            source.name,
+            Some(source.blz).filter(|blz| !blz.trim().is_empty()),
+            source.bic.filter(|bic| !bic.trim().is_empty()),
+        )
+    };
 
     AccountsBankCard {
         bank_id: id_i32(source.bank_id),
@@ -855,6 +976,9 @@ fn bank_card(state: &AccountsState, source: BankCardSource<'_>, language: Langua
         sync_tooltip: "".into(),
         pin_text: "".into(),
         menu: ModelRc::new(VecModel::from(Vec::<crate::BankMenuItem>::new())),
+        logo: badge.logo.into(),
+        logo_letters: badge.letters.into(),
+        logo_colour: badge.colour,
     }
 }
 
@@ -899,7 +1023,8 @@ fn central_blz_hint(bank: &BankAccessItem, language: Language) -> String {
     }
 }
 
-fn bank_account_row(account: &AccountItem, language: Language) -> BankAccountRow {
+fn bank_account_row(state: &AccountsState, account: &AccountItem, language: Language) -> BankAccountRow {
+    let badge = account_badge(account, bank_for(state, account));
     BankAccountRow {
         account_id: id_i32(account.id.0),
         name: account_label(account, language).into(),
@@ -907,6 +1032,9 @@ fn bank_account_row(account: &AccountItem, language: Language) -> BankAccountRow
         balance_text: format::money(account.balance, language, false).into(),
         tone: account_tone(account).into(),
         new_count: i32::try_from(account.new_count).unwrap_or(i32::MAX),
+        logo: badge.logo.into(),
+        logo_letters: badge.letters.into(),
+        logo_colour: badge.colour,
     }
 }
 
@@ -935,6 +1063,9 @@ fn panel_rows(state: &AccountsState, language: Language) -> Vec<AccountPanelRow>
         new_count: i32::try_from(all_new).unwrap_or(i32::MAX),
         totals: amounts(&state.grand_total, &all_accounts, language, state.grand_total.len() > 1),
         indent: false,
+        logo: "".into(),
+        logo_letters: "".into(),
+        logo_colour: 0,
     }];
 
     for group in &state.groups {
@@ -965,6 +1096,7 @@ fn panel_rows(state: &AccountsState, language: Language) -> Vec<AccountPanelRow>
         } else {
             String::new()
         };
+        let badge = group_badge(state, group);
 
         rows.push(AccountPanelRow {
             kind: "group".into(),
@@ -981,6 +1113,9 @@ fn panel_rows(state: &AccountsState, language: Language) -> Vec<AccountPanelRow>
             new_count: i32::try_from(group.new_count).unwrap_or(i32::MAX),
             totals: amounts(&group.totals, &group.accounts, language, false),
             indent: false,
+            logo: badge.logo.into(),
+            logo_letters: badge.letters.into(),
+            logo_colour: badge.colour,
         });
 
         if collapsed {
@@ -1015,6 +1150,7 @@ fn panel_account_row(
         .last_update
         .map(|updated| i18n::format(language, Key::LastFetched, &[Arg::from(format::date(updated.date()))]))
         .unwrap_or_default();
+    let badge = account_badge(full, bank_for(state, full));
 
     AccountPanelRow {
         kind: "account".into(),
@@ -1034,6 +1170,9 @@ fn panel_account_row(
             tone: account_group_tone(group, account.balance.currency).into(),
         }])),
         indent: true,
+        logo: badge.logo.into(),
+        logo_letters: badge.letters.into(),
+        logo_colour: badge.colour,
     }
 }
 
@@ -1429,6 +1568,89 @@ mod tests {
         assert_eq!(cards[1].bank_id, -1);
         assert_eq!(cards[1].name, i18n::text(Language::En, Key::AccountsWithoutBank));
         assert_eq!(model_rows(&cards[1].accounts).len(), 1);
+    }
+
+    #[test]
+    fn bank_badges_follow_the_connection_and_the_iban_directory() {
+        let mut sparkasse = bank(8, "Sparkasse", false);
+        sparkasse.blz = "37040044".to_owned();
+        sparkasse.bic = Some("COLSDE33XXX".to_owned());
+        let dkb = bank(9, "DKB MAM & Sarah", true);
+        let norwegian = bank(10, "Bank Norwegian", true);
+        let state = state_with(
+            vec![
+                account(
+                    1,
+                    Some("Girokonto"),
+                    "DE89370400440532013001",
+                    Some(sparkasse.id),
+                    "checking",
+                    Currency::EUR,
+                    100,
+                    None,
+                    0,
+                ),
+                account(
+                    2,
+                    Some("Haushalt"),
+                    "DE02120300000000202051",
+                    Some(dkb.id),
+                    "checking",
+                    Currency::EUR,
+                    200,
+                    None,
+                    0,
+                ),
+                account(
+                    3,
+                    Some("Karte"),
+                    "DE02120300000000202051",
+                    Some(norwegian.id),
+                    "credit_card",
+                    Currency::EUR,
+                    300,
+                    None,
+                    0,
+                ),
+                account(
+                    4,
+                    Some("Ohne Bank"),
+                    "DE02120300000000202051",
+                    None,
+                    "loan",
+                    Currency::EUR,
+                    400,
+                    None,
+                    0,
+                ),
+            ],
+            vec![sparkasse, dkb, norwegian],
+            vec![],
+        );
+
+        let cards = bank_cards(&state, Language::En);
+        let sparkasse_card = cards.iter().find(|card| card.bank_id == 8).unwrap();
+        assert_eq!(sparkasse_card.logo, "sparkasse");
+        assert_eq!(sparkasse_card.logo_letters, "SP");
+        assert_eq!(model_rows(&sparkasse_card.accounts)[0].logo, "sparkasse");
+
+        let dkb_card = cards.iter().find(|card| card.bank_id == 9).unwrap();
+        assert_eq!(dkb_card.logo, "dkb");
+        assert_eq!(dkb_card.logo_letters, "DKB");
+
+        let norwegian_card = cards.iter().find(|card| card.bank_id == 10).unwrap();
+        assert_eq!(norwegian_card.logo, "", "offline banks match by name only");
+        assert_eq!(norwegian_card.logo_letters, "BN");
+
+        let without_bank = cards.iter().find(|card| card.bank_id == -1).unwrap();
+        assert_eq!(without_bank.logo, "", "a mixed card has no single bank");
+        let row = &model_rows(&without_bank.accounts)[0];
+        assert_eq!(row.logo, "dkb", "the account falls back to its IBAN's BLZ");
+
+        let rows = panel_rows(&state, Language::En);
+        let panel_account = rows.iter().find(|row| row.kind == "account" && row.id == 1).unwrap();
+        assert_eq!(panel_account.logo, "sparkasse");
+        assert_eq!(panel_account.logo_letters, "SP");
     }
 
     #[test]

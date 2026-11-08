@@ -9,6 +9,7 @@ import {
     AccountsFigure,
     AccountTone,
     BankAccountRow,
+    BankBadge,
     BankMenuItem,
     CountBadge,
     IconButton,
@@ -374,6 +375,13 @@ component BankAccountView inherits Rectangle {
                 spacing: 8px;
                 cross-axis-alignment: center;
 
+                BankBadge {
+                    logo: root.account.logo;
+                    letters: root.account.logo-letters;
+                    colour-index: root.account.logo-colour;
+                    size: 24px;
+                }
+
                 VerticalLayout {
                     horizontal-stretch: 1;
                     alignment: center;
@@ -604,6 +612,13 @@ component BankCardView inherits Rectangle {
                 Tooltip {
                     text: @markdown("\{root.chevron-label}");
                 }
+            }
+
+            BankBadge {
+                logo: root.card.logo;
+                letters: root.card.logo-letters;
+                colour-index: root.card.logo-colour;
+                size: 32px;
             }
 
             VerticalLayout {
@@ -851,6 +866,9 @@ export component AccountsPage inherits Rectangle {
 
     in property <bool> detail-open;
     in property <string> detail-title;
+    in property <string> detail-logo;
+    in property <string> detail-letters;
+    in property <int> detail-colour;
     in property <string> detail-subtitle;
     in property <string> detail-balance;
     in property <string> detail-tone;
@@ -1282,12 +1300,25 @@ export component AccountsPage inherits Rectangle {
                     padding: 24px;
                     spacing: 12px;
 
-                Text {
-                    text: root.detail-title;
-                    color: Theme.text;
-                    font-size: Type.title-large-size;
-                    font-weight: Type.title-large-weight;
-                    wrap: word-wrap;
+                HorizontalLayout {
+                    spacing: 12px;
+                    cross-axis-alignment: center;
+
+                    BankBadge {
+                        logo: root.detail-logo;
+                        letters: root.detail-letters;
+                        colour-index: root.detail-colour;
+                        size: 40px;
+                    }
+
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.detail-title;
+                        color: Theme.text;
+                        font-size: Type.title-large-size;
+                        font-weight: Type.title-large-weight;
+                        wrap: word-wrap;
+                    }
                 }
 
                 HorizontalLayout {

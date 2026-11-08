@@ -10,6 +10,7 @@ pub mod audit;
 pub mod backup;
 pub mod balance;
 pub mod bank_directory;
+pub mod bank_logo;
 pub mod bank_text;
 pub mod dashboard;
 pub mod db;
