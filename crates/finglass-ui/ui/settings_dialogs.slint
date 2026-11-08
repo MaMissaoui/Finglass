@@ -1,7 +1,7 @@
-import { CheckBox, ComboBox, LineEdit, ScrollView, Spinner } from "std-widgets.slint";
+import { ScrollView, Spinner } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
-import { PrimaryButton, TextButton } from "components.slint";
+import { Checkbox, OutlinedField, PrimaryButton, SelectPill, TextButton } from "components.slint";
 import { ColourSwatch } from "models.slint";
 
 // A modal confirmation with a title, a body and two actions.
@@ -10,6 +10,7 @@ export component ConfirmDialog inherits Rectangle {
     in property <string> text;
     in property <string> confirm-text;
     in property <bool> busy: false;
+    in property <bool> destructive: true;
 
     callback confirm;
     callback cancel;
@@ -23,20 +24,18 @@ export component ConfirmDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 12px;
+            spacing: 16px;
 
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
                 wrap: word-wrap;
             }
 
@@ -49,18 +48,19 @@ export component ConfirmDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: root.confirm-text;
-                    enabled: !root.busy;
-                    clicked => { root.confirm(); }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     enabled: !root.busy;
                     clicked => { root.cancel(); }
+                }
+
+                PrimaryButton {
+                    text: root.confirm-text;
+                    enabled: !root.busy;
+                    destructive: root.destructive;
+                    clicked => { root.confirm(); }
                 }
             }
         }
@@ -92,29 +92,22 @@ export component CategoryDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
             }
 
-            Text {
-                text: Tr.t("Name");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("Name");
                 text <=> root.name;
                 edited(value) => { root.changed(value, root.colour); }
                 accepted(value) => { root.save(); }
@@ -141,34 +134,21 @@ export component CategoryDialog inherits Rectangle {
                 }
             }
 
-            Text {
-                text: Tr.t("MonthlyBudgetOptional");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("MonthlyBudgetOptional");
                 text <=> root.budget;
                 edited(value) => { root.changed(root.name, root.colour); }
                 accepted(value) => { root.save(); }
             }
 
-            HorizontalLayout {
-                spacing: 8px;
-                alignment: start;
-                CheckBox {
-                    checked <=> root.tax-relevant;
-                    text: Tr.t("TaxRelevantHint");
-                }
+            Checkbox {
+                checked <=> root.tax-relevant;
+                text: Tr.t("TaxRelevantHint");
             }
 
-            HorizontalLayout {
-                spacing: 8px;
-                alignment: start;
-                CheckBox {
-                    checked <=> root.transfer;
-                    text: Tr.t("CategoryIsTransfer");
-                }
+            Checkbox {
+                checked <=> root.transfer;
+                text: Tr.t("CategoryIsTransfer");
             }
 
             Text {
@@ -187,16 +167,16 @@ export component CategoryDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("Save");
-                    clicked => { root.save(); }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     clicked => { root.close(); }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    clicked => { root.save(); }
                 }
             }
         }
@@ -226,6 +206,26 @@ export component RuleDialog inherits Rectangle {
     // Fired whenever the pattern or priority changes, so the host can re-run validate_rule.
     callback changed(string, string);
 
+    function category-value() -> string {
+        return root.category-index >= 0 && root.category-index < root.categories.length
+                ? root.categories[root.category-index] : "";
+    }
+
+    function field-value() -> string {
+        return root.field-index >= 0 && root.field-index < root.field-options.length
+                ? root.field-options[root.field-index] : "";
+    }
+
+    function direction-value() -> string {
+        return root.direction-index >= 0 && root.direction-index < root.direction-options.length
+                ? root.direction-options[root.direction-index] : "";
+    }
+
+    function tax-value() -> string {
+        return root.tax-index >= 0 && root.tax-index < root.tax-options.length
+                ? root.tax-options[root.tax-index] : "";
+    }
+
     width: 100%;
     height: 100%;
     background: #00000080;
@@ -235,95 +235,85 @@ export component RuleDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
             }
 
-            Text {
-                text: Tr.t("PatternExample");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("PatternExample");
                 text <=> root.pattern;
                 edited(value) => { root.changed(value, root.priority); }
                 accepted(value) => { root.save(); }
             }
 
-            Text {
-                text: Tr.t("ColCategory");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            ComboBox {
-                model: root.categories;
-                current-index <=> root.category-index;
+            HorizontalLayout {
+                alignment: start;
+
+                SelectPill {
+                    label-prefix: Tr.t("ColCategory") + ": ";
+                    value: root.category-value();
+                    options: root.categories;
+                    chosen(index) => { root.category-index = index; }
+                }
             }
 
             if (!root.pattern-and-category-only) : VerticalLayout {
-                spacing: 10px;
+                spacing: 16px;
 
-                Text {
-                    text: Tr.t("RuleSearchIn");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-                ComboBox {
-                    model: root.field-options;
-                    current-index <=> root.field-index;
-                    selected(value) => { root.changed(root.pattern, root.priority); }
-                }
+                HorizontalLayout {
+                    alignment: start;
 
-                Text {
-                    text: Tr.t("RuleAppliesTo");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-                ComboBox {
-                    model: root.direction-options;
-                    current-index <=> root.direction-index;
+                    SelectPill {
+                        label-prefix: Tr.t("RuleSearchIn") + ": ";
+                        value: root.field-value();
+                        options: root.field-options;
+                        chosen(index) => {
+                            root.field-index = index;
+                            root.changed(root.pattern, root.priority);
+                        }
+                    }
                 }
 
-                Text {
-                    text: Tr.t("TaxMenu");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
-                }
-                ComboBox {
-                    model: root.tax-options;
-                    current-index <=> root.tax-index;
+                HorizontalLayout {
+                    alignment: start;
+
+                    SelectPill {
+                        label-prefix: Tr.t("RuleAppliesTo") + ": ";
+                        value: root.direction-value();
+                        options: root.direction-options;
+                        chosen(index) => { root.direction-index = index; }
+                    }
                 }
 
-                Text {
-                    text: Tr.t("Priority");
-                    color: Theme.text;
-                    font-size: Type.label-size;
-                    font-weight: Type.label-weight;
+                HorizontalLayout {
+                    alignment: start;
+
+                    SelectPill {
+                        label-prefix: Tr.t("TaxMenu") + ": ";
+                        value: root.tax-value();
+                        options: root.tax-options;
+                        chosen(index) => { root.tax-index = index; }
+                    }
                 }
-                LineEdit {
+
+                OutlinedField {
+                    label: Tr.t("Priority");
                     text <=> root.priority;
                     edited(value) => { root.changed(root.pattern, value); }
                     accepted(value) => { root.save(); }
                 }
 
-                CheckBox {
+                Checkbox {
                     checked <=> root.auto-apply;
                     text: Tr.t("ApplyAutomatically");
                 }
@@ -338,16 +328,16 @@ export component RuleDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("Save");
-                    clicked => { root.save(); }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     clicked => { root.close(); }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("Save");
+                    clicked => { root.save(); }
                 }
             }
         }
@@ -372,30 +362,23 @@ export component ProfileNameDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
                 wrap: word-wrap;
             }
 
-            Text {
-                text: Tr.t("ProfileName");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("ProfileName");
                 text <=> root.name;
                 accepted(value) => { root.save(); }
             }
@@ -409,17 +392,17 @@ export component ProfileNameDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
+
+                TextButton {
+                    text: Tr.t("Cancel");
+                    clicked => { root.close(); }
+                }
 
                 PrimaryButton {
                     text: Tr.t("Save");
                     enabled: root.name != "";
                     clicked => { root.save(); }
-                }
-
-                TextButton {
-                    text: Tr.t("Cancel");
-                    clicked => { root.close(); }
                 }
             }
         }
@@ -452,20 +435,18 @@ export component BackupPassphraseDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: Tr.t("BackupPassphraseTitle");
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
                 wrap: word-wrap;
             }
 
@@ -484,40 +465,30 @@ export component BackupPassphraseDialog inherits Rectangle {
                 wrap: word-wrap;
             }
 
-            Text {
-                text: Tr.t("Passphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("Passphrase");
                 enabled: !root.busy;
                 text <=> root.passphrase;
                 input-type: InputType.password;
+                error: root.wrong;
+                supporting-text: root.wrong ? Tr.t("WrongPassphrase") : "";
                 accepted(value) => { root.send(); }
-            }
-
-            if (root.wrong) : Text {
-                text: Tr.t("WrongPassphrase");
-                color: Theme.error;
-                font-size: Type.body-size;
-                wrap: word-wrap;
             }
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("PrepareRestore");
-                    enabled: !root.busy && root.passphrase != "";
-                    clicked => { root.send(); }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     enabled: !root.busy;
                     clicked => { root.close(); }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("PrepareRestore");
+                    enabled: !root.busy && root.passphrase != "";
+                    clicked => { root.send(); }
                 }
             }
         }
@@ -550,20 +521,18 @@ export component FinDeskPassphraseDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: Tr.t("FinDeskPassphraseTitle");
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
                 wrap: word-wrap;
             }
 
@@ -582,40 +551,30 @@ export component FinDeskPassphraseDialog inherits Rectangle {
                 wrap: word-wrap;
             }
 
-            Text {
-                text: Tr.t("Passphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("Passphrase");
                 enabled: !root.busy;
                 text <=> root.passphrase;
                 input-type: InputType.password;
+                error: root.wrong;
+                supporting-text: root.wrong ? Tr.t("WrongPassphrase") : "";
                 accepted(value) => { root.send(); }
-            }
-
-            if (root.wrong) : Text {
-                text: Tr.t("WrongPassphrase");
-                color: Theme.error;
-                font-size: Type.body-size;
-                wrap: word-wrap;
             }
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("Import");
-                    enabled: !root.busy && root.passphrase != "";
-                    clicked => { root.send(); }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     enabled: !root.busy;
                     clicked => { root.close(); }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("Import");
+                    enabled: !root.busy && root.passphrase != "";
+                    clicked => { root.send(); }
                 }
 
                 if (root.busy) : HorizontalLayout {
@@ -647,20 +606,18 @@ export component FinDeskReportDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 12px;
+            spacing: 16px;
 
             Text {
                 text: root.title;
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
                 wrap: word-wrap;
             }
 
@@ -673,7 +630,7 @@ export component FinDeskReportDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
+                alignment: end;
 
                 PrimaryButton {
                     text: Tr.t("Close");
@@ -712,20 +669,18 @@ export component RuleImportDialog inherits Rectangle {
         height: dialog.preferred-height;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        border-radius: 12px;
-        border-width: 1px;
-        border-color: Theme.divider;
+        border-radius: 28px;
         background: Theme.surface;
 
         dialog := VerticalLayout {
             padding: 24px;
-            spacing: 10px;
+            spacing: 16px;
 
             Text {
                 text: Tr.t("RuleImportTitle");
                 color: Theme.text;
-                font-size: Type.title-large-size;
-                font-weight: Type.title-large-weight;
+                font-size: Type.headline-size;
+                font-weight: Type.headline-weight;
             }
 
             ScrollView {
@@ -782,7 +737,7 @@ export component RuleImportDialog inherits Rectangle {
                         wrap: word-wrap;
                     }
 
-                    if (root.show-categorize) : CheckBox {
+                    if (root.show-categorize) : Checkbox {
                         checked <=> root.categorize;
                         text: root.categorize-text;
                     }
@@ -791,18 +746,18 @@ export component RuleImportDialog inherits Rectangle {
 
             HorizontalLayout {
                 spacing: 12px;
-                alignment: start;
-
-                PrimaryButton {
-                    text: Tr.t("Import");
-                    enabled: root.confirm-enabled;
-                    clicked => { root.confirm(); }
-                }
+                alignment: end;
 
                 TextButton {
                     text: Tr.t("Cancel");
                     enabled: !root.busy;
                     clicked => { root.close(); }
+                }
+
+                PrimaryButton {
+                    text: Tr.t("Import");
+                    enabled: root.confirm-enabled;
+                    clicked => { root.confirm(); }
                 }
             }
         }

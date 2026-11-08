@@ -851,6 +851,7 @@ export component TransactionsPage inherits Rectangle {
     in property <string> rule-error;
 
     in property <bool> add-open;
+    in property <bool> add-focus-amount: false;
     in property <[string]> add-account-options;
     in property <int> add-account-index;
     in property <string> add-date;
@@ -1382,6 +1383,7 @@ export component TransactionsPage inherits Rectangle {
         category-names: root.add-category-names;
         amount-label: root.add-amount-label;
         error-text: root.add-error;
+        focus-amount: root.add-focus-amount;
 
         close => { root.close-add(); }
         submit(account-index, expense, date-text, amount-text, partner-text, purpose-text, category-index) => {

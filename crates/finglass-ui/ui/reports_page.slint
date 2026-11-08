@@ -1,7 +1,8 @@
-import { CheckBox, ScrollView, Spinner } from "std-widgets.slint";
+import { ScrollView, Spinner } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
+    Checkbox,
     DashboardCategoryRow,
     MessageBanner,
     ReportAmountRow,
@@ -1258,7 +1259,7 @@ export component ReportsPage inherits Rectangle {
                             }
                         }
 
-                        check := CheckBox {
+                        check := Checkbox {
                             text: Tr.t("MissingReceiptsOnly");
                             checked: root.missing-receipts-only;
                             enabled: !root.busy;

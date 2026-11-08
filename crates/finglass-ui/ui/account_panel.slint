@@ -1,4 +1,4 @@
-import { LineEdit, ScrollView } from "std-widgets.slint";
+import { ScrollView } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
 import {
@@ -8,6 +8,7 @@ import {
     AccountTone,
     ChoiceChip,
     CountBadge,
+    OutlinedField,
     SearchField,
     TextButton,
 } from "components.slint";
@@ -409,13 +410,8 @@ export component AccountPanel inherits Rectangle {
                     font-weight: Type.label-small-weight;
                 }
 
-                Text {
-                    text: Tr.t("GroupName");
-                    color: Theme.muted-text;
-                    font-size: Type.body-small-size;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("GroupName");
                     text <=> root.create-name;
                     accepted(text) => {
                         if (text != "") {
@@ -465,13 +461,8 @@ export component AccountPanel inherits Rectangle {
                     font-weight: Type.label-small-weight;
                 }
 
-                Text {
-                    text: Tr.t("GroupName");
-                    color: Theme.muted-text;
-                    font-size: Type.body-small-size;
-                }
-
-                LineEdit {
+                OutlinedField {
+                    label: Tr.t("GroupName");
                     text <=> root.rename-name;
                     accepted(text) => {
                         if (text != "") {

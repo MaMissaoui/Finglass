@@ -242,6 +242,7 @@ fn configure_startup_error(unlock: &UnlockWindow, paths: &AppPaths, language: La
     unlock.set_error_text(message.into());
     apply_language_unlock(unlock, paths, language, None);
     unlock.set_profile_label("".into());
+    unlock.set_profile_name("".into());
 }
 
 fn configure_main_window(main: &MainWindow, language: Language, restored_from: Option<&Path>) {
@@ -2270,6 +2271,7 @@ fn translate(key: &SharedString, language: &SharedString) -> SharedString {
 fn apply_language_unlock(unlock: &UnlockWindow, paths: &AppPaths, language: Language, slug: Option<&str>) {
     unlock.global::<Tr>().set_language(language.code().into());
     unlock.set_profile_label(profile_label(language, paths, slug).into());
+    unlock.set_profile_name(profile_name(paths, slug).into());
     unlock.set_passphrase_hint(passphrase_hint(language).into());
 }
 
@@ -2322,12 +2324,15 @@ impl HasThemeMode for MainWindow {
 }
 
 fn profile_label(language: Language, paths: &AppPaths, slug: Option<&str>) -> String {
-    let name = profiles::list(paths)
+    i18n::format(language, Key::UnlockProfile, &[profile_name(paths, slug).into()])
+}
+
+fn profile_name(paths: &AppPaths, slug: Option<&str>) -> String {
+    profiles::list(paths)
         .ok()
         .and_then(|profiles| profiles.into_iter().find(|profile| profile.slug.as_deref() == slug))
         .map(|profile| profile.name)
-        .unwrap_or_else(|| app::startup::slug_key(slug).to_owned());
-    i18n::format(language, Key::UnlockProfile, &[name.into()])
+        .unwrap_or_else(|| app::startup::slug_key(slug).to_owned())
 }
 
 fn passphrase_hint(language: Language) -> String {

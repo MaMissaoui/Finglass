@@ -555,6 +555,8 @@ export component MainWindow inherits Window {
     in property <string> transactions-detail-partner-link;
 
     in property <bool> transactions-add-open;
+    /// Focuses the amount field when the add dialog opens; used by the focused-field screenshot.
+    in property <bool> transactions-add-focus-amount;
     in property <[string]> transactions-add-account-options;
     in property <int> transactions-add-account-index;
     in property <string> transactions-add-date;
@@ -1203,9 +1205,9 @@ export component MainWindow inherits Window {
                     }
 
                     if (root.profile-rows.length > 1) : Rectangle {
-                        height: 36px;
+                        height: 40px;
                         width: 180px;
-                        border-radius: 8px;
+                        border-radius: 20px;
                         border-width: 1px;
                         border-color: Theme.divider;
                         background: profile-touch.has-hover || root.profile-menu-open ? Theme.background : Theme.surface;
@@ -1213,7 +1215,7 @@ export component MainWindow inherits Window {
                         accessible-label: Tr.t("SwitchProfileMenu");
 
                         HorizontalLayout {
-                            padding-left: 12px;
+                            padding-left: 16px;
                             padding-right: 10px;
                             alignment: center;
                             cross-axis-alignment: center;
@@ -1221,9 +1223,9 @@ export component MainWindow inherits Window {
 
                             Text {
                                 text: root.current-profile-name;
-                                color: Theme.text;
+                                color: Theme.primary;
                                 font-size: Type.label-size;
-                                font-weight: Type.label-weight;
+                                font-weight: 600;
                                 vertical-alignment: center;
                                 horizontal-stretch: 1;
                                 overflow: elide;
@@ -1232,8 +1234,8 @@ export component MainWindow inherits Window {
                             Image {
                                 width: 18px;
                                 height: 18px;
-                                source: @image-url("icons/arrow_drop_down.svg");
-                                colorize: Theme.muted-text;
+                                source: @image-url("icons/keyboard_arrow_down.svg");
+                                colorize: Theme.primary;
                                 accessible-role: none;
                             }
                         }
@@ -1648,6 +1650,7 @@ export component MainWindow inherits Window {
                 detail-partner-link: root.transactions-detail-partner-link;
 
                 add-open: root.transactions-add-open;
+                add-focus-amount: root.transactions-add-focus-amount;
                 add-account-options: root.transactions-add-account-options;
                 add-account-index: root.transactions-add-account-index;
                 add-date: root.transactions-add-date;

@@ -1,7 +1,7 @@
-import { CheckBox, LineEdit, Spinner } from "std-widgets.slint";
+import { Spinner } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
-import { PrimaryButton, TextButton } from "components.slint";
+import { Checkbox, OutlinedField, PrimaryButton, TextButton } from "components.slint";
 
 // The first-run migration steps: welcome, one step per FinDesk profile and the summary.
 export component MigrationPanel inherits VerticalLayout {
@@ -86,7 +86,7 @@ export component MigrationPanel inherits VerticalLayout {
             wrap: word-wrap;
         }
 
-        CheckBox {
+        Checkbox {
             enabled: !root.busy;
             text: Tr.t("PassphraseNoRecovery");
             checked <=> root.acknowledged;
@@ -135,26 +135,16 @@ export component MigrationPanel inherits VerticalLayout {
             wrap: word-wrap;
         }
 
-        VerticalLayout {
-            spacing: 6px;
-
-            Text {
-                text: Tr.t("MigrationFindeskPassphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
-                enabled: !root.busy;
-                text <=> root.findesk-passphrase;
-                input-type: root.show-passphrase ? InputType.text : InputType.password;
-                edited(text) => { root.passphrase-changed(text); }
-                accepted(text) => { root.submit-profile(); }
-            }
+        OutlinedField {
+            label: Tr.t("MigrationFindeskPassphrase");
+            enabled: !root.busy;
+            text <=> root.findesk-passphrase;
+            input-type: root.show-passphrase ? InputType.text : InputType.password;
+            edited(text) => { root.passphrase-changed(text); }
+            accepted(text) => { root.submit-profile(); }
         }
 
-        CheckBox {
+        Checkbox {
             enabled: !root.busy;
             text: Tr.t("MigrationSamePassphrase");
             checked <=> root.same-passphrase;
@@ -163,28 +153,16 @@ export component MigrationPanel inherits VerticalLayout {
         if (root.new-passphrase-required || !root.same-passphrase) : VerticalLayout {
             spacing: 6px;
 
-            Text {
-                text: Tr.t("NewPassphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("NewPassphrase");
                 enabled: !root.busy;
                 text <=> root.new-passphrase;
                 input-type: root.show-passphrase ? InputType.text : InputType.password;
                 accepted(text) => { root.submit-profile(); }
             }
 
-            Text {
-                text: Tr.t("RepeatPassphrase");
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-            }
-
-            LineEdit {
+            OutlinedField {
+                label: Tr.t("RepeatPassphrase");
                 enabled: !root.busy;
                 text <=> root.repeat;
                 input-type: root.show-passphrase ? InputType.text : InputType.password;
@@ -192,7 +170,7 @@ export component MigrationPanel inherits VerticalLayout {
             }
         }
 
-        CheckBox {
+        Checkbox {
             enabled: !root.busy;
             text: Tr.t("ShowPassphrase");
             checked <=> root.show-passphrase;

@@ -1,7 +1,7 @@
-import { CheckBox, LineEdit, Spinner } from "std-widgets.slint";
+import { Spinner } from "std-widgets.slint";
 import { Theme, Type } from "theme.slint";
 import { Tr } from "translations.slint";
-import { PrimaryButton, TextButton } from "components.slint";
+import { Checkbox, OutlinedField, PrimaryButton, TextButton } from "components.slint";
 import { MigrationPanel } from "migration.slint";
 
 // Port of FinDesk's UnlockScreen without its encrypt-plaintext mode: a new profile chooses a
@@ -10,6 +10,7 @@ import { MigrationPanel } from "migration.slint";
 export component UnlockWindow inherits Window {
     in property <string> mode: "unlock";
     in property <string> profile-label;
+    in property <string> profile-name;
     in property <[string]> leftover-lines;
     in property <string> passphrase-hint;
     in property <bool> busy;
@@ -174,10 +175,38 @@ export component UnlockWindow inherits Window {
                         wrap: word-wrap;
                     }
 
-                    if (root.profile-label != "") : Text {
-                        text: root.profile-label;
-                        color: Theme.muted-text;
-                        font-size: Type.body-size;
+                    if (root.profile-name != "") : HorizontalLayout {
+                        alignment: start;
+
+                        Rectangle {
+                            height: 28px;
+                            width: chip-content.preferred-width;
+                            border-radius: 14px;
+                            background: Theme.selected;
+
+                            chip-content := HorizontalLayout {
+                                padding-left: 10px;
+                                padding-right: 12px;
+                                spacing: 6px;
+                                cross-axis-alignment: center;
+
+                                Image {
+                                    width: 16px;
+                                    height: 16px;
+                                    source: @image-url("icons/person.svg");
+                                    colorize: Theme.on-selected;
+                                    accessible-role: none;
+                                }
+
+                                Text {
+                                    text: root.profile-name;
+                                    color: Theme.on-selected;
+                                    font-size: Type.label-size;
+                                    font-weight: Type.label-weight;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
                     }
 
                     Text {
@@ -223,55 +252,34 @@ export component UnlockWindow inherits Window {
                     if (!root.startup-error) : VerticalLayout {
                         spacing: 12px;
 
-                        if (root.mode == "change") : VerticalLayout {
-                            spacing: 6px;
-                            Text {
-                                text: Tr.t("CurrentPassphrase");
-                                color: Theme.text;
-                                font-size: Type.label-size;
-                                font-weight: Type.label-weight;
-                            }
-                            LineEdit {
-                                enabled: !root.busy;
-                                text <=> root.current;
-                                input-type: root.show-passphrase ? InputType.text : InputType.password;
-                                accepted(text) => { root.submit(); }
-                            }
+                        if (root.mode == "change") : OutlinedField {
+                            label: Tr.t("CurrentPassphrase");
+                            enabled: !root.busy;
+                            text <=> root.current;
+                            input-type: root.show-passphrase ? InputType.text : InputType.password;
+                            error: root.error-text != "";
+                            accepted(text) => { root.submit(); }
                         }
 
-                        VerticalLayout {
-                            spacing: 6px;
-                            Text {
-                                text: root.mode == "unlock" ? Tr.t("Passphrase") : Tr.t("NewPassphrase");
-                                color: Theme.text;
-                                font-size: Type.label-size;
-                                font-weight: Type.label-weight;
-                            }
-                            LineEdit {
-                                enabled: !root.busy;
-                                text <=> root.passphrase;
-                                input-type: root.show-passphrase ? InputType.text : InputType.password;
-                                accepted(text) => { root.submit(); }
-                            }
+                        OutlinedField {
+                            label: root.mode == "unlock" ? Tr.t("Passphrase") : Tr.t("NewPassphrase");
+                            enabled: !root.busy;
+                            text <=> root.passphrase;
+                            input-type: root.show-passphrase ? InputType.text : InputType.password;
+                            error: root.error-text != "";
+                            accepted(text) => { root.submit(); }
                         }
 
-                        if (root.mode != "unlock") : VerticalLayout {
-                            spacing: 6px;
-                            Text {
-                                text: Tr.t("RepeatPassphrase");
-                                color: Theme.text;
-                                font-size: Type.label-size;
-                                font-weight: Type.label-weight;
-                            }
-                            LineEdit {
-                                enabled: !root.busy;
-                                text <=> root.repeat;
-                                input-type: root.show-passphrase ? InputType.text : InputType.password;
-                                accepted(text) => { root.submit(); }
-                            }
+                        if (root.mode != "unlock") : OutlinedField {
+                            label: Tr.t("RepeatPassphrase");
+                            enabled: !root.busy;
+                            text <=> root.repeat;
+                            input-type: root.show-passphrase ? InputType.text : InputType.password;
+                            error: root.error-text != "";
+                            accepted(text) => { root.submit(); }
                         }
 
-                        CheckBox {
+                        Checkbox {
                             enabled: !root.busy;
                             text: Tr.t("ShowPassphrase");
                             checked <=> root.show-passphrase;
@@ -291,7 +299,7 @@ export component UnlockWindow inherits Window {
                             wrap: word-wrap;
                         }
 
-                        if (root.mode != "unlock") : CheckBox {
+                        if (root.mode != "unlock") : Checkbox {
                             enabled: !root.busy;
                             text: Tr.t("PassphraseNoRecovery");
                             checked <=> root.acknowledged;
@@ -329,16 +337,24 @@ export component UnlockWindow inherits Window {
                             }
                         }
 
-                        if (root.mode == "unlock" && root.allow-change) : TextButton {
-                            text: Tr.t("ChangePassphrase");
-                            enabled: !root.busy;
-                            clicked => { root.show-change(true); }
+                        if (root.mode == "unlock" && root.allow-change) : HorizontalLayout {
+                            alignment: start;
+
+                            TextButton {
+                                text: Tr.t("ChangePassphrase");
+                                enabled: !root.busy;
+                                clicked => { root.show-change(true); }
+                            }
                         }
 
-                        if (root.mode == "change") : TextButton {
-                            text: Tr.t("Back");
-                            enabled: !root.busy;
-                            clicked => { root.show-change(false); }
+                        if (root.mode == "change") : HorizontalLayout {
+                            alignment: start;
+
+                            TextButton {
+                                text: Tr.t("Back");
+                                enabled: !root.busy;
+                                clicked => { root.show-change(false); }
+                            }
                         }
                     }
 
