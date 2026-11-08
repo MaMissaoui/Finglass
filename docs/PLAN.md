@@ -216,6 +216,9 @@ Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
       and the Back trail (#67); bank logos (#68). Released as v0.2.1.
 - [x] After a review with real data: the real-data screenshot mode (#72); layout bugs with real-sized data (#73);
       German amounts as "2.450,37 €" (#76). Released as v0.2.2.
+- [x] The "Kontoauszug, modern" restyle (`docs/design.md`): design tokens (#79); palette, selection, amount
+      colours and shapes (#81); the Dashboard's month statement (#82); page details (#83). The Mac installer
+      installs the latest release (#80). Released as v0.3.0.
 
 ## Done
 
