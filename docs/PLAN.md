@@ -225,6 +225,8 @@ Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
 - [x] After 0.3.1: the carry-forward for every month (#88); one type and colour scale on every screen (#89).
       Released as v0.3.2.
 - [x] After 0.3.2: account panel rows keep their height when the list is short (#91). Released as v0.3.3.
+- [x] After 0.3.3: validated category palette, the tax card as a split bar, capped bars, budget fill fix, balance
+      end dots (#93). Released as v0.3.4.
 
 ## Done
 
