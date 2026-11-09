@@ -142,10 +142,16 @@ component PanelRowView inherits Rectangle {
     property <bool> actions-open: false;
     property <bool> has-menu: root.item.new-count > 0 || root.item.kind == "account" || (root.item.kind == "group" && root.item.group-kind == "custom");
 
+    // The panel's short list must keep every row at its natural height instead of sharing out the
+    // free space below it.
+    vertical-stretch: 0;
     background: transparent;
 
     VerticalLayout {
         spacing: 0px;
+        // A row may still grow for a second currency line, but the free space of a short panel stays
+        // below the last row.
+        alignment: start;
 
         if (root.group-gap) : Rectangle {
             height: 12px;
@@ -156,6 +162,11 @@ component PanelRowView inherits Rectangle {
             // Account rows are 52 px high and hold two lines: the name and the masked account
             // number. The last-fetched note moved to the row's tooltip.
             min-height: root.item.kind == "account" ? 52px : 36px;
+            // Pin the row to its content's preferred height; two currency lines make that taller.
+            max-height: max(
+                root.item.kind == "account" ? 52px : 36px,
+                row-content.preferred-height,
+            );
             background: root.item.selected ? Theme.selected : (touch.has-hover ? Theme.background : transparent);
 
             // The row's own click target sits below the chevron and the menu button.
@@ -175,7 +186,7 @@ component PanelRowView inherits Rectangle {
                 background: Theme.primary;
             }
 
-            HorizontalLayout {
+            row-content := HorizontalLayout {
                 padding-left: 12px;
                 padding-right: 12px;
                 padding-top: 8px;
@@ -405,6 +416,8 @@ export component AccountPanel inherits Rectangle {
 
             VerticalLayout {
                 spacing: 0px;
+                // The rows keep their natural height; a short list leaves the free space below it.
+                alignment: start;
 
                 for panel-row[index] in root.rows : PanelRowView {
                     item: panel-row;
