@@ -1335,6 +1335,8 @@ export component AccountsPage inherits Rectangle {
                 detail-content := VerticalLayout {
                     padding: 24px;
                     spacing: 12px;
+                    // A short detail keeps its booking rows at their natural height.
+                    alignment: start;
 
                 HorizontalLayout {
                     spacing: 12px;

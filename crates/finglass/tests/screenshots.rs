@@ -4,7 +4,7 @@
 //! software window for rendering.
 
 use std::cell::{Cell, RefCell};
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -1764,6 +1764,60 @@ fn renders_the_app_shell() {
         (1440, 900),
         |_| {},
     );
+
+    // Every group collapsed and "All accounts" selected: a short panel list must keep its rows at
+    // their natural height instead of stretching one row over the panel's free space.
+    {
+        let mut panel_state = transactions_en.clone();
+        panel_state.selection = app::AccountSelection::All;
+        panel_state.account_id = None;
+        panel_state.collapsed = panel_state
+            .groups
+            .iter()
+            .map(|group| group.key.id())
+            .collect::<BTreeSet<_>>();
+        assert!(!panel_state.groups.is_empty(), "the panel fixture has groups");
+        assert!(
+            panel_state
+                .groups
+                .iter()
+                .all(|group| panel_state.collapsed.contains(&group.key.id())),
+            "every panel group is collapsed"
+        );
+
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Dark, "transactions", &[]);
+        ui.set_transactions_show_panel(true);
+        // Draw the panel with its groups open first, then collapse them, as a user does: the list
+        // shrinks below the panel's height after it has been taller.
+        let mut expanded = panel_state.clone();
+        expanded.collapsed = BTreeSet::new();
+        transactions_page::apply(&ui, &expanded);
+        ui.show().unwrap();
+        let _ = render(&window, "transactions-panel-expanded-en-dark", 1440, 1000);
+        transactions_page::apply(&ui, &panel_state);
+
+        let rows = ui.get_transactions_panel_rows();
+        assert_eq!(
+            rows.row_count(),
+            panel_state.groups.len() + 1,
+            "the panel shows only All accounts and the collapsed group headers"
+        );
+        let rows: Vec<_> = rows.iter().collect();
+        assert!(
+            rows.iter().any(|row| row.kind == "all" && row.selected),
+            "All accounts is the selected panel row"
+        );
+        assert!(
+            rows.iter()
+                .all(|row| row.kind == "all" || (row.kind == "group" && row.collapsed)),
+            "every other panel row is a collapsed group header"
+        );
+
+        let buffer = render(&window, "transactions-panel-collapsed-en-dark", 1440, 1000);
+        assert_varied(&buffer, "transactions-panel-collapsed-en-dark");
+        let _ = ui.hide();
+    }
 
     // A pointer move over the first booking paints the row hover tint. The window is sized first so
     // the pointer event hits the laid-out row, then the first draw of this window includes the hover.

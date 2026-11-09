@@ -384,6 +384,8 @@ component SettingsSectionList inherits VerticalLayout {
     width: 320px;
     padding: 8px;
     spacing: 4px;
+    // The nine section rows keep their 48 px height; free space stays below the list.
+    alignment: start;
 
     for index in SettingsSections.indices : SettingsSectionRow {
         index: index;
