@@ -913,6 +913,9 @@ export component AccountsPage inherits Rectangle {
     in property <string> detail-path;
     in property <string> detail-axis-top;
     in property <string> detail-axis-bottom;
+    in property <float> detail-end-x;
+    in property <float> detail-end-y;
+    in property <string> detail-end-label;
     in property <[AccountDetailRow]> detail-rows;
 
     callback open-add-bank;
@@ -1427,14 +1430,45 @@ export component AccountsPage inherits Rectangle {
                     }
 
                     Rectangle {
+                        // The paths keep their 700 × 200 viewbox's aspect ratio and sit centred; the end dot
+                        // uses the same fit.
+                        property <float> fit: min(self.width / 700px, self.height / 200px);
+                        property <length> dot-x: (self.width - 700px * self.fit) / 2 + root.detail-end-x * 1px * self.fit;
+                        property <length> dot-y: (self.height - 200px * self.fit) / 2 + root.detail-end-y * 1px * self.fit;
+
                         horizontal-stretch: 1;
                         background: transparent;
 
                         Path {
                             commands: root.detail-path;
+                            viewbox-width: 700.0;
+                            viewbox-height: 200.0;
+                            width: 100%;
+                            height: 100%;
                             stroke: Theme.primary;
                             stroke-width: 2px;
                             fill: transparent;
+                        }
+
+                        Rectangle {
+                            // 12 px: an 8 px dot in the line colour inside a 2 px surface ring.
+                            x: parent.dot-x - 6px;
+                            y: parent.dot-y - 6px;
+                            width: 12px;
+                            height: 12px;
+                            border-radius: 6px;
+                            background: Theme.primary;
+                            border-width: 2px;
+                            border-color: Theme.surface;
+                        }
+
+                        Text {
+                            x: max(0px, parent.dot-x + 6px - self.width);
+                            y: parent.dot-y > self.height + 12px ? parent.dot-y - self.height - 8px : parent.dot-y + 8px;
+                            text: root.detail-end-label;
+                            color: Theme.text;
+                            font-size: Type.label-size;
+                            font-weight: Type.label-weight;
                         }
                     }
                 }

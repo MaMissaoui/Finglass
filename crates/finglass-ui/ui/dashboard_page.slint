@@ -6,7 +6,6 @@ import {
     DashboardCategoryRow,
     DashboardMonthBar,
     DashboardStatementLine,
-    DashboardTaxSlice,
     DashboardTransactionRow,
     DashboardUpcomingRow,
     IconButton,
@@ -14,7 +13,7 @@ import {
     PrimaryButton,
     TextButton,
 } from "components.slint";
-import { CategorySplit, IncomeExpenseChart, TaxDonut } from "charts.slint";
+import { CategorySplit, IncomeExpenseChart } from "charts.slint";
 
 // A dashboard card: a surface with a hairline outline and a heading.
 component Card inherits Rectangle {
@@ -355,10 +354,11 @@ component BudgetRow inherits Rectangle {
             clip: true;
 
             Rectangle {
+                x: 0px;
                 width: parent.width * root.budget.ratio;
                 height: parent.height;
                 border-radius: Radius.dot;
-                background: root.budget.over || root.budget.warning ? Theme.caution : root.budget.colour;
+                background: root.budget.over || root.budget.warning ? Theme.caution : Theme.primary;
             }
 
             Rectangle {
@@ -614,7 +614,7 @@ export component DashboardPage inherits Rectangle {
     in property <string> tax-title;
     in property <string> tax-hint;
     in property <string> tax-value;
-    in property <[DashboardTaxSlice]> tax-slices;
+    in property <[DashboardCategoryRow]> tax-rows;
 
     in property <string> upcoming-title;
     in property <[DashboardUpcomingRow]> upcoming-rows;
@@ -836,6 +836,7 @@ export component DashboardPage inherits Rectangle {
                             income-label: root.income-legend;
                             expenses-label: root.expenses-legend;
                             partial-note: root.partial-note;
+                            so-far-text: Tr.t("ChartSoFar");
                         }
                     }
                 }
@@ -872,16 +873,23 @@ export component DashboardPage inherits Rectangle {
                         interactive: true;
                         clicked => { root.open-tax(); }
 
-                        if (root.tax-slices.length == 0) : Text {
+                        if (root.tax-rows.length > 0) : Text {
+                            text: root.tax-value;
+                            color: Theme.text;
+                            font-size: Type.headline-size;
+                            font-weight: Type.headline-weight;
+                        }
+
+                        if (root.tax-rows.length == 0) : Text {
                             text: root.tax-hint;
                             color: Theme.muted-text;
                             font-size: Type.body-size;
                             wrap: word-wrap;
                         }
 
-                        if (root.tax-slices.length > 0) : TaxDonut {
-                            slices: root.tax-slices;
-                            total-text: root.tax-value;
+                        if (root.tax-rows.length > 0) : CategorySplit {
+                            rows: root.tax-rows;
+                            selectable: false;
                         }
                     }
                 }

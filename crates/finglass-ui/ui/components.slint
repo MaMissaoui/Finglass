@@ -16,6 +16,9 @@ export struct DashboardCategoryRow {
 // One month of the dashboard's income-vs-expenses chart.
 export struct DashboardMonthBar {
     label: string,
+    title: string,
+    income-text: string,
+    expenses-text: string,
     income-fraction: float,
     expenses-fraction: float,
     partial: bool,
@@ -58,13 +61,6 @@ export struct DashboardStatementLine {
     kind: string,
 }
 
-// One arc of the dashboard's tax donut.
-export struct DashboardTaxSlice {
-    label: string,
-    amount-text: string,
-    colour: color,
-    arc: string,
-}
 
 // One labelled amount row of the Reports page.
 export struct ReportAmountRow {

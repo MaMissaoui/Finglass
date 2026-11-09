@@ -298,22 +298,27 @@ fn renders_the_app_shell() {
         ui.show().unwrap();
         let buffer = render(&window, "dashboard-de-light", 1440, 900);
         assert_varied(&buffer, "dashboard-de-light");
-        // Tall enough to show the tax donut at the bottom of the page, with six slices of very
-        // different sizes: each arc must stay on the ring, not stretch across the chart.
-        ui.set_dashboard_tax_slices(ModelRc::new(VecModel::from(donut_slices(
-            &[
-                ("Steuern", 5_200.0, "#03A9F4"),
-                ("Versicherungen", 1_400.0, "#E91E63"),
-                ("Bildung", 1_100.0, "#9C27B0"),
-                ("Energie", 1_000.0, "#FF9800"),
-                ("Telefon", 600.0, "#7B1FA2"),
-                ("Sonstige", 100.0, "#9E9E9E"),
-            ],
-            Language::De,
-        ))));
-        ui.set_dashboard_tax_value("9.400,00\u{a0}€".into());
+        // Tall enough to show the tax card's split at the bottom of the page.
         let buffer = render(&window, "dashboard-full-de-light", 1440, 1800);
         assert_varied(&buffer, "dashboard-full-de-light");
+        let _ = ui.hide();
+    }
+
+    // Hovering a month shows the chart's band and its income/expenses tooltip.
+    {
+        let mut dashboard = DashboardState::new(Language::En, today);
+        dashboard.load(&db, today).unwrap();
+        let ui = MainWindow::new().unwrap();
+        configure_main(&ui, Language::En, ThemePref::Light, "dashboard", &rows);
+        apply_dashboard(&ui, &dashboard);
+        ui.show().unwrap();
+
+        window.set_size(PhysicalSize::new(1440, 1000));
+        window.dispatch_event(slint::platform::WindowEvent::PointerMoved {
+            position: slint::LogicalPosition { x: 1300.0, y: 650.0 },
+        });
+        let buffer = render(&window, "dashboard-chart-hover-en-light", 1440, 1000);
+        assert_varied(&buffer, "dashboard-chart-hover-en-light");
         let _ = ui.hide();
     }
 
@@ -4022,11 +4027,11 @@ fn apply_dashboard(ui: &MainWindow, state: &DashboardState) {
     );
 
     if let Some(view) = &state.view {
-        apply_dashboard_view(ui, view, state.language);
+        apply_dashboard_view(ui, view);
     }
 }
 
-fn apply_dashboard_view(ui: &MainWindow, view: &DashboardView, language: Language) {
+fn apply_dashboard_view(ui: &MainWindow, view: &DashboardView) {
     ui.set_dashboard_month_label(view.month_label.clone().into());
     ui.set_dashboard_previous_enabled(view.previous_enabled);
     ui.set_dashboard_next_enabled(view.next_enabled);
@@ -4077,7 +4082,7 @@ fn apply_dashboard_view(ui: &MainWindow, view: &DashboardView, language: Languag
     ui.set_dashboard_tax_title(view.tax_title.clone().into());
     ui.set_dashboard_tax_hint(view.tax_hint.clone().into());
     ui.set_dashboard_tax_value(view.tax_value.clone().into());
-    ui.set_dashboard_tax_slices(tax_model(view, language));
+    ui.set_dashboard_tax_rows(category_model(&view.tax_rows));
     ui.set_dashboard_upcoming_title(view.upcoming_title.clone().into());
     ui.set_dashboard_upcoming_rows(upcoming_model(view));
     ui.set_dashboard_has_upcoming(!view.upcoming.is_empty());
@@ -4512,6 +4517,9 @@ fn month_model(view: &DashboardView) -> ModelRc<DashboardMonthBar> {
             .iter()
             .map(|bar| DashboardMonthBar {
                 label: bar.label.clone().into(),
+                title: bar.title.clone().into(),
+                income_text: bar.income_text.clone().into(),
+                expenses_text: bar.expenses_text.clone().into(),
                 income_fraction: bar.income_fraction,
                 expenses_fraction: bar.expenses_fraction,
                 partial: bar.partial,
@@ -4566,58 +4574,6 @@ fn transaction_model(view: &DashboardView) -> ModelRc<DashboardTransactionRow> {
             })
             .collect::<Vec<_>>(),
     ))
-}
-
-fn tax_model(view: &DashboardView, language: Language) -> ModelRc<DashboardTaxSlice> {
-    let mut slices = view.tax_deductions_by_category.clone();
-    if slices.len() > 6 {
-        let rest = slices.split_off(5);
-        let minor: i64 = rest.iter().map(|slice| slice.amount.minor).sum();
-        let currency = rest[0].amount.currency;
-        slices.push(finglass_core::app::CategorySliceView {
-            label: i18n::text(language, Key::ChartOther).to_owned(),
-            amount: Money { minor, currency },
-            color: "#9E9E9E".to_owned(),
-            category_id: None,
-            fraction: 0.0,
-        });
-    }
-
-    let total: i64 = slices.iter().map(|slice| slice.amount.minor).sum();
-    let mut start = -90.0_f32;
-    let rows = slices
-        .into_iter()
-        .map(|slice| {
-            let sweep = if total > 0 {
-                (slice.amount.minor as f32 / total as f32 * 360.0 - 1.0).max(0.5)
-            } else {
-                0.0
-            };
-            let arc = arc_commands(start, sweep);
-            start += slice.amount.minor as f32 / total.max(1) as f32 * 360.0;
-            DashboardTaxSlice {
-                label: slice.label.into(),
-                amount_text: finglass_core::format::money(slice.amount, language, false).into(),
-                colour: color(&slice.color),
-                arc: arc.into(),
-            }
-        })
-        .collect::<Vec<_>>();
-
-    ModelRc::new(VecModel::from(rows))
-}
-
-fn arc_commands(start_degrees: f32, sweep_degrees: f32) -> String {
-    const CENTER: f32 = 80.0;
-    const RADIUS: f32 = 70.0;
-    let start = start_degrees.to_radians();
-    let end = (start_degrees + sweep_degrees).to_radians();
-    let x1 = CENTER + RADIUS * start.cos();
-    let y1 = CENTER + RADIUS * start.sin();
-    let x2 = CENTER + RADIUS * end.cos();
-    let y2 = CENTER + RADIUS * end.sin();
-    let large_arc = if sweep_degrees > 180.0 { 1 } else { 0 };
-    format!("M {x1:.2} {y1:.2} A {RADIUS:.2} {RADIUS:.2} 0 {large_arc} 1 {x2:.2} {y2:.2}")
 }
 
 fn color(hex: &str) -> Color {
@@ -4756,40 +4712,6 @@ fn audit_model(rows: &[app::AuditRow]) -> ModelRc<AuditRow> {
             })
             .collect::<Vec<_>>(),
     ))
-}
-
-/// Donut slices for a screenshot, with the arc maths of the app's tax chart (160 × 160 box,
-/// radius 70, starting at 12 o'clock, a 1° gap between slices).
-fn donut_slices(parts: &[(&str, f32, &str)], language: Language) -> Vec<DashboardTaxSlice> {
-    let total: f32 = parts.iter().map(|part| part.1).sum();
-    let mut start = -90.0_f32;
-    parts
-        .iter()
-        .map(|&(label, amount, hex)| {
-            let sweep = (amount / total * 360.0 - 1.0).max(0.5);
-            let (a, b) = (start.to_radians(), (start + sweep).to_radians());
-            let large = if sweep > 180.0 { 1 } else { 0 };
-            let arc = format!(
-                "M {:.2} {:.2} A 70 70 0 {large} 1 {:.2} {:.2}",
-                80.0 + 70.0 * a.cos(),
-                80.0 + 70.0 * a.sin(),
-                80.0 + 70.0 * b.cos(),
-                80.0 + 70.0 * b.sin()
-            );
-            start += amount / total * 360.0;
-            let value = u32::from_str_radix(hex.trim_start_matches('#'), 16).unwrap();
-            let money = Money {
-                minor: (amount * 100.0).round() as i64,
-                currency: Currency::EUR,
-            };
-            DashboardTaxSlice {
-                label: label.into(),
-                amount_text: format::money(money, language, false).into(),
-                colour: Color::from_rgb_u8((value >> 16) as u8, (value >> 8) as u8, value as u8),
-                arc: arc.into(),
-            }
-        })
-        .collect()
 }
 
 fn render(window: &Rc<MinimalSoftwareWindow>, name: &str, width: u32, height: u32) -> SharedPixelBuffer<Rgb8Pixel> {
@@ -4980,10 +4902,13 @@ fn apply_accounts_detail(ui: &MainWindow, state: &AccountsState, language: Langu
         )
         .into(),
     );
-    let (path, top, bottom) = accounts_balance_path(&detail.history, language);
+    let (path, top, bottom, end_x, end_y, end_label) = accounts_balance_path(&detail.history, language);
     ui.set_accounts_detail_path(path.into());
     ui.set_accounts_detail_axis_top(top.into());
     ui.set_accounts_detail_axis_bottom(bottom.into());
+    ui.set_accounts_detail_end_x(end_x);
+    ui.set_accounts_detail_end_y(end_y);
+    ui.set_accounts_detail_end_label(end_label.into());
     ui.set_accounts_detail_rows(ModelRc::new(VecModel::from(
         detail
             .recent
@@ -5619,15 +5544,17 @@ fn accounts_detail_title(detail: &AccountDetail, language: Language) -> String {
     }
 }
 
-fn accounts_balance_path(history: &[(Date, Money)], language: Language) -> (String, String, String) {
+fn accounts_balance_path(history: &[(Date, Money)], language: Language) -> (String, String, String, f32, f32, String) {
     if history.is_empty() {
-        return (String::new(), String::new(), String::new());
+        return (String::new(), String::new(), String::new(), 0.0, 0.0, String::new());
     }
     let low = history.iter().map(|(_, money)| money.minor).min().unwrap_or_default();
     let high = history.iter().map(|(_, money)| money.minor).max().unwrap_or_default();
     let currency = history[0].1.currency;
     let span = high - low;
     let mut path = String::new();
+    let mut end_x = 0.0_f32;
+    let mut end_y = 0.0_f32;
     for (index, (_, money)) in history.iter().enumerate() {
         let x = if history.len() > 1 {
             index as f32 / (history.len() - 1) as f32 * 700.0
@@ -5640,6 +5567,10 @@ fn accounts_balance_path(history: &[(Date, Money)], language: Language) -> (Stri
             (money.minor - low) as f32 / span as f32
         };
         let y = 6.0 + (1.0 - ratio) * 188.0;
+        if index == history.len() - 1 {
+            end_x = x;
+            end_y = y;
+        }
         if index == 0 {
             path.push_str(&format!("M {x:.2} {y:.2}"));
         } else {
@@ -5654,6 +5585,9 @@ fn accounts_balance_path(history: &[(Date, Money)], language: Language) -> (Stri
         } else {
             format::whole_money(Money { minor: low, currency }, language)
         },
+        end_x,
+        end_y,
+        format::money(history[history.len() - 1].1, language, false),
     )
 }
 

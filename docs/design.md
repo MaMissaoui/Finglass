@@ -1,6 +1,7 @@
 # Finglass design direction: "Kontoauszug, modern"
 
-Approved by the user on 2026-11-08. Finglass first; FinDesk follows in a later, separate change.
+Approved by the user on 2026-11-08. FinDesk has the same direction (its `docs/design.md`); a change to a rule here
+goes there too.
 
 ## Subject
 
@@ -76,6 +77,34 @@ of 40 px outlined round arrows around a 24/600 title.
 Selection normally stays `selected-fill` plus a 3 px petrol bar on the leading edge. Settings section rows are the
 exception: an 8 px `selected-accent` tint with ink text and no bar. The main sidebar keeps the phase 1 style
 (neutral fill plus bar). Destructive icons in slate; alert only on hover and in the confirmation.
+
+## Charts
+
+Charts follow the same roles; colour is chosen by the job it does, and the palette is checked with a validator, not
+by eye.
+
+- **Forms.** Part-to-whole (spending by category, tax-deductible by category) is `CategorySplit`: a thin 8 px bar,
+  fully rounded, 2 px gaps between segments, and one row per category in the same order (dot, name, share, amount),
+  extra categories folded into a muted "more" row in `divider`. No donuts. Income against expenses is
+  `IncomeExpenseChart`; a balance over time is the balance line (Transactions, account detail). A single number is a
+  figure, not a chart.
+- **Marks.** Bars at most 24 px wide, a 4 px rounded data end and a square base, 2 px between neighbours. Lines 2 px
+  with an 8 px end dot in a 2 px surface ring and the last value as a direct label. Area fills a flat 10 % wash.
+  Gridlines and axes 1 px hairlines in `divider`. Axis labels use one money format per axis (whole euros, `€0` too)
+  and are never clipped. The balance paths keep their 700 × 200 viewbox's aspect ratio; anything placed on them uses
+  the same fit.
+- **Colour.** Income bars `chart-in`, expense bars `chart-out`, balance lines `primary`. Categories wear their own
+  colour on marks only; text stays ink or slate. Budget meters show state: `primary`, `caution` when over or ahead of
+  the month, filled from the left.
+- **Category palette.** `repo::categories::COLORS` is 24 colours: six hues (orange, blue, yellow, magenta, violet,
+  aqua) in four tones, ordered so neighbours differ in hue. In that order it passes the checks in light and dark:
+  every colour in the lightness band and above the chroma floor, worst neighbouring pair ΔE 9.6 for colour-blind
+  readers and 16.2 for full colour vision. One aqua is below 3:1 on white, which the rows' names and values make up
+  for. Green and red are not category colours, because they mean money in and alert. Users can still pick any
+  colour, and existing categories keep theirs. Within a chart, segments are ordered by amount, so any two colours can
+  end up side by side; the gaps and the labelled rows carry identity.
+- **Hover.** The income/expense chart shows a band and a tooltip (inverse surface, 8 px radius) for the hovered
+  month; every value is also readable without it (the Reports tables, direct labels).
 
 ## The signature element
 

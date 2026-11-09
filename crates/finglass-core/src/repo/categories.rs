@@ -10,32 +10,36 @@ use crate::money::{Currency, Money};
 
 use super::{RepoError, Result, from_int_bool, id_and_name, id_only, in_conn, to_int_bool};
 
-/// The 24-colour category palette, in display order, ported from FinDesk's `DefaultCategories.colors`.
+/// The 24-colour category palette, in display order: six hues in four tones.
+///
+/// Neighbours differ in hue, and every colour sits in the lightness band that works on both the
+/// light and the dark surface. Green and red are left out on purpose: green means money in, red means
+/// an alert.
 pub const COLORS: [&str; 24] = [
-    "#FF5722", // Deep Orange
-    "#4CAF50", // Green
-    "#2196F3", // Blue
-    "#FF9800", // Orange
-    "#9C27B0", // Purple
-    "#E91E63", // Pink
-    "#00BCD4", // Cyan
-    "#795548", // Brown
-    "#607D8B", // Blue Grey
-    "#CDDC39", // Lime
-    "#3F51B5", // Indigo
-    "#009688", // Teal
-    "#FFC107", // Amber
-    "#673AB7", // Deep Purple
-    "#8BC34A", // Light Green
-    "#03A9F4", // Light Blue
-    "#AFB42B", // Dark Lime
-    "#880E4F", // Dark Pink
-    "#1A237E", // Dark Indigo
-    "#004D40", // Dark Teal
-    "#BF360C", // Burnt Orange
-    "#33691E", // Dark Green
-    "#F06292", // Light Pink
-    "#A1887F", // Light Brown
+    "#E76530", // orange 4
+    "#4693F3", // blue 4
+    "#C38400", // yellow 4
+    "#D56A93", // magenta 4
+    "#867DFF", // violet 4
+    "#14AC77", // aqua 4
+    "#CF4E12", // orange 2
+    "#2F7DDB", // blue 2
+    "#A77105", // yellow 2
+    "#BD547E", // magenta 2
+    "#7364EC", // violet 2
+    "#029465", // aqua 2
+    "#DB5923", // orange 3
+    "#3B88E7", // blue 3
+    "#B57A03", // yellow 3
+    "#C95F88", // magenta 3
+    "#7C6FF8", // violet 3
+    "#00A06E", // aqua 3
+    "#BE4403", // orange 1
+    "#2170CD", // blue 1
+    "#986603", // yellow 1
+    "#AF4872", // magenta 1
+    "#6857DE", // violet 1
+    "#07865C", // aqua 1
 ];
 
 /// The default categories in display order: name key, colour and transfer flag.
@@ -318,14 +322,10 @@ mod tests {
 
     #[test]
     fn the_palette_stays_in_the_documented_order() {
-        assert_eq!(
-            COLORS[..10].concat(),
-            "#FF5722#4CAF50#2196F3#FF9800#9C27B0#E91E63#00BCD4#795548#607D8B#CDDC39"
-        );
-        assert_eq!(
-            COLORS[10..].concat(),
-            "#3F51B5#009688#FFC107#673AB7#8BC34A#03A9F4#AFB42B#880E4F#1A237E#004D40#BF360C#33691E#F06292#A1887F"
-        );
+        assert_eq!(COLORS[..6].concat(), "#E76530#4693F3#C38400#D56A93#867DFF#14AC77");
+        assert_eq!(COLORS[6..12].concat(), "#CF4E12#2F7DDB#A77105#BD547E#7364EC#029465");
+        assert_eq!(COLORS[12..18].concat(), "#DB5923#3B88E7#B57A03#C95F88#7C6FF8#00A06E");
+        assert_eq!(COLORS[18..].concat(), "#BE4403#2170CD#986603#AF4872#6857DE#07865C");
     }
 
     #[test]
@@ -384,7 +384,7 @@ mod tests {
             .into_iter()
             .find(|category| category.name == "Lebensmittel")
             .unwrap();
-        assert_eq!(groceries.color, "#FF5722");
+        assert_eq!(groceries.color, "#E76530");
     }
 
     #[test]
@@ -429,8 +429,8 @@ mod tests {
 
     #[test]
     fn default_colours_match_localized_default_names() {
-        assert_eq!(default_colour_for("  groceries ", Language::En), Some("#FF5722"));
-        assert_eq!(default_colour_for("Lebensmittel", Language::De), Some("#FF5722"));
+        assert_eq!(default_colour_for("  groceries ", Language::En), Some("#E76530"));
+        assert_eq!(default_colour_for("Lebensmittel", Language::De), Some("#E76530"));
         assert_eq!(default_colour_for("not a default", Language::En), None);
     }
 }

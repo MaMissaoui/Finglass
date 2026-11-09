@@ -10,15 +10,13 @@ use finglass_core::app::dashboard::{
     BalanceTone, DashboardState, DashboardView, StatementLineKind, local_today, month_text,
 };
 use finglass_core::dashboard::YearMonth;
-use finglass_core::i18n::{self, Key, Language};
-use finglass_core::money::Money;
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 use time::Date;
 
 use crate::shell::ShellState;
 use crate::{
-    DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardStatementLine, DashboardTaxSlice,
-    DashboardTransactionRow, DashboardUpcomingRow, MainWindow,
+    DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardStatementLine, DashboardTransactionRow,
+    DashboardUpcomingRow, MainWindow,
 };
 
 /// Applies `state` to the window without touching the database.
@@ -31,11 +29,11 @@ pub fn apply(main: &MainWindow, state: &DashboardState) {
     main.set_dashboard_month_selected(selected_month_index(state));
 
     if let Some(view) = &state.view {
-        apply_view(main, view, state.language);
+        apply_view(main, view);
     }
 }
 
-fn apply_view(main: &MainWindow, view: &DashboardView, language: Language) {
+fn apply_view(main: &MainWindow, view: &DashboardView) {
     main.set_dashboard_month_label(view.month_label.clone().into());
     main.set_dashboard_previous_enabled(view.previous_enabled);
     main.set_dashboard_next_enabled(view.next_enabled);
@@ -84,7 +82,7 @@ fn apply_view(main: &MainWindow, view: &DashboardView, language: Language) {
     main.set_dashboard_tax_title(view.tax_title.clone().into());
     main.set_dashboard_tax_hint(view.tax_hint.clone().into());
     main.set_dashboard_tax_value(view.tax_value.clone().into());
-    main.set_dashboard_tax_slices(tax_model(view, language));
+    main.set_dashboard_tax_rows(category_model(&view.tax_rows));
 
     main.set_dashboard_upcoming_title(view.upcoming_title.clone().into());
     main.set_dashboard_upcoming_rows(upcoming_model(&view.upcoming));
@@ -254,6 +252,9 @@ fn month_model(bars: &[finglass_core::app::dashboard::MonthBarView]) -> ModelRc<
         bars.iter()
             .map(|bar| DashboardMonthBar {
                 label: bar.label.clone().into(),
+                title: bar.title.clone().into(),
+                income_text: bar.income_text.clone().into(),
+                expenses_text: bar.expenses_text.clone().into(),
                 income_fraction: bar.income_fraction,
                 expenses_fraction: bar.expenses_fraction,
                 partial: bar.partial,
@@ -305,59 +306,6 @@ fn transaction_model(rows: &[finglass_core::app::dashboard::TransactionRowView])
             })
             .collect::<Vec<_>>(),
     ))
-}
-
-fn tax_model(view: &DashboardView, language: Language) -> ModelRc<DashboardTaxSlice> {
-    let mut slices = view.tax_deductions_by_category.clone();
-    if slices.len() > 6 {
-        let rest = slices.split_off(5);
-        let minor: i64 = rest.iter().map(|slice| slice.amount.minor).sum();
-        let currency = rest[0].amount.currency;
-        slices.push(finglass_core::app::dashboard::CategorySliceView {
-            label: i18n::text(language, Key::ChartOther).to_owned(),
-            amount: Money { minor, currency },
-            color: "#9E9E9E".to_owned(),
-            category_id: None,
-            fraction: 0.0,
-        });
-    }
-
-    let total: i64 = slices.iter().map(|slice| slice.amount.minor).sum();
-    let mut start = -90.0_f32;
-    let rows = slices
-        .into_iter()
-        .map(|slice| {
-            let sweep = if total > 0 {
-                (slice.amount.minor as f32 / total as f32 * 360.0 - 1.0).max(0.5)
-            } else {
-                0.0
-            };
-            let arc = arc_commands(start, sweep);
-            start += slice.amount.minor as f32 / total.max(1) as f32 * 360.0;
-            DashboardTaxSlice {
-                label: slice.label.into(),
-                amount_text: finglass_core::format::money(slice.amount, language, false).into(),
-                colour: color(&slice.color),
-                arc: arc.into(),
-            }
-        })
-        .collect::<Vec<_>>();
-
-    ModelRc::new(VecModel::from(rows))
-}
-
-/// An SVG arc for a donut segment in the fixed 160 × 160 chart box.
-fn arc_commands(start_degrees: f32, sweep_degrees: f32) -> String {
-    const CENTER: f32 = 80.0;
-    const RADIUS: f32 = 70.0;
-    let start = start_degrees.to_radians();
-    let end = (start_degrees + sweep_degrees).to_radians();
-    let x1 = CENTER + RADIUS * start.cos();
-    let y1 = CENTER + RADIUS * start.sin();
-    let x2 = CENTER + RADIUS * end.cos();
-    let y2 = CENTER + RADIUS * end.sin();
-    let large_arc = if sweep_degrees > 180.0 { 1 } else { 0 };
-    format!("M {x1:.2} {y1:.2} A {RADIUS:.2} {RADIUS:.2} 0 {large_arc} 1 {x2:.2} {y2:.2}")
 }
 
 fn color(hex: &str) -> slint::Color {

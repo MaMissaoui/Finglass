@@ -685,6 +685,9 @@ component BalanceChartCard inherits Rectangle {
     in property <string> axis-end;
     in property <string> value-text;
     in property <bool> not-from-zero;
+    in property <float> end-x;
+    in property <float> end-y;
+    in property <string> end-label;
 
     callback toggle;
 
@@ -784,6 +787,12 @@ component BalanceChartCard inherits Rectangle {
                 spacing: 2px;
 
                 Rectangle {
+                    // The paths keep their 700 × 200 viewbox's aspect ratio and sit centred; the end dot
+                    // uses the same fit.
+                    property <float> fit: min(self.width / 700px, self.height / 200px);
+                    property <length> dot-x: (self.width - 700px * self.fit) / 2 + root.end-x * 1px * self.fit;
+                    property <length> dot-y: (self.height - 200px * self.fit) / 2 + root.end-y * 1px * self.fit;
+
                     vertical-stretch: 1;
                     background: transparent;
                     clip: true;
@@ -810,15 +819,27 @@ component BalanceChartCard inherits Rectangle {
                         fill: transparent;
                     }
 
-                    Text {
-                        x: parent.width - self.width - 4px;
-                        y: 0px;
-                        text: root.value-text;
-                        color: Theme.text;
-                        font-size: Type.label-small-size;
-                        font-weight: Type.label-small-weight;
-                        horizontal-alignment: right;
+                    Rectangle {
+                        // 12 px: an 8 px dot in the line colour inside a 2 px surface ring.
+                        x: parent.dot-x - 6px;
+                        y: parent.dot-y - 6px;
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 6px;
+                        background: Theme.primary;
+                        border-width: 2px;
+                        border-color: Theme.surface;
                     }
+
+                    Text {
+                        x: max(0px, parent.dot-x + 6px - self.width);
+                        y: parent.dot-y > self.height + 12px ? parent.dot-y - self.height - 8px : parent.dot-y + 8px;
+                        text: root.end-label;
+                        color: Theme.text;
+                        font-size: Type.label-size;
+                        font-weight: Type.label-weight;
+                    }
+
                 }
 
                 HorizontalLayout {
@@ -899,6 +920,9 @@ export component TransactionsPage inherits Rectangle {
     in property <string> chart-axis-end;
     in property <string> chart-value;
     in property <bool> chart-not-from-zero;
+    in property <float> chart-end-x;
+    in property <float> chart-end-y;
+    in property <string> chart-end-label;
 
     in property <bool> selection-visible;
     in property <bool> all-selected;
@@ -1488,6 +1512,9 @@ export component TransactionsPage inherits Rectangle {
                 axis-end: root.chart-axis-end;
                 value-text: root.chart-value;
                 not-from-zero: root.chart-not-from-zero;
+                end-x: root.chart-end-x;
+                end-y: root.chart-end-y;
+                end-label: root.chart-end-label;
                 toggle => { root.toggle-chart(); }
             }
         }
