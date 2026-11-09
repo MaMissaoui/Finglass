@@ -180,7 +180,7 @@ fn two_add_default_calls_create_every_category_once() {
 #[test]
 fn the_default_category_list_holds_24_entries_in_palette_order() {
     assert_eq!(repo::categories::ENTRIES.len(), 24);
-    assert_eq!(repo::categories::ENTRIES.first().unwrap().1, "#FF5722");
+    assert_eq!(repo::categories::ENTRIES.first().unwrap().1, "#E76530");
     assert_eq!(
         repo::categories::COLORS.len(),
         24,
@@ -242,8 +242,8 @@ fn the_lowest_id_keeps_its_colour_and_the_others_get_unused_palette_colours() {
         .map(|category| (category.id, category.color.clone()))
         .collect();
     assert_eq!(colors[&first], "#FF5722", "the lowest id keeps the shared colour");
-    assert_eq!(colors[&second], "#4CAF50", "the first unused palette colour");
-    assert_eq!(colors[&third], "#2196F3", "the next unused palette colour");
+    assert_eq!(colors[&second], "#E76530", "the first unused palette colour");
+    assert_eq!(colors[&third], "#4693F3", "the next unused palette colour");
     assert_eq!(colors[&untouched], "#123ABC", "a unique colour is never changed");
     let distinct: BTreeSet<String> = state
         .categories
@@ -378,7 +378,7 @@ fn lower_and_upper_case_hex_count_as_the_same_colour() {
         .map(|category| (category.id, category.color.clone()))
         .collect();
     assert_eq!(colors[&first], "#ff5722", "the lowest id keeps its colour untouched");
-    assert_eq!(colors[&second], "#4CAF50");
+    assert_eq!(colors[&second], "#E76530");
     assert_eq!(
         state.message,
         Some(i18n::format(

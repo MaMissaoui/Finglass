@@ -130,10 +130,13 @@ fn apply_detail(main: &MainWindow, state: &AccountsState, language: Language) {
         .into(),
     );
 
-    let (path, axis_top, axis_bottom) = balance_path(&detail.history, language);
-    main.set_accounts_detail_path(path.into());
-    main.set_accounts_detail_axis_top(axis_top.into());
-    main.set_accounts_detail_axis_bottom(axis_bottom.into());
+    let chart = balance_path(&detail.history, language);
+    main.set_accounts_detail_path(chart.path.into());
+    main.set_accounts_detail_axis_top(chart.axis_top.into());
+    main.set_accounts_detail_axis_bottom(chart.axis_bottom.into());
+    main.set_accounts_detail_end_x(chart.end_x);
+    main.set_accounts_detail_end_y(chart.end_y);
+    main.set_accounts_detail_end_label(chart.end_label.into());
     main.set_accounts_detail_rows(ModelRc::new(VecModel::from(detail_rows(detail, language))));
 }
 
@@ -1220,10 +1223,27 @@ fn detail_title(detail: &AccountDetail, language: Language) -> String {
     }
 }
 
-/// Builds the line path and the two axis labels for the balance history.
-fn balance_path(history: &[(Date, Money)], language: Language) -> (String, String, String) {
+/// The line path, axis labels and end point of one account's balance history.
+struct BalancePath {
+    path: String,
+    axis_top: String,
+    axis_bottom: String,
+    end_x: f32,
+    end_y: f32,
+    end_label: String,
+}
+
+/// Builds the line path, the two axis labels and the last point for the balance history.
+fn balance_path(history: &[(Date, Money)], language: Language) -> BalancePath {
     if history.is_empty() {
-        return (String::new(), String::new(), String::new());
+        return BalancePath {
+            path: String::new(),
+            axis_top: String::new(),
+            axis_bottom: String::new(),
+            end_x: 0.0,
+            end_y: 0.0,
+            end_label: String::new(),
+        };
     }
 
     let low = history.iter().map(|(_, money)| money.minor).min().unwrap_or_default();
@@ -1232,6 +1252,8 @@ fn balance_path(history: &[(Date, Money)], language: Language) -> (String, Strin
     let span = high - low;
 
     let mut path = String::new();
+    let mut end_x = 0.0_f32;
+    let mut end_y = 0.0_f32;
     for (index, (_, money)) in history.iter().enumerate() {
         let x = if history.len() > 1 {
             index as f32 / (history.len() - 1) as f32 * CHART_WIDTH
@@ -1244,6 +1266,10 @@ fn balance_path(history: &[(Date, Money)], language: Language) -> (String, Strin
             (money.minor - low) as f32 / span as f32
         };
         let y = CHART_PADDING + (1.0 - ratio) * (CHART_HEIGHT - 2.0 * CHART_PADDING);
+        if index == history.len() - 1 {
+            end_x = x;
+            end_y = y;
+        }
         if index == 0 {
             path.push_str(&format!("M {x:.2} {y:.2}"));
         } else {
@@ -1260,7 +1286,14 @@ fn balance_path(history: &[(Date, Money)], language: Language) -> (String, Strin
     } else {
         format::whole_money(low_money, language)
     };
-    (path, axis_top, axis_bottom)
+    BalancePath {
+        path,
+        axis_top,
+        axis_bottom,
+        end_x,
+        end_y,
+        end_label: format::money(history[history.len() - 1].1, language, false),
+    }
 }
 
 fn grouping(account: &AccountItem) -> GroupingAccount {
@@ -1848,12 +1881,14 @@ mod tests {
         assert_eq!(rows[0].amount_text, "-€5.00");
         assert!(rows[0].expense);
 
-        let (path, top, bottom) = balance_path(&state.detail.as_ref().unwrap().history, Language::En);
-        assert!(path.starts_with('M'));
-        assert_eq!(path.matches('L').count(), 2);
-        assert_eq!(path.matches('M').count(), 1);
-        assert_eq!(top, "€115");
-        assert_eq!(bottom, "€90");
+        let chart = balance_path(&state.detail.as_ref().unwrap().history, Language::En);
+        assert!(chart.path.starts_with('M'));
+        assert_eq!(chart.path.matches('L').count(), 2);
+        assert_eq!(chart.path.matches('M').count(), 1);
+        assert_eq!(chart.axis_top, "€115");
+        assert_eq!(chart.axis_bottom, "€90");
+        assert_eq!(chart.end_x, CHART_WIDTH);
+        assert_eq!(chart.end_label, "€115.00");
         assert_eq!(
             detail_title(state.detail.as_ref().unwrap(), Language::En),
             "Test Bank · Haushalt"
@@ -1869,15 +1904,19 @@ mod tests {
             (date!(2026 - 09 - 30), money(100, eur)),
         ];
 
-        let (path, top, bottom) = balance_path(&history, Language::De);
+        let chart = balance_path(&history, Language::De);
 
-        assert!(!top.is_empty(), "the flat history still labels its balance");
-        assert_eq!(bottom, "", "a flat history does not repeat the same label");
+        assert!(!chart.axis_top.is_empty(), "the flat history still labels its balance");
+        assert_eq!(chart.axis_bottom, "", "a flat history does not repeat the same label");
         let middle = CHART_PADDING + 0.5 * (CHART_HEIGHT - 2.0 * CHART_PADDING);
         assert!(
-            path.matches(&format!(" {middle:.2}")).count() == history.len(),
-            "the flat line stays in the vertical middle: {path}"
+            chart.path.matches(&format!(" {middle:.2}")).count() == history.len(),
+            "the flat line stays in the vertical middle: {}",
+            chart.path
         );
+        assert_eq!(chart.end_x, CHART_WIDTH);
+        assert_eq!(chart.end_y, middle);
+        assert_eq!(chart.end_label, "1,00\u{a0}€");
     }
 
     #[test]

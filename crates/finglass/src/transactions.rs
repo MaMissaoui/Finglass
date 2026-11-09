@@ -1742,6 +1742,9 @@ fn apply_chart(main: &MainWindow, state: &TransactionsState, language: Language)
     main.set_transactions_chart_axis_end(chart.axis_end.into());
     main.set_transactions_chart_value(chart.value.into());
     main.set_transactions_chart_not_from_zero(chart.not_from_zero);
+    main.set_transactions_chart_end_x(chart.end_x);
+    main.set_transactions_chart_end_y(chart.end_y);
+    main.set_transactions_chart_end_label(chart.end_label.into());
 }
 
 fn apply_selection(main: &MainWindow, state: &TransactionsState, language: Language) {
@@ -2625,6 +2628,9 @@ struct ChartData {
     axis_end: String,
     value: String,
     not_from_zero: bool,
+    end_x: f32,
+    end_y: f32,
+    end_label: String,
 }
 
 fn chart_data(points: &[(Date, Money)], current: Option<Money>, language: Language) -> Option<ChartData> {
@@ -2636,6 +2642,7 @@ fn chart_data(points: &[(Date, Money)], current: Option<Money>, language: Langua
     let currency = points[0].1.currency;
     let span = high - low;
     let mut line = String::new();
+    let mut end_y = 0.0_f32;
     for (index, (_, money)) in points.iter().enumerate() {
         let x = index as f32 / (points.len() - 1) as f32 * CHART_WIDTH;
         let ratio = if span == 0 {
@@ -2644,6 +2651,7 @@ fn chart_data(points: &[(Date, Money)], current: Option<Money>, language: Langua
             (money.minor - low) as f32 / span as f32
         };
         let y = CHART_PADDING + (1.0 - ratio) * (CHART_HEIGHT - 2.0 * CHART_PADDING);
+        end_y = y;
         if index == 0 {
             line.push_str(&format!("M {x:.2} {y:.2}"));
         } else {
@@ -2652,6 +2660,7 @@ fn chart_data(points: &[(Date, Money)], current: Option<Money>, language: Langua
     }
     let area = format!("{line} L {CHART_WIDTH:.2} {CHART_HEIGHT:.2} L 0 {CHART_HEIGHT:.2} Z");
     let middle = points.len() / 2;
+    let last_money = points[points.len() - 1].1;
     Some(ChartData {
         line,
         area,
@@ -2662,6 +2671,9 @@ fn chart_data(points: &[(Date, Money)], current: Option<Money>, language: Langua
         axis_end: format::date(points[points.len() - 1].0),
         value: current.map_or_else(String::new, |balance| format::money(balance, language, false)),
         not_from_zero: low > 0 || high < 0,
+        end_x: CHART_WIDTH,
+        end_y,
+        end_label: format::money(last_money, language, false),
     })
 }
 

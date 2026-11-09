@@ -1,7 +1,7 @@
 import { FlagColours, Radius, Theme, Type } from "theme.slint";
 import { DocumentsPage } from "documents_page.slint";
 import { Tr } from "translations.slint";
-import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardStatementLine, DashboardTaxSlice, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
+import { AccountAmount, AccountDaysChoice, AccountDetailRow, AccountGroupChoice, AccountPanelRow, AccountTypeChoice, AccountsBankCard, AccountsFigure, DashboardBudgetRow, DashboardCategoryRow, DashboardMonthBar, DashboardStatementLine, DashboardTransactionRow, DashboardUpcomingRow, DocumentLinkRow, DocumentRow, IconButton, ImportCsvField, ImportFileRow, ReapplyGroupRow, ReportAmountRow, ReportMonthlyRow, ReportRecurringRow, ReportSuggestionRow, ReportTaxRow, ReportVendorRow, SidebarItem, TextButton, TransactionRow } from "components.slint";
 import { AuditRow, BankingPromptChoice, BankSuggestionRow, CategoryRow, ColourSwatch, ProfileRow, RuleRow } from "models.slint";
 import { DashboardPage } from "dashboard_page.slint";
 import { ReportsPage } from "reports_page.slint";
@@ -326,7 +326,7 @@ export component MainWindow inherits Window {
     in property <string> dashboard-tax-title;
     in property <string> dashboard-tax-hint;
     in property <string> dashboard-tax-value;
-    in property <[DashboardTaxSlice]> dashboard-tax-slices;
+    in property <[DashboardCategoryRow]> dashboard-tax-rows;
 
     in property <string> dashboard-upcoming-title;
     in property <[DashboardUpcomingRow]> dashboard-upcoming-rows;
@@ -459,6 +459,9 @@ export component MainWindow inherits Window {
     in property <string> accounts-detail-path;
     in property <string> accounts-detail-axis-top;
     in property <string> accounts-detail-axis-bottom;
+    in property <float> accounts-detail-end-x;
+    in property <float> accounts-detail-end-y;
+    in property <string> accounts-detail-end-label;
     in property <[AccountDetailRow]> accounts-detail-rows;
 
     // M5c-3 banking: card sync state, the add-online-bank/connection/history forms and the prompt dialogs.
@@ -544,6 +547,9 @@ export component MainWindow inherits Window {
     in property <string> transactions-chart-axis-end;
     in property <string> transactions-chart-value;
     in property <bool> transactions-chart-not-from-zero;
+    in property <float> transactions-chart-end-x;
+    in property <float> transactions-chart-end-y;
+    in property <string> transactions-chart-end-label;
 
     in property <bool> transactions-selection-visible;
     in property <bool> transactions-all-selected;
@@ -1422,7 +1428,7 @@ export component MainWindow inherits Window {
                 tax-title: root.dashboard-tax-title;
                 tax-hint: root.dashboard-tax-hint;
                 tax-value: root.dashboard-tax-value;
-                tax-slices: root.dashboard-tax-slices;
+                tax-rows: root.dashboard-tax-rows;
 
                 upcoming-title: root.dashboard-upcoming-title;
                 upcoming-rows: root.dashboard-upcoming-rows;
@@ -1603,6 +1609,9 @@ export component MainWindow inherits Window {
                 detail-path: root.accounts-detail-path;
                 detail-axis-top: root.accounts-detail-axis-top;
                 detail-axis-bottom: root.accounts-detail-axis-bottom;
+                detail-end-x: root.accounts-detail-end-x;
+                detail-end-y: root.accounts-detail-end-y;
+                detail-end-label: root.accounts-detail-end-label;
                 detail-rows: root.accounts-detail-rows;
 
                 open-add-bank => { root.accounts-open-add-bank(); }
@@ -1701,6 +1710,9 @@ export component MainWindow inherits Window {
                 chart-axis-end: root.transactions-chart-axis-end;
                 chart-value: root.transactions-chart-value;
                 chart-not-from-zero: root.transactions-chart-not-from-zero;
+                chart-end-x: root.transactions-chart-end-x;
+                chart-end-y: root.transactions-chart-end-y;
+                chart-end-label: root.transactions-chart-end-label;
 
                 selection-visible: root.transactions-selection-visible;
                 all-selected: root.transactions-all-selected;

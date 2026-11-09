@@ -1,5 +1,5 @@
 import { Radius, Theme, Type } from "theme.slint";
-import { DashboardCategoryRow, DashboardMonthBar, DashboardTaxSlice } from "components.slint";
+import { DashboardCategoryRow, DashboardMonthBar } from "components.slint";
 
 // The spending split: one horizontal 100% bar and one legend row per category.
 export component CategorySplit inherits Rectangle {
@@ -15,18 +15,18 @@ export component CategorySplit inherits Rectangle {
         spacing: 12px;
 
         Rectangle {
-            height: 12px;
-            border-radius: Radius.small;
+            height: 8px;
+            border-radius: 4px;
             background: Theme.divider;
             clip: true;
 
             HorizontalLayout {
-                spacing: 1px;
+                spacing: 2px;
 
                 for row in root.rows : Rectangle {
                     visible: row.fraction > 0.0;
                     horizontal-stretch: row.fraction;
-                    background: row.colour;
+                    background: row.is-more ? Theme.divider : row.colour;
                 }
             }
         }
@@ -50,7 +50,7 @@ export component CategorySplit inherits Rectangle {
                             width: 10px;
                             height: 10px;
                             border-radius: Radius.bar;
-                            background: row.colour;
+                            background: row.is-more ? Theme.divider : row.colour;
                         }
                     }
 
@@ -124,6 +124,7 @@ export component IncomeExpenseChart inherits Rectangle {
     in property <string> income-label;
     in property <string> expenses-label;
     in property <string> partial-note;
+    in property <string> so-far-text;
 
     background: transparent;
 
@@ -196,28 +197,143 @@ export component IncomeExpenseChart inherits Rectangle {
                     }
 
                     HorizontalLayout {
-                        for bar in root.bars : Rectangle {
+                        for bar[index] in root.bars : Rectangle {
                             horizontal-stretch: 1;
                             background: transparent;
+                            property <length> bar-width: min(parent.width * 0.30, 24px);
+                            property <length> group-width: self.bar-width * 2 + 2px;
 
                             Rectangle {
-                                x: parent.width * 0.16;
-                                width: parent.width * 0.30;
+                                width: parent.width;
+                                height: parent.height;
+                                background: month-touch.has-hover ? Theme.background : transparent;
+                            }
+
+                            Rectangle {
+                                x: (parent.width - parent.group-width) / 2;
+                                width: parent.bar-width;
                                 height: parent.height * bar.income-fraction;
                                 y: parent.height - self.height;
-                                border-radius: Radius.dot;
+                                border-top-left-radius: 4px;
+                                border-top-right-radius: 4px;
+                                border-bottom-left-radius: 0px;
+                                border-bottom-right-radius: 0px;
                                 background: Theme.chart-in;
                                 opacity: bar.partial ? 0.45 : 1.0;
                             }
 
                             Rectangle {
-                                x: parent.width * 0.54;
-                                width: parent.width * 0.30;
+                                x: (parent.width - parent.group-width) / 2 + parent.bar-width + 2px;
+                                width: parent.bar-width;
                                 height: parent.height * bar.expenses-fraction;
                                 y: parent.height - self.height;
-                                border-radius: Radius.dot;
+                                border-top-left-radius: 4px;
+                                border-top-right-radius: 4px;
+                                border-bottom-left-radius: 0px;
+                                border-bottom-right-radius: 0px;
                                 background: Theme.chart-out;
                                 opacity: bar.partial ? 0.45 : 1.0;
+                            }
+
+                            month-touch := TouchArea {
+                                mouse-cursor: pointer;
+                            }
+
+                            Rectangle {
+                                visible: month-touch.has-hover;
+                                width: 176px;
+                                height: tip.preferred-height;
+                                x: index < root.bars.length / 2 ? 0px : parent.width - self.width;
+                                y: 8px;
+                                border-radius: 8px;
+                                background: Theme.text;
+
+                                tip := VerticalLayout {
+                                    padding: 8px;
+                                    spacing: 3px;
+                                    alignment: start;
+
+                                    Text {
+                                        text: bar.title;
+                                        color: Theme.surface;
+                                        font-size: Type.label-small-size;
+                                        font-weight: Type.label-small-weight;
+                                    }
+
+                                    if (bar.partial) : Text {
+                                        text: root.so-far-text;
+                                        color: Theme.surface;
+                                        opacity: 0.75;
+                                        font-size: Type.caption-size;
+                                        font-weight: Type.caption-weight;
+                                    }
+
+                                    HorizontalLayout {
+                                        spacing: 5px;
+                                        alignment: start;
+
+                                        VerticalLayout {
+                                            alignment: center;
+                                            Rectangle {
+                                                width: 7px;
+                                                height: 7px;
+                                                border-radius: Radius.marker;
+                                                background: Theme.chart-in;
+                                            }
+                                        }
+
+                                        Text {
+                                            text: root.income-label;
+                                            color: Theme.surface;
+                                            font-size: Type.caption-size;
+                                            font-weight: Type.caption-weight;
+                                            vertical-alignment: center;
+                                        }
+
+                                        Text {
+                                            text: bar.income-text;
+                                            color: Theme.surface;
+                                            font-size: Type.label-small-size;
+                                            font-weight: Type.label-small-weight;
+                                            horizontal-alignment: right;
+                                            horizontal-stretch: 1;
+                                            vertical-alignment: center;
+                                        }
+                                    }
+
+                                    HorizontalLayout {
+                                        spacing: 5px;
+                                        alignment: start;
+
+                                        VerticalLayout {
+                                            alignment: center;
+                                            Rectangle {
+                                                width: 7px;
+                                                height: 7px;
+                                                border-radius: Radius.marker;
+                                                background: Theme.chart-out;
+                                            }
+                                        }
+
+                                        Text {
+                                            text: root.expenses-label;
+                                            color: Theme.surface;
+                                            font-size: Type.caption-size;
+                                            font-weight: Type.caption-weight;
+                                            vertical-alignment: center;
+                                        }
+
+                                        Text {
+                                            text: bar.expenses-text;
+                                            color: Theme.surface;
+                                            font-size: Type.label-small-size;
+                                            font-weight: Type.label-small-weight;
+                                            horizontal-alignment: right;
+                                            horizontal-stretch: 1;
+                                            vertical-alignment: center;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -288,98 +404,6 @@ export component IncomeExpenseChart inherits Rectangle {
                     text: root.partial-note;
                     color: Theme.muted-text;
                     font-size: Type.body-small-size;
-                    vertical-alignment: center;
-                }
-            }
-        }
-    }
-}
-
-// The tax card's donut: one stroked arc per slice and a legend beside it.
-export component TaxDonut inherits Rectangle {
-    in property <[DashboardTaxSlice]> slices;
-    in property <string> total-text;
-
-    background: transparent;
-
-    HorizontalLayout {
-        spacing: 16px;
-
-        Rectangle {
-            width: 160px;
-            height: 160px;
-            background: transparent;
-
-            // Every path shares the 160 × 160 viewbox. Without it Slint scales each path to its own
-            // bounds, which stretches a short arc across the whole box.
-            Path {
-                width: 160px;
-                height: 160px;
-                viewbox-x: 0;
-                viewbox-y: 0;
-                viewbox-width: 160;
-                viewbox-height: 160;
-                commands: "M 80 10 A 70 70 0 1 1 80 150 A 70 70 0 1 1 80 10";
-                stroke: Theme.divider;
-                stroke-width: 20px;
-                fill: transparent;
-            }
-
-            for slice in root.slices : Path {
-                width: 160px;
-                height: 160px;
-                viewbox-x: 0;
-                viewbox-y: 0;
-                viewbox-width: 160;
-                viewbox-height: 160;
-                commands: slice.arc;
-                stroke: slice.colour;
-                stroke-width: 20px;
-                fill: transparent;
-            }
-
-            Text {
-                text: root.total-text;
-                color: Theme.text;
-                font-size: Type.label-size;
-                font-weight: Type.label-weight;
-                horizontal-alignment: center;
-                vertical-alignment: center;
-            }
-        }
-
-        VerticalLayout {
-            spacing: 6px;
-            horizontal-stretch: 1;
-            alignment: start;
-
-            for slice in root.slices : HorizontalLayout {
-                spacing: 8px;
-
-                VerticalLayout {
-                    alignment: center;
-                    Rectangle {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: Radius.bar;
-                        background: slice.colour;
-                    }
-                }
-
-                Text {
-                    text: slice.label;
-                    color: Theme.text;
-                    font-size: Type.body-small-size;
-                    vertical-alignment: center;
-                    overflow: elide;
-                    horizontal-stretch: 1;
-                }
-
-                Text {
-                    text: slice.amount-text;
-                    color: Theme.text;
-                    font-size: Type.label-small-size;
-                    font-weight: Type.label-small-weight;
                     vertical-alignment: center;
                 }
             }

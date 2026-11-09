@@ -186,10 +186,16 @@ pub struct MonthBarView {
     pub month: u8,
     /// The month's short label for the chart, e.g. "Sep" or "Sept.".
     pub label: String,
+    /// The month and year for the hover tooltip, e.g. "September 2026".
+    pub title: String,
     /// Money in, transfers excluded.
     pub income: Money,
     /// Money out, transfers excluded, as a positive amount.
     pub expenses: Money,
+    /// The signed income amount for the hover tooltip, e.g. "+€2,000.00".
+    pub income_text: String,
+    /// The signed expenses amount for the hover tooltip, e.g. "-€135.00".
+    pub expenses_text: String,
     /// The income bar's share of the chart's top, 0 to 1.
     pub income_fraction: f32,
     /// The expenses bar's share of the chart's top, 0 to 1.
@@ -318,6 +324,8 @@ pub struct DashboardView {
     pub expense_rows: Vec<CategoryRowView>,
     /// Tax-relevant spending by category, raw and complete.
     pub tax_deductions_by_category: Vec<CategorySliceView>,
+    /// The tax card's legend rows, with categories beyond eight folded into "more".
+    pub tax_rows: Vec<CategoryRowView>,
     /// The six months ending with the loaded month.
     pub month_bars: Vec<MonthBarView>,
     /// How far through the loaded month we are, 0 to 1.
@@ -411,6 +419,7 @@ impl DashboardView {
 
         let expense_slices = category_slices(&figures.expenses_by_category, language);
         let tax_slices = category_slices(&figures.tax_deductions_by_category, language);
+        let tax_rows = category_rows(&tax_slices, language);
         let tax_total = sum_money(tax_slices.iter().map(|slice| slice.amount), currency);
         let month_bars = month_bars(&figures.last_months, language);
         let chart_has_data = month_bars
@@ -522,6 +531,7 @@ impl DashboardView {
             expenses_by_category: expense_slices.clone(),
             expense_rows: category_rows(&expense_slices, language),
             tax_deductions_by_category: tax_slices,
+            tax_rows,
             month_bars,
             month_progress: figures.month_progress as f32,
             transfers_this_month: figures.transfers_this_month,
@@ -590,7 +600,7 @@ impl DashboardView {
             } else {
                 axis_label(axis_top_minor / 2, currency, language)
             },
-            chart_axis_zero: axis_label(0, currency, language),
+            chart_axis_zero: axis_zero_label(axis_top_minor, currency, language),
             income_legend: i18n::text(language, Key::ChartIncome).to_owned(),
             expenses_legend: i18n::text(language, Key::ChartExpenses).to_owned(),
             partial_month_note: i18n::text(language, Key::ChartPartialMonthNote).to_owned(),
@@ -840,7 +850,8 @@ fn category_rows(slices: &[CategorySliceView], language: Language) -> Vec<Catego
                 language,
                 false,
             ),
-            color: "#9E9E9E".to_owned(),
+            // The split renders the folded row in the theme's neutral divider colour.
+            color: String::new(),
             category_id: None,
             is_more: true,
             fraction: fraction(rest_total, total),
@@ -863,8 +874,18 @@ fn month_bars(months: &[dashboard::MonthBar], language: Language) -> Vec<MonthBa
             year: bar.year,
             month: bar.month,
             label: month_short_name(language, bar.month).to_owned(),
+            title: month_text(YearMonth::new(bar.year, bar.month), language),
             income: bar.income,
             expenses: bar.expenses,
+            income_text: format::money(bar.income, language, true),
+            expenses_text: format::money(
+                Money {
+                    minor: -bar.expenses.minor.abs(),
+                    currency: bar.expenses.currency,
+                },
+                language,
+                false,
+            ),
             income_fraction: fraction(bar.income.minor, top),
             expenses_fraction: fraction(bar.expenses.minor, top),
             partial: bar.partial,
@@ -899,6 +920,17 @@ fn axis_label(minor: i64, currency: Currency, language: Language) -> String {
         format::money(money, language, false)
     } else {
         format::whole_money(money, language)
+    }
+}
+
+/// The zero label follows the top label's style: whole euros when the axis uses whole euros.
+fn axis_zero_label(top_minor: i64, currency: Currency, language: Language) -> String {
+    let money = Money { minor: 0, currency };
+    let unit = 10_i64.pow(currency.minor_exponent());
+    if top_minor >= 10 * unit {
+        format::whole_money(money, language)
+    } else {
+        format::money(money, language, false)
     }
 }
 
@@ -1511,11 +1543,13 @@ mod tests {
         assert_eq!(view.expense_rows[0].percent_text, "100%");
         assert_eq!(view.tax_total, money(15_000));
         assert_eq!(view.tax_deductions_by_category[0].label, "Donations");
+        assert_eq!(view.tax_rows[0].label, "Donations");
+        assert_eq!(view.tax_rows[0].percent_text, "100%");
         assert!(
             view.available_subtitle.is_empty(),
             "no loan or currency notes in this fixture"
         );
-        assert_eq!(view.chart_axis_zero, "€0.00");
+        assert_eq!(view.chart_axis_zero, "€0");
         assert!(!view.view_all_label.is_empty());
     }
 
