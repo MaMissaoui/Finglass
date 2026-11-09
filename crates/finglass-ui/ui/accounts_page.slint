@@ -1430,17 +1430,17 @@ export component AccountsPage inherits Rectangle {
                     }
 
                     Rectangle {
-                        // The paths keep their 700 × 200 viewbox's aspect ratio and sit centred; the end dot
-                        // uses the same fit.
-                        property <float> fit: min(self.width / 700px, self.height / 200px);
-                        property <length> dot-x: (self.width - 700px * self.fit) / 2 + root.detail-end-x * 1px * self.fit;
-                        property <length> dot-y: (self.height - 200px * self.fit) / 2 + root.detail-end-y * 1px * self.fit;
+                        // The paths stretch their 700 × 200 viewbox over the plot (`fit: fill`); the end dot follows,
+                        // kept inside the plot so neither it nor its label is clipped.
+                        property <length> dot-x: min(root.detail-end-x / 700.0 * self.width, self.width - 6px);
+                        property <length> dot-y: max(6px, min(root.detail-end-y / 200.0 * self.height, self.height - 6px));
 
                         horizontal-stretch: 1;
                         background: transparent;
 
                         Path {
                             commands: root.detail-path;
+                            fit: fill;
                             viewbox-width: 700.0;
                             viewbox-height: 200.0;
                             width: 100%;

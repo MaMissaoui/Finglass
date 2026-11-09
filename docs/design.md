@@ -91,8 +91,8 @@ by eye.
 - **Marks.** Bars at most 24 px wide, a 4 px rounded data end and a square base, 2 px between neighbours. Lines 2 px
   with an 8 px end dot in a 2 px surface ring and the last value as a direct label. Area fills a flat 10 % wash.
   Gridlines and axes 1 px hairlines in `divider`. Axis labels use one money format per axis (whole euros, `€0` too)
-  and are never clipped. The balance paths keep their 700 × 200 viewbox's aspect ratio; anything placed on them uses
-  the same fit.
+  and are never clipped. The balance paths stretch their 700 × 200 viewbox over the plot (`fit: fill`), and the
+  end dot uses the same mapping.
 - **Colour.** Income bars `chart-in`, expense bars `chart-out`, balance lines `primary`. Categories wear their own
   colour on marks only; text stays ink or slate. Budget meters show state: `primary`, `caution` when over or ahead of
   the month, filled from the left.
