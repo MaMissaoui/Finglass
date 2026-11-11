@@ -1,0 +1,108 @@
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* Colour roles from docs/design.md. */
+  --color-ink: #1c2733;
+  --color-slate: #5b6875;
+  --color-paper: #ffffff;
+  --color-desk: #eef1f4;
+  --color-rule: #dde2e7;
+  --color-petrol: #0f6e74;
+  --color-selected-fill: #e4ebef;
+  --color-selected-accent: #dce6ee;
+  --color-control-fill: #e6eaee;
+  --color-control-fill-hover: #e1e6ea;
+  --color-inflow: #1e7b4f;
+  --color-alert: #b3261e;
+  --color-caution: #9a5b00;
+  --color-on-primary: #ffffff;
+
+  /* Type roles. */
+  --font-sans: 'IBM Plex Sans', sans-serif;
+  --type-figure-size: 24px;
+  --type-figure-weight: 600;
+  --type-title-large-size: 20px;
+  --type-title-large-weight: 600;
+  --type-title-medium-size: 16px;
+  --type-title-medium-weight: 600;
+  --type-navigation-size: 16px;
+  --type-navigation-weight: 400;
+  --type-navigation-selected-weight: 600;
+  --type-label-size: 14px;
+  --type-label-weight: 500;
+  --type-body-size: 14px;
+  --type-body-weight: 400;
+  --type-body-small-size: 13px;
+  --type-body-small-weight: 400;
+  --type-label-small-size: 13px;
+  --type-label-small-weight: 500;
+  --type-caption-size: 12px;
+  --type-caption-weight: 500;
+  --type-title-small-weight: 500;
+
+  /* Spacing roles and shape. */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --radius-surface: 8px;
+  --radius-control: 8px;
+
+  font-family: var(--font-sans);
+  font-size: var(--type-body-size);
+  font-weight: var(--type-body-weight);
+  color: var(--color-ink);
+  background: var(--color-desk);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-ink: #e6eaee;
+    --color-slate: #9aa5b1;
+    --color-paper: #1a2129;
+    --color-desk: #11161c;
+    --color-rule: #2c3540;
+    --color-petrol: #4fb3b9;
+    --color-selected-fill: #232d37;
+    --color-selected-accent: #1e3a44;
+    --color-control-fill: #26303a;
+    --color-control-fill-hover: #2f3a45;
+    --color-inflow: #5cc28f;
+    --color-alert: #f2867e;
+    --color-caution: #e0a54a;
+    --color-on-primary: #11161c;
+  }
+}
