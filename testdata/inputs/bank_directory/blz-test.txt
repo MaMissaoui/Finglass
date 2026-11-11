@@ -1,0 +1,8 @@
+123456781Example Bank                                              10115Berlin                                                             EXAMPLEBICX                  
+222222222Extra Branch                                              10115Berlin                                                             EXTRAXXBICX                  
+333333331Deleted Bank                                              10115Berlin                                                             DELETEDBICX        D         
+444444441Second Bank                                               20095Hamburg                                                            SECONDBICXX                  
+803310001Bank München                                              80331München                                                            HYVEDEMMXXX                  
+100208901UniCredit Bank - HypoVereinsbank                          80331München                                                            HYVEDEMMXXX                  
+700202701UniCredit Bank - HypoVereinsbank                          80333München                                                            HYVEDEMMXXX                  
+                                                                                                                                                                       

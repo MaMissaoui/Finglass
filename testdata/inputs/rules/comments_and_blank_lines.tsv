@@ -1,0 +1,9 @@
+# FinDesk rules v1
+
+# a note for the reader
+   
+category	pattern	search_in	applies_to	priority	auto_apply
+
+# not a rule
+Cash	raw cash	any	any	50	true
+Groceries	beispiel markt	any	any	50	true

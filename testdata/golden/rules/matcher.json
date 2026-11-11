@@ -1,0 +1,1622 @@
+{
+  "default_rules": [
+    {
+      "index": 0,
+      "category_id": 1,
+      "category": "Groceries",
+      "pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "field": "any",
+      "direction": "any",
+      "priority": 60
+    },
+    {
+      "index": 1,
+      "category_id": 2,
+      "category": "Housing",
+      "pattern": "vermieter|miete",
+      "field": "any",
+      "direction": "any",
+      "priority": 60
+    },
+    {
+      "index": 2,
+      "category_id": 3,
+      "category": "Energy",
+      "pattern": "stadtwerke|strom",
+      "field": "any",
+      "direction": "any",
+      "priority": 55
+    },
+    {
+      "index": 3,
+      "category_id": 4,
+      "category": "Phone, internet & media",
+      "pattern": "netflix|spotify",
+      "field": "any",
+      "direction": "any",
+      "priority": 50
+    },
+    {
+      "index": 4,
+      "category_id": 5,
+      "category": "Transport",
+      "pattern": "tankstelle|aral|deutsche bahn",
+      "field": "any",
+      "direction": "any",
+      "priority": 50
+    },
+    {
+      "index": 5,
+      "category_id": 6,
+      "category": "Health",
+      "pattern": "apotheke|arzt",
+      "field": "any",
+      "direction": "any",
+      "priority": 50
+    },
+    {
+      "index": 6,
+      "category_id": 7,
+      "category": "Restaurants & cafés",
+      "pattern": "restaurant|café|bistro",
+      "field": "any",
+      "direction": "any",
+      "priority": 45
+    },
+    {
+      "index": 7,
+      "category_id": 8,
+      "category": "Salary",
+      "pattern": "employer gmbh",
+      "field": "partner",
+      "direction": "income",
+      "priority": 80
+    },
+    {
+      "index": 8,
+      "category_id": 9,
+      "category": "Own transfers",
+      "pattern": "erika musterfrau",
+      "field": "partner",
+      "direction": "any",
+      "priority": 70
+    },
+    {
+      "index": 9,
+      "category_id": 10,
+      "category": "Online shopping",
+      "pattern": "paypal",
+      "field": "partner",
+      "direction": "any",
+      "priority": 40
+    },
+    {
+      "index": 10,
+      "category_id": 11,
+      "category": "Groceries",
+      "pattern": "beispiel shop gmbh",
+      "field": "partner",
+      "direction": "any",
+      "priority": 65
+    },
+    {
+      "index": 11,
+      "category_id": 12,
+      "category": "Taxes & fees",
+      "pattern": "spende",
+      "field": "any",
+      "direction": "expense",
+      "priority": 65
+    }
+  ],
+  "bookings": [
+    {
+      "index": 0,
+      "date": "2026-01-01",
+      "amount": "-5.00",
+      "partner_name": "REWE Markt GmbH",
+      "purpose": "Wocheneinkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 1,
+      "date": "2026-02-02",
+      "amount": "-6.00",
+      "partner_name": "EDEKA",
+      "purpose": "Lebensmittel",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 2,
+      "date": "2026-03-03",
+      "amount": "-7.00",
+      "partner_name": "ALDI",
+      "purpose": "Einkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 3,
+      "date": "2026-04-04",
+      "amount": "-8.00",
+      "partner_name": "Bäckerei Schmidt",
+      "purpose": "Brötchen",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 4,
+      "date": "2026-05-05",
+      "amount": "-9.00",
+      "partner_name": "Vermieter",
+      "purpose": "Miete",
+      "shop": null,
+      "selected_index": 1,
+      "selected_pattern": "vermieter|miete",
+      "category_id": 2,
+      "category": "Housing"
+    },
+    {
+      "index": 5,
+      "date": "2026-06-06",
+      "amount": "-10.00",
+      "partner_name": "Stadtwerke Köln",
+      "purpose": "Abschlag Strom",
+      "shop": null,
+      "selected_index": 2,
+      "selected_pattern": "stadtwerke|strom",
+      "category_id": 3,
+      "category": "Energy"
+    },
+    {
+      "index": 6,
+      "date": "2026-07-07",
+      "amount": "-11.00",
+      "partner_name": "Netflix",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 7,
+      "date": "2026-08-08",
+      "amount": "-12.00",
+      "partner_name": "Spotify AB",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 8,
+      "date": "2026-09-09",
+      "amount": "-13.00",
+      "partner_name": "Aral Tankstelle",
+      "purpose": "Tanken",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 9,
+      "date": "2026-10-10",
+      "amount": "-14.00",
+      "partner_name": "Deutsche Bahn",
+      "purpose": "Fahrkarte",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 10,
+      "date": "2026-01-11",
+      "amount": "-15.00",
+      "partner_name": "Apotheke am Markt",
+      "purpose": "Medikamente",
+      "shop": null,
+      "selected_index": 5,
+      "selected_pattern": "apotheke|arzt",
+      "category_id": 6,
+      "category": "Health"
+    },
+    {
+      "index": 11,
+      "date": "2026-02-12",
+      "amount": "-16.00",
+      "partner_name": "Restaurant Zur Post",
+      "purpose": "Abendessen",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 12,
+      "date": "2026-03-13",
+      "amount": "-17.00",
+      "partner_name": "Café de Flore",
+      "purpose": "Frühstück",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 13,
+      "date": "2026-04-14",
+      "amount": "-18.00",
+      "partner_name": "Spende Beispielhilfe",
+      "purpose": "Spende",
+      "shop": null,
+      "selected_index": 11,
+      "selected_pattern": "spende",
+      "category_id": 12,
+      "category": "Taxes & fees"
+    },
+    {
+      "index": 14,
+      "date": "2026-05-15",
+      "amount": "3200.00",
+      "partner_name": "Employer GmbH",
+      "purpose": "Gehalt",
+      "shop": null,
+      "selected_index": 7,
+      "selected_pattern": "employer gmbh",
+      "category_id": 8,
+      "category": "Salary"
+    },
+    {
+      "index": 15,
+      "date": "2026-06-16",
+      "amount": "1500.00",
+      "partner_name": "Erika Musterfrau",
+      "purpose": "Überweisung",
+      "shop": null,
+      "selected_index": 8,
+      "selected_pattern": "erika musterfrau",
+      "category_id": 9,
+      "category": "Own transfers"
+    },
+    {
+      "index": 16,
+      "date": "2026-07-17",
+      "amount": "-21.00",
+      "partner_name": "Beispiel Shop GmbH",
+      "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": null,
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 17,
+      "date": "2026-08-18",
+      "amount": "-22.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": "Beispiel Shop GmbH",
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 18,
+      "date": "2026-09-19",
+      "amount": "-23.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+      "shop": "BEISPIELSHOP",
+      "selected_index": 9,
+      "selected_pattern": "paypal",
+      "category_id": 10,
+      "category": "Online shopping"
+    },
+    {
+      "index": 19,
+      "date": "2026-10-20",
+      "amount": "-24.00",
+      "partner_name": "Unbekannter Laden",
+      "purpose": "Kartenzahlung",
+      "shop": null,
+      "selected_index": null,
+      "selected_pattern": null,
+      "category_id": null,
+      "category": null
+    },
+    {
+      "index": 20,
+      "date": "2026-01-21",
+      "amount": "-25.00",
+      "partner_name": "REWE Markt GmbH",
+      "purpose": "Wocheneinkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 21,
+      "date": "2026-02-22",
+      "amount": "-26.00",
+      "partner_name": "EDEKA",
+      "purpose": "Lebensmittel",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 22,
+      "date": "2026-03-23",
+      "amount": "-27.00",
+      "partner_name": "ALDI",
+      "purpose": "Einkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 23,
+      "date": "2026-04-24",
+      "amount": "-28.00",
+      "partner_name": "Bäckerei Schmidt",
+      "purpose": "Brötchen",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 24,
+      "date": "2026-05-25",
+      "amount": "-29.00",
+      "partner_name": "Vermieter",
+      "purpose": "Miete",
+      "shop": null,
+      "selected_index": 1,
+      "selected_pattern": "vermieter|miete",
+      "category_id": 2,
+      "category": "Housing"
+    },
+    {
+      "index": 25,
+      "date": "2026-06-26",
+      "amount": "-30.00",
+      "partner_name": "Stadtwerke Köln",
+      "purpose": "Abschlag Strom",
+      "shop": null,
+      "selected_index": 2,
+      "selected_pattern": "stadtwerke|strom",
+      "category_id": 3,
+      "category": "Energy"
+    },
+    {
+      "index": 26,
+      "date": "2026-07-27",
+      "amount": "-31.00",
+      "partner_name": "Netflix",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 27,
+      "date": "2026-08-28",
+      "amount": "-32.00",
+      "partner_name": "Spotify AB",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 28,
+      "date": "2026-09-01",
+      "amount": "-33.00",
+      "partner_name": "Aral Tankstelle",
+      "purpose": "Tanken",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 29,
+      "date": "2026-10-02",
+      "amount": "-34.00",
+      "partner_name": "Deutsche Bahn",
+      "purpose": "Fahrkarte",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 30,
+      "date": "2026-01-03",
+      "amount": "-35.00",
+      "partner_name": "Apotheke am Markt",
+      "purpose": "Medikamente",
+      "shop": null,
+      "selected_index": 5,
+      "selected_pattern": "apotheke|arzt",
+      "category_id": 6,
+      "category": "Health"
+    },
+    {
+      "index": 31,
+      "date": "2026-02-04",
+      "amount": "-36.00",
+      "partner_name": "Restaurant Zur Post",
+      "purpose": "Abendessen",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 32,
+      "date": "2026-03-05",
+      "amount": "-37.00",
+      "partner_name": "Café de Flore",
+      "purpose": "Frühstück",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 33,
+      "date": "2026-04-06",
+      "amount": "-38.00",
+      "partner_name": "Spende Beispielhilfe",
+      "purpose": "Spende",
+      "shop": null,
+      "selected_index": 11,
+      "selected_pattern": "spende",
+      "category_id": 12,
+      "category": "Taxes & fees"
+    },
+    {
+      "index": 34,
+      "date": "2026-05-07",
+      "amount": "3200.00",
+      "partner_name": "Employer GmbH",
+      "purpose": "Gehalt",
+      "shop": null,
+      "selected_index": 7,
+      "selected_pattern": "employer gmbh",
+      "category_id": 8,
+      "category": "Salary"
+    },
+    {
+      "index": 35,
+      "date": "2026-06-08",
+      "amount": "1500.00",
+      "partner_name": "Erika Musterfrau",
+      "purpose": "Überweisung",
+      "shop": null,
+      "selected_index": 8,
+      "selected_pattern": "erika musterfrau",
+      "category_id": 9,
+      "category": "Own transfers"
+    },
+    {
+      "index": 36,
+      "date": "2026-07-09",
+      "amount": "-41.00",
+      "partner_name": "Beispiel Shop GmbH",
+      "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": null,
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 37,
+      "date": "2026-08-10",
+      "amount": "-42.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": "Beispiel Shop GmbH",
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 38,
+      "date": "2026-09-11",
+      "amount": "-43.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+      "shop": "BEISPIELSHOP",
+      "selected_index": 9,
+      "selected_pattern": "paypal",
+      "category_id": 10,
+      "category": "Online shopping"
+    },
+    {
+      "index": 39,
+      "date": "2026-10-12",
+      "amount": "-44.00",
+      "partner_name": "Unbekannter Laden",
+      "purpose": "Kartenzahlung",
+      "shop": null,
+      "selected_index": null,
+      "selected_pattern": null,
+      "category_id": null,
+      "category": null
+    },
+    {
+      "index": 40,
+      "date": "2026-01-13",
+      "amount": "-45.00",
+      "partner_name": "REWE Markt GmbH",
+      "purpose": "Wocheneinkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 41,
+      "date": "2026-02-14",
+      "amount": "-46.00",
+      "partner_name": "EDEKA",
+      "purpose": "Lebensmittel",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 42,
+      "date": "2026-03-15",
+      "amount": "-47.00",
+      "partner_name": "ALDI",
+      "purpose": "Einkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 43,
+      "date": "2026-04-16",
+      "amount": "-48.00",
+      "partner_name": "Bäckerei Schmidt",
+      "purpose": "Brötchen",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 44,
+      "date": "2026-05-17",
+      "amount": "-49.00",
+      "partner_name": "Vermieter",
+      "purpose": "Miete",
+      "shop": null,
+      "selected_index": 1,
+      "selected_pattern": "vermieter|miete",
+      "category_id": 2,
+      "category": "Housing"
+    },
+    {
+      "index": 45,
+      "date": "2026-06-18",
+      "amount": "-50.00",
+      "partner_name": "Stadtwerke Köln",
+      "purpose": "Abschlag Strom",
+      "shop": null,
+      "selected_index": 2,
+      "selected_pattern": "stadtwerke|strom",
+      "category_id": 3,
+      "category": "Energy"
+    },
+    {
+      "index": 46,
+      "date": "2026-07-19",
+      "amount": "-51.00",
+      "partner_name": "Netflix",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 47,
+      "date": "2026-08-20",
+      "amount": "-52.00",
+      "partner_name": "Spotify AB",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 48,
+      "date": "2026-09-21",
+      "amount": "-53.00",
+      "partner_name": "Aral Tankstelle",
+      "purpose": "Tanken",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 49,
+      "date": "2026-10-22",
+      "amount": "-54.00",
+      "partner_name": "Deutsche Bahn",
+      "purpose": "Fahrkarte",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 50,
+      "date": "2026-01-23",
+      "amount": "-55.00",
+      "partner_name": "Apotheke am Markt",
+      "purpose": "Medikamente",
+      "shop": null,
+      "selected_index": 5,
+      "selected_pattern": "apotheke|arzt",
+      "category_id": 6,
+      "category": "Health"
+    },
+    {
+      "index": 51,
+      "date": "2026-02-24",
+      "amount": "-56.00",
+      "partner_name": "Restaurant Zur Post",
+      "purpose": "Abendessen",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 52,
+      "date": "2026-03-25",
+      "amount": "-57.00",
+      "partner_name": "Café de Flore",
+      "purpose": "Frühstück",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 53,
+      "date": "2026-04-26",
+      "amount": "-58.00",
+      "partner_name": "Spende Beispielhilfe",
+      "purpose": "Spende",
+      "shop": null,
+      "selected_index": 11,
+      "selected_pattern": "spende",
+      "category_id": 12,
+      "category": "Taxes & fees"
+    },
+    {
+      "index": 54,
+      "date": "2026-05-27",
+      "amount": "3200.00",
+      "partner_name": "Employer GmbH",
+      "purpose": "Gehalt",
+      "shop": null,
+      "selected_index": 7,
+      "selected_pattern": "employer gmbh",
+      "category_id": 8,
+      "category": "Salary"
+    },
+    {
+      "index": 55,
+      "date": "2026-06-28",
+      "amount": "1500.00",
+      "partner_name": "Erika Musterfrau",
+      "purpose": "Überweisung",
+      "shop": null,
+      "selected_index": 8,
+      "selected_pattern": "erika musterfrau",
+      "category_id": 9,
+      "category": "Own transfers"
+    },
+    {
+      "index": 56,
+      "date": "2026-07-01",
+      "amount": "-61.00",
+      "partner_name": "Beispiel Shop GmbH",
+      "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": null,
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 57,
+      "date": "2026-08-02",
+      "amount": "-62.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": "Beispiel Shop GmbH",
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 58,
+      "date": "2026-09-03",
+      "amount": "-63.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+      "shop": "BEISPIELSHOP",
+      "selected_index": 9,
+      "selected_pattern": "paypal",
+      "category_id": 10,
+      "category": "Online shopping"
+    },
+    {
+      "index": 59,
+      "date": "2026-10-04",
+      "amount": "-64.00",
+      "partner_name": "Unbekannter Laden",
+      "purpose": "Kartenzahlung",
+      "shop": null,
+      "selected_index": null,
+      "selected_pattern": null,
+      "category_id": null,
+      "category": null
+    },
+    {
+      "index": 60,
+      "date": "2026-01-05",
+      "amount": "-65.00",
+      "partner_name": "REWE Markt GmbH",
+      "purpose": "Wocheneinkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 61,
+      "date": "2026-02-06",
+      "amount": "-66.00",
+      "partner_name": "EDEKA",
+      "purpose": "Lebensmittel",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 62,
+      "date": "2026-03-07",
+      "amount": "-67.00",
+      "partner_name": "ALDI",
+      "purpose": "Einkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 63,
+      "date": "2026-04-08",
+      "amount": "-68.00",
+      "partner_name": "Bäckerei Schmidt",
+      "purpose": "Brötchen",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 64,
+      "date": "2026-05-09",
+      "amount": "-69.00",
+      "partner_name": "Vermieter",
+      "purpose": "Miete",
+      "shop": null,
+      "selected_index": 1,
+      "selected_pattern": "vermieter|miete",
+      "category_id": 2,
+      "category": "Housing"
+    },
+    {
+      "index": 65,
+      "date": "2026-06-10",
+      "amount": "-70.00",
+      "partner_name": "Stadtwerke Köln",
+      "purpose": "Abschlag Strom",
+      "shop": null,
+      "selected_index": 2,
+      "selected_pattern": "stadtwerke|strom",
+      "category_id": 3,
+      "category": "Energy"
+    },
+    {
+      "index": 66,
+      "date": "2026-07-11",
+      "amount": "-71.00",
+      "partner_name": "Netflix",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 67,
+      "date": "2026-08-12",
+      "amount": "-72.00",
+      "partner_name": "Spotify AB",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 68,
+      "date": "2026-09-13",
+      "amount": "-73.00",
+      "partner_name": "Aral Tankstelle",
+      "purpose": "Tanken",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 69,
+      "date": "2026-10-14",
+      "amount": "-74.00",
+      "partner_name": "Deutsche Bahn",
+      "purpose": "Fahrkarte",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 70,
+      "date": "2026-01-15",
+      "amount": "-75.00",
+      "partner_name": "Apotheke am Markt",
+      "purpose": "Medikamente",
+      "shop": null,
+      "selected_index": 5,
+      "selected_pattern": "apotheke|arzt",
+      "category_id": 6,
+      "category": "Health"
+    },
+    {
+      "index": 71,
+      "date": "2026-02-16",
+      "amount": "-76.00",
+      "partner_name": "Restaurant Zur Post",
+      "purpose": "Abendessen",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 72,
+      "date": "2026-03-17",
+      "amount": "-77.00",
+      "partner_name": "Café de Flore",
+      "purpose": "Frühstück",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 73,
+      "date": "2026-04-18",
+      "amount": "-78.00",
+      "partner_name": "Spende Beispielhilfe",
+      "purpose": "Spende",
+      "shop": null,
+      "selected_index": 11,
+      "selected_pattern": "spende",
+      "category_id": 12,
+      "category": "Taxes & fees"
+    },
+    {
+      "index": 74,
+      "date": "2026-05-19",
+      "amount": "3200.00",
+      "partner_name": "Employer GmbH",
+      "purpose": "Gehalt",
+      "shop": null,
+      "selected_index": 7,
+      "selected_pattern": "employer gmbh",
+      "category_id": 8,
+      "category": "Salary"
+    },
+    {
+      "index": 75,
+      "date": "2026-06-20",
+      "amount": "1500.00",
+      "partner_name": "Erika Musterfrau",
+      "purpose": "Überweisung",
+      "shop": null,
+      "selected_index": 8,
+      "selected_pattern": "erika musterfrau",
+      "category_id": 9,
+      "category": "Own transfers"
+    },
+    {
+      "index": 76,
+      "date": "2026-07-21",
+      "amount": "-81.00",
+      "partner_name": "Beispiel Shop GmbH",
+      "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": null,
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 77,
+      "date": "2026-08-22",
+      "amount": "-82.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": "Beispiel Shop GmbH",
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 78,
+      "date": "2026-09-23",
+      "amount": "-83.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+      "shop": "BEISPIELSHOP",
+      "selected_index": 9,
+      "selected_pattern": "paypal",
+      "category_id": 10,
+      "category": "Online shopping"
+    },
+    {
+      "index": 79,
+      "date": "2026-10-24",
+      "amount": "-84.00",
+      "partner_name": "Unbekannter Laden",
+      "purpose": "Kartenzahlung",
+      "shop": null,
+      "selected_index": null,
+      "selected_pattern": null,
+      "category_id": null,
+      "category": null
+    },
+    {
+      "index": 80,
+      "date": "2026-01-25",
+      "amount": "-85.00",
+      "partner_name": "REWE Markt GmbH",
+      "purpose": "Wocheneinkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 81,
+      "date": "2026-02-26",
+      "amount": "-86.00",
+      "partner_name": "EDEKA",
+      "purpose": "Lebensmittel",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 82,
+      "date": "2026-03-27",
+      "amount": "-87.00",
+      "partner_name": "ALDI",
+      "purpose": "Einkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 83,
+      "date": "2026-04-28",
+      "amount": "-88.00",
+      "partner_name": "Bäckerei Schmidt",
+      "purpose": "Brötchen",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 84,
+      "date": "2026-05-01",
+      "amount": "-89.00",
+      "partner_name": "Vermieter",
+      "purpose": "Miete",
+      "shop": null,
+      "selected_index": 1,
+      "selected_pattern": "vermieter|miete",
+      "category_id": 2,
+      "category": "Housing"
+    },
+    {
+      "index": 85,
+      "date": "2026-06-02",
+      "amount": "-90.00",
+      "partner_name": "Stadtwerke Köln",
+      "purpose": "Abschlag Strom",
+      "shop": null,
+      "selected_index": 2,
+      "selected_pattern": "stadtwerke|strom",
+      "category_id": 3,
+      "category": "Energy"
+    },
+    {
+      "index": 86,
+      "date": "2026-07-03",
+      "amount": "-91.00",
+      "partner_name": "Netflix",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 87,
+      "date": "2026-08-04",
+      "amount": "-92.00",
+      "partner_name": "Spotify AB",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 88,
+      "date": "2026-09-05",
+      "amount": "-93.00",
+      "partner_name": "Aral Tankstelle",
+      "purpose": "Tanken",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 89,
+      "date": "2026-10-06",
+      "amount": "-94.00",
+      "partner_name": "Deutsche Bahn",
+      "purpose": "Fahrkarte",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 90,
+      "date": "2026-01-07",
+      "amount": "-5.00",
+      "partner_name": "Apotheke am Markt",
+      "purpose": "Medikamente",
+      "shop": null,
+      "selected_index": 5,
+      "selected_pattern": "apotheke|arzt",
+      "category_id": 6,
+      "category": "Health"
+    },
+    {
+      "index": 91,
+      "date": "2026-02-08",
+      "amount": "-6.00",
+      "partner_name": "Restaurant Zur Post",
+      "purpose": "Abendessen",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 92,
+      "date": "2026-03-09",
+      "amount": "-7.00",
+      "partner_name": "Café de Flore",
+      "purpose": "Frühstück",
+      "shop": null,
+      "selected_index": 6,
+      "selected_pattern": "restaurant|café|bistro",
+      "category_id": 7,
+      "category": "Restaurants & cafés"
+    },
+    {
+      "index": 93,
+      "date": "2026-04-10",
+      "amount": "-8.00",
+      "partner_name": "Spende Beispielhilfe",
+      "purpose": "Spende",
+      "shop": null,
+      "selected_index": 11,
+      "selected_pattern": "spende",
+      "category_id": 12,
+      "category": "Taxes & fees"
+    },
+    {
+      "index": 94,
+      "date": "2026-05-11",
+      "amount": "3200.00",
+      "partner_name": "Employer GmbH",
+      "purpose": "Gehalt",
+      "shop": null,
+      "selected_index": 7,
+      "selected_pattern": "employer gmbh",
+      "category_id": 8,
+      "category": "Salary"
+    },
+    {
+      "index": 95,
+      "date": "2026-06-12",
+      "amount": "1500.00",
+      "partner_name": "Erika Musterfrau",
+      "purpose": "Überweisung",
+      "shop": null,
+      "selected_index": 8,
+      "selected_pattern": "erika musterfrau",
+      "category_id": 9,
+      "category": "Own transfers"
+    },
+    {
+      "index": 96,
+      "date": "2026-07-13",
+      "amount": "-11.00",
+      "partner_name": "Beispiel Shop GmbH",
+      "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": null,
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 97,
+      "date": "2026-08-14",
+      "amount": "-12.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "shop": "Beispiel Shop GmbH",
+      "selected_index": 10,
+      "selected_pattern": "beispiel shop gmbh",
+      "category_id": 11,
+      "category": "Groceries"
+    },
+    {
+      "index": 98,
+      "date": "2026-09-15",
+      "amount": "-13.00",
+      "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+      "shop": "BEISPIELSHOP",
+      "selected_index": 9,
+      "selected_pattern": "paypal",
+      "category_id": 10,
+      "category": "Online shopping"
+    },
+    {
+      "index": 99,
+      "date": "2026-10-16",
+      "amount": "-14.00",
+      "partner_name": "Unbekannter Laden",
+      "purpose": "Kartenzahlung",
+      "shop": null,
+      "selected_index": null,
+      "selected_pattern": null,
+      "category_id": null,
+      "category": null
+    },
+    {
+      "index": 100,
+      "date": "2026-01-17",
+      "amount": "-15.00",
+      "partner_name": "REWE Markt GmbH",
+      "purpose": "Wocheneinkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 101,
+      "date": "2026-02-18",
+      "amount": "-16.00",
+      "partner_name": "EDEKA",
+      "purpose": "Lebensmittel",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 102,
+      "date": "2026-03-19",
+      "amount": "-17.00",
+      "partner_name": "ALDI",
+      "purpose": "Einkauf",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 103,
+      "date": "2026-04-20",
+      "amount": "-18.00",
+      "partner_name": "Bäckerei Schmidt",
+      "purpose": "Brötchen",
+      "shop": null,
+      "selected_index": 0,
+      "selected_pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+      "category_id": 1,
+      "category": "Groceries"
+    },
+    {
+      "index": 104,
+      "date": "2026-05-21",
+      "amount": "-19.00",
+      "partner_name": "Vermieter",
+      "purpose": "Miete",
+      "shop": null,
+      "selected_index": 1,
+      "selected_pattern": "vermieter|miete",
+      "category_id": 2,
+      "category": "Housing"
+    },
+    {
+      "index": 105,
+      "date": "2026-06-22",
+      "amount": "-20.00",
+      "partner_name": "Stadtwerke Köln",
+      "purpose": "Abschlag Strom",
+      "shop": null,
+      "selected_index": 2,
+      "selected_pattern": "stadtwerke|strom",
+      "category_id": 3,
+      "category": "Energy"
+    },
+    {
+      "index": 106,
+      "date": "2026-07-23",
+      "amount": "-21.00",
+      "partner_name": "Netflix",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 107,
+      "date": "2026-08-24",
+      "amount": "-22.00",
+      "partner_name": "Spotify AB",
+      "purpose": "Abo",
+      "shop": null,
+      "selected_index": 3,
+      "selected_pattern": "netflix|spotify",
+      "category_id": 4,
+      "category": "Phone, internet & media"
+    },
+    {
+      "index": 108,
+      "date": "2026-09-25",
+      "amount": "-23.00",
+      "partner_name": "Aral Tankstelle",
+      "purpose": "Tanken",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    },
+    {
+      "index": 109,
+      "date": "2026-10-26",
+      "amount": "-24.00",
+      "partner_name": "Deutsche Bahn",
+      "purpose": "Fahrkarte",
+      "shop": null,
+      "selected_index": 4,
+      "selected_pattern": "tankstelle|aral|deutsche bahn",
+      "category_id": 5,
+      "category": "Transport"
+    }
+  ],
+  "shop_cases": [
+    {
+      "name": "a partner rule for the shop beats the paypal rule whatever the rule order",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "rules": [
+        {
+          "pattern": "PayPal",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 2
+        },
+        {
+          "pattern": "Beispiel Shop",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 1
+        }
+      ],
+      "selected_index": 1,
+      "selected_category_id": 1
+    },
+    {
+      "name": "with no shop rule the paypal rule applies through the original view",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "rules": [
+        {
+          "pattern": "PayPal",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 2
+        }
+      ],
+      "selected_index": 0,
+      "selected_category_id": 2
+    },
+    {
+      "name": "a purpose only rule keeps winning for a paypal booking",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "rules": [
+        {
+          "pattern": "Ihr Einkauf",
+          "field": "purpose",
+          "direction": "any",
+          "category_id": 3
+        },
+        {
+          "pattern": "Beispiel",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 1
+        }
+      ],
+      "selected_index": 0,
+      "selected_category_id": 3
+    },
+    {
+      "name": "an income only rule does not match an expense via the shop view",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "rules": [
+        {
+          "pattern": "Beispiel",
+          "field": "partner",
+          "direction": "income",
+          "category_id": 4
+        }
+      ],
+      "selected_index": null,
+      "selected_category_id": null
+    },
+    {
+      "name": "a shop rule applies when no other rule matches",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "rules": [
+        {
+          "pattern": "Beispiel Shop",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 20
+        }
+      ],
+      "selected_index": 0,
+      "selected_category_id": 20
+    },
+    {
+      "name": "a shop rule beats the paypal rule for a card booking with a paypal partner",
+      "purpose": "PAYPAL *BEISPIELSHOP",
+      "partner": "PAYPAL *BEISPIELSHOP",
+      "rules": [
+        {
+          "pattern": "PayPal",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 10
+        },
+        {
+          "pattern": "BEISPIELSHOP",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 20
+        }
+      ],
+      "selected_index": 1,
+      "selected_category_id": 20
+    },
+    {
+      "name": "a non paypal booking is matched exactly as before",
+      "purpose": "Kauf bei Beispiel",
+      "partner": "Beispiel Shop GmbH",
+      "rules": [
+        {
+          "pattern": "Beispiel",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 5
+        }
+      ],
+      "selected_index": 0,
+      "selected_category_id": 5
+    },
+    {
+      "name": "a refund purpose rule keeps winning over a shop rule",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Rückerstattung, Ihr Einkauf bei Beispiel Shop GmbH",
+      "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "rules": [
+        {
+          "pattern": "Rückerstattung|Storno",
+          "field": "purpose",
+          "direction": "any",
+          "category_id": 10
+        },
+        {
+          "pattern": "Beispiel Shop",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 20
+        }
+      ],
+      "selected_index": 0,
+      "selected_category_id": 10
+    },
+    {
+      "name": "a shop rule only displaces a provider rule of the same or any direction",
+      "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+      "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+      "rules": [
+        {
+          "pattern": "PayPal",
+          "field": "partner",
+          "direction": "income",
+          "category_id": 10
+        },
+        {
+          "pattern": "Beispiel Shop",
+          "field": "partner",
+          "direction": "income",
+          "category_id": 20
+        }
+      ],
+      "selected_index": null,
+      "selected_category_id": null
+    },
+    {
+      "name": "card format rules behave like the marker format",
+      "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+      "partner": "PAYPAL *BEISPIELSHOP",
+      "rules": [
+        {
+          "pattern": "RETURN",
+          "field": "purpose",
+          "direction": "any",
+          "category_id": 10
+        },
+        {
+          "pattern": "BEISPIELSHOP",
+          "field": "partner",
+          "direction": "any",
+          "category_id": 20
+        }
+      ],
+      "selected_index": 0,
+      "selected_category_id": 10
+    }
+  ]
+}

@@ -1,0 +1,334 @@
+[
+  {
+    "file": "before_1990.txt",
+    "total": null,
+    "date": null,
+    "amounts": []
+  },
+  {
+    "file": "empty.txt",
+    "total": null,
+    "date": null,
+    "amounts": []
+  },
+  {
+    "file": "english_invoice.txt",
+    "total": {
+      "minor": 119000,
+      "currency": "EUR",
+      "plain": "1190.00"
+    },
+    "date": "2026-01-05",
+    "amounts": [
+      {
+        "minor": 100000,
+        "currency": "EUR",
+        "plain": "1000.00"
+      },
+      {
+        "minor": 119000,
+        "currency": "EUR",
+        "plain": "1190.00"
+      }
+    ]
+  },
+  {
+    "file": "english_receipt.txt",
+    "total": {
+      "minor": 378,
+      "currency": "EUR",
+      "plain": "3.78"
+    },
+    "date": "2026-08-14",
+    "amounts": [
+      {
+        "minor": 129,
+        "currency": "EUR",
+        "plain": "1.29"
+      },
+      {
+        "minor": 249,
+        "currency": "EUR",
+        "plain": "2.49"
+      },
+      {
+        "minor": 378,
+        "currency": "EUR",
+        "plain": "3.78"
+      }
+    ]
+  },
+  {
+    "file": "french_bakery.txt",
+    "total": {
+      "minor": 400,
+      "currency": "EUR",
+      "plain": "4.00"
+    },
+    "date": "2026-03-12",
+    "amounts": [
+      {
+        "minor": 120,
+        "currency": "EUR",
+        "plain": "1.20"
+      },
+      {
+        "minor": 280,
+        "currency": "EUR",
+        "plain": "2.80"
+      },
+      {
+        "minor": 400,
+        "currency": "EUR",
+        "plain": "4.00"
+      }
+    ]
+  },
+  {
+    "file": "french_invoice.txt",
+    "total": {
+      "minor": 12000,
+      "currency": "EUR",
+      "plain": "120.00"
+    },
+    "date": "2026-02-05",
+    "amounts": [
+      {
+        "minor": 10000,
+        "currency": "EUR",
+        "plain": "100.00"
+      },
+      {
+        "minor": 2000,
+        "currency": "EUR",
+        "plain": "20.00"
+      },
+      {
+        "minor": 12000,
+        "currency": "EUR",
+        "plain": "120.00"
+      }
+    ]
+  },
+  {
+    "file": "german_edeka.txt",
+    "total": {
+      "minor": 129995,
+      "currency": "EUR",
+      "plain": "1299.95"
+    },
+    "date": "2026-10-03",
+    "amounts": [
+      {
+        "minor": 123450,
+        "currency": "EUR",
+        "plain": "1234.50"
+      },
+      {
+        "minor": 129995,
+        "currency": "EUR",
+        "plain": "1299.95"
+      }
+    ]
+  },
+  {
+    "file": "german_hotel.txt",
+    "total": {
+      "minor": 21350,
+      "currency": "EUR",
+      "plain": "213.50"
+    },
+    "date": "2026-08-15",
+    "amounts": [
+      {
+        "minor": 18900,
+        "currency": "EUR",
+        "plain": "189.00"
+      },
+      {
+        "minor": 2450,
+        "currency": "EUR",
+        "plain": "24.50"
+      },
+      {
+        "minor": 21350,
+        "currency": "EUR",
+        "plain": "213.50"
+      }
+    ]
+  },
+  {
+    "file": "grouping_english.txt",
+    "total": {
+      "minor": 123456,
+      "currency": "EUR",
+      "plain": "1234.56"
+    },
+    "date": null,
+    "amounts": [
+      {
+        "minor": 123456,
+        "currency": "EUR",
+        "plain": "1234.56"
+      }
+    ]
+  },
+  {
+    "file": "grouping_german.txt",
+    "total": {
+      "minor": 123456,
+      "currency": "EUR",
+      "plain": "1234.56"
+    },
+    "date": null,
+    "amounts": [
+      {
+        "minor": 123456,
+        "currency": "EUR",
+        "plain": "1234.56"
+      }
+    ]
+  },
+  {
+    "file": "invalid_date.txt",
+    "total": null,
+    "date": null,
+    "amounts": []
+  },
+  {
+    "file": "invalid_grouping.txt",
+    "total": null,
+    "date": null,
+    "amounts": []
+  },
+  {
+    "file": "iso_clamp.txt",
+    "total": null,
+    "date": "2026-04-30",
+    "amounts": []
+  },
+  {
+    "file": "keyword_precedence.txt",
+    "total": {
+      "minor": 300,
+      "currency": "EUR",
+      "plain": "3.00"
+    },
+    "date": null,
+    "amounts": [
+      {
+        "minor": 100,
+        "currency": "EUR",
+        "plain": "1.00"
+      },
+      {
+        "minor": 200,
+        "currency": "EUR",
+        "plain": "2.00"
+      },
+      {
+        "minor": 300,
+        "currency": "EUR",
+        "plain": "3.00"
+      }
+    ]
+  },
+  {
+    "file": "plain_decimal.txt",
+    "total": {
+      "minor": 123456,
+      "currency": "EUR",
+      "plain": "1234.56"
+    },
+    "date": null,
+    "amounts": [
+      {
+        "minor": 123456,
+        "currency": "EUR",
+        "plain": "1234.56"
+      }
+    ]
+  },
+  {
+    "file": "rewe_markt.txt",
+    "total": {
+      "minor": 378,
+      "currency": "EUR",
+      "plain": "3.78"
+    },
+    "date": "2026-10-03",
+    "amounts": [
+      {
+        "minor": 129,
+        "currency": "EUR",
+        "plain": "1.29"
+      },
+      {
+        "minor": 249,
+        "currency": "EUR",
+        "plain": "2.49"
+      },
+      {
+        "minor": 378,
+        "currency": "EUR",
+        "plain": "3.78"
+      }
+    ]
+  },
+  {
+    "file": "slash_day_first.txt",
+    "total": null,
+    "date": "2026-05-01",
+    "amounts": []
+  },
+  {
+    "file": "slash_fallback.txt",
+    "total": null,
+    "date": "2026-05-13",
+    "amounts": []
+  },
+  {
+    "file": "smart_clamp.txt",
+    "total": null,
+    "date": "2026-02-28",
+    "amounts": []
+  },
+  {
+    "file": "two_digit_year_1999.txt",
+    "total": null,
+    "date": "1999-03-05",
+    "amounts": []
+  },
+  {
+    "file": "two_digit_year_2026.txt",
+    "total": null,
+    "date": "2026-03-05",
+    "amounts": []
+  },
+  {
+    "file": "without_keyword.txt",
+    "total": {
+      "minor": 250,
+      "currency": "EUR",
+      "plain": "2.50"
+    },
+    "date": null,
+    "amounts": [
+      {
+        "minor": 100,
+        "currency": "EUR",
+        "plain": "1.00"
+      },
+      {
+        "minor": 250,
+        "currency": "EUR",
+        "plain": "2.50"
+      },
+      {
+        "minor": 200,
+        "currency": "EUR",
+        "plain": "2.00"
+      }
+    ]
+  }
+]

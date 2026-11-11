@@ -1,0 +1,4 @@
+﻿# FinDesk rules v1
+category	pattern	search_in	applies_to	priority	auto_apply
+Erika género	erika	any	any	50	true
+Groceries	beispiel markt	any	any	50	true

@@ -1,0 +1,14 @@
+# FinDesk rules v1
+category	pattern	search_in	applies_to	priority	auto_apply
+Groceries	rewe|edeka|aldi|bäcker|bäckerei	any	any	60	true
+Housing	vermieter|miete	any	any	60	true
+Energy	stadtwerke|strom	any	any	55	true
+Phone, internet & media	netflix|spotify	any	any	50	true
+Transport	tankstelle|aral|deutsche bahn	any	any	50	true
+Health	apotheke|arzt	any	any	50	true
+Restaurants & cafés	restaurant|café|bistro	any	any	45	true
+Salary	employer gmbh	partner	income	80	true
+Own transfers	erika musterfrau	partner	any	70	true
+Online shopping	paypal	partner	any	40	true
+Groceries	beispiel shop gmbh	partner	any	65	true
+Taxes & fees	spende	any	expense	65	true

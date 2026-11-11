@@ -1,0 +1,2730 @@
+[
+  {
+    "requested_month": {
+      "year": 2026,
+      "month": 10
+    },
+    "figures": {
+      "currency": "EUR",
+      "total_balance": {
+        "minor": 3942299,
+        "currency": "EUR",
+        "plain": "39422.99"
+      },
+      "available_balance": {
+        "minor": 3942299,
+        "currency": "EUR",
+        "plain": "39422.99"
+      },
+      "loan_balance": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "carry_forward": {
+        "minor": 3724552,
+        "currency": "EUR",
+        "plain": "37245.52"
+      },
+      "other_movements": {
+        "minor": -15000,
+        "currency": "EUR",
+        "plain": "-150.00"
+      },
+      "balance_date": null,
+      "has_loans": false,
+      "other_balances": [],
+      "monthly_income": {
+        "minor": 360325,
+        "currency": "EUR",
+        "plain": "3603.25"
+      },
+      "monthly_expenses": {
+        "minor": 127578,
+        "currency": "EUR",
+        "plain": "1275.78"
+      },
+      "uncategorized_count": 2,
+      "recent_transactions": [
+        {
+          "id": 107,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-28",
+          "amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "balance_after": {
+            "minor": 1403250,
+            "currency": "EUR",
+            "plain": "14032.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "purpose": "Sparrate 10/2026",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 106,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-27",
+          "amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "balance_after": {
+            "minor": 1363250,
+            "currency": "EUR",
+            "plain": "13632.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "purpose": "Zinsen",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 86,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-26",
+          "amount": {
+            "minor": -3850,
+            "currency": "EUR",
+            "plain": "-38.50"
+          },
+          "balance_after": {
+            "minor": 2657721,
+            "currency": "EUR",
+            "plain": "26577.21"
+          },
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "purpose": "Tanken",
+          "category_id": 9,
+          "category_name": "Transport",
+          "category_color": "#A77105",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 147,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-25",
+          "amount": {
+            "minor": -3670,
+            "currency": "EUR",
+            "plain": "-36.70"
+          },
+          "balance_after": {
+            "minor": -118672,
+            "currency": "EUR",
+            "plain": "-1186.72"
+          },
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "purpose": "Mittagessen",
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "category_color": "#3B88E7",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 85,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-23",
+          "amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "balance_after": {
+            "minor": 2661571,
+            "currency": "EUR",
+            "plain": "26615.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "purpose": "Überweisung an Erika",
+          "category_id": 18,
+          "category_name": "Own transfers",
+          "category_color": "#00A06E",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": true,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 84,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-18",
+          "amount": {
+            "minor": -1499,
+            "currency": "EUR",
+            "plain": "-14.99"
+          },
+          "balance_after": {
+            "minor": 2676571,
+            "currency": "EUR",
+            "plain": "26765.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "purpose": "Abo",
+          "category_id": 5,
+          "category_name": "Phone, internet & media",
+          "category_color": "#867DFF",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 146,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-17",
+          "amount": {
+            "minor": -4900,
+            "currency": "EUR",
+            "plain": "-49.00"
+          },
+          "balance_after": {
+            "minor": -115002,
+            "currency": "EUR",
+            "plain": "-1150.02"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "purpose": "Online-Bestellung",
+          "category_id": 1,
+          "category_name": "Groceries",
+          "category_color": "#E76530",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 83,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-12",
+          "amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "balance_after": {
+            "minor": 2678070,
+            "currency": "EUR",
+            "plain": "26780.70"
+          },
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "purpose": "Abschlag Strom",
+          "category_id": 4,
+          "category_name": "Energy",
+          "category_color": "#D56A93",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        }
+      ],
+      "expenses_by_category": [
+        {
+          "label": "Housing",
+          "amount": {
+            "minor": 85000,
+            "currency": "EUR",
+            "plain": "850.00"
+          },
+          "color": "#C38400",
+          "category_id": 3
+        },
+        {
+          "label": "Groceries",
+          "amount": {
+            "minor": 27360,
+            "currency": "EUR",
+            "plain": "273.60"
+          },
+          "color": "#E76530",
+          "category_id": 1
+        },
+        {
+          "label": "Energy",
+          "amount": {
+            "minor": 4200,
+            "currency": "EUR",
+            "plain": "42.00"
+          },
+          "color": "#D56A93",
+          "category_id": 4
+        },
+        {
+          "label": "Transport",
+          "amount": {
+            "minor": 3850,
+            "currency": "EUR",
+            "plain": "38.50"
+          },
+          "color": "#A77105",
+          "category_id": 9
+        },
+        {
+          "label": "Restaurants & cafés",
+          "amount": {
+            "minor": 3670,
+            "currency": "EUR",
+            "plain": "36.70"
+          },
+          "color": "#3B88E7",
+          "category_id": 14
+        },
+        {
+          "label": "Phone, internet & media",
+          "amount": {
+            "minor": 3498,
+            "currency": "EUR",
+            "plain": "34.98"
+          },
+          "color": "#867DFF",
+          "category_id": 5
+        }
+      ],
+      "tax_deductions_by_category": [
+        {
+          "label": "Taxes & fees",
+          "amount": {
+            "minor": 12000,
+            "currency": "EUR",
+            "plain": "120.00"
+          },
+          "color": "#B57A03",
+          "category_id": 15
+        },
+        {
+          "label": "Health",
+          "amount": {
+            "minor": 11670,
+            "currency": "EUR",
+            "plain": "116.70"
+          },
+          "color": "#BD547E",
+          "category_id": 10
+        }
+      ],
+      "last_months": [
+        {
+          "year": 2026,
+          "month": 5,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 123038,
+            "currency": "EUR",
+            "plain": "1230.38"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 6,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 126148,
+            "currency": "EUR",
+            "plain": "1261.48"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 7,
+          "income": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "expenses": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 8,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 124838,
+            "currency": "EUR",
+            "plain": "1248.38"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 9,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 127948,
+            "currency": "EUR",
+            "plain": "1279.48"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 10,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 127578,
+            "currency": "EUR",
+            "plain": "1275.78"
+          },
+          "partial": true
+        }
+      ],
+      "budgets": [
+        {
+          "category_id": 1,
+          "category_name": "Groceries",
+          "color": "#E76530",
+          "limit": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "spent": {
+            "minor": 27360,
+            "currency": "EUR",
+            "plain": "273.60"
+          },
+          "ratio": 0.684,
+          "remaining": {
+            "minor": 12640,
+            "currency": "EUR",
+            "plain": "126.40"
+          },
+          "is_over": false
+        },
+        {
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "color": "#3B88E7",
+          "limit": {
+            "minor": 15000,
+            "currency": "EUR",
+            "plain": "150.00"
+          },
+          "spent": {
+            "minor": 3670,
+            "currency": "EUR",
+            "plain": "36.70"
+          },
+          "ratio": 0.24466666666666667,
+          "remaining": {
+            "minor": 11330,
+            "currency": "EUR",
+            "plain": "113.30"
+          },
+          "is_over": false
+        }
+      ],
+      "upcoming": [
+        {
+          "name": "Erika Musterfrau",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-23",
+          "next_date": "2026-10-23",
+          "occurrences": 10,
+          "category_name": "Own transfers",
+          "currency": "EUR",
+          "is_transfer": true,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -180000,
+            "currency": "EUR",
+            "plain": "-1800.00"
+          }
+        },
+        {
+          "name": "Aral Tankstelle",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -3350,
+            "currency": "EUR",
+            "plain": "-33.50"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-26",
+          "next_date": "2026-10-26",
+          "occurrences": 10,
+          "category_name": "Transport",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -40200,
+            "currency": "EUR",
+            "plain": "-402.00"
+          }
+        },
+        {
+          "name": "Beispiel Bank",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-27",
+          "next_date": "2026-10-27",
+          "occurrences": 9,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3900,
+            "currency": "EUR",
+            "plain": "39.00"
+          }
+        },
+        {
+          "name": "Max Mustermann",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-28",
+          "next_date": "2026-10-28",
+          "occurrences": 10,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 480000,
+            "currency": "EUR",
+            "plain": "4800.00"
+          }
+        },
+        {
+          "name": "Employer GmbH",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 320000,
+            "currency": "EUR",
+            "plain": "3200.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-01",
+          "next_date": "2026-11-01",
+          "occurrences": 11,
+          "category_name": "Salary",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3840000,
+            "currency": "EUR",
+            "plain": "38400.00"
+          }
+        },
+        {
+          "name": "Vermieter",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -85000,
+            "currency": "EUR",
+            "plain": "-850.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-03",
+          "next_date": "2026-11-03",
+          "occurrences": 11,
+          "category_name": "Housing",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -1020000,
+            "currency": "EUR",
+            "plain": "-10200.00"
+          }
+        },
+        {
+          "name": "Bäckerei Schmidt",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -850,
+            "currency": "EUR",
+            "plain": "-8.50"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-11",
+          "next_date": "2026-11-11",
+          "occurrences": 8,
+          "category_name": "Groceries",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -10200,
+            "currency": "EUR",
+            "plain": "-102.00"
+          }
+        },
+        {
+          "name": "Stadtwerke Köln",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-12",
+          "next_date": "2026-11-12",
+          "occurrences": 11,
+          "category_name": "Energy",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -50400,
+            "currency": "EUR",
+            "plain": "-504.00"
+          }
+        }
+      ],
+      "month_progress": 0.4838709677419355,
+      "transfers_this_month": {
+        "minor": 15000,
+        "currency": "EUR",
+        "plain": "150.00"
+      },
+      "selected_month": {
+        "year": 2026,
+        "month": 10
+      },
+      "loaded_month": {
+        "year": 2026,
+        "month": 10
+      },
+      "earliest_month": {
+        "year": 2025,
+        "month": 11
+      },
+      "current_month": {
+        "year": 2026,
+        "month": 10
+      },
+      "has_accounts": true
+    }
+  },
+  {
+    "requested_month": {
+      "year": 2026,
+      "month": 9
+    },
+    "figures": {
+      "currency": "EUR",
+      "total_balance": {
+        "minor": 3724552,
+        "currency": "EUR",
+        "plain": "37245.52"
+      },
+      "available_balance": {
+        "minor": 3724552,
+        "currency": "EUR",
+        "plain": "37245.52"
+      },
+      "loan_balance": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "carry_forward": {
+        "minor": 3507175,
+        "currency": "EUR",
+        "plain": "35071.75"
+      },
+      "other_movements": {
+        "minor": -15000,
+        "currency": "EUR",
+        "plain": "-150.00"
+      },
+      "balance_date": "2026-09-30",
+      "has_loans": false,
+      "other_balances": [],
+      "monthly_income": {
+        "minor": 360325,
+        "currency": "EUR",
+        "plain": "3603.25"
+      },
+      "monthly_expenses": {
+        "minor": 127948,
+        "currency": "EUR",
+        "plain": "1279.48"
+      },
+      "uncategorized_count": 2,
+      "recent_transactions": [
+        {
+          "id": 107,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-28",
+          "amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "balance_after": {
+            "minor": 1403250,
+            "currency": "EUR",
+            "plain": "14032.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "purpose": "Sparrate 10/2026",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 106,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-27",
+          "amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "balance_after": {
+            "minor": 1363250,
+            "currency": "EUR",
+            "plain": "13632.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "purpose": "Zinsen",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 86,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-26",
+          "amount": {
+            "minor": -3850,
+            "currency": "EUR",
+            "plain": "-38.50"
+          },
+          "balance_after": {
+            "minor": 2657721,
+            "currency": "EUR",
+            "plain": "26577.21"
+          },
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "purpose": "Tanken",
+          "category_id": 9,
+          "category_name": "Transport",
+          "category_color": "#A77105",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 147,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-25",
+          "amount": {
+            "minor": -3670,
+            "currency": "EUR",
+            "plain": "-36.70"
+          },
+          "balance_after": {
+            "minor": -118672,
+            "currency": "EUR",
+            "plain": "-1186.72"
+          },
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "purpose": "Mittagessen",
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "category_color": "#3B88E7",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 85,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-23",
+          "amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "balance_after": {
+            "minor": 2661571,
+            "currency": "EUR",
+            "plain": "26615.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "purpose": "Überweisung an Erika",
+          "category_id": 18,
+          "category_name": "Own transfers",
+          "category_color": "#00A06E",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": true,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 84,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-18",
+          "amount": {
+            "minor": -1499,
+            "currency": "EUR",
+            "plain": "-14.99"
+          },
+          "balance_after": {
+            "minor": 2676571,
+            "currency": "EUR",
+            "plain": "26765.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "purpose": "Abo",
+          "category_id": 5,
+          "category_name": "Phone, internet & media",
+          "category_color": "#867DFF",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 146,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-17",
+          "amount": {
+            "minor": -4900,
+            "currency": "EUR",
+            "plain": "-49.00"
+          },
+          "balance_after": {
+            "minor": -115002,
+            "currency": "EUR",
+            "plain": "-1150.02"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "purpose": "Online-Bestellung",
+          "category_id": 1,
+          "category_name": "Groceries",
+          "category_color": "#E76530",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 83,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-12",
+          "amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "balance_after": {
+            "minor": 2678070,
+            "currency": "EUR",
+            "plain": "26780.70"
+          },
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "purpose": "Abschlag Strom",
+          "category_id": 4,
+          "category_name": "Energy",
+          "category_color": "#D56A93",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        }
+      ],
+      "expenses_by_category": [
+        {
+          "label": "Housing",
+          "amount": {
+            "minor": 85000,
+            "currency": "EUR",
+            "plain": "850.00"
+          },
+          "color": "#C38400",
+          "category_id": 3
+        },
+        {
+          "label": "Groceries",
+          "amount": {
+            "minor": 21430,
+            "currency": "EUR",
+            "plain": "214.30"
+          },
+          "color": "#E76530",
+          "category_id": 1
+        },
+        {
+          "label": "Restaurants & cafés",
+          "amount": {
+            "minor": 10070,
+            "currency": "EUR",
+            "plain": "100.70"
+          },
+          "color": "#3B88E7",
+          "category_id": 14
+        },
+        {
+          "label": "Energy",
+          "amount": {
+            "minor": 4200,
+            "currency": "EUR",
+            "plain": "42.00"
+          },
+          "color": "#D56A93",
+          "category_id": 4
+        },
+        {
+          "label": "Transport",
+          "amount": {
+            "minor": 3750,
+            "currency": "EUR",
+            "plain": "37.50"
+          },
+          "color": "#A77105",
+          "category_id": 9
+        },
+        {
+          "label": "Phone, internet & media",
+          "amount": {
+            "minor": 3498,
+            "currency": "EUR",
+            "plain": "34.98"
+          },
+          "color": "#867DFF",
+          "category_id": 5
+        }
+      ],
+      "tax_deductions_by_category": [
+        {
+          "label": "Taxes & fees",
+          "amount": {
+            "minor": 12000,
+            "currency": "EUR",
+            "plain": "120.00"
+          },
+          "color": "#B57A03",
+          "category_id": 15
+        },
+        {
+          "label": "Health",
+          "amount": {
+            "minor": 11670,
+            "currency": "EUR",
+            "plain": "116.70"
+          },
+          "color": "#BD547E",
+          "category_id": 10
+        }
+      ],
+      "last_months": [
+        {
+          "year": 2026,
+          "month": 4,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 130548,
+            "currency": "EUR",
+            "plain": "1305.48"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 5,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 123038,
+            "currency": "EUR",
+            "plain": "1230.38"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 6,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 126148,
+            "currency": "EUR",
+            "plain": "1261.48"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 7,
+          "income": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "expenses": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 8,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 124838,
+            "currency": "EUR",
+            "plain": "1248.38"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 9,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 127948,
+            "currency": "EUR",
+            "plain": "1279.48"
+          },
+          "partial": false
+        }
+      ],
+      "budgets": [
+        {
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "color": "#3B88E7",
+          "limit": {
+            "minor": 15000,
+            "currency": "EUR",
+            "plain": "150.00"
+          },
+          "spent": {
+            "minor": 10070,
+            "currency": "EUR",
+            "plain": "100.70"
+          },
+          "ratio": 0.6713333333333333,
+          "remaining": {
+            "minor": 4930,
+            "currency": "EUR",
+            "plain": "49.30"
+          },
+          "is_over": false
+        },
+        {
+          "category_id": 1,
+          "category_name": "Groceries",
+          "color": "#E76530",
+          "limit": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "spent": {
+            "minor": 21430,
+            "currency": "EUR",
+            "plain": "214.30"
+          },
+          "ratio": 0.53575,
+          "remaining": {
+            "minor": 18570,
+            "currency": "EUR",
+            "plain": "185.70"
+          },
+          "is_over": false
+        }
+      ],
+      "upcoming": [
+        {
+          "name": "Erika Musterfrau",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-23",
+          "next_date": "2026-10-23",
+          "occurrences": 10,
+          "category_name": "Own transfers",
+          "currency": "EUR",
+          "is_transfer": true,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -180000,
+            "currency": "EUR",
+            "plain": "-1800.00"
+          }
+        },
+        {
+          "name": "Aral Tankstelle",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -3350,
+            "currency": "EUR",
+            "plain": "-33.50"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-26",
+          "next_date": "2026-10-26",
+          "occurrences": 10,
+          "category_name": "Transport",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -40200,
+            "currency": "EUR",
+            "plain": "-402.00"
+          }
+        },
+        {
+          "name": "Beispiel Bank",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-27",
+          "next_date": "2026-10-27",
+          "occurrences": 9,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3900,
+            "currency": "EUR",
+            "plain": "39.00"
+          }
+        },
+        {
+          "name": "Max Mustermann",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-28",
+          "next_date": "2026-10-28",
+          "occurrences": 10,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 480000,
+            "currency": "EUR",
+            "plain": "4800.00"
+          }
+        },
+        {
+          "name": "Employer GmbH",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 320000,
+            "currency": "EUR",
+            "plain": "3200.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-01",
+          "next_date": "2026-11-01",
+          "occurrences": 11,
+          "category_name": "Salary",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3840000,
+            "currency": "EUR",
+            "plain": "38400.00"
+          }
+        },
+        {
+          "name": "Vermieter",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -85000,
+            "currency": "EUR",
+            "plain": "-850.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-03",
+          "next_date": "2026-11-03",
+          "occurrences": 11,
+          "category_name": "Housing",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -1020000,
+            "currency": "EUR",
+            "plain": "-10200.00"
+          }
+        },
+        {
+          "name": "Bäckerei Schmidt",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -850,
+            "currency": "EUR",
+            "plain": "-8.50"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-11",
+          "next_date": "2026-11-11",
+          "occurrences": 8,
+          "category_name": "Groceries",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -10200,
+            "currency": "EUR",
+            "plain": "-102.00"
+          }
+        },
+        {
+          "name": "Stadtwerke Köln",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-12",
+          "next_date": "2026-11-12",
+          "occurrences": 11,
+          "category_name": "Energy",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -50400,
+            "currency": "EUR",
+            "plain": "-504.00"
+          }
+        }
+      ],
+      "month_progress": 1,
+      "transfers_this_month": {
+        "minor": 15000,
+        "currency": "EUR",
+        "plain": "150.00"
+      },
+      "selected_month": {
+        "year": 2026,
+        "month": 9
+      },
+      "loaded_month": {
+        "year": 2026,
+        "month": 9
+      },
+      "earliest_month": {
+        "year": 2025,
+        "month": 11
+      },
+      "current_month": {
+        "year": 2026,
+        "month": 10
+      },
+      "has_accounts": true
+    }
+  },
+  {
+    "requested_month": {
+      "year": 2026,
+      "month": 7
+    },
+    "figures": {
+      "currency": "EUR",
+      "total_balance": {
+        "minor": 3286688,
+        "currency": "EUR",
+        "plain": "32866.88"
+      },
+      "available_balance": {
+        "minor": 3286688,
+        "currency": "EUR",
+        "plain": "32866.88"
+      },
+      "loan_balance": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "carry_forward": {
+        "minor": 3286688,
+        "currency": "EUR",
+        "plain": "32866.88"
+      },
+      "other_movements": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "balance_date": "2026-07-31",
+      "has_loans": false,
+      "other_balances": [],
+      "monthly_income": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "monthly_expenses": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "uncategorized_count": 0,
+      "recent_transactions": [
+        {
+          "id": 107,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-28",
+          "amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "balance_after": {
+            "minor": 1403250,
+            "currency": "EUR",
+            "plain": "14032.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "purpose": "Sparrate 10/2026",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 106,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-27",
+          "amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "balance_after": {
+            "minor": 1363250,
+            "currency": "EUR",
+            "plain": "13632.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "purpose": "Zinsen",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 86,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-26",
+          "amount": {
+            "minor": -3850,
+            "currency": "EUR",
+            "plain": "-38.50"
+          },
+          "balance_after": {
+            "minor": 2657721,
+            "currency": "EUR",
+            "plain": "26577.21"
+          },
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "purpose": "Tanken",
+          "category_id": 9,
+          "category_name": "Transport",
+          "category_color": "#A77105",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 147,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-25",
+          "amount": {
+            "minor": -3670,
+            "currency": "EUR",
+            "plain": "-36.70"
+          },
+          "balance_after": {
+            "minor": -118672,
+            "currency": "EUR",
+            "plain": "-1186.72"
+          },
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "purpose": "Mittagessen",
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "category_color": "#3B88E7",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 85,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-23",
+          "amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "balance_after": {
+            "minor": 2661571,
+            "currency": "EUR",
+            "plain": "26615.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "purpose": "Überweisung an Erika",
+          "category_id": 18,
+          "category_name": "Own transfers",
+          "category_color": "#00A06E",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": true,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 84,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-18",
+          "amount": {
+            "minor": -1499,
+            "currency": "EUR",
+            "plain": "-14.99"
+          },
+          "balance_after": {
+            "minor": 2676571,
+            "currency": "EUR",
+            "plain": "26765.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "purpose": "Abo",
+          "category_id": 5,
+          "category_name": "Phone, internet & media",
+          "category_color": "#867DFF",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 146,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-17",
+          "amount": {
+            "minor": -4900,
+            "currency": "EUR",
+            "plain": "-49.00"
+          },
+          "balance_after": {
+            "minor": -115002,
+            "currency": "EUR",
+            "plain": "-1150.02"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "purpose": "Online-Bestellung",
+          "category_id": 1,
+          "category_name": "Groceries",
+          "category_color": "#E76530",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 83,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-12",
+          "amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "balance_after": {
+            "minor": 2678070,
+            "currency": "EUR",
+            "plain": "26780.70"
+          },
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "purpose": "Abschlag Strom",
+          "category_id": 4,
+          "category_name": "Energy",
+          "category_color": "#D56A93",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        }
+      ],
+      "expenses_by_category": [],
+      "tax_deductions_by_category": [
+        {
+          "label": "Taxes & fees",
+          "amount": {
+            "minor": 12000,
+            "currency": "EUR",
+            "plain": "120.00"
+          },
+          "color": "#B57A03",
+          "category_id": 15
+        },
+        {
+          "label": "Health",
+          "amount": {
+            "minor": 7780,
+            "currency": "EUR",
+            "plain": "77.80"
+          },
+          "color": "#BD547E",
+          "category_id": 10
+        }
+      ],
+      "last_months": [
+        {
+          "year": 2026,
+          "month": 2,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 121238,
+            "currency": "EUR",
+            "plain": "1212.38"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 3,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 124348,
+            "currency": "EUR",
+            "plain": "1243.48"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 4,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 130548,
+            "currency": "EUR",
+            "plain": "1305.48"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 5,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 123038,
+            "currency": "EUR",
+            "plain": "1230.38"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 6,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 126148,
+            "currency": "EUR",
+            "plain": "1261.48"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 7,
+          "income": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "expenses": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "partial": false
+        }
+      ],
+      "budgets": [
+        {
+          "category_id": 1,
+          "category_name": "Groceries",
+          "color": "#E76530",
+          "limit": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "spent": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "ratio": 0,
+          "remaining": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "is_over": false
+        },
+        {
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "color": "#3B88E7",
+          "limit": {
+            "minor": 15000,
+            "currency": "EUR",
+            "plain": "150.00"
+          },
+          "spent": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "ratio": 0,
+          "remaining": {
+            "minor": 15000,
+            "currency": "EUR",
+            "plain": "150.00"
+          },
+          "is_over": false
+        }
+      ],
+      "upcoming": [
+        {
+          "name": "Erika Musterfrau",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-23",
+          "next_date": "2026-10-23",
+          "occurrences": 10,
+          "category_name": "Own transfers",
+          "currency": "EUR",
+          "is_transfer": true,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -180000,
+            "currency": "EUR",
+            "plain": "-1800.00"
+          }
+        },
+        {
+          "name": "Aral Tankstelle",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -3350,
+            "currency": "EUR",
+            "plain": "-33.50"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-26",
+          "next_date": "2026-10-26",
+          "occurrences": 10,
+          "category_name": "Transport",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -40200,
+            "currency": "EUR",
+            "plain": "-402.00"
+          }
+        },
+        {
+          "name": "Beispiel Bank",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-27",
+          "next_date": "2026-10-27",
+          "occurrences": 9,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3900,
+            "currency": "EUR",
+            "plain": "39.00"
+          }
+        },
+        {
+          "name": "Max Mustermann",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-28",
+          "next_date": "2026-10-28",
+          "occurrences": 10,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 480000,
+            "currency": "EUR",
+            "plain": "4800.00"
+          }
+        },
+        {
+          "name": "Employer GmbH",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 320000,
+            "currency": "EUR",
+            "plain": "3200.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-01",
+          "next_date": "2026-11-01",
+          "occurrences": 11,
+          "category_name": "Salary",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3840000,
+            "currency": "EUR",
+            "plain": "38400.00"
+          }
+        },
+        {
+          "name": "Vermieter",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -85000,
+            "currency": "EUR",
+            "plain": "-850.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-03",
+          "next_date": "2026-11-03",
+          "occurrences": 11,
+          "category_name": "Housing",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -1020000,
+            "currency": "EUR",
+            "plain": "-10200.00"
+          }
+        },
+        {
+          "name": "Bäckerei Schmidt",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -850,
+            "currency": "EUR",
+            "plain": "-8.50"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-11",
+          "next_date": "2026-11-11",
+          "occurrences": 8,
+          "category_name": "Groceries",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -10200,
+            "currency": "EUR",
+            "plain": "-102.00"
+          }
+        },
+        {
+          "name": "Stadtwerke Köln",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-12",
+          "next_date": "2026-11-12",
+          "occurrences": 11,
+          "category_name": "Energy",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -50400,
+            "currency": "EUR",
+            "plain": "-504.00"
+          }
+        }
+      ],
+      "month_progress": 1,
+      "transfers_this_month": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "selected_month": {
+        "year": 2026,
+        "month": 7
+      },
+      "loaded_month": {
+        "year": 2026,
+        "month": 7
+      },
+      "earliest_month": {
+        "year": 2025,
+        "month": 11
+      },
+      "current_month": {
+        "year": 2026,
+        "month": 10
+      },
+      "has_accounts": true
+    }
+  },
+  {
+    "requested_month": {
+      "year": 2026,
+      "month": 1
+    },
+    "figures": {
+      "currency": "EUR",
+      "total_balance": {
+        "minor": 2185383,
+        "currency": "EUR",
+        "plain": "21853.83"
+      },
+      "available_balance": {
+        "minor": 2185383,
+        "currency": "EUR",
+        "plain": "21853.83"
+      },
+      "loan_balance": {
+        "minor": 0,
+        "currency": "EUR",
+        "plain": "0.00"
+      },
+      "carry_forward": {
+        "minor": 1942947,
+        "currency": "EUR",
+        "plain": "19429.47"
+      },
+      "other_movements": {
+        "minor": -15000,
+        "currency": "EUR",
+        "plain": "-150.00"
+      },
+      "balance_date": "2026-01-31",
+      "has_loans": false,
+      "other_balances": [],
+      "monthly_income": {
+        "minor": 360325,
+        "currency": "EUR",
+        "plain": "3603.25"
+      },
+      "monthly_expenses": {
+        "minor": 102889,
+        "currency": "EUR",
+        "plain": "1028.89"
+      },
+      "uncategorized_count": 2,
+      "recent_transactions": [
+        {
+          "id": 107,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-28",
+          "amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "balance_after": {
+            "minor": 1403250,
+            "currency": "EUR",
+            "plain": "14032.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "purpose": "Sparrate 10/2026",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 106,
+          "account_id": 2,
+          "account_iban": "DE44500105175407324931",
+          "date": "2026-10-27",
+          "amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "balance_after": {
+            "minor": 1363250,
+            "currency": "EUR",
+            "plain": "13632.50"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "purpose": "Zinsen",
+          "category_id": null,
+          "category_name": null,
+          "category_color": null,
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "None",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 86,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-26",
+          "amount": {
+            "minor": -3850,
+            "currency": "EUR",
+            "plain": "-38.50"
+          },
+          "balance_after": {
+            "minor": 2657721,
+            "currency": "EUR",
+            "plain": "26577.21"
+          },
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "purpose": "Tanken",
+          "category_id": 9,
+          "category_name": "Transport",
+          "category_color": "#A77105",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 147,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-25",
+          "amount": {
+            "minor": -3670,
+            "currency": "EUR",
+            "plain": "-36.70"
+          },
+          "balance_after": {
+            "minor": -118672,
+            "currency": "EUR",
+            "plain": "-1186.72"
+          },
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "purpose": "Mittagessen",
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "category_color": "#3B88E7",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 85,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-23",
+          "amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "balance_after": {
+            "minor": 2661571,
+            "currency": "EUR",
+            "plain": "26615.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "purpose": "Überweisung an Erika",
+          "category_id": 18,
+          "category_name": "Own transfers",
+          "category_color": "#00A06E",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": true,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 84,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-18",
+          "amount": {
+            "minor": -1499,
+            "currency": "EUR",
+            "plain": "-14.99"
+          },
+          "balance_after": {
+            "minor": 2676571,
+            "currency": "EUR",
+            "plain": "26765.71"
+          },
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "purpose": "Abo",
+          "category_id": 5,
+          "category_name": "Phone, internet & media",
+          "category_color": "#867DFF",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 146,
+          "account_id": 3,
+          "account_iban": null,
+          "date": "2026-10-17",
+          "amount": {
+            "minor": -4900,
+            "currency": "EUR",
+            "plain": "-49.00"
+          },
+          "balance_after": {
+            "minor": -115002,
+            "currency": "EUR",
+            "plain": "-1150.02"
+          },
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "purpose": "Online-Bestellung",
+          "category_id": 1,
+          "category_name": "Groceries",
+          "category_color": "#E76530",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        },
+        {
+          "id": 83,
+          "account_id": 1,
+          "account_iban": "DE89370400440532013000",
+          "date": "2026-10-12",
+          "amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "balance_after": {
+            "minor": 2678070,
+            "currency": "EUR",
+            "plain": "26780.70"
+          },
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "purpose": "Abschlag Strom",
+          "category_id": 4,
+          "category_name": "Energy",
+          "category_color": "#D56A93",
+          "is_tax_relevant": false,
+          "document_count": 0,
+          "is_new": false,
+          "is_transfer": false,
+          "tax_source": "Category",
+          "tax_rule_pattern": null,
+          "tax_override": null
+        }
+      ],
+      "expenses_by_category": [
+        {
+          "label": "Housing",
+          "amount": {
+            "minor": 85000,
+            "currency": "EUR",
+            "plain": "850.00"
+          },
+          "color": "#C38400",
+          "category_id": 3
+        },
+        {
+          "label": "Groceries",
+          "amount": {
+            "minor": 9240,
+            "currency": "EUR",
+            "plain": "92.40"
+          },
+          "color": "#E76530",
+          "category_id": 1
+        },
+        {
+          "label": "Energy",
+          "amount": {
+            "minor": 4200,
+            "currency": "EUR",
+            "plain": "42.00"
+          },
+          "color": "#D56A93",
+          "category_id": 4
+        },
+        {
+          "label": "Transport",
+          "amount": {
+            "minor": 2950,
+            "currency": "EUR",
+            "plain": "29.50"
+          },
+          "color": "#A77105",
+          "category_id": 9
+        },
+        {
+          "label": "Phone, internet & media",
+          "amount": {
+            "minor": 1499,
+            "currency": "EUR",
+            "plain": "14.99"
+          },
+          "color": "#867DFF",
+          "category_id": 5
+        }
+      ],
+      "tax_deductions_by_category": [],
+      "last_months": [
+        {
+          "year": 2025,
+          "month": 8,
+          "income": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "expenses": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "partial": false
+        },
+        {
+          "year": 2025,
+          "month": 9,
+          "income": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "expenses": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "partial": false
+        },
+        {
+          "year": 2025,
+          "month": 10,
+          "income": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "expenses": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "partial": false
+        },
+        {
+          "year": 2025,
+          "month": 11,
+          "income": {
+            "minor": 1820000,
+            "currency": "EUR",
+            "plain": "18200.00"
+          },
+          "expenses": {
+            "minor": 103689,
+            "currency": "EUR",
+            "plain": "1036.89"
+          },
+          "partial": false
+        },
+        {
+          "year": 2025,
+          "month": 12,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 103689,
+            "currency": "EUR",
+            "plain": "1036.89"
+          },
+          "partial": false
+        },
+        {
+          "year": 2026,
+          "month": 1,
+          "income": {
+            "minor": 360325,
+            "currency": "EUR",
+            "plain": "3603.25"
+          },
+          "expenses": {
+            "minor": 102889,
+            "currency": "EUR",
+            "plain": "1028.89"
+          },
+          "partial": false
+        }
+      ],
+      "budgets": [
+        {
+          "category_id": 1,
+          "category_name": "Groceries",
+          "color": "#E76530",
+          "limit": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "spent": {
+            "minor": 9240,
+            "currency": "EUR",
+            "plain": "92.40"
+          },
+          "ratio": 0.231,
+          "remaining": {
+            "minor": 30760,
+            "currency": "EUR",
+            "plain": "307.60"
+          },
+          "is_over": false
+        },
+        {
+          "category_id": 14,
+          "category_name": "Restaurants & cafés",
+          "color": "#3B88E7",
+          "limit": {
+            "minor": 15000,
+            "currency": "EUR",
+            "plain": "150.00"
+          },
+          "spent": {
+            "minor": 0,
+            "currency": "EUR",
+            "plain": "0.00"
+          },
+          "ratio": 0,
+          "remaining": {
+            "minor": 15000,
+            "currency": "EUR",
+            "plain": "150.00"
+          },
+          "is_over": false
+        }
+      ],
+      "upcoming": [
+        {
+          "name": "Erika Musterfrau",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -15000,
+            "currency": "EUR",
+            "plain": "-150.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-23",
+          "next_date": "2026-10-23",
+          "occurrences": 10,
+          "category_name": "Own transfers",
+          "currency": "EUR",
+          "is_transfer": true,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -180000,
+            "currency": "EUR",
+            "plain": "-1800.00"
+          }
+        },
+        {
+          "name": "Aral Tankstelle",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -3350,
+            "currency": "EUR",
+            "plain": "-33.50"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-26",
+          "next_date": "2026-10-26",
+          "occurrences": 10,
+          "category_name": "Transport",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -40200,
+            "currency": "EUR",
+            "plain": "-402.00"
+          }
+        },
+        {
+          "name": "Beispiel Bank",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 325,
+            "currency": "EUR",
+            "plain": "3.25"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-09-27",
+          "next_date": "2026-10-27",
+          "occurrences": 9,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3900,
+            "currency": "EUR",
+            "plain": "39.00"
+          }
+        },
+        {
+          "name": "Max Mustermann",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 40000,
+            "currency": "EUR",
+            "plain": "400.00"
+          },
+          "fixed_amount": false,
+          "last_date": "2026-09-28",
+          "next_date": "2026-10-28",
+          "occurrences": 10,
+          "category_name": null,
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 480000,
+            "currency": "EUR",
+            "plain": "4800.00"
+          }
+        },
+        {
+          "name": "Employer GmbH",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": 320000,
+            "currency": "EUR",
+            "plain": "3200.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-01",
+          "next_date": "2026-11-01",
+          "occurrences": 11,
+          "category_name": "Salary",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": true,
+          "yearly_amount": {
+            "minor": 3840000,
+            "currency": "EUR",
+            "plain": "38400.00"
+          }
+        },
+        {
+          "name": "Vermieter",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -85000,
+            "currency": "EUR",
+            "plain": "-850.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-03",
+          "next_date": "2026-11-03",
+          "occurrences": 11,
+          "category_name": "Housing",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -1020000,
+            "currency": "EUR",
+            "plain": "-10200.00"
+          }
+        },
+        {
+          "name": "Bäckerei Schmidt",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -850,
+            "currency": "EUR",
+            "plain": "-8.50"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-11",
+          "next_date": "2026-11-11",
+          "occurrences": 8,
+          "category_name": "Groceries",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -10200,
+            "currency": "EUR",
+            "plain": "-102.00"
+          }
+        },
+        {
+          "name": "Stadtwerke Köln",
+          "cadence": "Monthly",
+          "typical_amount": {
+            "minor": -4200,
+            "currency": "EUR",
+            "plain": "-42.00"
+          },
+          "fixed_amount": true,
+          "last_date": "2026-10-12",
+          "next_date": "2026-11-12",
+          "occurrences": 11,
+          "category_name": "Energy",
+          "currency": "EUR",
+          "is_transfer": false,
+          "is_income": false,
+          "yearly_amount": {
+            "minor": -50400,
+            "currency": "EUR",
+            "plain": "-504.00"
+          }
+        }
+      ],
+      "month_progress": 1,
+      "transfers_this_month": {
+        "minor": 15000,
+        "currency": "EUR",
+        "plain": "150.00"
+      },
+      "selected_month": {
+        "year": 2026,
+        "month": 1
+      },
+      "loaded_month": {
+        "year": 2026,
+        "month": 1
+      },
+      "earliest_month": {
+        "year": 2025,
+        "month": 11
+      },
+      "current_month": {
+        "year": 2026,
+        "month": 10
+      },
+      "has_accounts": true
+    }
+  }
+]

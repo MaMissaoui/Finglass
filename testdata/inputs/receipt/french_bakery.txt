@@ -1,0 +1,5 @@
+Boulangerie Dupont
+Date 12/03/2026
+Croissant 1,20
+Pain 2,80
+Total 4,00 €

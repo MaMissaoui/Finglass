@@ -1,0 +1,16 @@
+Buchungstag;Betrag;Beguenstigter/Zahlungspflichtiger;Verwendungszweck;Saldo;Waehrung
+15.01.2026;3200,00;Employer GmbH;Gehalt Januar;3200,00;EUR
+20.01.2026;-850,00;Vermieter;Miete Januar;2350,00;EUR
+28.01.2026;-92,40;REWE Markt GmbH;Wocheneinkauf;2257,60;EUR
+15.02.2026;3200,00;Employer GmbH;Gehalt Februar;5457,60;EUR
+20.02.2026;-850,00;Vermieter;Miete Februar;4607,60;EUR
+27.02.2026;-104,10;REWE Markt GmbH;Wocheneinkauf;4503,50;EUR
+15.03.2026;3200,00;Employer GmbH;Gehalt März;7703,50;EUR
+20.03.2026;-850,00;Vermieter;Miete März;6853,50;EUR
+29.03.2026;-78,90;Bäckerei Schmidt;Brötchen und Kaffee;6774,60;EUR
+15.04.2026;3200,00;Employer GmbH;Gehalt April;9974,60;EUR
+20.04.2026;-850,00;Vermieter;Miete April;9124,60;EUR
+30.04.2026;-112,35;REWE Markt GmbH;Wocheneinkauf;9012,25;EUR
+15.05.2026;3200,00;Employer GmbH;Gehalt Mai;12212,25;EUR
+20.05.2026;-850,00;Vermieter;Miete Mai;11362,25;EUR
+31.05.2026;-95,20;REWE Markt GmbH;Wocheneinkauf;11267,05;EUR

@@ -1,0 +1,3527 @@
+[
+  {
+    "file": "bad_rows.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [
+        "Line 3: no valid date 'kein Datum'",
+        "Line 4: no valid amount 'abc'"
+      ],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Verwendungszweck"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": null,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 2,
+          "currency": null,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": null,
+          "amount": "-1.00",
+          "currency": null,
+          "partner_name": null,
+          "partner_iban": null,
+          "purpose": "ok",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Verwendungszweck",
+          "Saldo",
+          "Waehrung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": 5,
+          "balance": 4
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-03-03",
+          "value_date": null,
+          "amount": "-24.90",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "975.10",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-03",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "966.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-04",
+          "value_date": null,
+          "amount": "-52.00",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "914.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-02",
+          "value_date": null,
+          "amount": "-31.20",
+          "currency": "EUR",
+          "partner_name": "Apotheke am Markt",
+          "partner_iban": null,
+          "purpose": "Medikamente",
+          "balance_after": "883.40",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-05",
+          "value_date": null,
+          "amount": "-14.00",
+          "currency": "EUR",
+          "partner_name": "Café de Flore",
+          "partner_iban": null,
+          "purpose": "Frühstück",
+          "balance_after": "869.40",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-02",
+          "value_date": null,
+          "amount": "-67.80",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "801.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "781.61",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Verwendungszweck",
+          "Saldo",
+          "Waehrung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": 5,
+          "balance": 4
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-01-15",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Januar",
+          "balance_after": "3200.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-20",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete Januar",
+          "balance_after": "2350.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-28",
+          "value_date": null,
+          "amount": "-92.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "2257.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-15",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Februar",
+          "balance_after": "5457.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-20",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete Februar",
+          "balance_after": "4607.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-27",
+          "value_date": null,
+          "amount": "-104.10",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "4503.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-15",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt März",
+          "balance_after": "7703.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-20",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete März",
+          "balance_after": "6853.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-29",
+          "value_date": null,
+          "amount": "-78.90",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Brötchen und Kaffee",
+          "balance_after": "6774.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-15",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt April",
+          "balance_after": "9974.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-20",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete April",
+          "balance_after": "9124.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-30",
+          "value_date": null,
+          "amount": "-112.35",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "9012.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-15",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Mai",
+          "balance_after": "12212.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-20",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete Mai",
+          "balance_after": "11362.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-31",
+          "value_date": null,
+          "amount": "-95.20",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "11267.05",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "balance_savings_2026.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Verwendungszweck",
+          "Saldo",
+          "Waehrung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": 5,
+          "balance": 4
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-05-31",
+          "value_date": null,
+          "amount": "5400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate Mai",
+          "balance_after": "15400.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-30",
+          "value_date": null,
+          "amount": "12.50",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen April",
+          "balance_after": "10012.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-31",
+          "value_date": null,
+          "amount": "5400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate März",
+          "balance_after": "10000.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-28",
+          "value_date": null,
+          "amount": "11.80",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen Februar",
+          "balance_after": "4600.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-31",
+          "value_date": null,
+          "amount": "5400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate Januar",
+          "balance_after": "4588.20",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "bank_norwegian_xlsx.xlsx",
+    "ok": true,
+    "statement": {
+      "format": "Xlsx",
+      "format_label": "XLSX",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "XLSX",
+        "header_line": 1,
+        "headers": [
+          "TransactionDate",
+          "Text",
+          "Type",
+          "Currency Amount",
+          "Currency Rate",
+          "Currency",
+          "Amount",
+          "Merchant Area",
+          "Merchant Category",
+          "BookDate",
+          "ValueDate"
+        ],
+        "mapping": {
+          "date": 9,
+          "value_date": 10,
+          "amount": 6,
+          "debit": null,
+          "credit": null,
+          "partner": null,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 1,
+          "currency": null,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-08-04",
+          "value_date": "2026-08-05",
+          "amount": "-82.36",
+          "currency": null,
+          "partner_name": null,
+          "partner_iban": null,
+          "purpose": "Simpl Jewellery",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "camt052_report.xml",
+    "ok": true,
+    "statement": {
+      "format": "Camt053",
+      "format_label": "CAMT.052 XML",
+      "format_detail": "CAMT.052",
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-01",
+          "value_date": "2026-10-01",
+          "amount": "-10.00",
+          "currency": "EUR",
+          "partner_name": "Partner",
+          "partner_iban": null,
+          "purpose": null,
+          "balance_after": null,
+          "bank_reference": "A1"
+        }
+      ]
+    }
+  },
+  {
+    "file": "camt053_closing_balance.xml",
+    "ok": true,
+    "statement": {
+      "format": "Camt053",
+      "format_label": "CAMT.053 XML",
+      "format_detail": "CAMT.053",
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": {
+        "amount": "80.00",
+        "date": "2026-02-28",
+        "currency": "EUR",
+        "pending_excluded": 1
+      },
+      "bookings": [
+        {
+          "date": "2026-02-05",
+          "value_date": "2026-02-05",
+          "amount": "-30.00",
+          "currency": "EUR",
+          "partner_name": "Café",
+          "partner_iban": null,
+          "purpose": null,
+          "balance_after": null,
+          "bank_reference": "R1"
+        },
+        {
+          "date": "2026-02-05",
+          "value_date": "2026-02-05",
+          "amount": "10.00",
+          "currency": "EUR",
+          "partner_name": null,
+          "partner_iban": null,
+          "purpose": null,
+          "balance_after": null,
+          "bank_reference": "R2"
+        }
+      ]
+    }
+  },
+  {
+    "file": "camt053_entries.xml",
+    "ok": true,
+    "statement": {
+      "format": "Camt053",
+      "format_label": "CAMT.053 XML",
+      "format_detail": "CAMT.053",
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": "2026-10-03",
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": "DE44500105175407324931",
+          "purpose": "REWE SAGT DANKE 1234",
+          "balance_after": null,
+          "bank_reference": "REF-1"
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "camt_zip_two_statements.zip",
+    "ok": true,
+    "statement": {
+      "format": "Camt053",
+      "format_label": "CAMT.053 XML",
+      "format_detail": "CAMT.053",
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": "2026-10-03",
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": "DE44500105175407324931",
+          "purpose": "REWE SAGT DANKE 1234",
+          "balance_after": null,
+          "bank_reference": "REF-1"
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "comdirect_preset_2026_10.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Valuta",
+          "Auftraggeber/Empfänger",
+          "Buchungstext",
+          "Verwendungszweck",
+          "Betrag",
+          "Währung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": 1,
+          "amount": 5,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 4,
+          "currency": 6,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": "2026-10-03",
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": "2026-10-01",
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "commerzbank_preset_2026_10.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Wertstellung",
+          "Auftraggeber/Empfänger",
+          "Verwendungszweck",
+          "Betrag",
+          "Währung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": 1,
+          "amount": 4,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": 5,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-02",
+          "value_date": "2026-10-02",
+          "amount": "-80.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": "2026-10-01",
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "dashboard_card.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Verwendungszweck",
+          "Saldo",
+          "Waehrung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": 5,
+          "balance": 4
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-02-04",
+          "value_date": null,
+          "amount": "-26.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-26.40",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-46.39",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-54.89",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-103.89",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-140.59",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-04",
+          "value_date": null,
+          "amount": "-28.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-168.99",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-188.98",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-197.48",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-246.48",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-283.18",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-04",
+          "value_date": null,
+          "amount": "-30.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-313.58",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-333.57",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-342.07",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-391.07",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-427.77",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-04",
+          "value_date": null,
+          "amount": "-32.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-460.17",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-480.16",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-488.66",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-537.66",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-574.36",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-04",
+          "value_date": null,
+          "amount": "-34.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-608.76",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-628.75",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-637.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-686.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-722.95",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-04",
+          "value_date": null,
+          "amount": "-38.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-761.35",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-781.34",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-789.84",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-838.84",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-875.54",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-04",
+          "value_date": null,
+          "amount": "-40.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-915.94",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-935.93",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-944.43",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-993.43",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-1030.13",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-04",
+          "value_date": null,
+          "amount": "-42.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Kartenzahlung",
+          "balance_after": "-1072.53",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "-1092.52",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-11",
+          "value_date": null,
+          "amount": "-8.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Kaffee",
+          "balance_after": "-1101.02",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-17",
+          "value_date": null,
+          "amount": "-49.00",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Online-Bestellung",
+          "balance_after": "-1150.02",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-25",
+          "value_date": null,
+          "amount": "-36.70",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Mittagessen",
+          "balance_after": "-1186.72",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Verwendungszweck",
+          "Saldo",
+          "Waehrung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": 5,
+          "balance": 4
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2025-11-01",
+          "value_date": null,
+          "amount": "5000.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Startguthaben",
+          "balance_after": "5000.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-11-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 11/2025",
+          "balance_after": "8200.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-11-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 11/2025",
+          "balance_after": "7350.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-11-08",
+          "value_date": null,
+          "amount": "-96.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "7253.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-11-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "7211.60",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-11-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "7196.61",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-11-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "7046.61",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-11-26",
+          "value_date": null,
+          "amount": "-33.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "7013.11",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 12/2025",
+          "balance_after": "10213.11",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 12/2025",
+          "balance_after": "9363.11",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-08",
+          "value_date": null,
+          "amount": "-96.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "9266.71",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "9224.71",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "9209.72",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "9059.72",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-26",
+          "value_date": null,
+          "amount": "-33.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "9026.22",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 01/2026",
+          "balance_after": "12226.22",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 01/2026",
+          "balance_after": "11376.22",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-08",
+          "value_date": null,
+          "amount": "-92.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "11283.82",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "11241.82",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "11226.83",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "11076.83",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-26",
+          "value_date": null,
+          "amount": "-29.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "11047.33",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 02/2026",
+          "balance_after": "14247.33",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 02/2026",
+          "balance_after": "13397.33",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-08",
+          "value_date": null,
+          "amount": "-95.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "13301.93",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "13259.93",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "13244.94",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-20",
+          "value_date": null,
+          "amount": "-38.90",
+          "currency": "EUR",
+          "partner_name": "Apotheke am Markt",
+          "partner_iban": null,
+          "purpose": "Medikamente",
+          "balance_after": "13206.04",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "13056.04",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-26",
+          "value_date": null,
+          "amount": "-30.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "13025.54",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 03/2026",
+          "balance_after": "16225.54",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 03/2026",
+          "balance_after": "15375.54",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-08",
+          "value_date": null,
+          "amount": "-98.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "15277.14",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "15235.14",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "15220.15",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-21",
+          "value_date": null,
+          "amount": "-64.00",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Abendessen",
+          "balance_after": "15156.15",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "15006.15",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-26",
+          "value_date": null,
+          "amount": "-31.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "14974.65",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 04/2026",
+          "balance_after": "18174.65",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 04/2026",
+          "balance_after": "17324.65",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-08",
+          "value_date": null,
+          "amount": "-101.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "17223.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "17181.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-15",
+          "value_date": null,
+          "amount": "-120.00",
+          "currency": "EUR",
+          "partner_name": "Spende Beispielhilfe",
+          "partner_iban": null,
+          "purpose": "Spende",
+          "balance_after": "17061.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "17046.26",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "16896.26",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-26",
+          "value_date": null,
+          "amount": "-32.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "16863.76",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 05/2026",
+          "balance_after": "20063.76",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 05/2026",
+          "balance_after": "19213.76",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-08",
+          "value_date": null,
+          "amount": "-104.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "19109.36",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "19067.36",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "19052.37",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-20",
+          "value_date": null,
+          "amount": "-38.90",
+          "currency": "EUR",
+          "partner_name": "Apotheke am Markt",
+          "partner_iban": null,
+          "purpose": "Medikamente",
+          "balance_after": "19013.47",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "18863.47",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-26",
+          "value_date": null,
+          "amount": "-33.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "18829.97",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 06/2026",
+          "balance_after": "22029.97",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 06/2026",
+          "balance_after": "21179.97",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-08",
+          "value_date": null,
+          "amount": "-107.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "21072.57",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "21030.57",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "21015.58",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-21",
+          "value_date": null,
+          "amount": "-64.00",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Abendessen",
+          "balance_after": "20951.58",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "20801.58",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-26",
+          "value_date": null,
+          "amount": "-34.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "20767.08",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 08/2026",
+          "balance_after": "23967.08",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 08/2026",
+          "balance_after": "23117.08",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-08",
+          "value_date": null,
+          "amount": "-113.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "23003.68",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "22961.68",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "22946.69",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-20",
+          "value_date": null,
+          "amount": "-38.90",
+          "currency": "EUR",
+          "partner_name": "Apotheke am Markt",
+          "partner_iban": null,
+          "purpose": "Medikamente",
+          "balance_after": "22907.79",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "22757.79",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-26",
+          "value_date": null,
+          "amount": "-36.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "22721.29",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 09/2026",
+          "balance_after": "25921.29",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 09/2026",
+          "balance_after": "25071.29",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-08",
+          "value_date": null,
+          "amount": "-116.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "24954.89",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "24912.89",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "24897.90",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-21",
+          "value_date": null,
+          "amount": "-64.00",
+          "currency": "EUR",
+          "partner_name": "Restaurant Zur Post",
+          "partner_iban": null,
+          "purpose": "Abendessen",
+          "balance_after": "24833.90",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "24683.90",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-26",
+          "value_date": null,
+          "amount": "-37.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "24646.40",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt 10/2026",
+          "balance_after": "27846.40",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-03",
+          "value_date": null,
+          "amount": "-850.00",
+          "currency": "EUR",
+          "partner_name": "Vermieter",
+          "partner_iban": null,
+          "purpose": "Miete 10/2026",
+          "balance_after": "26996.40",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-05",
+          "value_date": null,
+          "amount": "-54.30",
+          "currency": "EUR",
+          "partner_name": "Beispiel Shop GmbH",
+          "partner_iban": null,
+          "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+          "balance_after": "26942.10",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-08",
+          "value_date": null,
+          "amount": "-119.40",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "Wocheneinkauf",
+          "balance_after": "26822.70",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-12",
+          "value_date": null,
+          "amount": "-42.00",
+          "currency": "EUR",
+          "partner_name": "Stadtwerke Köln",
+          "partner_iban": null,
+          "purpose": "Abschlag Strom",
+          "balance_after": "26780.70",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-18",
+          "value_date": null,
+          "amount": "-14.99",
+          "currency": "EUR",
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": "26765.71",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-23",
+          "value_date": null,
+          "amount": "-150.00",
+          "currency": "EUR",
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": null,
+          "purpose": "Überweisung an Erika",
+          "balance_after": "26615.71",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-26",
+          "value_date": null,
+          "amount": "-38.50",
+          "currency": "EUR",
+          "partner_name": "Aral Tankstelle",
+          "partner_iban": null,
+          "purpose": "Tanken",
+          "balance_after": "26577.21",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Verwendungszweck",
+          "Saldo",
+          "Waehrung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": 5,
+          "balance": 4
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2025-11-01",
+          "value_date": null,
+          "amount": "10000.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Startguthaben",
+          "balance_after": "10000.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "10003.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2025-12-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 12/2025",
+          "balance_after": "10403.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "10406.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-01-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 01/2026",
+          "balance_after": "10806.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "10809.75",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-02-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 02/2026",
+          "balance_after": "11209.75",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "11213.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-03-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 03/2026",
+          "balance_after": "11613.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "11616.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-04-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 04/2026",
+          "balance_after": "12016.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "12019.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-05-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 05/2026",
+          "balance_after": "12419.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "12422.75",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-06-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 06/2026",
+          "balance_after": "12822.75",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "12826.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-08-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 08/2026",
+          "balance_after": "13226.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "13229.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 09/2026",
+          "balance_after": "13629.25",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-27",
+          "value_date": null,
+          "amount": "3.25",
+          "currency": "EUR",
+          "partner_name": "Beispiel Bank",
+          "partner_iban": null,
+          "purpose": "Zinsen",
+          "balance_after": "13632.50",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-28",
+          "value_date": null,
+          "amount": "400.00",
+          "currency": "EUR",
+          "partner_name": "Max Mustermann",
+          "partner_iban": null,
+          "purpose": "Sparrate 10/2026",
+          "balance_after": "14032.50",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "detect_camt_without_extension.dat",
+    "ok": true,
+    "statement": {
+      "format": "Camt053",
+      "format_label": "CAMT.053 XML",
+      "format_detail": "CAMT.053",
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": "2026-10-03",
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": "DE44500105175407324931",
+          "purpose": "REWE SAGT DANKE 1234",
+          "balance_after": null,
+          "bank_reference": "REF-1"
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "detect_mt940_without_extension.dat",
+    "ok": true,
+    "statement": {
+      "format": "Mt940",
+      "format_label": "MT940",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2023-10-31",
+          "value_date": "2023-10-30",
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "REWE SAGT DANKE1234",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2023-11-02",
+          "value_date": "2023-10-31",
+          "amount": "500.00",
+          "currency": "EUR",
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2024-01-02",
+          "value_date": "2023-12-31",
+          "amount": "-100.00",
+          "currency": "EUR",
+          "partner_name": "Kunde AG",
+          "partner_iban": null,
+          "purpose": "Lastschrift retour",
+          "balance_after": null,
+          "bank_reference": "RUECKLASTSCHRIFT"
+        }
+      ]
+    }
+  },
+  {
+    "file": "dkb_2026_10.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [],
+      "pending_skipped": 1,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 3,
+        "headers": [
+          "Buchungsdatum",
+          "Wertstellung",
+          "Status",
+          "Zahlungspflichtige*r",
+          "Zahlungsempfänger*in",
+          "Verwendungszweck",
+          "Umsatztyp",
+          "IBAN",
+          "Betrag (€)",
+          "Gläubiger-ID",
+          "Mandatsreferenz",
+          "Kundenreferenz"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": 1,
+          "amount": 8,
+          "debit": null,
+          "credit": null,
+          "partner": 4,
+          "payer": 3,
+          "partner_iban": 7,
+          "purpose": 5,
+          "currency": null,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-02",
+          "value_date": "2026-10-02",
+          "amount": "-80.00",
+          "currency": null,
+          "partner_name": "Stadtwerke",
+          "partner_iban": "DE44500105175407324931",
+          "purpose": "Abschlag Strom",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": "2026-10-01",
+          "amount": "400.00",
+          "currency": null,
+          "partner_name": "Erika Musterfrau",
+          "partner_iban": "DE44500105175407324931",
+          "purpose": "Miete Anteil",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "english_debit_credit_2026_09.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ",",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Date",
+          "Description",
+          "Payee",
+          "Debit",
+          "Credit",
+          "Balance"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": null,
+          "debit": 3,
+          "credit": 4,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 1,
+          "currency": null,
+          "balance": 5
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-09-30",
+          "value_date": null,
+          "amount": "-4.50",
+          "currency": null,
+          "partner_name": "Pret A Manger",
+          "partner_iban": null,
+          "purpose": "Card payment London",
+          "balance_after": "100.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-29",
+          "value_date": null,
+          "amount": "1500.00",
+          "currency": null,
+          "partner_name": "ACME Ltd",
+          "partner_iban": null,
+          "purpose": "Salary",
+          "balance_after": "104.50",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "findesk_own_export_en.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ",",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Date",
+          "Partner",
+          "Purpose",
+          "Category",
+          "Amount",
+          "Currency",
+          "Account",
+          "Balance",
+          "Shop"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 4,
+          "debit": null,
+          "credit": null,
+          "partner": 1,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 2,
+          "currency": 5,
+          "balance": 7
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-09-30",
+          "value_date": null,
+          "amount": "-4.50",
+          "currency": "EUR",
+          "partner_name": "Pret A Manger",
+          "partner_iban": null,
+          "purpose": "Card payment",
+          "balance_after": "100.00",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-09-29",
+          "value_date": null,
+          "amount": "1500.00",
+          "currency": "EUR",
+          "partner_name": "ACME Ltd",
+          "partner_iban": null,
+          "purpose": "Salary",
+          "balance_after": "104.50",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "hvb_card_utf16le.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-16LE",
+        "header_line": 1,
+        "headers": [
+          "Kartennummer",
+          "Zeitraum",
+          "Belegdatum",
+          "Eingangstag",
+          "Text/Verwendungszweck",
+          "Kurs",
+          "Betrag",
+          "Waehrung"
+        ],
+        "mapping": {
+          "date": 3,
+          "value_date": 2,
+          "amount": 6,
+          "debit": null,
+          "credit": null,
+          "partner": null,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 4,
+          "currency": 7,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2025-05-06",
+          "value_date": "2025-05-03",
+          "amount": "-58.94",
+          "currency": "EUR",
+          "partner_name": null,
+          "partner_iban": null,
+          "purpose": "REWE SAGT DANKE Ü",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2025-05-07",
+          "value_date": "2025-05-04",
+          "amount": "-12.50",
+          "currency": "EUR",
+          "partner_name": null,
+          "partner_iban": null,
+          "purpose": "Tankstelle am Ring",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2025-05-08",
+          "value_date": "2025-05-05",
+          "amount": "123.45",
+          "currency": "EUR",
+          "partner_name": null,
+          "partner_iban": null,
+          "purpose": "Rückzahlung Versicherung",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "ing_preamble_2026_10.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 12,
+        "headers": [
+          "Buchung",
+          "Valuta",
+          "Auftraggeber/Empfänger",
+          "Buchungstext",
+          "Verwendungszweck",
+          "Saldo",
+          "Währung",
+          "Betrag",
+          "Währung"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": 1,
+          "amount": 7,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 4,
+          "currency": 6,
+          "balance": 5
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-02",
+          "value_date": "2026-10-02",
+          "amount": "-89.99",
+          "currency": "EUR",
+          "partner_name": "AMAZON EU",
+          "partner_iban": null,
+          "purpose": "Bestellung 303-123; Monitor",
+          "balance_after": "5234.56",
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": "2026-10-01",
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt",
+          "balance_after": "5324.55",
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "mt940_bank_reference.sta",
+    "ok": true,
+    "statement": {
+      "format": "Mt940",
+      "format_label": "MT940",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2024-01-02",
+          "value_date": "2024-01-02",
+          "amount": "-25.00",
+          "currency": "EUR",
+          "partner_name": null,
+          "partner_iban": null,
+          "purpose": "Taxi",
+          "balance_after": null,
+          "bank_reference": "1234567890"
+        }
+      ]
+    }
+  },
+  {
+    "file": "mt940_structured_86.sta",
+    "ok": true,
+    "statement": {
+      "format": "Mt940",
+      "format_label": "MT940",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2024-01-03",
+          "value_date": "2024-01-02",
+          "amount": "1234.56",
+          "currency": "EUR",
+          "partner_name": "Max Muster",
+          "partner_iban": "DE89370400440532013000",
+          "purpose": "EREF+XSVWZ+Rechnung 4711Weitere Zeile",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "mt940_two_statements.sta",
+    "ok": true,
+    "statement": {
+      "format": "Mt940",
+      "format_label": "MT940",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2023-10-31",
+          "value_date": "2023-10-30",
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "REWE SAGT DANKE1234",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2023-11-02",
+          "value_date": "2023-10-31",
+          "amount": "500.00",
+          "currency": "EUR",
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2024-01-02",
+          "value_date": "2023-12-31",
+          "amount": "-100.00",
+          "currency": "EUR",
+          "partner_name": "Kunde AG",
+          "partner_iban": null,
+          "purpose": "Lastschrift retour",
+          "balance_after": null,
+          "bank_reference": "RUECKLASTSCHRIFT"
+        }
+      ]
+    }
+  },
+  {
+    "file": "n26_preset_2026_10.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Date",
+          "Payee",
+          "Purpose",
+          "Amount",
+          "Currency"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 3,
+          "debit": null,
+          "credit": null,
+          "partner": 1,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 2,
+          "currency": 4,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": null,
+          "amount": "-4.50",
+          "currency": "EUR",
+          "partner_name": "Bäckerei Schmidt",
+          "partner_iban": null,
+          "purpose": "Brötchen",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Employer GmbH",
+          "partner_iban": null,
+          "purpose": "Salary",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "ofx_sgml.ofx",
+    "ok": true,
+    "statement": {
+      "format": "Ofx",
+      "format_label": "OFX",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": null,
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "REWE SAGT DANKE 1234",
+          "balance_after": null,
+          "bank_reference": "REF-1"
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": "REF-2"
+        }
+      ]
+    }
+  },
+  {
+    "file": "ofx_xml.ofx",
+    "ok": true,
+    "statement": {
+      "format": "Ofx",
+      "format_label": "OFX",
+      "format_detail": null,
+      "account_iban": "DE89370400440532013000",
+      "accounts": [
+        "DE89370400440532013000"
+      ],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": null,
+          "amount": "-45.67",
+          "currency": "USD",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "REWE SAGT DANKE 1234",
+          "balance_after": null,
+          "bank_reference": "REF-1"
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": "USD",
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": "REF-2"
+        }
+      ]
+    }
+  },
+  {
+    "file": "paypal_2026_10.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "Buchungstag",
+          "Betrag",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Verwendungszweck"
+        ],
+        "mapping": {
+          "date": 0,
+          "value_date": null,
+          "amount": 1,
+          "debit": null,
+          "credit": null,
+          "partner": 2,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": 3,
+          "currency": null,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-05",
+          "value_date": null,
+          "amount": "-12.99",
+          "currency": null,
+          "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+          "partner_iban": null,
+          "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-06",
+          "value_date": null,
+          "amount": "-19.99",
+          "currency": null,
+          "partner_name": "PAYPAL *BEISPIELSHOP",
+          "partner_iban": null,
+          "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-07",
+          "value_date": null,
+          "amount": "-4.50",
+          "currency": null,
+          "partner_name": "Netflix",
+          "partner_iban": null,
+          "purpose": "Abo",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "qif_german_dates.qif",
+    "ok": true,
+    "statement": {
+      "format": "Qif",
+      "format_label": "QIF",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": null,
+          "amount": "-45.67",
+          "currency": null,
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": null,
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": null,
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": null,
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "qif_us_dates.qif",
+    "ok": true,
+    "statement": {
+      "format": "Qif",
+      "format_label": "QIF",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [],
+      "csv": null,
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": null,
+          "amount": "-45.67",
+          "currency": null,
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": null,
+          "purpose": "REWE SAGT DANKE 1234",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": null,
+          "amount": "3200.00",
+          "currency": null,
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "sparkasse_camt_export_2026_10.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 1,
+      "skipped": [],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "windows-1252",
+        "header_line": 1,
+        "headers": [
+          "Auftragskonto",
+          "Buchungstag",
+          "Valutadatum",
+          "Buchungstext",
+          "Verwendungszweck",
+          "Glaeubiger ID",
+          "Mandatsreferenz",
+          "Kundenreferenz (End-to-End)",
+          "Sammlerreferenz",
+          "Lastschrift Ursprungsbetrag",
+          "Auslagenersatz Ruecklastschrift",
+          "Beguenstigter/Zahlungspflichtiger",
+          "Kontonummer/IBAN",
+          "BIC (SWIFT-Code)",
+          "Betrag",
+          "Waehrung",
+          "Info"
+        ],
+        "mapping": {
+          "date": 1,
+          "value_date": 2,
+          "amount": 14,
+          "debit": null,
+          "credit": null,
+          "partner": 11,
+          "payer": null,
+          "partner_iban": 12,
+          "purpose": 4,
+          "currency": 15,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": [
+        {
+          "date": "2026-10-03",
+          "value_date": "2026-10-03",
+          "amount": "-45.67",
+          "currency": "EUR",
+          "partner_name": "REWE Markt GmbH",
+          "partner_iban": "DE44500105175407324931",
+          "purpose": "REWE SAGT DANKE 1234",
+          "balance_after": null,
+          "bank_reference": null
+        },
+        {
+          "date": "2026-10-01",
+          "value_date": "2026-10-01",
+          "amount": "3200.00",
+          "currency": "EUR",
+          "partner_name": "Müller & Söhne GmbH",
+          "partner_iban": null,
+          "purpose": "Gehalt Oktober",
+          "balance_after": null,
+          "bank_reference": null
+        }
+      ]
+    }
+  },
+  {
+    "file": "unknown_layout.csv",
+    "ok": true,
+    "statement": {
+      "format": "Csv",
+      "format_label": "CSV",
+      "format_detail": null,
+      "account_iban": null,
+      "accounts": [],
+      "pending_skipped": 0,
+      "skipped": [
+        "Date and amount columns not recognised"
+      ],
+      "csv": {
+        "delimiter": ";",
+        "charset_name": "UTF-8",
+        "header_line": 1,
+        "headers": [
+          "When",
+          "What",
+          "How much"
+        ],
+        "mapping": {
+          "date": null,
+          "value_date": null,
+          "amount": null,
+          "debit": null,
+          "credit": null,
+          "partner": null,
+          "payer": null,
+          "partner_iban": null,
+          "purpose": null,
+          "currency": null,
+          "balance": null
+        }
+      },
+      "closing_balance": null,
+      "bookings": []
+    }
+  }
+]

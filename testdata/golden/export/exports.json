@@ -1,0 +1,168 @@
+{
+  "csv": [
+    {
+      "language": "en",
+      "text": "﻿Date,Partner,Purpose,Category,Amount,Currency,Account,Shop\r\n2026-10-28,Max Mustermann,Sparrate 10/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-10-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-10-26,Aral Tankstelle,Tanken,Transport,-38.50,EUR,DE89370400440532013000,\r\n2026-10-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-10-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-10-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-10-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-10-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-10-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-10-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-119.40,EUR,DE89370400440532013000,\r\n2026-10-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-10-05,Beispiel Shop GmbH,Ihr Einkauf bei Beispiel Shop GmbH,Groceries,-54.30,EUR,DE89370400440532013000,\r\n2026-10-04,REWE Markt GmbH,Kartenzahlung,Groceries,-42.40,EUR,,\r\n2026-10-03,Vermieter,Miete 10/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-10-01,Employer GmbH,Gehalt 10/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-09-28,Max Mustermann,Sparrate 09/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-09-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-09-26,Aral Tankstelle,Tanken,Transport,-37.50,EUR,DE89370400440532013000,\r\n2026-09-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-09-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-09-21,Restaurant Zur Post,Abendessen,Restaurants & cafés,-64.00,EUR,DE89370400440532013000,\r\n2026-09-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-09-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-09-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-09-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-09-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-116.40,EUR,DE89370400440532013000,\r\n2026-09-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-09-04,REWE Markt GmbH,Kartenzahlung,Groceries,-40.40,EUR,,\r\n2026-09-03,Vermieter,Miete 09/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-09-01,Employer GmbH,Gehalt 09/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-08-28,Max Mustermann,Sparrate 08/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-08-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-08-26,Aral Tankstelle,Tanken,Transport,-36.50,EUR,DE89370400440532013000,\r\n2026-08-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-08-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-08-20,Apotheke am Markt,Medikamente,Health,-38.90,EUR,DE89370400440532013000,\r\n2026-08-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-08-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-08-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-08-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-08-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-113.40,EUR,DE89370400440532013000,\r\n2026-08-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-08-04,REWE Markt GmbH,Kartenzahlung,Groceries,-38.40,EUR,,\r\n2026-08-03,Vermieter,Miete 08/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-08-01,Employer GmbH,Gehalt 08/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-06-28,Max Mustermann,Sparrate 06/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-06-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-06-26,Aral Tankstelle,Tanken,Transport,-34.50,EUR,DE89370400440532013000,\r\n2026-06-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-06-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-06-21,Restaurant Zur Post,Abendessen,Restaurants & cafés,-64.00,EUR,DE89370400440532013000,\r\n2026-06-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-06-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-06-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-06-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-06-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-107.40,EUR,DE89370400440532013000,\r\n2026-06-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-06-04,REWE Markt GmbH,Kartenzahlung,Groceries,-34.40,EUR,,\r\n2026-06-03,Vermieter,Miete 06/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-06-01,Employer GmbH,Gehalt 06/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-05-28,Max Mustermann,Sparrate 05/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-05-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-05-26,Aral Tankstelle,Tanken,Transport,-33.50,EUR,DE89370400440532013000,\r\n2026-05-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-05-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-05-20,Apotheke am Markt,Medikamente,Health,-38.90,EUR,DE89370400440532013000,\r\n2026-05-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-05-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-05-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-05-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-05-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-104.40,EUR,DE89370400440532013000,\r\n2026-05-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-05-04,REWE Markt GmbH,Kartenzahlung,Groceries,-32.40,EUR,,\r\n2026-05-03,Vermieter,Miete 05/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-05-01,Employer GmbH,Gehalt 05/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-04-28,Max Mustermann,Sparrate 04/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-04-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-04-26,Aral Tankstelle,Tanken,Transport,-32.50,EUR,DE89370400440532013000,\r\n2026-04-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-04-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-04-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-04-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-04-15,Spende Beispielhilfe,Spende,Taxes & fees,-120.00,EUR,DE89370400440532013000,\r\n2026-04-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-04-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-04-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-101.40,EUR,DE89370400440532013000,\r\n2026-04-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-04-04,REWE Markt GmbH,Kartenzahlung,Groceries,-30.40,EUR,,\r\n2026-04-03,Vermieter,Miete 04/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-04-01,Employer GmbH,Gehalt 04/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-03-28,Max Mustermann,Sparrate 03/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-03-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-03-26,Aral Tankstelle,Tanken,Transport,-31.50,EUR,DE89370400440532013000,\r\n2026-03-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-03-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-03-21,Restaurant Zur Post,Abendessen,Restaurants & cafés,-64.00,EUR,DE89370400440532013000,\r\n2026-03-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-03-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-03-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-03-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-03-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-98.40,EUR,DE89370400440532013000,\r\n2026-03-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-03-04,REWE Markt GmbH,Kartenzahlung,Groceries,-28.40,EUR,,\r\n2026-03-03,Vermieter,Miete 03/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-03-01,Employer GmbH,Gehalt 03/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-02-28,Max Mustermann,Sparrate 02/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-02-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-02-26,Aral Tankstelle,Tanken,Transport,-30.50,EUR,DE89370400440532013000,\r\n2026-02-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-02-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-02-20,Apotheke am Markt,Medikamente,Health,-38.90,EUR,DE89370400440532013000,\r\n2026-02-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-02-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-02-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-02-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-02-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-95.40,EUR,DE89370400440532013000,\r\n2026-02-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-02-04,REWE Markt GmbH,Kartenzahlung,Groceries,-26.40,EUR,,\r\n2026-02-03,Vermieter,Miete 02/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-02-01,Employer GmbH,Gehalt 02/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-01-28,Max Mustermann,Sparrate 01/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-01-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-01-26,Aral Tankstelle,Tanken,Transport,-29.50,EUR,DE89370400440532013000,\r\n2026-01-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-01-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-01-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-01-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-92.40,EUR,DE89370400440532013000,\r\n2026-01-03,Vermieter,Miete 01/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-01-01,Employer GmbH,Gehalt 01/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n"
+    },
+    {
+      "language": "de",
+      "text": "﻿Datum,Partner,Verwendungszweck,Kategorie,Betrag,Währung,Konto,Händler\r\n2026-10-28,Max Mustermann,Sparrate 10/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-10-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-10-26,Aral Tankstelle,Tanken,Transport,-38.50,EUR,DE89370400440532013000,\r\n2026-10-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-10-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-10-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-10-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-10-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-10-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-10-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-119.40,EUR,DE89370400440532013000,\r\n2026-10-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-10-05,Beispiel Shop GmbH,Ihr Einkauf bei Beispiel Shop GmbH,Groceries,-54.30,EUR,DE89370400440532013000,\r\n2026-10-04,REWE Markt GmbH,Kartenzahlung,Groceries,-42.40,EUR,,\r\n2026-10-03,Vermieter,Miete 10/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-10-01,Employer GmbH,Gehalt 10/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-09-28,Max Mustermann,Sparrate 09/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-09-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-09-26,Aral Tankstelle,Tanken,Transport,-37.50,EUR,DE89370400440532013000,\r\n2026-09-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-09-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-09-21,Restaurant Zur Post,Abendessen,Restaurants & cafés,-64.00,EUR,DE89370400440532013000,\r\n2026-09-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-09-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-09-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-09-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-09-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-116.40,EUR,DE89370400440532013000,\r\n2026-09-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-09-04,REWE Markt GmbH,Kartenzahlung,Groceries,-40.40,EUR,,\r\n2026-09-03,Vermieter,Miete 09/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-09-01,Employer GmbH,Gehalt 09/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-08-28,Max Mustermann,Sparrate 08/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-08-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-08-26,Aral Tankstelle,Tanken,Transport,-36.50,EUR,DE89370400440532013000,\r\n2026-08-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-08-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-08-20,Apotheke am Markt,Medikamente,Health,-38.90,EUR,DE89370400440532013000,\r\n2026-08-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-08-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-08-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-08-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-08-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-113.40,EUR,DE89370400440532013000,\r\n2026-08-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-08-04,REWE Markt GmbH,Kartenzahlung,Groceries,-38.40,EUR,,\r\n2026-08-03,Vermieter,Miete 08/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-08-01,Employer GmbH,Gehalt 08/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-06-28,Max Mustermann,Sparrate 06/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-06-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-06-26,Aral Tankstelle,Tanken,Transport,-34.50,EUR,DE89370400440532013000,\r\n2026-06-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-06-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-06-21,Restaurant Zur Post,Abendessen,Restaurants & cafés,-64.00,EUR,DE89370400440532013000,\r\n2026-06-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-06-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-06-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-06-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-06-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-107.40,EUR,DE89370400440532013000,\r\n2026-06-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-06-04,REWE Markt GmbH,Kartenzahlung,Groceries,-34.40,EUR,,\r\n2026-06-03,Vermieter,Miete 06/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-06-01,Employer GmbH,Gehalt 06/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-05-28,Max Mustermann,Sparrate 05/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-05-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-05-26,Aral Tankstelle,Tanken,Transport,-33.50,EUR,DE89370400440532013000,\r\n2026-05-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-05-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-05-20,Apotheke am Markt,Medikamente,Health,-38.90,EUR,DE89370400440532013000,\r\n2026-05-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-05-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-05-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-05-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-05-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-104.40,EUR,DE89370400440532013000,\r\n2026-05-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-05-04,REWE Markt GmbH,Kartenzahlung,Groceries,-32.40,EUR,,\r\n2026-05-03,Vermieter,Miete 05/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-05-01,Employer GmbH,Gehalt 05/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-04-28,Max Mustermann,Sparrate 04/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-04-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-04-26,Aral Tankstelle,Tanken,Transport,-32.50,EUR,DE89370400440532013000,\r\n2026-04-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-04-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-04-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-04-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-04-15,Spende Beispielhilfe,Spende,Taxes & fees,-120.00,EUR,DE89370400440532013000,\r\n2026-04-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-04-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-04-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-101.40,EUR,DE89370400440532013000,\r\n2026-04-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-04-04,REWE Markt GmbH,Kartenzahlung,Groceries,-30.40,EUR,,\r\n2026-04-03,Vermieter,Miete 04/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-04-01,Employer GmbH,Gehalt 04/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-03-28,Max Mustermann,Sparrate 03/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-03-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-03-26,Aral Tankstelle,Tanken,Transport,-31.50,EUR,DE89370400440532013000,\r\n2026-03-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-03-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-03-21,Restaurant Zur Post,Abendessen,Restaurants & cafés,-64.00,EUR,DE89370400440532013000,\r\n2026-03-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-03-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-03-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-03-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-03-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-98.40,EUR,DE89370400440532013000,\r\n2026-03-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-03-04,REWE Markt GmbH,Kartenzahlung,Groceries,-28.40,EUR,,\r\n2026-03-03,Vermieter,Miete 03/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-03-01,Employer GmbH,Gehalt 03/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-02-28,Max Mustermann,Sparrate 02/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-02-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-02-26,Aral Tankstelle,Tanken,Transport,-30.50,EUR,DE89370400440532013000,\r\n2026-02-25,Restaurant Zur Post,Mittagessen,Restaurants & cafés,-36.70,EUR,,\r\n2026-02-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-02-20,Apotheke am Markt,Medikamente,Health,-38.90,EUR,DE89370400440532013000,\r\n2026-02-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-02-17,Beispiel Shop GmbH,Online-Bestellung,Groceries,-49.00,EUR,,\r\n2026-02-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-02-11,Bäckerei Schmidt,Kaffee,Groceries,-8.50,EUR,,\r\n2026-02-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-95.40,EUR,DE89370400440532013000,\r\n2026-02-06,Netflix,Abo,\"Phone, internet & media\",-19.99,EUR,,\r\n2026-02-04,REWE Markt GmbH,Kartenzahlung,Groceries,-26.40,EUR,,\r\n2026-02-03,Vermieter,Miete 02/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-02-01,Employer GmbH,Gehalt 02/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n2026-01-28,Max Mustermann,Sparrate 01/2026,,400.00,EUR,DE44500105175407324931,\r\n2026-01-27,Beispiel Bank,Zinsen,,3.25,EUR,DE44500105175407324931,\r\n2026-01-26,Aral Tankstelle,Tanken,Transport,-29.50,EUR,DE89370400440532013000,\r\n2026-01-23,Erika Musterfrau,Überweisung an Erika,Own transfers,-150.00,EUR,DE89370400440532013000,\r\n2026-01-18,Netflix,Abo,\"Phone, internet & media\",-14.99,EUR,DE89370400440532013000,\r\n2026-01-12,Stadtwerke Köln,Abschlag Strom,Energy,-42.00,EUR,DE89370400440532013000,\r\n2026-01-08,REWE Markt GmbH,Wocheneinkauf,Groceries,-92.40,EUR,DE89370400440532013000,\r\n2026-01-03,Vermieter,Miete 01/2026,Housing,-850.00,EUR,DE89370400440532013000,\r\n2026-01-01,Employer GmbH,Gehalt 01/2026,Salary,3200.00,EUR,DE89370400440532013000,\r\n"
+    }
+  ],
+  "tax_xlsx": {
+    "sheets": [
+      [
+        [
+          "Tax-relevant bookings 2026"
+        ],
+        [
+          "Currency: EUR"
+        ],
+        [
+          "Section",
+          "Category",
+          "Bookings",
+          "Income",
+          "Expenses",
+          "Net",
+          "With receipt"
+        ],
+        [
+          "Deductions",
+          "Taxes & fees",
+          "1",
+          "0",
+          "120",
+          "-120",
+          "0"
+        ],
+        [
+          "Deductions",
+          "Health",
+          "3",
+          "0",
+          "116.7",
+          "-116.7",
+          "0"
+        ],
+        [
+          "",
+          "Tax-relevant income",
+          "",
+          "0"
+        ],
+        [
+          "",
+          "Deductions",
+          "",
+          "",
+          "236.7"
+        ],
+        [
+          "",
+          "Net income",
+          "",
+          "",
+          "",
+          "-236.7"
+        ],
+        [
+          "",
+          "Receipts",
+          "0 of 4"
+        ]
+      ],
+      [
+        [
+          "Section",
+          "Category",
+          "Date",
+          "Partner",
+          "Shop",
+          "Purpose",
+          "Account",
+          "Amount",
+          "Currency",
+          "Receipt",
+          "Source"
+        ],
+        [
+          "Deductions",
+          "Taxes & fees",
+          "2026-04-15",
+          "Spende Beispielhilfe",
+          "",
+          "Spende",
+          "DE89370400440532013000",
+          "-120",
+          "EUR",
+          "No",
+          "Tax relevant · from category “Taxes & fees”"
+        ],
+        [
+          "Deductions",
+          "Health",
+          "2026-02-20",
+          "Apotheke am Markt",
+          "",
+          "Medikamente",
+          "DE89370400440532013000",
+          "-38.9",
+          "EUR",
+          "No",
+          "Tax relevant · from category “Health”"
+        ],
+        [
+          "Deductions",
+          "Health",
+          "2026-05-20",
+          "Apotheke am Markt",
+          "",
+          "Medikamente",
+          "DE89370400440532013000",
+          "-38.9",
+          "EUR",
+          "No",
+          "Tax relevant · from category “Health”"
+        ],
+        [
+          "Deductions",
+          "Health",
+          "2026-08-20",
+          "Apotheke am Markt",
+          "",
+          "Medikamente",
+          "DE89370400440532013000",
+          "-38.9",
+          "EUR",
+          "No",
+          "Tax relevant · from category “Health”"
+        ]
+      ]
+    ]
+  },
+  "tax_pdf": {
+    "text": {
+      "text": "Tax-relevant bookings 2026\nCurrency: EUR\nGenerated 15.10.2026\n\nTax-relevant income 0.00\nDeductions 236.70\nNet income -236.70\nReceipts 0 of 4\n\nDeductions\n\nTaxes & fees · 1 · -120.00\nDate Description Account Amount Receipt\n\n15.04.2026 Spende Beispielhilfe …3000 -120.00 No\n\nHealth · 3 · -116.70\nDate Description Account Amount Receipt\n\n20.02.2026 Apotheke am Markt …3000 -38.90 No\n\n20.05.2026 Apotheke am Markt …3000 -38.90 No\n\n20.08.2026 Apotheke am Markt …3000 -38.90 No\n\nPage 1 of 1",
+      "page_count": 1
+    },
+    "info": {
+      "page_count": 1,
+      "pages": [
+        {
+          "width_pt": 595,
+          "height_pt": 842
+        }
+      ]
+    }
+  },
+  "report_pdf": {
+    "text": {
+      "text": "Finglass Tax Report 2026\nGenerated 15.10.2026\n\nSummary\n\nTotal income €32,429.25\nTotal expenses €11,085.73\nNet income €21,343.52\nTax-relevant expenses €236.70\nTransactions 129\n\nTax-relevant expenses by category\n\nTaxes & fees €120.00\nHealth €116.70\n\nMonthly breakdown\n\nMonth Income / Expenses / Net\nJanuary €3,603.25 / €1,028.89 / €2,574.36\nFebruary €3,603.25 / €1,212.38 / €2,390.87\nMarch €3,603.25 / €1,243.48 / €2,359.77\nApril €3,603.25 / €1,305.48 / €2,297.77\nMay €3,603.25 / €1,230.38 / €2,372.87\nJune €3,603.25 / €1,261.48 / €2,341.77\nJuly €0.00 / €0.00 / €0.00\nAugust €3,603.25 / €1,248.38 / €2,354.87\nSeptember €3,603.25 / €1,279.48 / €2,323.77\nOctober €3,603.25 / €1,275.78 / €2,327.47\nNovember €0.00 / €0.00 / €0.00\nDecember €0.00 / €0.00 / €0.00\n\nExpenses by category\n\nHousing €7,650.00\nGroceries €1,736.10\nRestaurants & cafés €485.60\nEnergy €378.00\nTransport €304.50\nPhone, internet & media €294.83\nTaxes & fees €120.00\nHealth €116.70\n\nTax-relevant transactions\n\n20.02.2026  Apotheke am Markt  (Health) €38.90\n15.04.2026  Spende Beispielhilfe  (Taxes & fees) €120.00\n20.05.2026  Apotheke am Markt  (Health) €38.90\n20.08.2026  Apotheke am Markt  (Health) €38.90",
+      "page_count": 1
+    },
+    "info": {
+      "page_count": 1
+    }
+  }
+}

@@ -1,0 +1,2493 @@
+{
+  "money": [
+    {
+      "minor": 0,
+      "currency": "EUR",
+      "en": "€0.00",
+      "de": "0,00 €",
+      "fr": "€0,00",
+      "en_signed": "€0.00",
+      "de_signed": "0,00 €",
+      "fr_signed": "€0,00"
+    },
+    {
+      "minor": 1,
+      "currency": "EUR",
+      "en": "€0.01",
+      "de": "0,01 €",
+      "fr": "€0,01",
+      "en_signed": "+€0.01",
+      "de_signed": "+0,01 €",
+      "fr_signed": "+€0,01"
+    },
+    {
+      "minor": -1,
+      "currency": "EUR",
+      "en": "-€0.01",
+      "de": "-0,01 €",
+      "fr": "-€0,01",
+      "en_signed": "-€0.01",
+      "de_signed": "-0,01 €",
+      "fr_signed": "-€0,01"
+    },
+    {
+      "minor": 5,
+      "currency": "EUR",
+      "en": "€0.05",
+      "de": "0,05 €",
+      "fr": "€0,05",
+      "en_signed": "+€0.05",
+      "de_signed": "+0,05 €",
+      "fr_signed": "+€0,05"
+    },
+    {
+      "minor": 50,
+      "currency": "EUR",
+      "en": "€0.50",
+      "de": "0,50 €",
+      "fr": "€0,50",
+      "en_signed": "+€0.50",
+      "de_signed": "+0,50 €",
+      "fr_signed": "+€0,50"
+    },
+    {
+      "minor": 4567,
+      "currency": "EUR",
+      "en": "€45.67",
+      "de": "45,67 €",
+      "fr": "€45,67",
+      "en_signed": "+€45.67",
+      "de_signed": "+45,67 €",
+      "fr_signed": "+€45,67"
+    },
+    {
+      "minor": 12345,
+      "currency": "EUR",
+      "en": "€123.45",
+      "de": "123,45 €",
+      "fr": "€123,45",
+      "en_signed": "+€123.45",
+      "de_signed": "+123,45 €",
+      "fr_signed": "+€123,45"
+    },
+    {
+      "minor": 43100,
+      "currency": "EUR",
+      "en": "€431.00",
+      "de": "431,00 €",
+      "fr": "€431,00",
+      "en_signed": "+€431.00",
+      "de_signed": "+431,00 €",
+      "fr_signed": "+€431,00"
+    },
+    {
+      "minor": 123450,
+      "currency": "EUR",
+      "en": "€1,234.50",
+      "de": "1.234,50 €",
+      "fr": "€1 234,50",
+      "en_signed": "+€1,234.50",
+      "de_signed": "+1.234,50 €",
+      "fr_signed": "+€1 234,50"
+    },
+    {
+      "minor": 245037,
+      "currency": "EUR",
+      "en": "€2,450.37",
+      "de": "2.450,37 €",
+      "fr": "€2 450,37",
+      "en_signed": "+€2,450.37",
+      "de_signed": "+2.450,37 €",
+      "fr_signed": "+€2 450,37"
+    },
+    {
+      "minor": -400049,
+      "currency": "EUR",
+      "en": "-€4,000.49",
+      "de": "-4.000,49 €",
+      "fr": "-€4 000,49",
+      "en_signed": "-€4,000.49",
+      "de_signed": "-4.000,49 €",
+      "fr_signed": "-€4 000,49"
+    },
+    {
+      "minor": 400050,
+      "currency": "EUR",
+      "en": "€4,000.50",
+      "de": "4.000,50 €",
+      "fr": "€4 000,50",
+      "en_signed": "+€4,000.50",
+      "de_signed": "+4.000,50 €",
+      "fr_signed": "+€4 000,50"
+    },
+    {
+      "minor": 3200000,
+      "currency": "EUR",
+      "en": "€32,000.00",
+      "de": "32.000,00 €",
+      "fr": "€32 000,00",
+      "en_signed": "+€32,000.00",
+      "de_signed": "+32.000,00 €",
+      "fr_signed": "+€32 000,00"
+    },
+    {
+      "minor": 0,
+      "currency": "USD",
+      "en": "$0.00",
+      "de": "0,00 $",
+      "fr": "$0,00",
+      "en_signed": "$0.00",
+      "de_signed": "0,00 $",
+      "fr_signed": "$0,00"
+    },
+    {
+      "minor": 1,
+      "currency": "USD",
+      "en": "$0.01",
+      "de": "0,01 $",
+      "fr": "$0,01",
+      "en_signed": "+$0.01",
+      "de_signed": "+0,01 $",
+      "fr_signed": "+$0,01"
+    },
+    {
+      "minor": -1,
+      "currency": "USD",
+      "en": "-$0.01",
+      "de": "-0,01 $",
+      "fr": "-$0,01",
+      "en_signed": "-$0.01",
+      "de_signed": "-0,01 $",
+      "fr_signed": "-$0,01"
+    },
+    {
+      "minor": 5,
+      "currency": "USD",
+      "en": "$0.05",
+      "de": "0,05 $",
+      "fr": "$0,05",
+      "en_signed": "+$0.05",
+      "de_signed": "+0,05 $",
+      "fr_signed": "+$0,05"
+    },
+    {
+      "minor": 50,
+      "currency": "USD",
+      "en": "$0.50",
+      "de": "0,50 $",
+      "fr": "$0,50",
+      "en_signed": "+$0.50",
+      "de_signed": "+0,50 $",
+      "fr_signed": "+$0,50"
+    },
+    {
+      "minor": 4567,
+      "currency": "USD",
+      "en": "$45.67",
+      "de": "45,67 $",
+      "fr": "$45,67",
+      "en_signed": "+$45.67",
+      "de_signed": "+45,67 $",
+      "fr_signed": "+$45,67"
+    },
+    {
+      "minor": 12345,
+      "currency": "USD",
+      "en": "$123.45",
+      "de": "123,45 $",
+      "fr": "$123,45",
+      "en_signed": "+$123.45",
+      "de_signed": "+123,45 $",
+      "fr_signed": "+$123,45"
+    },
+    {
+      "minor": 43100,
+      "currency": "USD",
+      "en": "$431.00",
+      "de": "431,00 $",
+      "fr": "$431,00",
+      "en_signed": "+$431.00",
+      "de_signed": "+431,00 $",
+      "fr_signed": "+$431,00"
+    },
+    {
+      "minor": 123450,
+      "currency": "USD",
+      "en": "$1,234.50",
+      "de": "1.234,50 $",
+      "fr": "$1 234,50",
+      "en_signed": "+$1,234.50",
+      "de_signed": "+1.234,50 $",
+      "fr_signed": "+$1 234,50"
+    },
+    {
+      "minor": 245037,
+      "currency": "USD",
+      "en": "$2,450.37",
+      "de": "2.450,37 $",
+      "fr": "$2 450,37",
+      "en_signed": "+$2,450.37",
+      "de_signed": "+2.450,37 $",
+      "fr_signed": "+$2 450,37"
+    },
+    {
+      "minor": -400049,
+      "currency": "USD",
+      "en": "-$4,000.49",
+      "de": "-4.000,49 $",
+      "fr": "-$4 000,49",
+      "en_signed": "-$4,000.49",
+      "de_signed": "-4.000,49 $",
+      "fr_signed": "-$4 000,49"
+    },
+    {
+      "minor": 400050,
+      "currency": "USD",
+      "en": "$4,000.50",
+      "de": "4.000,50 $",
+      "fr": "$4 000,50",
+      "en_signed": "+$4,000.50",
+      "de_signed": "+4.000,50 $",
+      "fr_signed": "+$4 000,50"
+    },
+    {
+      "minor": 3200000,
+      "currency": "USD",
+      "en": "$32,000.00",
+      "de": "32.000,00 $",
+      "fr": "$32 000,00",
+      "en_signed": "+$32,000.00",
+      "de_signed": "+32.000,00 $",
+      "fr_signed": "+$32 000,00"
+    },
+    {
+      "minor": 0,
+      "currency": "CHF",
+      "en": "CHF0.00",
+      "de": "0,00 CHF",
+      "fr": "CHF0,00",
+      "en_signed": "CHF0.00",
+      "de_signed": "0,00 CHF",
+      "fr_signed": "CHF0,00"
+    },
+    {
+      "minor": 1,
+      "currency": "CHF",
+      "en": "CHF0.01",
+      "de": "0,01 CHF",
+      "fr": "CHF0,01",
+      "en_signed": "+CHF0.01",
+      "de_signed": "+0,01 CHF",
+      "fr_signed": "+CHF0,01"
+    },
+    {
+      "minor": -1,
+      "currency": "CHF",
+      "en": "-CHF0.01",
+      "de": "-0,01 CHF",
+      "fr": "-CHF0,01",
+      "en_signed": "-CHF0.01",
+      "de_signed": "-0,01 CHF",
+      "fr_signed": "-CHF0,01"
+    },
+    {
+      "minor": 5,
+      "currency": "CHF",
+      "en": "CHF0.05",
+      "de": "0,05 CHF",
+      "fr": "CHF0,05",
+      "en_signed": "+CHF0.05",
+      "de_signed": "+0,05 CHF",
+      "fr_signed": "+CHF0,05"
+    },
+    {
+      "minor": 50,
+      "currency": "CHF",
+      "en": "CHF0.50",
+      "de": "0,50 CHF",
+      "fr": "CHF0,50",
+      "en_signed": "+CHF0.50",
+      "de_signed": "+0,50 CHF",
+      "fr_signed": "+CHF0,50"
+    },
+    {
+      "minor": 4567,
+      "currency": "CHF",
+      "en": "CHF45.67",
+      "de": "45,67 CHF",
+      "fr": "CHF45,67",
+      "en_signed": "+CHF45.67",
+      "de_signed": "+45,67 CHF",
+      "fr_signed": "+CHF45,67"
+    },
+    {
+      "minor": 12345,
+      "currency": "CHF",
+      "en": "CHF123.45",
+      "de": "123,45 CHF",
+      "fr": "CHF123,45",
+      "en_signed": "+CHF123.45",
+      "de_signed": "+123,45 CHF",
+      "fr_signed": "+CHF123,45"
+    },
+    {
+      "minor": 43100,
+      "currency": "CHF",
+      "en": "CHF431.00",
+      "de": "431,00 CHF",
+      "fr": "CHF431,00",
+      "en_signed": "+CHF431.00",
+      "de_signed": "+431,00 CHF",
+      "fr_signed": "+CHF431,00"
+    },
+    {
+      "minor": 123450,
+      "currency": "CHF",
+      "en": "CHF1,234.50",
+      "de": "1.234,50 CHF",
+      "fr": "CHF1 234,50",
+      "en_signed": "+CHF1,234.50",
+      "de_signed": "+1.234,50 CHF",
+      "fr_signed": "+CHF1 234,50"
+    },
+    {
+      "minor": 245037,
+      "currency": "CHF",
+      "en": "CHF2,450.37",
+      "de": "2.450,37 CHF",
+      "fr": "CHF2 450,37",
+      "en_signed": "+CHF2,450.37",
+      "de_signed": "+2.450,37 CHF",
+      "fr_signed": "+CHF2 450,37"
+    },
+    {
+      "minor": -400049,
+      "currency": "CHF",
+      "en": "-CHF4,000.49",
+      "de": "-4.000,49 CHF",
+      "fr": "-CHF4 000,49",
+      "en_signed": "-CHF4,000.49",
+      "de_signed": "-4.000,49 CHF",
+      "fr_signed": "-CHF4 000,49"
+    },
+    {
+      "minor": 400050,
+      "currency": "CHF",
+      "en": "CHF4,000.50",
+      "de": "4.000,50 CHF",
+      "fr": "CHF4 000,50",
+      "en_signed": "+CHF4,000.50",
+      "de_signed": "+4.000,50 CHF",
+      "fr_signed": "+CHF4 000,50"
+    },
+    {
+      "minor": 3200000,
+      "currency": "CHF",
+      "en": "CHF32,000.00",
+      "de": "32.000,00 CHF",
+      "fr": "CHF32 000,00",
+      "en_signed": "+CHF32,000.00",
+      "de_signed": "+32.000,00 CHF",
+      "fr_signed": "+CHF32 000,00"
+    },
+    {
+      "minor": 0,
+      "currency": "JPY",
+      "en": "¥0",
+      "de": "0 ¥",
+      "fr": "¥0",
+      "en_signed": "¥0",
+      "de_signed": "0 ¥",
+      "fr_signed": "¥0"
+    },
+    {
+      "minor": 1,
+      "currency": "JPY",
+      "en": "¥1",
+      "de": "1 ¥",
+      "fr": "¥1",
+      "en_signed": "+¥1",
+      "de_signed": "+1 ¥",
+      "fr_signed": "+¥1"
+    },
+    {
+      "minor": -1,
+      "currency": "JPY",
+      "en": "-¥1",
+      "de": "-1 ¥",
+      "fr": "-¥1",
+      "en_signed": "-¥1",
+      "de_signed": "-1 ¥",
+      "fr_signed": "-¥1"
+    },
+    {
+      "minor": 5,
+      "currency": "JPY",
+      "en": "¥5",
+      "de": "5 ¥",
+      "fr": "¥5",
+      "en_signed": "+¥5",
+      "de_signed": "+5 ¥",
+      "fr_signed": "+¥5"
+    },
+    {
+      "minor": 50,
+      "currency": "JPY",
+      "en": "¥50",
+      "de": "50 ¥",
+      "fr": "¥50",
+      "en_signed": "+¥50",
+      "de_signed": "+50 ¥",
+      "fr_signed": "+¥50"
+    },
+    {
+      "minor": 4567,
+      "currency": "JPY",
+      "en": "¥4,567",
+      "de": "4.567 ¥",
+      "fr": "¥4 567",
+      "en_signed": "+¥4,567",
+      "de_signed": "+4.567 ¥",
+      "fr_signed": "+¥4 567"
+    },
+    {
+      "minor": 12345,
+      "currency": "JPY",
+      "en": "¥12,345",
+      "de": "12.345 ¥",
+      "fr": "¥12 345",
+      "en_signed": "+¥12,345",
+      "de_signed": "+12.345 ¥",
+      "fr_signed": "+¥12 345"
+    },
+    {
+      "minor": 43100,
+      "currency": "JPY",
+      "en": "¥43,100",
+      "de": "43.100 ¥",
+      "fr": "¥43 100",
+      "en_signed": "+¥43,100",
+      "de_signed": "+43.100 ¥",
+      "fr_signed": "+¥43 100"
+    },
+    {
+      "minor": 123450,
+      "currency": "JPY",
+      "en": "¥123,450",
+      "de": "123.450 ¥",
+      "fr": "¥123 450",
+      "en_signed": "+¥123,450",
+      "de_signed": "+123.450 ¥",
+      "fr_signed": "+¥123 450"
+    },
+    {
+      "minor": 245037,
+      "currency": "JPY",
+      "en": "¥245,037",
+      "de": "245.037 ¥",
+      "fr": "¥245 037",
+      "en_signed": "+¥245,037",
+      "de_signed": "+245.037 ¥",
+      "fr_signed": "+¥245 037"
+    },
+    {
+      "minor": -400049,
+      "currency": "JPY",
+      "en": "-¥400,049",
+      "de": "-400.049 ¥",
+      "fr": "-¥400 049",
+      "en_signed": "-¥400,049",
+      "de_signed": "-400.049 ¥",
+      "fr_signed": "-¥400 049"
+    },
+    {
+      "minor": 400050,
+      "currency": "JPY",
+      "en": "¥400,050",
+      "de": "400.050 ¥",
+      "fr": "¥400 050",
+      "en_signed": "+¥400,050",
+      "de_signed": "+400.050 ¥",
+      "fr_signed": "+¥400 050"
+    },
+    {
+      "minor": 3200000,
+      "currency": "JPY",
+      "en": "¥3,200,000",
+      "de": "3.200.000 ¥",
+      "fr": "¥3 200 000",
+      "en_signed": "+¥3,200,000",
+      "de_signed": "+3.200.000 ¥",
+      "fr_signed": "+¥3 200 000"
+    },
+    {
+      "minor": 0,
+      "currency": "KWD",
+      "en": "KWD0.000",
+      "de": "0,000 KWD",
+      "fr": "KWD0,000",
+      "en_signed": "KWD0.000",
+      "de_signed": "0,000 KWD",
+      "fr_signed": "KWD0,000"
+    },
+    {
+      "minor": 1,
+      "currency": "KWD",
+      "en": "KWD0.001",
+      "de": "0,001 KWD",
+      "fr": "KWD0,001",
+      "en_signed": "+KWD0.001",
+      "de_signed": "+0,001 KWD",
+      "fr_signed": "+KWD0,001"
+    },
+    {
+      "minor": -1,
+      "currency": "KWD",
+      "en": "-KWD0.001",
+      "de": "-0,001 KWD",
+      "fr": "-KWD0,001",
+      "en_signed": "-KWD0.001",
+      "de_signed": "-0,001 KWD",
+      "fr_signed": "-KWD0,001"
+    },
+    {
+      "minor": 5,
+      "currency": "KWD",
+      "en": "KWD0.005",
+      "de": "0,005 KWD",
+      "fr": "KWD0,005",
+      "en_signed": "+KWD0.005",
+      "de_signed": "+0,005 KWD",
+      "fr_signed": "+KWD0,005"
+    },
+    {
+      "minor": 50,
+      "currency": "KWD",
+      "en": "KWD0.050",
+      "de": "0,050 KWD",
+      "fr": "KWD0,050",
+      "en_signed": "+KWD0.050",
+      "de_signed": "+0,050 KWD",
+      "fr_signed": "+KWD0,050"
+    },
+    {
+      "minor": 4567,
+      "currency": "KWD",
+      "en": "KWD4.567",
+      "de": "4,567 KWD",
+      "fr": "KWD4,567",
+      "en_signed": "+KWD4.567",
+      "de_signed": "+4,567 KWD",
+      "fr_signed": "+KWD4,567"
+    },
+    {
+      "minor": 12345,
+      "currency": "KWD",
+      "en": "KWD12.345",
+      "de": "12,345 KWD",
+      "fr": "KWD12,345",
+      "en_signed": "+KWD12.345",
+      "de_signed": "+12,345 KWD",
+      "fr_signed": "+KWD12,345"
+    },
+    {
+      "minor": 43100,
+      "currency": "KWD",
+      "en": "KWD43.100",
+      "de": "43,100 KWD",
+      "fr": "KWD43,100",
+      "en_signed": "+KWD43.100",
+      "de_signed": "+43,100 KWD",
+      "fr_signed": "+KWD43,100"
+    },
+    {
+      "minor": 123450,
+      "currency": "KWD",
+      "en": "KWD123.450",
+      "de": "123,450 KWD",
+      "fr": "KWD123,450",
+      "en_signed": "+KWD123.450",
+      "de_signed": "+123,450 KWD",
+      "fr_signed": "+KWD123,450"
+    },
+    {
+      "minor": 245037,
+      "currency": "KWD",
+      "en": "KWD245.037",
+      "de": "245,037 KWD",
+      "fr": "KWD245,037",
+      "en_signed": "+KWD245.037",
+      "de_signed": "+245,037 KWD",
+      "fr_signed": "+KWD245,037"
+    },
+    {
+      "minor": -400049,
+      "currency": "KWD",
+      "en": "-KWD400.049",
+      "de": "-400,049 KWD",
+      "fr": "-KWD400,049",
+      "en_signed": "-KWD400.049",
+      "de_signed": "-400,049 KWD",
+      "fr_signed": "-KWD400,049"
+    },
+    {
+      "minor": 400050,
+      "currency": "KWD",
+      "en": "KWD400.050",
+      "de": "400,050 KWD",
+      "fr": "KWD400,050",
+      "en_signed": "+KWD400.050",
+      "de_signed": "+400,050 KWD",
+      "fr_signed": "+KWD400,050"
+    },
+    {
+      "minor": 3200000,
+      "currency": "KWD",
+      "en": "KWD3,200.000",
+      "de": "3.200,000 KWD",
+      "fr": "KWD3 200,000",
+      "en_signed": "+KWD3,200.000",
+      "de_signed": "+3.200,000 KWD",
+      "fr_signed": "+KWD3 200,000"
+    },
+    {
+      "minor": 0,
+      "currency": "GBP",
+      "en": "£0.00",
+      "de": "0,00 £",
+      "fr": "£0,00",
+      "en_signed": "£0.00",
+      "de_signed": "0,00 £",
+      "fr_signed": "£0,00"
+    },
+    {
+      "minor": 1,
+      "currency": "GBP",
+      "en": "£0.01",
+      "de": "0,01 £",
+      "fr": "£0,01",
+      "en_signed": "+£0.01",
+      "de_signed": "+0,01 £",
+      "fr_signed": "+£0,01"
+    },
+    {
+      "minor": -1,
+      "currency": "GBP",
+      "en": "-£0.01",
+      "de": "-0,01 £",
+      "fr": "-£0,01",
+      "en_signed": "-£0.01",
+      "de_signed": "-0,01 £",
+      "fr_signed": "-£0,01"
+    },
+    {
+      "minor": 5,
+      "currency": "GBP",
+      "en": "£0.05",
+      "de": "0,05 £",
+      "fr": "£0,05",
+      "en_signed": "+£0.05",
+      "de_signed": "+0,05 £",
+      "fr_signed": "+£0,05"
+    },
+    {
+      "minor": 50,
+      "currency": "GBP",
+      "en": "£0.50",
+      "de": "0,50 £",
+      "fr": "£0,50",
+      "en_signed": "+£0.50",
+      "de_signed": "+0,50 £",
+      "fr_signed": "+£0,50"
+    },
+    {
+      "minor": 4567,
+      "currency": "GBP",
+      "en": "£45.67",
+      "de": "45,67 £",
+      "fr": "£45,67",
+      "en_signed": "+£45.67",
+      "de_signed": "+45,67 £",
+      "fr_signed": "+£45,67"
+    },
+    {
+      "minor": 12345,
+      "currency": "GBP",
+      "en": "£123.45",
+      "de": "123,45 £",
+      "fr": "£123,45",
+      "en_signed": "+£123.45",
+      "de_signed": "+123,45 £",
+      "fr_signed": "+£123,45"
+    },
+    {
+      "minor": 43100,
+      "currency": "GBP",
+      "en": "£431.00",
+      "de": "431,00 £",
+      "fr": "£431,00",
+      "en_signed": "+£431.00",
+      "de_signed": "+431,00 £",
+      "fr_signed": "+£431,00"
+    },
+    {
+      "minor": 123450,
+      "currency": "GBP",
+      "en": "£1,234.50",
+      "de": "1.234,50 £",
+      "fr": "£1 234,50",
+      "en_signed": "+£1,234.50",
+      "de_signed": "+1.234,50 £",
+      "fr_signed": "+£1 234,50"
+    },
+    {
+      "minor": 245037,
+      "currency": "GBP",
+      "en": "£2,450.37",
+      "de": "2.450,37 £",
+      "fr": "£2 450,37",
+      "en_signed": "+£2,450.37",
+      "de_signed": "+2.450,37 £",
+      "fr_signed": "+£2 450,37"
+    },
+    {
+      "minor": -400049,
+      "currency": "GBP",
+      "en": "-£4,000.49",
+      "de": "-4.000,49 £",
+      "fr": "-£4 000,49",
+      "en_signed": "-£4,000.49",
+      "de_signed": "-4.000,49 £",
+      "fr_signed": "-£4 000,49"
+    },
+    {
+      "minor": 400050,
+      "currency": "GBP",
+      "en": "£4,000.50",
+      "de": "4.000,50 £",
+      "fr": "£4 000,50",
+      "en_signed": "+£4,000.50",
+      "de_signed": "+4.000,50 £",
+      "fr_signed": "+£4 000,50"
+    },
+    {
+      "minor": 3200000,
+      "currency": "GBP",
+      "en": "£32,000.00",
+      "de": "32.000,00 £",
+      "fr": "£32 000,00",
+      "en_signed": "+£32,000.00",
+      "de_signed": "+32.000,00 £",
+      "fr_signed": "+£32 000,00"
+    },
+    {
+      "minor": 0,
+      "currency": "QQQ",
+      "en": "QQQ 0.00",
+      "de": "0,00 QQQ",
+      "fr": "QQQ 0,00",
+      "en_signed": "QQQ 0.00",
+      "de_signed": "0,00 QQQ",
+      "fr_signed": "QQQ 0,00"
+    },
+    {
+      "minor": 1,
+      "currency": "QQQ",
+      "en": "QQQ 0.01",
+      "de": "0,01 QQQ",
+      "fr": "QQQ 0,01",
+      "en_signed": "+QQQ 0.01",
+      "de_signed": "+0,01 QQQ",
+      "fr_signed": "+QQQ 0,01"
+    },
+    {
+      "minor": -1,
+      "currency": "QQQ",
+      "en": "-QQQ 0.01",
+      "de": "-0,01 QQQ",
+      "fr": "-QQQ 0,01",
+      "en_signed": "-QQQ 0.01",
+      "de_signed": "-0,01 QQQ",
+      "fr_signed": "-QQQ 0,01"
+    },
+    {
+      "minor": 5,
+      "currency": "QQQ",
+      "en": "QQQ 0.05",
+      "de": "0,05 QQQ",
+      "fr": "QQQ 0,05",
+      "en_signed": "+QQQ 0.05",
+      "de_signed": "+0,05 QQQ",
+      "fr_signed": "+QQQ 0,05"
+    },
+    {
+      "minor": 50,
+      "currency": "QQQ",
+      "en": "QQQ 0.50",
+      "de": "0,50 QQQ",
+      "fr": "QQQ 0,50",
+      "en_signed": "+QQQ 0.50",
+      "de_signed": "+0,50 QQQ",
+      "fr_signed": "+QQQ 0,50"
+    },
+    {
+      "minor": 4567,
+      "currency": "QQQ",
+      "en": "QQQ 45.67",
+      "de": "45,67 QQQ",
+      "fr": "QQQ 45,67",
+      "en_signed": "+QQQ 45.67",
+      "de_signed": "+45,67 QQQ",
+      "fr_signed": "+QQQ 45,67"
+    },
+    {
+      "minor": 12345,
+      "currency": "QQQ",
+      "en": "QQQ 123.45",
+      "de": "123,45 QQQ",
+      "fr": "QQQ 123,45",
+      "en_signed": "+QQQ 123.45",
+      "de_signed": "+123,45 QQQ",
+      "fr_signed": "+QQQ 123,45"
+    },
+    {
+      "minor": 43100,
+      "currency": "QQQ",
+      "en": "QQQ 431.00",
+      "de": "431,00 QQQ",
+      "fr": "QQQ 431,00",
+      "en_signed": "+QQQ 431.00",
+      "de_signed": "+431,00 QQQ",
+      "fr_signed": "+QQQ 431,00"
+    },
+    {
+      "minor": 123450,
+      "currency": "QQQ",
+      "en": "QQQ 1,234.50",
+      "de": "1.234,50 QQQ",
+      "fr": "QQQ 1 234,50",
+      "en_signed": "+QQQ 1,234.50",
+      "de_signed": "+1.234,50 QQQ",
+      "fr_signed": "+QQQ 1 234,50"
+    },
+    {
+      "minor": 245037,
+      "currency": "QQQ",
+      "en": "QQQ 2,450.37",
+      "de": "2.450,37 QQQ",
+      "fr": "QQQ 2 450,37",
+      "en_signed": "+QQQ 2,450.37",
+      "de_signed": "+2.450,37 QQQ",
+      "fr_signed": "+QQQ 2 450,37"
+    },
+    {
+      "minor": -400049,
+      "currency": "QQQ",
+      "en": "-QQQ 4,000.49",
+      "de": "-4.000,49 QQQ",
+      "fr": "-QQQ 4 000,49",
+      "en_signed": "-QQQ 4,000.49",
+      "de_signed": "-4.000,49 QQQ",
+      "fr_signed": "-QQQ 4 000,49"
+    },
+    {
+      "minor": 400050,
+      "currency": "QQQ",
+      "en": "QQQ 4,000.50",
+      "de": "4.000,50 QQQ",
+      "fr": "QQQ 4 000,50",
+      "en_signed": "+QQQ 4,000.50",
+      "de_signed": "+4.000,50 QQQ",
+      "fr_signed": "+QQQ 4 000,50"
+    },
+    {
+      "minor": 3200000,
+      "currency": "QQQ",
+      "en": "QQQ 32,000.00",
+      "de": "32.000,00 QQQ",
+      "fr": "QQQ 32 000,00",
+      "en_signed": "+QQQ 32,000.00",
+      "de_signed": "+32.000,00 QQQ",
+      "fr_signed": "+QQQ 32 000,00"
+    }
+  ],
+  "whole_money": [
+    {
+      "minor": 0,
+      "currency": "EUR",
+      "en": "€0",
+      "de": "0 €",
+      "fr": "€0"
+    },
+    {
+      "minor": 1,
+      "currency": "EUR",
+      "en": "€0",
+      "de": "0 €",
+      "fr": "€0"
+    },
+    {
+      "minor": -1,
+      "currency": "EUR",
+      "en": "-€0",
+      "de": "-0 €",
+      "fr": "-€0"
+    },
+    {
+      "minor": 5,
+      "currency": "EUR",
+      "en": "€0",
+      "de": "0 €",
+      "fr": "€0"
+    },
+    {
+      "minor": 50,
+      "currency": "EUR",
+      "en": "€1",
+      "de": "1 €",
+      "fr": "€1"
+    },
+    {
+      "minor": 4567,
+      "currency": "EUR",
+      "en": "€46",
+      "de": "46 €",
+      "fr": "€46"
+    },
+    {
+      "minor": 12345,
+      "currency": "EUR",
+      "en": "€123",
+      "de": "123 €",
+      "fr": "€123"
+    },
+    {
+      "minor": 43100,
+      "currency": "EUR",
+      "en": "€431",
+      "de": "431 €",
+      "fr": "€431"
+    },
+    {
+      "minor": 123450,
+      "currency": "EUR",
+      "en": "€1,235",
+      "de": "1.235 €",
+      "fr": "€1 235"
+    },
+    {
+      "minor": 245037,
+      "currency": "EUR",
+      "en": "€2,450",
+      "de": "2.450 €",
+      "fr": "€2 450"
+    },
+    {
+      "minor": -400049,
+      "currency": "EUR",
+      "en": "-€4,000",
+      "de": "-4.000 €",
+      "fr": "-€4 000"
+    },
+    {
+      "minor": 400050,
+      "currency": "EUR",
+      "en": "€4,001",
+      "de": "4.001 €",
+      "fr": "€4 001"
+    },
+    {
+      "minor": 3200000,
+      "currency": "EUR",
+      "en": "€32,000",
+      "de": "32.000 €",
+      "fr": "€32 000"
+    },
+    {
+      "minor": 0,
+      "currency": "USD",
+      "en": "$0",
+      "de": "0 $",
+      "fr": "$0"
+    },
+    {
+      "minor": 1,
+      "currency": "USD",
+      "en": "$0",
+      "de": "0 $",
+      "fr": "$0"
+    },
+    {
+      "minor": -1,
+      "currency": "USD",
+      "en": "-$0",
+      "de": "-0 $",
+      "fr": "-$0"
+    },
+    {
+      "minor": 5,
+      "currency": "USD",
+      "en": "$0",
+      "de": "0 $",
+      "fr": "$0"
+    },
+    {
+      "minor": 50,
+      "currency": "USD",
+      "en": "$1",
+      "de": "1 $",
+      "fr": "$1"
+    },
+    {
+      "minor": 4567,
+      "currency": "USD",
+      "en": "$46",
+      "de": "46 $",
+      "fr": "$46"
+    },
+    {
+      "minor": 12345,
+      "currency": "USD",
+      "en": "$123",
+      "de": "123 $",
+      "fr": "$123"
+    },
+    {
+      "minor": 43100,
+      "currency": "USD",
+      "en": "$431",
+      "de": "431 $",
+      "fr": "$431"
+    },
+    {
+      "minor": 123450,
+      "currency": "USD",
+      "en": "$1,235",
+      "de": "1.235 $",
+      "fr": "$1 235"
+    },
+    {
+      "minor": 245037,
+      "currency": "USD",
+      "en": "$2,450",
+      "de": "2.450 $",
+      "fr": "$2 450"
+    },
+    {
+      "minor": -400049,
+      "currency": "USD",
+      "en": "-$4,000",
+      "de": "-4.000 $",
+      "fr": "-$4 000"
+    },
+    {
+      "minor": 400050,
+      "currency": "USD",
+      "en": "$4,001",
+      "de": "4.001 $",
+      "fr": "$4 001"
+    },
+    {
+      "minor": 3200000,
+      "currency": "USD",
+      "en": "$32,000",
+      "de": "32.000 $",
+      "fr": "$32 000"
+    },
+    {
+      "minor": 0,
+      "currency": "CHF",
+      "en": "CHF0",
+      "de": "0 CHF",
+      "fr": "CHF0"
+    },
+    {
+      "minor": 1,
+      "currency": "CHF",
+      "en": "CHF0",
+      "de": "0 CHF",
+      "fr": "CHF0"
+    },
+    {
+      "minor": -1,
+      "currency": "CHF",
+      "en": "-CHF0",
+      "de": "-0 CHF",
+      "fr": "-CHF0"
+    },
+    {
+      "minor": 5,
+      "currency": "CHF",
+      "en": "CHF0",
+      "de": "0 CHF",
+      "fr": "CHF0"
+    },
+    {
+      "minor": 50,
+      "currency": "CHF",
+      "en": "CHF1",
+      "de": "1 CHF",
+      "fr": "CHF1"
+    },
+    {
+      "minor": 4567,
+      "currency": "CHF",
+      "en": "CHF46",
+      "de": "46 CHF",
+      "fr": "CHF46"
+    },
+    {
+      "minor": 12345,
+      "currency": "CHF",
+      "en": "CHF123",
+      "de": "123 CHF",
+      "fr": "CHF123"
+    },
+    {
+      "minor": 43100,
+      "currency": "CHF",
+      "en": "CHF431",
+      "de": "431 CHF",
+      "fr": "CHF431"
+    },
+    {
+      "minor": 123450,
+      "currency": "CHF",
+      "en": "CHF1,235",
+      "de": "1.235 CHF",
+      "fr": "CHF1 235"
+    },
+    {
+      "minor": 245037,
+      "currency": "CHF",
+      "en": "CHF2,450",
+      "de": "2.450 CHF",
+      "fr": "CHF2 450"
+    },
+    {
+      "minor": -400049,
+      "currency": "CHF",
+      "en": "-CHF4,000",
+      "de": "-4.000 CHF",
+      "fr": "-CHF4 000"
+    },
+    {
+      "minor": 400050,
+      "currency": "CHF",
+      "en": "CHF4,001",
+      "de": "4.001 CHF",
+      "fr": "CHF4 001"
+    },
+    {
+      "minor": 3200000,
+      "currency": "CHF",
+      "en": "CHF32,000",
+      "de": "32.000 CHF",
+      "fr": "CHF32 000"
+    },
+    {
+      "minor": 0,
+      "currency": "JPY",
+      "en": "¥0",
+      "de": "0 ¥",
+      "fr": "¥0"
+    },
+    {
+      "minor": 1,
+      "currency": "JPY",
+      "en": "¥1",
+      "de": "1 ¥",
+      "fr": "¥1"
+    },
+    {
+      "minor": -1,
+      "currency": "JPY",
+      "en": "-¥1",
+      "de": "-1 ¥",
+      "fr": "-¥1"
+    },
+    {
+      "minor": 5,
+      "currency": "JPY",
+      "en": "¥5",
+      "de": "5 ¥",
+      "fr": "¥5"
+    },
+    {
+      "minor": 50,
+      "currency": "JPY",
+      "en": "¥50",
+      "de": "50 ¥",
+      "fr": "¥50"
+    },
+    {
+      "minor": 4567,
+      "currency": "JPY",
+      "en": "¥4,567",
+      "de": "4.567 ¥",
+      "fr": "¥4 567"
+    },
+    {
+      "minor": 12345,
+      "currency": "JPY",
+      "en": "¥12,345",
+      "de": "12.345 ¥",
+      "fr": "¥12 345"
+    },
+    {
+      "minor": 43100,
+      "currency": "JPY",
+      "en": "¥43,100",
+      "de": "43.100 ¥",
+      "fr": "¥43 100"
+    },
+    {
+      "minor": 123450,
+      "currency": "JPY",
+      "en": "¥123,450",
+      "de": "123.450 ¥",
+      "fr": "¥123 450"
+    },
+    {
+      "minor": 245037,
+      "currency": "JPY",
+      "en": "¥245,037",
+      "de": "245.037 ¥",
+      "fr": "¥245 037"
+    },
+    {
+      "minor": -400049,
+      "currency": "JPY",
+      "en": "-¥400,049",
+      "de": "-400.049 ¥",
+      "fr": "-¥400 049"
+    },
+    {
+      "minor": 400050,
+      "currency": "JPY",
+      "en": "¥400,050",
+      "de": "400.050 ¥",
+      "fr": "¥400 050"
+    },
+    {
+      "minor": 3200000,
+      "currency": "JPY",
+      "en": "¥3,200,000",
+      "de": "3.200.000 ¥",
+      "fr": "¥3 200 000"
+    },
+    {
+      "minor": 0,
+      "currency": "KWD",
+      "en": "KWD0",
+      "de": "0 KWD",
+      "fr": "KWD0"
+    },
+    {
+      "minor": 1,
+      "currency": "KWD",
+      "en": "KWD0",
+      "de": "0 KWD",
+      "fr": "KWD0"
+    },
+    {
+      "minor": -1,
+      "currency": "KWD",
+      "en": "-KWD0",
+      "de": "-0 KWD",
+      "fr": "-KWD0"
+    },
+    {
+      "minor": 5,
+      "currency": "KWD",
+      "en": "KWD0",
+      "de": "0 KWD",
+      "fr": "KWD0"
+    },
+    {
+      "minor": 50,
+      "currency": "KWD",
+      "en": "KWD0",
+      "de": "0 KWD",
+      "fr": "KWD0"
+    },
+    {
+      "minor": 4567,
+      "currency": "KWD",
+      "en": "KWD5",
+      "de": "5 KWD",
+      "fr": "KWD5"
+    },
+    {
+      "minor": 12345,
+      "currency": "KWD",
+      "en": "KWD12",
+      "de": "12 KWD",
+      "fr": "KWD12"
+    },
+    {
+      "minor": 43100,
+      "currency": "KWD",
+      "en": "KWD43",
+      "de": "43 KWD",
+      "fr": "KWD43"
+    },
+    {
+      "minor": 123450,
+      "currency": "KWD",
+      "en": "KWD123",
+      "de": "123 KWD",
+      "fr": "KWD123"
+    },
+    {
+      "minor": 245037,
+      "currency": "KWD",
+      "en": "KWD245",
+      "de": "245 KWD",
+      "fr": "KWD245"
+    },
+    {
+      "minor": -400049,
+      "currency": "KWD",
+      "en": "-KWD400",
+      "de": "-400 KWD",
+      "fr": "-KWD400"
+    },
+    {
+      "minor": 400050,
+      "currency": "KWD",
+      "en": "KWD400",
+      "de": "400 KWD",
+      "fr": "KWD400"
+    },
+    {
+      "minor": 3200000,
+      "currency": "KWD",
+      "en": "KWD3,200",
+      "de": "3.200 KWD",
+      "fr": "KWD3 200"
+    },
+    {
+      "minor": 0,
+      "currency": "GBP",
+      "en": "£0",
+      "de": "0 £",
+      "fr": "£0"
+    },
+    {
+      "minor": 1,
+      "currency": "GBP",
+      "en": "£0",
+      "de": "0 £",
+      "fr": "£0"
+    },
+    {
+      "minor": -1,
+      "currency": "GBP",
+      "en": "-£0",
+      "de": "-0 £",
+      "fr": "-£0"
+    },
+    {
+      "minor": 5,
+      "currency": "GBP",
+      "en": "£0",
+      "de": "0 £",
+      "fr": "£0"
+    },
+    {
+      "minor": 50,
+      "currency": "GBP",
+      "en": "£1",
+      "de": "1 £",
+      "fr": "£1"
+    },
+    {
+      "minor": 4567,
+      "currency": "GBP",
+      "en": "£46",
+      "de": "46 £",
+      "fr": "£46"
+    },
+    {
+      "minor": 12345,
+      "currency": "GBP",
+      "en": "£123",
+      "de": "123 £",
+      "fr": "£123"
+    },
+    {
+      "minor": 43100,
+      "currency": "GBP",
+      "en": "£431",
+      "de": "431 £",
+      "fr": "£431"
+    },
+    {
+      "minor": 123450,
+      "currency": "GBP",
+      "en": "£1,235",
+      "de": "1.235 £",
+      "fr": "£1 235"
+    },
+    {
+      "minor": 245037,
+      "currency": "GBP",
+      "en": "£2,450",
+      "de": "2.450 £",
+      "fr": "£2 450"
+    },
+    {
+      "minor": -400049,
+      "currency": "GBP",
+      "en": "-£4,000",
+      "de": "-4.000 £",
+      "fr": "-£4 000"
+    },
+    {
+      "minor": 400050,
+      "currency": "GBP",
+      "en": "£4,001",
+      "de": "4.001 £",
+      "fr": "£4 001"
+    },
+    {
+      "minor": 3200000,
+      "currency": "GBP",
+      "en": "£32,000",
+      "de": "32.000 £",
+      "fr": "£32 000"
+    },
+    {
+      "minor": 0,
+      "currency": "QQQ",
+      "en": "QQQ 0",
+      "de": "0 QQQ",
+      "fr": "QQQ 0"
+    },
+    {
+      "minor": 1,
+      "currency": "QQQ",
+      "en": "QQQ 0",
+      "de": "0 QQQ",
+      "fr": "QQQ 0"
+    },
+    {
+      "minor": -1,
+      "currency": "QQQ",
+      "en": "-QQQ 0",
+      "de": "-0 QQQ",
+      "fr": "-QQQ 0"
+    },
+    {
+      "minor": 5,
+      "currency": "QQQ",
+      "en": "QQQ 0",
+      "de": "0 QQQ",
+      "fr": "QQQ 0"
+    },
+    {
+      "minor": 50,
+      "currency": "QQQ",
+      "en": "QQQ 1",
+      "de": "1 QQQ",
+      "fr": "QQQ 1"
+    },
+    {
+      "minor": 4567,
+      "currency": "QQQ",
+      "en": "QQQ 46",
+      "de": "46 QQQ",
+      "fr": "QQQ 46"
+    },
+    {
+      "minor": 12345,
+      "currency": "QQQ",
+      "en": "QQQ 123",
+      "de": "123 QQQ",
+      "fr": "QQQ 123"
+    },
+    {
+      "minor": 43100,
+      "currency": "QQQ",
+      "en": "QQQ 431",
+      "de": "431 QQQ",
+      "fr": "QQQ 431"
+    },
+    {
+      "minor": 123450,
+      "currency": "QQQ",
+      "en": "QQQ 1,235",
+      "de": "1.235 QQQ",
+      "fr": "QQQ 1 235"
+    },
+    {
+      "minor": 245037,
+      "currency": "QQQ",
+      "en": "QQQ 2,450",
+      "de": "2.450 QQQ",
+      "fr": "QQQ 2 450"
+    },
+    {
+      "minor": -400049,
+      "currency": "QQQ",
+      "en": "-QQQ 4,000",
+      "de": "-4.000 QQQ",
+      "fr": "-QQQ 4 000"
+    },
+    {
+      "minor": 400050,
+      "currency": "QQQ",
+      "en": "QQQ 4,001",
+      "de": "4.001 QQQ",
+      "fr": "QQQ 4 001"
+    },
+    {
+      "minor": 3200000,
+      "currency": "QQQ",
+      "en": "QQQ 32,000",
+      "de": "32.000 QQQ",
+      "fr": "QQQ 32 000"
+    }
+  ],
+  "percent": [
+    {
+      "share": 0,
+      "en": "0%",
+      "de": "0 %",
+      "fr": "0 %"
+    },
+    {
+      "share": -0.1,
+      "en": "0%",
+      "de": "0 %",
+      "fr": "0 %"
+    },
+    {
+      "share": 0.0001,
+      "en": "<1%",
+      "de": "<1 %",
+      "fr": "<1 %"
+    },
+    {
+      "share": 0.004,
+      "en": "<1%",
+      "de": "<1 %",
+      "fr": "<1 %"
+    },
+    {
+      "share": 0.0049,
+      "en": "<1%",
+      "de": "<1 %",
+      "fr": "<1 %"
+    },
+    {
+      "share": 0.005,
+      "en": "1%",
+      "de": "1 %",
+      "fr": "1 %"
+    },
+    {
+      "share": 0.03,
+      "en": "3%",
+      "de": "3 %",
+      "fr": "3 %"
+    },
+    {
+      "share": 0.1234,
+      "en": "12%",
+      "de": "12 %",
+      "fr": "12 %"
+    },
+    {
+      "share": 0.49,
+      "en": "49%",
+      "de": "49 %",
+      "fr": "49 %"
+    },
+    {
+      "share": 0.5,
+      "en": "50%",
+      "de": "50 %",
+      "fr": "50 %"
+    },
+    {
+      "share": 0.999,
+      "en": "100%",
+      "de": "100 %",
+      "fr": "100 %"
+    },
+    {
+      "share": 1,
+      "en": "100%",
+      "de": "100 %",
+      "fr": "100 %"
+    },
+    {
+      "share": 1.5,
+      "en": "100%",
+      "de": "100 %",
+      "fr": "100 %"
+    }
+  ],
+  "shares": [
+    {
+      "amounts": [],
+      "shares": []
+    },
+    {
+      "amounts": [
+        0
+      ],
+      "shares": [
+        0
+      ]
+    },
+    {
+      "amounts": [
+        1,
+        1,
+        1
+      ],
+      "shares": [
+        34,
+        33,
+        33
+      ]
+    },
+    {
+      "amounts": [
+        3000,
+        7000
+      ],
+      "shares": [
+        30,
+        70
+      ]
+    },
+    {
+      "amounts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "shares": [
+        2,
+        4,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        16,
+        18
+      ]
+    },
+    {
+      "amounts": [
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "shares": [
+        18,
+        16,
+        15,
+        13,
+        11,
+        9,
+        7,
+        5,
+        4,
+        2
+      ]
+    },
+    {
+      "amounts": [
+        -100,
+        200,
+        -50
+      ],
+      "shares": [
+        -200,
+        400,
+        -100
+      ]
+    },
+    {
+      "amounts": [
+        0,
+        0,
+        0
+      ],
+      "shares": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "date": [
+    {
+      "date": "2026-01-01",
+      "formatted": "01.01.2026"
+    },
+    {
+      "date": "2026-10-15",
+      "formatted": "15.10.2026"
+    },
+    {
+      "date": "2024-02-29",
+      "formatted": "29.02.2024"
+    },
+    {
+      "date": "1999-12-31",
+      "formatted": "31.12.1999"
+    },
+    {
+      "date": "2100-12-31",
+      "formatted": "31.12.2100"
+    }
+  ],
+  "date_time": [
+    {
+      "date": "2026-01-01",
+      "hour": 0,
+      "minute": 0,
+      "formatted": "01.01.2026 00:00"
+    },
+    {
+      "date": "2026-10-15",
+      "hour": 13,
+      "minute": 7,
+      "formatted": "15.10.2026 13:07"
+    },
+    {
+      "date": "2024-02-29",
+      "hour": 23,
+      "minute": 59,
+      "formatted": "29.02.2024 23:59"
+    },
+    {
+      "date": "1999-12-31",
+      "hour": 6,
+      "minute": 5,
+      "formatted": "31.12.1999 06:05"
+    }
+  ],
+  "iban": [
+    {
+      "input": "DE89370400440532013000",
+      "formatted": "DE89 3704 0044 0532 0130 00"
+    },
+    {
+      "input": "DE89 3704 0044 0532 0130 00",
+      "formatted": "DE89 3704 0044 0532 0130 00"
+    },
+    {
+      "input": "de89370400440532013000",
+      "formatted": "DE89 3704 0044 0532 0130 00"
+    },
+    {
+      "input": "NO9386011117947",
+      "formatted": "NO93 8601 1117 947"
+    },
+    {
+      "input": "CARD4321",
+      "formatted": "CARD 4321"
+    },
+    {
+      "input": "",
+      "formatted": ""
+    }
+  ],
+  "parse_date": [
+    {
+      "input": "5.11.2026",
+      "parsed": "2026-11-05"
+    },
+    {
+      "input": " 05.11.2026 ",
+      "parsed": "2026-11-05"
+    },
+    {
+      "input": "29.02.2028",
+      "parsed": "2028-02-29"
+    },
+    {
+      "input": "28.02.2026",
+      "parsed": "2026-02-28"
+    },
+    {
+      "input": "31.02.2026",
+      "parsed": null
+    },
+    {
+      "input": "29.02.2027",
+      "parsed": null
+    },
+    {
+      "input": "32.01.2026",
+      "parsed": null
+    },
+    {
+      "input": "05.11.26",
+      "parsed": null
+    },
+    {
+      "input": "2026-11-05",
+      "parsed": null
+    },
+    {
+      "input": "",
+      "parsed": null
+    },
+    {
+      "input": "5.11",
+      "parsed": null
+    },
+    {
+      "input": "5.11.20260",
+      "parsed": null
+    }
+  ],
+  "parse_decimal": [
+    {
+      "input": "1.234,56",
+      "parsed": null
+    },
+    {
+      "input": "1,234.56",
+      "parsed": null
+    },
+    {
+      "input": "-12.34",
+      "parsed": "-12.34"
+    },
+    {
+      "input": "99999999999999.99",
+      "parsed": "99999999999999.99"
+    },
+    {
+      "input": "1E15",
+      "parsed": null
+    },
+    {
+      "input": "1000000000000000",
+      "parsed": null
+    },
+    {
+      "input": "1E999999999",
+      "parsed": null
+    },
+    {
+      "input": "-1E999999999",
+      "parsed": null
+    },
+    {
+      "input": "1E-999999999",
+      "parsed": null
+    },
+    {
+      "input": "0.12345678901",
+      "parsed": null
+    },
+    {
+      "input": "12345678901234567890123456789012345678901234567890123456789012345",
+      "parsed": null
+    },
+    {
+      "input": "abc",
+      "parsed": null
+    },
+    {
+      "input": "",
+      "parsed": null
+    },
+    {
+      "input": " 12.5 ",
+      "parsed": "12.5"
+    }
+  ],
+  "parse_amount": [
+    {
+      "input": "1.234,56",
+      "parsed": "1234.56"
+    },
+    {
+      "input": "1,234.56",
+      "parsed": "1234.56"
+    },
+    {
+      "input": "-12,5",
+      "parsed": "-12.50"
+    },
+    {
+      "input": "12 €",
+      "parsed": "12.00"
+    },
+    {
+      "input": "2.450,37 €",
+      "parsed": "2450.37"
+    },
+    {
+      "input": "2.450,37 €",
+      "parsed": "2450.37"
+    },
+    {
+      "input": "€2.450,37",
+      "parsed": "2450.37"
+    },
+    {
+      "input": "abc",
+      "parsed": null
+    },
+    {
+      "input": "",
+      "parsed": null
+    },
+    {
+      "input": "1E999999999",
+      "parsed": null
+    },
+    {
+      "input": "0.12345678901",
+      "parsed": null
+    },
+    {
+      "input": "99999999999999.99",
+      "parsed": "99999999999999.99"
+    }
+  ],
+  "money_parse_decimal": [
+    {
+      "currency": "EUR",
+      "input": "12.345",
+      "ok": true,
+      "minor": 1234500,
+      "plain": "12345.00",
+      "error": null
+    },
+    {
+      "currency": "EUR",
+      "input": "1.234,56",
+      "ok": true,
+      "minor": 123456,
+      "plain": "1234.56",
+      "error": null
+    },
+    {
+      "currency": "EUR",
+      "input": "1,234.56",
+      "ok": true,
+      "minor": 123456,
+      "plain": "1234.56",
+      "error": null
+    },
+    {
+      "currency": "EUR",
+      "input": "-12.34",
+      "ok": true,
+      "minor": -1234,
+      "plain": "-12.34",
+      "error": null
+    },
+    {
+      "currency": "EUR",
+      "input": "+5",
+      "ok": true,
+      "minor": 500,
+      "plain": "5.00",
+      "error": null
+    },
+    {
+      "currency": "EUR",
+      "input": "0",
+      "ok": true,
+      "minor": 0,
+      "plain": "0.00",
+      "error": null
+    },
+    {
+      "currency": "EUR",
+      "input": "",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"\""
+    },
+    {
+      "currency": "EUR",
+      "input": "abc",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"abc\""
+    },
+    {
+      "currency": "EUR",
+      "input": "1.2.3",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"1.2.3\""
+    },
+    {
+      "currency": "EUR",
+      "input": "0.001",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"0.001\""
+    },
+    {
+      "currency": "EUR",
+      "input": "500",
+      "ok": true,
+      "minor": 50000,
+      "plain": "500.00",
+      "error": null
+    },
+    {
+      "currency": "JPY",
+      "input": "12.345",
+      "ok": true,
+      "minor": 12345,
+      "plain": "12345",
+      "error": null
+    },
+    {
+      "currency": "JPY",
+      "input": "1.234,56",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: too many decimal places for JPY"
+    },
+    {
+      "currency": "JPY",
+      "input": "1,234.56",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: too many decimal places for JPY"
+    },
+    {
+      "currency": "JPY",
+      "input": "-12.34",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: too many decimal places for JPY"
+    },
+    {
+      "currency": "JPY",
+      "input": "+5",
+      "ok": true,
+      "minor": 5,
+      "plain": "5",
+      "error": null
+    },
+    {
+      "currency": "JPY",
+      "input": "0",
+      "ok": true,
+      "minor": 0,
+      "plain": "0",
+      "error": null
+    },
+    {
+      "currency": "JPY",
+      "input": "",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"\""
+    },
+    {
+      "currency": "JPY",
+      "input": "abc",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"abc\""
+    },
+    {
+      "currency": "JPY",
+      "input": "1.2.3",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"1.2.3\""
+    },
+    {
+      "currency": "JPY",
+      "input": "0.001",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"0.001\""
+    },
+    {
+      "currency": "JPY",
+      "input": "500",
+      "ok": true,
+      "minor": 500,
+      "plain": "500",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "12.345",
+      "ok": true,
+      "minor": 12345,
+      "plain": "12.345",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "1.234,56",
+      "ok": true,
+      "minor": 1234560,
+      "plain": "1234.560",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "1,234.56",
+      "ok": true,
+      "minor": 1234560,
+      "plain": "1234.560",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "-12.34",
+      "ok": true,
+      "minor": -12340,
+      "plain": "-12.340",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "+5",
+      "ok": true,
+      "minor": 5000,
+      "plain": "5.000",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "0",
+      "ok": true,
+      "minor": 0,
+      "plain": "0.000",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"\""
+    },
+    {
+      "currency": "KWD",
+      "input": "abc",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"abc\""
+    },
+    {
+      "currency": "KWD",
+      "input": "1.2.3",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"1.2.3\""
+    },
+    {
+      "currency": "KWD",
+      "input": "0.001",
+      "ok": true,
+      "minor": 1,
+      "plain": "0.001",
+      "error": null
+    },
+    {
+      "currency": "KWD",
+      "input": "500",
+      "ok": true,
+      "minor": 500000,
+      "plain": "500.000",
+      "error": null
+    },
+    {
+      "currency": "USD",
+      "input": "12.345",
+      "ok": true,
+      "minor": 1234500,
+      "plain": "12345.00",
+      "error": null
+    },
+    {
+      "currency": "USD",
+      "input": "1.234,56",
+      "ok": true,
+      "minor": 123456,
+      "plain": "1234.56",
+      "error": null
+    },
+    {
+      "currency": "USD",
+      "input": "1,234.56",
+      "ok": true,
+      "minor": 123456,
+      "plain": "1234.56",
+      "error": null
+    },
+    {
+      "currency": "USD",
+      "input": "-12.34",
+      "ok": true,
+      "minor": -1234,
+      "plain": "-12.34",
+      "error": null
+    },
+    {
+      "currency": "USD",
+      "input": "+5",
+      "ok": true,
+      "minor": 500,
+      "plain": "5.00",
+      "error": null
+    },
+    {
+      "currency": "USD",
+      "input": "0",
+      "ok": true,
+      "minor": 0,
+      "plain": "0.00",
+      "error": null
+    },
+    {
+      "currency": "USD",
+      "input": "",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"\""
+    },
+    {
+      "currency": "USD",
+      "input": "abc",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"abc\""
+    },
+    {
+      "currency": "USD",
+      "input": "1.2.3",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"1.2.3\""
+    },
+    {
+      "currency": "USD",
+      "input": "0.001",
+      "ok": false,
+      "minor": null,
+      "plain": null,
+      "error": "invalid money value: invalid amount \"0.001\""
+    },
+    {
+      "currency": "USD",
+      "input": "500",
+      "ok": true,
+      "minor": 50000,
+      "plain": "500.00",
+      "error": null
+    }
+  ],
+  "format_plain": [
+    {
+      "minor": 0,
+      "currency": "EUR",
+      "plain": "0.00"
+    },
+    {
+      "minor": 1,
+      "currency": "EUR",
+      "plain": "0.01"
+    },
+    {
+      "minor": -1,
+      "currency": "EUR",
+      "plain": "-0.01"
+    },
+    {
+      "minor": 5,
+      "currency": "EUR",
+      "plain": "0.05"
+    },
+    {
+      "minor": 100,
+      "currency": "EUR",
+      "plain": "1.00"
+    },
+    {
+      "minor": -12345,
+      "currency": "EUR",
+      "plain": "-123.45"
+    },
+    {
+      "minor": 123450,
+      "currency": "EUR",
+      "plain": "1234.50"
+    },
+    {
+      "minor": 12345678,
+      "currency": "EUR",
+      "plain": "123456.78"
+    },
+    {
+      "minor": 0,
+      "currency": "JPY",
+      "plain": "0"
+    },
+    {
+      "minor": 1,
+      "currency": "JPY",
+      "plain": "1"
+    },
+    {
+      "minor": -1,
+      "currency": "JPY",
+      "plain": "-1"
+    },
+    {
+      "minor": 5,
+      "currency": "JPY",
+      "plain": "5"
+    },
+    {
+      "minor": 100,
+      "currency": "JPY",
+      "plain": "100"
+    },
+    {
+      "minor": -12345,
+      "currency": "JPY",
+      "plain": "-12345"
+    },
+    {
+      "minor": 123450,
+      "currency": "JPY",
+      "plain": "123450"
+    },
+    {
+      "minor": 12345678,
+      "currency": "JPY",
+      "plain": "12345678"
+    },
+    {
+      "minor": 0,
+      "currency": "KWD",
+      "plain": "0.000"
+    },
+    {
+      "minor": 1,
+      "currency": "KWD",
+      "plain": "0.001"
+    },
+    {
+      "minor": -1,
+      "currency": "KWD",
+      "plain": "-0.001"
+    },
+    {
+      "minor": 5,
+      "currency": "KWD",
+      "plain": "0.005"
+    },
+    {
+      "minor": 100,
+      "currency": "KWD",
+      "plain": "0.100"
+    },
+    {
+      "minor": -12345,
+      "currency": "KWD",
+      "plain": "-12.345"
+    },
+    {
+      "minor": 123450,
+      "currency": "KWD",
+      "plain": "123.450"
+    },
+    {
+      "minor": 12345678,
+      "currency": "KWD",
+      "plain": "12345.678"
+    },
+    {
+      "minor": 0,
+      "currency": "USD",
+      "plain": "0.00"
+    },
+    {
+      "minor": 1,
+      "currency": "USD",
+      "plain": "0.01"
+    },
+    {
+      "minor": -1,
+      "currency": "USD",
+      "plain": "-0.01"
+    },
+    {
+      "minor": 5,
+      "currency": "USD",
+      "plain": "0.05"
+    },
+    {
+      "minor": 100,
+      "currency": "USD",
+      "plain": "1.00"
+    },
+    {
+      "minor": -12345,
+      "currency": "USD",
+      "plain": "-123.45"
+    },
+    {
+      "minor": 123450,
+      "currency": "USD",
+      "plain": "1234.50"
+    },
+    {
+      "minor": 12345678,
+      "currency": "USD",
+      "plain": "123456.78"
+    }
+  ]
+}

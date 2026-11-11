@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OFX>
+  <BANKMSGSRSV1>
+    <STMTTRNRS>
+      <STMTRS>
+        <CURDEF>USD</CURDEF>
+        <BANKACCTFROM>
+          <ACCTID>DE89370400440532013000</ACCTID>
+        </BANKACCTFROM>
+        <BANKTRANLIST>
+          <STMTTRN>
+            <TRNTYPE>DEBIT</TRNTYPE>
+            <DTPOSTED>20261003000000</DTPOSTED>
+            <TRNAMT>-45.67</TRNAMT>
+            <FITID>REF-1</FITID>
+            <NAME>REWE Markt GmbH</NAME>
+            <MEMO>REWE SAGT DANKE 1234</MEMO>
+          </STMTTRN>
+          <STMTTRN>
+            <TRNTYPE>CREDIT</TRNTYPE>
+            <DTPOSTED>20261001000000</DTPOSTED>
+            <TRNAMT>3200.00</TRNAMT>
+            <FITID>REF-2</FITID>
+            <NAME>Müller &amp; Söhne GmbH</NAME>
+            <MEMO>Gehalt Oktober</MEMO>
+          </STMTTRN>
+        </BANKTRANLIST>
+      </STMTRS>
+    </STMTTRNRS>
+  </BANKMSGSRSV1>
+</OFX>

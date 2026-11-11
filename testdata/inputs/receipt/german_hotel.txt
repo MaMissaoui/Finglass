@@ -1,0 +1,6 @@
+Hotel Beispiel
+Rechnungsnummer 2026-0815
+Datum 15.08.2026
+Übernachtung 189,00
+Frühstück 24,50
+Rechnungsbetrag 213,50

@@ -118,7 +118,9 @@ Done on a branch. The Rust code is untouched.
 
 This must happen before any Rust code is deleted. Once it is gone, its behaviour can no longer be checked.
 
-- [ ] A `cargo test`-driven exporter writes JSON or CSV into `testdata/golden/` for:
+- [x] A `cargo test`-driven exporter writes JSON or CSV into `testdata/golden/` for the following (G1: generator
+  `crates/finglass-core/src/golden/`; inputs in `testdata/inputs/`; `goldens_are_current` keeps the goldens current
+  and deterministic; see `testdata/golden/README.md`):
   - every importer on every fixture (parsed bookings);
   - dedup hashes (`import/hash.rs`), which must match byte for byte, or existing DBs re-import duplicates;
   - rules matching;
@@ -128,8 +130,11 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   - money formatting in EN/DE/FR;
   - IBAN and bank-directory lookups;
   - the i18n tables.
-- [ ] Reference screenshots from the Slint suite, saved as the visual target for G7–G9.
-- [ ] A rule for the whole migration: **no new migrations** until the Go release. Schema and `user_version` stay
+- [x] Reference screenshots from the Slint suite, the visual target for G7–G9. Not committed (157 PNGs, 14 MB):
+  `scripts/render-slint-reference.sh <out-dir>` renders them from the last Rust UI commit (`107faa8`) in a temporary
+  worktree, using synthetic fixtures only.
+- [x] A rule for the whole migration: **no new migrations** until the Go release. It is enforced by Go's
+  `TestMigrationsMatchTheRustGolden` and Rust's `the_committed_goldens_match_this_build`. Schema and `user_version` stay
   identical, so 0.3.4 and the Go build open the same DB, and you can go back to 0.3.4 at any time.
 
 ### G2 — Go foundation (M)

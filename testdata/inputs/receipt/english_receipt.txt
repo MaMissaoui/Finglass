@@ -1,0 +1,5 @@
+Corner Shop
+Date: 2026-08-14
+Milk 1.29
+Bread 2.49
+Amount due 3.78

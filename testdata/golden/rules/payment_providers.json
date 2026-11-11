@@ -1,0 +1,122 @@
+[
+  {
+    "name": "marker with sepa tags and padding",
+    "purpose": "EREF+REF001 SVWZ+PP.0471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+    "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "shop_match": {
+      "shop": "Beispiel Shop GmbH",
+      "provider_purpose": null,
+      "provider_partner": "PayPal Europe S.a.r.l. et Cie S.C.A"
+    },
+    "title": "PayPal · Beispiel Shop GmbH",
+    "merchant": "Beispiel Shop GmbH"
+  },
+  {
+    "name": "marker without the pre-comma name",
+    "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+    "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "shop_match": {
+      "shop": "Beispiel Shop GmbH",
+      "provider_purpose": null,
+      "provider_partner": "PayPal Europe S.a.r.l. et Cie S.C.A"
+    },
+    "title": "PayPal · Beispiel Shop GmbH",
+    "merchant": "Beispiel Shop GmbH"
+  },
+  {
+    "name": "pre-comma name without the marker",
+    "purpose": "PP.1234.PP . Beispiel Abo GmbH, Ihr Abo",
+    "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "shop_match": {
+      "shop": "Beispiel Abo GmbH",
+      "provider_purpose": null,
+      "provider_partner": "PayPal Europe S.a.r.l. et Cie S.C.A"
+    },
+    "title": "PayPal · Beispiel Abo GmbH",
+    "merchant": "Beispiel Abo GmbH"
+  },
+  {
+    "name": "card descriptor",
+    "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+    "partner": null,
+    "shop_match": {
+      "shop": "BEISPIELSHOP",
+      "provider_purpose": "PAYPAL",
+      "provider_partner": null
+    },
+    "title": "PayPal · BEISPIELSHOP",
+    "merchant": "BEISPIELSHOP"
+  },
+  {
+    "name": "card descriptor with a paypal partner",
+    "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+    "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "shop_match": {
+      "shop": "BEISPIELSHOP",
+      "provider_purpose": "PAYPAL",
+      "provider_partner": "PAYPAL"
+    },
+    "title": "PayPal · BEISPIELSHOP",
+    "merchant": "BEISPIELSHOP"
+  },
+  {
+    "name": "top-up note",
+    "purpose": "Ihr Einkauf bei PayPal ABBUCHUNG VOM GIROKONTO",
+    "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "shop_match": null,
+    "title": null,
+    "merchant": null
+  },
+  {
+    "name": "no shop",
+    "purpose": "Kartenzahlung",
+    "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "shop_match": null,
+    "title": null,
+    "merchant": null
+  },
+  {
+    "name": "non paypal partner",
+    "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+    "partner": "Beispiel Shop GmbH",
+    "shop_match": null,
+    "title": null,
+    "merchant": null
+  },
+  {
+    "name": "plain purpose",
+    "purpose": "Wocheneinkauf",
+    "partner": "REWE Markt GmbH",
+    "shop_match": null,
+    "title": null,
+    "merchant": null
+  },
+  {
+    "name": "empty",
+    "purpose": "",
+    "partner": null,
+    "shop_match": null,
+    "title": null,
+    "merchant": null
+  },
+  {
+    "name": "only a code tail",
+    "purpose": "PAYPAL *SHOP, AB12CD34",
+    "partner": null,
+    "shop_match": {
+      "shop": "SHOP",
+      "provider_purpose": "PAYPAL",
+      "provider_partner": null
+    },
+    "title": "PayPal · SHOP",
+    "merchant": "SHOP"
+  },
+  {
+    "name": "marker words only",
+    "purpose": "Ihr Einkauf bei Transfer",
+    "partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "shop_match": null,
+    "title": null,
+    "merchant": null
+  }
+]

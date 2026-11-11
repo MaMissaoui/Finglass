@@ -1,0 +1,328 @@
+{
+  "files": [
+    {
+      "file": "bom_and_crlf.tsv",
+      "ok": true,
+      "rows": [
+        {
+          "line": 3,
+          "category": "Erika género",
+          "pattern": "erika",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        },
+        {
+          "line": 4,
+          "category": "Groceries",
+          "pattern": "beispiel markt",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        }
+      ],
+      "errors": [],
+      "rewritten": {
+        "text": "# FinDesk rules v1\ncategory\tpattern\tsearch_in\tapplies_to\tpriority\tauto_apply\nErika género\terika\tany\tany\t50\ttrue\nGroceries\tbeispiel markt\tany\tany\t50\ttrue\n",
+        "skipped": 0
+      }
+    },
+    {
+      "file": "comments_and_blank_lines.tsv",
+      "ok": true,
+      "rows": [
+        {
+          "line": 8,
+          "category": "Cash",
+          "pattern": "raw cash",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        },
+        {
+          "line": 9,
+          "category": "Groceries",
+          "pattern": "beispiel markt",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        }
+      ],
+      "errors": [],
+      "rewritten": {
+        "text": "# FinDesk rules v1\ncategory\tpattern\tsearch_in\tapplies_to\tpriority\tauto_apply\nCash\traw cash\tany\tany\t50\ttrue\nGroceries\tbeispiel markt\tany\tany\t50\ttrue\n",
+        "skipped": 0
+      }
+    },
+    {
+      "file": "default_rules.tsv",
+      "ok": true,
+      "rows": [
+        {
+          "line": 3,
+          "category": "Groceries",
+          "pattern": "rewe|edeka|aldi|bäcker|bäckerei",
+          "field": "any",
+          "direction": "any",
+          "priority": 60,
+          "auto_apply": true
+        },
+        {
+          "line": 4,
+          "category": "Housing",
+          "pattern": "vermieter|miete",
+          "field": "any",
+          "direction": "any",
+          "priority": 60,
+          "auto_apply": true
+        },
+        {
+          "line": 5,
+          "category": "Energy",
+          "pattern": "stadtwerke|strom",
+          "field": "any",
+          "direction": "any",
+          "priority": 55,
+          "auto_apply": true
+        },
+        {
+          "line": 6,
+          "category": "Phone, internet & media",
+          "pattern": "netflix|spotify",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        },
+        {
+          "line": 7,
+          "category": "Transport",
+          "pattern": "tankstelle|aral|deutsche bahn",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        },
+        {
+          "line": 8,
+          "category": "Health",
+          "pattern": "apotheke|arzt",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        },
+        {
+          "line": 9,
+          "category": "Restaurants & cafés",
+          "pattern": "restaurant|café|bistro",
+          "field": "any",
+          "direction": "any",
+          "priority": 45,
+          "auto_apply": true
+        },
+        {
+          "line": 10,
+          "category": "Salary",
+          "pattern": "employer gmbh",
+          "field": "partner",
+          "direction": "income",
+          "priority": 80,
+          "auto_apply": true
+        },
+        {
+          "line": 11,
+          "category": "Own transfers",
+          "pattern": "erika musterfrau",
+          "field": "partner",
+          "direction": "any",
+          "priority": 70,
+          "auto_apply": true
+        },
+        {
+          "line": 12,
+          "category": "Online shopping",
+          "pattern": "paypal",
+          "field": "partner",
+          "direction": "any",
+          "priority": 40,
+          "auto_apply": true
+        },
+        {
+          "line": 13,
+          "category": "Groceries",
+          "pattern": "beispiel shop gmbh",
+          "field": "partner",
+          "direction": "any",
+          "priority": 65,
+          "auto_apply": true
+        },
+        {
+          "line": 14,
+          "category": "Taxes & fees",
+          "pattern": "spende",
+          "field": "any",
+          "direction": "expense",
+          "priority": 65,
+          "auto_apply": true
+        }
+      ],
+      "errors": [],
+      "rewritten": {
+        "text": "# FinDesk rules v1\ncategory\tpattern\tsearch_in\tapplies_to\tpriority\tauto_apply\nGroceries\trewe|edeka|aldi|bäcker|bäckerei\tany\tany\t60\ttrue\nHousing\tvermieter|miete\tany\tany\t60\ttrue\nEnergy\tstadtwerke|strom\tany\tany\t55\ttrue\nPhone, internet & media\tnetflix|spotify\tany\tany\t50\ttrue\nTransport\ttankstelle|aral|deutsche bahn\tany\tany\t50\ttrue\nHealth\tapotheke|arzt\tany\tany\t50\ttrue\nRestaurants & cafés\trestaurant|café|bistro\tany\tany\t45\ttrue\nSalary\temployer gmbh\tpartner\tincome\t80\ttrue\nOwn transfers\terika musterfrau\tpartner\tany\t70\ttrue\nOnline shopping\tpaypal\tpartner\tany\t40\ttrue\nGroceries\tbeispiel shop gmbh\tpartner\tany\t65\ttrue\nTaxes & fees\tspende\tany\texpense\t65\ttrue\n",
+        "skipped": 0
+      }
+    },
+    {
+      "file": "import_workflow.tsv",
+      "ok": true,
+      "rows": [
+        {
+          "line": 3,
+          "category": "Groceries",
+          "pattern": "beispiel markt",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        },
+        {
+          "line": 4,
+          "category": "Salary",
+          "pattern": "muster gmbh",
+          "field": "partner",
+          "direction": "income",
+          "priority": 90,
+          "auto_apply": true
+        },
+        {
+          "line": 5,
+          "category": "Other income",
+          "pattern": "gehalt",
+          "field": "purpose",
+          "direction": "income",
+          "priority": 40,
+          "auto_apply": true
+        }
+      ],
+      "errors": [],
+      "rewritten": {
+        "text": "# FinDesk rules v1\ncategory\tpattern\tsearch_in\tapplies_to\tpriority\tauto_apply\nGroceries\tbeispiel markt\tany\tany\t50\ttrue\nSalary\tmuster gmbh\tpartner\tincome\t90\ttrue\nOther income\tgehalt\tpurpose\tincome\t40\ttrue\n",
+        "skipped": 0
+      }
+    },
+    {
+      "file": "row_errors.tsv",
+      "ok": true,
+      "rows": [
+        {
+          "line": 3,
+          "category": "Cat One",
+          "pattern": "rewe",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        },
+        {
+          "line": 12,
+          "category": "Cat Nine",
+          "pattern": "edeka",
+          "field": "any",
+          "direction": "any",
+          "priority": 50,
+          "auto_apply": true
+        }
+      ],
+      "errors": [
+        {
+          "line": 4,
+          "reason": "Expected 6 columns, found 5"
+        },
+        {
+          "line": 5,
+          "reason": "Category is empty or longer than 100 characters"
+        },
+        {
+          "line": 6,
+          "reason": "Invalid pattern: Invalid regular expression: Parsing error at position 9: Invalid character class"
+        },
+        {
+          "line": 7,
+          "reason": "Pattern longer than 1000 characters"
+        },
+        {
+          "line": 8,
+          "reason": "Unknown search_in value: companions (any, partner, purpose)"
+        },
+        {
+          "line": 9,
+          "reason": "Unknown applies_to value: outgoing (any, expense, income)"
+        },
+        {
+          "line": 10,
+          "reason": "Priority is not a whole number: bold"
+        },
+        {
+          "line": 11,
+          "reason": "auto_apply must be true or false: maybe"
+        }
+      ],
+      "rewritten": {
+        "text": "# FinDesk rules v1\ncategory\tpattern\tsearch_in\tapplies_to\tpriority\tauto_apply\nCat One\trewe\tany\tany\t50\ttrue\nCat Nine\tedeka\tany\tany\t50\ttrue\n",
+        "skipped": 0
+      }
+    },
+    {
+      "file": "valid_round_trip.tsv",
+      "ok": true,
+      "rows": [
+        {
+          "line": 3,
+          "category": "Groceries",
+          "pattern": "beispiel.?markt|musterladen",
+          "field": "any",
+          "direction": "any",
+          "priority": 60,
+          "auto_apply": true
+        },
+        {
+          "line": 4,
+          "category": "Own transfers",
+          "pattern": "erika mustermann",
+          "field": "partner",
+          "direction": "any",
+          "priority": 20,
+          "auto_apply": true
+        },
+        {
+          "line": 5,
+          "category": "Salary",
+          "pattern": "beispiel gmbh",
+          "field": "any",
+          "direction": "income",
+          "priority": 70,
+          "auto_apply": true
+        },
+        {
+          "line": 6,
+          "category": "Cash",
+          "pattern": "raw cash",
+          "field": "purpose",
+          "direction": "any",
+          "priority": 0,
+          "auto_apply": false
+        }
+      ],
+      "errors": [],
+      "rewritten": {
+        "text": "# FinDesk rules v1\ncategory\tpattern\tsearch_in\tapplies_to\tpriority\tauto_apply\nGroceries\tbeispiel.?markt|musterladen\tany\tany\t60\ttrue\nOwn transfers\terika mustermann\tpartner\tany\t20\ttrue\nSalary\tbeispiel gmbh\tany\tincome\t70\ttrue\nCash\traw cash\tpurpose\tany\t0\tfalse\n",
+        "skipped": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
+"DE89370400440532013000";"03.10.26";"03.10.26";"KARTENZAHLUNG";"REWE SAGT DANKE 1234";"";"";"";"";"";"";"REWE Markt GmbH";"DE44500105175407324931";"COLSDE33XXX";"-45,67";"EUR";"Umsatz gebucht"
+"DE89370400440532013000";"01.10.26";"01.10.26";"GUTSCHR. UEBERWEISUNG";"Gehalt Oktober";"";"";"";"";"";"";"Müller & Söhne GmbH";"";"";"3.200,00";"EUR";"Umsatz gebucht"
+"DE89370400440532013000";"04.10.26";"04.10.26";"KARTENZAHLUNG";"Tankstelle";"";"";"";"";"";"";"Aral";"";"";"-60,00";"EUR";"Umsatz vorgemerkt"

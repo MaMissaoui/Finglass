@@ -1,0 +1,22 @@
+Buchungstag;Betrag;Beguenstigter/Zahlungspflichtiger;Verwendungszweck;Saldo;Waehrung
+01.11.2025;10000,00;Max Mustermann;Startguthaben;10000,00;EUR
+27.12.2025;3,25;Beispiel Bank;Zinsen;10003,25;EUR
+28.12.2025;400,00;Max Mustermann;Sparrate 12/2025;10403,25;EUR
+27.01.2026;3,25;Beispiel Bank;Zinsen;10406,50;EUR
+28.01.2026;400,00;Max Mustermann;Sparrate 01/2026;10806,50;EUR
+27.02.2026;3,25;Beispiel Bank;Zinsen;10809,75;EUR
+28.02.2026;400,00;Max Mustermann;Sparrate 02/2026;11209,75;EUR
+27.03.2026;3,25;Beispiel Bank;Zinsen;11213,00;EUR
+28.03.2026;400,00;Max Mustermann;Sparrate 03/2026;11613,00;EUR
+27.04.2026;3,25;Beispiel Bank;Zinsen;11616,25;EUR
+28.04.2026;400,00;Max Mustermann;Sparrate 04/2026;12016,25;EUR
+27.05.2026;3,25;Beispiel Bank;Zinsen;12019,50;EUR
+28.05.2026;400,00;Max Mustermann;Sparrate 05/2026;12419,50;EUR
+27.06.2026;3,25;Beispiel Bank;Zinsen;12422,75;EUR
+28.06.2026;400,00;Max Mustermann;Sparrate 06/2026;12822,75;EUR
+27.08.2026;3,25;Beispiel Bank;Zinsen;12826,00;EUR
+28.08.2026;400,00;Max Mustermann;Sparrate 08/2026;13226,00;EUR
+27.09.2026;3,25;Beispiel Bank;Zinsen;13229,25;EUR
+28.09.2026;400,00;Max Mustermann;Sparrate 09/2026;13629,25;EUR
+27.10.2026;3,25;Beispiel Bank;Zinsen;13632,50;EUR
+28.10.2026;400,00;Max Mustermann;Sparrate 10/2026;14032,50;EUR

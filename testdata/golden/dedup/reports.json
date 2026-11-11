@@ -1,0 +1,138 @@
+{
+  "steps": [
+    {
+      "step": "first import of a",
+      "imported": 3,
+      "duplicates": 0,
+      "categorized": 2,
+      "probable_duplicates": 0,
+      "previously_deleted": 0,
+      "invalid_amount": 0,
+      "wrong_currency": 0,
+      "balance_updated": null,
+      "summary": "Imported 3 transactions, 2 auto-categorized"
+    },
+    {
+      "step": "re-import of a",
+      "imported": 0,
+      "duplicates": 3,
+      "categorized": 0,
+      "probable_duplicates": 0,
+      "previously_deleted": 0,
+      "invalid_amount": 0,
+      "wrong_currency": 0,
+      "balance_updated": null,
+      "summary": "Imported 0 transactions, 3 already known"
+    },
+    {
+      "step": "overlapping b",
+      "imported": 1,
+      "duplicates": 2,
+      "categorized": 0,
+      "probable_duplicates": 0,
+      "previously_deleted": 0,
+      "invalid_amount": 0,
+      "wrong_currency": 0,
+      "balance_updated": null,
+      "summary": "Imported 1 transaction, 2 already known"
+    },
+    {
+      "step": "first import of c",
+      "imported": 3,
+      "duplicates": 0,
+      "categorized": 0,
+      "probable_duplicates": 0,
+      "previously_deleted": 0,
+      "invalid_amount": 0,
+      "wrong_currency": 0,
+      "balance_updated": null,
+      "summary": "Imported 3 transactions"
+    },
+    {
+      "step": "re-import of c after deleting Cafe",
+      "imported": 0,
+      "duplicates": 2,
+      "categorized": 0,
+      "probable_duplicates": 0,
+      "previously_deleted": 1,
+      "invalid_amount": 0,
+      "wrong_currency": 0,
+      "balance_updated": null,
+      "summary": "Imported 0 transactions, 2 already known, 1 deleted earlier, skipped"
+    }
+  ],
+  "stored": [
+    {
+      "date": "2026-10-04",
+      "amount": {
+        "minor": -700,
+        "currency": "EUR",
+        "plain": "-7.00"
+      },
+      "partner_name": "Bakery",
+      "purpose": "Croissant",
+      "import_hash": "910750f189e1ced6148a6f7b121c66c5645d7cb4ac92552347adb5248b4d5fbb",
+      "is_new": false
+    },
+    {
+      "date": "2026-10-04",
+      "amount": {
+        "minor": -200,
+        "currency": "EUR",
+        "plain": "-2.00"
+      },
+      "partner_name": "Kiosk",
+      "purpose": "Wasser",
+      "import_hash": "1038185a81e8b3ad13457fef234cae75e90efe378054e5086053de902a458477",
+      "is_new": false
+    },
+    {
+      "date": "2026-10-03",
+      "amount": {
+        "minor": -900,
+        "currency": "EUR",
+        "plain": "-9.00"
+      },
+      "partner_name": "Bookshop",
+      "purpose": "Book",
+      "import_hash": "ca7f01a200cc63e8d0ca73311b2ef18a47147673e63016d8b00544b22e549d34",
+      "is_new": false
+    },
+    {
+      "date": "2026-10-03",
+      "amount": {
+        "minor": -450,
+        "currency": "EUR",
+        "plain": "-4.50"
+      },
+      "partner_name": "Bäcker",
+      "purpose": "Kaffee",
+      "import_hash": "4e7cb95891c075f17e2d2d15caff5a22d3453fb40192be96d05e24e85e8f82a8",
+      "is_new": false
+    },
+    {
+      "date": "2026-10-03",
+      "amount": {
+        "minor": -450,
+        "currency": "EUR",
+        "plain": "-4.50"
+      },
+      "partner_name": "Bäcker",
+      "purpose": "Kaffee",
+      "import_hash": "3869310d076f5bfe2e8921dce151a5f87b3aba8c956544fc9f4d24bc561d69c7",
+      "is_new": false
+    },
+    {
+      "date": "2026-10-02",
+      "amount": {
+        "minor": -1000,
+        "currency": "EUR",
+        "plain": "-10.00"
+      },
+      "partner_name": "Kiosk",
+      "purpose": "Zeitung",
+      "import_hash": "39b1026f92655e6cfb699cc55751e4f1a6b4ba20bf3cfdd6df019d176f753625",
+      "is_new": false
+    }
+  ]
+}
