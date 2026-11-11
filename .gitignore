@@ -8,6 +8,9 @@
 *.db-journal
 .finglass/
 
+# The cross-language SQLCipher fixtures are committed on purpose (dummy passphrase)
+!testdata/sqlcipher/*.db
+
 # Agent and editor files
 CLAUDE.md
 CLAUDE.local.md
