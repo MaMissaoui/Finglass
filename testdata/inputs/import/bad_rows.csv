@@ -1,0 +1,4 @@
+Buchungstag;Betrag;Verwendungszweck
+03.10.2026;-1,00;ok
+kein Datum;-2,00;bad
+04.10.2026;abc;bad

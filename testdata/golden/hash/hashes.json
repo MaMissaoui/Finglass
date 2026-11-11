@@ -1,0 +1,1734 @@
+{
+  "files": [
+    {
+      "file": "bad_rows.csv",
+      "iban": "",
+      "file_hashes": [
+        "811a9bcba4695993b64b83bc13762e50875c47070dfd8aebc08612a6b0727071"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "7969aac01e8609b332a31a9deca2af18112b7f406a52af0ef495134714e2d1e2",
+          "import_hash": "8925510ec5861ae7a7411083c64fcef9de4ffa29aaf61db640dcd193e3c0511f"
+        }
+      ]
+    },
+    {
+      "file": "balance_card_2026.csv",
+      "iban": "",
+      "file_hashes": [
+        "007df1fba97272d1b2a7ddfa4f98562ade59b2b606b987313fa753c6adf16685",
+        "d68f1a095defcd9ecd3216b8e2f4ee9f359700c3c910b480c640e8ffacb66da1",
+        "d455127e3bcdc73ba09ec7071245658d8f233debc7f3ec1e507e77033d6834a3",
+        "677c5fc58b356eaf177d7e156ff4ec0741be3ce950ce6d58eeca41fdd41a2203",
+        "936ead18d442a3655f76ff640326f491d065dfc179133305429389b8ee54de02",
+        "d4f6893965746e7a1e79b5241b5fc2f46dd2b3d7eead5b4bc0b31dd5525e0dc1",
+        "8bd2bb2e314feac608eaff377b9c1bfd3db94a00440b4188b86d61d4958e9215"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "f7c4c0c10a4ea5f1941dedcc3e406d44567f696837fb25c7279da13c58ac4fae",
+          "import_hash": "374f0298260bfce4322afe523b2ebe459cf5654a4829d3dd5a482b926cfafe35"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "3f18053fcab658f25bec0384a2b95299b49c9670912f7bf3d57f680b22243724",
+          "import_hash": "92e8e801827c7511c22f1f3e93e24e323a835b31373a4abc968469c57e2b1088"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "b0b19fb93f11f48ac42925cdc3ae77e7bfafd0427d6b20abbaf59898aa5d59aa",
+          "import_hash": "5df8854550d7c115621d64607d41b8315801f887db68e0c3298458e58fb5e93f"
+        },
+        {
+          "index": 3,
+          "transaction_hash": "103dac3403fec4b6f047a417192ac886c605e26f6b785831baa38b6ee99ca6c3",
+          "import_hash": "8974e0bdf7a92e09b7219e3e5ad86569660b90ec5f9be4144e2146b6d35aeed4"
+        },
+        {
+          "index": 4,
+          "transaction_hash": "d607536e6656cc4a8b7259ff7899c01694fd764aaa122f17b9ecb7b6f17a20a6",
+          "import_hash": "273978fd32a6db74c8dea502f9e532b4f0894fc2cb07ab39b8368c3bf10b1f78"
+        },
+        {
+          "index": 5,
+          "transaction_hash": "848ac4a3e1fa32eb1efd7d652616df9c0f4e2f1384691a9e00c00626c5f73b9d",
+          "import_hash": "c730cbb3681e4b8756bb7463e84c84476b27c3823985d7ffa501be8fc12f152e"
+        },
+        {
+          "index": 6,
+          "transaction_hash": "fbb3d5fc33f4f4548fbfea5a8ac3e1296dad424b653304cd78451a84b52259d5",
+          "import_hash": "bc8b2599b6ce6afa6ba1eddc41217e2a521b7c441fede926be93909eebf87722"
+        }
+      ]
+    },
+    {
+      "file": "balance_checking_2026.csv",
+      "iban": "",
+      "file_hashes": [
+        "7b0a14679ec373f919844cfded911465652e2e50333e9bda6bb0e111e4cf7b13",
+        "5c88351fd6e8311915c0154e80cf6656aee5df04642ae2de196db3e160c463a4",
+        "56144810ab5f4fdca8f039bc0a4ce5e805912ce751b879e0dfe367925fd9659a",
+        "6a6bdb7898850647f458dc0cbc22d4ea646ee8f75f6b6629d18f9668a36fa502",
+        "50f2b68256ff7b3b33d98f313f38e1d1bdf27ca42f23da9b741a634fe03573da",
+        "f9fc982ecc49a8585c7cf5336f7e62d7f53f14cb1ee0d045cb548d0e3758e8a5",
+        "80986bccfe53098f483a5de4b6b9fa5d7379153fd2e0b9a502de88dee1f32324",
+        "07b7a750bcb76b7c1198e5468b69ee87ba0f8826d4be6d3fd5acd215d24dfea4",
+        "c4513e2e40d50b9624ede800af18d619b4f42a2db61d4369859899b0dc14e9da",
+        "bc5507cce786fd10f268542a7c39d4f7092609ab1e523d0f5330885b8c86fa39",
+        "d9c1c9a6c49eef6683fa871885daeca6b6610fc228647ebf338c27b7f83c5dbd",
+        "798c1919ef5f4068b052f93eefab3e0f2fd6542e532e8a0ba6c3bbe446c84f3a",
+        "bbe8033556ab18665952c08bb5938ea7257ae8775b7afc838ec9bca732cec98c",
+        "eb3c09a739bd507a7670eac11e3ffb086e4d3e1a8623b814c2b79abaf32d6ac7",
+        "7b5dee3329b5bb9fc5018d7e3a402f1142b51ad1e2c5ff45cdae099c66b98a5b"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "8bcc1a5a9463d51765ae016cef0fc2e1b31858426222bf7142f847231883e58b",
+          "import_hash": "f069fcd6c2a384f502f8438cec7cf094d735f9c4eb32249f6ca08f266a72ed20"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "d26bd440dc961eea820ead012dbdaf83be4e1eb4b2ebb09327bfced740054ebe",
+          "import_hash": "a5e79fe1f7801632157c787e20806e3860ad22b9f6315c87428b7b688ce95f71"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "e5e0ab36fc7c05cb20eff7f342434b431d8c197e2ecae56735ba2624f6ffe33f",
+          "import_hash": "7ec755ec80a6c901fe92866ecc3a833f80d6c14b0dd9657400da3ccfcd21a600"
+        },
+        {
+          "index": 3,
+          "transaction_hash": "22a37aea3267994798b26dd28ccf5a9f83fb1211f68b34db234fd0d0be29f3bf",
+          "import_hash": "85e8ca6592d72ffd15e5aeef5cba89f0e031d60ad0ab3ecfdae3f06669725bab"
+        },
+        {
+          "index": 4,
+          "transaction_hash": "3041dba4055b0eabb6e0a578c83486f3672766982ebda9853850128525f1e460",
+          "import_hash": "32a56ba7fb5941b7ecaba884c2b291b1e940d9fe976ec0255007bbb129b5c7e1"
+        },
+        {
+          "index": 5,
+          "transaction_hash": "7242e7c5a2d93ddccc7ff607e13adb1f8e907f036cf28fc328ef814d2c57dfcf",
+          "import_hash": "625736da2e55de2496242953449bb746bfbd4e9fc05bd6d1c14e82788e8316c1"
+        },
+        {
+          "index": 6,
+          "transaction_hash": "1bbe1bda14cd50953a2dfe5483fc1e8085f9c126d5e41e8ec38cb1980da090ae",
+          "import_hash": "65531547267f70f08bd6d17850f8f9a2fff021953af6c241c1286269c024b07e"
+        },
+        {
+          "index": 7,
+          "transaction_hash": "60896ee2d8284b05b37fb2b529710c2f5fe66ce1c51ec561ed4be64cc5d66ecd",
+          "import_hash": "fef27dc7d51144cce0323ac48e0a3c450a1ad55c7c012ae54775405973503da7"
+        },
+        {
+          "index": 8,
+          "transaction_hash": "73ff4558e5e2a0e841a1f38196b8ff129e9bbcd5878382cab3053306cbca7751",
+          "import_hash": "7c3aaaaa2a58b487684e57da157b74d03675c4a0d7efcc89ce2da084a1468560"
+        },
+        {
+          "index": 9,
+          "transaction_hash": "58974e0e6673a1d2dc6a2f33362a92dcea4c5c677301334f1c217b9932f03c23",
+          "import_hash": "f856f441d91ae4d6aa8bb5a6770ef000740ab15a06c63f59e583cddcf9d0e914"
+        },
+        {
+          "index": 10,
+          "transaction_hash": "e29b2de31206852a2c7b1016c9eb28f196e0046edc1800bcd212285d11b9d187",
+          "import_hash": "7f4cfa65de34233c1034b87683213076582cb9324ec3c588d82ae46187d1d603"
+        },
+        {
+          "index": 11,
+          "transaction_hash": "0b2f48139c78d181eb2ad579154e65ade96806b7a888e07ba5aad0288ffaefb0",
+          "import_hash": "5c82d4caddcb137c1d4fa1ccaff8d3c04da5b62a33a3fdeb8a98458ac2b8032d"
+        },
+        {
+          "index": 12,
+          "transaction_hash": "5135e56b9e1051213946d2a6ab244fcc543893631bf150e6ea93f00cde61dfe2",
+          "import_hash": "33654453d904b22b364adc208ae37922bee16ce17736f82b5fb7ddc1accde853"
+        },
+        {
+          "index": 13,
+          "transaction_hash": "a4ab52d7ec7a1863a9157cfa6465452b9c569964f14d9d98f2475937620783e1",
+          "import_hash": "d8dd512b694a7b24f581d4f077a935343c27b0105356b2fd57abe995255864e1"
+        },
+        {
+          "index": 14,
+          "transaction_hash": "c691ff2630c3c14790479ffe12399ee89a2c920617f908235f71c924724e0d98",
+          "import_hash": "6bcfe31b34a7adbcbc8ce091162ba3ba1ecc110bb18310fcaecafaeaddddbe61"
+        }
+      ]
+    },
+    {
+      "file": "balance_savings_2026.csv",
+      "iban": "",
+      "file_hashes": [
+        "d5f5b365d5f845b75e1799ede3397965e058c7dc2d2ea03dbda04aa8f90c741f",
+        "5c1d93d0e42d9a8e3e4cedf4060f7a5c59822d65155c6c67dd8c85cfd1bfa3ea",
+        "fbfc0e3af3303c91172ec891430dcc126685a0266fce8c439a91b7f9f3bf547f",
+        "2d0519690274d326371ed8d0c0b7357c011414951e89acac75439ffabe42f206",
+        "1eb3d6702b38af28b3a3c63dc4019ccbb1d6dbd142e0eaf509e185e1edc29da6"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "3ef0b81b913681e3e11017b706f5b8834cf4df752d825fc2f0f6fca6e4579a09",
+          "import_hash": "cf6a1e9c81e4097a3f9481d1454936c70d8719128bdc6d11e799ead21b600d1d"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "05be9d34275b6866d56907d99764b4d342d3beafaa55c4f333e038add8c006ce",
+          "import_hash": "2934f2e11b4c319edb55b904f68d1c62582a1bf9afa7d2ba6e18c0775e3e48d9"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "3ec6f569ce3fcbf326d847ac72ff3636df1f3ab7b1db7ba9875b5d2da8f9a5c0",
+          "import_hash": "665284db21cc50907d5b651dae3b2a5b1ab03e907519f96e8700675cc4b9d850"
+        },
+        {
+          "index": 3,
+          "transaction_hash": "7c28e31f3f987ad9c0a58d0bd80c43ea624711b6c6004e7803f4ed6271b99878",
+          "import_hash": "4ffe45d062c1a292573e4f35245740fab4c890a2ffce9dc905b61914f6619965"
+        },
+        {
+          "index": 4,
+          "transaction_hash": "1d44ae8ec41fcc9de7bc78fb80b892d2c73ab82f4a827d9f9dbac7a36db429ee",
+          "import_hash": "540fab0eae1f4d3c23b91ad81d20275cb3710ee7aaeaddebed009f4f0b3801a1"
+        }
+      ]
+    },
+    {
+      "file": "bank_norwegian_xlsx.xlsx",
+      "iban": "",
+      "file_hashes": [
+        "719534e7910257541d84f5cf980a40f4c1b80f9c8d7982244ffba4c007f7ed9f"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "abfe25fed1b7e14c5e5efedd11f16116126732d87d88e314ee85037d33453537",
+          "import_hash": "43971e5066e015b339901f740be77996ad3d56e8c438d7ddc20c602f46800bde"
+        }
+      ]
+    },
+    {
+      "file": "camt052_report.xml",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "29a48fea5283a453566f2e65c0fb0f0da0a45dcc8a99bb467afad9603aba8a56"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "fb5b2048a28b6c0bb7674b93b1f19d19163946bd1d433034ee774a6661e7c12e",
+          "import_hash": "59a21d100470908a99fe7fab4883d4461d6c3823ff9ce0ca51af6b4814de21b5"
+        }
+      ]
+    },
+    {
+      "file": "camt053_closing_balance.xml",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "335ae4dabae43f32afa4ab81cb4a07cc406dbcb1717215fb9279a5a68d4f1cf5",
+        "978aa3dd269ba1a8785b497b7426c86d1ee2e772905bd9219d3dd83a90f03b6f"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "dd268dda431484b46566bd886e4f24fd3275ee66c0998a754eb6888fff47c2aa",
+          "import_hash": "896e116ec956b0a645d50c45f97ea475525d0743838462c735737573d9c3b0f8"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "ea96a65f3d8d545a2440c33f445c29fe1dc1f490c9c02ad4c9c536d96d97b96e",
+          "import_hash": "1b37396f47e034e03e66502d81d883c23411c411052334ba7cde9d732a8a91b9"
+        }
+      ]
+    },
+    {
+      "file": "camt053_entries.xml",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "fc069c63ee17666b790e34974a53af05408fd3bccde69dd008d6ebf62a751662",
+        "4e037228f3136646957ae3c051976185fa6a6568ded26fb218eb145ba8d67f67"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "6b390318cd85869d5e2fb01c49e68ec8b0194a60a0c74b48bcfb0599ac0a5dbb",
+          "import_hash": "e933b10b3c10b4ffb57181fbdaaf49f46dfb2dcf376a35d00448973ad82a6aa5"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "235322184190a6602b5ad979c307521ec28acc1dd1ac4d65ea7d0194ee2b2806",
+          "import_hash": "cab7d77a91d8f5d3355373b54d7ed6d4c619f48972c12322223b2fc87c2ed8e9"
+        }
+      ]
+    },
+    {
+      "file": "camt_zip_two_statements.zip",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "fc069c63ee17666b790e34974a53af05408fd3bccde69dd008d6ebf62a751662",
+        "4e037228f3136646957ae3c051976185fa6a6568ded26fb218eb145ba8d67f67"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "6b390318cd85869d5e2fb01c49e68ec8b0194a60a0c74b48bcfb0599ac0a5dbb",
+          "import_hash": "e933b10b3c10b4ffb57181fbdaaf49f46dfb2dcf376a35d00448973ad82a6aa5"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "235322184190a6602b5ad979c307521ec28acc1dd1ac4d65ea7d0194ee2b2806",
+          "import_hash": "cab7d77a91d8f5d3355373b54d7ed6d4c619f48972c12322223b2fc87c2ed8e9"
+        }
+      ]
+    },
+    {
+      "file": "comdirect_preset_2026_10.csv",
+      "iban": "",
+      "file_hashes": [
+        "ba3fef27253e7c983a06261010f5bfa0423345ad01cda6d7a297b6142db91dbb",
+        "58e6241439e689a07c290a85dea897190a1ece2e2e6b8f56e485e4f9097147d3"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "9ff975bc1e6f978bb50c20c83a4a566485269f864b4f86d9632f65df83f0f50e",
+          "import_hash": "93de25c5bcb832f7220258cc4c4914dcc1d0908b21937d74c885561cd21f0164"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "bbe5a24b9c15d00906d8519c4a18b3aa5685d643701e23eb6e53f337e00f4edb",
+          "import_hash": "aa1b916db2bea5a3e761440d5af4e5512d4394f1e4f631b7395458b6f190939e"
+        }
+      ]
+    },
+    {
+      "file": "commerzbank_preset_2026_10.csv",
+      "iban": "",
+      "file_hashes": [
+        "79a7469eb5c61b5357a9e56b069f447d6e265d9d6b2cf598c5e8194858df0e6f",
+        "d33a8e3b6633fd2fe405a1d2f73d1e011c81f6b182a6a1130228f111c0e02b89"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "fa90206ced70b24dfb66881ab677e522859dbc095720c1b29b4cfe6ed49490db",
+          "import_hash": "626d2abc887bb81672dc02c0b4091823d39ef266a39cefe18a711b37bbdee37b"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "15914a234a76353eb2bf5211f4a79be57f1220b16b4bf0aa1f523e38e26729b1",
+          "import_hash": "0972375363405802b042283c5b898ea837c1c974dd2a1421c1fdbdea45c3d61a"
+        }
+      ]
+    },
+    {
+      "file": "dashboard_card.csv",
+      "iban": "",
+      "file_hashes": [
+        "f7bd7cf5a3353a27ae580d0e303c8ed65a145e2a18480300bf3d075f9c938300",
+        "cc2a71970fa80accc85e9394323d3f2c5e6bce183d96d684145b8d603590cae1",
+        "4824b0654c9163aa6db1191408d560ee2c378449be1cd2665c0c9ee32171b924",
+        "938ac5067dc2f914b4999f5ffcbacc303553aa9a0ff57e079e2cf1264e24f919",
+        "01f883fcbca593197c0454843f1e9030619fb078c9e42a0fc37575ef1361500f",
+        "40b743eacc1e44ab8d9155ee2a0beda9fe6b6f436e2405b00a38cf681aa79ca1",
+        "47f7e6058641d037ea50395414ae2c48cb9587524ce29ca172ef46040b92271e",
+        "4bbe2ce967bd2828679de55fa8c9f706a0678e00c59c8196a780ddc2cfcf6d0e",
+        "47ad23b2153ac61329f3b655d9639c3c759fc6f728808b9b0df0fcc7d423c347",
+        "1214e5d7a5d2d02484d4adc97a89e745082622496c68766a571b17b9dc96af8f",
+        "ce717098fc25aea933f921391cf4ea613eb755a3448949ffcc21323a821507a7",
+        "c6ecc660687e70473d0b67cba36a1494c480086c45dbb5584f657e248d4130c6",
+        "244aa63b30c06e5fea13fb7bbdb5b31311b82bccc0e744ab8bf6dd11e0ecc0f8",
+        "e2c9ba9319948cda88d468659507685fb6a24c3e08afcb39a41d5f28a6e940ae",
+        "1a50a9b7908d9b6413f8d57a1904d7df155d85ff5a7403ed52ec43958186a231",
+        "8d107f58ecaeb1a7846380fecea3bd79cdd1503d13adf89364932c9e2662acb4",
+        "6770bba8e6d9eccc9ba3c1c496bdc631aa47309287ab5c7f4e676568ad0a6300",
+        "f45e44f0ebef2a18113e6245ccd01d94c0c181eb9fbfba8da67ffd80997271bf",
+        "bd71a99df0dc8e2332f025973fea88959165e663222fad84844326cdea020424",
+        "6735d7b0aa5b8479a46d8930593e9d686468f5238159b6192e7d5dd039619f4e",
+        "e3c1a79175549424e5d3de22e4013627ed76c81695476020e93e6d0c5570b2c9",
+        "3695042389d8c9e998210937e82277d2c8b483d8014e2e923ef0ef7118dcee83",
+        "2ee17f3a364fe3e167b1faacf984dc79f1b7eab0f5e406830c54432f9fea5e35",
+        "d84e13da7962f512ffba62b4564e5223ec46afdc7a461b5576310b5f29c86477",
+        "482470e76d06f81f7665af38d63671cf00c39cd857c6bef0deb67aa35e096ee1",
+        "71b4cac1c656c27bc01b49b9b7bc0c825b8e0ae99109e255d1c9e5a1a33e38af",
+        "212f1f2fc2e584c04665279cf7d44319d17cd5909473daff6957595f6bee8475",
+        "ae821a69218975b2a7a584762ca96b6e7d2eb783fa5201558facbf2a71f9d234",
+        "221ad1e7f88256fb951d9db587fa2dd1a0d789aa95a159fdc2a6e1e9f85e8717",
+        "3a9aad345e0aed1fa631139a0b57327b27724a7b870405eb8d88bdff1a8b566f",
+        "75d25cca13f91bc5e9c3c77603b6064fee5cd382636d8ce810490a4fc2682f9f",
+        "0837adaf9e8762bea994c386d99be78f701804e2ecc854d0cf03e06ff77ad8aa",
+        "a60e19a874a79c7bae01941b45ba156147039c1e1c7542fce96c0847774d29be",
+        "adbb3bc506621522f4d13f6513ab18dc01e6228c30fb20e18e49413379592cda",
+        "24d178c5284f578ba7422d726b8597605b08a1ba9dc85985da281bd0f8a3da46",
+        "d04fd927c42f61d39994eca0dca816a95cfcf8a0eaee40b7b5aa09780559014f",
+        "ff3d3bb491372d30d8db3bb537b435ee9becc771a56dd3bcc60ba2c28b7349e7",
+        "e176a01ab9e4a9dd0222d439f9ec40215c3ed88d4e7b934d536291984df7eb58",
+        "9e6522b668abae6a875939bdb3880120da5f2bf1f0693177397e141b17a39a85",
+        "fbec7eba9afc5619b111a498817f7bfd06452e4a5f98829ce37c92223281edc0"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "1c0435fb59f9686df54570e03dffb608f89c1b908cb1a825cb912b952c40e8b7",
+          "import_hash": "a6a90a1d8743c61f0af8d29a7387d404c41f3e34580e7b0206a774d8e9b0b6aa"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "1e53768a1c67af042e9682a9519b42a56e7bdbcc9e232dc52d97cce7ab0ff041",
+          "import_hash": "8b4fbc42cb383ab4f66330f66b6c074b574faea1cb8c2b4fa7743a091e25cb57"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "87b65488d9de2590da871992e0970c47bce1ec30615e358f99bcd9a62c3bc6e7",
+          "import_hash": "2ffa9968cbf6632e3207485dcef17ba100880c4aa386df4b8a3bf3e69005920f"
+        },
+        {
+          "index": 3,
+          "transaction_hash": "693d973d962f4595cad943a92ae08df39db29d8f64164e5530ecfb8594a5e7fe",
+          "import_hash": "3f104825a9cf24eafdd04ce5a3b9a938c1d06673dde65008ee99c0d4da7b48fc"
+        },
+        {
+          "index": 4,
+          "transaction_hash": "b13173c6017061ce7e688bba538d4342c59c2b9ffd62d8ca39b14a0d92a82276",
+          "import_hash": "3d30395ee2c0fef460c04b1dbdec70f72c72c9b5f9a1dffc03398bfb201cfad5"
+        },
+        {
+          "index": 5,
+          "transaction_hash": "d6c4765340f571f702ce8bea19c77326a3090bae40edd8dbf9bc2897ea431622",
+          "import_hash": "c99d5b6746d4ac93c7ad4e8d20ce7381f56f7720465a9fb96554868d580acce4"
+        },
+        {
+          "index": 6,
+          "transaction_hash": "c4df18f0e92dd8f69cff36ec62c8e1052d1438917b57886f608c05068bdc2c04",
+          "import_hash": "12a702f3c78db6e96c9a541d067f1b0d044ec09a74ef27dc57e7f5de98716254"
+        },
+        {
+          "index": 7,
+          "transaction_hash": "90b8ee01a3358e4c5caa2e6b73337bf85cd8d64b71d8d41d4386e0a125afad4b",
+          "import_hash": "4b20c0c84127dd7dea898a9a267db17c90f2069a8f692ab332376b523dedec0f"
+        },
+        {
+          "index": 8,
+          "transaction_hash": "1fe773109eec6151c79a6abf6c1b461011e1d772834e2a64002a45dc674df5cf",
+          "import_hash": "1658ec86a1ce392241acc3fd37a169cbe96242ce3030fd7a5d1aa9460e13c2e4"
+        },
+        {
+          "index": 9,
+          "transaction_hash": "e1e3fa5411fdb181c3de3c5c6a43c9e28a125983c96edd1858d3aa8b3b85c7eb",
+          "import_hash": "bcf2dec8d75dc6e30e672f3a23df54860a1df281f005b3ce7833193834bfeb79"
+        },
+        {
+          "index": 10,
+          "transaction_hash": "60092ad6f15882711befff7d2a5437c6add1a26984fd8ff7ece215634bc46666",
+          "import_hash": "5bef25577ebee5ccab71b476cc7645eb90dec5f3b8dd29b65b591651d17bf965"
+        },
+        {
+          "index": 11,
+          "transaction_hash": "ae6fd8222a427138b0d82c136d5015df4ce13c98d8f3341501171a1dfb863d15",
+          "import_hash": "0b723357bf762efc9d15d54a31a413f691ebd9c94e18fc7e43fe1a6f81743e31"
+        },
+        {
+          "index": 12,
+          "transaction_hash": "81dd0c0e2b85c3b5a0e8bc8607c8ecdb6e6d3bb83a915b93d641ce9eeff0db37",
+          "import_hash": "12d2f486e9f4c1d18f5bfbbff8aa828ccf34af5e0fd3122b6a5c0bcd6d6eaa1c"
+        },
+        {
+          "index": 13,
+          "transaction_hash": "af5a4f0d20062b1891705e839db57f58616127ef88d20e8f5bb721bd03b74227",
+          "import_hash": "53760c6e05e7938307d981e88ea1f60d8d62b9fe2ee5b4faadfe8ecb55b67804"
+        },
+        {
+          "index": 14,
+          "transaction_hash": "a05693c4e579586f4157229f904df894d153e0affcc92a7273523b11a90188b7",
+          "import_hash": "88a9842a859890ae5f90aa5828ee3ce2f0be78cd969fab698285495791228c72"
+        },
+        {
+          "index": 15,
+          "transaction_hash": "5aa10969fe76c1f947a754822d2efcd7546aac2b1838d2e366ad1a99b36fda47",
+          "import_hash": "bd01dc61b8c4c6bf7dd10864c4ad3f44836caa767b04b5a669ce96748988a8ea"
+        },
+        {
+          "index": 16,
+          "transaction_hash": "fbb3d5fc33f4f4548fbfea5a8ac3e1296dad424b653304cd78451a84b52259d5",
+          "import_hash": "2eaa9ddaf695d9b44e04e6f6a2f7be4546c9cfd767be84fa442ed9f516b37d95"
+        },
+        {
+          "index": 17,
+          "transaction_hash": "38c551ed07e64b3362983d0d8fbf49cefeb8d6d49c04c9985b7af900e670f1e5",
+          "import_hash": "d65d759bd00abd62149de4fb9c49a66e14cb488e64b91112deebba2601ee11bf"
+        },
+        {
+          "index": 18,
+          "transaction_hash": "82eaf3ed1f7b02d127f0e85ac3a239f5839f0d49aef65eeda5709cbf0f96103a",
+          "import_hash": "93eff0a8186c0c03f479eadf533146574f77c77895709e1d1939daf73a39f8bd"
+        },
+        {
+          "index": 19,
+          "transaction_hash": "66331eea04cba6783529d8aeb22dc473c233a18954843b88fbc75298eddb75da",
+          "import_hash": "7a323c13bc82805010114682dcb47863d7b355ed0a7b9b0c940c2ef1bf498daa"
+        },
+        {
+          "index": 20,
+          "transaction_hash": "3439f3bd8d28b2bf42736165284d808f0bb75b3138833570235f92ae9d138367",
+          "import_hash": "6bae3c2f6f1d94cadc6cc50055445485afd5d51055c9a533d528923292fe9595"
+        },
+        {
+          "index": 21,
+          "transaction_hash": "d0e5090c54fcea75b06e1a59d553035afe9525ee18878b09d390962999f621f0",
+          "import_hash": "6beb1521da1e508ab82203cb6322ffbb2f73c651dc70c82ec8007c046bbf47fc"
+        },
+        {
+          "index": 22,
+          "transaction_hash": "b4b9b0989629c8a2bad6913e56b7455f6cf444c40bdb01dad3d67e9ac11ec827",
+          "import_hash": "d1d761f930cf87ee024fc117e7e23a98f92d70d9a582c1bb6032c978c3c0d661"
+        },
+        {
+          "index": 23,
+          "transaction_hash": "6f01808004f84671d9eeb322983d0af3541b96c25e04399725eead526c632eab",
+          "import_hash": "435a12efa6901ba0b24afb0e6d4435ae0a7fe526a9a05de0707a3c154b2ae7cd"
+        },
+        {
+          "index": 24,
+          "transaction_hash": "172b6b04e059f9e549e041121f41d765bd47c7ed7dae05bfb8148f2b0798a04c",
+          "import_hash": "cedc3d2d353644456b248e9a1998b94e850874a1d223406c258c1e080f814e7c"
+        },
+        {
+          "index": 25,
+          "transaction_hash": "684f5f1a9aa4c14bdf3557cb335e01168578d45c1f6a2ed9afd253a0ece157d9",
+          "import_hash": "9d256c68f6ee7740aee5618f7927e7ce8cf3e621f8984e70f7d97f2352a4c88f"
+        },
+        {
+          "index": 26,
+          "transaction_hash": "e154ff09d44de7b874710645b75b6fbadaa519f5fc25cd41b9dd1e2c933f4c0a",
+          "import_hash": "76680ced48d017bf6b4f13bcd33ef841bac49c62008847f4c9203e0c4e4ba54a"
+        },
+        {
+          "index": 27,
+          "transaction_hash": "26a878c26f053f4a40b0dc464ebff66e9daa9f7d8d1e25978490808fb6c026f9",
+          "import_hash": "da9f9b05dc1cd95abc5abaae3342ada889c03b225831e0bca66085b7fad158a9"
+        },
+        {
+          "index": 28,
+          "transaction_hash": "49da339f53bb37640b2e88f084ada5d53fb0c6e679e53e48bf55680f5ae2fa92",
+          "import_hash": "f57bb4030f77ef3493dd3c5f08f657ee87af2d911247977010956cd76760b8af"
+        },
+        {
+          "index": 29,
+          "transaction_hash": "4b119e47261faa136c33df2aacfe73bbcdcba92d17b89391c4ca5798314f3771",
+          "import_hash": "1288e64b66f5abe7f8bd292cc8adcbf79bb3d0ce4d68bb7eacba51cb31327bce"
+        },
+        {
+          "index": 30,
+          "transaction_hash": "a2eb90e20353fcb49b8455a1246e6fb47ab02adea9fb31727094029c5046378b",
+          "import_hash": "d87ad935ff6a095216766288d024d5598372b5ed4ae588a501c54f9365f65a4c"
+        },
+        {
+          "index": 31,
+          "transaction_hash": "f6d646e037b0e9bdcbcf8e04cf00100df62ca7e18122c9f9a04a68dae0a5020f",
+          "import_hash": "a79b8dbd98adfaa7fa3bd22facb7b145d403d83499e4abd158217fb7a9e53250"
+        },
+        {
+          "index": 32,
+          "transaction_hash": "df396e96174c6ce799d47410c62bbb05e1f78d1de377f2bdc96cbdb46725910a",
+          "import_hash": "8220e6d535672c0a780bca345e208fc4117188dcb1af61946f96ca052bb5ab79"
+        },
+        {
+          "index": 33,
+          "transaction_hash": "95248004d908c18f3e6b477f7eaaa85af738e3cded1cadbd9059ae374fceb223",
+          "import_hash": "c33de6525150fb58925763899b7ef82f37b0a7720bf529770ab17c3e25cddc03"
+        },
+        {
+          "index": 34,
+          "transaction_hash": "1de3df67c596b2d87aa3c408480350e3e0311bd79250f26d67f810002d892374",
+          "import_hash": "7063ac22dfeb9be9e040dd5ca0f06c4a4ff21d002716106c3222ead6e63b38d0"
+        },
+        {
+          "index": 35,
+          "transaction_hash": "45a077f35cde7ca5665064f9f1ef05f01576ef98a6aa9e1dcf49021b60688ce2",
+          "import_hash": "693e6d25a89ab1472b72e338e118bcf8a3a42fee7cd21ecc663bf0e0724ad180"
+        },
+        {
+          "index": 36,
+          "transaction_hash": "cedc51f14934da5e4613f3c8a008f846d6668cbbbd9782c03732d87638920aa6",
+          "import_hash": "794bcca57f21a85d224089cf11c05dbbfde158207ae3714e790cc07376e2d84e"
+        },
+        {
+          "index": 37,
+          "transaction_hash": "77a3c3f95bd8cd25b1f208c1c9e645cac16465e91e3f07a7318a84d9c96db6af",
+          "import_hash": "178efdd4bf7e59a7e2aecf9afba95e1776d7669911c42a8c718db7c5ec04dc52"
+        },
+        {
+          "index": 38,
+          "transaction_hash": "032bd7e3f4f373e3b77860e3fb887d1d368ad9ad1dce25d0f88d041bf8b830b6",
+          "import_hash": "a67aa4bbf03a4d7fda71580fe25dd5a7e58231bf7e5bc9a0af6d44bcc0c35a1a"
+        },
+        {
+          "index": 39,
+          "transaction_hash": "0496aa54fcf8d4b17768d08a0ed88c92b3f231974267bb5bb6b1bbf682dcec39",
+          "import_hash": "c5cb7b8dbfd6626bcf06261ebdd0d7834dacc68059c637b22ef809f02536b7fb"
+        }
+      ]
+    },
+    {
+      "file": "dashboard_checking.csv",
+      "iban": "",
+      "file_hashes": [
+        "433f41cf2e3d9e207f164c9eb5a0a46a7b8b89fd10f4070a85c23300f68efd2f",
+        "cacfaf55acac930ff8ee5c1dff801a93e41f70bfea2fe0677ae282659144e581",
+        "9337de73f1120aeb423b8e1fdae9c1720c99faf9ba8a4b096b011a6bc6fc5092",
+        "ffc122c72cf81c1da28f219f45ba8991e47209de74dfe90e05f16ac58bffc988",
+        "18b7a5e9f0e9ce2e90036afd6f92543a4c74b937bfed610a446bf45d269b0ea7",
+        "98647d4701771d5c3ef77c0b6453efbebc521bd1671ee0f561737a898a6c72c9",
+        "89fa6e8a5a787c00554e0885166fbc28532eb521c991ed7b127517448074a48d",
+        "486057e2f334b6764938d2b22c8f74ac7dde1f4ae7ccc5f26b6853f3873d7232",
+        "b3692762c34784e44c952faeec31790d70248e04f6e1269b7404c8262cdb316a",
+        "1ee20c3b213619bb0ebd34cf191816b00d40fc3d7ec7ad85f53005b33837fb47",
+        "f372a82fb025db7d23900a46cf2fa724705216cab99a5c923a794fe2aa53afc6",
+        "95c227433d7c9efe3d28c9a4ec324f6029d37939337d31412171d5c699b01b5e",
+        "013d70abe8d7129d39a7f50d703062edfc224e35207e852ce5377a09b74725fb",
+        "75304565a74e1e2f057a05657b4916aa8a4fbb7f0afa7d53ca1656c9ba6730b6",
+        "3de912bbb103433c14bc1ed5771a48627c7c556a470df3324bcb72dcb6c1246f",
+        "7a6358db4807655fae04d3bb447ee9033d674cc4697eb2841811b165713d9867",
+        "101d0acdfbd3753344e1d723158b13f0c361a096203fe0d87bc87c83a6f047ea",
+        "a8446fe21f6b64362c70057587fbed4b885e1403ada3fdbef3a9e53c05e5a05f",
+        "a205dc5e6f39899c572f7ddb44a77235975f65ca35a71c982760cf96cf55d806",
+        "b48847c0f88f0368deab5fc5be521ff9626fde3dbd17ac6527fdf99c4a796fd7",
+        "80a88831b2c41ac654469961ab57638d2ff27cee505b2d323e26edc76a89d919",
+        "f610b3ab8e6c48409819643dad70ec91e5f43bdf01eacde750b687b7c342f94d",
+        "74db91204b50f4d6ce71fff9225969993220fcac7f209781112e54bc088e423b",
+        "f71f9f7726df95ce282e4452436b64b8f45a0f9400b2f1603ce3c741ead6fda8",
+        "d255deb4ec307d34f8c0b8a0291dee94a8f8027428993f8049cfa7df57a35127",
+        "c12379adeecbfc6ca57cb5bdd3d5c2aae3f720e65c73eea4b54d213d4e018107",
+        "487240c13fc40b21279420e520a04f8aa2542149926e938396e3ca07e5e369a3",
+        "385bd7e8045fb3c85a999b4799190658ebbb220adc729a14bfb253f80d21a9a7",
+        "bc381ee4ae0d7ab0ab3a13d8515f22fd9e955ffdc2adaf248d3b5c07a47ff632",
+        "3ec78b3a828204bada7343c9d222143b2c377de4a4a1b4faf9eac320487bb7ba",
+        "c7575cf89c3361a4a4dcdf1a233472c9177b646eb5f69ec2732832f0121609be",
+        "c5192fa5655de3918f31f7edd83fe300d96bc740dc6c97a3f9a5a1f40abd6595",
+        "c59f9c9ef7755dd0038725a1a2e91d36b601634cf821430cf92a0fd8414a532e",
+        "8a0094296ccd49cc6a2382212255cd8d09d350c2dfe108fd9ed3232b1f391a97",
+        "1ac2d9457d36b0b942425550dd4bdcb67fb673f0a8a3a4fd6f20da0ae968626f",
+        "ab348a691f48958675cd31592cd1ee77df0375b8d0087bb4086c6cbac70d15e8",
+        "59102215c617786fe039f85ef79e90eb70aa76476fdf65c6d55153a7b68a4f2a",
+        "3505af937333b9ab41418b40e2bbd2b6dd0f537f40f91eb011b5de118a25bd2b",
+        "ebde3d2bdfcd0fec15fca982ca8b7a21859895a5558df484b8a32cefd73e384e",
+        "b0683f83f57e7f04b5c808fcd713c3b849a3880222a2ea591bed837a4a424f41",
+        "211c45e4bb4d0d52b5bdec8fc42b0094ab74d625c4039b041ed0d7bc2079a50d",
+        "15ff140ec27db728170c7d2362a4924493ef5c75e14022331f6d74829c82b2fd",
+        "33079f2a6d47aa4773869e9d9e8743364eeadab1f4df3ca4056a7072df0a3798",
+        "f4005fb7140ba8cef8524d9b4c0646ddeecc50e232f2109e51d658e35a48309f",
+        "ba694f49831cba0b5be2b63f8158b3886b868afb0f5f3f517dbd16306a27fcb0",
+        "e1030aebc1d832f05cc95ed58a3a664af5f58749e6a9d5a8237fa4bf5b158d45",
+        "b68388f0a5bc2038392aee54055f5fa3dc5296786cd04a0d5c6d70c337a15aad",
+        "db7bc94ff2b6d36791d3d922b4576bda48153c52791d424f4fe5c6ecf2fe3d8f",
+        "39f377823086ab939e9b8cb4910f96bb5ef04259471e2a507ccdf1080d5c6790",
+        "2eff338d70b94139daa8b3c00fc2dc0de855267dcb3843a81dca6a3bea142bb4",
+        "eec0f97b72e150d9adcf1761061fac4870fe08dbe2d21ad4f821885fc94819a0",
+        "abe77b43f3c81263e6939ebbc458e724de5830d089723ee09c6dc09b4605a053",
+        "0fb96826f210bd38954c9d27c4daca39bc1ece02df392216d45c29cfe85b6f8f",
+        "300f593c4f106b986fa560888c728215329dc7e9f4705d9c1bd8f04df86fb040",
+        "792557c0be5ee002ec3d1f03b064bf8ec4a03a03523908d4f42676ab5fb130c4",
+        "a2834ac669c661e7d061620c939b48da7ccfc649051268ec2e4a68407f0729ae",
+        "c747d974ce7c942f67ae2d8b2d69c6a14bfcdefcac81b2b59abcb93a7cd233dd",
+        "2f4e51e5f2aae65f6fc51394323558c7138ce858a78321dbe37d8e82545819d0",
+        "6bbc2791f5e0a995747f8490bf401d092ade57af61e1abf0917cb40cc3bbdaea",
+        "e093ded230a65fd1275299c8009c7c8a7bf286957fa53ecf5f6371831dd09551",
+        "0cca840455ba40152b10219eb80f17d90e0f4860ac85606c466b1453b6584391",
+        "618b1bcbe722bfa6a08c695e7101a33058ed0e1f7ac0267edcf29e1ca41c9b7f",
+        "9c75491c56e83abc4f50b8584b3ba60e5eaaedf51e14ebfc3a0dd40ab296f086",
+        "4764cc204265fb4f1fdd6778a35d38adfa121d4f2a5d0897bd9ecc84e9183045",
+        "252e2794df0d03edd551fed7c1c311bb012d0ed0f4e2393a57c2d8b62712ae5f",
+        "8d36bb90c5c6d24fc8f2fe684693bc9ee30d32ec3a94cf8504a0363b501901bb",
+        "ad833305599d7861c869265d9d29e294e84eb53d836b74857d39a72a298722ef",
+        "f39b65a6dc0f48cdef765b9ab556e7497da4b50623311bd9691b6e26dbe21958",
+        "42a3c50cdbf0f601d395bfc50e702e214f130663db1bd58649c92501c8b29fe0",
+        "2a3d688bcea145165b3dbb23fea71fb9a9cf29d3b61b30ed4f683d85885fd879",
+        "bc1592bea9c386d0fcb4a3059b2dd557366a231c6034cc4d6873d44f4be6eb93",
+        "cb181706ccc3751a93efb41048dd208859e4df6ebc02c91029b851cc27c7a6e9",
+        "382ef7bcea6372fe369eca6ca598a7caf4a122b3e494f6e938aa6e99e38bbfa8",
+        "38bd6d21efb1d123e3b0c15d728e5db365f2224fe9de6aea160964b1d174af48",
+        "aa005e608607008a73df98a31afc2168f11f6e0523188f0a187e07e8f6eda39c",
+        "d14ae95fbfff3e9ff1803aa2d5abb4603d7344a22230617711da4b0c78952892",
+        "b2385ecad4d165fc351a4984a6f00b9c2d1f34b30e8f9eec7e871948b653a3e6",
+        "2bc983ce18ebccca0ce4136a821ee1e2e1ac98ff7c54fe9e2d8c0dc34d50b2e0",
+        "910a8fb2252be499a8afda06d0baec9548f27c8b5df417c2920378207876bb1b",
+        "3968b43dc8317ce19bd283754e4b2b3162a21cfe1c5326b15fff3d64e1041221",
+        "f0424bca1e2dd699e926662e59262e12e7d4ac7fe7958553693443dd3c68a41e",
+        "3c979f86895ea0a5e7e06818a5e778d7805eaa491bf32a08a85f72dfce8fd0a5",
+        "22165876b2a1281a114862b98fd076a1ba60d103f357e94dac6c55e33ec5211c",
+        "7941dc1efea79f5f48ff5c80c66cf361b655c2782f946a27e94f6b7d679b0a16",
+        "4f8c34311b0818b5e4ccc28c901edb48d0551a466bd26c883048175a3f0f6b41",
+        "b4af5a5cbfae468f102a1e8f65d7da7e606ff6e46ace32ed0b652b37142e3ce2"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "292e62afe2706f6ecafb1fa5ad4dde6ef994fd6de67c11538b4f6d09a3c1d63b",
+          "import_hash": "1d5b54d27af5261207e93b7da796fd7e9e3c0d87311f6670af143ed6384baa02"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "1244c032da80a3637cd9fb2f53361ee2191731177f6865e5b72a8e24e0094682",
+          "import_hash": "484ae9c668ffc54c240b395e948e3dfeb61ff2cc614a2ab2f77e93e8e15eb9ce"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "dbcf2b0cba07f62724e62a57460eb4bdd087b2b6b5d6e6be1fccff19cbcaab20",
+          "import_hash": "bfb4432f1692648cc8b21d07185f865dc46aa8c0c57d9e5d3bdc4df0a1dc7908"
+        },
+        {
+          "index": 3,
+          "transaction_hash": "c76b73226e16775fd1e89a3edf1b28421f8bb7e779fa3deac6db55a8fe577827",
+          "import_hash": "53ad51fd8003f65b09bccb62536015d992ccc44d058ddb40c406f4266379b433"
+        },
+        {
+          "index": 4,
+          "transaction_hash": "627a91f98059a1f8ed5a122004462661c7f152becef3bd57115e56cbddca25b5",
+          "import_hash": "ab17a0b6c9e0304b8ebb5ab890405c34af7353c1f72ae0e5e7eb4268d861e762"
+        },
+        {
+          "index": 5,
+          "transaction_hash": "13dc7a9580688338d8c6df665c90f943d88a8b60cb1d0a4e6dd1fc3a3b2a2549",
+          "import_hash": "e80545bde88f3f9e07e6646d203aa944f2f24f3a8f331d9c45bd5b2d7d1f667a"
+        },
+        {
+          "index": 6,
+          "transaction_hash": "9299817e828b4614f4c2369b5848b2fd91afe64a4a5d251c6b942972ca6e3aec",
+          "import_hash": "9a8068bd67e2097a53d0a3c377e92888090ba4d2b3a1804c540ae51d0a39a9c0"
+        },
+        {
+          "index": 7,
+          "transaction_hash": "2d6813809dfed4b27111c802954670bd14896b622ed5fcc6440be3b7629f1b7a",
+          "import_hash": "969f9437cb6866b3132be5c6d1a03636ed8b06442b7997a7fabe794ed5afe782"
+        },
+        {
+          "index": 8,
+          "transaction_hash": "231354fd254f7af403e3e3947bb634b86a0dc279ac6223e98b207c4f402b23ad",
+          "import_hash": "021da9988debfd52a717eff4214cbba9c40256e51897d656adf3c7d6771800b3"
+        },
+        {
+          "index": 9,
+          "transaction_hash": "7dd89735e95b16b935701c36794eb4e4008981b26eed4a15e70e8c823161c333",
+          "import_hash": "054a73eb8c4a842190afac76a6c3fe17360dc163c33b2e7f22636852dce17f4d"
+        },
+        {
+          "index": 10,
+          "transaction_hash": "886e1ef12a9fd2b315667759b2431afe6caea3a060d8f569e8eb8b2fffafad04",
+          "import_hash": "744dc5fdf978fa6f4e90c6c19d0adf2c3eabe06a9cf99bd5ca95072a4b79a471"
+        },
+        {
+          "index": 11,
+          "transaction_hash": "8fff0a7ebe1599699114f4e1182867d9ebbbcb3613ce5567f8ba833824389064",
+          "import_hash": "69435fd11d9e6ac43ada0411087da91f8b552c92729c154b709b87cfc0da3e48"
+        },
+        {
+          "index": 12,
+          "transaction_hash": "397fa601dccf0c4649acd1ab9dfd2058d21dad4c1d44c26168e7519819afc4ce",
+          "import_hash": "1fd52e5fa094542f8aadfee9b96d45b17e7169603a9c0b914af6e2bd1b5ac201"
+        },
+        {
+          "index": 13,
+          "transaction_hash": "23c117d9ab92ed789eb92d0ae02a986f6f50ea6a8c1eea1cb4cec970ee6f8c03",
+          "import_hash": "88847427da3209575c97929d5c08463b1be09292bab2cac1c4c5b0de67064304"
+        },
+        {
+          "index": 14,
+          "transaction_hash": "6d2cd13ec3461393b6fe82a287c3c5ed91218b1e4c14a001f4a38a99ec8d0ac2",
+          "import_hash": "e4494ef47cfd67edba449bb662de178870b61d8197c24897351db6638da3d9f5"
+        },
+        {
+          "index": 15,
+          "transaction_hash": "c29f894251df44e94b398cb83aab2f93c290a58070518bdbe6900c6a72ea6cd5",
+          "import_hash": "ba59fbb6ac228086136f2c0c32cbd9ce207eb17b5cff3b98c35fc7a578a6fa6e"
+        },
+        {
+          "index": 16,
+          "transaction_hash": "c817b110270921a4509f6a3339f0fcba48be262e8c0f5481a537dcfe2021755f",
+          "import_hash": "d1168ca8bcd54d752acc0be28d25730d8993c1ceb15b22d723e6963e7daf0e76"
+        },
+        {
+          "index": 17,
+          "transaction_hash": "b81ae9569f6f52c0043fb7f3fc30111e3d873a96d247c3e245b121333a82c834",
+          "import_hash": "fbb71c4b62413022d32486e65bfd43b7354b7bec92471a39351b799992f47d91"
+        },
+        {
+          "index": 18,
+          "transaction_hash": "ba94359a000c3544ae08ffd968c36b1b13129dadeaf89b101e916fc40f2cc0b3",
+          "import_hash": "86d1ed2285d7c898319cb192e960786ed17a96587a74c6ffd9484215616e196b"
+        },
+        {
+          "index": 19,
+          "transaction_hash": "3f7150362a87deb12ce990295e29e09ce5102f969d77b9712420942ae052c7c1",
+          "import_hash": "bd983a0a5389ce1d65be54aaa4680d6ad27e667797940a3b032d0c6588d72c20"
+        },
+        {
+          "index": 20,
+          "transaction_hash": "af97e270de3c1d8dfb9f8b370e06996c219b9d6b27b60d817af45fa65d4b9696",
+          "import_hash": "2df39ba7c5b4a90e858bb154873803db3579015c2240ea312e2860f0d6dc34ef"
+        },
+        {
+          "index": 21,
+          "transaction_hash": "638690efad680d3a87a54038e0fae90af36b4c24a148475cc07eefcf9e7af3db",
+          "import_hash": "889ccce0c4a01c2147d237ee0b4e5a0bdc76d0829f41dffec11e0de8fe3bb6fd"
+        },
+        {
+          "index": 22,
+          "transaction_hash": "f48efdb064cf30323b6d7c69c2dd45b3da5aecc3597fd22cb195d55ed96fcb94",
+          "import_hash": "87f1bc24492bad4fdf243283c4e2ad7c6d9c59d0d3b790903b9a8008b540f3e5"
+        },
+        {
+          "index": 23,
+          "transaction_hash": "bbbaa6e9db0646eb4380f5a846dea1a017c98342cb0ebf9c714aa0e565886e3f",
+          "import_hash": "5db3e028e6d1630141187358bd03acb90a029b237fdab43241aa00875204ceed"
+        },
+        {
+          "index": 24,
+          "transaction_hash": "4acca5539a4c93e6f8bb3ce4c80ad011f3b28b3c74af64e1cc57b891df7f8ed3",
+          "import_hash": "a69b369b45f2558015ac96e808fa9f7e5e07728270bb47274f6bc3ef0fc553b7"
+        },
+        {
+          "index": 25,
+          "transaction_hash": "e159e10e0bcd376352c818f3d7905a49fed393cdd5afa59db49eab88eeb9ac1b",
+          "import_hash": "be63b76213cde659bcaa5f98c1812577fe814e3402686a942a3e00f93510538b"
+        },
+        {
+          "index": 26,
+          "transaction_hash": "cf0ab6747ed49430c1ba913b2ee14e42a3875ac0d85065dc6186ef9dd16ad308",
+          "import_hash": "a993b510888db606d601e357f56f5828f4b25e6a733470f5441f5e180435178e"
+        },
+        {
+          "index": 27,
+          "transaction_hash": "b8bbeb5ce70b330b62dd03becb186fe70ef88498805728960083aee4fb2d13b6",
+          "import_hash": "57b55ad9f48c8df354151b780b0775e5eb9680bc27840ce11fb6e41af16dfe78"
+        },
+        {
+          "index": 28,
+          "transaction_hash": "9de38fe5a2b93779b4dd920c46c73b3a6f56bde8b585cb174cc422aa13ae29d7",
+          "import_hash": "ef5f530482e07290c0fc8e0be570492bb98667afdf470a4f6de46fd41a4ce7f7"
+        },
+        {
+          "index": 29,
+          "transaction_hash": "0363056f4cc6d5dd1307d466b3b1e6ae1a6ff8e8dca1344a95745905dee10920",
+          "import_hash": "27794c5d0790979bc24aa6bd35b7ec6ea7305eb0f7c08c5527d4bb1be705e7c6"
+        },
+        {
+          "index": 30,
+          "transaction_hash": "7108f0a35e0cc6c98392892522424101f3ad2438be57d6e7b0917b72c9a30875",
+          "import_hash": "05b711fd1c7037a33a1fcd6ecc2b9dc372812336886ee93963c671868c04be67"
+        },
+        {
+          "index": 31,
+          "transaction_hash": "0c5d2e2280debe6a5eca69341d6acb874c2a567bb80cf8236729a2c1684d7312",
+          "import_hash": "c9257a97d9a3a1d7cbef1ae57e23e897ac7f0ef48229893d62242ea0d4dd3fa0"
+        },
+        {
+          "index": 32,
+          "transaction_hash": "803059f5285444290afc7c76b6f1b9f79bc0791836e7dd93b1c6ed6376947e48",
+          "import_hash": "d65b6b3c69f7636d0b897def64f860452439c66e8d21a9875eb7cabcdd4da8c3"
+        },
+        {
+          "index": 33,
+          "transaction_hash": "54a0c4b6e9777730e09716cf2e43e2d97eedba74ec2e7512cb6ddd1ea9d2b662",
+          "import_hash": "d3aed183840265f892d67379229c89e3f42306263358cf2bffb9e6a859cab6d5"
+        },
+        {
+          "index": 34,
+          "transaction_hash": "3c88674f7ee3d2497a471d58e9ac14f252160a00c4628094e70bfce0bb7ae6f0",
+          "import_hash": "bbfc386359f31077bb029b178013f2f79fdc21c78685fe9053a13cff5578ec54"
+        },
+        {
+          "index": 35,
+          "transaction_hash": "e7b4b4ebaa8b3c38306ac46a31b3efe70d03914785b5306d0084028b2c051cba",
+          "import_hash": "804a64120d1e0bba0fc37aad05de0e517b72f2653fba996ab1994f98b3b1e2f2"
+        },
+        {
+          "index": 36,
+          "transaction_hash": "b5b498ae69f49061ddee583f6a4ed8537983cb641229d4f2001e1dc92ae92ec7",
+          "import_hash": "be3a794482e4e6625e057b13b51f0224eef8ce1822a1ba9d0fcdccfb978703b4"
+        },
+        {
+          "index": 37,
+          "transaction_hash": "9cfb6b9a3e8f55320686f8e4bfa36c67c19c032de25670ccd08357654c982347",
+          "import_hash": "474bb8650a2f94d370903820a76e6241663945daa5115d2c79cdb4e1bb21204a"
+        },
+        {
+          "index": 38,
+          "transaction_hash": "ea30bb2fd50c179ea6c906fc6522133ab8562be64a7b5bcc4e8f048a1dfec1a0",
+          "import_hash": "e3be417f949e9a997f445b12c6779040d9e281cc34cea093aebe9cd1695fb4da"
+        },
+        {
+          "index": 39,
+          "transaction_hash": "92e987a269fa24c660d1894ffe2b14119300b57edce4c4f1941af332e80e267f",
+          "import_hash": "a0504ab86ecd15823a6f008de946f3ec38e3f15ca2351b89cb8d92fcd696a367"
+        },
+        {
+          "index": 40,
+          "transaction_hash": "dd5dbf7724a2a1777f2353db03091f46cdc743012d885b0c247d1922992a0015",
+          "import_hash": "f425f27ff7d54230f49e8a084146db3a9d915ad6942fee88fdaff5d4e4f3a97d"
+        },
+        {
+          "index": 41,
+          "transaction_hash": "fd0091d9ef2ea456fd10980e9c41067f0f3bcf58df64dd128289939e51f115c5",
+          "import_hash": "aa026d991e715238a9d941044d64bd20c0578f6c6f27c9b85044d33570021b04"
+        },
+        {
+          "index": 42,
+          "transaction_hash": "ee5f6456b18f0e7148a07d5c70d38c3435b8decc2d9d3f51bf9cb9d40850c504",
+          "import_hash": "91fa276525c839cc11afc3a5cc7f9cf9e5aee412a17beb9048c5c8097501c8d7"
+        },
+        {
+          "index": 43,
+          "transaction_hash": "bca4fa22a7fe4366f99d34d0a096c39d229a6bd3fa5dbccd677fa461feffd5bd",
+          "import_hash": "181bee02f794e3eb129ffac589b1fef78fd3d990bdc3338b2c6e3a9d5a7abc73"
+        },
+        {
+          "index": 44,
+          "transaction_hash": "393f58d6cf85e668f96f839570969d6941ff9eb2b5747df7a44ce34ee945e949",
+          "import_hash": "b35d7cf3c64d12027a3258dde3b237c543788f1f7cf2bbfc0a9c856a1fb92029"
+        },
+        {
+          "index": 45,
+          "transaction_hash": "2b9e33020db7754dbd6eb0c930103647387b49839f7733c41ffa79eb2d7523d9",
+          "import_hash": "498102d5b6836841568a03f92922f540cd6ecd69531d61a262a9e4fff974276a"
+        },
+        {
+          "index": 46,
+          "transaction_hash": "10b1a2caa6d779e8ec2cc355c78a58eec118f5cc0f03f57b010bac9295d928a1",
+          "import_hash": "89edad4e5e4b0d3d0bd2ae72b251129f977589c6d431182fcf83b3661c7be2d2"
+        },
+        {
+          "index": 47,
+          "transaction_hash": "352c5c819586dec6493d7e7b976b69e8f06b035e5ce73c9935d8ca03b20c3cd9",
+          "import_hash": "781b8bb56876c6ed20e58cc9815f3d89b91ec435f950720fdcbb1cc827fa8171"
+        },
+        {
+          "index": 48,
+          "transaction_hash": "6b5bab537ae97cbc439c43cfc3320fa6684849c241fb06505b3c7e46a7b4ae25",
+          "import_hash": "f393c90e54f775f69480fb44a5be56db5a6da10a20041c05c4dcb200b04f981c"
+        },
+        {
+          "index": 49,
+          "transaction_hash": "92c94e92a4b4fb0740aa9cacbbf6ea97e1271c68a1f4985a2315053e0c154b8a",
+          "import_hash": "64e4dd38a00d88d858b513dacc925fb28788479eee6e16cb185450d830371f1f"
+        },
+        {
+          "index": 50,
+          "transaction_hash": "c525d569ddf1075142a128d28f30c1435b768a9de7ba60e6bbdeb85160fb3a7f",
+          "import_hash": "e32c31dd5bb078f30cd10ea7594b2ec1e42ab3ad8d83274cc3a99688cdea4fa2"
+        },
+        {
+          "index": 51,
+          "transaction_hash": "bbe6306aafb9d87290957b831ae25e550a9c48d32fea46d3c8ac782cbbe4d8bc",
+          "import_hash": "77eb131c428e679d0bb8ede5200c135e3f2c76ccfc57dc52967fafde9fe3ccf0"
+        },
+        {
+          "index": 52,
+          "transaction_hash": "ff325fdb3fbf5feae263694f5ab6175c1c2f02092980d9b66963b52362f72aeb",
+          "import_hash": "6611a9013a18c774b0088fb1e0d49692c5150c0606320bcdcaac6d3db5949053"
+        },
+        {
+          "index": 53,
+          "transaction_hash": "99ea4aeefc14df5dfe35f8d15fc12c3935acd1879dae21cd14c80decc5d2adba",
+          "import_hash": "3187d3832d6e3a614fbfa2f960a315f71e36d326809234211b40b103c25ad742"
+        },
+        {
+          "index": 54,
+          "transaction_hash": "44378215e2984e38b6714592af1125723c35b1b5410c517c6c98b6a1730b9dd5",
+          "import_hash": "31799f29a7a6df68ab9c8e76492c3f33d681015991fa3b499b4117de42e56ca7"
+        },
+        {
+          "index": 55,
+          "transaction_hash": "83879a3d6b4be175ac2a9e163c606d236136f0f7c9e4c098f709c6deeae218f5",
+          "import_hash": "dca1c5c2f044623451b10b4346ad8ed40375bb6e02c78de8ab8129ab236b6442"
+        },
+        {
+          "index": 56,
+          "transaction_hash": "d92d9cb2a04f21ecb56063bc233f61c21dfa46c862fa4e1e9ddcc398a03ebc86",
+          "import_hash": "8eb82defb71197493cd93f55f50af0856c76b13d025d77ca44b95cac5a79b57a"
+        },
+        {
+          "index": 57,
+          "transaction_hash": "98f3f21e72918b060180f8e6be5328fea7df0f58a8025c29140eb985ce015cca",
+          "import_hash": "c07bfd0d3b7e7c0ca95bf749f23fb679833182b0afad358d7f961fcbf018043d"
+        },
+        {
+          "index": 58,
+          "transaction_hash": "e5a8f2e2afb2b15eeb005c2b139e065d7ff544603ba44d9bfcd8a84463657558",
+          "import_hash": "608e7eb0d88880cd349a2645ca8d2546544b976438c0c32187987dbf28835fd2"
+        },
+        {
+          "index": 59,
+          "transaction_hash": "c170456b9cc71fc4650e5d45b4093b3745a5d80219899a53a5b9ba0c9b00c160",
+          "import_hash": "60c2a4abb7e7d35ab8c625863fb3096d8b49e45979c179f427a93c4cd5f9790b"
+        },
+        {
+          "index": 60,
+          "transaction_hash": "b72b84b94f02ab19cfdc9a25fde1c19339cdb19a68e9513cf32f34973e0d139f",
+          "import_hash": "aacb1ae0d387fd302f54209801800186f8f9685573a0566e55e76e92f786a540"
+        },
+        {
+          "index": 61,
+          "transaction_hash": "0a5d5f50b43f2d21018bc5de57e14c99de8919704a860e5d3d04e5d1f1452a19",
+          "import_hash": "b08ef263ccaae5203794da6e810759cdda4bb52df8a921e99386eb77598ab547"
+        },
+        {
+          "index": 62,
+          "transaction_hash": "b398dba941f8f2202fae5d9bf7cc1c68b6db94fecd3f20dbed8703f7b558d655",
+          "import_hash": "e751d1cb8a1cdf2fe788c29206b3d8ba23223a3539312959970a3f86ece2884a"
+        },
+        {
+          "index": 63,
+          "transaction_hash": "8a5bad2d40e78b319a84d180a891b9b3d13529ad53dd7e4a5c370a4906aa2ae8",
+          "import_hash": "290ef6c98d52a1f0b673e77cab31e182af0e957d9527bafa1eb3fac989c12285"
+        },
+        {
+          "index": 64,
+          "transaction_hash": "bd7e5816cc36010918f0543b1a5648a829c8a94a5b43503baf407b8bcf23cb5a",
+          "import_hash": "e1b5b1080607d833eedde32b0ba2e699ae9229d09fc1f6dfed0a99edf644e643"
+        },
+        {
+          "index": 65,
+          "transaction_hash": "1599ae4fe97197d8e3c5a5a9ee9bf34e39f3cc2ad85426dd1d34697f6060a3b6",
+          "import_hash": "f6e26dda7018f2be01937a6affe4e4f07c0037f4012e00bc82561a4db2c211b1"
+        },
+        {
+          "index": 66,
+          "transaction_hash": "8a805849d035cf3c88e536ed0e250a76afc0dd6200649203e3b3f6cecda2ddbf",
+          "import_hash": "43ac326636872c6e87e95fe77e4d654140fb0ca470bc7a6c67dfd3b5cb0466d5"
+        },
+        {
+          "index": 67,
+          "transaction_hash": "cb64e8b63584a4a428f54d3ce82438c62610410c1dff6561dbe751e39a5979a6",
+          "import_hash": "e44995d0be4bd5db60a58b3f42433d25c396ad052b86bc9cf0b9ae74e0873f0f"
+        },
+        {
+          "index": 68,
+          "transaction_hash": "12ed468582b8613cb24559595d3dedbd7da7604bb85fbb3e3548947134c795f3",
+          "import_hash": "68965a4da37bb52dcb05ddcc1f96b9f11a8f539f38ef58029a8c987ee62e8ca0"
+        },
+        {
+          "index": 69,
+          "transaction_hash": "e98560cf522d92edb7b5892a724854c16700cc0898d221da66b351c15909faa4",
+          "import_hash": "9d3ce0f7d30651a3b3482574a8fd322cdd7184653bfefe86fadaa2bea00aa9a5"
+        },
+        {
+          "index": 70,
+          "transaction_hash": "2a3439fd64630337ca1bbe12fd396f4d598768639395b7083ae054c53165209c",
+          "import_hash": "16bec4c5ffe4dbe85fa43f35bfd6c10431fbc6814e980f990f692fe86914b461"
+        },
+        {
+          "index": 71,
+          "transaction_hash": "42b7ef83bdeb9b8eea6026dc1df43d301b3ac33ae4d2921aa46083349c5e38ae",
+          "import_hash": "8e38057e6bd92a2bdf2f147d8b591296015a7d92f815a267c955abf7fee747be"
+        },
+        {
+          "index": 72,
+          "transaction_hash": "760d5500764fce74036162c8ad5d35bea674762d14f445ddc24a48c97e40877b",
+          "import_hash": "18cd4c5c630909f0132912c2a447c9cb49c30205569e0df20b98ffc8a9e2c246"
+        },
+        {
+          "index": 73,
+          "transaction_hash": "ef673be8485c27d46e014bd240853b85ddb224285c563cb41be582174069e416",
+          "import_hash": "79201e4209253b3db46e9ff50612ceeee0484a162bac0c88e2a194ed98338c19"
+        },
+        {
+          "index": 74,
+          "transaction_hash": "a8d5cf44ce4982074c772bc42721b7876586d412efb52a4d434758b9973ffb42",
+          "import_hash": "efc01b7d845634a0f7d49b1501349339dfb6b5dfb3293288b0646053e7211ac3"
+        },
+        {
+          "index": 75,
+          "transaction_hash": "b20b738f3d708ee9758c26cafac32a924ccb3dbb7407ee2dfed90205da7a2233",
+          "import_hash": "887c7bfc225a034d738debac7d6447595a17d9dc74d2602a312b72769d8dbb35"
+        },
+        {
+          "index": 76,
+          "transaction_hash": "45158bd4eac0810972f1184545975d0cc862ac827576d32c016d3cf7ab7b0964",
+          "import_hash": "2056e9453b76c43a8ce7054e05d8cfa34c6a570b7d7e4cdcf90a3538097e9059"
+        },
+        {
+          "index": 77,
+          "transaction_hash": "aaa4ed3ac28f577f5a05b68d9e464c257181ad6cc9736d26ab6448c15a1164ac",
+          "import_hash": "9856e85e21dd6983ccbaacac6eecdbd44a49ede3a2b9f7e13ed2127cfeb1c259"
+        },
+        {
+          "index": 78,
+          "transaction_hash": "95d54a50e1948f7001f59315dd2a3749ece065f15901687ddb9d6c4ec5b22344",
+          "import_hash": "cf415d7992ec1d27d84517dd788c21fe2758073ad9bd74046b8899073364eefd"
+        },
+        {
+          "index": 79,
+          "transaction_hash": "68f7acda784aaf98eae760eae964c4b56eaabba777bc1c0c6d801d4f9c2097d0",
+          "import_hash": "cc29f30c90442f5dc71dbcce9887f4bd0d3f41449bc2afdad0e96ec3b27c3b2c"
+        },
+        {
+          "index": 80,
+          "transaction_hash": "ed09ec1798379b21e1066a241581e674cb5c8e449137a0f3d390f687f1132067",
+          "import_hash": "ecf5ceb99907de38e20e14a726bd1aa47ac1834aef2f1c913730786a4432ea95"
+        },
+        {
+          "index": 81,
+          "transaction_hash": "544c202d4fae05561517505c62395ae94bcc026973769d8606882fe36cc66311",
+          "import_hash": "81d1ee80553d86273ab26b84ae5e3d296acc16551c603e402c58c7608c64ed1b"
+        },
+        {
+          "index": 82,
+          "transaction_hash": "f25f0c5f5998e401ce45a0830e79e28ef01becf11fcc2ebda84d9c452541870c",
+          "import_hash": "3c889929d530a34f808362736f131c4bde53f34bd09516bed043e4ce78c5da59"
+        },
+        {
+          "index": 83,
+          "transaction_hash": "530f520181eb94cd86bf031882a4b8b07d6dec50029c831cae93553502e2511c",
+          "import_hash": "a2d16b3cdfd76a53838eb7dec2f50fd6340b6780683ffd093fbb5a473b7bf147"
+        },
+        {
+          "index": 84,
+          "transaction_hash": "00746e540f8ccc9457648c1c97e0f419da2236ead89411d8e63ca9f35d41b13c",
+          "import_hash": "a216a3c72f6ad4b61c027009c9d06a82f0417206ddd9cb040d7204655a207276"
+        },
+        {
+          "index": 85,
+          "transaction_hash": "f5d99f3a472ca0163a08e3df88faf4cf2bba3df2587804cb5f4a2de4851fe356",
+          "import_hash": "4fbc00cb5b1ec88327c03ec3fceba729631aed92cbb5d242e1abd6fd597d4214"
+        }
+      ]
+    },
+    {
+      "file": "dashboard_savings.csv",
+      "iban": "",
+      "file_hashes": [
+        "81e0c339f26f78d45f89958b685b03eb2d18cc68afd8fb2df5fc3d1bd56b27a5",
+        "45b92b1566a62122b9e3d5a206dac8d9538a03a45e80ade53a7d2da4f4709cde",
+        "5db6028060c0202b304c052d102d10f8cecf6831b7f8c4b67e6048af30b466be",
+        "56c4c60e92c1231698c982a525448a9d6df3a04d38efb410aa6259f115c31514",
+        "dfda3c1df4e146faed041039d857369c2b5245b4856cf65d080af5d257b0818a",
+        "7baa77b7823a497553543b73ea1c996c8aea91b8115df13ffb9c72b2802c939c",
+        "20ca9c8a32c55b22f6884c5501ee4ed6dfdf3ca0a930e33b8f07820bcb1dbcfa",
+        "922a0be6160121c49d8b9142085affca0064a1e203c8ab01a592f8839b8ee167",
+        "7d8052abf9f87d84b4e271357ccd8745d4d70046d8c6d8ded544c8e05f65ddec",
+        "16a78db11c1f7b3ccd2b58eab735cf9611271dfd3862aabe63a1c1491003d980",
+        "897b521a17ebee03553c8e08b9ab4605d9d378694a0a5dc40fd9bba89a3dc8c1",
+        "fc7c8eccc319dc2122c7a66dc05dcceac9fc415298ff8fa3f9ec926ab096ba23",
+        "cca8bafe97bfa5f0fcbc43e80cb054931c42225b7bf8bdb3e9079d1c3bb2b5f3",
+        "0deeb6066d20bf07031aa6cadb57922c1581d3e08378b9c5e65dad97a78014f3",
+        "22a1bc212fc16de0883ee8577c4840c3bfc7631b94fe15d3ccc25f87d06654c0",
+        "0025acc7063c638f16b6f7750aeea7644f6e9ca5809bdd8e31a0a1789a947e48",
+        "94e3911e75d78f1a53133349a395edbba6d68f946cc65c8689a97a49428993fa",
+        "3ba59ce85d5b9f8fee4ddd41676013912f055ea4f5b25719298ec1429c5aafba",
+        "82fb4e9f5ff9ff7ca594f3b0f7a5c53f24cb15d1f08fbf4857a5dcacc69d2ee6",
+        "dbdae0fa273bcc00665ca255ced90fac6c1ca52e3d7a368f0cac2c4b73fed7dc",
+        "57ddbfbf848abafcdd49a78098da3708b51a6ae82cc23b936aad49d23f00f246"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "a250ba6cfa3dd6160dc09a3d0bb5f565374106003847ef40ffe5a9ef1693af26",
+          "import_hash": "a06de0c52bb0482a1955408f0ecdbcdf3a826f1c0677931242bea4cd790c94b9"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "9131daaf21f2712997930f5069786544ea621dc0ee2812ca758877ac09eb71d6",
+          "import_hash": "ec168b44cc4dab68db7d30f2c2a8fb8f42c1241cd26bdc1cb5f6808251b7ea30"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "fa131139c330affa6977553837fea8f15ecd6b4dd5815b1620219d7c33fd321e",
+          "import_hash": "d0117ce31f9fb0fefced8e47b291cd17a12794ee7458dc4573aa945dbab369da"
+        },
+        {
+          "index": 3,
+          "transaction_hash": "fb409fa7de6cc8f77ccbc61232c406166c04e47e3f34d1e5620a02e47b32042d",
+          "import_hash": "678166d0162c6ba17cfbc11d4c93d7a9c2b2a0c513a4466b8f5efbb57e4c50e5"
+        },
+        {
+          "index": 4,
+          "transaction_hash": "39f390aae2e0f52c78308dbcd7f2fc1a380a1bc83d696bef87db881ca671fe09",
+          "import_hash": "400bdf2a1a7aa30b10501b06d26123640a4d0e7038857b3c35272a6704b40afb"
+        },
+        {
+          "index": 5,
+          "transaction_hash": "3c9e3fa825349b8b9df567110457e078d3bdaf9c964f5deadd0babd34b0e5c15",
+          "import_hash": "1bc1bafd87fa4930e67cc52166bf073caa6d13b5ee435236ecf0d92faacc643e"
+        },
+        {
+          "index": 6,
+          "transaction_hash": "5341fc66f01bd3ee7a94d087d482c7482a61715aa2c4441a5a888430eb1f385e",
+          "import_hash": "a569c18837c7f2a681f62e353856cbe09df9271c06a62474489223fde922854b"
+        },
+        {
+          "index": 7,
+          "transaction_hash": "a42cd5effcf6979e127892f0cb59dfaea820b13a3326310abae06f82cc091aa3",
+          "import_hash": "45f74a5239a0ee420b108e804374b7857c29a5b0db48e5d661e2d0227e1d8fee"
+        },
+        {
+          "index": 8,
+          "transaction_hash": "9bcbe8f430636936bff41ad25e1319bc49810f5f0a0eb683d55c59f343682b51",
+          "import_hash": "895e95db4a6ef34e4f4bbde68200c020e5f4e854144f82c57b64a5977f05be50"
+        },
+        {
+          "index": 9,
+          "transaction_hash": "9a9c490fe57846ad7c70d80748709b4b969c7b07619b71fb77bdc87dcedada19",
+          "import_hash": "d27e006977e56e2b25f8ae056576f3f29faa53eaf2cc4fccbe2f5dd6538a3586"
+        },
+        {
+          "index": 10,
+          "transaction_hash": "a62a24bc2f502e3cb89c5d8ba70d6d8f47afddded76259066fb3a18821f362df",
+          "import_hash": "2eeaeaef989633a9bba1f88ed08cae1775f17a4f6b912fdab8ac696ade0e0f96"
+        },
+        {
+          "index": 11,
+          "transaction_hash": "fdcd49210b1de1b3cb45877404dfd4e15b9bc4a04bebacc3081bf801498cc35d",
+          "import_hash": "fb88560205d14a2b80ccfb3b682cbebd42b90d59b6c6ded859c15ee96c3cfc2a"
+        },
+        {
+          "index": 12,
+          "transaction_hash": "9fa9dedb24ddada932bba64b27710cab3dfbb80b07133ada34a4535cb0cbe35e",
+          "import_hash": "a7de28c72b9c7a98a960be31ab0bf61e8713635a4a4076a2a375781e2fb369d7"
+        },
+        {
+          "index": 13,
+          "transaction_hash": "caff297f3700c28f23cd0554530c1bfbad4093ffb2bcd83038dfcd2934db9d96",
+          "import_hash": "b3f5f400ce2b634e6f9196f4faf985d0bad4e082b6e19dbb9f461cc54786460b"
+        },
+        {
+          "index": 14,
+          "transaction_hash": "7dee8d297ea95ae9a693008b4444ffbb13464efbcfc4a7ddb6dbf9d3f16bc653",
+          "import_hash": "ab6183b6a42f60e407fc352f759e1776d91aadc5787a938339884e7d30b2feff"
+        },
+        {
+          "index": 15,
+          "transaction_hash": "05e32afdc1f358736a1a24101ac18671ab80f9abd8b560df6c4138bea41b22eb",
+          "import_hash": "a01c2422d7293acbc6d04d6cfc8a1d70e1dfc793ba33aaf88976c49aeb6fcccd"
+        },
+        {
+          "index": 16,
+          "transaction_hash": "accd7e8e2a415dec16d17a626082b1a73f81f9cea502868afc197814c86b4dc9",
+          "import_hash": "4038659d041f6d50b25d65c175d53d72e474927ca3f21613eb8a2892313aa852"
+        },
+        {
+          "index": 17,
+          "transaction_hash": "cefa6a2d4fa1b3a6cff3700540ed2c56680b60881f52b40a478b9b24fe39a4ff",
+          "import_hash": "5c4ba5020763299ee7fb618e0418d39b24306d5021731c165bd89f8db3445ef9"
+        },
+        {
+          "index": 18,
+          "transaction_hash": "e84efbd3ee255a280920535d79e13485b791147d9f7b03d43bddc46920f8cb03",
+          "import_hash": "8756d1eaa3accb2b404e97219768709d542fc48f61b39e3fe4069fb50d03d95d"
+        },
+        {
+          "index": 19,
+          "transaction_hash": "5670b2ecfc16c84e1dfca83374f98f833317cc9885903affa7e0fd9962c65311",
+          "import_hash": "122b4c2b655b6cf19973bae3c45a02d81dc76e65444499f6e272414ae82b02a8"
+        },
+        {
+          "index": 20,
+          "transaction_hash": "27499c4a7074282e040e848456695b13dd07e7db83c97d9e7cb5e64910defeda",
+          "import_hash": "331877f3a775aaef12075e9a611336feebd283e4c6c1f408951fd6ed40ecd190"
+        }
+      ]
+    },
+    {
+      "file": "detect_camt_without_extension.dat",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "fc069c63ee17666b790e34974a53af05408fd3bccde69dd008d6ebf62a751662",
+        "4e037228f3136646957ae3c051976185fa6a6568ded26fb218eb145ba8d67f67"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "6b390318cd85869d5e2fb01c49e68ec8b0194a60a0c74b48bcfb0599ac0a5dbb",
+          "import_hash": "e933b10b3c10b4ffb57181fbdaaf49f46dfb2dcf376a35d00448973ad82a6aa5"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "235322184190a6602b5ad979c307521ec28acc1dd1ac4d65ea7d0194ee2b2806",
+          "import_hash": "cab7d77a91d8f5d3355373b54d7ed6d4c619f48972c12322223b2fc87c2ed8e9"
+        }
+      ]
+    },
+    {
+      "file": "detect_mt940_without_extension.dat",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "507ecde478574b5969742f7fc2fafd58a9326830eea5660a20bb15325554f158",
+        "0cd47461e59ad660b48d539ae696ce09727de9e4d46d94130d1bf62baa98e841",
+        "c5432c633852d95fd7d51b440d292c2576491f69e8326831e3a026de68c325a3"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "5d0e793c9fba3ec69510266b6f7a0859f17f6609f93139c3816c9363c96bb94f",
+          "import_hash": "3ef45a0e2e5f1bc7e0debf6e1b4d1474ab0e3e602bfe069add74f1b51891b271"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "bbcd7dc5a2dd98376c2f6c07809e67d41899e4061be6d2321027d79c4d233088",
+          "import_hash": "2301b45bb6ca89b806b523a07ee32016de8640a85f5b44d53ba0e69c14d79bb8"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "db9e222d1bbe9669f587ba5f48fd83ea225ce9d611748190edde7a51c4b56b21",
+          "import_hash": "042c08067d84c175c7a8f54899afbed639a6999da14809af21149832d66712b8"
+        }
+      ]
+    },
+    {
+      "file": "dkb_2026_10.csv",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "991201f0a0018105ed84dec66078a55571cf67e7ac4c1bdb79e9b65593c8d33d",
+        "5e090c23706fea28029f7b8a4f0e7831025f8c789d8201e1f7586e1310dd7673"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "c26ea0f390c93475a2f56b6acbabd86acbd297ce828148016a200177c5f120c3",
+          "import_hash": "cc555542b595a9577e721edfbb8f6879fa15c6a6f2fea5d40f0e823231ba86bd"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "7db4eaafc80782487c1e8c14ec6067a05c44cfef26cc4ceee3766cde1f865507",
+          "import_hash": "3d4cf31d253dca3de17385c2eea65ece8bee09b9024468170af8b5805e5402c5"
+        }
+      ]
+    },
+    {
+      "file": "english_debit_credit_2026_09.csv",
+      "iban": "",
+      "file_hashes": [
+        "10d37e497b00cb39e24340b38821da1d3d03950ddb11d44077fcd4b069b2a201",
+        "46a0e0317786607451eccf74ddf6bc77179d902c5bda34d57149f5dc8e5f9a55"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "722616d4b3b7921cfaaeca545e46574ce7a2124045b22903e2ad80e8e76384b1",
+          "import_hash": "c54218e4443dd36d91a0e13dfd6400024a9d885822ed09fbcaa98b3511fa8cf3"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "730662ae45e28f7e99da00b9dda428d24e63c1bd809632349b29b927055c9895",
+          "import_hash": "65c1acd8e492420f42acdb9c04d14b2994738cc8c7cfe66bf99a8c069b3c5e12"
+        }
+      ]
+    },
+    {
+      "file": "findesk_own_export_en.csv",
+      "iban": "",
+      "file_hashes": [
+        "9ae2ada5bb7fa81aa9d4e5eac011d97109e4f6800e31efefa85566232a4e9758",
+        "46a0e0317786607451eccf74ddf6bc77179d902c5bda34d57149f5dc8e5f9a55"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "ce5966be5988d35771958bdad5d9cbe1d5ae88eb3a330defef38772dd2dc831a",
+          "import_hash": "0177d2490117e0608c553e466a0a88649c6bbe70eb369393fc8091aa0922a65a"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "730662ae45e28f7e99da00b9dda428d24e63c1bd809632349b29b927055c9895",
+          "import_hash": "65c1acd8e492420f42acdb9c04d14b2994738cc8c7cfe66bf99a8c069b3c5e12"
+        }
+      ]
+    },
+    {
+      "file": "hvb_card_utf16le.csv",
+      "iban": "",
+      "file_hashes": [
+        "835f6d643645f2004e58b4fd38654d678cf4af515d05d3e45b95035a4f831e73",
+        "44d85660bf22a7dd9bcbe0c0b6d369cf11582365cfd5e5047e64e1efa7b3f841",
+        "bf0dbb1220959c43474b94c83201bf1cd44379eab922dac420ee1cae1962fb94"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "7a3c8bd4c19bc702500ce23544b40b2adc6bfeaa98e430ee72e2998f04a28f1e",
+          "import_hash": "3323b8bc9e50ce75f0bf79a6083de2f695f989f81c012cc93433c71692167e35"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "0c9980096b27663d4e7c44e8ccee96295c1a1270549a01bd2b6fe2472847afa9",
+          "import_hash": "9ec69dfc9c6b3add866bf176493456215f21a16ae69e10f741a691e9e98ddcfa"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "cef8a7d5f477d5b88fc44b752e15e532e13170c5931f124a8c79ff584e3bb1f3",
+          "import_hash": "00ec617e80158e97e0a3e1aa1197a63f9087832f8dbb1a69954a408c9569efb2"
+        }
+      ]
+    },
+    {
+      "file": "ing_preamble_2026_10.csv",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "4d88624e26b8f7f6d0e5a2ad33b2400a2ae2e3ec5350031e5ea3520e7f2c6613",
+        "d0d2b74a4cf451edda97c3d9cae7fa2e819086861e44e3cc2e506ebb37a33e21"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "bf15a6a03b6533906a3e278661089fd37dca353543368eb600f986262557612d",
+          "import_hash": "eadd1c4a311de45e189ad6444a3d582973d18ed7b02c51aa1358810f7e883a6b"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "235322184190a6602b5ad979c307521ec28acc1dd1ac4d65ea7d0194ee2b2806",
+          "import_hash": "c155cbc18628a15b97bc08c2f2c8645b00c822ba323c70a3f3d65b8a67fa2aea"
+        }
+      ]
+    },
+    {
+      "file": "mt940_bank_reference.sta",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "f11d2924cd237432d3307149dc37860cef74a015f2d6f0c2ddd61043a4455c21"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "f1d318146eb6478e812096388c9219bfc506a34da2a3b79df593883fe4dc91ee",
+          "import_hash": "cc744dbe96425fa0cd0525fdf769b1c2261d69e24fe109c61c3861b790d8da39"
+        }
+      ]
+    },
+    {
+      "file": "mt940_structured_86.sta",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "75afe66eb3bb810781f9f6b742d51ff9e367e5231a7657257e781d5d007eefd9"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "11eda9eec6ad42b43866b39514909c19a0f574ca93ecc3e5f8fc9cfc59e89d3d",
+          "import_hash": "f58334b5ba512ee91efa6e0e3b5d17c3f52b8a56e55f2d6343c6d5e1ecefd35b"
+        }
+      ]
+    },
+    {
+      "file": "mt940_two_statements.sta",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "507ecde478574b5969742f7fc2fafd58a9326830eea5660a20bb15325554f158",
+        "0cd47461e59ad660b48d539ae696ce09727de9e4d46d94130d1bf62baa98e841",
+        "c5432c633852d95fd7d51b440d292c2576491f69e8326831e3a026de68c325a3"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "5d0e793c9fba3ec69510266b6f7a0859f17f6609f93139c3816c9363c96bb94f",
+          "import_hash": "3ef45a0e2e5f1bc7e0debf6e1b4d1474ab0e3e602bfe069add74f1b51891b271"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "bbcd7dc5a2dd98376c2f6c07809e67d41899e4061be6d2321027d79c4d233088",
+          "import_hash": "2301b45bb6ca89b806b523a07ee32016de8640a85f5b44d53ba0e69c14d79bb8"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "db9e222d1bbe9669f587ba5f48fd83ea225ce9d611748190edde7a51c4b56b21",
+          "import_hash": "042c08067d84c175c7a8f54899afbed639a6999da14809af21149832d66712b8"
+        }
+      ]
+    },
+    {
+      "file": "n26_preset_2026_10.csv",
+      "iban": "",
+      "file_hashes": [
+        "b41ff978b2d5392d943e4e9a9c6f73248e1cd0407de5ba5db4d0da884d11a66f",
+        "c9a81fe8211c54e083339ca493deb9b2518c15543470167e5b871c5ff0e0407b"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "dee8fa3d9090b761d925e386dbc5899ca41cbe097535958a3c2c5c05b4d013fb",
+          "import_hash": "05eae9bc22cfe8485d6267a6640063a3622804d34104ec03e6e67b36b9e7654b"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "978d60475c6373b2bbb42681d2edc48298a7604c2c4c1e124f0e80737862cbfc",
+          "import_hash": "2f3317a1e33e49da539943078285aca5f45b388a69553eab28cfa4782822b5bd"
+        }
+      ]
+    },
+    {
+      "file": "ofx_sgml.ofx",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "fc069c63ee17666b790e34974a53af05408fd3bccde69dd008d6ebf62a751662",
+        "0cf6e3604f8734eef6b3305ca196d2967f5ffd5c18bb2a05ac8ae9d90c35aaa9"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "6b390318cd85869d5e2fb01c49e68ec8b0194a60a0c74b48bcfb0599ac0a5dbb",
+          "import_hash": "e933b10b3c10b4ffb57181fbdaaf49f46dfb2dcf376a35d00448973ad82a6aa5"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "bbe5a24b9c15d00906d8519c4a18b3aa5685d643701e23eb6e53f337e00f4edb",
+          "import_hash": "81fc6d2e2b284d4c37c9e0873f4a01e51fadbc3f020efbbbad60af5b08a0cce7"
+        }
+      ]
+    },
+    {
+      "file": "ofx_xml.ofx",
+      "iban": "DE89370400440532013000",
+      "file_hashes": [
+        "fc069c63ee17666b790e34974a53af05408fd3bccde69dd008d6ebf62a751662",
+        "0cf6e3604f8734eef6b3305ca196d2967f5ffd5c18bb2a05ac8ae9d90c35aaa9"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "6b390318cd85869d5e2fb01c49e68ec8b0194a60a0c74b48bcfb0599ac0a5dbb",
+          "import_hash": "e933b10b3c10b4ffb57181fbdaaf49f46dfb2dcf376a35d00448973ad82a6aa5"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "bbe5a24b9c15d00906d8519c4a18b3aa5685d643701e23eb6e53f337e00f4edb",
+          "import_hash": "81fc6d2e2b284d4c37c9e0873f4a01e51fadbc3f020efbbbad60af5b08a0cce7"
+        }
+      ]
+    },
+    {
+      "file": "paypal_2026_10.csv",
+      "iban": "",
+      "file_hashes": [
+        "4b52f1a5046ae91e193199db7ef226cbeda71246f603668c3050d177200d9201",
+        "3f5bc4c6be46218419891b88e3e5e9da80c2314398bf9985107b02e9a7827ae0",
+        "b7b1d39ec0c315f3f803f2cc4f948e48323a146988578a4459ffa310cd343960"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "0f567ceec37a379faae04626b83a4f4389deaa2b5e6c2434ed52ab22dc40b21c",
+          "import_hash": "50260d659f9df64665aef89f7017fbf6135443ebb44bfe635d84a4e90f5bc404"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "7aaf91c60f53ad79f8f98fedeb96726562edcb990b6d225feed9f34f17f98a53",
+          "import_hash": "a042eaf63ef640239feb3fbfe5f4f0b0be5cd123229a071b91e222e78e8be8e3"
+        },
+        {
+          "index": 2,
+          "transaction_hash": "a7540541829efacf808251257b9daf5583db6e7e5885a6a05742f9b6f1f29164",
+          "import_hash": "fe904e49eafaf32c800544ec7e9185d9dead0c59b2d7693174920cd9c05868ed"
+        }
+      ]
+    },
+    {
+      "file": "qif_german_dates.qif",
+      "iban": "",
+      "file_hashes": [
+        "af7f92121f9b96b85e79d3503f2a445a2f17d1c29fb03c90635dc8230a7c6507",
+        "becf6ff076856a997f4703fb79703b1c0ef327d43d3e14c5455fc6aeaa522f28"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "4b55517507a701b7696446d08a87fc8f66e99622f40a5e17c351021948dafcf4",
+          "import_hash": "59406b4e8d414b3fd3c5d890618723a24e338268385eedc7b442efa7bdfba563"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "8e0d32595ed71aece2ff687057316f2c066750826e382dbe8eba97b4534ea3a1",
+          "import_hash": "170659ce6fd7a45696499d83a255ebdf00bde4b0430114c5589509b7e9346e43"
+        }
+      ]
+    },
+    {
+      "file": "qif_us_dates.qif",
+      "iban": "",
+      "file_hashes": [
+        "860051ff1ee952b66d9821f6a16c3404a6a387b5c1a574640f29ebca20ad5413",
+        "58e6241439e689a07c290a85dea897190a1ece2e2e6b8f56e485e4f9097147d3"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "6b390318cd85869d5e2fb01c49e68ec8b0194a60a0c74b48bcfb0599ac0a5dbb",
+          "import_hash": "7b72856246ae82360d5c26b066b358f2dafac999c7f1a2c2e4a59924fd597821"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "bbe5a24b9c15d00906d8519c4a18b3aa5685d643701e23eb6e53f337e00f4edb",
+          "import_hash": "aa1b916db2bea5a3e761440d5af4e5512d4394f1e4f631b7395458b6f190939e"
+        }
+      ]
+    },
+    {
+      "file": "sparkasse_camt_export_2026_10.csv",
+      "iban": "",
+      "file_hashes": [
+        "860051ff1ee952b66d9821f6a16c3404a6a387b5c1a574640f29ebca20ad5413",
+        "58e6241439e689a07c290a85dea897190a1ece2e2e6b8f56e485e4f9097147d3"
+      ],
+      "bookings": [
+        {
+          "index": 0,
+          "transaction_hash": "6b390318cd85869d5e2fb01c49e68ec8b0194a60a0c74b48bcfb0599ac0a5dbb",
+          "import_hash": "7b72856246ae82360d5c26b066b358f2dafac999c7f1a2c2e4a59924fd597821"
+        },
+        {
+          "index": 1,
+          "transaction_hash": "bbe5a24b9c15d00906d8519c4a18b3aa5685d643701e23eb6e53f337e00f4edb",
+          "import_hash": "aa1b916db2bea5a3e761440d5af4e5512d4394f1e4f631b7395458b6f190939e"
+        }
+      ]
+    },
+    {
+      "file": "unknown_layout.csv",
+      "iban": "",
+      "file_hashes": [],
+      "bookings": []
+    }
+  ],
+  "edge_cases": [
+    {
+      "name": "empty partner and purpose",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": null,
+      "purpose": null,
+      "transaction_hash": "0422bea8b931ab56f90168fb773032242751500e9114c59952cf5f3a653db7dd"
+    },
+    {
+      "name": "empty partner",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": null,
+      "purpose": "Kaffee",
+      "transaction_hash": "82a38c484b6a5006e890420947cdbfe9297e04957da49ccddb621e6649ac2b91"
+    },
+    {
+      "name": "empty purpose",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": "Bäcker",
+      "purpose": null,
+      "transaction_hash": "fc92c73491e557877543982c675c78c8ed45fc85ed2b8644a76daa0c8b118675"
+    },
+    {
+      "name": "empty purpose string",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": "Bäcker",
+      "purpose": "",
+      "transaction_hash": "fc92c73491e557877543982c675c78c8ed45fc85ed2b8644a76daa0c8b118675"
+    },
+    {
+      "name": "umlauts",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": "Bäcker",
+      "purpose": "Kaffee",
+      "transaction_hash": "def58a318d1e3580b1e1c6b56d9c4e12ceede08565a636e9195c8baf1e28318e"
+    },
+    {
+      "name": "sharp s",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": "Straße",
+      "purpose": "Grüße",
+      "transaction_hash": "5c24b07ee72e8506c12e015f6be12848a30f945f53396b95bb32a3c3e0524899"
+    },
+    {
+      "name": "nfc",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": "Müller",
+      "purpose": "Überweisung",
+      "transaction_hash": "fcee94e780dadb27cc56d46808b2b96e19fdfeb223684295822349b035d8989d"
+    },
+    {
+      "name": "nfd",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": "Müller",
+      "purpose": "Überweisung",
+      "transaction_hash": "79c523614f0ee52dc97272239069b912fb11f649274a21d88d1602edeb15c18a"
+    },
+    {
+      "name": "trailing spaces",
+      "date": "2026-10-03",
+      "amount": "10.50",
+      "partner": "REWE ",
+      "purpose": "Kaffee  ",
+      "transaction_hash": "23e32497dc45ba5eae9fbdf5fadfebc1cf8bb28d043d734ccac45f0f9f445235"
+    },
+    {
+      "name": "negative zero",
+      "date": "2026-10-03",
+      "amount": "0.00",
+      "partner": "Zero",
+      "purpose": null,
+      "transaction_hash": "dac1bf3de89a29285fdd6b95a1e97fc15142c9f4200bd1b7f9a0bfa611c868e2"
+    },
+    {
+      "name": "negative zero with purpose",
+      "date": "2026-10-03",
+      "amount": "0.0",
+      "partner": null,
+      "purpose": "Zero",
+      "transaction_hash": "ac29a027f3a91325f781bffdd9af605c9de8ecbe60c7726010181fc4f3647f02"
+    },
+    {
+      "name": "0.10",
+      "date": "2026-10-03",
+      "amount": "0.10",
+      "partner": "Shop",
+      "purpose": null,
+      "transaction_hash": "b5d83261872a99a0d29baa43dec76d5f52707bf084775493c1d5a367f2cce14d"
+    },
+    {
+      "name": "0.1",
+      "date": "2026-10-03",
+      "amount": "0.1",
+      "partner": "Shop",
+      "purpose": null,
+      "transaction_hash": "b5d83261872a99a0d29baa43dec76d5f52707bf084775493c1d5a367f2cce14d"
+    },
+    {
+      "name": "100.00",
+      "date": "2026-10-03",
+      "amount": "100.00",
+      "partner": null,
+      "purpose": null,
+      "transaction_hash": "d97915d5ed7b78b183d249cf8a5b49f154cf89e1ecfde570e886c7f6b36bc668"
+    },
+    {
+      "name": "1E+2",
+      "date": "2026-10-03",
+      "amount": "100",
+      "partner": null,
+      "purpose": null,
+      "transaction_hash": "d97915d5ed7b78b183d249cf8a5b49f154cf89e1ecfde570e886c7f6b36bc668"
+    },
+    {
+      "name": "negative amount",
+      "date": "2026-10-01",
+      "amount": "-49.99",
+      "partner": "REWE",
+      "purpose": "Shopping",
+      "transaction_hash": "fd058e96c6b2303f52359ef59a5e5d9242863636e8a5b03ed80745f635deb736"
+    },
+    {
+      "name": "newline in text",
+      "date": "2026-10-03",
+      "amount": "1.00",
+      "partner": "A\nB",
+      "purpose": "C\tD",
+      "transaction_hash": "12aefc825a162891c04175651c885d70908a8e825a35576f2f006a87ed8bc986"
+    }
+  ]
+}

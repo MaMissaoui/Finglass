@@ -1,0 +1,5627 @@
+[
+  {
+    "file": "balance_checking_2026.csv",
+    "current_balance": {
+      "minor": 1126705,
+      "currency": "EUR",
+      "plain": "11267.05"
+    },
+    "from": "2026-01-15",
+    "to": "2026-05-31",
+    "running": [
+      {
+        "id": 15,
+        "date": "2026-05-31",
+        "amount": {
+          "minor": -9520,
+          "currency": "EUR",
+          "plain": "-95.20"
+        },
+        "balance": {
+          "minor": 1126705,
+          "currency": "EUR",
+          "plain": "11267.05"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 14,
+        "date": "2026-05-20",
+        "amount": {
+          "minor": -85000,
+          "currency": "EUR",
+          "plain": "-850.00"
+        },
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 13,
+        "date": "2026-05-15",
+        "amount": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 12,
+        "date": "2026-04-30",
+        "amount": {
+          "minor": -11235,
+          "currency": "EUR",
+          "plain": "-112.35"
+        },
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 11,
+        "date": "2026-04-20",
+        "amount": {
+          "minor": -85000,
+          "currency": "EUR",
+          "plain": "-850.00"
+        },
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 10,
+        "date": "2026-04-15",
+        "amount": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 9,
+        "date": "2026-03-29",
+        "amount": {
+          "minor": -7890,
+          "currency": "EUR",
+          "plain": "-78.90"
+        },
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 8,
+        "date": "2026-03-20",
+        "amount": {
+          "minor": -85000,
+          "currency": "EUR",
+          "plain": "-850.00"
+        },
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 7,
+        "date": "2026-03-15",
+        "amount": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 6,
+        "date": "2026-02-27",
+        "amount": {
+          "minor": -10410,
+          "currency": "EUR",
+          "plain": "-104.10"
+        },
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 5,
+        "date": "2026-02-20",
+        "amount": {
+          "minor": -85000,
+          "currency": "EUR",
+          "plain": "-850.00"
+        },
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 4,
+        "date": "2026-02-15",
+        "amount": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 3,
+        "date": "2026-01-28",
+        "amount": {
+          "minor": -9240,
+          "currency": "EUR",
+          "plain": "-92.40"
+        },
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 2,
+        "date": "2026-01-20",
+        "amount": {
+          "minor": -85000,
+          "currency": "EUR",
+          "plain": "-850.00"
+        },
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 1,
+        "date": "2026-01-15",
+        "amount": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "bank_difference": null
+      }
+    ],
+    "history": [
+      {
+        "date": "2026-01-15",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-16",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-17",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-18",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-19",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-20",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-21",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-22",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-23",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-24",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-25",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-26",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-27",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-28",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-01-29",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-01-30",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-01-31",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-01",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-02",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-03",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-04",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-05",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-06",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-07",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-08",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-09",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-10",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-11",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-12",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-13",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-14",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-15",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-16",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-17",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-18",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-19",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-20",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-21",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-22",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-23",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-24",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-25",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-26",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-27",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-02-28",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-01",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-02",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-03",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-04",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-05",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-06",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-07",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-08",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-09",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-10",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-11",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-12",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-13",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-14",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-15",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-16",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-17",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-18",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-19",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-20",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-21",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-22",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-23",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-24",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-25",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-26",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-27",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-28",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-29",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-03-30",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-03-31",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-01",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-02",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-03",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-04",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-05",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-06",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-07",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-08",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-09",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-10",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-11",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-12",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-13",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-14",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-15",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-16",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-17",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-18",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-19",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-20",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-21",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-22",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-23",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-24",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-25",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-26",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-27",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-28",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-29",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-30",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-01",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-02",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-03",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-04",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-05",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-06",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-07",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-08",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-09",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-10",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-11",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-12",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-13",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-14",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-15",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-16",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-17",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-18",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-19",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-20",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-21",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-22",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-23",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-24",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-25",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-26",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-27",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-28",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-29",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-30",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-31",
+        "balance": {
+          "minor": 1126705,
+          "currency": "EUR",
+          "plain": "11267.05"
+        }
+      }
+    ],
+    "history_compute": [
+      {
+        "date": "2026-01-15",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-16",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-17",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-18",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-19",
+        "balance": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        }
+      },
+      {
+        "date": "2026-01-20",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-21",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-22",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-23",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-24",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-25",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-26",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-27",
+        "balance": {
+          "minor": 235000,
+          "currency": "EUR",
+          "plain": "2350.00"
+        }
+      },
+      {
+        "date": "2026-01-28",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-01-29",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-01-30",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-01-31",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-01",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-02",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-03",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-04",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-05",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-06",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-07",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-08",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-09",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-10",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-11",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-12",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-13",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-14",
+        "balance": {
+          "minor": 225760,
+          "currency": "EUR",
+          "plain": "2257.60"
+        }
+      },
+      {
+        "date": "2026-02-15",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-16",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-17",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-18",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-19",
+        "balance": {
+          "minor": 545760,
+          "currency": "EUR",
+          "plain": "5457.60"
+        }
+      },
+      {
+        "date": "2026-02-20",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-21",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-22",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-23",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-24",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-25",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-26",
+        "balance": {
+          "minor": 460760,
+          "currency": "EUR",
+          "plain": "4607.60"
+        }
+      },
+      {
+        "date": "2026-02-27",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-02-28",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-01",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-02",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-03",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-04",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-05",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-06",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-07",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-08",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-09",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-10",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-11",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-12",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-13",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-14",
+        "balance": {
+          "minor": 450350,
+          "currency": "EUR",
+          "plain": "4503.50"
+        }
+      },
+      {
+        "date": "2026-03-15",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-16",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-17",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-18",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-19",
+        "balance": {
+          "minor": 770350,
+          "currency": "EUR",
+          "plain": "7703.50"
+        }
+      },
+      {
+        "date": "2026-03-20",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-21",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-22",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-23",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-24",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-25",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-26",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-27",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-28",
+        "balance": {
+          "minor": 685350,
+          "currency": "EUR",
+          "plain": "6853.50"
+        }
+      },
+      {
+        "date": "2026-03-29",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-03-30",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-03-31",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-01",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-02",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-03",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-04",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-05",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-06",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-07",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-08",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-09",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-10",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-11",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-12",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-13",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-14",
+        "balance": {
+          "minor": 677460,
+          "currency": "EUR",
+          "plain": "6774.60"
+        }
+      },
+      {
+        "date": "2026-04-15",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-16",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-17",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-18",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-19",
+        "balance": {
+          "minor": 997460,
+          "currency": "EUR",
+          "plain": "9974.60"
+        }
+      },
+      {
+        "date": "2026-04-20",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-21",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-22",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-23",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-24",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-25",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-26",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-27",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-28",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-29",
+        "balance": {
+          "minor": 912460,
+          "currency": "EUR",
+          "plain": "9124.60"
+        }
+      },
+      {
+        "date": "2026-04-30",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-01",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-02",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-03",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-04",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-05",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-06",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-07",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-08",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-09",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-10",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-11",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-12",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-13",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-14",
+        "balance": {
+          "minor": 901225,
+          "currency": "EUR",
+          "plain": "9012.25"
+        }
+      },
+      {
+        "date": "2026-05-15",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-16",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-17",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-18",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-19",
+        "balance": {
+          "minor": 1221225,
+          "currency": "EUR",
+          "plain": "12212.25"
+        }
+      },
+      {
+        "date": "2026-05-20",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-21",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-22",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-23",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-24",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-25",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-26",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-27",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-28",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-29",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-30",
+        "balance": {
+          "minor": 1136225,
+          "currency": "EUR",
+          "plain": "11362.25"
+        }
+      },
+      {
+        "date": "2026-05-31",
+        "balance": {
+          "minor": 1126705,
+          "currency": "EUR",
+          "plain": "11267.05"
+        }
+      }
+    ]
+  },
+  {
+    "file": "balance_savings_2026.csv",
+    "current_balance": {
+      "minor": 1540000,
+      "currency": "EUR",
+      "plain": "15400.00"
+    },
+    "from": "2026-01-31",
+    "to": "2026-05-31",
+    "running": [
+      {
+        "id": 1,
+        "date": "2026-05-31",
+        "amount": {
+          "minor": 540000,
+          "currency": "EUR",
+          "plain": "5400.00"
+        },
+        "balance": {
+          "minor": 1540000,
+          "currency": "EUR",
+          "plain": "15400.00"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 2,
+        "date": "2026-04-30",
+        "amount": {
+          "minor": 1250,
+          "currency": "EUR",
+          "plain": "12.50"
+        },
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        },
+        "bank_difference": {
+          "minor": 1250,
+          "currency": "EUR",
+          "plain": "12.50"
+        }
+      },
+      {
+        "id": 3,
+        "date": "2026-03-31",
+        "amount": {
+          "minor": 540000,
+          "currency": "EUR",
+          "plain": "5400.00"
+        },
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 4,
+        "date": "2026-02-28",
+        "amount": {
+          "minor": 1180,
+          "currency": "EUR",
+          "plain": "11.80"
+        },
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 5,
+        "date": "2026-01-31",
+        "amount": {
+          "minor": 540000,
+          "currency": "EUR",
+          "plain": "5400.00"
+        },
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        },
+        "bank_difference": null
+      }
+    ],
+    "history": [
+      {
+        "date": "2026-01-31",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-01",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-02",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-03",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-04",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-05",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-06",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-07",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-08",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-09",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-10",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-11",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-12",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-13",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-14",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-15",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-16",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-17",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-18",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-19",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-20",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-21",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-22",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-23",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-24",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-25",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-26",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-27",
+        "balance": {
+          "minor": 458820,
+          "currency": "EUR",
+          "plain": "4588.20"
+        }
+      },
+      {
+        "date": "2026-02-28",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-01",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-02",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-03",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-04",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-05",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-06",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-07",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-08",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-09",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-10",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-11",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-12",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-13",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-14",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-15",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-16",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-17",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-18",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-19",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-20",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-21",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-22",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-23",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-24",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-25",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-26",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-27",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-28",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-29",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-30",
+        "balance": {
+          "minor": 460000,
+          "currency": "EUR",
+          "plain": "4600.00"
+        }
+      },
+      {
+        "date": "2026-03-31",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-01",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-02",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-03",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-04",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-05",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-06",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-07",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-08",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-09",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-10",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-11",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-12",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-13",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-14",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-15",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-16",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-17",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-18",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-19",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-20",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-21",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-22",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-23",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-24",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-25",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-26",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-27",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-28",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-29",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-04-30",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-01",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-02",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-03",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-04",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-05",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-06",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-07",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-08",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-09",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-10",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-11",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-12",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-13",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-14",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-15",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-16",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-17",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-18",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-19",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-20",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-21",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-22",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-23",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-24",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-25",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-26",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-27",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-28",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-29",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-30",
+        "balance": {
+          "minor": 1001250,
+          "currency": "EUR",
+          "plain": "10012.50"
+        }
+      },
+      {
+        "date": "2026-05-31",
+        "balance": {
+          "minor": 1540000,
+          "currency": "EUR",
+          "plain": "15400.00"
+        }
+      }
+    ],
+    "history_compute": [
+      {
+        "date": "2026-01-31",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-01",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-02",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-03",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-04",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-05",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-06",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-07",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-08",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-09",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-10",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-11",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-12",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-13",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-14",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-15",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-16",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-17",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-18",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-19",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-20",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-21",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-22",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-23",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-24",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-25",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-26",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-27",
+        "balance": {
+          "minor": 457570,
+          "currency": "EUR",
+          "plain": "4575.70"
+        }
+      },
+      {
+        "date": "2026-02-28",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-01",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-02",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-03",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-04",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-05",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-06",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-07",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-08",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-09",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-10",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-11",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-12",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-13",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-14",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-15",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-16",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-17",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-18",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-19",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-20",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-21",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-22",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-23",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-24",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-25",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-26",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-27",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-28",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-29",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-30",
+        "balance": {
+          "minor": 458750,
+          "currency": "EUR",
+          "plain": "4587.50"
+        }
+      },
+      {
+        "date": "2026-03-31",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-01",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-02",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-03",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-04",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-05",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-06",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-07",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-08",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-09",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-10",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-11",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-12",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-13",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-14",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-15",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-16",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-17",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-18",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-19",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-20",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-21",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-22",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-23",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-24",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-25",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-26",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-27",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-28",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-29",
+        "balance": {
+          "minor": 998750,
+          "currency": "EUR",
+          "plain": "9987.50"
+        }
+      },
+      {
+        "date": "2026-04-30",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-01",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-02",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-03",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-04",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-05",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-06",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-07",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-08",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-09",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-10",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-11",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-12",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-13",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-14",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-15",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-16",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-17",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-18",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-19",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-20",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-21",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-22",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-23",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-24",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-25",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-26",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-27",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-28",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-29",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-30",
+        "balance": {
+          "minor": 1000000,
+          "currency": "EUR",
+          "plain": "10000.00"
+        }
+      },
+      {
+        "date": "2026-05-31",
+        "balance": {
+          "minor": 1540000,
+          "currency": "EUR",
+          "plain": "15400.00"
+        }
+      }
+    ]
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "current_balance": {
+      "minor": 78161,
+      "currency": "EUR",
+      "plain": "781.61"
+    },
+    "from": "2026-03-03",
+    "to": "2026-05-06",
+    "running": [
+      {
+        "id": 7,
+        "date": "2026-05-06",
+        "amount": {
+          "minor": -1999,
+          "currency": "EUR",
+          "plain": "-19.99"
+        },
+        "balance": {
+          "minor": 78161,
+          "currency": "EUR",
+          "plain": "781.61"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 6,
+        "date": "2026-05-02",
+        "amount": {
+          "minor": -6780,
+          "currency": "EUR",
+          "plain": "-67.80"
+        },
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 5,
+        "date": "2026-04-05",
+        "amount": {
+          "minor": -1400,
+          "currency": "EUR",
+          "plain": "-14.00"
+        },
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 4,
+        "date": "2026-04-02",
+        "amount": {
+          "minor": -3120,
+          "currency": "EUR",
+          "plain": "-31.20"
+        },
+        "balance": {
+          "minor": 88340,
+          "currency": "EUR",
+          "plain": "883.40"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 3,
+        "date": "2026-03-04",
+        "amount": {
+          "minor": -5200,
+          "currency": "EUR",
+          "plain": "-52.00"
+        },
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 2,
+        "date": "2026-03-03",
+        "amount": {
+          "minor": -850,
+          "currency": "EUR",
+          "plain": "-8.50"
+        },
+        "balance": {
+          "minor": 96660,
+          "currency": "EUR",
+          "plain": "966.60"
+        },
+        "bank_difference": null
+      },
+      {
+        "id": 1,
+        "date": "2026-03-03",
+        "amount": {
+          "minor": -2490,
+          "currency": "EUR",
+          "plain": "-24.90"
+        },
+        "balance": {
+          "minor": 97510,
+          "currency": "EUR",
+          "plain": "975.10"
+        },
+        "bank_difference": null
+      }
+    ],
+    "history": [
+      {
+        "date": "2026-03-03",
+        "balance": {
+          "minor": 96660,
+          "currency": "EUR",
+          "plain": "966.60"
+        }
+      },
+      {
+        "date": "2026-03-04",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-05",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-06",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-07",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-08",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-09",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-10",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-11",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-12",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-13",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-14",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-15",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-16",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-17",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-18",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-19",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-20",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-21",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-22",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-23",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-24",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-25",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-26",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-27",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-28",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-29",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-30",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-31",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-04-01",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-04-02",
+        "balance": {
+          "minor": 88340,
+          "currency": "EUR",
+          "plain": "883.40"
+        }
+      },
+      {
+        "date": "2026-04-03",
+        "balance": {
+          "minor": 88340,
+          "currency": "EUR",
+          "plain": "883.40"
+        }
+      },
+      {
+        "date": "2026-04-04",
+        "balance": {
+          "minor": 88340,
+          "currency": "EUR",
+          "plain": "883.40"
+        }
+      },
+      {
+        "date": "2026-04-05",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-06",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-07",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-08",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-09",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-10",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-11",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-12",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-13",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-14",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-15",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-16",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-17",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-18",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-19",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-20",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-21",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-22",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-23",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-24",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-25",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-26",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-27",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-28",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-29",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-30",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-05-01",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-05-02",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-03",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-04",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-05",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-06",
+        "balance": {
+          "minor": 78161,
+          "currency": "EUR",
+          "plain": "781.61"
+        }
+      }
+    ],
+    "history_compute": [
+      {
+        "date": "2026-03-03",
+        "balance": {
+          "minor": 96660,
+          "currency": "EUR",
+          "plain": "966.60"
+        }
+      },
+      {
+        "date": "2026-03-04",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-05",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-06",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-07",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-08",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-09",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-10",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-11",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-12",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-13",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-14",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-15",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-16",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-17",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-18",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-19",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-20",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-21",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-22",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-23",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-24",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-25",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-26",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-27",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-28",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-29",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-30",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-03-31",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-04-01",
+        "balance": {
+          "minor": 91460,
+          "currency": "EUR",
+          "plain": "914.60"
+        }
+      },
+      {
+        "date": "2026-04-02",
+        "balance": {
+          "minor": 88340,
+          "currency": "EUR",
+          "plain": "883.40"
+        }
+      },
+      {
+        "date": "2026-04-03",
+        "balance": {
+          "minor": 88340,
+          "currency": "EUR",
+          "plain": "883.40"
+        }
+      },
+      {
+        "date": "2026-04-04",
+        "balance": {
+          "minor": 88340,
+          "currency": "EUR",
+          "plain": "883.40"
+        }
+      },
+      {
+        "date": "2026-04-05",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-06",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-07",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-08",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-09",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-10",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-11",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-12",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-13",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-14",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-15",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-16",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-17",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-18",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-19",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-20",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-21",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-22",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-23",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-24",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-25",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-26",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-27",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-28",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-29",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-04-30",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-05-01",
+        "balance": {
+          "minor": 86940,
+          "currency": "EUR",
+          "plain": "869.40"
+        }
+      },
+      {
+        "date": "2026-05-02",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-03",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-04",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-05",
+        "balance": {
+          "minor": 80160,
+          "currency": "EUR",
+          "plain": "801.60"
+        }
+      },
+      {
+        "date": "2026-05-06",
+        "balance": {
+          "minor": 78161,
+          "currency": "EUR",
+          "plain": "781.61"
+        }
+      }
+    ]
+  }
+]

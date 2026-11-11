@@ -1,0 +1,3 @@
+Invoice 2026-01-05
+Subtotal 1,000.00
+Total 1,190.00

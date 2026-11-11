@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <BkToCstmrStmt><Stmt>
+    <Acct><Id><IBAN>DE89370400440532013000</IBAN></Id></Acct>
+    <Ntry>
+  <Amt Ccy="EUR">45.67</Amt><CdtDbtInd>DBIT</CdtDbtInd><Sts>BOOK</Sts>
+  <BookgDt><Dt>2026-10-03</Dt></BookgDt><ValDt><Dt>2026-10-03</Dt></ValDt>
+  <AcctSvcrRef>REF-1</AcctSvcrRef>
+  <NtryDtls><TxDtls>
+    <RltdPties><Cdtr><Nm>REWE Markt GmbH</Nm></Cdtr><CdtrAcct><Id><IBAN>DE44500105175407324931</IBAN></Id></CdtrAcct></RltdPties>
+    <RmtInf><Ustrd>REWE SAGT DANKE</Ustrd><Ustrd>1234</Ustrd></RmtInf>
+  </TxDtls></NtryDtls>
+</Ntry><Ntry><Amt Ccy="EUR">3200.00</Amt><CdtDbtInd>CRDT</CdtDbtInd><Sts>BOOK</Sts><BookgDt><Dt>2026-10-01</Dt></BookgDt>
+  <NtryDtls><TxDtls><RltdPties><Dbtr><Nm>Employer GmbH</Nm></Dbtr><Cdtr><Nm>Me</Nm></Cdtr></RltdPties><RmtInf><Ustrd>Gehalt</Ustrd></RmtInf></TxDtls></NtryDtls></Ntry>
+<Ntry><Amt Ccy="EUR">60.00</Amt><CdtDbtInd>DBIT</CdtDbtInd><Sts>PDNG</Sts><BookgDt><Dt>2026-10-04</Dt></BookgDt></Ntry>
+  </Stmt></BkToCstmrStmt>
+</Document>

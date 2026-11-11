@@ -1,0 +1,6 @@
+Buchungstag;Betrag;Beguenstigter/Zahlungspflichtiger;Verwendungszweck;Saldo;Waehrung
+31.05.2026;5400,00;Max Mustermann;Sparrate Mai;15400,00;EUR
+30.04.2026;12,50;Beispiel Bank;Zinsen April;10012,50;EUR
+31.03.2026;5400,00;Max Mustermann;Sparrate März;10000,00;EUR
+28.02.2026;11,80;Beispiel Bank;Zinsen Februar;4600,00;EUR
+31.01.2026;5400,00;Max Mustermann;Sparrate Januar;4588,20;EUR

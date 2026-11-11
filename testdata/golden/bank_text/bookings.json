@@ -1,0 +1,2232 @@
+[
+  {
+    "file": "bad_rows.csv",
+    "index": 0,
+    "partner_name": null,
+    "purpose": "ok",
+    "display_partner": null,
+    "display_purpose": "ok",
+    "display_description": "ok",
+    "secondary_line": null
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "index": 1,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "index": 2,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "index": 3,
+    "partner_name": "Apotheke am Markt",
+    "purpose": "Medikamente",
+    "display_partner": "Apotheke am Markt",
+    "display_purpose": "Medikamente",
+    "display_description": "Apotheke am Markt",
+    "secondary_line": "Medikamente"
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "index": 4,
+    "partner_name": "Café de Flore",
+    "purpose": "Frühstück",
+    "display_partner": "Café de Flore",
+    "display_purpose": "Frühstück",
+    "display_description": "Café de Flore",
+    "secondary_line": "Frühstück"
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "index": 5,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "balance_card_2026.csv",
+    "index": 6,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 0,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt Januar",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt Januar",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt Januar"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 1,
+    "partner_name": "Vermieter",
+    "purpose": "Miete Januar",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete Januar",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete Januar"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 2,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 3,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt Februar",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt Februar",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt Februar"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 4,
+    "partner_name": "Vermieter",
+    "purpose": "Miete Februar",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete Februar",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete Februar"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 5,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 6,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt März",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt März",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt März"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 7,
+    "partner_name": "Vermieter",
+    "purpose": "Miete März",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete März",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete März"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 8,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Brötchen und Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Brötchen und Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Brötchen und Kaffee"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 9,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt April",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt April",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt April"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 10,
+    "partner_name": "Vermieter",
+    "purpose": "Miete April",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete April",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete April"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 11,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 12,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt Mai",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt Mai",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt Mai"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 13,
+    "partner_name": "Vermieter",
+    "purpose": "Miete Mai",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete Mai",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete Mai"
+  },
+  {
+    "file": "balance_checking_2026.csv",
+    "index": 14,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "balance_savings_2026.csv",
+    "index": 0,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate Mai",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate Mai",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate Mai"
+  },
+  {
+    "file": "balance_savings_2026.csv",
+    "index": 1,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen April",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen April",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen April"
+  },
+  {
+    "file": "balance_savings_2026.csv",
+    "index": 2,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate März",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate März",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate März"
+  },
+  {
+    "file": "balance_savings_2026.csv",
+    "index": 3,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen Februar",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen Februar",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen Februar"
+  },
+  {
+    "file": "balance_savings_2026.csv",
+    "index": 4,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate Januar",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate Januar",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate Januar"
+  },
+  {
+    "file": "bank_norwegian_xlsx.xlsx",
+    "index": 0,
+    "partner_name": null,
+    "purpose": "Simpl Jewellery",
+    "display_partner": null,
+    "display_purpose": "Simpl Jewellery",
+    "display_description": "Simpl Jewellery",
+    "secondary_line": null
+  },
+  {
+    "file": "camt052_report.xml",
+    "index": 0,
+    "partner_name": "Partner",
+    "purpose": null,
+    "display_partner": "Partner",
+    "display_purpose": null,
+    "display_description": "Partner",
+    "secondary_line": null
+  },
+  {
+    "file": "camt053_closing_balance.xml",
+    "index": 0,
+    "partner_name": "Café",
+    "purpose": null,
+    "display_partner": "Café",
+    "display_purpose": null,
+    "display_description": "Café",
+    "secondary_line": null
+  },
+  {
+    "file": "camt053_closing_balance.xml",
+    "index": 1,
+    "partner_name": null,
+    "purpose": null,
+    "display_partner": null,
+    "display_purpose": null,
+    "display_description": "—",
+    "secondary_line": null
+  },
+  {
+    "file": "camt053_entries.xml",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE 1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE 1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE 1234"
+  },
+  {
+    "file": "camt053_entries.xml",
+    "index": 1,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt"
+  },
+  {
+    "file": "camt_zip_two_statements.zip",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE 1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE 1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE 1234"
+  },
+  {
+    "file": "camt_zip_two_statements.zip",
+    "index": 1,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt"
+  },
+  {
+    "file": "comdirect_preset_2026_10.csv",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "comdirect_preset_2026_10.csv",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": "Gehalt Oktober"
+  },
+  {
+    "file": "commerzbank_preset_2026_10.csv",
+    "index": 0,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "commerzbank_preset_2026_10.csv",
+    "index": 1,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt Oktober"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 1,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 2,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 3,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 4,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 5,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 6,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 7,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 8,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 9,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 10,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 11,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 12,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 13,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 14,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 15,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 16,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 17,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 18,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 19,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 20,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 21,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 22,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 23,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 24,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 25,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 26,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 27,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 28,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 29,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 30,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 31,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 32,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 33,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 34,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 35,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Kartenzahlung",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Kartenzahlung",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Kartenzahlung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 36,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 37,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Kaffee",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Kaffee",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Kaffee"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 38,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Online-Bestellung",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Online-Bestellung",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Online-Bestellung"
+  },
+  {
+    "file": "dashboard_card.csv",
+    "index": 39,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Mittagessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Mittagessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Mittagessen"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 0,
+    "partner_name": "Max Mustermann",
+    "purpose": "Startguthaben",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Startguthaben",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Startguthaben"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 1,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 11/2025",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 11/2025",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 11/2025"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 2,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 11/2025",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 11/2025",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 11/2025"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 3,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 4,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 5,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 6,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 7,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 8,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 12/2025",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 12/2025",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 12/2025"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 9,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 12/2025",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 12/2025",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 12/2025"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 10,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 11,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 12,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 13,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 14,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 15,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 01/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 01/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 01/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 16,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 01/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 01/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 01/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 17,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 18,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 19,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 20,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 21,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 22,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 02/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 02/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 02/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 23,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 02/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 02/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 02/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 24,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 25,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 26,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 27,
+    "partner_name": "Apotheke am Markt",
+    "purpose": "Medikamente",
+    "display_partner": "Apotheke am Markt",
+    "display_purpose": "Medikamente",
+    "display_description": "Apotheke am Markt",
+    "secondary_line": "Medikamente"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 28,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 29,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 30,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 03/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 03/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 03/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 31,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 03/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 03/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 03/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 32,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 33,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 34,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 35,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Abendessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Abendessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Abendessen"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 36,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 37,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 38,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 04/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 04/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 04/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 39,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 04/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 04/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 04/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 40,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 41,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 42,
+    "partner_name": "Spende Beispielhilfe",
+    "purpose": "Spende",
+    "display_partner": "Spende Beispielhilfe",
+    "display_purpose": "Spende",
+    "display_description": "Spende Beispielhilfe",
+    "secondary_line": "Spende"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 43,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 44,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 45,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 46,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 05/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 05/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 05/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 47,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 05/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 05/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 05/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 48,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 49,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 50,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 51,
+    "partner_name": "Apotheke am Markt",
+    "purpose": "Medikamente",
+    "display_partner": "Apotheke am Markt",
+    "display_purpose": "Medikamente",
+    "display_description": "Apotheke am Markt",
+    "secondary_line": "Medikamente"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 52,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 53,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 54,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 06/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 06/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 06/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 55,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 06/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 06/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 06/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 56,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 57,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 58,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 59,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Abendessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Abendessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Abendessen"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 60,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 61,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 62,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 08/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 08/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 08/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 63,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 08/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 08/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 08/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 64,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 65,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 66,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 67,
+    "partner_name": "Apotheke am Markt",
+    "purpose": "Medikamente",
+    "display_partner": "Apotheke am Markt",
+    "display_purpose": "Medikamente",
+    "display_description": "Apotheke am Markt",
+    "secondary_line": "Medikamente"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 68,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 69,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 70,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 09/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 09/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 09/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 71,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 09/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 09/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 09/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 72,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 73,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 74,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 75,
+    "partner_name": "Restaurant Zur Post",
+    "purpose": "Abendessen",
+    "display_partner": "Restaurant Zur Post",
+    "display_purpose": "Abendessen",
+    "display_description": "Restaurant Zur Post",
+    "secondary_line": "Abendessen"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 76,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 77,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 78,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt 10/2026",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt 10/2026",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt 10/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 79,
+    "partner_name": "Vermieter",
+    "purpose": "Miete 10/2026",
+    "display_partner": "Vermieter",
+    "display_purpose": "Miete 10/2026",
+    "display_description": "Vermieter",
+    "secondary_line": "Miete 10/2026"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 80,
+    "partner_name": "Beispiel Shop GmbH",
+    "purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+    "display_partner": "Beispiel Shop GmbH",
+    "display_purpose": "Ihr Einkauf bei Beispiel Shop GmbH",
+    "display_description": "Beispiel Shop GmbH",
+    "secondary_line": "Ihr Einkauf bei Beispiel Shop GmbH"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 81,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "Wocheneinkauf",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "Wocheneinkauf",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "Wocheneinkauf"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 82,
+    "partner_name": "Stadtwerke Köln",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke Köln",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke Köln",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 83,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 84,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Überweisung an Erika",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Überweisung an Erika",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Überweisung an Erika"
+  },
+  {
+    "file": "dashboard_checking.csv",
+    "index": 85,
+    "partner_name": "Aral Tankstelle",
+    "purpose": "Tanken",
+    "display_partner": "Aral Tankstelle",
+    "display_purpose": "Tanken",
+    "display_description": "Aral Tankstelle",
+    "secondary_line": "Tanken"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 0,
+    "partner_name": "Max Mustermann",
+    "purpose": "Startguthaben",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Startguthaben",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Startguthaben"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 1,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 2,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 12/2025",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 12/2025",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 12/2025"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 3,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 4,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 01/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 01/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 01/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 5,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 6,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 02/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 02/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 02/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 7,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 8,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 03/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 03/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 03/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 9,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 10,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 04/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 04/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 04/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 11,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 12,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 05/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 05/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 05/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 13,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 14,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 06/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 06/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 06/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 15,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 16,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 08/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 08/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 08/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 17,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 18,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 09/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 09/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 09/2026"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 19,
+    "partner_name": "Beispiel Bank",
+    "purpose": "Zinsen",
+    "display_partner": "Beispiel Bank",
+    "display_purpose": "Zinsen",
+    "display_description": "Beispiel Bank",
+    "secondary_line": "Zinsen"
+  },
+  {
+    "file": "dashboard_savings.csv",
+    "index": 20,
+    "partner_name": "Max Mustermann",
+    "purpose": "Sparrate 10/2026",
+    "display_partner": "Max Mustermann",
+    "display_purpose": "Sparrate 10/2026",
+    "display_description": "Max Mustermann",
+    "secondary_line": "Sparrate 10/2026"
+  },
+  {
+    "file": "detect_camt_without_extension.dat",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE 1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE 1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE 1234"
+  },
+  {
+    "file": "detect_camt_without_extension.dat",
+    "index": 1,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt"
+  },
+  {
+    "file": "detect_mt940_without_extension.dat",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE1234"
+  },
+  {
+    "file": "detect_mt940_without_extension.dat",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": "Gehalt Oktober"
+  },
+  {
+    "file": "detect_mt940_without_extension.dat",
+    "index": 2,
+    "partner_name": "Kunde AG",
+    "purpose": "Lastschrift retour",
+    "display_partner": "Kunde AG",
+    "display_purpose": "Lastschrift retour",
+    "display_description": "Kunde AG",
+    "secondary_line": "Lastschrift retour"
+  },
+  {
+    "file": "dkb_2026_10.csv",
+    "index": 0,
+    "partner_name": "Stadtwerke",
+    "purpose": "Abschlag Strom",
+    "display_partner": "Stadtwerke",
+    "display_purpose": "Abschlag Strom",
+    "display_description": "Stadtwerke",
+    "secondary_line": "Abschlag Strom"
+  },
+  {
+    "file": "dkb_2026_10.csv",
+    "index": 1,
+    "partner_name": "Erika Musterfrau",
+    "purpose": "Miete Anteil",
+    "display_partner": "Erika Musterfrau",
+    "display_purpose": "Miete Anteil",
+    "display_description": "Erika Musterfrau",
+    "secondary_line": "Miete Anteil"
+  },
+  {
+    "file": "english_debit_credit_2026_09.csv",
+    "index": 0,
+    "partner_name": "Pret A Manger",
+    "purpose": "Card payment London",
+    "display_partner": "Pret A Manger",
+    "display_purpose": "Card payment London",
+    "display_description": "Pret A Manger",
+    "secondary_line": "Card payment London"
+  },
+  {
+    "file": "english_debit_credit_2026_09.csv",
+    "index": 1,
+    "partner_name": "ACME Ltd",
+    "purpose": "Salary",
+    "display_partner": "ACME Ltd",
+    "display_purpose": "Salary",
+    "display_description": "ACME Ltd",
+    "secondary_line": "Salary"
+  },
+  {
+    "file": "findesk_own_export_en.csv",
+    "index": 0,
+    "partner_name": "Pret A Manger",
+    "purpose": "Card payment",
+    "display_partner": "Pret A Manger",
+    "display_purpose": "Card payment",
+    "display_description": "Pret A Manger",
+    "secondary_line": "Card payment"
+  },
+  {
+    "file": "findesk_own_export_en.csv",
+    "index": 1,
+    "partner_name": "ACME Ltd",
+    "purpose": "Salary",
+    "display_partner": "ACME Ltd",
+    "display_purpose": "Salary",
+    "display_description": "ACME Ltd",
+    "secondary_line": "Salary"
+  },
+  {
+    "file": "hvb_card_utf16le.csv",
+    "index": 0,
+    "partner_name": null,
+    "purpose": "REWE SAGT DANKE Ü",
+    "display_partner": null,
+    "display_purpose": "REWE SAGT DANKE Ü",
+    "display_description": "REWE SAGT DANKE Ü",
+    "secondary_line": null
+  },
+  {
+    "file": "hvb_card_utf16le.csv",
+    "index": 1,
+    "partner_name": null,
+    "purpose": "Tankstelle am Ring",
+    "display_partner": null,
+    "display_purpose": "Tankstelle am Ring",
+    "display_description": "Tankstelle am Ring",
+    "secondary_line": null
+  },
+  {
+    "file": "hvb_card_utf16le.csv",
+    "index": 2,
+    "partner_name": null,
+    "purpose": "Rückzahlung Versicherung",
+    "display_partner": null,
+    "display_purpose": "Rückzahlung Versicherung",
+    "display_description": "Rückzahlung Versicherung",
+    "secondary_line": null
+  },
+  {
+    "file": "ing_preamble_2026_10.csv",
+    "index": 0,
+    "partner_name": "AMAZON EU",
+    "purpose": "Bestellung 303-123; Monitor",
+    "display_partner": "AMAZON EU",
+    "display_purpose": "Bestellung 303-123; Monitor",
+    "display_description": "AMAZON EU",
+    "secondary_line": "Bestellung 303-123; Monitor"
+  },
+  {
+    "file": "ing_preamble_2026_10.csv",
+    "index": 1,
+    "partner_name": "Employer GmbH",
+    "purpose": "Gehalt",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Gehalt",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Gehalt"
+  },
+  {
+    "file": "mt940_bank_reference.sta",
+    "index": 0,
+    "partner_name": null,
+    "purpose": "Taxi",
+    "display_partner": null,
+    "display_purpose": "Taxi",
+    "display_description": "Taxi",
+    "secondary_line": null
+  },
+  {
+    "file": "mt940_structured_86.sta",
+    "index": 0,
+    "partner_name": "Max Muster",
+    "purpose": "EREF+XSVWZ+Rechnung 4711Weitere Zeile",
+    "display_partner": "Max Muster",
+    "display_purpose": "Rechnung 4711Weitere Zeile",
+    "display_description": "Max Muster",
+    "secondary_line": "Rechnung 4711Weitere Zeile"
+  },
+  {
+    "file": "mt940_two_statements.sta",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE1234"
+  },
+  {
+    "file": "mt940_two_statements.sta",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": "Gehalt Oktober"
+  },
+  {
+    "file": "mt940_two_statements.sta",
+    "index": 2,
+    "partner_name": "Kunde AG",
+    "purpose": "Lastschrift retour",
+    "display_partner": "Kunde AG",
+    "display_purpose": "Lastschrift retour",
+    "display_description": "Kunde AG",
+    "secondary_line": "Lastschrift retour"
+  },
+  {
+    "file": "n26_preset_2026_10.csv",
+    "index": 0,
+    "partner_name": "Bäckerei Schmidt",
+    "purpose": "Brötchen",
+    "display_partner": "Bäckerei Schmidt",
+    "display_purpose": "Brötchen",
+    "display_description": "Bäckerei Schmidt",
+    "secondary_line": "Brötchen"
+  },
+  {
+    "file": "n26_preset_2026_10.csv",
+    "index": 1,
+    "partner_name": "Employer GmbH",
+    "purpose": "Salary",
+    "display_partner": "Employer GmbH",
+    "display_purpose": "Salary",
+    "display_description": "Employer GmbH",
+    "secondary_line": "Salary"
+  },
+  {
+    "file": "ofx_sgml.ofx",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE 1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE 1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE 1234"
+  },
+  {
+    "file": "ofx_sgml.ofx",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": "Gehalt Oktober"
+  },
+  {
+    "file": "ofx_xml.ofx",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE 1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE 1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE 1234"
+  },
+  {
+    "file": "ofx_xml.ofx",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": "Gehalt Oktober"
+  },
+  {
+    "file": "paypal_2026_10.csv",
+    "index": 0,
+    "partner_name": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "purpose": "EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+    "display_partner": "PayPal Europe S.a.r.l. et Cie S.C.A",
+    "display_purpose": "PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH",
+    "display_description": "PayPal · Beispiel Shop GmbH",
+    "secondary_line": null
+  },
+  {
+    "file": "paypal_2026_10.csv",
+    "index": 1,
+    "partner_name": "PAYPAL *BEISPIELSHOP",
+    "purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+    "display_partner": "PAYPAL *BEISPIELSHOP",
+    "display_purpose": "PAYPAL *BEISPIELSHOP 12345678 RETURN",
+    "display_description": "PayPal · BEISPIELSHOP",
+    "secondary_line": null
+  },
+  {
+    "file": "paypal_2026_10.csv",
+    "index": 2,
+    "partner_name": "Netflix",
+    "purpose": "Abo",
+    "display_partner": "Netflix",
+    "display_purpose": "Abo",
+    "display_description": "Netflix",
+    "secondary_line": "Abo"
+  },
+  {
+    "file": "qif_german_dates.qif",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": null,
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": null,
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": null
+  },
+  {
+    "file": "qif_german_dates.qif",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": null,
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": null,
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": null
+  },
+  {
+    "file": "qif_us_dates.qif",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE 1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE 1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE 1234"
+  },
+  {
+    "file": "qif_us_dates.qif",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": "Gehalt Oktober"
+  },
+  {
+    "file": "sparkasse_camt_export_2026_10.csv",
+    "index": 0,
+    "partner_name": "REWE Markt GmbH",
+    "purpose": "REWE SAGT DANKE 1234",
+    "display_partner": "REWE Markt GmbH",
+    "display_purpose": "REWE SAGT DANKE 1234",
+    "display_description": "REWE Markt GmbH",
+    "secondary_line": "REWE SAGT DANKE 1234"
+  },
+  {
+    "file": "sparkasse_camt_export_2026_10.csv",
+    "index": 1,
+    "partner_name": "Müller & Söhne GmbH",
+    "purpose": "Gehalt Oktober",
+    "display_partner": "Müller & Söhne GmbH",
+    "display_purpose": "Gehalt Oktober",
+    "display_description": "Müller & Söhne GmbH",
+    "secondary_line": "Gehalt Oktober"
+  }
+]

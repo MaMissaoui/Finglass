@@ -1,0 +1,331 @@
+[
+  {
+    "input": "DE89370400440532013000",
+    "normalize": "DE89370400440532013000",
+    "is_valid": true,
+    "format": "DE89 3704 0044 0532 0130 00",
+    "mask": "…3000"
+  },
+  {
+    "input": "DE89 3704 0044 0532 0130 00",
+    "normalize": "DE89370400440532013000",
+    "is_valid": true,
+    "format": "DE89 3704 0044 0532 0130 00",
+    "mask": "…0 00"
+  },
+  {
+    "input": "GB82WEST12345698765432",
+    "normalize": "GB82WEST12345698765432",
+    "is_valid": true,
+    "format": "GB82 WEST 1234 5698 7654 32",
+    "mask": "…5432"
+  },
+  {
+    "input": "NO9386011117947",
+    "normalize": "NO9386011117947",
+    "is_valid": true,
+    "format": "NO93 8601 1117 947",
+    "mask": "…7947"
+  },
+  {
+    "input": "NO93 8601 1117 947",
+    "normalize": "NO9386011117947",
+    "is_valid": true,
+    "format": "NO93 8601 1117 947",
+    "mask": "… 947"
+  },
+  {
+    "input": "DE17123456780000000001",
+    "normalize": "DE17123456780000000001",
+    "is_valid": true,
+    "format": "DE17 1234 5678 0000 0000 01",
+    "mask": "…0001"
+  },
+  {
+    "input": "DE87123456780000000002",
+    "normalize": "DE87123456780000000002",
+    "is_valid": true,
+    "format": "DE87 1234 5678 0000 0000 02",
+    "mask": "…0002"
+  },
+  {
+    "input": "GB46FAKE12345678901234",
+    "normalize": "GB46FAKE12345678901234",
+    "is_valid": true,
+    "format": "GB46 FAKE 1234 5678 9012 34",
+    "mask": "…1234"
+  },
+  {
+    "input": "FR05123451234512345678901",
+    "normalize": "FR05123451234512345678901",
+    "is_valid": true,
+    "format": "FR05 1234 5123 4512 3456 7890 1",
+    "mask": "…8901"
+  },
+  {
+    "input": "NL66FAKE0123456789",
+    "normalize": "NL66FAKE0123456789",
+    "is_valid": true,
+    "format": "NL66 FAKE 0123 4567 89",
+    "mask": "…6789"
+  },
+  {
+    "input": "AT111234567890123456",
+    "normalize": "AT111234567890123456",
+    "is_valid": true,
+    "format": "AT11 1234 5678 9012 3456",
+    "mask": "…3456"
+  },
+  {
+    "input": "BE53123456789012",
+    "normalize": "BE53123456789012",
+    "is_valid": true,
+    "format": "BE53 1234 5678 9012",
+    "mask": "…9012"
+  },
+  {
+    "input": "CH9112345FAKE12345678",
+    "normalize": "CH9112345FAKE12345678",
+    "is_valid": true,
+    "format": "CH91 1234 5FAK E123 4567 8",
+    "mask": "…5678"
+  },
+  {
+    "input": "IT90X1234512345123456789012",
+    "normalize": "IT90X1234512345123456789012",
+    "is_valid": true,
+    "format": "IT90 X123 4512 3451 2345 6789 012",
+    "mask": "…9012"
+  },
+  {
+    "input": "ES9812345678901234567890",
+    "normalize": "ES9812345678901234567890",
+    "is_valid": true,
+    "format": "ES98 1234 5678 9012 3456 7890",
+    "mask": "…7890"
+  },
+  {
+    "input": "DE89370400440532013001",
+    "normalize": "DE89370400440532013001",
+    "is_valid": false,
+    "format": "DE89 3704 0044 0532 0130 01",
+    "mask": "…3001"
+  },
+  {
+    "input": "GB82WEST12345698765433",
+    "normalize": "GB82WEST12345698765433",
+    "is_valid": false,
+    "format": "GB82 WEST 1234 5698 7654 33",
+    "mask": "…5433"
+  },
+  {
+    "input": "NO9386011117948",
+    "normalize": "NO9386011117948",
+    "is_valid": false,
+    "format": "NO93 8601 1117 948",
+    "mask": "…7948"
+  },
+  {
+    "input": "de89370400440532013000",
+    "normalize": "DE89370400440532013000",
+    "is_valid": true,
+    "format": "DE89 3704 0044 0532 0130 00",
+    "mask": "…3000"
+  },
+  {
+    "input": "De89 3704 0044 0532 0130 00",
+    "normalize": "DE89370400440532013000",
+    "is_valid": true,
+    "format": "DE89 3704 0044 0532 0130 00",
+    "mask": "…0 00"
+  },
+  {
+    "input": "  DE89370400440532013000  ",
+    "normalize": "DE89370400440532013000",
+    "is_valid": true,
+    "format": "DE89 3704 0044 0532 0130 00",
+    "mask": "…00  "
+  },
+  {
+    "input": "DE89\t3704 0044 0532 0130 00",
+    "normalize": "DE89\t370400440532013000",
+    "is_valid": false,
+    "format": "DE89 \t370 4004 4053 2013 000",
+    "mask": "…0 00"
+  },
+  {
+    "input": "DE8937040044053201300",
+    "normalize": "DE8937040044053201300",
+    "is_valid": false,
+    "format": "DE89 3704 0044 0532 0130 0",
+    "mask": "…1300"
+  },
+  {
+    "input": "DE893704004405320130000",
+    "normalize": "DE893704004405320130000",
+    "is_valid": false,
+    "format": "DE89 3704 0044 0532 0130 000",
+    "mask": "…0000"
+  },
+  {
+    "input": "DE8937040044053201300A",
+    "normalize": "DE8937040044053201300A",
+    "is_valid": false,
+    "format": "DE89 3704 0044 0532 0130 0A",
+    "mask": "…300A"
+  },
+  {
+    "input": "1234567890123456",
+    "normalize": "1234567890123456",
+    "is_valid": false,
+    "format": "1234 5678 9012 3456",
+    "mask": "…3456"
+  },
+  {
+    "input": "DEXX370400440532013000",
+    "normalize": "DEXX370400440532013000",
+    "is_valid": false,
+    "format": "DEXX 3704 0044 0532 0130 00",
+    "mask": "…3000"
+  },
+  {
+    "input": "DE8A370400440532013000",
+    "normalize": "DE8A370400440532013000",
+    "is_valid": false,
+    "format": "DE8A 3704 0044 0532 0130 00",
+    "mask": "…3000"
+  },
+  {
+    "input": "not an iban",
+    "normalize": "NOTANIBAN",
+    "is_valid": false,
+    "format": "NOTA NIBA N",
+    "mask": "…iban"
+  },
+  {
+    "input": "CARD4321",
+    "normalize": "CARD4321",
+    "is_valid": false,
+    "format": "CARD 4321",
+    "mask": "…4321"
+  },
+  {
+    "input": "",
+    "normalize": "",
+    "is_valid": false,
+    "format": "",
+    "mask": "…"
+  },
+  {
+    "input": "   ",
+    "normalize": "",
+    "is_valid": false,
+    "format": "",
+    "mask": "…   "
+  },
+  {
+    "input": "XX00",
+    "normalize": "XX00",
+    "is_valid": false,
+    "format": "XX00",
+    "mask": "…XX00"
+  },
+  {
+    "input": "D",
+    "normalize": "D",
+    "is_valid": false,
+    "format": "D",
+    "mask": "…D"
+  },
+  {
+    "input": "NL13TEST0123456789",
+    "normalize": "NL13TEST0123456789",
+    "is_valid": true,
+    "format": "NL13 TEST 0123 4567 89",
+    "mask": "…6789"
+  },
+  {
+    "input": "FR60FAKE12345678901234567",
+    "normalize": "FR60FAKE12345678901234567",
+    "is_valid": true,
+    "format": "FR60 FAKE 1234 5678 9012 3456 7",
+    "mask": "…4567"
+  },
+  {
+    "input": "ES12FAKE1234567890123456",
+    "normalize": "ES12FAKE1234567890123456",
+    "is_valid": true,
+    "format": "ES12 FAKE 1234 5678 9012 3456",
+    "mask": "…3456"
+  },
+  {
+    "input": "IT16X1234512345FAKE12345678",
+    "normalize": "IT16X1234512345FAKE12345678",
+    "is_valid": true,
+    "format": "IT16 X123 4512 345F AKE1 2345 678",
+    "mask": "…5678"
+  },
+  {
+    "input": "CH9112345FAKE12345678",
+    "normalize": "CH9112345FAKE12345678",
+    "is_valid": true,
+    "format": "CH91 1234 5FAK E123 4567 8",
+    "mask": "…5678"
+  },
+  {
+    "input": "AT111234567890123456",
+    "normalize": "AT111234567890123456",
+    "is_valid": true,
+    "format": "AT11 1234 5678 9012 3456",
+    "mask": "…3456"
+  },
+  {
+    "input": "BE53123456789012",
+    "normalize": "BE53123456789012",
+    "is_valid": true,
+    "format": "BE53 1234 5678 9012",
+    "mask": "…9012"
+  },
+  {
+    "input": "PT37FAKE0123456789012345678",
+    "normalize": "PT37FAKE0123456789012345678",
+    "is_valid": true,
+    "format": "PT37 FAKE 0123 4567 8901 2345 678",
+    "mask": "…5678"
+  },
+  {
+    "input": "SE1412345678901234567890",
+    "normalize": "SE1412345678901234567890",
+    "is_valid": true,
+    "format": "SE14 1234 5678 9012 3456 7890",
+    "mask": "…7890"
+  },
+  {
+    "input": "DK6712345678901234",
+    "normalize": "DK6712345678901234",
+    "is_valid": true,
+    "format": "DK67 1234 5678 9012 34",
+    "mask": "…1234"
+  },
+  {
+    "input": "PL04123456789012345678901234",
+    "normalize": "PL04123456789012345678901234",
+    "is_valid": true,
+    "format": "PL04 1234 5678 9012 3456 7890 1234",
+    "mask": "…1234"
+  },
+  {
+    "input": "FI5512345678901234",
+    "normalize": "FI5512345678901234",
+    "is_valid": true,
+    "format": "FI55 1234 5678 9012 34",
+    "mask": "…1234"
+  },
+  {
+    "input": "IE19FAKE12345678901234",
+    "normalize": "IE19FAKE12345678901234",
+    "is_valid": true,
+    "format": "IE19 FAKE 1234 5678 9012 34",
+    "mask": "…1234"
+  }
+]

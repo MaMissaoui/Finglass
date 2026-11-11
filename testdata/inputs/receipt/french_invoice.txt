@@ -1,0 +1,5 @@
+Facture n° 4711
+Date 05.02.2026
+Montant HT 100,00
+TVA 20,00
+Total TTC 120,00

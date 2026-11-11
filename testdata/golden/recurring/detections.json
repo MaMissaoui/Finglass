@@ -1,0 +1,267 @@
+[
+  {
+    "file": "monthly.csv",
+    "today": "2026-10-15",
+    "detected": [
+      {
+        "name": "NETFLIX.COM 1000",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": -1299,
+          "currency": "EUR",
+          "plain": "-12.99"
+        },
+        "fixed_amount": true,
+        "last_date": "2026-09-15",
+        "next_date": "2026-10-15",
+        "occurrences": 6,
+        "category_name": "Phone, internet & media",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -15588,
+          "currency": "EUR",
+          "plain": "-155.88"
+        }
+      },
+      {
+        "name": "Employer GmbH",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "fixed_amount": true,
+        "last_date": "2026-09-30",
+        "next_date": "2026-10-30",
+        "occurrences": 6,
+        "category_name": "Salary",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": true,
+        "yearly_amount": {
+          "minor": 3840000,
+          "currency": "EUR",
+          "plain": "38400.00"
+        }
+      },
+      {
+        "name": "Stadtwerke Köln",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": -6010,
+          "currency": "EUR",
+          "plain": "-60.10"
+        },
+        "fixed_amount": false,
+        "last_date": "2026-09-05",
+        "next_date": "2026-11-05",
+        "occurrences": 6,
+        "category_name": "Energy",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -72120,
+          "currency": "EUR",
+          "plain": "-721.20"
+        }
+      }
+    ],
+    "upcoming_30_days": [
+      {
+        "name": "NETFLIX.COM 1000",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": -1299,
+          "currency": "EUR",
+          "plain": "-12.99"
+        },
+        "fixed_amount": true,
+        "last_date": "2026-09-15",
+        "next_date": "2026-10-15",
+        "occurrences": 6,
+        "category_name": "Phone, internet & media",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -15588,
+          "currency": "EUR",
+          "plain": "-155.88"
+        }
+      },
+      {
+        "name": "Employer GmbH",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": 320000,
+          "currency": "EUR",
+          "plain": "3200.00"
+        },
+        "fixed_amount": true,
+        "last_date": "2026-09-30",
+        "next_date": "2026-10-30",
+        "occurrences": 6,
+        "category_name": "Salary",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": true,
+        "yearly_amount": {
+          "minor": 3840000,
+          "currency": "EUR",
+          "plain": "38400.00"
+        }
+      },
+      {
+        "name": "Stadtwerke Köln",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": -6010,
+          "currency": "EUR",
+          "plain": "-60.10"
+        },
+        "fixed_amount": false,
+        "last_date": "2026-09-05",
+        "next_date": "2026-11-05",
+        "occurrences": 6,
+        "category_name": "Energy",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -72120,
+          "currency": "EUR",
+          "plain": "-721.20"
+        }
+      }
+    ]
+  },
+  {
+    "file": "quarterly.csv",
+    "today": "2026-10-15",
+    "detected": [
+      {
+        "name": "HUK Coburg",
+        "cadence": "Quarterly",
+        "typical_amount": {
+          "minor": -24000,
+          "currency": "EUR",
+          "plain": "-240.00"
+        },
+        "fixed_amount": true,
+        "last_date": "2026-10-10",
+        "next_date": "2027-01-10",
+        "occurrences": 8,
+        "category_name": "Insurance",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -96000,
+          "currency": "EUR",
+          "plain": "-960.00"
+        }
+      }
+    ],
+    "upcoming_30_days": []
+  },
+  {
+    "file": "irregular.csv",
+    "today": "2026-10-15",
+    "detected": [
+      {
+        "name": "Spotify",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": -999,
+          "currency": "EUR",
+          "plain": "-9.99"
+        },
+        "fixed_amount": true,
+        "last_date": "2026-09-11",
+        "next_date": "2026-10-11",
+        "occurrences": 5,
+        "category_name": "Phone, internet & media",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -11988,
+          "currency": "EUR",
+          "plain": "-119.88"
+        }
+      },
+      {
+        "name": "ADAC",
+        "cadence": "Yearly",
+        "typical_amount": {
+          "minor": -10000,
+          "currency": "EUR",
+          "plain": "-100.00"
+        },
+        "fixed_amount": true,
+        "last_date": "2025-11-01",
+        "next_date": "2026-11-01",
+        "occurrences": 2,
+        "category_name": "Leisure & clubs",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -10000,
+          "currency": "EUR",
+          "plain": "-100.00"
+        }
+      }
+    ],
+    "upcoming_30_days": [
+      {
+        "name": "Spotify",
+        "cadence": "Monthly",
+        "typical_amount": {
+          "minor": -999,
+          "currency": "EUR",
+          "plain": "-9.99"
+        },
+        "fixed_amount": true,
+        "last_date": "2026-09-11",
+        "next_date": "2026-10-11",
+        "occurrences": 5,
+        "category_name": "Phone, internet & media",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -11988,
+          "currency": "EUR",
+          "plain": "-119.88"
+        }
+      },
+      {
+        "name": "ADAC",
+        "cadence": "Yearly",
+        "typical_amount": {
+          "minor": -10000,
+          "currency": "EUR",
+          "plain": "-100.00"
+        },
+        "fixed_amount": true,
+        "last_date": "2025-11-01",
+        "next_date": "2026-11-01",
+        "occurrences": 2,
+        "category_name": "Leisure & clubs",
+        "currency": "EUR",
+        "is_transfer": false,
+        "is_income": false,
+        "yearly_amount": {
+          "minor": -10000,
+          "currency": "EUR",
+          "plain": "-100.00"
+        }
+      }
+    ]
+  }
+]

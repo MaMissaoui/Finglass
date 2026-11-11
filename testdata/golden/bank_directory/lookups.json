@@ -1,0 +1,69 @@
+{
+  "entries": [
+    {
+      "blz": "12345678",
+      "name": "Example Bank",
+      "postal_code": "10115",
+      "city": "Berlin",
+      "bic": "EXAMPLEBICX"
+    },
+    {
+      "blz": "44444444",
+      "name": "Second Bank",
+      "postal_code": "20095",
+      "city": "Hamburg",
+      "bic": "SECONDBICXX"
+    },
+    {
+      "blz": "80331000",
+      "name": "Bank München",
+      "postal_code": "80331",
+      "city": "München",
+      "bic": "HYVEDEMMXXX"
+    },
+    {
+      "blz": "10020890",
+      "name": "UniCredit Bank - HypoVereinsbank",
+      "postal_code": "80331",
+      "city": "München",
+      "bic": "HYVEDEMMXXX"
+    },
+    {
+      "blz": "70020270",
+      "name": "UniCredit Bank - HypoVereinsbank",
+      "postal_code": "80333",
+      "city": "München",
+      "bic": "HYVEDEMMXXX"
+    }
+  ],
+  "fints_blz": [
+    {
+      "input": "12345678",
+      "blz": "12345678"
+    },
+    {
+      "input": " 12345678 ",
+      "blz": "12345678"
+    },
+    {
+      "input": "10020890",
+      "blz": "70020270"
+    },
+    {
+      "input": "70020270",
+      "blz": "70020270"
+    },
+    {
+      "input": "80331000",
+      "blz": "70020270"
+    },
+    {
+      "input": "99999999",
+      "blz": "99999999"
+    },
+    {
+      "input": "",
+      "blz": ""
+    }
+  ]
+}

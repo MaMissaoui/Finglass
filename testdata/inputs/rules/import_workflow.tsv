@@ -1,0 +1,5 @@
+# FinDesk rules v1
+category	pattern	search_in	applies_to	priority	auto_apply
+Groceries	beispiel markt	any	any	50	true
+Salary	muster gmbh	partner	income	90	true
+Other income	gehalt	purpose	income	40	true

@@ -1,0 +1,3 @@
+Zwischensumme 1,00
+SUMME 2,00
+Total 3,00

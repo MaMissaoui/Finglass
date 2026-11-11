@@ -1,0 +1,111 @@
+Buchungstag;Betrag;Beguenstigter/Zahlungspflichtiger;Verwendungszweck
+01.01.2026;-5,00;REWE Markt GmbH;Wocheneinkauf
+02.02.2026;-6,00;EDEKA;Lebensmittel
+03.03.2026;-7,00;ALDI;Einkauf
+04.04.2026;-8,00;Bäckerei Schmidt;Brötchen
+05.05.2026;-9,00;Vermieter;Miete
+06.06.2026;-10,00;Stadtwerke Köln;Abschlag Strom
+07.07.2026;-11,00;Netflix;Abo
+08.08.2026;-12,00;Spotify AB;Abo
+09.09.2026;-13,00;Aral Tankstelle;Tanken
+10.10.2026;-14,00;Deutsche Bahn;Fahrkarte
+11.01.2026;-15,00;Apotheke am Markt;Medikamente
+12.02.2026;-16,00;Restaurant Zur Post;Abendessen
+13.03.2026;-17,00;Café de Flore;Frühstück
+14.04.2026;-18,00;Spende Beispielhilfe;Spende
+15.05.2026;3200,00;Employer GmbH;Gehalt
+16.06.2026;1500,00;Erika Musterfrau;Überweisung
+17.07.2026;-21,00;Beispiel Shop GmbH;Ihr Einkauf bei Beispiel Shop GmbH
+18.08.2026;-22,00;PayPal Europe S.a.r.l. et Cie S.C.A;EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH
+19.09.2026;-23,00;PayPal Europe S.a.r.l. et Cie S.C.A;PAYPAL *BEISPIELSHOP 12345678 RETURN
+20.10.2026;-24,00;Unbekannter Laden;Kartenzahlung
+21.01.2026;-25,00;REWE Markt GmbH;Wocheneinkauf
+22.02.2026;-26,00;EDEKA;Lebensmittel
+23.03.2026;-27,00;ALDI;Einkauf
+24.04.2026;-28,00;Bäckerei Schmidt;Brötchen
+25.05.2026;-29,00;Vermieter;Miete
+26.06.2026;-30,00;Stadtwerke Köln;Abschlag Strom
+27.07.2026;-31,00;Netflix;Abo
+28.08.2026;-32,00;Spotify AB;Abo
+01.09.2026;-33,00;Aral Tankstelle;Tanken
+02.10.2026;-34,00;Deutsche Bahn;Fahrkarte
+03.01.2026;-35,00;Apotheke am Markt;Medikamente
+04.02.2026;-36,00;Restaurant Zur Post;Abendessen
+05.03.2026;-37,00;Café de Flore;Frühstück
+06.04.2026;-38,00;Spende Beispielhilfe;Spende
+07.05.2026;3200,00;Employer GmbH;Gehalt
+08.06.2026;1500,00;Erika Musterfrau;Überweisung
+09.07.2026;-41,00;Beispiel Shop GmbH;Ihr Einkauf bei Beispiel Shop GmbH
+10.08.2026;-42,00;PayPal Europe S.a.r.l. et Cie S.C.A;EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH
+11.09.2026;-43,00;PayPal Europe S.a.r.l. et Cie S.C.A;PAYPAL *BEISPIELSHOP 12345678 RETURN
+12.10.2026;-44,00;Unbekannter Laden;Kartenzahlung
+13.01.2026;-45,00;REWE Markt GmbH;Wocheneinkauf
+14.02.2026;-46,00;EDEKA;Lebensmittel
+15.03.2026;-47,00;ALDI;Einkauf
+16.04.2026;-48,00;Bäckerei Schmidt;Brötchen
+17.05.2026;-49,00;Vermieter;Miete
+18.06.2026;-50,00;Stadtwerke Köln;Abschlag Strom
+19.07.2026;-51,00;Netflix;Abo
+20.08.2026;-52,00;Spotify AB;Abo
+21.09.2026;-53,00;Aral Tankstelle;Tanken
+22.10.2026;-54,00;Deutsche Bahn;Fahrkarte
+23.01.2026;-55,00;Apotheke am Markt;Medikamente
+24.02.2026;-56,00;Restaurant Zur Post;Abendessen
+25.03.2026;-57,00;Café de Flore;Frühstück
+26.04.2026;-58,00;Spende Beispielhilfe;Spende
+27.05.2026;3200,00;Employer GmbH;Gehalt
+28.06.2026;1500,00;Erika Musterfrau;Überweisung
+01.07.2026;-61,00;Beispiel Shop GmbH;Ihr Einkauf bei Beispiel Shop GmbH
+02.08.2026;-62,00;PayPal Europe S.a.r.l. et Cie S.C.A;EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH
+03.09.2026;-63,00;PayPal Europe S.a.r.l. et Cie S.C.A;PAYPAL *BEISPIELSHOP 12345678 RETURN
+04.10.2026;-64,00;Unbekannter Laden;Kartenzahlung
+05.01.2026;-65,00;REWE Markt GmbH;Wocheneinkauf
+06.02.2026;-66,00;EDEKA;Lebensmittel
+07.03.2026;-67,00;ALDI;Einkauf
+08.04.2026;-68,00;Bäckerei Schmidt;Brötchen
+09.05.2026;-69,00;Vermieter;Miete
+10.06.2026;-70,00;Stadtwerke Köln;Abschlag Strom
+11.07.2026;-71,00;Netflix;Abo
+12.08.2026;-72,00;Spotify AB;Abo
+13.09.2026;-73,00;Aral Tankstelle;Tanken
+14.10.2026;-74,00;Deutsche Bahn;Fahrkarte
+15.01.2026;-75,00;Apotheke am Markt;Medikamente
+16.02.2026;-76,00;Restaurant Zur Post;Abendessen
+17.03.2026;-77,00;Café de Flore;Frühstück
+18.04.2026;-78,00;Spende Beispielhilfe;Spende
+19.05.2026;3200,00;Employer GmbH;Gehalt
+20.06.2026;1500,00;Erika Musterfrau;Überweisung
+21.07.2026;-81,00;Beispiel Shop GmbH;Ihr Einkauf bei Beispiel Shop GmbH
+22.08.2026;-82,00;PayPal Europe S.a.r.l. et Cie S.C.A;EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH
+23.09.2026;-83,00;PayPal Europe S.a.r.l. et Cie S.C.A;PAYPAL *BEISPIELSHOP 12345678 RETURN
+24.10.2026;-84,00;Unbekannter Laden;Kartenzahlung
+25.01.2026;-85,00;REWE Markt GmbH;Wocheneinkauf
+26.02.2026;-86,00;EDEKA;Lebensmittel
+27.03.2026;-87,00;ALDI;Einkauf
+28.04.2026;-88,00;Bäckerei Schmidt;Brötchen
+01.05.2026;-89,00;Vermieter;Miete
+02.06.2026;-90,00;Stadtwerke Köln;Abschlag Strom
+03.07.2026;-91,00;Netflix;Abo
+04.08.2026;-92,00;Spotify AB;Abo
+05.09.2026;-93,00;Aral Tankstelle;Tanken
+06.10.2026;-94,00;Deutsche Bahn;Fahrkarte
+07.01.2026;-5,00;Apotheke am Markt;Medikamente
+08.02.2026;-6,00;Restaurant Zur Post;Abendessen
+09.03.2026;-7,00;Café de Flore;Frühstück
+10.04.2026;-8,00;Spende Beispielhilfe;Spende
+11.05.2026;3200,00;Employer GmbH;Gehalt
+12.06.2026;1500,00;Erika Musterfrau;Überweisung
+13.07.2026;-11,00;Beispiel Shop GmbH;Ihr Einkauf bei Beispiel Shop GmbH
+14.08.2026;-12,00;PayPal Europe S.a.r.l. et Cie S.C.A;EREF+R1 SVWZ+PP.471.PPX . Beispiel Shop GmbH, Ihr Einkauf bei Beispiel Shop GmbH
+15.09.2026;-13,00;PayPal Europe S.a.r.l. et Cie S.C.A;PAYPAL *BEISPIELSHOP 12345678 RETURN
+16.10.2026;-14,00;Unbekannter Laden;Kartenzahlung
+17.01.2026;-15,00;REWE Markt GmbH;Wocheneinkauf
+18.02.2026;-16,00;EDEKA;Lebensmittel
+19.03.2026;-17,00;ALDI;Einkauf
+20.04.2026;-18,00;Bäckerei Schmidt;Brötchen
+21.05.2026;-19,00;Vermieter;Miete
+22.06.2026;-20,00;Stadtwerke Köln;Abschlag Strom
+23.07.2026;-21,00;Netflix;Abo
+24.08.2026;-22,00;Spotify AB;Abo
+25.09.2026;-23,00;Aral Tankstelle;Tanken
+26.10.2026;-24,00;Deutsche Bahn;Fahrkarte

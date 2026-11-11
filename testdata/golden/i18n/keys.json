@@ -1,0 +1,4372 @@
+{
+  "AboutBankCodesSource": {
+    "en": "Bank codes: Quelle: Deutsche Bundesbank",
+    "de": "Bankleitzahlen: Quelle: Deutsche Bundesbank",
+    "fr": "Codes bancaires : Quelle: Deutsche Bundesbank"
+  },
+  "AboutText": {
+    "en": "Your financial workspace: accounts, FinTS banking, documents and tax reports. Alpha software — not for use with real bank accounts.",
+    "de": "Ihr Finanz-Arbeitsplatz: Konten, FinTS-Banking, Belege und Steuerberichte. Alpha-Software – nicht für echte Bankkonten.",
+    "fr": "Votre espace financier : comptes, banque FinTS, documents et rapports fiscaux. Logiciel alpha – pas pour de vrais comptes bancaires."
+  },
+  "AboutTitle": {
+    "en": "About Finglass",
+    "de": "Über Finglass",
+    "fr": "À propos de Finglass"
+  },
+  "AboutTypeface": {
+    "en": "Typeface: IBM Plex Sans (SIL Open Font License 1.1)",
+    "de": "Schrift: IBM Plex Sans (SIL Open Font License 1.1)",
+    "fr": "Police : IBM Plex Sans (SIL Open Font License 1.1)"
+  },
+  "AboutVersion": {
+    "en": "Version %s",
+    "de": "Version %s",
+    "fr": "Version %s"
+  },
+  "Accept": {
+    "en": "Accept",
+    "de": "Übernehmen",
+    "fr": "Accepter"
+  },
+  "AccountCount": {
+    "en": "%d {1:account|accounts}",
+    "de": "%d {1:Konto|Konten}",
+    "fr": "%d {1:compte|comptes}"
+  },
+  "AccountIbanExists": {
+    "en": "An account with this IBAN already exists",
+    "de": "Ein Konto mit dieser IBAN existiert bereits",
+    "fr": "Un compte avec cet IBAN existe déjà"
+  },
+  "AccountName": {
+    "en": "Account name",
+    "de": "Kontoname",
+    "fr": "Nom du compte"
+  },
+  "AccountNameHint": {
+    "en": "Only shown in Finglass. Leave empty to show “%s”.",
+    "de": "Nur in Finglass sichtbar. Leer lassen, um „%s“ anzuzeigen.",
+    "fr": "Visible uniquement dans Finglass. Laisser vide pour afficher « %s »."
+  },
+  "AccountTypeLabel": {
+    "en": "Account type",
+    "de": "Kontoart",
+    "fr": "Type de compte"
+  },
+  "AccountsLoansLabel": {
+    "en": "Of which loans",
+    "de": "Davon Kredite",
+    "fr": "Dont prêts"
+  },
+  "AccountsNetLabel": {
+    "en": "Net of %d {1:account|accounts}",
+    "de": "Netto über %d {1:Konto|Konten}",
+    "fr": "Net de %d {1:compte|comptes}"
+  },
+  "AccountsShown": {
+    "en": "%1$d of %2$d",
+    "de": "%1$d von %2$d",
+    "fr": "%1$d sur %2$d"
+  },
+  "AccountsTotal": {
+    "en": "Total %s across %d {2:account|accounts}",
+    "de": "Gesamt %s auf %d {2:Konto|Konten}",
+    "fr": "Total %s sur %d {2:compte|comptes}"
+  },
+  "AccountsTotalLabel": {
+    "en": "Total of %d {1:account|accounts}",
+    "de": "Gesamt über %d {1:Konto|Konten}",
+    "fr": "Total de %d {1:compte|comptes}"
+  },
+  "AccountsWithoutBank": {
+    "en": "Accounts without a bank",
+    "de": "Konten ohne Bank",
+    "fr": "Comptes sans banque"
+  },
+  "Add": {
+    "en": "Add",
+    "de": "Hinzufügen",
+    "fr": "Ajouter"
+  },
+  "AddAccount": {
+    "en": "Add account",
+    "de": "Konto hinzufügen",
+    "fr": "Ajouter un compte"
+  },
+  "AddAccountAt": {
+    "en": "Add account at %s",
+    "de": "Konto bei %s hinzufügen",
+    "fr": "Ajouter un compte chez %s"
+  },
+  "AddAccountShort": {
+    "en": "Account",
+    "de": "Konto",
+    "fr": "Compte"
+  },
+  "AddAnyway": {
+    "en": "Add anyway",
+    "de": "Trotzdem hinzufügen",
+    "fr": "Ajouter quand même"
+  },
+  "AddBank": {
+    "en": "Add bank",
+    "de": "Bank hinzufügen",
+    "fr": "Ajouter une banque"
+  },
+  "AddCategory": {
+    "en": "Add category",
+    "de": "Kategorie hinzufügen",
+    "fr": "Ajouter une catégorie"
+  },
+  "AddDefaultCategories": {
+    "en": "Add default categories",
+    "de": "Standardkategorien hinzufügen",
+    "fr": "Ajouter les catégories standard"
+  },
+  "AddRule": {
+    "en": "Add rule",
+    "de": "Regel hinzufügen",
+    "fr": "Ajouter une règle"
+  },
+  "AddTransaction": {
+    "en": "Add transaction",
+    "de": "Umsatz hinzufügen",
+    "fr": "Ajouter une opération"
+  },
+  "AllAccounts": {
+    "en": "All accounts",
+    "de": "Alle Konten",
+    "fr": "Tous les comptes"
+  },
+  "AllCategories": {
+    "en": "All categories",
+    "de": "Alle Kategorien",
+    "fr": "Toutes les catégories"
+  },
+  "AllTransactions": {
+    "en": "All transactions",
+    "de": "Alle Umsätze",
+    "fr": "Toutes les opérations"
+  },
+  "AllowDeletedAgain": {
+    "en": "Allow deleted bookings again",
+    "de": "Gelöschte Buchungen wieder zulassen",
+    "fr": "Réautoriser les opérations supprimées"
+  },
+  "AmountFilterAny": {
+    "en": "Any amount",
+    "de": "Jeder Betrag",
+    "fr": "Tout montant"
+  },
+  "AmountIn": {
+    "en": "Amount (%s)",
+    "de": "Betrag (%s)",
+    "fr": "Montant (%s)"
+  },
+  "AmountVaries": {
+    "en": "amount varies",
+    "de": "Betrag variabel",
+    "fr": "montant variable"
+  },
+  "AndMore": {
+    "en": "… and %d more",
+    "de": "… und %d weitere",
+    "fr": "… et %d de plus"
+  },
+  "AppLogo": {
+    "en": "Finglass logo",
+    "de": "Finglass-Logo",
+    "fr": "Logo Finglass"
+  },
+  "Appearance": {
+    "en": "Appearance",
+    "de": "Darstellung",
+    "fr": "Apparence"
+  },
+  "Apply": {
+    "en": "Apply",
+    "de": "Anwenden",
+    "fr": "Appliquer"
+  },
+  "ApplyAutomatically": {
+    "en": "Apply automatically",
+    "de": "Automatisch anwenden",
+    "fr": "Appliquer automatiquement"
+  },
+  "AskBankForFints": {
+    "en": "Ask your bank for its FinTS (PIN/TAN) address",
+    "de": "Fragen Sie Ihre Bank nach der FinTS-Adresse (PIN/TAN)",
+    "fr": "Demandez à votre banque son adresse FinTS (PIN/TAN)"
+  },
+  "AttachReceipt": {
+    "en": "Attach receipt",
+    "de": "Beleg anhängen",
+    "fr": "Joindre un justificatif"
+  },
+  "AttachReceiptEllipsis": {
+    "en": "Attach receipt…",
+    "de": "Beleg anhängen…",
+    "fr": "Joindre un justificatif…"
+  },
+  "AuditLogEmpty": {
+    "en": "Nothing recorded yet.",
+    "de": "Noch keine Einträge.",
+    "fr": "Aucune entrée pour l'instant."
+  },
+  "AuditLogLatest": {
+    "en": "Audit log (latest 100)",
+    "de": "Prüfprotokoll (letzte 100)",
+    "fr": "Journal d'audit (100 derniers)"
+  },
+  "AuditLogShort": {
+    "en": "Audit log",
+    "de": "Protokoll",
+    "fr": "Journal"
+  },
+  "AutoCategorizationRules": {
+    "en": "Auto-categorization rules",
+    "de": "Auto-Kategorisierungsregeln",
+    "fr": "Règles de catégorisation auto."
+  },
+  "AutoCategorize": {
+    "en": "Auto-categorize",
+    "de": "Auto-kategorisieren",
+    "fr": "Catégoriser auto."
+  },
+  "AutoRules": {
+    "en": "Auto (rules)",
+    "de": "Automatisch (Regeln)",
+    "fr": "Auto (règles)"
+  },
+  "AvailableAsOf": {
+    "en": "Available on %s",
+    "de": "Verfügbar am %s",
+    "fr": "Disponible au %s"
+  },
+  "AvailableBalance": {
+    "en": "Available",
+    "de": "Verfügbar",
+    "fr": "Disponible"
+  },
+  "AvgMonthlyExpenses": {
+    "en": "Avg monthly expenses",
+    "de": "Ø monatliche Ausgaben",
+    "fr": "Dépenses mensuelles moy."
+  },
+  "AxisNotFromZero": {
+    "en": "Scale doesn't start at zero",
+    "de": "Skala beginnt nicht bei null",
+    "fr": "L'échelle ne commence pas à zéro"
+  },
+  "Back": {
+    "en": "Back",
+    "de": "Zurück",
+    "fr": "Retour"
+  },
+  "BackTo": {
+    "en": "Back to %s",
+    "de": "Zurück zu %s",
+    "fr": "Retour à %s"
+  },
+  "BackToProfile": {
+    "en": "Back to %s",
+    "de": "Zurück zu %s",
+    "fr": "Retour à %s"
+  },
+  "BackupAndRestore": {
+    "en": "Backup & restore",
+    "de": "Sicherung & Wiederherstellung",
+    "fr": "Sauvegarde et restauration"
+  },
+  "BackupHint": {
+    "en": "A backup contains the database, all stored documents and the online-banking connection files.",
+    "de": "Eine Sicherung enthält die Datenbank, alle gespeicherten Dokumente und die Online-Banking-Verbindungsdateien.",
+    "fr": "Une sauvegarde contient la base de données, tous les documents stockés et les fichiers de connexion bancaire."
+  },
+  "BackupNote": {
+    "en": "Backups stay encrypted with the passphrase in effect when they are made.",
+    "de": "Sicherungen bleiben mit der Passphrase verschlüsselt, die beim Erstellen galt.",
+    "fr": "Les sauvegardes restent chiffrées avec la phrase secrète en vigueur lors de leur création."
+  },
+  "BackupPassphraseText": {
+    "en": "This backup was made with a different passphrase. Enter that passphrase to check the backup. Finglass asks for it again at the next start.",
+    "de": "Diese Sicherung wurde mit einer anderen Passphrase erstellt. Geben Sie diese Passphrase ein, um die Sicherung zu prüfen. Finglass fragt beim nächsten Start erneut danach.",
+    "fr": "Cette sauvegarde a été créée avec une autre phrase secrète. Saisissez-la pour vérifier la sauvegarde. Finglass la redemandera au prochain démarrage."
+  },
+  "BackupPassphraseTitle": {
+    "en": "Passphrase of this backup",
+    "de": "Passphrase dieser Sicherung",
+    "fr": "Phrase secrète de cette sauvegarde"
+  },
+  "BackupRestoredAt": {
+    "en": "Backup restored at this start. Your previous data is in %s",
+    "de": "Sicherung beim Start wiederhergestellt. Ihre bisherigen Daten liegen in %s",
+    "fr": "Sauvegarde restaurée au démarrage. Vos données précédentes sont dans %s"
+  },
+  "BalanceBankMismatch": {
+    "en": "The bank reports %1$s after this booking. Bookings of %2$s are missing after it, e.g. ones the bank hasn't put in its statement yet.",
+    "de": "Die Bank meldet nach dieser Buchung %1$s. Danach fehlen Buchungen über %2$s, z. B. solche, die noch nicht im Kontoauszug der Bank stehen.",
+    "fr": "La banque indique %1$s après cette opération. Des opérations de %2$s manquent ensuite, par ex. celles que la banque n'a pas encore mises dans son relevé."
+  },
+  "BalanceHistory": {
+    "en": "Balance history",
+    "de": "Saldo-Verlauf",
+    "fr": "Historique du solde"
+  },
+  "BalanceNotANumber": {
+    "en": "Balance is not a number",
+    "de": "Saldo ist keine Zahl",
+    "fr": "Le solde n'est pas un nombre"
+  },
+  "BalanceNotProvided": {
+    "en": "…%s: the bank sends no balance for this account (%s). Enter it with “Edit balance”; a loan as a negative amount.",
+    "de": "…%s: Die Bank liefert für dieses Konto keinen Saldo (%s). Tragen Sie ihn mit „Saldo bearbeiten“ ein, einen Kredit als negativen Betrag.",
+    "fr": "…%s : la banque ne fournit pas de solde pour ce compte (%s). Saisissez-le avec « Modifier le solde », un crédit en montant négatif."
+  },
+  "BalanceNotProvidedNoCode": {
+    "en": "…%s: the bank sends no balance for this account. Enter it with “Edit balance”; a loan as a negative amount.",
+    "de": "…%s: Die Bank liefert für dieses Konto keinen Saldo. Tragen Sie ihn mit „Saldo bearbeiten“ ein, einen Kredit als negativen Betrag.",
+    "fr": "…%s : la banque ne fournit pas de solde pour ce compte. Saisissez-le avec « Modifier le solde », un crédit en montant négatif."
+  },
+  "BankFintsProposed": {
+    "en": "FinTS server: %s",
+    "de": "FinTS-Server: %s",
+    "fr": "Serveur FinTS : %s"
+  },
+  "BankManualEntry": {
+    "en": "or enter the details manually",
+    "de": "oder Daten manuell eingeben",
+    "fr": "ou saisissez les données manuellement"
+  },
+  "BankName": {
+    "en": "Bank name",
+    "de": "Bankname",
+    "fr": "Nom de la banque"
+  },
+  "BankNameRequired": {
+    "en": "Bank name is required",
+    "de": "Bankname ist erforderlich",
+    "fr": "Le nom de la banque est requis"
+  },
+  "BankOfflineHint": {
+    "en": "Offline: import statements in Transactions.",
+    "de": "Offline: Umsätze im Bereich „Umsätze“ importieren.",
+    "fr": "Hors ligne : importez les relevés dans « Opérations »."
+  },
+  "BankOfflineMode": {
+    "en": "Offline (import statements only)",
+    "de": "Offline (nur Umsätze importieren)",
+    "fr": "Hors ligne (import de relevés uniquement)"
+  },
+  "BankOnlineMode": {
+    "en": "Online banking (FinTS)",
+    "de": "Online-Banking (FinTS)",
+    "fr": "Banque en ligne (FinTS)"
+  },
+  "BankSearchHint": {
+    "en": "Search bank: name, BLZ, BIC or IBAN",
+    "de": "Bank suchen: Name, BLZ, BIC oder IBAN",
+    "fr": "Rechercher une banque : nom, BLZ, BIC ou IBAN"
+  },
+  "BankSearchNoMatch": {
+    "en": "No bank found — enter the details below",
+    "de": "Keine Bank gefunden – Daten unten eingeben",
+    "fr": "Aucune banque trouvée — saisissez les données ci-dessous"
+  },
+  "BankUnknownBlz": {
+    "en": "BLZ %s is not in the bank directory",
+    "de": "BLZ %s ist nicht im Bankverzeichnis",
+    "fr": "Le code %s n'est pas dans l'annuaire des banques"
+  },
+  "BankUseSuggestion": {
+    "en": "Use this bank",
+    "de": "Diese Bank verwenden",
+    "fr": "Utiliser cette banque"
+  },
+  "BicOptional": {
+    "en": "BIC (optional)",
+    "de": "BIC (optional)",
+    "fr": "BIC (facultatif)"
+  },
+  "BicPrefix": {
+    "en": "BIC %s",
+    "de": "BIC %s",
+    "fr": "BIC %s"
+  },
+  "BlzDigits": {
+    "en": "BLZ (8 digits)",
+    "de": "BLZ (8 Stellen)",
+    "fr": "BLZ (8 chiffres)"
+  },
+  "BlzMustBe8Digits": {
+    "en": "BLZ must be 8 digits",
+    "de": "BLZ muss 8 Ziffern haben",
+    "fr": "Le code bancaire doit comporter 8 chiffres"
+  },
+  "BlzNotInDirectory": {
+    "en": "Not in the bank list. Check the bank code.",
+    "de": "Nicht im Bankverzeichnis. Prüfen Sie die Bankleitzahl.",
+    "fr": "Absent de la liste des banques. Vérifiez le code banque."
+  },
+  "BlzOtherBank": {
+    "en": "This bank code belongs to %s, not to this connection's bank.",
+    "de": "Diese Bankleitzahl gehört zu %s, nicht zur Bank dieser Verbindung.",
+    "fr": "Ce code banque appartient à %s, pas à la banque de cette connexion."
+  },
+  "BlzPrefix": {
+    "en": "BLZ %s",
+    "de": "BLZ %s",
+    "fr": "BLZ %s"
+  },
+  "BookingCount": {
+    "en": "%d {1:booking|bookings}",
+    "de": "%d {1:Buchung|Buchungen}",
+    "fr": "%d {1:écriture|écritures}"
+  },
+  "BookingsCountTotal": {
+    "en": "%1$d {1:booking|bookings} · %2$s",
+    "de": "%1$d {1:Buchung|Buchungen} · %2$s",
+    "fr": "%1$d {1:opération|opérations} · %2$s"
+  },
+  "BookingsSkippedHint": {
+    "en": "Bookings imported before are skipped, as are ones that match an existing booking from another source (sync or manual entry) by date and amount.",
+    "de": "Bereits importierte Buchungen werden übersprungen, ebenso solche, die nach Datum und Betrag zu einer bestehenden Buchung aus anderer Quelle (Sync oder manuell) passen.",
+    "fr": "Les écritures déjà importées sont ignorées, ainsi que celles qui correspondent à une écriture existante d'une autre source (sync ou saisie manuelle) par date et montant."
+  },
+  "BudgetAmount": {
+    "en": "Budget %s",
+    "de": "Budget %s",
+    "fr": "Budget %s"
+  },
+  "BudgetNotANumber": {
+    "en": "Budget is not a number",
+    "de": "Budget ist keine Zahl",
+    "fr": "Le budget n'est pas un nombre"
+  },
+  "BudgetsInMonth": {
+    "en": "Budgets in %s",
+    "de": "Budgets im %s",
+    "fr": "Budgets en %s"
+  },
+  "BudgetsThisMonth": {
+    "en": "Budgets this month",
+    "de": "Budgets diesen Monat",
+    "fr": "Budgets ce mois"
+  },
+  "CadenceMonthly": {
+    "en": "Monthly",
+    "de": "Monatlich",
+    "fr": "Mensuel"
+  },
+  "CadenceQuarterly": {
+    "en": "Quarterly",
+    "de": "Vierteljährlich",
+    "fr": "Trimestriel"
+  },
+  "CadenceWeekly": {
+    "en": "Weekly",
+    "de": "Wöchentlich",
+    "fr": "Hebdomadaire"
+  },
+  "CadenceYearly": {
+    "en": "Yearly",
+    "de": "Jährlich",
+    "fr": "Annuel"
+  },
+  "Cancel": {
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "fr": "Annuler"
+  },
+  "CancelRestore": {
+    "en": "Cancel restore",
+    "de": "Wiederherstellung abbrechen",
+    "fr": "Annuler la restauration"
+  },
+  "CardLast4Only": {
+    "en": "Enter only the last 4 digits of the card.",
+    "de": "Geben Sie nur die letzten 4 Ziffern der Karte ein.",
+    "fr": "Saisissez uniquement les 4 derniers chiffres de la carte."
+  },
+  "CarryForwardFrom": {
+    "en": "Carried over from %1$s: %2$s",
+    "de": "Übertrag aus %1$s: %2$s",
+    "fr": "Report de %1$s : %2$s"
+  },
+  "CarryForwardLine": {
+    "en": "Carried over from %s",
+    "de": "Übertrag aus %s",
+    "fr": "Report de %s"
+  },
+  "Categories": {
+    "en": "Categories",
+    "de": "Kategorien",
+    "fr": "Catégories"
+  },
+  "CategoriesUsed": {
+    "en": "Categories used",
+    "de": "Genutzte Kategorien",
+    "fr": "Catégories utilisées"
+  },
+  "CategorizeSimilar": {
+    "en": "Categorize similar bookings automatically",
+    "de": "Ähnliche Buchungen automatisch kategorisieren",
+    "fr": "Catégoriser automatiquement des écritures similaires"
+  },
+  "CategoryAuto": {
+    "en": "Category: auto (rules)",
+    "de": "Kategorie: automatisch (Regeln)",
+    "fr": "Catégorie : auto (règles)"
+  },
+  "CategoryIsTransfer": {
+    "en": "Transfer between own accounts",
+    "de": "Umbuchung zwischen eigenen Konten",
+    "fr": "Virement entre vos propres comptes"
+  },
+  "CategoryIsTransferHint": {
+    "en": "Not counted as income or spending. Use it for credit-card payments only when the card's own bookings are imported.",
+    "de": "Zählt weder als Einnahme noch als Ausgabe. Nur für Kreditkarten-Zahlungen verwenden, wenn die eigenen Buchungen der Karte importiert werden.",
+    "fr": "N'est pas compté comme revenu ou dépense. À utiliser pour les paiements de carte de crédit uniquement lorsque les propres opérations de la carte sont importées."
+  },
+  "CategoryMenu": {
+    "en": "Category",
+    "de": "Kategorie",
+    "fr": "Catégorie"
+  },
+  "CategorySplitMore": {
+    "en": "%1$d more {1:category|categories}",
+    "de": "%1$d weitere {1:Kategorie|Kategorien}",
+    "fr": "%1$d autres {1:catégorie|catégories}"
+  },
+  "CategorySplitTransfers": {
+    "en": "Not counted: transfers %s",
+    "de": "Nicht gezählt: Umbuchungen %s",
+    "fr": "Non compté : virements %s"
+  },
+  "CategoryTransferLabel": {
+    "en": "transfer",
+    "de": "Umbuchung",
+    "fr": "virement"
+  },
+  "CategoryUsage": {
+    "en": "%d {1:booking|bookings}",
+    "de": "%d {1:Buchung|Buchungen}",
+    "fr": "%d {1:écriture|écritures}"
+  },
+  "CentralBlzHint": {
+    "en": "Online banking for this bank uses bank code %s.",
+    "de": "Das Online-Banking dieser Bank nutzt die Bankleitzahl %s.",
+    "fr": "La banque en ligne de cet établissement utilise le code banque %s."
+  },
+  "CentralBlzNote": {
+    "en": "This bank's online banking uses bank code %1$s for all branches, so Finglass uses it instead of %2$s.",
+    "de": "Das Online-Banking dieser Bank nutzt für alle Filialen die Bankleitzahl %1$s, daher verwendet Finglass sie statt %2$s.",
+    "fr": "La banque en ligne de cet établissement utilise le code banque %1$s pour toutes les agences ; Finglass l'utilise donc à la place de %2$s."
+  },
+  "ChangeAccountType": {
+    "en": "Change account type…",
+    "de": "Kontoart ändern…",
+    "fr": "Changer le type de compte…"
+  },
+  "ChangeAndOpen": {
+    "en": "Change and open",
+    "de": "Ändern und öffnen",
+    "fr": "Changer et ouvrir"
+  },
+  "ChangeCategory": {
+    "en": "Change category: %s",
+    "de": "Kategorie ändern: %s",
+    "fr": "Changer la catégorie : %s"
+  },
+  "ChangeLanguage": {
+    "en": "Change language",
+    "de": "Sprache ändern",
+    "fr": "Changer de langue"
+  },
+  "ChangePassphrase": {
+    "en": "Change passphrase",
+    "de": "Passphrase ändern",
+    "fr": "Changer la phrase secrète"
+  },
+  "ChangePassphraseText": {
+    "en": "Enter the current passphrase and choose a new one. Finglass re-encrypts your data and then opens it.",
+    "de": "Geben Sie die aktuelle Passphrase ein und wählen Sie eine neue. Finglass verschlüsselt Ihre Daten neu und öffnet sie dann.",
+    "fr": "Saisissez la phrase secrète actuelle et choisissez-en une nouvelle. Finglass rechiffre vos données puis les ouvre."
+  },
+  "ChartExpenses": {
+    "en": "Expenses",
+    "de": "Ausgaben",
+    "fr": "Dépenses"
+  },
+  "ChartIncome": {
+    "en": "Income",
+    "de": "Einnahmen",
+    "fr": "Revenus"
+  },
+  "ChartOther": {
+    "en": "Other",
+    "de": "Sonstige",
+    "fr": "Autres"
+  },
+  "ChartPartialMonthNote": {
+    "en": "Pale: month so far",
+    "de": "Blass: Monat bisher",
+    "fr": "Pâle : mois en cours"
+  },
+  "ChartSoFar": {
+    "en": "so far",
+    "de": "bisher",
+    "fr": "en cours"
+  },
+  "ChooseAccount": {
+    "en": "Choose account",
+    "de": "Konto wählen",
+    "fr": "Choisir un compte"
+  },
+  "ChooseTanMedium": {
+    "en": "Choose TAN medium",
+    "de": "TAN-Medium wählen",
+    "fr": "Choisir le support TAN"
+  },
+  "ChooseTanProcedure": {
+    "en": "Choose TAN procedure",
+    "de": "TAN-Verfahren wählen",
+    "fr": "Choisir la procédure TAN"
+  },
+  "ClearHistoryStart": {
+    "en": "Clear history start",
+    "de": "Verlaufsstart löschen",
+    "fr": "Effacer le début de l'historique"
+  },
+  "ClearSearch": {
+    "en": "Clear search",
+    "de": "Suche löschen",
+    "fr": "Effacer la recherche"
+  },
+  "ClearSelection": {
+    "en": "Clear selection",
+    "de": "Auswahl aufheben",
+    "fr": "Effacer la sélection"
+  },
+  "Close": {
+    "en": "Close",
+    "de": "Schließen",
+    "fr": "Fermer"
+  },
+  "ColAccount": {
+    "en": "Account",
+    "de": "Konto",
+    "fr": "Compte"
+  },
+  "ColAmount": {
+    "en": "Amount",
+    "de": "Betrag",
+    "fr": "Montant"
+  },
+  "ColBalance": {
+    "en": "Balance",
+    "de": "Saldo",
+    "fr": "Solde"
+  },
+  "ColCategory": {
+    "en": "Category",
+    "de": "Kategorie",
+    "fr": "Catégorie"
+  },
+  "ColCredit": {
+    "en": "Credit",
+    "de": "Haben",
+    "fr": "Crédit"
+  },
+  "ColCurrency": {
+    "en": "Currency",
+    "de": "Währung",
+    "fr": "Devise"
+  },
+  "ColDate": {
+    "en": "Date",
+    "de": "Datum",
+    "fr": "Date"
+  },
+  "ColDebit": {
+    "en": "Debit",
+    "de": "Soll",
+    "fr": "Débit"
+  },
+  "ColDescription": {
+    "en": "Description",
+    "de": "Beschreibung",
+    "fr": "Description"
+  },
+  "ColEvery": {
+    "en": "Every",
+    "de": "Alle",
+    "fr": "Tous les"
+  },
+  "ColExpenses": {
+    "en": "Expenses",
+    "de": "Ausgaben",
+    "fr": "Dépenses"
+  },
+  "ColIncome": {
+    "en": "Income",
+    "de": "Einnahmen",
+    "fr": "Revenus"
+  },
+  "ColMonth": {
+    "en": "Month",
+    "de": "Monat",
+    "fr": "Mois"
+  },
+  "ColName": {
+    "en": "Name",
+    "de": "Name",
+    "fr": "Nom"
+  },
+  "ColNet": {
+    "en": "Net",
+    "de": "Netto",
+    "fr": "Net"
+  },
+  "ColNext": {
+    "en": "Next",
+    "de": "Nächste",
+    "fr": "Prochain"
+  },
+  "ColPartner": {
+    "en": "Partner",
+    "de": "Partner",
+    "fr": "Partenaire"
+  },
+  "ColPerYear": {
+    "en": "Per year",
+    "de": "Pro Jahr",
+    "fr": "Par an"
+  },
+  "ColPurpose": {
+    "en": "Purpose",
+    "de": "Verwendungszweck",
+    "fr": "Libellé"
+  },
+  "ColShop": {
+    "en": "Shop",
+    "de": "Händler",
+    "fr": "Marchand"
+  },
+  "Collapse": {
+    "en": "Collapse",
+    "de": "Einklappen",
+    "fr": "Réduire"
+  },
+  "CollapseSidebar": {
+    "en": "Collapse sidebar",
+    "de": "Seitenleiste einklappen",
+    "fr": "Réduire la barre latérale"
+  },
+  "ColourSwatch": {
+    "en": "Colour %1$d of %2$d",
+    "de": "Farbe %1$d von %2$d",
+    "fr": "Couleur %1$d sur %2$d"
+  },
+  "ColumnN": {
+    "en": "Column %d",
+    "de": "Spalte %d",
+    "fr": "Colonne %d"
+  },
+  "Columns": {
+    "en": "Columns",
+    "de": "Spalten",
+    "fr": "Colonnes"
+  },
+  "ColumnsApplyToSame": {
+    "en": "Column changes apply to the %d {1:file|files} with these columns.",
+    "de": "Spaltenänderungen gelten für die %d {1:Datei|Dateien} mit diesen Spalten.",
+    "fr": "Les changements de colonnes s'appliquent aux %d {1:fichier|fichiers} avec ces colonnes."
+  },
+  "ComingSoon": {
+    "en": "This screen is coming in a later milestone.",
+    "de": "Dieser Bereich folgt in einem späteren Meilenstein.",
+    "fr": "Cet écran arrivera dans une étape ultérieure."
+  },
+  "ConfirmInBankingApp": {
+    "en": "Confirm in your banking app",
+    "de": "In Ihrer Banking-App bestätigen",
+    "fr": "Confirmer dans votre application bancaire"
+  },
+  "ConnectionName": {
+    "en": "Name",
+    "de": "Name",
+    "fr": "Nom"
+  },
+  "ConnectionNameHint": {
+    "en": "Only shown in Finglass, e.g. “DKB business”. The bank login stays the same.",
+    "de": "Nur in Finglass sichtbar, z. B. „DKB Geschäftlich“. Der Bank-Login bleibt gleich.",
+    "fr": "Visible uniquement dans Finglass, p. ex. « DKB Pro ». L'accès bancaire reste le même."
+  },
+  "ConnectionSettings": {
+    "en": "Connection settings",
+    "de": "Verbindungseinstellungen",
+    "fr": "Paramètres de connexion"
+  },
+  "CostPerYear": {
+    "en": "Cost per year",
+    "de": "Kosten pro Jahr",
+    "fr": "Coût par an"
+  },
+  "CreateBackup": {
+    "en": "Create backup",
+    "de": "Sicherung erstellen",
+    "fr": "Créer une sauvegarde"
+  },
+  "CreatePassphraseHeading": {
+    "en": "Protect your data with a passphrase",
+    "de": "Daten mit einer Passphrase schützen",
+    "fr": "Protégez vos données par une phrase secrète"
+  },
+  "CreatePassphraseText": {
+    "en": "Finglass encrypts its database: accounts, transactions, settings and bank connection keys. You enter this passphrase every time Finglass starts.",
+    "de": "Finglass verschlüsselt seine Datenbank: Konten, Umsätze, Einstellungen und Schlüssel der Bankverbindungen. Sie geben diese Passphrase bei jedem Start ein.",
+    "fr": "Finglass chiffre sa base de données : comptes, opérations, réglages et clés des connexions bancaires. Vous saisissez cette phrase secrète à chaque démarrage."
+  },
+  "CreateRule": {
+    "en": "Create rule",
+    "de": "Regel anlegen",
+    "fr": "Créer une règle"
+  },
+  "CurrencyIs": {
+    "en": "Currency: %s",
+    "de": "Währung: %s",
+    "fr": "Devise : %s"
+  },
+  "CurrentBalanceIn": {
+    "en": "Current balance (%s)",
+    "de": "Aktueller Saldo (%s)",
+    "fr": "Solde actuel (%s)"
+  },
+  "CurrentMonth": {
+    "en": "Current month",
+    "de": "Aktueller Monat",
+    "fr": "Mois en cours"
+  },
+  "CurrentPassphrase": {
+    "en": "Current passphrase",
+    "de": "Aktuelle Passphrase",
+    "fr": "Phrase secrète actuelle"
+  },
+  "CustomRange": {
+    "en": "Custom range",
+    "de": "Zeitraum",
+    "fr": "Période personnalisée"
+  },
+  "DarkTheme": {
+    "en": "Dark theme",
+    "de": "Dunkles Design",
+    "fr": "Thème sombre"
+  },
+  "DataAndOcr": {
+    "en": "Data & OCR",
+    "de": "Daten & OCR",
+    "fr": "Données & OCR"
+  },
+  "Database": {
+    "en": "Database",
+    "de": "Datenbank",
+    "fr": "Base de données"
+  },
+  "DateFormat": {
+    "en": "Date (dd.mm.yyyy)",
+    "de": "Datum (tt.mm.jjjj)",
+    "fr": "Date (jj.mm.aaaa)"
+  },
+  "DaysCount": {
+    "en": "%d days",
+    "de": "%d Tage",
+    "fr": "%d jours"
+  },
+  "DefaultCategoryCash": {
+    "en": "Cash",
+    "de": "Bargeld",
+    "fr": "Espèces"
+  },
+  "DefaultCategoryChildBenefit": {
+    "en": "Child benefit",
+    "de": "Kindergeld",
+    "fr": "Allocations familiales"
+  },
+  "DefaultCategoryChildrenSchool": {
+    "en": "Children & school",
+    "de": "Kinder & Schule",
+    "fr": "Enfants & école"
+  },
+  "DefaultCategoryClothing": {
+    "en": "Clothing & shoes",
+    "de": "Kleidung & Schuhe",
+    "fr": "Vêtements & chaussures"
+  },
+  "DefaultCategoryCreditCard": {
+    "en": "Credit card",
+    "de": "Kreditkarte",
+    "fr": "Carte de crédit"
+  },
+  "DefaultCategoryDrugstore": {
+    "en": "Drugstore & household",
+    "de": "Drogerie & Haushalt",
+    "fr": "Droguerie & maison"
+  },
+  "DefaultCategoryEnergy": {
+    "en": "Energy",
+    "de": "Energie",
+    "fr": "Énergie"
+  },
+  "DefaultCategoryFamily": {
+    "en": "Family",
+    "de": "Familie",
+    "fr": "Famille"
+  },
+  "DefaultCategoryGroceries": {
+    "en": "Groceries",
+    "de": "Lebensmittel",
+    "fr": "Alimentation"
+  },
+  "DefaultCategoryHealth": {
+    "en": "Health",
+    "de": "Gesundheit",
+    "fr": "Santé"
+  },
+  "DefaultCategoryHousing": {
+    "en": "Housing",
+    "de": "Wohnen",
+    "fr": "Logement"
+  },
+  "DefaultCategoryInsurance": {
+    "en": "Insurance",
+    "de": "Versicherungen",
+    "fr": "Assurances"
+  },
+  "DefaultCategoryInterestFees": {
+    "en": "Interest & bank fees",
+    "de": "Zinsen & Bankgebühren",
+    "fr": "Intérêts & frais bancaires"
+  },
+  "DefaultCategoryLeisure": {
+    "en": "Leisure & clubs",
+    "de": "Freizeit & Vereine",
+    "fr": "Loisirs & associations"
+  },
+  "DefaultCategoryLoans": {
+    "en": "Loans & financing",
+    "de": "Kredite & Finanzierung",
+    "fr": "Crédits & financement"
+  },
+  "DefaultCategoryOnlineShopping": {
+    "en": "Online shopping",
+    "de": "Online-Shopping",
+    "fr": "Achats en ligne"
+  },
+  "DefaultCategoryOtherIncome": {
+    "en": "Other income",
+    "de": "Sonstige Einnahmen",
+    "fr": "Autres revenus"
+  },
+  "DefaultCategoryOwnTransfers": {
+    "en": "Own transfers",
+    "de": "Umbuchung",
+    "fr": "Virements internes"
+  },
+  "DefaultCategoryPhoneInternetMedia": {
+    "en": "Phone, internet & media",
+    "de": "Telefon, Internet & Medien",
+    "fr": "Téléphone, internet & médias"
+  },
+  "DefaultCategoryRestaurants": {
+    "en": "Restaurants & cafés",
+    "de": "Restaurant & Café",
+    "fr": "Restaurants & cafés"
+  },
+  "DefaultCategorySalary": {
+    "en": "Salary",
+    "de": "Gehalt",
+    "fr": "Salaire"
+  },
+  "DefaultCategorySavings": {
+    "en": "Savings & investments",
+    "de": "Sparen & Anlage",
+    "fr": "Épargne & placements"
+  },
+  "DefaultCategoryTaxes": {
+    "en": "Taxes & fees",
+    "de": "Steuern & Abgaben",
+    "fr": "Impôts & taxes"
+  },
+  "DefaultCategoryTransport": {
+    "en": "Transport",
+    "de": "Mobilität",
+    "fr": "Mobilité"
+  },
+  "DefaultGroup": {
+    "en": "Default (by type)",
+    "de": "Standard (nach Kontoart)",
+    "fr": "Par défaut (selon le type)"
+  },
+  "Delete": {
+    "en": "Delete",
+    "de": "Löschen",
+    "fr": "Supprimer"
+  },
+  "DeleteAccount": {
+    "en": "Delete account",
+    "de": "Konto löschen",
+    "fr": "Supprimer le compte"
+  },
+  "DeleteAccountText": {
+    "en": "This deletes %s and all of its transactions. Linked documents are kept but unlinked.",
+    "de": "Dadurch werden %s und alle zugehörigen Umsätze gelöscht. Verknüpfte Dokumente bleiben erhalten, werden aber getrennt.",
+    "fr": "Cela supprime %s et toutes ses opérations. Les documents liés sont conservés mais déliés."
+  },
+  "DeleteAccountTitle": {
+    "en": "Delete account?",
+    "de": "Konto löschen?",
+    "fr": "Supprimer le compte ?"
+  },
+  "DeleteCategoryText": {
+    "en": "Its transactions become uncategorized and its rules are deleted.",
+    "de": "Zugehörige Umsätze werden unkategorisiert, die Regeln werden gelöscht.",
+    "fr": "Ses opérations deviennent sans catégorie et ses règles sont supprimées."
+  },
+  "DeleteCategoryTitle": {
+    "en": "Delete category %s?",
+    "de": "Kategorie %s löschen?",
+    "fr": "Supprimer la catégorie %s ?"
+  },
+  "DeleteCategoryUsage": {
+    "en": "Used by %d {1:booking|bookings}.",
+    "de": "Wird von %d {1:Buchung|Buchungen} verwendet.",
+    "fr": "Utilisée par %d {1:opération|opérations}."
+  },
+  "DeleteDocumentText": {
+    "en": "%s and its stored copy will be deleted.",
+    "de": "%s und die gespeicherte Kopie werden gelöscht.",
+    "fr": "%s et sa copie stockée seront supprimés."
+  },
+  "DeleteDocumentTitle": {
+    "en": "Delete document?",
+    "de": "Dokument löschen?",
+    "fr": "Supprimer le document ?"
+  },
+  "DeleteGroup": {
+    "en": "Delete group",
+    "de": "Gruppe löschen",
+    "fr": "Supprimer le groupe"
+  },
+  "DeleteGroupText": {
+    "en": "Delete group “%s”? Its accounts move back to their default group.",
+    "de": "Gruppe „%s“ löschen? Ihre Konten kehren in ihre Standardgruppe zurück.",
+    "fr": "Supprimer le groupe « %s » ? Ses comptes retournent dans leur groupe par défaut."
+  },
+  "DeleteProfile": {
+    "en": "Delete %s",
+    "de": "%s löschen",
+    "fr": "Supprimer %s"
+  },
+  "DeleteProfileText": {
+    "en": "The data of %s is moved to the profiles-deleted folder. Nothing is erased: the folder, unencrypted documents included, stays until you delete it yourself.",
+    "de": "Die Daten von %s werden in den Ordner profiles-deleted verschoben. Nichts wird gelöscht: Der Ordner bleibt samt unverschlüsselter Dokumente erhalten, bis Sie ihn selbst löschen.",
+    "fr": "Les données de %s sont déplacées dans le dossier profiles-deleted. Rien n'est effacé : le dossier, documents non chiffrés compris, reste jusqu'à ce que vous le supprimiez vous-même."
+  },
+  "DeleteRuleText": {
+    "en": "Bookings it already categorized keep their category.",
+    "de": "Bereits damit kategorisierte Buchungen behalten ihre Kategorie.",
+    "fr": "Les opérations déjà catégorisées par elle gardent leur catégorie."
+  },
+  "DeleteRuleTitle": {
+    "en": "Delete rule %s?",
+    "de": "Regel %s löschen?",
+    "fr": "Supprimer la règle %s ?"
+  },
+  "DeleteSelected": {
+    "en": "Delete…",
+    "de": "Löschen…",
+    "fr": "Supprimer…"
+  },
+  "DeleteSelectedCount": {
+    "en": "Delete %d selected",
+    "de": "%d ausgewählte löschen",
+    "fr": "Supprimer %d {1:sélectionnée|sélectionnées}"
+  },
+  "DeleteSyncedHint": {
+    "en": "Deleted bookings are remembered, so a later import or bank sync won't add them again. To allow that, use “Allow deleted bookings again” in the account's menu on the Accounts screen. Linked receipts are kept and only unlinked.",
+    "de": "Gelöschte Buchungen werden gemerkt, sodass ein späterer Import oder Bankabgleich sie nicht wieder hinzufügt. Über „Gelöschte Buchungen wieder zulassen“ im Menü des Kontos auf der Konten-Ansicht lassen Sie das wieder zu. Verknüpfte Belege bleiben erhalten und werden nur entknüpft.",
+    "fr": "Les opérations supprimées sont mémorisées : un import ou une synchronisation bancaire ultérieur ne les rajoutera pas. Pour les réautoriser, utilisez « Réautoriser les opérations supprimées » dans le menu du compte sur l'écran des comptes. Les justificatifs liés sont conservés et seulement déliés."
+  },
+  "DeleteTransactionTitle": {
+    "en": "Delete transaction?",
+    "de": "Umsatz löschen?",
+    "fr": "Supprimer l'opération ?"
+  },
+  "DeleteTransactionsTitle": {
+    "en": "Delete %d {1:transaction|transactions}?",
+    "de": "%d {1:Buchung|Buchungen} löschen?",
+    "fr": "Supprimer %d {1:opération|opérations} ?"
+  },
+  "DelimiterLabel": {
+    "en": "delimiter %s",
+    "de": "Trennzeichen %s",
+    "fr": "séparateur %s"
+  },
+  "DetailAccount": {
+    "en": "Account",
+    "de": "Konto",
+    "fr": "Compte"
+  },
+  "DetailCategory": {
+    "en": "Category",
+    "de": "Kategorie",
+    "fr": "Catégorie"
+  },
+  "DetailDate": {
+    "en": "Date",
+    "de": "Datum",
+    "fr": "Date"
+  },
+  "DetailPartner": {
+    "en": "Partner",
+    "de": "Partner",
+    "fr": "Partenaire"
+  },
+  "DetailPurpose": {
+    "en": "Purpose",
+    "de": "Zweck",
+    "fr": "Libellé"
+  },
+  "DetailShop": {
+    "en": "Shop",
+    "de": "Händler",
+    "fr": "Marchand"
+  },
+  "DirectionAll": {
+    "en": "All",
+    "de": "Alle",
+    "fr": "Tout"
+  },
+  "DirectionAnyLabel": {
+    "en": "In and out",
+    "de": "Ein- und Ausgänge",
+    "fr": "Entrées et sorties"
+  },
+  "DirectionExpenses": {
+    "en": "Expenses",
+    "de": "Ausgaben",
+    "fr": "Dépenses"
+  },
+  "DirectionIncome": {
+    "en": "Income",
+    "de": "Einnahmen",
+    "fr": "Revenus"
+  },
+  "Dismiss": {
+    "en": "Dismiss",
+    "de": "Schließen",
+    "fr": "Fermer"
+  },
+  "DismissSuggestion": {
+    "en": "Dismiss",
+    "de": "Ablehnen",
+    "fr": "Ignorer"
+  },
+  "DocumentsCount": {
+    "en": "%d {1:document|documents}",
+    "de": "%d {1:Dokument|Dokumente}",
+    "fr": "%d {1:document|documents}"
+  },
+  "DocumentsFolder": {
+    "en": "Documents",
+    "de": "Dokumente",
+    "fr": "Documents"
+  },
+  "DocumentsNotEncrypted": {
+    "en": "Document files (receipts, invoices) are stored as files and are not encrypted. Turn on FileVault (macOS) or BitLocker (Windows) to protect them.",
+    "de": "Belege und Rechnungen werden als Dateien gespeichert und nicht verschlüsselt. Schalten Sie FileVault (macOS) oder BitLocker (Windows) ein, um sie zu schützen.",
+    "fr": "Les justificatifs et factures sont enregistrés comme fichiers et ne sont pas chiffrés. Activez FileVault (macOS) ou BitLocker (Windows) pour les protéger."
+  },
+  "DragToGroupHint": {
+    "en": "Drop on a group to move the account",
+    "de": "Auf eine Gruppe ziehen, um das Konto zu verschieben",
+    "fr": "Déposez sur un groupe pour déplacer le compte"
+  },
+  "DuplicateTransactionText": {
+    "en": "This account already has a booking on %s for %s with the same partner and purpose. Add a second one, for example for a repeated purchase?",
+    "de": "Dieses Konto hat am %s bereits eine Buchung über %s mit demselben Partner und Verwendungszweck. Eine zweite hinzufügen, etwa für einen wiederholten Kauf?",
+    "fr": "Ce compte a déjà une opération le %s de %s avec le même partenaire et le même libellé. En ajouter une deuxième, par exemple pour un achat répété ?"
+  },
+  "DuplicateTransactionTitle": {
+    "en": "Add the same booking again?",
+    "de": "Dieselbe Buchung noch einmal hinzufügen?",
+    "fr": "Ajouter à nouveau la même opération ?"
+  },
+  "Edit": {
+    "en": "Edit",
+    "de": "Bearbeiten",
+    "fr": "Modifier"
+  },
+  "EditBalance": {
+    "en": "Edit balance",
+    "de": "Saldo bearbeiten",
+    "fr": "Modifier le solde"
+  },
+  "EditCategory": {
+    "en": "Edit category",
+    "de": "Kategorie bearbeiten",
+    "fr": "Modifier la catégorie"
+  },
+  "EditCategoryNamed": {
+    "en": "Edit category: %s",
+    "de": "Kategorie bearbeiten: %s",
+    "fr": "Modifier la catégorie : %s"
+  },
+  "EditRule": {
+    "en": "Edit rule",
+    "de": "Regel bearbeiten",
+    "fr": "Modifier la règle"
+  },
+  "EditRuleNamed": {
+    "en": "Edit rule: %s",
+    "de": "Regel bearbeiten: %s",
+    "fr": "Modifier la règle : %s"
+  },
+  "EncryptAndOpen": {
+    "en": "Encrypt and open",
+    "de": "Verschlüsseln und öffnen",
+    "fr": "Chiffrer et ouvrir"
+  },
+  "EncryptPassphraseHeading": {
+    "en": "Encrypt your data",
+    "de": "Daten verschlüsseln",
+    "fr": "Chiffrer vos données"
+  },
+  "EncryptPassphraseText": {
+    "en": "Your data isn't encrypted yet. Choose a passphrase: Finglass encrypts the database now and asks for the passphrase every time it starts.",
+    "de": "Ihre Daten sind noch nicht verschlüsselt. Wählen Sie eine Passphrase: Finglass verschlüsselt die Datenbank jetzt und fragt bei jedem Start nach der Passphrase.",
+    "fr": "Vos données ne sont pas encore chiffrées. Choisissez une phrase secrète : Finglass chiffre la base maintenant et la demande à chaque démarrage."
+  },
+  "Encrypting": {
+    "en": "Encrypting your data…",
+    "de": "Daten werden verschlüsselt …",
+    "fr": "Chiffrement des données…"
+  },
+  "EncryptionOff": {
+    "en": "Database not encrypted (development or test mode).",
+    "de": "Datenbank nicht verschlüsselt (Entwicklungs- oder Testmodus).",
+    "fr": "Base de données non chiffrée (mode développement ou test)."
+  },
+  "EncryptionStatus": {
+    "en": "Database encrypted (SQLCipher, AES-256). Finglass asks for the passphrase at every start; you can change it on the unlock screen.",
+    "de": "Datenbank verschlüsselt (SQLCipher, AES-256). Finglass fragt bei jedem Start nach der Passphrase; ändern können Sie sie auf dem Entsperren-Bildschirm.",
+    "fr": "Base de données chiffrée (SQLCipher, AES-256). Finglass demande la phrase secrète à chaque démarrage ; vous pouvez la changer sur l'écran de déverrouillage."
+  },
+  "EnterValidAmount": {
+    "en": "Enter a valid amount",
+    "de": "Gültigen Betrag eingeben",
+    "fr": "Saisissez un montant valide"
+  },
+  "EnterValidBalance": {
+    "en": "Enter a valid balance",
+    "de": "Gültigen Saldo eingeben",
+    "fr": "Saisissez un solde valide"
+  },
+  "EnterValidDate": {
+    "en": "Enter a valid date (dd.mm.yyyy)",
+    "de": "Gültiges Datum eingeben (tt.mm.jjjj)",
+    "fr": "Saisissez une date valide (jj.mm.aaaa)"
+  },
+  "ErrorAccountNotFound": {
+    "en": "Account not found",
+    "de": "Konto nicht gefunden",
+    "fr": "Compte introuvable"
+  },
+  "ErrorAccountTypeInvalid": {
+    "en": "Unknown account type",
+    "de": "Unbekannte Kontoart",
+    "fr": "Type de compte inconnu"
+  },
+  "ErrorAlreadyRunning": {
+    "en": "Finglass is already running with this data folder.",
+    "de": "Finglass läuft bereits mit diesem Datenordner.",
+    "fr": "Finglass est déjà en cours d'exécution avec ce dossier de données."
+  },
+  "ErrorAmountNotZero": {
+    "en": "Amount must not be zero",
+    "de": "Betrag darf nicht null sein",
+    "fr": "Le montant ne doit pas être nul"
+  },
+  "ErrorBadServerUrl": {
+    "en": "Invalid FinTS server URL",
+    "de": "Ungültige FinTS-Server-URL",
+    "fr": "URL du serveur FinTS non valide"
+  },
+  "ErrorBankConnectionNotFound": {
+    "en": "Bank connection not found",
+    "de": "Bankverbindung nicht gefunden",
+    "fr": "Connexion bancaire introuvable"
+  },
+  "ErrorBankOffline": {
+    "en": "This bank is offline: nothing is sent to the bank.",
+    "de": "Diese Bank ist offline: es wird nichts an die Bank gesendet.",
+    "fr": "Cette banque est hors ligne : rien n'est envoyé à la banque."
+  },
+  "ErrorBankRejected": {
+    "en": "The bank rejected the request",
+    "de": "Die Bank hat den Auftrag abgelehnt",
+    "fr": "La banque a rejeté la demande"
+  },
+  "ErrorBankRejectedPin": {
+    "en": "The bank rejected the PIN",
+    "de": "Die Bank hat die PIN abgelehnt",
+    "fr": "La banque a rejeté le code PIN"
+  },
+  "ErrorBankRejectedStatements": {
+    "en": "The bank rejected the statement request",
+    "de": "Die Bank hat die Umsatzabfrage abgelehnt",
+    "fr": "La banque a rejeté la demande de relevés"
+  },
+  "ErrorBankUnreachable": {
+    "en": "Could not reach the bank's FinTS server. Check the server URL and your internet connection.",
+    "de": "Der FinTS-Server der Bank war nicht erreichbar. Prüfen Sie die Server-URL und Ihre Internetverbindung.",
+    "fr": "Le serveur FinTS de la banque est injoignable. Vérifiez l'URL du serveur et votre connexion Internet."
+  },
+  "ErrorCancelled": {
+    "en": "Cancelled",
+    "de": "Abgebrochen",
+    "fr": "Annulé"
+  },
+  "ErrorCancelledByUser": {
+    "en": "Cancelled by user",
+    "de": "Vom Benutzer abgebrochen",
+    "fr": "Annulé par l'utilisateur"
+  },
+  "ErrorCategoryExists": {
+    "en": "Category already exists",
+    "de": "Kategorie existiert bereits",
+    "fr": "La catégorie existe déjà"
+  },
+  "ErrorColorFormat": {
+    "en": "Color must look like #3BC7B0",
+    "de": "Farbe muss wie #3BC7B0 aussehen",
+    "fr": "La couleur doit ressembler à #3BC7B0"
+  },
+  "ErrorConnectionBusy": {
+    "en": "Wait until the sync of this bank has finished.",
+    "de": "Warten Sie, bis die Synchronisierung dieser Bank abgeschlossen ist.",
+    "fr": "Attendez la fin de la synchronisation de cette banque."
+  },
+  "ErrorConnectionNotFound": {
+    "en": "Bank connection %d not found",
+    "de": "Bankverbindung %d nicht gefunden",
+    "fr": "Connexion bancaire %d introuvable"
+  },
+  "ErrorCsvExportFailed": {
+    "en": "CSV export failed",
+    "de": "CSV-Export fehlgeschlagen",
+    "fr": "Échec de l'export CSV"
+  },
+  "ErrorDatabaseTooNew": {
+    "en": "This database was created by a newer version of Finglass.",
+    "de": "Diese Datenbank wurde von einer neueren Version von Finglass erstellt.",
+    "fr": "Cette base de données a été créée par une version plus récente de Finglass."
+  },
+  "ErrorDeleteWhileBusy": {
+    "en": "Wait until the running sync or import has finished.",
+    "de": "Warten Sie, bis die laufende Synchronisierung oder der Import abgeschlossen ist.",
+    "fr": "Attendez la fin de la synchronisation ou de l'importation en cours."
+  },
+  "ErrorDialogFailed": {
+    "en": "FinTS dialog failed",
+    "de": "FinTS-Dialog fehlgeschlagen",
+    "fr": "Échec du dialogue FinTS"
+  },
+  "ErrorDocumentTooLarge": {
+    "en": "%s is too large (the limit is %d MB)",
+    "de": "%s ist zu groß (höchstens %d MB)",
+    "fr": "%s est trop volumineux (%d Mo au maximum)"
+  },
+  "ErrorEnterUserId": {
+    "en": "Enter your online banking user ID (Anmeldename/Legitimations-ID) for %s.",
+    "de": "Geben Sie Ihre Online-Banking-Benutzerkennung (Anmeldename/Legitimations-ID) für %s ein.",
+    "fr": "Saisissez votre identifiant bancaire en ligne (Anmeldename/Legitimations-ID) pour %s."
+  },
+  "ErrorExportFailed": {
+    "en": "Export failed",
+    "de": "Export fehlgeschlagen",
+    "fr": "Échec de l'export"
+  },
+  "ErrorFileDoesNotExist": {
+    "en": "File does not exist: %s",
+    "de": "Datei existiert nicht: %s",
+    "fr": "Le fichier n'existe pas : %s"
+  },
+  "ErrorFileNotFound": {
+    "en": "File not found: %s",
+    "de": "Datei nicht gefunden: %s",
+    "fr": "Fichier introuvable : %s"
+  },
+  "ErrorFileTooLarge": {
+    "en": "File is too large",
+    "de": "Datei ist zu groß",
+    "fr": "Le fichier est trop volumineux"
+  },
+  "ErrorFinDeskNotAFolder": {
+    "en": "The selected folder is not a FinDesk folder.",
+    "de": "Der gewählte Ordner ist kein FinDesk-Ordner.",
+    "fr": "Le dossier choisi n'est pas un dossier FinDesk."
+  },
+  "ErrorFinDeskNotFinDesk": {
+    "en": "This database is not a FinDesk database.",
+    "de": "Diese Datenbank ist keine FinDesk-Datenbank.",
+    "fr": "Cette base de données n'est pas une base de données FinDesk."
+  },
+  "ErrorFinDeskNotFound": {
+    "en": "No FinDesk database was found in the selected folder.",
+    "de": "Im gewählten Ordner wurde keine FinDesk-Datenbank gefunden.",
+    "fr": "Aucune base de données FinDesk n'a été trouvée dans le dossier choisi."
+  },
+  "ErrorFinDeskSourceChanged": {
+    "en": "FinDesk seems to be running. Quit FinDesk and try again.",
+    "de": "FinDesk scheint zu laufen. Beende FinDesk und versuche es erneut.",
+    "fr": "FinDesk semble être en cours d'exécution. Quittez FinDesk et réessayez."
+  },
+  "ErrorFinDeskTargetNotEmpty": {
+    "en": "The Finglass profile already contains data. Create a new profile in the Profiles section and import there.",
+    "de": "Das Finglass-Profil enthält bereits Daten. Erstelle im Bereich Profile ein neues Profil und importiere dorthin.",
+    "fr": "Le profil Finglass contient déjà des données. Créez un nouveau profil dans la section Profils et importez-y."
+  },
+  "ErrorFinDeskWrongPassphrase": {
+    "en": "The FinDesk passphrase is wrong.",
+    "de": "Die FinDesk-Passphrase ist falsch.",
+    "fr": "La phrase secrète FinDesk est incorrecte."
+  },
+  "ErrorImageTooLarge": {
+    "en": "%s has too many pixels to read",
+    "de": "%s hat zu viele Pixel zum Lesen",
+    "fr": "%s contient trop de pixels pour être lu"
+  },
+  "ErrorImportDifferentAccounts": {
+    "en": "The files belong to different accounts (%s). Import one account at a time.",
+    "de": "Die Dateien gehören zu verschiedenen Konten (%s). Importieren Sie ein Konto nach dem anderen.",
+    "fr": "Les fichiers appartiennent à des comptes différents (%s). Importez un compte à la fois."
+  },
+  "ErrorImportFilesTooLarge": {
+    "en": "The selected files are larger than %d MB together.",
+    "de": "Die gewählten Dateien sind zusammen größer als %d MB.",
+    "fr": "Les fichiers sélectionnés dépassent ensemble %d Mo."
+  },
+  "ErrorImportNoReadableFile": {
+    "en": "None of the selected files could be read: %s",
+    "de": "Keine der gewählten Dateien konnte gelesen werden: %s",
+    "fr": "Aucun des fichiers sélectionnés n'a pu être lu : %s"
+  },
+  "ErrorImportSeveralAccounts": {
+    "en": "This file holds bookings for %d accounts (%s). Export one file per account and import them one at a time.",
+    "de": "Diese Datei enthält Buchungen von %d Konten (%s). Exportieren Sie eine Datei pro Konto und importieren Sie sie einzeln.",
+    "fr": "Ce fichier contient des opérations de %d comptes (%s). Exportez un fichier par compte et importez-les un par un."
+  },
+  "ErrorImportStopped": {
+    "en": "Import stopped at %s: %s. %d {3:file was|files were} imported before it.",
+    "de": "Import gestoppt bei %s: %s. Vorher wurden %d {3:Datei|Dateien} importiert.",
+    "fr": "Import interrompu à %s : %s. %d {3:fichier a été importé|fichiers ont été importés} avant."
+  },
+  "ErrorImportTooManyFiles": {
+    "en": "Select at most %d files at once.",
+    "de": "Wählen Sie höchstens %d Dateien auf einmal aus.",
+    "fr": "Sélectionnez au maximum %d fichiers à la fois."
+  },
+  "ErrorInvalidRegex": {
+    "en": "Invalid regular expression: %s",
+    "de": "Ungültiger regulärer Ausdruck: %s",
+    "fr": "Expression régulière non valide : %s"
+  },
+  "ErrorMigrationTargetNotEmpty": {
+    "en": "The Finglass profile already contains data. Nothing was migrated.",
+    "de": "Das Finglass-Profil enthält bereits Daten. Es wurde nichts übernommen.",
+    "fr": "Le profil Finglass contient déjà des données. Rien n'a été migré."
+  },
+  "ErrorNameRequired": {
+    "en": "Name is required",
+    "de": "Name ist erforderlich",
+    "fr": "Le nom est requis"
+  },
+  "ErrorNoFintsServer": {
+    "en": "No FinTS server known for BLZ %s. Enter the bank's FinTS URL.",
+    "de": "Kein FinTS-Server für BLZ %s bekannt. Geben Sie die FinTS-URL der Bank ein.",
+    "fr": "Aucun serveur FinTS connu pour le code %s. Saisissez l'URL FinTS de la banque."
+  },
+  "ErrorNoProtocolTrace": {
+    "en": "No protocol trace captured yet. Enable collection and reproduce the problem first.",
+    "de": "Noch kein Protokoll aufgezeichnet. Aufzeichnung aktivieren und das Problem zuerst reproduzieren.",
+    "fr": "Aucune trace capturée pour l'instant. Activez la collecte et reproduisez d'abord le problème."
+  },
+  "ErrorNotEncrypted": {
+    "en": "This data folder contains an unencrypted database, which Finglass cannot open.",
+    "de": "Dieser Datenordner enthält eine unverschlüsselte Datenbank, die Finglass nicht öffnen kann.",
+    "fr": "Ce dossier de données contient une base non chiffrée que Finglass ne peut pas ouvrir."
+  },
+  "ErrorOnlineSyncUnavailable": {
+    "en": "Online sync is not available in this build yet.",
+    "de": "Online-Synchronisierung ist in diesem Build noch nicht verfügbar.",
+    "fr": "La synchronisation en ligne n'est pas encore disponible dans cette version."
+  },
+  "ErrorPassportReset": {
+    "en": "Finglass could not reset its stored bank registration. Remove and re-add this bank.",
+    "de": "Finglass konnte die gespeicherte Bank-Anmeldung nicht zurücksetzen. Entfernen Sie diese Bank und fügen Sie sie erneut hinzu.",
+    "fr": "Finglass n'a pas pu réinitialiser l'enregistrement bancaire enregistré. Supprimez cette banque puis ajoutez-la à nouveau."
+  },
+  "ErrorPatternRequired": {
+    "en": "Pattern is required",
+    "de": "Muster ist erforderlich",
+    "fr": "Le motif est requis"
+  },
+  "ErrorPdfExportFailed": {
+    "en": "PDF export failed",
+    "de": "PDF-Export fehlgeschlagen",
+    "fr": "Échec de l'export PDF"
+  },
+  "ErrorPrintFailed": {
+    "en": "Printing failed",
+    "de": "Drucken fehlgeschlagen",
+    "fr": "L'impression a échoué"
+  },
+  "ErrorRuleFileEncoding": {
+    "en": "The rule file is not valid UTF-8 text",
+    "de": "Die Regeldatei ist kein gültiger UTF-8-Text",
+    "fr": "Le fichier de règles n'est pas un texte UTF-8 valide"
+  },
+  "ErrorRuleFileHeader": {
+    "en": "Not a Finglass rule file: the header line is missing or wrong",
+    "de": "Keine Finglass-Regeldatei: Kopfzeile fehlt oder ist falsch",
+    "fr": "Pas un fichier de règles Finglass : ligne d'en-tête absente ou incorrecte"
+  },
+  "ErrorRuleFileTooLarge": {
+    "en": "Rule file too large (at most 1 MB and 5000 rules)",
+    "de": "Regeldatei zu groß (höchstens 1 MB und 5000 Regeln)",
+    "fr": "Fichier de règles trop volumineux (1 Mo et 5000 règles au plus)"
+  },
+  "ErrorServerHttpStatus": {
+    "en": "The bank's server answered with HTTP %d. Check that FinTS/HBCI access is activated in your online banking and that the bank code (BLZ) and server URL of this connection are right, or try again later.",
+    "de": "Der Server der Bank hat mit HTTP %d geantwortet. Prüfen Sie, ob der FinTS/HBCI-Zugang im Online-Banking freigeschaltet ist und ob Bankleitzahl (BLZ) und Server-URL dieser Verbindung stimmen, oder versuchen Sie es später erneut.",
+    "fr": "Le serveur de la banque a répondu avec le code HTTP %d. Vérifiez que l'accès FinTS/HBCI est activé dans votre banque en ligne et que le code banque (BLZ) et l'URL du serveur de cette connexion sont corrects, ou réessayez plus tard."
+  },
+  "ErrorServerNotFints": {
+    "en": "The bank's server sent an answer that isn't FinTS (%s). Check the FinTS server URL in the connection settings. If it is right, the bank may be blocking the request: try again later or capture a protocol trace in Settings.",
+    "de": "Der Server der Bank hat eine Antwort gesendet, die kein FinTS ist (%s). Prüfen Sie die FinTS-Server-URL in den Verbindungseinstellungen. Wenn sie richtig ist, blockiert die Bank die Anfrage möglicherweise: Versuchen Sie es später erneut oder zeichnen Sie ein Protokoll in den Einstellungen auf.",
+    "fr": "Le serveur de la banque a renvoyé une réponse qui n'est pas du FinTS (%s). Vérifiez l'URL du serveur FinTS dans les paramètres de connexion. Si elle est correcte, la banque bloque peut-être la requête : réessayez plus tard ou capturez une trace du protocole dans les paramètres."
+  },
+  "ErrorServerUrlMustBeHttps": {
+    "en": "The FinTS server URL must start with https://",
+    "de": "Die FinTS-Server-URL muss mit https:// beginnen",
+    "fr": "L'URL du serveur FinTS doit commencer par https://"
+  },
+  "ErrorServerUrlRequired": {
+    "en": "The FinTS server URL is required",
+    "de": "Die FinTS-Server-URL ist erforderlich",
+    "fr": "L'URL du serveur FinTS est requise"
+  },
+  "ErrorStartupFailed": {
+    "en": "Finglass could not prepare this profile's data at startup. Quit Finglass and try again.",
+    "de": "Finglass konnte die Daten dieses Profils beim Start nicht vorbereiten. Beenden Sie Finglass und versuchen Sie es erneut.",
+    "fr": "Finglass n'a pas pu préparer les données de ce profil au démarrage. Quittez Finglass et réessayez."
+  },
+  "ErrorSyncFailed": {
+    "en": "Sync failed",
+    "de": "Synchronisierung fehlgeschlagen",
+    "fr": "Échec de la synchronisation"
+  },
+  "ErrorSyncFromDateFuture": {
+    "en": "The start date must not be in the future",
+    "de": "Das Startdatum darf nicht in der Zukunft liegen",
+    "fr": "La date de début ne doit pas être dans le futur"
+  },
+  "ErrorSyncFromDateInvalid": {
+    "en": "Enter a valid date (dd.mm.yyyy)",
+    "de": "Gültiges Datum eingeben (tt.mm.jjjj)",
+    "fr": "Saisissez une date valide (jj.mm.aaaa)"
+  },
+  "ErrorTaxExportFailed": {
+    "en": "The export of the tax report failed",
+    "de": "Der Export des Steuerberichts ist fehlgeschlagen",
+    "fr": "L'export du rapport fiscal a échoué"
+  },
+  "ErrorUnexpected": {
+    "en": "an unexpected error",
+    "de": "ein unerwarteter Fehler",
+    "fr": "une erreur inattendue"
+  },
+  "ErrorUnreadableImage": {
+    "en": "Unreadable image: %s",
+    "de": "Bild nicht lesbar: %s",
+    "fr": "Image illisible : %s"
+  },
+  "ErrorUnsupportedFileType": {
+    "en": "Unsupported file type: %s",
+    "de": "Nicht unterstützter Dateityp: %s",
+    "fr": "Type de fichier non pris en charge : %s"
+  },
+  "ErrorXlsxTooLarge": {
+    "en": "The Excel file is too large or damaged.",
+    "de": "Die Excel-Datei ist zu groß oder beschädigt.",
+    "fr": "Le fichier Excel est trop volumineux ou endommagé."
+  },
+  "ErrorXlsxUnreadable": {
+    "en": "The Excel file could not be read.",
+    "de": "Die Excel-Datei konnte nicht gelesen werden.",
+    "fr": "Le fichier Excel n'a pas pu être lu."
+  },
+  "Expand": {
+    "en": "Expand",
+    "de": "Ausklappen",
+    "fr": "Développer"
+  },
+  "ExpandSidebar": {
+    "en": "Expand sidebar",
+    "de": "Seitenleiste ausklappen",
+    "fr": "Développer la barre latérale"
+  },
+  "Expense": {
+    "en": "Expense",
+    "de": "Ausgabe",
+    "fr": "Dépense"
+  },
+  "ExpensesByCategory": {
+    "en": "Expenses by category (this month)",
+    "de": "Ausgaben nach Kategorie (dieser Monat)",
+    "fr": "Dépenses par catégorie (ce mois)"
+  },
+  "ExpensesByCategoryInMonth": {
+    "en": "Expenses by category in %s",
+    "de": "Ausgaben nach Kategorie im %s",
+    "fr": "Dépenses par catégorie en %s"
+  },
+  "ExpensesInMonth": {
+    "en": "Expenses in %s",
+    "de": "Ausgaben im %s",
+    "fr": "Dépenses en %s"
+  },
+  "ExpensesThisMonth": {
+    "en": "Expenses this month",
+    "de": "Ausgaben diesen Monat",
+    "fr": "Dépenses ce mois"
+  },
+  "Export": {
+    "en": "Export",
+    "de": "Exportieren",
+    "fr": "Exporter"
+  },
+  "ExportCsv": {
+    "en": "Export CSV",
+    "de": "CSV exportieren",
+    "fr": "Exporter CSV"
+  },
+  "ExportExcel": {
+    "en": "Export Excel",
+    "de": "Excel exportieren",
+    "fr": "Exporter Excel"
+  },
+  "ExportPdf": {
+    "en": "Export PDF",
+    "de": "PDF exportieren",
+    "fr": "Exporter PDF"
+  },
+  "ExportReport": {
+    "en": "Export report",
+    "de": "Bericht exportieren",
+    "fr": "Exporter le rapport"
+  },
+  "ExportRules": {
+    "en": "Export rules…",
+    "de": "Regeln exportieren…",
+    "fr": "Exporter les règles…"
+  },
+  "ExportTransactions": {
+    "en": "Export transactions",
+    "de": "Umsätze exportieren",
+    "fr": "Exporter les opérations"
+  },
+  "ExtractedText": {
+    "en": "Extracted text",
+    "de": "Erkannter Text",
+    "fr": "Texte extrait"
+  },
+  "ExtractedTextConfidence": {
+    "en": "Extracted text (confidence %d%%)",
+    "de": "Erkannter Text (Konfidenz %d%%)",
+    "fr": "Texte extrait (confiance %d%%)"
+  },
+  "Fetch": {
+    "en": "Fetch",
+    "de": "Abrufen",
+    "fr": "Récupérer"
+  },
+  "FetchHistory": {
+    "en": "Fetch history from…",
+    "de": "Verlauf ab Datum abrufen…",
+    "fr": "Récupérer l'historique depuis…"
+  },
+  "FetchHistoryDate": {
+    "en": "Start date",
+    "de": "Startdatum",
+    "fr": "Date de début"
+  },
+  "FetchHistoryFor": {
+    "en": "Fetch history for %s",
+    "de": "Verlauf abrufen für %s",
+    "fr": "Récupérer l'historique pour %s"
+  },
+  "FetchHistoryHint": {
+    "en": "Bookings already imported are skipped. Banks limit how far back they go and many ask for a TAN beyond 90 days.",
+    "de": "Bereits importierte Buchungen werden übersprungen. Banken begrenzen, wie weit sie zurückreichen, und verlangen für mehr als 90 Tage oft eine TAN.",
+    "fr": "Les opérations déjà importées sont ignorées. Les banques limitent la profondeur de l'historique et demandent souvent un TAN au-delà de 90 jours."
+  },
+  "FileBelongsTo": {
+    "en": "The file belongs to %s, not the selected account.",
+    "de": "Die Datei gehört zu %s, nicht zum gewählten Konto.",
+    "fr": "Le fichier appartient à %s, pas au compte sélectionné."
+  },
+  "FileBelongsToNamed": {
+    "en": "%s belongs to %s, not the selected account.",
+    "de": "%s gehört zu %s, nicht zum gewählten Konto.",
+    "fr": "%s appartient à %s, pas au compte sélectionné."
+  },
+  "FilterAccounts": {
+    "en": "Filter accounts",
+    "de": "Konten filtern",
+    "fr": "Filtrer les comptes"
+  },
+  "FinDeskImportChooseFolder": {
+    "en": "Choose FinDesk folder…",
+    "de": "FinDesk-Ordner wählen…",
+    "fr": "Choisir le dossier FinDesk…"
+  },
+  "FinDeskImportFailedTitle": {
+    "en": "FinDesk import failed",
+    "de": "FinDesk-Import fehlgeschlagen",
+    "fr": "Échec de l'import FinDesk"
+  },
+  "FinDeskImportHint": {
+    "en": "Copies accounts, bank connections, categories, rules, bookings and documents from FinDesk into the open profile. Payment orders and remembered PINs are not imported. Quit FinDesk first.",
+    "de": "Kopiert Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente aus FinDesk in das geöffnete Profil. Zahlungsaufträge und gespeicherte PINs werden nicht importiert. Beende FinDesk zuerst.",
+    "fr": "Copie les comptes, connexions bancaires, catégories, règles, écritures et documents de FinDesk dans le profil ouvert. Les ordres de paiement et les codes PIN mémorisés ne sont pas importés. Quittez FinDesk d'abord."
+  },
+  "FinDeskImportReportTitle": {
+    "en": "FinDesk import finished",
+    "de": "FinDesk-Import abgeschlossen",
+    "fr": "Import FinDesk terminé"
+  },
+  "FinDeskImportSkipped": {
+    "en": "Skipped: %d rows without their account, category or document, %d invalid rows, %d with a fractional cent amount, and %d settings Finglass does not use.",
+    "de": "Übersprungen: %d Zeilen ohne ihr Konto, ihre Kategorie oder ihr Dokument, %d ungültige Zeilen, %d mit Bruchteilen eines Cents und %d Einstellungen, die Finglass nicht verwendet.",
+    "fr": "Ignorés : %d lignes sans leur compte, catégorie ou document, %d lignes invalides, %d avec une fraction de centime et %d paramètres que Finglass n'utilise pas."
+  },
+  "FinDeskImportSummary": {
+    "en": "Imported %d account groups, %d bank connections, %d accounts, %d categories, %d rules, %d transactions, %d deleted bookings, %d pending bookings, %d documents, %d OCR texts and %d settings. Skipped %d rows, %d documents with a missing file and %d refused documents. Left %d payment orders behind.",
+    "de": "Importiert: %d Kontogruppen, %d Bankverbindungen, %d Konten, %d Kategorien, %d Regeln, %d Umsätze, %d gelöschte Buchungen, %d vorgemerkte Buchungen, %d Dokumente, %d OCR-Texte und %d Einstellungen. Übersprungen: %d Zeilen, %d Dokumente mit fehlender Datei und %d abgelehnte Dokumente. %d Zahlungsaufträge blieben zurück.",
+    "fr": "Importé : %d groupes de comptes, %d connexions bancaires, %d comptes, %d catégories, %d règles, %d opérations, %d écritures supprimées, %d écritures en attente, %d documents, %d textes OCR et %d paramètres. Ignoré : %d lignes, %d documents avec un fichier manquant et %d documents refusés. %d ordres de paiement laissés de côté."
+  },
+  "FinDeskImportTitle": {
+    "en": "Import from FinDesk",
+    "de": "Aus FinDesk importieren",
+    "fr": "Importer depuis FinDesk"
+  },
+  "FinDeskPassphraseText": {
+    "en": "Enter the passphrase of the selected FinDesk database. It is used once for this import and is not stored.",
+    "de": "Gib die Passphrase der gewählten FinDesk-Datenbank ein. Sie wird nur für diesen Import verwendet und nicht gespeichert.",
+    "fr": "Saisissez la phrase secrète de la base FinDesk sélectionnée. Elle n'est utilisée que pour cet import et n'est pas enregistrée."
+  },
+  "FinDeskPassphraseTitle": {
+    "en": "FinDesk passphrase",
+    "de": "FinDesk-Passphrase",
+    "fr": "Phrase secrète FinDesk"
+  },
+  "FindTransactionToLink": {
+    "en": "Find a transaction to link…",
+    "de": "Umsatz zum Verknüpfen suchen…",
+    "fr": "Trouver une opération à lier…"
+  },
+  "FintsServerUrl": {
+    "en": "FinTS server URL",
+    "de": "FinTS-Server-URL",
+    "fr": "URL du serveur FinTS"
+  },
+  "FixDuplicateColours": {
+    "en": "Give each category its own colour",
+    "de": "Jeder Kategorie ihre eigene Farbe geben",
+    "fr": "Donner à chaque catégorie sa propre couleur"
+  },
+  "FlickerHint": {
+    "en": "Hold the TAN generator against the bars so its arrows line up with the triangles.",
+    "de": "Halten Sie den TAN-Generator an die Balken, sodass seine Pfeile mit den Dreiecken übereinstimmen.",
+    "fr": "Placez le générateur de TAN contre les barres, de sorte que ses flèches s'alignent sur les triangles."
+  },
+  "FlickerSize": {
+    "en": "Size",
+    "de": "Größe",
+    "fr": "Taille"
+  },
+  "FlickerSpeed": {
+    "en": "Speed",
+    "de": "Geschwindigkeit",
+    "fr": "Vitesse"
+  },
+  "ForgetPin": {
+    "en": "Forget PIN",
+    "de": "PIN vergessen",
+    "fr": "Oublier le PIN"
+  },
+  "From": {
+    "en": "From",
+    "de": "Von",
+    "fr": "De"
+  },
+  "FromDate": {
+    "en": "From",
+    "de": "Von",
+    "fr": "Du"
+  },
+  "GettingStartedIntro": {
+    "en": "Three steps to your first overview.",
+    "de": "In drei Schritten zur ersten Übersicht.",
+    "fr": "Trois étapes vers votre premier aperçu."
+  },
+  "GroupName": {
+    "en": "Group name",
+    "de": "Gruppenname",
+    "fr": "Nom du groupe"
+  },
+  "HighestMonth": {
+    "en": "Highest month",
+    "de": "Höchster Monat",
+    "fr": "Mois le plus élevé"
+  },
+  "HintNeedsAccount": {
+    "en": "Add an account first",
+    "de": "Legen Sie zuerst ein Konto an",
+    "fr": "Ajoutez d'abord un compte"
+  },
+  "HintNeedsCategory": {
+    "en": "Add a category first",
+    "de": "Legen Sie zuerst eine Kategorie an",
+    "fr": "Ajoutez d'abord une catégorie"
+  },
+  "HintNothingShown": {
+    "en": "No bookings shown",
+    "de": "Keine Umsätze angezeigt",
+    "fr": "Aucune opération affichée"
+  },
+  "HintNothingToExport": {
+    "en": "No transactions in this view to export",
+    "de": "In dieser Ansicht gibt es keine Umsätze zum Exportieren",
+    "fr": "Aucune opération à exporter dans cette vue"
+  },
+  "HistoryReconstructed": {
+    "en": "History is reconstructed from the current balance and the bookings Finglass knows about.",
+    "de": "Der Verlauf wird aus dem aktuellen Saldo und den Finglass bekannten Buchungen rekonstruiert.",
+    "fr": "L'historique est reconstruit à partir du solde actuel et des écritures connues de Finglass."
+  },
+  "IConfirmedIt": {
+    "en": "I confirmed it",
+    "de": "Ich habe bestätigt",
+    "fr": "J'ai confirmé"
+  },
+  "Iban": {
+    "en": "IBAN",
+    "de": "IBAN",
+    "fr": "IBAN"
+  },
+  "IbanChecksumFailed": {
+    "en": "IBAN is not valid (checksum failed)",
+    "de": "IBAN ist ungültig (Prüfsumme fehlerhaft)",
+    "fr": "L'IBAN n'est pas valide (somme de contrôle erronée)"
+  },
+  "IbanOrCardLast4": {
+    "en": "IBAN or last 4 digits of the card",
+    "de": "IBAN oder die letzten 4 Ziffern der Karte",
+    "fr": "IBAN ou 4 derniers chiffres de la carte"
+  },
+  "IbanRequired": {
+    "en": "IBAN is required",
+    "de": "IBAN ist erforderlich",
+    "fr": "L'IBAN est requis"
+  },
+  "Import": {
+    "en": "Import",
+    "de": "Importieren",
+    "fr": "Importer"
+  },
+  "ImportBankStatement": {
+    "en": "Import bank statement (CSV, CAMT XML/ZIP)",
+    "de": "Kontoauszug importieren (CSV, CAMT XML/ZIP)",
+    "fr": "Importer un relevé (CSV, CAMT XML/ZIP)"
+  },
+  "ImportCount": {
+    "en": "Import %d",
+    "de": "%d importieren",
+    "fr": "Importer %d"
+  },
+  "ImportFile": {
+    "en": "Import %s",
+    "de": "%s importieren",
+    "fr": "Importer %s"
+  },
+  "ImportFiles": {
+    "en": "Import %d files",
+    "de": "%d Dateien importieren",
+    "fr": "Importer %d fichiers"
+  },
+  "ImportFilesSkipped": {
+    "en": "%d {1:file is|files are} skipped because {1:it|they} could not be read.",
+    "de": "%d {1:Datei wird|Dateien werden} übersprungen, weil {1:sie|sie} nicht gelesen werden {1:konnte|konnten}.",
+    "fr": "%d {1:fichier est ignoré, car il n'a pas pu être lu|fichiers sont ignorés, car ils n'ont pas pu être lus}."
+  },
+  "ImportRules": {
+    "en": "Import rules…",
+    "de": "Regeln importieren…",
+    "fr": "Importer des règles…"
+  },
+  "ImportSummary": {
+    "en": "Imported %d {1:transaction|transactions}",
+    "de": "%d {1:Buchung|Buchungen} importiert",
+    "fr": "%d {1:opération importée|opérations importées}"
+  },
+  "ImportSummaryAuto": {
+    "en": ", %d auto-categorized",
+    "de": ", %d automatisch kategorisiert",
+    "fr": ", %d {1:catégorisée|catégorisées} automatiquement"
+  },
+  "ImportSummaryBalance": {
+    "en": ". Balance set to %s",
+    "de": ". Saldo auf %s gesetzt",
+    "fr": ". Solde défini à %s"
+  },
+  "ImportSummaryDeleted": {
+    "en": ", %d deleted earlier, skipped",
+    "de": ", %d früher gelöscht, übersprungen",
+    "fr": ", %d {1:supprimée|supprimées} auparavant, {1:ignorée|ignorées}"
+  },
+  "ImportSummaryFiles": {
+    "en": "Imported %d {1:transaction|transactions} from %d files",
+    "de": "%d {1:Buchung|Buchungen} aus %d Dateien importiert",
+    "fr": "%d {1:opération importée|opérations importées} depuis %d fichiers"
+  },
+  "ImportSummaryKnown": {
+    "en": ", %d already known",
+    "de": ", %d bereits bekannt",
+    "fr": ", %d déjà {1:connue|connues}"
+  },
+  "ImportSummaryProbable": {
+    "en": ", %d probable {1:duplicate|duplicates} of existing bookings skipped",
+    "de": ", %d {1:wahrscheinliche Dublette|wahrscheinliche Dubletten} vorhandener Buchungen übersprungen",
+    "fr": ", %d {1:doublon probable|doublons probables} d'opérations existantes {1:ignoré|ignorés}"
+  },
+  "ImportSummaryWrongCurrency": {
+    "en": ", %d in another currency than the account skipped",
+    "de": ", %d in anderer Währung als das Konto übersprungen",
+    "fr": ", %d dans une autre devise que le compte {1:ignorée|ignorées}"
+  },
+  "Importing": {
+    "en": "Importing…",
+    "de": "Importiere…",
+    "fr": "Importation…"
+  },
+  "IncludeInSyncAll": {
+    "en": "Include in Sync all",
+    "de": "In „Alle synchronisieren“ einbeziehen",
+    "fr": "Inclure dans « Tout synchroniser »"
+  },
+  "Income": {
+    "en": "Income",
+    "de": "Einnahme",
+    "fr": "Revenu"
+  },
+  "IncomeInMonth": {
+    "en": "Income in %s",
+    "de": "Einnahmen im %s",
+    "fr": "Revenus en %s"
+  },
+  "IncomeThisMonth": {
+    "en": "Income this month",
+    "de": "Einnahmen diesen Monat",
+    "fr": "Revenus ce mois"
+  },
+  "IncomeVsExpenses": {
+    "en": "Income vs expenses (6 months)",
+    "de": "Einnahmen vs. Ausgaben (6 Monate)",
+    "fr": "Revenus vs dépenses (6 mois)"
+  },
+  "IntoAccount": {
+    "en": "Into account: ",
+    "de": "Auf Konto: ",
+    "fr": "Vers le compte : "
+  },
+  "InvalidDateRange": {
+    "en": "The end date must be after the start date",
+    "de": "Das Enddatum muss nach dem Startdatum liegen",
+    "fr": "La date de fin doit être postérieure à la date de début"
+  },
+  "Language": {
+    "en": "Language",
+    "de": "Sprache",
+    "fr": "Langue"
+  },
+  "LanguageBusy": {
+    "en": "Finish the running task first",
+    "de": "Schließen Sie zuerst die laufende Aufgabe ab",
+    "fr": "Terminez d'abord la tâche en cours"
+  },
+  "LastDaysSummary": {
+    "en": "Last %d days: in %s · out %s",
+    "de": "Letzte %d Tage: Eingang %s · Ausgang %s",
+    "fr": "%d derniers jours : entrées %s · sorties %s"
+  },
+  "LastFetched": {
+    "en": "Last fetched %s",
+    "de": "Zuletzt abgerufen %s",
+    "fr": "Dernière récupération %s"
+  },
+  "LeaveEmptyToUse": {
+    "en": "Leave empty to use %s",
+    "de": "Leer lassen, um %s zu verwenden",
+    "fr": "Laisser vide pour utiliser %s"
+  },
+  "LeftBudget": {
+    "en": "%s left",
+    "de": "%s übrig",
+    "fr": "%s restants"
+  },
+  "Link": {
+    "en": "Link",
+    "de": "Verknüpfen",
+    "fr": "Lier"
+  },
+  "LinkedTransaction": {
+    "en": "Linked transaction",
+    "de": "Verknüpfter Umsatz",
+    "fr": "Opération liée"
+  },
+  "LoanBalanceHint": {
+    "en": "Enter what you still owe as a negative amount, e.g. -12,000.00.",
+    "de": "Tragen Sie die Restschuld als negativen Betrag ein, z. B. -12.000,00.",
+    "fr": "Saisissez le capital restant dû en montant négatif, p. ex. -12 000,00."
+  },
+  "LoansSubtitle": {
+    "en": "Loans %1$s · net %2$s",
+    "de": "Kredite %1$s · netto %2$s",
+    "fr": "Crédits %1$s · net %2$s"
+  },
+  "LoginResetNote": {
+    "en": "Changing the bank code, user ID or server URL resets Finglass's registration with the bank. The next sync registers again and may ask you to confirm with a TAN.",
+    "de": "Wenn Sie Bankleitzahl, Benutzerkennung oder Server-URL ändern, setzt Finglass die Anmeldung bei der Bank zurück. Die nächste Synchronisierung meldet Finglass neu an und fragt eventuell nach einer TAN.",
+    "fr": "Modifier le code banque, l'identifiant ou l'URL du serveur réinitialise l'enregistrement de Finglass auprès de la banque. La prochaine synchronisation l'enregistre à nouveau et peut demander une confirmation par TAN."
+  },
+  "ManageProfiles": {
+    "en": "Manage profiles…",
+    "de": "Profile verwalten…",
+    "fr": "Gérer les profils…"
+  },
+  "Manual": {
+    "en": "manual",
+    "de": "manuell",
+    "fr": "manuel"
+  },
+  "MarkAsRead": {
+    "en": "Mark as read",
+    "de": "Als gelesen markieren",
+    "fr": "Marquer comme lu"
+  },
+  "MarkNotTaxRelevant": {
+    "en": "Mark as not tax relevant",
+    "de": "Als nicht steuerrelevant markieren",
+    "fr": "Marquer comme non fiscalement pertinent"
+  },
+  "MarkTaxRelevant": {
+    "en": "Mark as tax relevant",
+    "de": "Als steuerrelevant markieren",
+    "fr": "Marquer comme fiscalement pertinent"
+  },
+  "MatchPercent": {
+    "en": "match %s",
+    "de": "Treffer %s",
+    "fr": "correspondance %s"
+  },
+  "MatchesKeyword": {
+    "en": "Matches “%s”",
+    "de": "Passt zu „%s“",
+    "fr": "Correspond à « %s »"
+  },
+  "Max": {
+    "en": "max",
+    "de": "max",
+    "fr": "max"
+  },
+  "MaxAmountIn": {
+    "en": "max %s",
+    "de": "max %s",
+    "fr": "max %s"
+  },
+  "MenuDetails": {
+    "en": "Details",
+    "de": "Details",
+    "fr": "Détails"
+  },
+  "MenuEdit": {
+    "en": "Edit…",
+    "de": "Bearbeiten …",
+    "fr": "Modifier…"
+  },
+  "MenuExit": {
+    "en": "Exit",
+    "de": "Beenden",
+    "fr": "Quitter"
+  },
+  "MenuFile": {
+    "en": "File",
+    "de": "Ablage",
+    "fr": "Fichier"
+  },
+  "MenuFind": {
+    "en": "Find",
+    "de": "Suchen",
+    "fr": "Rechercher"
+  },
+  "MenuGitHub": {
+    "en": "Finglass on GitHub",
+    "de": "Finglass auf GitHub",
+    "fr": "Finglass sur GitHub"
+  },
+  "MenuHelp": {
+    "en": "Help",
+    "de": "Hilfe",
+    "fr": "Aide"
+  },
+  "MenuImportStatement": {
+    "en": "Import Bank Statement…",
+    "de": "Kontoauszug importieren …",
+    "fr": "Importer un relevé…"
+  },
+  "MenuMinimize": {
+    "en": "Minimize",
+    "de": "Im Dock ablegen",
+    "fr": "Placer dans le Dock"
+  },
+  "MenuNewTransaction": {
+    "en": "New Transaction…",
+    "de": "Neuer Umsatz …",
+    "fr": "Nouvelle opération…"
+  },
+  "MenuReportProblem": {
+    "en": "Report a Problem…",
+    "de": "Problem melden …",
+    "fr": "Signaler un problème…"
+  },
+  "MenuSettings": {
+    "en": "Settings…",
+    "de": "Einstellungen …",
+    "fr": "Paramètres…"
+  },
+  "MenuView": {
+    "en": "View",
+    "de": "Darstellung",
+    "fr": "Présentation"
+  },
+  "MenuWindow": {
+    "en": "Window",
+    "de": "Fenster",
+    "fr": "Fenêtre"
+  },
+  "MenuZoom": {
+    "en": "Zoom",
+    "de": "Zoomen",
+    "fr": "Réduire/agrandir"
+  },
+  "MessageAccountAdded": {
+    "en": "Account added",
+    "de": "Konto hinzugefügt",
+    "fr": "Compte ajouté"
+  },
+  "MessageAccountDeleted": {
+    "en": "Account deleted",
+    "de": "Konto gelöscht",
+    "fr": "Compte supprimé"
+  },
+  "MessageAdded": {
+    "en": "Added %s",
+    "de": "%s hinzugefügt",
+    "fr": "%s ajouté"
+  },
+  "MessageAutoCategorized": {
+    "en": "Categorized %d of %d uncategorized {2:transaction|transactions}",
+    "de": "%d von %d nicht kategorisierten {2:Buchung|Buchungen} kategorisiert",
+    "fr": "%d sur %d {2:opération non catégorisée|opérations non catégorisées} {1:a été catégorisée|ont été catégorisées}"
+  },
+  "MessageBackupSaved": {
+    "en": "Backup saved to %s (%d {2:transaction|transactions}, %d {3:document|documents})",
+    "de": "Backup gespeichert unter %s (%d {2:Buchung|Buchungen}, %d {3:Dokument|Dokumente})",
+    "fr": "Sauvegarde enregistrée dans %s (%d {2:opération|opérations}, %d {3:document|documents})"
+  },
+  "MessageBankRemoved": {
+    "en": "Bank removed",
+    "de": "Bank entfernt",
+    "fr": "Banque supprimée"
+  },
+  "MessageCategorySet": {
+    "en": "Category changed for %d {1:booking|bookings}",
+    "de": "Kategorie geändert für %d {1:Buchung|Buchungen}",
+    "fr": "Catégorie modifiée pour %d {1:opération|opérations}"
+  },
+  "MessageColoursAlreadyDistinct": {
+    "en": "Every category already has its own colour",
+    "de": "Jede Kategorie hat bereits ihre eigene Farbe",
+    "fr": "Chaque catégorie a déjà sa propre couleur"
+  },
+  "MessageColoursFixed": {
+    "en": "%d {1:category|categories} recoloured",
+    "de": "%d {1:Kategorie umgefärbt|Kategorien umgefärbt}",
+    "fr": "%d {1:catégorie recoloriée|catégories recoloriées}"
+  },
+  "MessageConnectionSaved": {
+    "en": "Connection settings saved",
+    "de": "Verbindungseinstellungen gespeichert",
+    "fr": "Paramètres de connexion enregistrés"
+  },
+  "MessageDefaultCategoriesAdded": {
+    "en": "%d default categories added",
+    "de": "%d Standardkategorien hinzugefügt",
+    "fr": "%d catégories standard ajoutées"
+  },
+  "MessageDefaultCategoriesNone": {
+    "en": "All default categories already exist",
+    "de": "Alle Standardkategorien sind bereits vorhanden",
+    "fr": "Toutes les catégories standard existent déjà"
+  },
+  "MessageDeletedForgotten": {
+    "en": "%d deleted {1:booking|bookings} can be imported again",
+    "de": "%d gelöschte {1:Buchung kann|Buchungen können} wieder importiert werden",
+    "fr": "%d {1:opération supprimée peut être réimportée|opérations supprimées peuvent être réimportées}"
+  },
+  "MessageDocumentDeleted": {
+    "en": "Document deleted",
+    "de": "Dokument gelöscht",
+    "fr": "Document supprimé"
+  },
+  "MessageDocumentLinked": {
+    "en": "Document linked",
+    "de": "Dokument verknüpft",
+    "fr": "Document lié"
+  },
+  "MessageExportedCount": {
+    "en": "Exported %d {1:transaction|transactions} to %s",
+    "de": "%d {1:Buchung|Buchungen} nach %s exportiert",
+    "fr": "%d {1:opération exportée|opérations exportées} vers %s"
+  },
+  "MessageFromBank": {
+    "en": "Message from your bank",
+    "de": "Nachricht Ihrer Bank",
+    "fr": "Message de votre banque"
+  },
+  "MessageNoDeletedRemembered": {
+    "en": "No deleted bookings are remembered for this account",
+    "de": "Für dieses Konto sind keine gelöschten Buchungen vermerkt",
+    "fr": "Aucune opération supprimée n'est mémorisée pour ce compte"
+  },
+  "MessageNoTextExtracted": {
+    "en": "No text could be extracted",
+    "de": "Es konnte kein Text extrahiert werden",
+    "fr": "Aucun texte n'a pu être extrait"
+  },
+  "MessagePrintSent": {
+    "en": "Sent to the printer",
+    "de": "An den Drucker gesendet",
+    "fr": "Envoyé à l'imprimante"
+  },
+  "MessageProfileMoved": {
+    "en": "Profile moved to %s",
+    "de": "Profil verschoben nach %s",
+    "fr": "Profil déplacé vers %s"
+  },
+  "MessageProtocolTraceSaved": {
+    "en": "Protocol trace saved to %s",
+    "de": "Protokoll gespeichert unter %s",
+    "fr": "Trace enregistrée dans %s"
+  },
+  "MessageReapplied": {
+    "en": "%d {1:booking|bookings} recategorized",
+    "de": "%d {1:Buchung|Buchungen} neu kategorisiert",
+    "fr": "%d {1:opération recatégorisée|opérations recatégorisées}"
+  },
+  "MessageReapplyNothing": {
+    "en": "No shown booking would get a different category",
+    "de": "Keine angezeigte Buchung würde eine andere Kategorie erhalten",
+    "fr": "Aucune opération affichée ne changerait de catégorie"
+  },
+  "MessageReapplyUndone": {
+    "en": "%d {1:booking|bookings} restored",
+    "de": "%d {1:Buchung|Buchungen} wiederhergestellt",
+    "fr": "%d {1:opération restaurée|opérations restaurées}"
+  },
+  "MessageRestoreCancelled": {
+    "en": "Pending restore cancelled",
+    "de": "Ausstehende Wiederherstellung abgebrochen",
+    "fr": "Restauration en attente annulée"
+  },
+  "MessageRestorePrepared": {
+    "en": "Restore prepared. Restart Finglass to finish; your current data will be kept in a pre-restore folder.",
+    "de": "Wiederherstellung vorbereitet. Starten Sie Finglass neu, um sie abzuschließen; Ihre aktuellen Daten bleiben in einem Ordner pre-restore erhalten.",
+    "fr": "Restauration préparée. Redémarrez Finglass pour la terminer ; vos données actuelles seront conservées dans un dossier pre-restore."
+  },
+  "MessageRuleCreated": {
+    "en": "Rule created and applied to %d uncategorized {1:transaction|transactions}",
+    "de": "Regel erstellt und auf %d nicht kategorisierte {1:Buchung|Buchungen} angewendet",
+    "fr": "Règle créée et appliquée à %d {1:opération non catégorisée|opérations non catégorisées}"
+  },
+  "MessageRulesExportSkipped": {
+    "en": "%1$d {1:rule|rules} exported, %2$d skipped (tab or line break in pattern or category)",
+    "de": "%1$d {1:Regel|Regeln} exportiert, %2$d übersprungen (Tabulator oder Zeilenumbruch in Muster oder Kategorie)",
+    "fr": "%1$d {1:règle exportée|règles exportées}, %2$d ignorée{2:s||} (tabulation ou saut de ligne dans le motif ou la catégorie)"
+  },
+  "MessageRulesExported": {
+    "en": "%d {1:rule|rules} exported",
+    "de": "%d {1:Regel|Regeln} exportiert",
+    "fr": "%d {1:règle exportée|règles exportées}"
+  },
+  "MessageRulesImported": {
+    "en": "%1$d {1:rule|rules} and %2$d {2:category|categories} added, %3$d {3:booking|bookings} categorized",
+    "de": "%1$d {1:Regel|Regeln} und %2$d {2:Kategorie|Kategorien} hinzugefügt, %3$d {3:Buchung|Buchungen} kategorisiert",
+    "fr": "%1$d {1:règle ajoutée|règles ajoutées} et %2$d {2:catégorie ajoutée|catégories ajoutées}, %3$d {3:opération catégorisée|opérations catégorisées}"
+  },
+  "MessageSavedTo": {
+    "en": "Saved %s",
+    "de": "%s gespeichert",
+    "fr": "%s enregistré"
+  },
+  "MessageTaxOverrideSet": {
+    "en": "Tax status changed for %d {1:booking|bookings}",
+    "de": "Steuerstatus geändert für %d {1:Buchung|Buchungen}",
+    "fr": "Statut fiscal modifié pour %d {1:opération|opérations}"
+  },
+  "MessageTransactionAdded": {
+    "en": "Transaction added",
+    "de": "Buchung hinzugefügt",
+    "fr": "Opération ajoutée"
+  },
+  "MessageTransactionsDeleted": {
+    "en": "Deleted %d {1:transaction|transactions}",
+    "de": "%d {1:Buchung|Buchungen} gelöscht",
+    "fr": "%d {1:opération supprimée|opérations supprimées}"
+  },
+  "MessageUploaded": {
+    "en": "Uploaded %d {1:file|files}, text extracted from %d",
+    "de": "%d {1:Datei|Dateien} hochgeladen, Text aus %d extrahiert",
+    "fr": "%d {1:fichier importé|fichiers importés}, texte extrait de %d"
+  },
+  "MigrationBusy": {
+    "en": "Migrating…",
+    "de": "Wird übernommen…",
+    "fr": "Migration…"
+  },
+  "MigrationContinue": {
+    "en": "Continue",
+    "de": "Weiter",
+    "fr": "Continuer"
+  },
+  "MigrationCopiedText": {
+    "en": "Accounts, bank connections, categories, rules, bookings and documents are copied. Payment orders and remembered PINs are not. Bank logins must sign in again.",
+    "de": "Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente werden kopiert. Zahlungsaufträge und gespeicherte PINs nicht. Bei Bank-Logins ist eine neue Anmeldung nötig.",
+    "fr": "Les comptes, connexions bancaires, catégories, règles, écritures et documents sont copiés. Les ordres de paiement et les codes PIN mémorisés ne le sont pas. Les connexions bancaires devront se reconnecter."
+  },
+  "MigrationFindeskPassphrase": {
+    "en": "FinDesk passphrase",
+    "de": "FinDesk-Passphrase",
+    "fr": "Phrase secrète FinDesk"
+  },
+  "MigrationMigrateProfile": {
+    "en": "Migrate profile",
+    "de": "Profil übernehmen",
+    "fr": "Reprendre le profil"
+  },
+  "MigrationNewPassphraseNeeded": {
+    "en": "The FinDesk passphrase does not meet Finglass's rules for a new passphrase. Choose a new one.",
+    "de": "Die FinDesk-Passphrase erfüllt nicht die Regeln für eine neue Finglass-Passphrase. Wähle eine neue.",
+    "fr": "La phrase secrète FinDesk ne respecte pas les règles d'une nouvelle phrase secrète Finglass. Choisissez-en une nouvelle."
+  },
+  "MigrationProfileFailed": {
+    "en": "%1$s: %2$s",
+    "de": "%1$s: %2$s",
+    "fr": "%1$s : %2$s"
+  },
+  "MigrationProfileHeading": {
+    "en": "Profile %1$d of %2$d: %3$s",
+    "de": "Profil %1$d von %2$d: %3$s",
+    "fr": "Profil %1$d sur %2$d : %3$s"
+  },
+  "MigrationProfileMigrated": {
+    "en": "%1$s: %2$s",
+    "de": "%1$s: %2$s",
+    "fr": "%1$s : %2$s"
+  },
+  "MigrationProfileSkipped": {
+    "en": "%1$s: skipped",
+    "de": "%1$s: übersprungen",
+    "fr": "%1$s : ignoré"
+  },
+  "MigrationProfilesLabel": {
+    "en": "FinDesk profiles",
+    "de": "FinDesk-Profile",
+    "fr": "Profils FinDesk"
+  },
+  "MigrationQuitHint": {
+    "en": "Quit FinDesk first.",
+    "de": "Beende FinDesk zuerst.",
+    "fr": "Quittez FinDesk d'abord."
+  },
+  "MigrationSamePassphrase": {
+    "en": "Use the same passphrase for Finglass",
+    "de": "Dieselbe Passphrase für Finglass verwenden",
+    "fr": "Utiliser la même phrase secrète pour Finglass"
+  },
+  "MigrationSkip": {
+    "en": "Skip",
+    "de": "Überspringen",
+    "fr": "Ignorer"
+  },
+  "MigrationStart": {
+    "en": "Migrate from FinDesk",
+    "de": "Von FinDesk übernehmen",
+    "fr": "Reprendre depuis FinDesk"
+  },
+  "MigrationStartEmpty": {
+    "en": "Start empty",
+    "de": "Leer starten",
+    "fr": "Commencer vide"
+  },
+  "MigrationSummaryText": {
+    "en": "These FinDesk profiles were handled:",
+    "de": "Diese FinDesk-Profile wurden behandelt:",
+    "fr": "Ces profils FinDesk ont été traités :"
+  },
+  "MigrationSummaryTitle": {
+    "en": "Migration finished",
+    "de": "Übernahme abgeschlossen",
+    "fr": "Migration terminée"
+  },
+  "MigrationWelcomeText": {
+    "en": "Finglass can take over your FinDesk profiles now. Each FinDesk profile becomes a Finglass profile with the same name.",
+    "de": "Finglass kann jetzt deine FinDesk-Profile übernehmen. Jedes FinDesk-Profil wird ein Finglass-Profil mit demselben Namen.",
+    "fr": "Finglass peut reprendre vos profils FinDesk maintenant. Chaque profil FinDesk devient un profil Finglass du même nom."
+  },
+  "MigrationWelcomeTitle": {
+    "en": "FinDesk found on this Mac",
+    "de": "FinDesk auf diesem Mac gefunden",
+    "fr": "FinDesk trouvé sur ce Mac"
+  },
+  "MinAmount": {
+    "en": "min %s",
+    "de": "min %s",
+    "fr": "min %s"
+  },
+  "MinAmountIn": {
+    "en": "min %s",
+    "de": "min %s",
+    "fr": "min %s"
+  },
+  "MissingReceiptsOnly": {
+    "en": "Missing receipts only",
+    "de": "Nur fehlende Belege",
+    "fr": "Seulement les justificatifs manquants"
+  },
+  "MonthlyBudgetOptional": {
+    "en": "Monthly budget (€, optional)",
+    "de": "Monatliches Budget (€, optional)",
+    "fr": "Budget mensuel (€, facultatif)"
+  },
+  "MonthlyIncomeExpenses": {
+    "en": "Monthly income & expenses - %s",
+    "de": "Monatliche Einnahmen & Ausgaben – %s",
+    "fr": "Revenus et dépenses mensuels – %s"
+  },
+  "More": {
+    "en": "More",
+    "de": "Mehr",
+    "fr": "Plus"
+  },
+  "MoveDown": {
+    "en": "Move down",
+    "de": "Nach unten",
+    "fr": "Descendre"
+  },
+  "MoveToGroup": {
+    "en": "Move to group…",
+    "de": "In Gruppe verschieben…",
+    "fr": "Déplacer vers un groupe…"
+  },
+  "MoveUp": {
+    "en": "Move up",
+    "de": "Nach oben",
+    "fr": "Monter"
+  },
+  "Name": {
+    "en": "Name",
+    "de": "Name",
+    "fr": "Nom"
+  },
+  "NavAccounts": {
+    "en": "Accounts",
+    "de": "Konten",
+    "fr": "Comptes"
+  },
+  "NavDashboard": {
+    "en": "Dashboard",
+    "de": "Übersicht",
+    "fr": "Tableau de bord"
+  },
+  "NavDocuments": {
+    "en": "Documents",
+    "de": "Dokumente",
+    "fr": "Documents"
+  },
+  "NavReports": {
+    "en": "Reports",
+    "de": "Berichte",
+    "fr": "Rapports"
+  },
+  "NavSettings": {
+    "en": "Settings",
+    "de": "Einstellungen",
+    "fr": "Paramètres"
+  },
+  "NavTransactions": {
+    "en": "Transactions",
+    "de": "Umsätze",
+    "fr": "Opérations"
+  },
+  "NetIncome": {
+    "en": "Net income",
+    "de": "Nettoeinkommen",
+    "fr": "Revenu net"
+  },
+  "NewBooking": {
+    "en": "New booking",
+    "de": "Neue Buchung",
+    "fr": "Nouvelle écriture"
+  },
+  "NewBookingsCount": {
+    "en": "%d {1:new booking|new bookings}",
+    "de": "%d {1:neue Buchung|neue Buchungen}",
+    "fr": "%d {1:nouvelle écriture|nouvelles écritures}"
+  },
+  "NewGroup": {
+    "en": "New group",
+    "de": "Neue Gruppe",
+    "fr": "Nouveau groupe"
+  },
+  "NewPassphrase": {
+    "en": "New passphrase",
+    "de": "Neue Passphrase",
+    "fr": "Nouvelle phrase secrète"
+  },
+  "NewProfile": {
+    "en": "New profile",
+    "de": "Neues Profil",
+    "fr": "Nouveau profil"
+  },
+  "NewerBookingsUnchanged": {
+    "en": "The account has newer bookings than this file, so its balance is left unchanged.",
+    "de": "Das Konto hat neuere Buchungen als diese Datei, der Saldo bleibt unverändert.",
+    "fr": "Le compte a des écritures plus récentes que ce fichier, son solde reste inchangé."
+  },
+  "NextMonth": {
+    "en": "Next month",
+    "de": "Nächster Monat",
+    "fr": "Mois suivant"
+  },
+  "NextSyncFrom": {
+    "en": "next sync from %s",
+    "de": "nächster Abruf ab %s",
+    "fr": "prochaine récupération depuis %s"
+  },
+  "NextYear": {
+    "en": "Next year",
+    "de": "Folgejahr",
+    "fr": "Année suivante"
+  },
+  "No": {
+    "en": "No",
+    "de": "Nein",
+    "fr": "Non"
+  },
+  "NoAccountsYet": {
+    "en": "No accounts yet",
+    "de": "Noch keine Konten",
+    "fr": "Aucun compte pour l'instant"
+  },
+  "NoBanksDescription": {
+    "en": "Add your bank, then add its accounts. Balances and transactions can be entered manually until online banking sync is set up.",
+    "de": "Fügen Sie Ihre Bank hinzu und danach deren Konten. Salden und Umsätze können manuell erfasst werden, bis die Online-Synchronisation eingerichtet ist.",
+    "fr": "Ajoutez votre banque, puis ses comptes. Soldes et opérations peuvent être saisis manuellement jusqu'à la synchronisation en ligne."
+  },
+  "NoBanksYet": {
+    "en": "No banks yet",
+    "de": "Noch keine Banken",
+    "fr": "Aucune banque pour l'instant"
+  },
+  "NoBookingsSixMonths": {
+    "en": "No bookings in the last six months",
+    "de": "Keine Umsätze in den letzten sechs Monaten",
+    "fr": "Aucune opération ces six derniers mois"
+  },
+  "NoBookingsSixMonthsTo": {
+    "en": "No bookings in the six months to %s",
+    "de": "Keine Umsätze in den sechs Monaten bis %s",
+    "fr": "Aucune opération dans les six mois jusqu'à %s"
+  },
+  "NoCategoriesYet": {
+    "en": "No categories yet.",
+    "de": "Noch keine Kategorien.",
+    "fr": "Aucune catégorie pour l'instant."
+  },
+  "NoDocuments": {
+    "en": "No documents",
+    "de": "Keine Dokumente",
+    "fr": "Aucun document"
+  },
+  "NoDocumentsLinked": {
+    "en": "No documents linked",
+    "de": "Keine Dokumente verknüpft",
+    "fr": "Aucun document lié"
+  },
+  "NoExpensesInMonth": {
+    "en": "No expenses in %s",
+    "de": "Keine Ausgaben im %s",
+    "fr": "Aucune dépense en %s"
+  },
+  "NoExpensesThisMonth": {
+    "en": "No expenses this month",
+    "de": "Keine Ausgaben in diesem Monat",
+    "fr": "Aucune dépense ce mois-ci"
+  },
+  "NoFintsServer": {
+    "en": "no FinTS server listed",
+    "de": "kein FinTS-Server hinterlegt",
+    "fr": "aucun serveur FinTS listé"
+  },
+  "NoMatches": {
+    "en": "No matches",
+    "de": "Keine Treffer",
+    "fr": "Aucun résultat"
+  },
+  "NoReceipt": {
+    "en": "No receipt",
+    "de": "Kein Beleg",
+    "fr": "Aucun justificatif"
+  },
+  "NoRecurringFound": {
+    "en": "No recurring bookings found",
+    "de": "Keine wiederkehrenden Buchungen gefunden",
+    "fr": "Aucune écriture récurrente trouvée"
+  },
+  "NoRulesYet": {
+    "en": "No rules yet. Add one, or import a rules file.",
+    "de": "Noch keine Regeln. Legen Sie eine an oder importieren Sie eine Regeldatei.",
+    "fr": "Aucune règle pour l'instant. Ajoutez-en une ou importez un fichier de règles."
+  },
+  "NoTaxBookingsIn": {
+    "en": "No tax-relevant bookings in %s",
+    "de": "Keine steuerrelevanten Buchungen in %s",
+    "fr": "Aucune écriture fiscalement pertinente dans %s"
+  },
+  "NoTaxRelevantExpenses": {
+    "en": "No tax-relevant expenses. Mark categories as tax-relevant in Settings (e.g. Arbeitsmittel, Spenden, Versicherungen).",
+    "de": "Keine steuerrelevanten Ausgaben. Markieren Sie Kategorien in den Einstellungen als steuerrelevant (z. B. Arbeitsmittel, Spenden, Versicherungen).",
+    "fr": "Aucune dépense fiscale. Marquez des catégories comme pertinentes dans les Paramètres (p. ex. matériel, dons, assurances)."
+  },
+  "NoText": {
+    "en": "No text",
+    "de": "Kein Text",
+    "fr": "Pas de texte"
+  },
+  "NoTextExtracted": {
+    "en": "No text extracted.",
+    "de": "Kein Text erkannt.",
+    "fr": "Aucun texte extrait."
+  },
+  "NoTransactions": {
+    "en": "No transactions",
+    "de": "Keine Umsätze",
+    "fr": "Aucune opération"
+  },
+  "NoTransactionsAddBank": {
+    "en": "Add your bank to import or enter transactions.",
+    "de": "Fügen Sie Ihre Bank hinzu, um Umsätze zu importieren oder einzutragen.",
+    "fr": "Ajoutez votre banque pour importer ou saisir des opérations."
+  },
+  "NoTransactionsIn": {
+    "en": "No transactions in %s",
+    "de": "Keine Umsätze in %s",
+    "fr": "Aucune opération en %s"
+  },
+  "NoTransactionsYet": {
+    "en": "No transactions yet",
+    "de": "Noch keine Umsätze",
+    "fr": "Aucune opération pour l'instant"
+  },
+  "NoneDash": {
+    "en": "— none —",
+    "de": "— keine —",
+    "fr": "— aucun —"
+  },
+  "NoneInPeriod": {
+    "en": "None in this period",
+    "de": "Keine in diesem Zeitraum",
+    "fr": "Aucune sur cette période"
+  },
+  "NotEnoughData": {
+    "en": "Not enough data",
+    "de": "Nicht genug Daten",
+    "fr": "Pas assez de données"
+  },
+  "NotInSyncAll": {
+    "en": "not in Sync all",
+    "de": "nicht in „Alle synchronisieren“",
+    "fr": "hors « Tout synchroniser »"
+  },
+  "NotLinked": {
+    "en": "not linked",
+    "de": "nicht verknüpft",
+    "fr": "non lié"
+  },
+  "NothingMatches": {
+    "en": "Nothing matches the current filters.",
+    "de": "Nichts entspricht den aktuellen Filtern.",
+    "fr": "Rien ne correspond aux filtres actuels."
+  },
+  "NothingPending": {
+    "en": "Nothing to do",
+    "de": "Nichts zu tun",
+    "fr": "Rien à faire"
+  },
+  "NothingToExport": {
+    "en": "No bookings to export in %s",
+    "de": "Keine Buchungen zum Exportieren in %s",
+    "fr": "Aucune opération à exporter en %s"
+  },
+  "OcrNotInstalled": {
+    "en": "Text in images and scanned PDFs can't be read until Tesseract is installed (see %s). PDFs with text work without it.",
+    "de": "Text in Bildern und gescannten PDFs kann erst gelesen werden, wenn Tesseract installiert ist (siehe %s). PDFs mit Text funktionieren ohne.",
+    "fr": "Le texte des images et des PDF scannés ne peut être lu qu'une fois Tesseract installé (voir %s). Les PDF avec texte fonctionnent sans."
+  },
+  "Ok": {
+    "en": "OK",
+    "de": "OK",
+    "fr": "OK"
+  },
+  "OneYear": {
+    "en": "1 year",
+    "de": "1 Jahr",
+    "fr": "1 an"
+  },
+  "OnlineBankingFor": {
+    "en": "Online banking for %s",
+    "de": "Online-Banking für %s",
+    "fr": "Banque en ligne pour %s"
+  },
+  "OnlineSyncAvailable": {
+    "en": "online sync available",
+    "de": "Online-Sync verfügbar",
+    "fr": "sync en ligne disponible"
+  },
+  "OnlineSyncNotYetAvailable": {
+    "en": "Online sync isn't available in Finglass yet. Import your bank's statements under Transactions.",
+    "de": "Online-Sync ist in Finglass noch nicht verfügbar. Importieren Sie die Kontoauszüge Ihrer Bank unter „Umsätze“.",
+    "fr": "La synchronisation en ligne n'est pas encore disponible dans Finglass. Importez les relevés de votre banque dans « Opérations »."
+  },
+  "OnlineUserIdOptional": {
+    "en": "Online banking user ID (optional)",
+    "de": "Online-Banking-Benutzerkennung (optional)",
+    "fr": "Identifiant banque en ligne (facultatif)"
+  },
+  "Open": {
+    "en": "Open",
+    "de": "Öffnen",
+    "fr": "Ouvrir"
+  },
+  "OpenAccount": {
+    "en": "Open account",
+    "de": "Konto öffnen",
+    "fr": "Ouvrir le compte"
+  },
+  "OpenDetails": {
+    "en": "Open details",
+    "de": "Details öffnen",
+    "fr": "Ouvrir les détails"
+  },
+  "OpenDocument": {
+    "en": "Open document",
+    "de": "Dokument öffnen",
+    "fr": "Ouvrir le document"
+  },
+  "OpenPreviewNamed": {
+    "en": "Open preview: %s",
+    "de": "Vorschau öffnen: %s",
+    "fr": "Ouvrir l'aperçu : %s"
+  },
+  "OpenProfile": {
+    "en": "Open",
+    "de": "Öffnen",
+    "fr": "Ouvrir"
+  },
+  "OpenSettings": {
+    "en": "Open settings",
+    "de": "Einstellungen öffnen",
+    "fr": "Ouvrir les paramètres"
+  },
+  "OpenTaxBookings": {
+    "en": "Open tax bookings",
+    "de": "Steuerbuchungen öffnen",
+    "fr": "Ouvrir les écritures fiscales"
+  },
+  "OpticalTanCode": {
+    "en": "Optical TAN code for a TAN generator. Hold the TAN generator against the bars.",
+    "de": "Optischer TAN-Code für einen TAN-Generator. Halten Sie den Generator an die Balken.",
+    "fr": "Code TAN optique pour un générateur TAN. Tenez le générateur contre les barres."
+  },
+  "OtherCurrenciesExcluded": {
+    "en": "All amounts in %1$s. %2$d {2:booking|bookings} in other currencies {2:is|are} not included.",
+    "de": "Alle Beträge in %1$s. %2$d {2:Buchung|Buchungen} in anderen Währungen {2:ist|sind} nicht enthalten.",
+    "fr": "Tous les montants en %1$s. %2$d {2:opération|opérations} dans d'autres devises {2:n'est pas incluse|ne sont pas incluses}."
+  },
+  "OtherMovements": {
+    "en": "Transfers and loans: %s",
+    "de": "Umbuchungen und Kredite: %s",
+    "fr": "Virements et crédits : %s"
+  },
+  "OtherMovementsLabel": {
+    "en": "Transfers and loans",
+    "de": "Umbuchungen und Kredite",
+    "fr": "Virements et prêts"
+  },
+  "OverBudget": {
+    "en": "%s over budget",
+    "de": "%s über Budget",
+    "fr": "%s au-dessus du budget"
+  },
+  "PartnerPayee": {
+    "en": "Partner / payee",
+    "de": "Partner / Empfänger",
+    "fr": "Partenaire / bénéficiaire"
+  },
+  "Passphrase": {
+    "en": "Passphrase",
+    "de": "Passphrase",
+    "fr": "Phrase secrète"
+  },
+  "PassphraseAcknowledge": {
+    "en": "Confirm that you understand there's no recovery.",
+    "de": "Bestätigen Sie, dass es keine Wiederherstellung gibt.",
+    "fr": "Confirmez que vous avez compris qu'aucune récupération n'est possible."
+  },
+  "PassphraseHint": {
+    "en": "At least %d characters. A few unrelated words are easy to remember and hard to guess.",
+    "de": "Mindestens %d Zeichen. Ein paar zusammenhanglose Wörter sind leicht zu merken und schwer zu erraten.",
+    "fr": "Au moins %d caractères. Quelques mots sans rapport sont faciles à retenir et difficiles à deviner."
+  },
+  "PassphraseMismatch": {
+    "en": "The passphrases don't match.",
+    "de": "Die Passphrasen stimmen nicht überein.",
+    "fr": "Les phrases secrètes ne correspondent pas."
+  },
+  "PassphraseNoRecovery": {
+    "en": "I understand that nobody can recover my data if I forget this passphrase.",
+    "de": "Mir ist klar, dass niemand meine Daten wiederherstellen kann, wenn ich diese Passphrase vergesse.",
+    "fr": "Je comprends que personne ne pourra récupérer mes données si j'oublie cette phrase secrète."
+  },
+  "PassphraseSpaces": {
+    "en": "The passphrase can't start or end with a space.",
+    "de": "Die Passphrase darf nicht mit einem Leerzeichen beginnen oder enden.",
+    "fr": "La phrase secrète ne peut pas commencer ni finir par une espace."
+  },
+  "PassphraseTooShort": {
+    "en": "Use at least %d characters.",
+    "de": "Verwenden Sie mindestens %d Zeichen.",
+    "fr": "Utilisez au moins %d caractères."
+  },
+  "PatternExample": {
+    "en": "Pattern (e.g. rewe|edeka|aldi)",
+    "de": "Muster (z. B. rewe|edeka|aldi)",
+    "fr": "Motif (p. ex. rewe|edeka|aldi)"
+  },
+  "PatternInvalid": {
+    "en": "Enter a valid regular expression",
+    "de": "Gültigen regulären Ausdruck eingeben",
+    "fr": "Saisissez une expression régulière valide"
+  },
+  "PatternRegex": {
+    "en": "Pattern (regex)",
+    "de": "Muster (Regex)",
+    "fr": "Motif (regex)"
+  },
+  "PdfAllAmountsIn": {
+    "en": "All amounts in %s. %d {2:booking|bookings} in other currencies {2:is|are} not included.",
+    "de": "Alle Beträge in %s. %d {2:Buchung|Buchungen} in anderen Währungen {2:ist|sind} nicht enthalten.",
+    "fr": "Tous les montants en %s. %d {2:opération|opérations} dans d'autres devises {2:n'est pas incluse|ne sont pas incluses}."
+  },
+  "PdfExpensesByCategory": {
+    "en": "Expenses by category",
+    "de": "Ausgaben nach Kategorie",
+    "fr": "Dépenses par catégorie"
+  },
+  "PdfGenerated": {
+    "en": "Generated %s",
+    "de": "Erstellt am %s",
+    "fr": "Généré le %s"
+  },
+  "PdfIncomeExpensesNet": {
+    "en": "Income / Expenses / Net",
+    "de": "Einnahmen / Ausgaben / Netto",
+    "fr": "Revenus / Dépenses / Net"
+  },
+  "PdfMonth": {
+    "en": "Month",
+    "de": "Monat",
+    "fr": "Mois"
+  },
+  "PdfMonthlyBreakdown": {
+    "en": "Monthly breakdown",
+    "de": "Monatliche Aufschlüsselung",
+    "fr": "Répartition mensuelle"
+  },
+  "PdfNetIncome": {
+    "en": "Net income",
+    "de": "Nettoeinkommen",
+    "fr": "Revenu net"
+  },
+  "PdfNoTaxRelevant": {
+    "en": "No categories are marked as tax-relevant.",
+    "de": "Keine Kategorien sind als steuerrelevant markiert.",
+    "fr": "Aucune catégorie n'est marquée comme fiscalement pertinente."
+  },
+  "PdfPageOf": {
+    "en": "Page %1$d of %2$d",
+    "de": "Seite %1$d von %2$d",
+    "fr": "Page %1$d sur %2$d"
+  },
+  "PdfSummary": {
+    "en": "Summary",
+    "de": "Zusammenfassung",
+    "fr": "Résumé"
+  },
+  "PdfTaxByCategory": {
+    "en": "Tax-relevant expenses by category",
+    "de": "Steuerrelevante Ausgaben nach Kategorie",
+    "fr": "Dépenses fiscalement pertinentes par catégorie"
+  },
+  "PdfTaxRelevantExpenses": {
+    "en": "Tax-relevant expenses",
+    "de": "Steuerrelevante Ausgaben",
+    "fr": "Dépenses fiscalement pertinentes"
+  },
+  "PdfTaxTransactions": {
+    "en": "Tax-relevant transactions",
+    "de": "Steuerrelevante Buchungen",
+    "fr": "Opérations fiscalement pertinentes"
+  },
+  "PdfTotalExpenses": {
+    "en": "Total expenses",
+    "de": "Gesamtausgaben",
+    "fr": "Total des dépenses"
+  },
+  "PdfTotalIncome": {
+    "en": "Total income",
+    "de": "Gesamteinnahmen",
+    "fr": "Total des revenus"
+  },
+  "PdfTransactionCount": {
+    "en": "Transactions",
+    "de": "Buchungen",
+    "fr": "Opérations"
+  },
+  "PendingHeader": {
+    "en": "Pending (not yet booked) · as of %s",
+    "de": "Vorgemerkt (noch nicht gebucht) · Stand %s",
+    "fr": "En attente (pas encore comptabilisé) · au %s"
+  },
+  "PendingLeftOut": {
+    "en": "%d pending left out",
+    "de": "%d vorgemerkt ausgelassen",
+    "fr": "%d en attente {1:omise|omises}"
+  },
+  "PendingSubtitle": {
+    "en": "%d uncategorized · %d unlinked {2:doc|docs}",
+    "de": "%d ohne Kategorie · %d {2:unverknüpftes Dokument|unverknüpfte Dokumente}",
+    "fr": "%d sans catégorie · %d {2:document non lié|documents non liés}"
+  },
+  "PendingTasks": {
+    "en": "Pending tasks",
+    "de": "Offene Aufgaben",
+    "fr": "Tâches en attente"
+  },
+  "PerMonth": {
+    "en": "Per month",
+    "de": "Pro Monat",
+    "fr": "Par mois"
+  },
+  "PeriodAllTime": {
+    "en": "All time",
+    "de": "Gesamter Zeitraum",
+    "fr": "Tout"
+  },
+  "PeriodCustomRange": {
+    "en": "Custom range…",
+    "de": "Eigener Zeitraum…",
+    "fr": "Période personnalisée…"
+  },
+  "PeriodLast3Months": {
+    "en": "Last 3 months",
+    "de": "Letzte 3 Monate",
+    "fr": "3 derniers mois"
+  },
+  "PeriodLastMonth": {
+    "en": "Last month",
+    "de": "Letzter Monat",
+    "fr": "Mois dernier"
+  },
+  "PeriodLastYear": {
+    "en": "Last year",
+    "de": "Letztes Jahr",
+    "fr": "Année dernière"
+  },
+  "PeriodThisMonth": {
+    "en": "This month",
+    "de": "Dieser Monat",
+    "fr": "Ce mois"
+  },
+  "PeriodThisYear": {
+    "en": "This year",
+    "de": "Dieses Jahr",
+    "fr": "Cette année"
+  },
+  "Pin": {
+    "en": "PIN",
+    "de": "PIN",
+    "fr": "PIN"
+  },
+  "PinAskedEverySync": {
+    "en": "Your PIN is asked for on every sync. Tick “Remember PIN for syncs” in the PIN prompt to keep it in your system's secure credential store.",
+    "de": "Ihre PIN wird bei jedem Sync abgefragt. Aktivieren Sie im PIN-Dialog „PIN für Syncs merken“, um sie im sicheren Anmeldedatenspeicher Ihres Systems zu speichern.",
+    "fr": "Votre PIN est demandé à chaque sync. Cochez « Mémoriser le PIN pour les syncs » dans la boîte de dialogue pour le conserver dans le magasin d'identifiants sécurisé de votre système."
+  },
+  "PinExplanation": {
+    "en": "Online banking PIN for user %s.",
+    "de": "Online-Banking-PIN für Benutzer %s.",
+    "fr": "PIN de banque en ligne pour l'utilisateur %s."
+  },
+  "PinFor": {
+    "en": "PIN for %s",
+    "de": "PIN für %s",
+    "fr": "PIN pour %s"
+  },
+  "PinNeverStored": {
+    "en": "Your PIN is asked for on every sync and can't be stored on this system.",
+    "de": "Ihre PIN wird bei jedem Sync abgefragt und kann auf diesem System nicht gespeichert werden.",
+    "fr": "Votre PIN est demandé à chaque sync et ne peut pas être stocké sur ce système."
+  },
+  "PinNotSaved": {
+    "en": "The PIN could not be saved in the system's secure credential store.",
+    "de": "Die PIN konnte nicht im sicheren Anmeldedatenspeicher des Systems gespeichert werden.",
+    "fr": "Le PIN n'a pas pu être enregistré dans le magasin d'identifiants sécurisé du système."
+  },
+  "PinSavedForSyncs": {
+    "en": "PIN saved for syncs",
+    "de": "PIN für Syncs gespeichert",
+    "fr": "PIN enregistré pour les syncs"
+  },
+  "PlaintextLeftoverDeletedProfile": {
+    "en": "Deleted profile",
+    "de": "Gelöschtes Profil",
+    "fr": "Profil supprimé"
+  },
+  "PlaintextLeftoverOtherProfile": {
+    "en": "Another profile",
+    "de": "Anderes Profil",
+    "fr": "Autre profil"
+  },
+  "PlaintextLeftoverPendingRestore": {
+    "en": "Restore waiting for the next start",
+    "de": "Wiederherstellung wartet auf den nächsten Start",
+    "fr": "Restauration en attente du prochain démarrage"
+  },
+  "PlaintextLeftoverPreRestore": {
+    "en": "Replaced by a restore",
+    "de": "Durch eine Wiederherstellung ersetzt",
+    "fr": "Remplacé par une restauration"
+  },
+  "PlaintextLeftoversText": {
+    "en": "Finglass encrypts the database it opens, but these copies in the data folder were left behind by earlier restores, deleted profiles or profiles that were never opened. Anyone who can read this disk can read them without your passphrase. Delete the ones you no longer need.",
+    "de": "Finglass verschlüsselt die Datenbank, die es öffnet. Diese Kopien im Datenordner stammen jedoch von früheren Wiederherstellungen, gelöschten Profilen oder Profilen, die noch nie geöffnet wurden. Wer diesen Datenträger lesen kann, kann sie ohne Ihre Passphrase lesen. Löschen Sie die Kopien, die Sie nicht mehr brauchen.",
+    "fr": "Finglass chiffre la base qu'il ouvre, mais ces copies dans le dossier de données proviennent de restaurations antérieures, de profils supprimés ou de profils jamais ouverts. Quiconque peut lire ce disque peut les lire sans votre phrase secrète. Supprimez celles dont vous n'avez plus besoin."
+  },
+  "PlaintextLeftoversTitle": {
+    "en": "Unencrypted copies of the database are still on disk",
+    "de": "Unverschlüsselte Datenbankkopien liegen noch auf der Festplatte",
+    "fr": "Des copies non chiffrées de la base sont encore sur le disque"
+  },
+  "PlusOtherCurrencies": {
+    "en": "+ %s in other currencies",
+    "de": "+ %s in anderen Währungen",
+    "fr": "+ %s dans d'autres devises"
+  },
+  "PrepareRestore": {
+    "en": "Prepare restore",
+    "de": "Wiederherstellung vorbereiten",
+    "fr": "Préparer la restauration"
+  },
+  "Preview": {
+    "en": "Preview",
+    "de": "Vorschau",
+    "fr": "Aperçu"
+  },
+  "PreviewOf": {
+    "en": "Preview of %s",
+    "de": "Vorschau von %s",
+    "fr": "Aperçu de %s"
+  },
+  "PreviousMonth": {
+    "en": "Previous month",
+    "de": "Voriger Monat",
+    "fr": "Mois précédent"
+  },
+  "PreviousYear": {
+    "en": "Previous year",
+    "de": "Vorjahr",
+    "fr": "Année précédente"
+  },
+  "PrimaryCurrency": {
+    "en": "Primary currency",
+    "de": "Hauptwährung",
+    "fr": "Devise principale"
+  },
+  "PrimaryCurrencyHint": {
+    "en": "Dashboard, budgets and reports add up bookings in this currency only. Amounts are never converted.",
+    "de": "Übersicht, Budgets und Berichte summieren nur Buchungen in dieser Währung. Beträge werden nie umgerechnet.",
+    "fr": "Le tableau de bord, les budgets et les rapports ne totalisent que les opérations dans cette devise. Les montants ne sont jamais convertis."
+  },
+  "Print": {
+    "en": "Print…",
+    "de": "Drucken…",
+    "fr": "Imprimer…"
+  },
+  "Prio": {
+    "en": "prio %d",
+    "de": "Prio %d",
+    "fr": "prio %d"
+  },
+  "Priority": {
+    "en": "Priority",
+    "de": "Priorität",
+    "fr": "Priorité"
+  },
+  "PriorityMustBeNumber": {
+    "en": "Priority must be a whole number",
+    "de": "Priorität muss eine ganze Zahl sein",
+    "fr": "La priorité doit être un nombre entier"
+  },
+  "ProfileName": {
+    "en": "Profile name",
+    "de": "Profilname",
+    "fr": "Nom du profil"
+  },
+  "ProfileNextStart": {
+    "en": "opens at next start",
+    "de": "öffnet beim nächsten Start",
+    "fr": "s'ouvre au prochain démarrage"
+  },
+  "ProfileOpen": {
+    "en": "open now",
+    "de": "jetzt geöffnet",
+    "fr": "ouvert"
+  },
+  "ProfileSwitchBusy": {
+    "en": "Finish the running task before switching profiles.",
+    "de": "Beenden Sie zuerst die laufende Aufgabe, bevor Sie das Profil wechseln.",
+    "fr": "Terminez d'abord la tâche en cours avant de changer de profil."
+  },
+  "Profiles": {
+    "en": "Profiles",
+    "de": "Profile",
+    "fr": "Profils"
+  },
+  "ProfilesHint": {
+    "en": "Each profile has its own accounts, transactions, documents and bank connections.",
+    "de": "Jedes Profil hat eigene Konten, Umsätze, Dokumente und Bankzugänge.",
+    "fr": "Chaque profil a ses propres comptes, opérations, documents et connexions bancaires."
+  },
+  "ProgressConnecting": {
+    "en": "Connecting to bank…",
+    "de": "Verbindung zur Bank…",
+    "fr": "Connexion à la banque…"
+  },
+  "ProgressSavingAccount": {
+    "en": "Saving %s…",
+    "de": "%s wird gespeichert…",
+    "fr": "Enregistrement de %s…"
+  },
+  "ProtocolTraceAvailable": {
+    "en": "A trace is ready to save.",
+    "de": "Ein Protokoll kann gespeichert werden.",
+    "fr": "Une trace est prête à être enregistrée."
+  },
+  "ProtocolTraceEnable": {
+    "en": "Collect FinTS protocol trace",
+    "de": "FinTS-Protokoll aufzeichnen",
+    "fr": "Collecter la trace du protocole FinTS"
+  },
+  "ProtocolTraceHint": {
+    "en": "Collect a log of the next online-banking dialogs to help diagnose connection problems. PIN, TAN, user id and account numbers are masked, but the log contains your bank's full answers: names, purposes, amounts and balances. Read it before you share it. Traces stay in memory until you save them and are never sent automatically.",
+    "de": "Zeichnet ein Protokoll der nächsten Online-Banking-Dialoge auf, um Verbindungsprobleme zu analysieren. PIN, TAN, Benutzerkennung und Kontonummern werden maskiert, das Protokoll enthält aber die vollständigen Antworten Ihrer Bank: Namen, Verwendungszwecke, Beträge und Salden. Lesen Sie es, bevor Sie es weitergeben. Protokolle bleiben im Speicher, bis Sie sie speichern, und werden nie automatisch gesendet.",
+    "fr": "Enregistre un journal des prochains dialogues bancaires pour diagnostiquer les problèmes de connexion. Le PIN, le TAN, l'identifiant et les numéros de compte sont masqués, mais le journal contient les réponses complètes de votre banque : noms, libellés, montants et soldes. Relisez-le avant de le partager. Les traces restent en mémoire jusqu'à leur enregistrement et ne sont jamais envoyées automatiquement."
+  },
+  "ProtocolTraceNone": {
+    "en": "No trace captured yet. Enable collection, reproduce the problem (e.g. run a sync), then save it here.",
+    "de": "Noch kein Protokoll aufgezeichnet. Aufzeichnung aktivieren, das Problem reproduzieren (z. B. Sync ausführen) und dann hier speichern.",
+    "fr": "Aucune trace capturée pour l'instant. Activez la collecte, reproduisez le problème (par ex. lancez une synchronisation), puis enregistrez-la ici."
+  },
+  "ProtocolTraceSave": {
+    "en": "Save protocol trace",
+    "de": "Protokoll speichern",
+    "fr": "Enregistrer la trace"
+  },
+  "ProtocolTraceTitle": {
+    "en": "FinTS protocol trace",
+    "de": "FinTS-Protokoll",
+    "fr": "Trace du protocole FinTS"
+  },
+  "Purpose": {
+    "en": "Purpose",
+    "de": "Verwendungszweck",
+    "fr": "Libellé"
+  },
+  "ReExtractText": {
+    "en": "Re-extract text",
+    "de": "Text erneut erkennen",
+    "fr": "Réextraire le texte"
+  },
+  "ReapplyRules": {
+    "en": "Re-apply rules to shown bookings",
+    "de": "Regeln auf angezeigte Buchungen erneut anwenden",
+    "fr": "Réappliquer les règles aux opérations affichées"
+  },
+  "ReapplyRulesConfirm": {
+    "en": "Change %d",
+    "de": "%d ändern",
+    "fr": "Modifier %d"
+  },
+  "ReapplyRulesSummary": {
+    "en": "New category for %1$d of %2$d shown {2:booking|bookings}.",
+    "de": "Neue Kategorie für %1$d von %2$d angezeigten {2:Buchung|Buchungen}.",
+    "fr": "Nouvelle catégorie pour %1$d des %2$d {2:opération affichée|opérations affichées}."
+  },
+  "ReapplyRulesTitle": {
+    "en": "Re-apply rules?",
+    "de": "Regeln erneut anwenden?",
+    "fr": "Réappliquer les règles ?"
+  },
+  "ReapplyRulesWarning": {
+    "en": "Categories you set by hand are overwritten too. Narrow the list with the filters first if needed. You can undo this afterwards from the menu.",
+    "de": "Auch von Hand gesetzte Kategorien werden überschrieben. Grenzen Sie die Liste bei Bedarf vorher mit den Filtern ein. Sie können dies anschließend über das Menü rückgängig machen.",
+    "fr": "Les catégories définies à la main sont aussi remplacées. Filtrez d'abord la liste si nécessaire. Vous pourrez ensuite annuler depuis le menu."
+  },
+  "ReceiptsComplete": {
+    "en": "All there",
+    "de": "Vollständig",
+    "fr": "Complets"
+  },
+  "ReceiptsMissing": {
+    "en": "%d missing",
+    "de": "%d fehlen",
+    "fr": "%d manquants"
+  },
+  "RecentBookings": {
+    "en": "Recent bookings",
+    "de": "Letzte Buchungen",
+    "fr": "Écritures récentes"
+  },
+  "RecentTransactions": {
+    "en": "Recent transactions",
+    "de": "Letzte Umsätze",
+    "fr": "Opérations récentes"
+  },
+  "RecurringHint": {
+    "en": "Detected from the last 13 months once something repeats at least three times (yearly: twice).",
+    "de": "Erkannt aus den letzten 13 Monaten, sobald etwas mindestens dreimal vorkommt (jährlich: zweimal).",
+    "fr": "Détecté sur les 13 derniers mois dès qu'un motif se répète au moins trois fois (annuel : deux fois)."
+  },
+  "RecurringPayments": {
+    "en": "Recurring payments",
+    "de": "Wiederkehrende Zahlungen",
+    "fr": "Paiements récurrents"
+  },
+  "RememberPinExplanation": {
+    "en": "Kept in your system's secure credential store, never in Finglass's files.",
+    "de": "Wird im sicheren Anmeldedatenspeicher Ihres Systems gespeichert, nie in den Dateien von Finglass.",
+    "fr": "Conservé dans le magasin d'identifiants sécurisé de votre système, jamais dans les fichiers de Finglass."
+  },
+  "RememberPinForSyncs": {
+    "en": "Remember PIN for syncs",
+    "de": "PIN für Syncs merken",
+    "fr": "Mémoriser le PIN pour les syncs"
+  },
+  "RememberedTan": {
+    "en": "Remembered TAN procedure: %s",
+    "de": "Gemerkte TAN-Verfahren: %s",
+    "fr": "Procédure TAN mémorisée : %s"
+  },
+  "RemoveBank": {
+    "en": "Remove bank",
+    "de": "Bank entfernen",
+    "fr": "Retirer la banque"
+  },
+  "RemoveBankText": {
+    "en": "This deletes the bank, all of its accounts and their transactions.",
+    "de": "Dadurch werden die Bank, alle Konten und deren Umsätze gelöscht.",
+    "fr": "Cela supprime la banque, tous ses comptes et leurs opérations."
+  },
+  "RemoveBankTitle": {
+    "en": "Remove %s?",
+    "de": "%s entfernen?",
+    "fr": "Retirer %s ?"
+  },
+  "RenameAccount": {
+    "en": "Rename account",
+    "de": "Konto umbenennen",
+    "fr": "Renommer le compte"
+  },
+  "RenameConnection": {
+    "en": "Rename",
+    "de": "Umbenennen",
+    "fr": "Renommer"
+  },
+  "RenameGroup": {
+    "en": "Rename group",
+    "de": "Gruppe umbenennen",
+    "fr": "Renommer le groupe"
+  },
+  "RenameProfile": {
+    "en": "Rename %s",
+    "de": "%s umbenennen",
+    "fr": "Renommer %s"
+  },
+  "RepeatPassphrase": {
+    "en": "Repeat the passphrase",
+    "de": "Passphrase wiederholen",
+    "fr": "Répétez la phrase secrète"
+  },
+  "ReportTitleRange": {
+    "en": "Finglass Report %s",
+    "de": "Finglass-Bericht %s",
+    "fr": "Rapport Finglass %s"
+  },
+  "ReportTitleTax": {
+    "en": "Finglass Tax Report %d",
+    "de": "Finglass-Steuerbericht %d",
+    "fr": "Rapport fiscal Finglass %d"
+  },
+  "ReportTotal": {
+    "en": "Total",
+    "de": "Gesamt",
+    "fr": "Total"
+  },
+  "ReportUnknownCategory": {
+    "en": "Unknown",
+    "de": "Unbekannt",
+    "fr": "Inconnu"
+  },
+  "ReportsBuiltFrom": {
+    "en": "Reports are built from the transactions of the selected period.",
+    "de": "Berichte entstehen aus den Umsätzen des gewählten Zeitraums.",
+    "fr": "Les rapports sont construits à partir des opérations de la période sélectionnée."
+  },
+  "Reset": {
+    "en": "Reset",
+    "de": "Zurücksetzen",
+    "fr": "Réinitialiser"
+  },
+  "ResetTaxAutomatic": {
+    "en": "Reset to automatic",
+    "de": "Auf automatisch zurücksetzen",
+    "fr": "Rétablir l'automatique"
+  },
+  "ResetToDefaults": {
+    "en": "Reset to defaults",
+    "de": "Auf Standard zurücksetzen",
+    "fr": "Rétablir les valeurs par défaut"
+  },
+  "RestartToOpenProfile": {
+    "en": "Restart Finglass to open %s.",
+    "de": "Starten Sie Finglass neu, um %s zu öffnen.",
+    "fr": "Redémarrez Finglass pour ouvrir %s."
+  },
+  "RestoreBackup": {
+    "en": "Restore backup",
+    "de": "Sicherung wiederherstellen",
+    "fr": "Restaurer la sauvegarde"
+  },
+  "RestoreCreated": {
+    "en": "Created %s · %d {2:transaction|transactions} · %d {3:document|documents}",
+    "de": "Erstellt %s · %d {2:Umsatz|Umsätze} · %d {3:Dokument|Dokumente}",
+    "fr": "Créé %s · %d {2:opération|opérations} · %d {3:document|documents}"
+  },
+  "RestoreExplanation": {
+    "en": "On the next start, all current data is replaced by this backup. The current data is moved to a pre-restore folder, not deleted; it stays there, unencrypted documents included, until you delete it yourself.",
+    "de": "Beim nächsten Start werden alle aktuellen Daten durch diese Sicherung ersetzt. Die aktuellen Daten werden in einen Ordner pre-restore verschoben, nicht gelöscht; dort bleiben sie samt unverschlüsselter Dokumente, bis Sie ihn selbst löschen.",
+    "fr": "Au prochain démarrage, toutes les données actuelles seront remplacées par cette sauvegarde. Les données actuelles sont déplacées dans un dossier pre-restore, pas supprimées ; elles y restent, documents non chiffrés compris, jusqu'à ce que vous le supprimiez vous-même."
+  },
+  "RestoreFileTitle": {
+    "en": "Restore %s?",
+    "de": "%s wiederherstellen?",
+    "fr": "Restaurer %s ?"
+  },
+  "RestoreFromBackup": {
+    "en": "Restore from backup…",
+    "de": "Aus Sicherung wiederherstellen…",
+    "fr": "Restaurer depuis une sauvegarde…"
+  },
+  "RestoreWaiting": {
+    "en": "A restore is waiting. Restart Finglass to apply it.",
+    "de": "Eine Wiederherstellung wartet. Starten Sie Finglass neu, um sie anzuwenden.",
+    "fr": "Une restauration est en attente. Redémarrez Finglass pour l'appliquer."
+  },
+  "RestoredEncryptedHint": {
+    "en": "A backup was restored. Enter the passphrase that was in effect when the backup was made.",
+    "de": "Eine Sicherung wurde wiederhergestellt. Geben Sie die Passphrase ein, die beim Erstellen der Sicherung galt.",
+    "fr": "Une sauvegarde a été restaurée. Saisissez la phrase secrète en vigueur lors de sa création."
+  },
+  "RestoredPlainHint": {
+    "en": "A backup without encryption was restored.",
+    "de": "Eine unverschlüsselte Sicherung wurde wiederhergestellt.",
+    "fr": "Une sauvegarde non chiffrée a été restaurée."
+  },
+  "RuleAppliesTo": {
+    "en": "Applies to",
+    "de": "Gilt für",
+    "fr": "S'applique à"
+  },
+  "RuleCategoryLabel": {
+    "en": "Category: %s",
+    "de": "Kategorie: %s",
+    "fr": "Catégorie : %s"
+  },
+  "RuleDirectionAny": {
+    "en": "Expenses and income",
+    "de": "Ausgaben und Einnahmen",
+    "fr": "Dépenses et revenus"
+  },
+  "RuleDirectionExpense": {
+    "en": "Expenses only",
+    "de": "Nur Ausgaben",
+    "fr": "Dépenses uniquement"
+  },
+  "RuleDirectionIncome": {
+    "en": "Income only",
+    "de": "Nur Einnahmen",
+    "fr": "Revenus uniquement"
+  },
+  "RuleFieldAny": {
+    "en": "Partner and purpose",
+    "de": "Partner und Zweck",
+    "fr": "Partenaire et libellé"
+  },
+  "RuleFieldPartner": {
+    "en": "Partner name only",
+    "de": "Nur Partnername",
+    "fr": "Nom du partenaire uniquement"
+  },
+  "RuleFieldPurpose": {
+    "en": "Purpose only",
+    "de": "Nur Verwendungszweck",
+    "fr": "Libellé uniquement"
+  },
+  "RuleFileErrorAppliesTo": {
+    "en": "Unknown applies_to value: %s (any, expense, income)",
+    "de": "Unbekannter applies_to-Wert: %s (any, expense, income)",
+    "fr": "Valeur applies_to inconnue : %s (any, expense, income)"
+  },
+  "RuleFileErrorAutoApply": {
+    "en": "auto_apply must be true or false: %s",
+    "de": "auto_apply muss true oder false sein: %s",
+    "fr": "auto_apply doit être true ou false : %s"
+  },
+  "RuleFileErrorCategory": {
+    "en": "Category is empty or longer than 100 characters",
+    "de": "Kategorie ist leer oder länger als 100 Zeichen",
+    "fr": "La catégorie est vide ou dépasse 100 caractères"
+  },
+  "RuleFileErrorColumns": {
+    "en": "Expected 6 columns, found %d",
+    "de": "6 Spalten erwartet, %d gefunden",
+    "fr": "6 colonnes attendues, %d trouvées"
+  },
+  "RuleFileErrorPattern": {
+    "en": "Invalid pattern: %s",
+    "de": "Ungültiges Muster: %s",
+    "fr": "Motif invalide : %s"
+  },
+  "RuleFileErrorPatternLength": {
+    "en": "Pattern longer than 1000 characters",
+    "de": "Muster länger als 1000 Zeichen",
+    "fr": "Motif de plus de 1000 caractères"
+  },
+  "RuleFileErrorPriority": {
+    "en": "Priority is not a whole number: %s",
+    "de": "Priorität ist keine ganze Zahl: %s",
+    "fr": "La priorité n'est pas un nombre entier : %s"
+  },
+  "RuleFileErrorSearchIn": {
+    "en": "Unknown search_in value: %s (any, partner, purpose)",
+    "de": "Unbekannter search_in-Wert: %s (any, partner, purpose)",
+    "fr": "Valeur search_in inconnue : %s (any, partner, purpose)"
+  },
+  "RuleImportCategories": {
+    "en": "%d {1:category|categories} to create",
+    "de": "%d {1:Kategorie|Kategorien} neu anlegen",
+    "fr": "%d {1:catégorie à créer|catégories à créer}"
+  },
+  "RuleImportCategorize": {
+    "en": "Categorize %d uncategorized {1:booking|bookings} now",
+    "de": "%d nicht kategorisierte {1:Buchung|Buchungen} jetzt kategorisieren",
+    "fr": "Catégoriser %d {1:opération sans catégorie|opérations sans catégorie} maintenant"
+  },
+  "RuleImportConflictLine": {
+    "en": "Line %d: %s → %s (existing: %s)",
+    "de": "Zeile %d: %s → %s (vorhanden: %s)",
+    "fr": "Ligne %d : %s → %s (existante : %s)"
+  },
+  "RuleImportConflicts": {
+    "en": "%d {1:conflict|conflicts} skipped",
+    "de": "%d {1:Konflikt|Konflikte} übersprungen",
+    "fr": "%d {1:conflit ignoré|conflits ignorés}"
+  },
+  "RuleImportDuplicates": {
+    "en": "%d {1:duplicate|duplicates} skipped",
+    "de": "%d {1:Duplikat|Duplikate} übersprungen",
+    "fr": "%d doublon{1:s||} ignoré{1:s||}"
+  },
+  "RuleImportErrorLine": {
+    "en": "Line %d: %s",
+    "de": "Zeile %d: %s",
+    "fr": "Ligne %d : %s"
+  },
+  "RuleImportErrors": {
+    "en": "%d {1:invalid row|invalid rows}",
+    "de": "%d {1:ungültige Zeile|ungültige Zeilen}",
+    "fr": "%d {1:erreur de ligne|erreurs de ligne}"
+  },
+  "RuleImportNewRules": {
+    "en": "%d new {1:rule|rules}",
+    "de": "%d neue {1:Regel|Regeln}",
+    "fr": "%d nouvelle{1:s||} {1:règle|règles}"
+  },
+  "RuleImportTitle": {
+    "en": "Import rules",
+    "de": "Regeln importieren",
+    "fr": "Importer des règles"
+  },
+  "RuleSearchIn": {
+    "en": "Search in",
+    "de": "Suche in",
+    "fr": "Rechercher dans"
+  },
+  "RuleTaxAsCategory": {
+    "en": "As the category",
+    "de": "Wie die Kategorie",
+    "fr": "Comme la catégorie"
+  },
+  "RuleTaxMarkerNo": {
+    "en": "No tax",
+    "de": "keine Steuer",
+    "fr": "sans impôt"
+  },
+  "RuleTaxMarkerYes": {
+    "en": "Tax",
+    "de": "Steuer",
+    "fr": "impôt"
+  },
+  "RulesHint": {
+    "en": "A rule's pattern is a case-insensitive regular expression matched against partner name and purpose, or only one of them, for expenses, income or both. Higher priority wins; on equal priority the older rule wins.",
+    "de": "Das Muster einer Regel ist ein groß-/kleinschreibungsunabhängiger regulärer Ausdruck für Partnername und Verwendungszweck oder nur eins davon, für Ausgaben, Einnahmen oder beides. Höhere Priorität gewinnt, bei gleicher Priorität die ältere Regel.",
+    "fr": "Le motif d'une règle est une expression régulière insensible à la casse, appliquée au nom du partenaire et au libellé, ou à l'un des deux seulement, pour les dépenses, les revenus ou les deux. La priorité la plus élevée l'emporte ; à priorité égale, la règle la plus ancienne."
+  },
+  "Save": {
+    "en": "Save",
+    "de": "Speichern",
+    "fr": "Enregistrer"
+  },
+  "SaveBackup": {
+    "en": "Save backup",
+    "de": "Sicherung speichern",
+    "fr": "Enregistrer la sauvegarde"
+  },
+  "SearchDocuments": {
+    "en": "Search documents by name or text content…",
+    "de": "Dokumente nach Name oder Textinhalt suchen…",
+    "fr": "Rechercher des documents par nom ou contenu…"
+  },
+  "SearchPartnerPurpose": {
+    "en": "Search partner or purpose…",
+    "de": "Partner oder Verwendungszweck suchen…",
+    "fr": "Rechercher un partenaire ou un libellé…"
+  },
+  "Security": {
+    "en": "Security",
+    "de": "Sicherheit",
+    "fr": "Sécurité"
+  },
+  "SelectAll": {
+    "en": "Select all",
+    "de": "Alle auswählen",
+    "fr": "Tout sélectionner"
+  },
+  "SelectMonth": {
+    "en": "Select month",
+    "de": "Monat wählen",
+    "fr": "Choisir le mois"
+  },
+  "SelectedCount": {
+    "en": "%d selected",
+    "de": "%d ausgewählt",
+    "fr": "%d {1:sélectionné|sélectionnés}"
+  },
+  "SetAccountBalance": {
+    "en": "Set the account balance from the newest booking in the file",
+    "de": "Kontosaldo aus der neuesten Buchung der Datei setzen",
+    "fr": "Définir le solde du compte d'après l'écriture la plus récente du fichier"
+  },
+  "SetAccountBalanceClosing": {
+    "en": "Set the account balance to %s (the file's closing balance)",
+    "de": "Kontosaldo auf %s setzen (Schlusssaldo der Datei)",
+    "fr": "Définir le solde du compte à %s (solde de clôture du fichier)"
+  },
+  "SetAccountBalanceClosingPending": {
+    "en": "Set the account balance to %1$s (the file's closing balance without its %2$d pending entries)",
+    "de": "Kontosaldo auf %1$s setzen (Schlusssaldo der Datei ohne die %2$d vorgemerkten Umsätze)",
+    "fr": "Définir le solde du compte à %1$s (solde de clôture du fichier sans ses %2$d écritures en attente)"
+  },
+  "ShowAllCount": {
+    "en": "Show all (%d)",
+    "de": "Alle anzeigen (%d)",
+    "fr": "Tout afficher (%d)"
+  },
+  "ShowAllFromPartner": {
+    "en": "Show all from %s",
+    "de": "Alle von %s anzeigen",
+    "fr": "Tout afficher pour %s"
+  },
+  "ShowInExplorer": {
+    "en": "Show in Explorer",
+    "de": "Im Explorer anzeigen",
+    "fr": "Afficher dans l'Explorateur"
+  },
+  "ShowInFinder": {
+    "en": "Show in Finder",
+    "de": "Im Finder zeigen",
+    "fr": "Afficher dans le Finder"
+  },
+  "ShowInFolder": {
+    "en": "Show in folder",
+    "de": "Im Ordner anzeigen",
+    "fr": "Afficher dans le dossier"
+  },
+  "ShowPassphrase": {
+    "en": "Show passphrase",
+    "de": "Passphrase anzeigen",
+    "fr": "Afficher la phrase secrète"
+  },
+  "ShowTransactions": {
+    "en": "Show transactions",
+    "de": "Umsätze anzeigen",
+    "fr": "Afficher les opérations"
+  },
+  "SpendingByCategory": {
+    "en": "Spending by category",
+    "de": "Ausgaben nach Kategorie",
+    "fr": "Dépenses par catégorie"
+  },
+  "SpentOfLimit": {
+    "en": "%s of %s",
+    "de": "%s von %s",
+    "fr": "%s sur %s"
+  },
+  "StatTransactions": {
+    "en": "Transactions",
+    "de": "Umsätze",
+    "fr": "Opérations"
+  },
+  "StatementsNotSupported": {
+    "en": "Statements not supported for this account",
+    "de": "Umsätze werden für dieses Konto nicht unterstützt",
+    "fr": "Les relevés ne sont pas pris en charge pour ce compte"
+  },
+  "StepAddBank": {
+    "en": "Add your bank",
+    "de": "Bank hinzufügen",
+    "fr": "Ajoutez votre banque"
+  },
+  "StepAddBankHint": {
+    "en": "Enter the bank code and your online-banking login.",
+    "de": "Bankleitzahl und Online-Banking-Zugang eingeben.",
+    "fr": "Saisissez le code bancaire et vos identifiants de banque en ligne."
+  },
+  "StepCategorize": {
+    "en": "Sort your bookings",
+    "de": "Umsätze zuordnen",
+    "fr": "Classez vos opérations"
+  },
+  "StepCategorizeHint": {
+    "en": "Categories and rules group spending and mark what counts for taxes.",
+    "de": "Kategorien und Regeln gruppieren Ausgaben und markieren, was steuerlich zählt.",
+    "fr": "Catégories et règles regroupent les dépenses et signalent ce qui compte pour les impôts."
+  },
+  "StepSync": {
+    "en": "Fetch balances and bookings",
+    "de": "Salden und Umsätze abrufen",
+    "fr": "Récupérez soldes et opérations"
+  },
+  "StepSyncHint": {
+    "en": "Sync asks your bank once for your PIN; balances can also be entered by hand.",
+    "de": "Die Synchronisierung fragt Ihre Bank einmal nach der PIN; Salden lassen sich auch von Hand eintragen.",
+    "fr": "La synchronisation demande une fois votre code PIN ; les soldes peuvent aussi être saisis à la main."
+  },
+  "SubscriptionsTitle": {
+    "en": "Subscriptions, contracts and regular income",
+    "de": "Abos, Verträge und regelmäßige Einnahmen",
+    "fr": "Abonnements, contrats et revenus réguliers"
+  },
+  "SuggestedMatches": {
+    "en": "Suggested matches (amount and date from the document)",
+    "de": "Vorgeschlagene Treffer (Betrag und Datum aus dem Dokument)",
+    "fr": "Correspondances suggérées (montant et date du document)"
+  },
+  "SummaryBalance": {
+    "en": "Balance",
+    "de": "Saldo",
+    "fr": "Solde"
+  },
+  "SummaryCount": {
+    "en": "Transactions",
+    "de": "Umsätze",
+    "fr": "Opérations"
+  },
+  "SummaryIn": {
+    "en": "In",
+    "de": "Eingang",
+    "fr": "Entrées"
+  },
+  "SummaryOut": {
+    "en": "Out",
+    "de": "Ausgang",
+    "fr": "Sorties"
+  },
+  "SwitchProfile": {
+    "en": "Open at next start",
+    "de": "Beim nächsten Start öffnen",
+    "fr": "Ouvrir au prochain démarrage"
+  },
+  "SwitchProfileMenu": {
+    "en": "Switch profile",
+    "de": "Profil wechseln",
+    "fr": "Changer de profil"
+  },
+  "Sync": {
+    "en": "Sync",
+    "de": "Sync",
+    "fr": "Sync"
+  },
+  "SyncAccountWithoutIban": {
+    "en": "%s: the bank lists this account without an IBAN; Finglass can't store it yet.",
+    "de": "%s: Die Bank meldet dieses Konto ohne IBAN; Finglass kann es noch nicht speichern.",
+    "fr": "%s : la banque indique ce compte sans IBAN ; Finglass ne peut pas encore l’enregistrer."
+  },
+  "SyncAll": {
+    "en": "Sync all",
+    "de": "Alle synchronisieren",
+    "fr": "Tout synchroniser"
+  },
+  "SyncAllNothingIncluded": {
+    "en": "No connection is included in Sync all",
+    "de": "Keine Verbindung ist in „Alle synchronisieren“ einbezogen",
+    "fr": "Aucune connexion n'est incluse dans « Tout synchroniser »"
+  },
+  "SyncAllProgress": {
+    "en": "%d/%d · %s",
+    "de": "%d/%d · %s",
+    "fr": "%d/%d · %s"
+  },
+  "SyncAllStopped": {
+    "en": "Sync all stopped: %s was cancelled.",
+    "de": "Alle synchronisieren gestoppt: %s wurde abgebrochen.",
+    "fr": "Tout synchroniser interrompu : la synchronisation de %s a été annulée."
+  },
+  "SyncBalanceOtherCurrency": {
+    "en": "…%s: the bank reported the balance in %s, but the account is kept in %s; the balance was not changed.",
+    "de": "…%s: Die Bank meldet den Saldo in %s, das Konto wird aber in %s geführt; der Saldo wurde nicht geändert.",
+    "fr": "…%s : la banque indique le solde en %s, mais le compte est tenu en %s ; le solde n’a pas été modifié."
+  },
+  "SyncConnecting": {
+    "en": "Connecting…",
+    "de": "Verbinden…",
+    "fr": "Connexion…"
+  },
+  "SyncCurrencyCorrected": {
+    "en": "…%s: the account's currency was corrected from %s to %s, as the bank reports its balance in that currency and states no account currency.",
+    "de": "…%s: Die Kontowährung wurde von %s auf %s korrigiert, da die Bank den Saldo in dieser Währung meldet und keine Kontowährung angibt.",
+    "fr": "…%s : la devise du compte a été corrigée de %s en %s, car la banque indique le solde dans cette devise et ne précise pas de devise de compte."
+  },
+  "SyncGapNotFetched": {
+    "en": "Bookings from %s to %s were not fetched: Finglass fetches at most the last %d days. Use “Fetch history from…” to get them (the bank may ask for a TAN).",
+    "de": "Buchungen vom %s bis %s wurden nicht abgerufen: Finglass ruft höchstens die letzten %d Tage ab. Mit „Verlauf ab Datum abrufen…“ holen Sie sie nach (die Bank fragt eventuell nach einer TAN).",
+    "fr": "Les opérations du %s au %s n’ont pas été récupérées : Finglass récupère au plus les %d derniers jours. Utilisez « Récupérer l'historique depuis… » pour les obtenir (la banque peut demander un TAN)."
+  },
+  "SyncNow": {
+    "en": "Sync now",
+    "de": "Jetzt synchronisieren",
+    "fr": "Synchroniser maintenant"
+  },
+  "SyncSummary": {
+    "en": "Synced %d {1:account|accounts}",
+    "de": "%d {1:Konto|Konten} synchronisiert",
+    "fr": "%d {1:compte synchronisé|comptes synchronisés}"
+  },
+  "SyncSummaryCategorized": {
+    "en": ", %d auto-categorized",
+    "de": ", %d automatisch kategorisiert",
+    "fr": ", %d {1:catégorisée|catégorisées} automatiquement"
+  },
+  "SyncSummaryDuplicates": {
+    "en": ", %d already known",
+    "de": ", %d bereits bekannt",
+    "fr": ", %d déjà {1:connue|connues}"
+  },
+  "SyncSummaryHistoryFrom": {
+    "en": " History requested from %s.",
+    "de": " Verlauf angefordert ab %s.",
+    "fr": " Historique demandé depuis le %s."
+  },
+  "SyncSummaryNew": {
+    "en": ": %d new {1:transaction|transactions}",
+    "de": ": %d {1:neue Buchung|neue Buchungen}",
+    "fr": " : %d {1:nouvelle opération|nouvelles opérations}"
+  },
+  "SyncSummaryTransactions": {
+    "en": ": %d new {1:transaction|transactions}",
+    "de": ": %d {1:neue Buchung|neue Buchungen}",
+    "fr": " : %d {1:nouvelle opération|nouvelles opérations}"
+  },
+  "SyncedPrefix": {
+    "en": "synced %s",
+    "de": "synchronisiert %s",
+    "fr": "synchronisé %s"
+  },
+  "Syncing": {
+    "en": "Syncing…",
+    "de": "Synchronisiere…",
+    "fr": "Synchronisation…"
+  },
+  "TabAllDocuments": {
+    "en": "All documents",
+    "de": "Alle Dokumente",
+    "fr": "Tous les documents"
+  },
+  "TabCategoryAnalysis": {
+    "en": "Category analysis",
+    "de": "Kategorieanalyse",
+    "fr": "Analyse par catégorie"
+  },
+  "TabDelimiter": {
+    "en": "tab",
+    "de": "Tab",
+    "fr": "tabulation"
+  },
+  "TabLinked": {
+    "en": "Linked to transaction",
+    "de": "Mit Umsatz verknüpft",
+    "fr": "Liés à une opération"
+  },
+  "TabMonthlyBreakdown": {
+    "en": "Monthly breakdown",
+    "de": "Monatsübersicht",
+    "fr": "Répartition mensuelle"
+  },
+  "TabRecurring": {
+    "en": "Recurring",
+    "de": "Wiederkehrend",
+    "fr": "Récurrent"
+  },
+  "TabTaxBookings": {
+    "en": "Tax bookings",
+    "de": "Steuerbuchungen",
+    "fr": "Écritures fiscales"
+  },
+  "TabTaxSummary": {
+    "en": "Tax summary",
+    "de": "Steuerübersicht",
+    "fr": "Résumé fiscal"
+  },
+  "TabUnlinked": {
+    "en": "Unlinked",
+    "de": "Unverknüpft",
+    "fr": "Non liés"
+  },
+  "TabWithCount": {
+    "en": "%1$s (%2$d)",
+    "de": "%1$s (%2$d)",
+    "fr": "%1$s (%2$d)"
+  },
+  "TanChallenge": {
+    "en": "TAN challenge",
+    "de": "TAN-Herausforderung",
+    "fr": "Défi TAN"
+  },
+  "TanDefaultMessage": {
+    "en": "Enter the TAN shown by your TAN procedure.",
+    "de": "Geben Sie die TAN aus Ihrem TAN-Verfahren ein.",
+    "fr": "Saisissez le TAN affiché par votre procédure TAN."
+  },
+  "TanFlickerUnsupported": {
+    "en": "chipTAN flicker codes are not supported in this build yet. Enter the TAN shown on the generator.",
+    "de": "chipTAN-Flickercodes werden in dieser Version noch nicht unterstützt. Geben Sie die auf dem Generator angezeigte TAN ein.",
+    "fr": "Les codes clignotants chipTAN ne sont pas encore pris en charge dans cette version. Saisissez le TAN affiché sur le générateur."
+  },
+  "TanLabel": {
+    "en": "TAN",
+    "de": "TAN",
+    "fr": "TAN"
+  },
+  "TanRequired": {
+    "en": "TAN required",
+    "de": "TAN erforderlich",
+    "fr": "TAN requis"
+  },
+  "Tax": {
+    "en": "tax",
+    "de": "Steuer",
+    "fr": "impôt"
+  },
+  "TaxAutomatic": {
+    "en": "Automatic",
+    "de": "Automatisch",
+    "fr": "Automatique"
+  },
+  "TaxBookingsHowTo": {
+    "en": "Mark a category as tax relevant in Settings → Categories, give a rule a Tax option, or mark bookings in the transaction list.",
+    "de": "Markieren Sie eine Kategorie in Einstellungen → Kategorien als steuerrelevant, geben Sie einer Regel eine Steuer-Option oder markieren Sie Buchungen in der Buchungsliste.",
+    "fr": "Marquez une catégorie comme fiscalement pertinente dans Réglages → Catégories, donnez à une règle une option impôt, ou marquez des écritures dans la liste des opérations."
+  },
+  "TaxColBookings": {
+    "en": "Bookings",
+    "de": "Buchungen",
+    "fr": "Opérations"
+  },
+  "TaxColReceipt": {
+    "en": "Receipt",
+    "de": "Beleg",
+    "fr": "Justificatif"
+  },
+  "TaxColSection": {
+    "en": "Section",
+    "de": "Bereich",
+    "fr": "Section"
+  },
+  "TaxColSource": {
+    "en": "Source",
+    "de": "Quelle",
+    "fr": "Source"
+  },
+  "TaxColWithReceipt": {
+    "en": "With receipt",
+    "de": "Mit Beleg",
+    "fr": "Avec justificatif"
+  },
+  "TaxDeductibleHint": {
+    "en": "Mark categories as tax-relevant in Settings to track deductible expenses.",
+    "de": "Markieren Sie Kategorien in den Einstellungen als steuerrelevant, um absetzbare Ausgaben zu verfolgen.",
+    "fr": "Marquez des catégories comme fiscalement pertinentes dans les Paramètres pour suivre les dépenses déductibles."
+  },
+  "TaxDeductibleYtd": {
+    "en": "Tax-deductible expenses (year to date)",
+    "de": "Steuerlich absetzbare Ausgaben (Jahr bis dato)",
+    "fr": "Dépenses déductibles (année en cours)"
+  },
+  "TaxDeductionTotal": {
+    "en": "Deductions",
+    "de": "Absetzbare Ausgaben",
+    "fr": "Déductions"
+  },
+  "TaxExportTitle": {
+    "en": "Tax-relevant bookings %s",
+    "de": "Steuerrelevante Buchungen %s",
+    "fr": "Écritures fiscalement pertinentes %s"
+  },
+  "TaxFromCategory": {
+    "en": "%1$s · from category “%2$s”",
+    "de": "%1$s · aus Kategorie „%2$s“",
+    "fr": "%1$s · via la catégorie « %2$s »"
+  },
+  "TaxFromRule": {
+    "en": "%1$s · from rule “%2$s”",
+    "de": "%1$s · aus Regel „%2$s“",
+    "fr": "%1$s · via la règle « %2$s »"
+  },
+  "TaxIncomeTotal": {
+    "en": "Tax-relevant income",
+    "de": "Steuerrelevante Einnahmen",
+    "fr": "Revenus fiscalement pertinents"
+  },
+  "TaxKeywordsCount": {
+    "en": "%1$d {1:keyword|keywords}",
+    "de": "%1$d {1:Stichwort|Stichwörter}",
+    "fr": "%1$d {1:mot-clé|mots-clés}"
+  },
+  "TaxMenu": {
+    "en": "Tax",
+    "de": "Steuer",
+    "fr": "Impôt"
+  },
+  "TaxNotRelevantChoice": {
+    "en": "Not tax relevant",
+    "de": "Nicht steuerrelevant",
+    "fr": "Non fiscalement pertinent"
+  },
+  "TaxReceipts": {
+    "en": "Receipts",
+    "de": "Belege",
+    "fr": "Justificatifs"
+  },
+  "TaxReceiptsOf": {
+    "en": "%1$d of %2$d",
+    "de": "%1$d von %2$d",
+    "fr": "%1$d sur %2$d"
+  },
+  "TaxRelevant": {
+    "en": "tax-relevant",
+    "de": "steuerrelevant",
+    "fr": "fiscalement pertinent"
+  },
+  "TaxRelevantAmount": {
+    "en": "Tax deductions",
+    "de": "Steuerliche Abzüge",
+    "fr": "Déductions fiscales"
+  },
+  "TaxRelevantByCategory": {
+    "en": "Tax-relevant expenses by category",
+    "de": "Steuerrelevante Ausgaben nach Kategorie",
+    "fr": "Dépenses fiscales par catégorie"
+  },
+  "TaxRelevantChoice": {
+    "en": "Tax relevant",
+    "de": "Steuerrelevant",
+    "fr": "Fiscalement pertinent"
+  },
+  "TaxRelevantHint": {
+    "en": "Tax-relevant (Werbungskosten, Sonderausgaben, …)",
+    "de": "Steuerrelevant (Werbungskosten, Sonderausgaben, …)",
+    "fr": "Fiscalement pertinent (frais professionnels, dons, …)"
+  },
+  "TaxSectionDeductions": {
+    "en": "Deductions",
+    "de": "Absetzbare Ausgaben",
+    "fr": "Déductions"
+  },
+  "TaxSectionIncome": {
+    "en": "Income",
+    "de": "Einnahmen",
+    "fr": "Revenus"
+  },
+  "TaxSetByYou": {
+    "en": "%s · set by you",
+    "de": "%s · von Ihnen gesetzt",
+    "fr": "%s · défini par vous"
+  },
+  "TaxSuggestionKeywords": {
+    "en": "Tax suggestions",
+    "de": "Steuervorschläge",
+    "fr": "Suggestions fiscales"
+  },
+  "TaxSuggestionsHint": {
+    "en": "Matched by keyword. Accept marks the booking tax relevant; dismiss hides the suggestion for good. The keywords are editable in Settings.",
+    "de": "Übereinstimmung per Stichwort. Übernehmen markiert die Buchung als steuerrelevant; Ablehnen verwirft den Vorschlag endgültig. Die Stichwörter können in den Einstellungen geändert werden.",
+    "fr": "Trouvé par mot-clé. Accepter marque l'écriture comme fiscalement pertinente ; rejeter masque la suggestion définitivement. Les mots-clés sont modifiables dans les réglages."
+  },
+  "TaxSuggestionsTitle": {
+    "en": "Possibly tax relevant: %1$d {1:booking|bookings}",
+    "de": "Möglicherweise steuerrelevant: %1$d {1:Buchung|Buchungen}",
+    "fr": "Possiblement fiscalement pertinent : %1$d {1:écriture|écritures}"
+  },
+  "TaxYear": {
+    "en": "Tax year",
+    "de": "Steuerjahr",
+    "fr": "Année fiscale"
+  },
+  "TesseractAvailable": {
+    "en": "Tesseract OCR available (German + English)",
+    "de": "Tesseract-OCR verfügbar (Deutsch + Englisch)",
+    "fr": "OCR Tesseract disponible (allemand + anglais)"
+  },
+  "TesseractMissing": {
+    "en": "Tesseract not found. Install with: brew install tesseract tesseract-lang",
+    "de": "Tesseract nicht gefunden. Installation: brew install tesseract tesseract-lang",
+    "fr": "Tesseract introuvable. Installation : brew install tesseract tesseract-lang"
+  },
+  "TextExtracted": {
+    "en": "Text extracted",
+    "de": "Text erkannt",
+    "fr": "Texte extrait"
+  },
+  "Theme": {
+    "en": "Theme",
+    "de": "Design",
+    "fr": "Thème"
+  },
+  "ThemeDark": {
+    "en": "Dark",
+    "de": "Dunkel",
+    "fr": "Sombre"
+  },
+  "ThemeLight": {
+    "en": "Light",
+    "de": "Hell",
+    "fr": "Clair"
+  },
+  "ThemeSystem": {
+    "en": "System",
+    "de": "System",
+    "fr": "Système"
+  },
+  "TimesSeen": {
+    "en": "%dx seen",
+    "de": "%dx gesehen",
+    "fr": "vu %d fois"
+  },
+  "ToDate": {
+    "en": "To",
+    "de": "Bis",
+    "fr": "Au"
+  },
+  "ToggleTheme": {
+    "en": "Toggle theme",
+    "de": "Design umschalten",
+    "fr": "Changer le thème"
+  },
+  "TopVendors": {
+    "en": "Top recipients",
+    "de": "Top-Empfänger",
+    "fr": "Principaux bénéficiaires"
+  },
+  "TotalExpenses": {
+    "en": "Total expenses",
+    "de": "Gesamtausgaben",
+    "fr": "Dépenses totales"
+  },
+  "TotalIncome": {
+    "en": "Total income",
+    "de": "Gesamteinnahmen",
+    "fr": "Revenus totaux"
+  },
+  "Transactions": {
+    "en": "Transactions",
+    "de": "Umsätze",
+    "fr": "Opérations"
+  },
+  "TransactionsBalance": {
+    "en": " · Balance %s",
+    "de": " · Saldo %s",
+    "fr": " · Solde %s"
+  },
+  "TransactionsSummary": {
+    "en": "%d {1:transaction|transactions} · in %s · out %s",
+    "de": "%d {1:Umsatz|Umsätze} · Eingang %s · Ausgang %s",
+    "fr": "%d {1:opération|opérations} · entrées %s · sorties %s"
+  },
+  "TryAnotherSearch": {
+    "en": "Try another search term.",
+    "de": "Anderen Suchbegriff versuchen.",
+    "fr": "Essayez un autre terme de recherche."
+  },
+  "TypeChecking": {
+    "en": "Checking",
+    "de": "Girokonto",
+    "fr": "Compte courant"
+  },
+  "TypeCreditCard": {
+    "en": "Credit card",
+    "de": "Kreditkarte",
+    "fr": "Carte de crédit"
+  },
+  "TypeDepot": {
+    "en": "Depot",
+    "de": "Depot",
+    "fr": "Portefeuille"
+  },
+  "TypeLoan": {
+    "en": "Loan",
+    "de": "Kredit",
+    "fr": "Crédit"
+  },
+  "TypeSavings": {
+    "en": "Savings",
+    "de": "Sparkonto",
+    "fr": "Compte d'épargne"
+  },
+  "Uncategorized": {
+    "en": "Uncategorized",
+    "de": "Ohne Kategorie",
+    "fr": "Sans catégorie"
+  },
+  "UndoReapplyRules": {
+    "en": "Undo re-applied rules",
+    "de": "Erneut angewendete Regeln rückgängig machen",
+    "fr": "Annuler la réapplication des règles"
+  },
+  "UnencryptedLeftoversText": {
+    "en": "Finglass encrypts its database, but the documents in these folders are stored as plain files. They were left behind by restores or deleted profiles. Anyone who can read this disk can read them without your passphrase. Delete a folder yourself once you no longer need it.",
+    "de": "Finglass verschlüsselt seine Datenbank, doch die Dokumente in diesen Ordnern liegen als einfache Dateien vor. Sie stammen von Wiederherstellungen oder gelöschten Profilen. Wer diesen Datenträger lesen kann, kann sie ohne Ihre Passphrase lesen. Löschen Sie einen Ordner selbst, sobald Sie ihn nicht mehr brauchen.",
+    "fr": "Finglass chiffre sa base de données, mais les documents de ces dossiers sont enregistrés en clair. Ils proviennent de restaurations ou de profils supprimés. Quiconque peut lire ce disque peut les lire sans votre phrase secrète. Supprimez un dossier vous-même lorsque vous n'en avez plus besoin."
+  },
+  "UnencryptedLeftoversTitle": {
+    "en": "Unencrypted documents are still on disk",
+    "de": "Unverschlüsselte Dokumente liegen noch auf der Festplatte",
+    "fr": "Des documents non chiffrés sont encore sur le disque"
+  },
+  "Unlink": {
+    "en": "Unlink",
+    "de": "Trennen",
+    "fr": "Délier"
+  },
+  "Unlock": {
+    "en": "Unlock",
+    "de": "Entsperren",
+    "fr": "Déverrouiller"
+  },
+  "UnlockFailed": {
+    "en": "Finglass couldn't open the database: %s",
+    "de": "Finglass konnte die Datenbank nicht öffnen: %s",
+    "fr": "Finglass n'a pas pu ouvrir la base de données : %s"
+  },
+  "UnlockHeading": {
+    "en": "Enter your passphrase",
+    "de": "Passphrase eingeben",
+    "fr": "Saisissez votre phrase secrète"
+  },
+  "UnlockProfile": {
+    "en": "Profile: %s",
+    "de": "Profil: %s",
+    "fr": "Profil : %s"
+  },
+  "UnlockText": {
+    "en": "Your data is encrypted. Enter the passphrase to open it.",
+    "de": "Ihre Daten sind verschlüsselt. Geben Sie die Passphrase ein, um sie zu öffnen.",
+    "fr": "Vos données sont chiffrées. Saisissez la phrase secrète pour les ouvrir."
+  },
+  "UnlockWindowTitle": {
+    "en": "Unlock Finglass",
+    "de": "Finglass entsperren",
+    "fr": "Déverrouiller Finglass"
+  },
+  "Unlocking": {
+    "en": "Opening…",
+    "de": "Wird geöffnet …",
+    "fr": "Ouverture…"
+  },
+  "UnreadableCount": {
+    "en": "%d unreadable",
+    "de": "%d unlesbar",
+    "fr": "%d {1:illisible|illisibles}"
+  },
+  "Upcoming30Days": {
+    "en": "Upcoming in the next 30 days",
+    "de": "Anstehend in den nächsten 30 Tagen",
+    "fr": "À venir dans les 30 prochains jours"
+  },
+  "UpdateBalance": {
+    "en": "Update balance",
+    "de": "Saldo aktualisieren",
+    "fr": "Mettre à jour le solde"
+  },
+  "Upload": {
+    "en": "Upload",
+    "de": "Hochladen",
+    "fr": "Téléverser"
+  },
+  "UploadDocuments": {
+    "en": "Upload documents",
+    "de": "Dokumente hochladen",
+    "fr": "Téléverser des documents"
+  },
+  "UploadHint": {
+    "en": "Upload receipts, invoices and statements (PDF, JPG, PNG, TIFF).",
+    "de": "Belege, Rechnungen und Auszüge hochladen (PDF, JPG, PNG, TIFF).",
+    "fr": "Téléversez reçus, factures et relevés (PDF, JPG, PNG, TIFF)."
+  },
+  "UploadProgress": {
+    "en": "Uploading %1$d of %2$d…",
+    "de": "Lade %1$d von %2$d hoch…",
+    "fr": "Téléversement de %1$d sur %2$d…"
+  },
+  "UseBlz": {
+    "en": "Use %s",
+    "de": "%s verwenden",
+    "fr": "Utiliser %s"
+  },
+  "UserIdLogin": {
+    "en": "User ID (Anmeldename / Legitimations-ID)",
+    "de": "Benutzerkennung (Anmeldename / Legitimations-ID)",
+    "fr": "Identifiant (nom de connexion / ID de légitimation)"
+  },
+  "ViewAll": {
+    "en": "View all",
+    "de": "Alle anzeigen",
+    "fr": "Tout voir"
+  },
+  "ViewPendingTasks": {
+    "en": "View pending tasks",
+    "de": "Offene Aufgaben anzeigen",
+    "fr": "Voir les tâches en attente"
+  },
+  "WelcomeTitle": {
+    "en": "Welcome to Finglass",
+    "de": "Willkommen bei Finglass",
+    "fr": "Bienvenue dans Finglass"
+  },
+  "WindowTitle": {
+    "en": "Finglass - Your Financial Workspace",
+    "de": "Finglass – Ihr Finanz-Arbeitsplatz",
+    "fr": "Finglass – Votre espace financier"
+  },
+  "WrongCurrencySkipped": {
+    "en": "%1$d {1:booking is|bookings are} in another currency than this %2$s account and will be skipped.",
+    "de": "%1$d {1:Buchung ist|Buchungen sind} in einer anderen Währung als dieses %2$s-Konto und {1:wird|werden} übersprungen.",
+    "fr": "%1$d {1:opération est|opérations sont} dans une autre devise que ce compte en %2$s et {1:sera ignorée|seront ignorées}."
+  },
+  "WrongPassphrase": {
+    "en": "Wrong passphrase.",
+    "de": "Falsche Passphrase.",
+    "fr": "Phrase secrète incorrecte."
+  },
+  "XlsxSheetBookings": {
+    "en": "Bookings",
+    "de": "Buchungen",
+    "fr": "Écritures"
+  },
+  "XlsxSheetOverview": {
+    "en": "Overview",
+    "de": "Übersicht",
+    "fr": "Aperçu"
+  },
+  "Yes": {
+    "en": "Yes",
+    "de": "Ja",
+    "fr": "Oui"
+  }
+}

@@ -1,0 +1,6 @@
+# FinDesk rules v1
+category	pattern	search_in	applies_to	priority	auto_apply
+Groceries	beispiel.?markt|musterladen	any	any	60	true
+Own transfers	erika mustermann	partner	any	20	true
+Salary	beispiel gmbh	any	income	70	true
+Cash	raw cash	purpose	any	0	false

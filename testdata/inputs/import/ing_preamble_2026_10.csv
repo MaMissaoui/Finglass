@@ -1,0 +1,14 @@
+Umsatzanzeige;Datei erstellt am: 04.10.2026 10:00
+;
+IBAN;DE89 3704 0044 0532 0130 00
+Kontoname;Girokonto
+Bank;ING
+Kunde;Max Mustermann
+Zeitraum;01.09.2026 - 04.10.2026
+Saldo;5.234,56;EUR
+
+Sortierung;Datum absteigend
+
+Buchung;Valuta;Auftraggeber/Empfänger;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
+02.10.2026;02.10.2026;AMAZON EU;Lastschrift;"Bestellung 303-123; Monitor";5.234,56;EUR;-89,99;EUR
+01.10.2026;01.10.2026;Employer GmbH;Gehalt/Rente;Gehalt;5.324,55;EUR;3.200,00;EUR

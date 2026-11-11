@@ -1,0 +1,2829 @@
+{
+  "reports": [
+    {
+      "year": 2025,
+      "report": {
+        "year": 2025,
+        "from": "2025-01-01",
+        "to": "2025-12-31",
+        "total_income": {
+          "minor": 2180325,
+          "currency": "EUR",
+          "plain": "21803.25"
+        },
+        "total_expenses": {
+          "minor": 207378,
+          "currency": "EUR",
+          "plain": "2073.78"
+        },
+        "net_income": {
+          "minor": 1972947,
+          "currency": "EUR",
+          "plain": "19729.47"
+        },
+        "expenses_by_category": [
+          {
+            "name": "Housing",
+            "amount": {
+              "minor": 170000,
+              "currency": "EUR",
+              "plain": "1700.00"
+            }
+          },
+          {
+            "name": "Groceries",
+            "amount": {
+              "minor": 19280,
+              "currency": "EUR",
+              "plain": "192.80"
+            }
+          },
+          {
+            "name": "Energy",
+            "amount": {
+              "minor": 8400,
+              "currency": "EUR",
+              "plain": "84.00"
+            }
+          },
+          {
+            "name": "Transport",
+            "amount": {
+              "minor": 6700,
+              "currency": "EUR",
+              "plain": "67.00"
+            }
+          },
+          {
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 2998,
+              "currency": "EUR",
+              "plain": "29.98"
+            }
+          }
+        ],
+        "tax_relevant_expenses": [],
+        "tax_relevant_transactions": [],
+        "monthly_breakdown": [
+          {
+            "year": 2025,
+            "month": 1,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 2,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 3,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 4,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 5,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 6,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 7,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 8,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 9,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 10,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 11,
+            "income": {
+              "minor": 1820000,
+              "currency": "EUR",
+              "plain": "18200.00"
+            },
+            "expenses": {
+              "minor": 103689,
+              "currency": "EUR",
+              "plain": "1036.89"
+            },
+            "net": {
+              "minor": 1716311,
+              "currency": "EUR",
+              "plain": "17163.11"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 12,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 103689,
+              "currency": "EUR",
+              "plain": "1036.89"
+            },
+            "net": {
+              "minor": 256636,
+              "currency": "EUR",
+              "plain": "2566.36"
+            }
+          }
+        ],
+        "top_vendors": [
+          {
+            "name": "Vermieter",
+            "amount": {
+              "minor": 170000,
+              "currency": "EUR",
+              "plain": "1700.00"
+            }
+          },
+          {
+            "name": "REWE Markt GmbH",
+            "amount": {
+              "minor": 19280,
+              "currency": "EUR",
+              "plain": "192.80"
+            }
+          },
+          {
+            "name": "Stadtwerke Köln",
+            "amount": {
+              "minor": 8400,
+              "currency": "EUR",
+              "plain": "84.00"
+            }
+          },
+          {
+            "name": "Aral Tankstelle",
+            "amount": {
+              "minor": 6700,
+              "currency": "EUR",
+              "plain": "67.00"
+            }
+          },
+          {
+            "name": "Netflix",
+            "amount": {
+              "minor": 2998,
+              "currency": "EUR",
+              "plain": "29.98"
+            }
+          }
+        ],
+        "transaction_count": 18,
+        "categories_used": 7,
+        "currency": "EUR",
+        "other_currency_bookings": 0,
+        "transfer_total": {
+          "minor": 30000,
+          "currency": "EUR",
+          "plain": "300.00"
+        },
+        "category_shares": [
+          {
+            "category_id": 3,
+            "name": "Housing",
+            "amount": {
+              "minor": 170000,
+              "currency": "EUR",
+              "plain": "1700.00"
+            },
+            "color": "#C38400"
+          },
+          {
+            "category_id": 1,
+            "name": "Groceries",
+            "amount": {
+              "minor": 19280,
+              "currency": "EUR",
+              "plain": "192.80"
+            },
+            "color": "#E76530"
+          },
+          {
+            "category_id": 4,
+            "name": "Energy",
+            "amount": {
+              "minor": 8400,
+              "currency": "EUR",
+              "plain": "84.00"
+            },
+            "color": "#D56A93"
+          },
+          {
+            "category_id": 9,
+            "name": "Transport",
+            "amount": {
+              "minor": 6700,
+              "currency": "EUR",
+              "plain": "67.00"
+            },
+            "color": "#A77105"
+          },
+          {
+            "category_id": 5,
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 2998,
+              "currency": "EUR",
+              "plain": "29.98"
+            },
+            "color": "#867DFF"
+          }
+        ],
+        "tax_relevant_total": {
+          "minor": 0,
+          "currency": "EUR",
+          "plain": "0.00"
+        },
+        "is_calendar_year": true,
+        "title": "2025"
+      }
+    },
+    {
+      "year": 2026,
+      "report": {
+        "year": 2026,
+        "from": "2026-01-01",
+        "to": "2026-12-31",
+        "total_income": {
+          "minor": 3242925,
+          "currency": "EUR",
+          "plain": "32429.25"
+        },
+        "total_expenses": {
+          "minor": 1108573,
+          "currency": "EUR",
+          "plain": "11085.73"
+        },
+        "net_income": {
+          "minor": 2134352,
+          "currency": "EUR",
+          "plain": "21343.52"
+        },
+        "expenses_by_category": [
+          {
+            "name": "Housing",
+            "amount": {
+              "minor": 765000,
+              "currency": "EUR",
+              "plain": "7650.00"
+            }
+          },
+          {
+            "name": "Groceries",
+            "amount": {
+              "minor": 173610,
+              "currency": "EUR",
+              "plain": "1736.10"
+            }
+          },
+          {
+            "name": "Restaurants & cafés",
+            "amount": {
+              "minor": 48560,
+              "currency": "EUR",
+              "plain": "485.60"
+            }
+          },
+          {
+            "name": "Energy",
+            "amount": {
+              "minor": 37800,
+              "currency": "EUR",
+              "plain": "378.00"
+            }
+          },
+          {
+            "name": "Transport",
+            "amount": {
+              "minor": 30450,
+              "currency": "EUR",
+              "plain": "304.50"
+            }
+          },
+          {
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 29483,
+              "currency": "EUR",
+              "plain": "294.83"
+            }
+          },
+          {
+            "name": "Taxes & fees",
+            "amount": {
+              "minor": 12000,
+              "currency": "EUR",
+              "plain": "120.00"
+            }
+          },
+          {
+            "name": "Health",
+            "amount": {
+              "minor": 11670,
+              "currency": "EUR",
+              "plain": "116.70"
+            }
+          }
+        ],
+        "tax_relevant_expenses": [
+          {
+            "name": "Taxes & fees",
+            "amount": {
+              "minor": 12000,
+              "currency": "EUR",
+              "plain": "120.00"
+            }
+          },
+          {
+            "name": "Health",
+            "amount": {
+              "minor": 11670,
+              "currency": "EUR",
+              "plain": "116.70"
+            }
+          }
+        ],
+        "tax_relevant_transactions": [
+          {
+            "id": 68,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-08-20",
+            "amount": {
+              "minor": -3890,
+              "currency": "EUR",
+              "plain": "-38.90"
+            },
+            "balance_after": {
+              "minor": 2290779,
+              "currency": "EUR",
+              "plain": "22907.79"
+            },
+            "currency": "EUR",
+            "partner_name": "Apotheke am Markt",
+            "purpose": "Medikamente",
+            "category_id": 10,
+            "category_name": "Health",
+            "category_color": "#BD547E",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          },
+          {
+            "id": 52,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-05-20",
+            "amount": {
+              "minor": -3890,
+              "currency": "EUR",
+              "plain": "-38.90"
+            },
+            "balance_after": {
+              "minor": 1901347,
+              "currency": "EUR",
+              "plain": "19013.47"
+            },
+            "currency": "EUR",
+            "partner_name": "Apotheke am Markt",
+            "purpose": "Medikamente",
+            "category_id": 10,
+            "category_name": "Health",
+            "category_color": "#BD547E",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          },
+          {
+            "id": 43,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-04-15",
+            "amount": {
+              "minor": -12000,
+              "currency": "EUR",
+              "plain": "-120.00"
+            },
+            "balance_after": {
+              "minor": 1706125,
+              "currency": "EUR",
+              "plain": "17061.25"
+            },
+            "currency": "EUR",
+            "partner_name": "Spende Beispielhilfe",
+            "purpose": "Spende",
+            "category_id": 15,
+            "category_name": "Taxes & fees",
+            "category_color": "#B57A03",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          },
+          {
+            "id": 28,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-02-20",
+            "amount": {
+              "minor": -3890,
+              "currency": "EUR",
+              "plain": "-38.90"
+            },
+            "balance_after": {
+              "minor": 1320604,
+              "currency": "EUR",
+              "plain": "13206.04"
+            },
+            "currency": "EUR",
+            "partner_name": "Apotheke am Markt",
+            "purpose": "Medikamente",
+            "category_id": 10,
+            "category_name": "Health",
+            "category_color": "#BD547E",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          }
+        ],
+        "monthly_breakdown": [
+          {
+            "year": 2026,
+            "month": 1,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 102889,
+              "currency": "EUR",
+              "plain": "1028.89"
+            },
+            "net": {
+              "minor": 257436,
+              "currency": "EUR",
+              "plain": "2574.36"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 2,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 121238,
+              "currency": "EUR",
+              "plain": "1212.38"
+            },
+            "net": {
+              "minor": 239087,
+              "currency": "EUR",
+              "plain": "2390.87"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 3,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 124348,
+              "currency": "EUR",
+              "plain": "1243.48"
+            },
+            "net": {
+              "minor": 235977,
+              "currency": "EUR",
+              "plain": "2359.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 4,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 130548,
+              "currency": "EUR",
+              "plain": "1305.48"
+            },
+            "net": {
+              "minor": 229777,
+              "currency": "EUR",
+              "plain": "2297.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 5,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 123038,
+              "currency": "EUR",
+              "plain": "1230.38"
+            },
+            "net": {
+              "minor": 237287,
+              "currency": "EUR",
+              "plain": "2372.87"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 6,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 126148,
+              "currency": "EUR",
+              "plain": "1261.48"
+            },
+            "net": {
+              "minor": 234177,
+              "currency": "EUR",
+              "plain": "2341.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 7,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 8,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 124838,
+              "currency": "EUR",
+              "plain": "1248.38"
+            },
+            "net": {
+              "minor": 235487,
+              "currency": "EUR",
+              "plain": "2354.87"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 9,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 127948,
+              "currency": "EUR",
+              "plain": "1279.48"
+            },
+            "net": {
+              "minor": 232377,
+              "currency": "EUR",
+              "plain": "2323.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 10,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 127578,
+              "currency": "EUR",
+              "plain": "1275.78"
+            },
+            "net": {
+              "minor": 232747,
+              "currency": "EUR",
+              "plain": "2327.47"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 11,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 12,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          }
+        ],
+        "top_vendors": [
+          {
+            "name": "Vermieter",
+            "amount": {
+              "minor": 765000,
+              "currency": "EUR",
+              "plain": "7650.00"
+            }
+          },
+          {
+            "name": "REWE Markt GmbH",
+            "amount": {
+              "minor": 122180,
+              "currency": "EUR",
+              "plain": "1221.80"
+            }
+          },
+          {
+            "name": "Restaurant Zur Post",
+            "amount": {
+              "minor": 48560,
+              "currency": "EUR",
+              "plain": "485.60"
+            }
+          },
+          {
+            "name": "Beispiel Shop GmbH",
+            "amount": {
+              "minor": 44630,
+              "currency": "EUR",
+              "plain": "446.30"
+            }
+          },
+          {
+            "name": "Stadtwerke Köln",
+            "amount": {
+              "minor": 37800,
+              "currency": "EUR",
+              "plain": "378.00"
+            }
+          }
+        ],
+        "transaction_count": 129,
+        "categories_used": 10,
+        "currency": "EUR",
+        "other_currency_bookings": 0,
+        "transfer_total": {
+          "minor": 135000,
+          "currency": "EUR",
+          "plain": "1350.00"
+        },
+        "category_shares": [
+          {
+            "category_id": 3,
+            "name": "Housing",
+            "amount": {
+              "minor": 765000,
+              "currency": "EUR",
+              "plain": "7650.00"
+            },
+            "color": "#C38400"
+          },
+          {
+            "category_id": 1,
+            "name": "Groceries",
+            "amount": {
+              "minor": 173610,
+              "currency": "EUR",
+              "plain": "1736.10"
+            },
+            "color": "#E76530"
+          },
+          {
+            "category_id": 14,
+            "name": "Restaurants & cafés",
+            "amount": {
+              "minor": 48560,
+              "currency": "EUR",
+              "plain": "485.60"
+            },
+            "color": "#3B88E7"
+          },
+          {
+            "category_id": 4,
+            "name": "Energy",
+            "amount": {
+              "minor": 37800,
+              "currency": "EUR",
+              "plain": "378.00"
+            },
+            "color": "#D56A93"
+          },
+          {
+            "category_id": 9,
+            "name": "Transport",
+            "amount": {
+              "minor": 30450,
+              "currency": "EUR",
+              "plain": "304.50"
+            },
+            "color": "#A77105"
+          },
+          {
+            "category_id": 5,
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 29483,
+              "currency": "EUR",
+              "plain": "294.83"
+            },
+            "color": "#867DFF"
+          },
+          {
+            "category_id": 15,
+            "name": "Taxes & fees",
+            "amount": {
+              "minor": 12000,
+              "currency": "EUR",
+              "plain": "120.00"
+            },
+            "color": "#B57A03"
+          },
+          {
+            "category_id": 10,
+            "name": "Health",
+            "amount": {
+              "minor": 11670,
+              "currency": "EUR",
+              "plain": "116.70"
+            },
+            "color": "#BD547E"
+          }
+        ],
+        "tax_relevant_total": {
+          "minor": 23670,
+          "currency": "EUR",
+          "plain": "236.70"
+        },
+        "is_calendar_year": true,
+        "title": "2026"
+      }
+    }
+  ],
+  "tax_reports": [
+    {
+      "year": 2025,
+      "report": {
+        "year": 2025,
+        "from": "2025-01-01",
+        "to": "2025-12-31",
+        "total_income": {
+          "minor": 2180325,
+          "currency": "EUR",
+          "plain": "21803.25"
+        },
+        "total_expenses": {
+          "minor": 207378,
+          "currency": "EUR",
+          "plain": "2073.78"
+        },
+        "net_income": {
+          "minor": 1972947,
+          "currency": "EUR",
+          "plain": "19729.47"
+        },
+        "expenses_by_category": [
+          {
+            "name": "Housing",
+            "amount": {
+              "minor": 170000,
+              "currency": "EUR",
+              "plain": "1700.00"
+            }
+          },
+          {
+            "name": "Groceries",
+            "amount": {
+              "minor": 19280,
+              "currency": "EUR",
+              "plain": "192.80"
+            }
+          },
+          {
+            "name": "Energy",
+            "amount": {
+              "minor": 8400,
+              "currency": "EUR",
+              "plain": "84.00"
+            }
+          },
+          {
+            "name": "Transport",
+            "amount": {
+              "minor": 6700,
+              "currency": "EUR",
+              "plain": "67.00"
+            }
+          },
+          {
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 2998,
+              "currency": "EUR",
+              "plain": "29.98"
+            }
+          }
+        ],
+        "tax_relevant_expenses": [],
+        "tax_relevant_transactions": [],
+        "monthly_breakdown": [
+          {
+            "year": 2025,
+            "month": 1,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 2,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 3,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 4,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 5,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 6,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 7,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 8,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 9,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 10,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 11,
+            "income": {
+              "minor": 1820000,
+              "currency": "EUR",
+              "plain": "18200.00"
+            },
+            "expenses": {
+              "minor": 103689,
+              "currency": "EUR",
+              "plain": "1036.89"
+            },
+            "net": {
+              "minor": 1716311,
+              "currency": "EUR",
+              "plain": "17163.11"
+            }
+          },
+          {
+            "year": 2025,
+            "month": 12,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 103689,
+              "currency": "EUR",
+              "plain": "1036.89"
+            },
+            "net": {
+              "minor": 256636,
+              "currency": "EUR",
+              "plain": "2566.36"
+            }
+          }
+        ],
+        "top_vendors": [
+          {
+            "name": "Vermieter",
+            "amount": {
+              "minor": 170000,
+              "currency": "EUR",
+              "plain": "1700.00"
+            }
+          },
+          {
+            "name": "REWE Markt GmbH",
+            "amount": {
+              "minor": 19280,
+              "currency": "EUR",
+              "plain": "192.80"
+            }
+          },
+          {
+            "name": "Stadtwerke Köln",
+            "amount": {
+              "minor": 8400,
+              "currency": "EUR",
+              "plain": "84.00"
+            }
+          },
+          {
+            "name": "Aral Tankstelle",
+            "amount": {
+              "minor": 6700,
+              "currency": "EUR",
+              "plain": "67.00"
+            }
+          },
+          {
+            "name": "Netflix",
+            "amount": {
+              "minor": 2998,
+              "currency": "EUR",
+              "plain": "29.98"
+            }
+          }
+        ],
+        "transaction_count": 18,
+        "categories_used": 7,
+        "currency": "EUR",
+        "other_currency_bookings": 0,
+        "transfer_total": {
+          "minor": 30000,
+          "currency": "EUR",
+          "plain": "300.00"
+        },
+        "category_shares": [
+          {
+            "category_id": 3,
+            "name": "Housing",
+            "amount": {
+              "minor": 170000,
+              "currency": "EUR",
+              "plain": "1700.00"
+            },
+            "color": "#C38400"
+          },
+          {
+            "category_id": 1,
+            "name": "Groceries",
+            "amount": {
+              "minor": 19280,
+              "currency": "EUR",
+              "plain": "192.80"
+            },
+            "color": "#E76530"
+          },
+          {
+            "category_id": 4,
+            "name": "Energy",
+            "amount": {
+              "minor": 8400,
+              "currency": "EUR",
+              "plain": "84.00"
+            },
+            "color": "#D56A93"
+          },
+          {
+            "category_id": 9,
+            "name": "Transport",
+            "amount": {
+              "minor": 6700,
+              "currency": "EUR",
+              "plain": "67.00"
+            },
+            "color": "#A77105"
+          },
+          {
+            "category_id": 5,
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 2998,
+              "currency": "EUR",
+              "plain": "29.98"
+            },
+            "color": "#867DFF"
+          }
+        ],
+        "tax_relevant_total": {
+          "minor": 0,
+          "currency": "EUR",
+          "plain": "0.00"
+        },
+        "is_calendar_year": true,
+        "title": "2025"
+      }
+    },
+    {
+      "year": 2026,
+      "report": {
+        "year": 2026,
+        "from": "2026-01-01",
+        "to": "2026-12-31",
+        "total_income": {
+          "minor": 3242925,
+          "currency": "EUR",
+          "plain": "32429.25"
+        },
+        "total_expenses": {
+          "minor": 1108573,
+          "currency": "EUR",
+          "plain": "11085.73"
+        },
+        "net_income": {
+          "minor": 2134352,
+          "currency": "EUR",
+          "plain": "21343.52"
+        },
+        "expenses_by_category": [
+          {
+            "name": "Housing",
+            "amount": {
+              "minor": 765000,
+              "currency": "EUR",
+              "plain": "7650.00"
+            }
+          },
+          {
+            "name": "Groceries",
+            "amount": {
+              "minor": 173610,
+              "currency": "EUR",
+              "plain": "1736.10"
+            }
+          },
+          {
+            "name": "Restaurants & cafés",
+            "amount": {
+              "minor": 48560,
+              "currency": "EUR",
+              "plain": "485.60"
+            }
+          },
+          {
+            "name": "Energy",
+            "amount": {
+              "minor": 37800,
+              "currency": "EUR",
+              "plain": "378.00"
+            }
+          },
+          {
+            "name": "Transport",
+            "amount": {
+              "minor": 30450,
+              "currency": "EUR",
+              "plain": "304.50"
+            }
+          },
+          {
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 29483,
+              "currency": "EUR",
+              "plain": "294.83"
+            }
+          },
+          {
+            "name": "Taxes & fees",
+            "amount": {
+              "minor": 12000,
+              "currency": "EUR",
+              "plain": "120.00"
+            }
+          },
+          {
+            "name": "Health",
+            "amount": {
+              "minor": 11670,
+              "currency": "EUR",
+              "plain": "116.70"
+            }
+          }
+        ],
+        "tax_relevant_expenses": [
+          {
+            "name": "Taxes & fees",
+            "amount": {
+              "minor": 12000,
+              "currency": "EUR",
+              "plain": "120.00"
+            }
+          },
+          {
+            "name": "Health",
+            "amount": {
+              "minor": 11670,
+              "currency": "EUR",
+              "plain": "116.70"
+            }
+          }
+        ],
+        "tax_relevant_transactions": [
+          {
+            "id": 68,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-08-20",
+            "amount": {
+              "minor": -3890,
+              "currency": "EUR",
+              "plain": "-38.90"
+            },
+            "balance_after": {
+              "minor": 2290779,
+              "currency": "EUR",
+              "plain": "22907.79"
+            },
+            "currency": "EUR",
+            "partner_name": "Apotheke am Markt",
+            "purpose": "Medikamente",
+            "category_id": 10,
+            "category_name": "Health",
+            "category_color": "#BD547E",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          },
+          {
+            "id": 52,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-05-20",
+            "amount": {
+              "minor": -3890,
+              "currency": "EUR",
+              "plain": "-38.90"
+            },
+            "balance_after": {
+              "minor": 1901347,
+              "currency": "EUR",
+              "plain": "19013.47"
+            },
+            "currency": "EUR",
+            "partner_name": "Apotheke am Markt",
+            "purpose": "Medikamente",
+            "category_id": 10,
+            "category_name": "Health",
+            "category_color": "#BD547E",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          },
+          {
+            "id": 43,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-04-15",
+            "amount": {
+              "minor": -12000,
+              "currency": "EUR",
+              "plain": "-120.00"
+            },
+            "balance_after": {
+              "minor": 1706125,
+              "currency": "EUR",
+              "plain": "17061.25"
+            },
+            "currency": "EUR",
+            "partner_name": "Spende Beispielhilfe",
+            "purpose": "Spende",
+            "category_id": 15,
+            "category_name": "Taxes & fees",
+            "category_color": "#B57A03",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          },
+          {
+            "id": 28,
+            "account_id": 1,
+            "account_iban": "DE89370400440532013000",
+            "date": "2026-02-20",
+            "amount": {
+              "minor": -3890,
+              "currency": "EUR",
+              "plain": "-38.90"
+            },
+            "balance_after": {
+              "minor": 1320604,
+              "currency": "EUR",
+              "plain": "13206.04"
+            },
+            "currency": "EUR",
+            "partner_name": "Apotheke am Markt",
+            "purpose": "Medikamente",
+            "category_id": 10,
+            "category_name": "Health",
+            "category_color": "#BD547E",
+            "is_tax_relevant": true,
+            "document_count": 0,
+            "is_new": false,
+            "is_transfer": false,
+            "tax_source": "Category",
+            "tax_rule_pattern": null,
+            "tax_override": null
+          }
+        ],
+        "monthly_breakdown": [
+          {
+            "year": 2026,
+            "month": 1,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 102889,
+              "currency": "EUR",
+              "plain": "1028.89"
+            },
+            "net": {
+              "minor": 257436,
+              "currency": "EUR",
+              "plain": "2574.36"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 2,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 121238,
+              "currency": "EUR",
+              "plain": "1212.38"
+            },
+            "net": {
+              "minor": 239087,
+              "currency": "EUR",
+              "plain": "2390.87"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 3,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 124348,
+              "currency": "EUR",
+              "plain": "1243.48"
+            },
+            "net": {
+              "minor": 235977,
+              "currency": "EUR",
+              "plain": "2359.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 4,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 130548,
+              "currency": "EUR",
+              "plain": "1305.48"
+            },
+            "net": {
+              "minor": 229777,
+              "currency": "EUR",
+              "plain": "2297.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 5,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 123038,
+              "currency": "EUR",
+              "plain": "1230.38"
+            },
+            "net": {
+              "minor": 237287,
+              "currency": "EUR",
+              "plain": "2372.87"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 6,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 126148,
+              "currency": "EUR",
+              "plain": "1261.48"
+            },
+            "net": {
+              "minor": 234177,
+              "currency": "EUR",
+              "plain": "2341.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 7,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 8,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 124838,
+              "currency": "EUR",
+              "plain": "1248.38"
+            },
+            "net": {
+              "minor": 235487,
+              "currency": "EUR",
+              "plain": "2354.87"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 9,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 127948,
+              "currency": "EUR",
+              "plain": "1279.48"
+            },
+            "net": {
+              "minor": 232377,
+              "currency": "EUR",
+              "plain": "2323.77"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 10,
+            "income": {
+              "minor": 360325,
+              "currency": "EUR",
+              "plain": "3603.25"
+            },
+            "expenses": {
+              "minor": 127578,
+              "currency": "EUR",
+              "plain": "1275.78"
+            },
+            "net": {
+              "minor": 232747,
+              "currency": "EUR",
+              "plain": "2327.47"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 11,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          },
+          {
+            "year": 2026,
+            "month": 12,
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "net": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            }
+          }
+        ],
+        "top_vendors": [
+          {
+            "name": "Vermieter",
+            "amount": {
+              "minor": 765000,
+              "currency": "EUR",
+              "plain": "7650.00"
+            }
+          },
+          {
+            "name": "REWE Markt GmbH",
+            "amount": {
+              "minor": 122180,
+              "currency": "EUR",
+              "plain": "1221.80"
+            }
+          },
+          {
+            "name": "Restaurant Zur Post",
+            "amount": {
+              "minor": 48560,
+              "currency": "EUR",
+              "plain": "485.60"
+            }
+          },
+          {
+            "name": "Beispiel Shop GmbH",
+            "amount": {
+              "minor": 44630,
+              "currency": "EUR",
+              "plain": "446.30"
+            }
+          },
+          {
+            "name": "Stadtwerke Köln",
+            "amount": {
+              "minor": 37800,
+              "currency": "EUR",
+              "plain": "378.00"
+            }
+          }
+        ],
+        "transaction_count": 129,
+        "categories_used": 10,
+        "currency": "EUR",
+        "other_currency_bookings": 0,
+        "transfer_total": {
+          "minor": 135000,
+          "currency": "EUR",
+          "plain": "1350.00"
+        },
+        "category_shares": [
+          {
+            "category_id": 3,
+            "name": "Housing",
+            "amount": {
+              "minor": 765000,
+              "currency": "EUR",
+              "plain": "7650.00"
+            },
+            "color": "#C38400"
+          },
+          {
+            "category_id": 1,
+            "name": "Groceries",
+            "amount": {
+              "minor": 173610,
+              "currency": "EUR",
+              "plain": "1736.10"
+            },
+            "color": "#E76530"
+          },
+          {
+            "category_id": 14,
+            "name": "Restaurants & cafés",
+            "amount": {
+              "minor": 48560,
+              "currency": "EUR",
+              "plain": "485.60"
+            },
+            "color": "#3B88E7"
+          },
+          {
+            "category_id": 4,
+            "name": "Energy",
+            "amount": {
+              "minor": 37800,
+              "currency": "EUR",
+              "plain": "378.00"
+            },
+            "color": "#D56A93"
+          },
+          {
+            "category_id": 9,
+            "name": "Transport",
+            "amount": {
+              "minor": 30450,
+              "currency": "EUR",
+              "plain": "304.50"
+            },
+            "color": "#A77105"
+          },
+          {
+            "category_id": 5,
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 29483,
+              "currency": "EUR",
+              "plain": "294.83"
+            },
+            "color": "#867DFF"
+          },
+          {
+            "category_id": 15,
+            "name": "Taxes & fees",
+            "amount": {
+              "minor": 12000,
+              "currency": "EUR",
+              "plain": "120.00"
+            },
+            "color": "#B57A03"
+          },
+          {
+            "category_id": 10,
+            "name": "Health",
+            "amount": {
+              "minor": 11670,
+              "currency": "EUR",
+              "plain": "116.70"
+            },
+            "color": "#BD547E"
+          }
+        ],
+        "tax_relevant_total": {
+          "minor": 23670,
+          "currency": "EUR",
+          "plain": "236.70"
+        },
+        "is_calendar_year": true,
+        "title": "2026"
+      }
+    }
+  ],
+  "tax_bookings": [
+    {
+      "year": 2025,
+      "bookings": {
+        "from": "2025-01-01",
+        "to": "2025-12-31",
+        "currency": "EUR",
+        "income_groups": [],
+        "deduction_groups": [],
+        "booking_count": 0,
+        "other_currency_bookings": 0,
+        "income_total": {
+          "minor": 0,
+          "currency": "EUR",
+          "plain": "0.00"
+        },
+        "deduction_total": {
+          "minor": 0,
+          "currency": "EUR",
+          "plain": "0.00"
+        },
+        "net_total": {
+          "minor": 0,
+          "currency": "EUR",
+          "plain": "0.00"
+        },
+        "with_receipt": 0,
+        "title": "2025"
+      }
+    },
+    {
+      "year": 2026,
+      "bookings": {
+        "from": "2026-01-01",
+        "to": "2026-12-31",
+        "currency": "EUR",
+        "income_groups": [],
+        "deduction_groups": [
+          {
+            "category_id": 15,
+            "name": "Taxes & fees",
+            "color": "#B57A03",
+            "bookings": [
+              {
+                "id": 43,
+                "account_id": 1,
+                "account_iban": "DE89370400440532013000",
+                "date": "2026-04-15",
+                "amount": {
+                  "minor": -12000,
+                  "currency": "EUR",
+                  "plain": "-120.00"
+                },
+                "balance_after": {
+                  "minor": 1706125,
+                  "currency": "EUR",
+                  "plain": "17061.25"
+                },
+                "currency": "EUR",
+                "partner_name": "Spende Beispielhilfe",
+                "purpose": "Spende",
+                "category_id": 15,
+                "category_name": "Taxes & fees",
+                "category_color": "#B57A03",
+                "is_tax_relevant": true,
+                "document_count": 0,
+                "is_new": false,
+                "is_transfer": false,
+                "tax_source": "Category",
+                "tax_rule_pattern": null,
+                "tax_override": null
+              }
+            ],
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 12000,
+              "currency": "EUR",
+              "plain": "120.00"
+            },
+            "net": {
+              "minor": -12000,
+              "currency": "EUR",
+              "plain": "-120.00"
+            },
+            "with_receipt": 0
+          },
+          {
+            "category_id": 10,
+            "name": "Health",
+            "color": "#BD547E",
+            "bookings": [
+              {
+                "id": 28,
+                "account_id": 1,
+                "account_iban": "DE89370400440532013000",
+                "date": "2026-02-20",
+                "amount": {
+                  "minor": -3890,
+                  "currency": "EUR",
+                  "plain": "-38.90"
+                },
+                "balance_after": {
+                  "minor": 1320604,
+                  "currency": "EUR",
+                  "plain": "13206.04"
+                },
+                "currency": "EUR",
+                "partner_name": "Apotheke am Markt",
+                "purpose": "Medikamente",
+                "category_id": 10,
+                "category_name": "Health",
+                "category_color": "#BD547E",
+                "is_tax_relevant": true,
+                "document_count": 0,
+                "is_new": false,
+                "is_transfer": false,
+                "tax_source": "Category",
+                "tax_rule_pattern": null,
+                "tax_override": null
+              },
+              {
+                "id": 52,
+                "account_id": 1,
+                "account_iban": "DE89370400440532013000",
+                "date": "2026-05-20",
+                "amount": {
+                  "minor": -3890,
+                  "currency": "EUR",
+                  "plain": "-38.90"
+                },
+                "balance_after": {
+                  "minor": 1901347,
+                  "currency": "EUR",
+                  "plain": "19013.47"
+                },
+                "currency": "EUR",
+                "partner_name": "Apotheke am Markt",
+                "purpose": "Medikamente",
+                "category_id": 10,
+                "category_name": "Health",
+                "category_color": "#BD547E",
+                "is_tax_relevant": true,
+                "document_count": 0,
+                "is_new": false,
+                "is_transfer": false,
+                "tax_source": "Category",
+                "tax_rule_pattern": null,
+                "tax_override": null
+              },
+              {
+                "id": 68,
+                "account_id": 1,
+                "account_iban": "DE89370400440532013000",
+                "date": "2026-08-20",
+                "amount": {
+                  "minor": -3890,
+                  "currency": "EUR",
+                  "plain": "-38.90"
+                },
+                "balance_after": {
+                  "minor": 2290779,
+                  "currency": "EUR",
+                  "plain": "22907.79"
+                },
+                "currency": "EUR",
+                "partner_name": "Apotheke am Markt",
+                "purpose": "Medikamente",
+                "category_id": 10,
+                "category_name": "Health",
+                "category_color": "#BD547E",
+                "is_tax_relevant": true,
+                "document_count": 0,
+                "is_new": false,
+                "is_transfer": false,
+                "tax_source": "Category",
+                "tax_rule_pattern": null,
+                "tax_override": null
+              }
+            ],
+            "income": {
+              "minor": 0,
+              "currency": "EUR",
+              "plain": "0.00"
+            },
+            "expenses": {
+              "minor": 11670,
+              "currency": "EUR",
+              "plain": "116.70"
+            },
+            "net": {
+              "minor": -11670,
+              "currency": "EUR",
+              "plain": "-116.70"
+            },
+            "with_receipt": 0
+          }
+        ],
+        "booking_count": 4,
+        "other_currency_bookings": 0,
+        "income_total": {
+          "minor": 0,
+          "currency": "EUR",
+          "plain": "0.00"
+        },
+        "deduction_total": {
+          "minor": 23670,
+          "currency": "EUR",
+          "plain": "236.70"
+        },
+        "net_total": {
+          "minor": -23670,
+          "currency": "EUR",
+          "plain": "-236.70"
+        },
+        "with_receipt": 0,
+        "title": "2026"
+      }
+    }
+  ],
+  "monthly_reports": [
+    {
+      "year": 2025,
+      "month": 12,
+      "report": {
+        "year": 2025,
+        "month": 12,
+        "total_income": {
+          "minor": 360325,
+          "currency": "EUR",
+          "plain": "3603.25"
+        },
+        "total_expenses": {
+          "minor": 103689,
+          "currency": "EUR",
+          "plain": "1036.89"
+        },
+        "net_amount": {
+          "minor": 256636,
+          "currency": "EUR",
+          "plain": "2566.36"
+        },
+        "by_category": [
+          {
+            "name": "Energy",
+            "amount": {
+              "minor": 4200,
+              "currency": "EUR",
+              "plain": "42.00"
+            }
+          },
+          {
+            "name": "Groceries",
+            "amount": {
+              "minor": 9640,
+              "currency": "EUR",
+              "plain": "96.40"
+            }
+          },
+          {
+            "name": "Housing",
+            "amount": {
+              "minor": 85000,
+              "currency": "EUR",
+              "plain": "850.00"
+            }
+          },
+          {
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 1499,
+              "currency": "EUR",
+              "plain": "14.99"
+            }
+          },
+          {
+            "name": "Transport",
+            "amount": {
+              "minor": 3350,
+              "currency": "EUR",
+              "plain": "33.50"
+            }
+          }
+        ],
+        "top_expenses": [
+          {
+            "description": "Vermieter",
+            "amount": {
+              "minor": 85000,
+              "currency": "EUR",
+              "plain": "850.00"
+            },
+            "category": "Housing",
+            "date": "2025-12-03"
+          },
+          {
+            "description": "REWE Markt GmbH",
+            "amount": {
+              "minor": 9640,
+              "currency": "EUR",
+              "plain": "96.40"
+            },
+            "category": "Groceries",
+            "date": "2025-12-08"
+          },
+          {
+            "description": "Stadtwerke Köln",
+            "amount": {
+              "minor": 4200,
+              "currency": "EUR",
+              "plain": "42.00"
+            },
+            "category": "Energy",
+            "date": "2025-12-12"
+          },
+          {
+            "description": "Aral Tankstelle",
+            "amount": {
+              "minor": 3350,
+              "currency": "EUR",
+              "plain": "33.50"
+            },
+            "category": "Transport",
+            "date": "2025-12-26"
+          },
+          {
+            "description": "Netflix",
+            "amount": {
+              "minor": 1499,
+              "currency": "EUR",
+              "plain": "14.99"
+            },
+            "category": "Phone, internet & media",
+            "date": "2025-12-18"
+          }
+        ],
+        "transaction_count": 9
+      }
+    },
+    {
+      "year": 2026,
+      "month": 10,
+      "report": {
+        "year": 2026,
+        "month": 10,
+        "total_income": {
+          "minor": 360325,
+          "currency": "EUR",
+          "plain": "3603.25"
+        },
+        "total_expenses": {
+          "minor": 127578,
+          "currency": "EUR",
+          "plain": "1275.78"
+        },
+        "net_amount": {
+          "minor": 232747,
+          "currency": "EUR",
+          "plain": "2327.47"
+        },
+        "by_category": [
+          {
+            "name": "Energy",
+            "amount": {
+              "minor": 4200,
+              "currency": "EUR",
+              "plain": "42.00"
+            }
+          },
+          {
+            "name": "Groceries",
+            "amount": {
+              "minor": 27360,
+              "currency": "EUR",
+              "plain": "273.60"
+            }
+          },
+          {
+            "name": "Housing",
+            "amount": {
+              "minor": 85000,
+              "currency": "EUR",
+              "plain": "850.00"
+            }
+          },
+          {
+            "name": "Phone, internet & media",
+            "amount": {
+              "minor": 3498,
+              "currency": "EUR",
+              "plain": "34.98"
+            }
+          },
+          {
+            "name": "Restaurants & cafés",
+            "amount": {
+              "minor": 3670,
+              "currency": "EUR",
+              "plain": "36.70"
+            }
+          },
+          {
+            "name": "Transport",
+            "amount": {
+              "minor": 3850,
+              "currency": "EUR",
+              "plain": "38.50"
+            }
+          }
+        ],
+        "top_expenses": [
+          {
+            "description": "Vermieter",
+            "amount": {
+              "minor": 85000,
+              "currency": "EUR",
+              "plain": "850.00"
+            },
+            "category": "Housing",
+            "date": "2026-10-03"
+          },
+          {
+            "description": "REWE Markt GmbH",
+            "amount": {
+              "minor": 11940,
+              "currency": "EUR",
+              "plain": "119.40"
+            },
+            "category": "Groceries",
+            "date": "2026-10-08"
+          },
+          {
+            "description": "Beispiel Shop GmbH",
+            "amount": {
+              "minor": 5430,
+              "currency": "EUR",
+              "plain": "54.30"
+            },
+            "category": "Groceries",
+            "date": "2026-10-05"
+          },
+          {
+            "description": "Beispiel Shop GmbH",
+            "amount": {
+              "minor": 4900,
+              "currency": "EUR",
+              "plain": "49.00"
+            },
+            "category": "Groceries",
+            "date": "2026-10-17"
+          },
+          {
+            "description": "REWE Markt GmbH",
+            "amount": {
+              "minor": 4240,
+              "currency": "EUR",
+              "plain": "42.40"
+            },
+            "category": "Groceries",
+            "date": "2026-10-04"
+          },
+          {
+            "description": "Stadtwerke Köln",
+            "amount": {
+              "minor": 4200,
+              "currency": "EUR",
+              "plain": "42.00"
+            },
+            "category": "Energy",
+            "date": "2026-10-12"
+          },
+          {
+            "description": "Aral Tankstelle",
+            "amount": {
+              "minor": 3850,
+              "currency": "EUR",
+              "plain": "38.50"
+            },
+            "category": "Transport",
+            "date": "2026-10-26"
+          },
+          {
+            "description": "Restaurant Zur Post",
+            "amount": {
+              "minor": 3670,
+              "currency": "EUR",
+              "plain": "36.70"
+            },
+            "category": "Restaurants & cafés",
+            "date": "2026-10-25"
+          },
+          {
+            "description": "Netflix",
+            "amount": {
+              "minor": 1999,
+              "currency": "EUR",
+              "plain": "19.99"
+            },
+            "category": "Phone, internet & media",
+            "date": "2026-10-06"
+          },
+          {
+            "description": "Netflix",
+            "amount": {
+              "minor": 1499,
+              "currency": "EUR",
+              "plain": "14.99"
+            },
+            "category": "Phone, internet & media",
+            "date": "2026-10-18"
+          }
+        ],
+        "transaction_count": 15
+      }
+    }
+  ],
+  "sum_by_category": {
+    "en": [
+      {
+        "name": "Housing",
+        "amount": {
+          "minor": 935000,
+          "currency": "EUR",
+          "plain": "9350.00"
+        }
+      },
+      {
+        "name": "Groceries",
+        "amount": {
+          "minor": 192890,
+          "currency": "EUR",
+          "plain": "1928.90"
+        }
+      },
+      {
+        "name": "Restaurants & cafés",
+        "amount": {
+          "minor": 48560,
+          "currency": "EUR",
+          "plain": "485.60"
+        }
+      },
+      {
+        "name": "Energy",
+        "amount": {
+          "minor": 46200,
+          "currency": "EUR",
+          "plain": "462.00"
+        }
+      },
+      {
+        "name": "Transport",
+        "amount": {
+          "minor": 37150,
+          "currency": "EUR",
+          "plain": "371.50"
+        }
+      },
+      {
+        "name": "Phone, internet & media",
+        "amount": {
+          "minor": 32481,
+          "currency": "EUR",
+          "plain": "324.81"
+        }
+      },
+      {
+        "name": "Taxes & fees",
+        "amount": {
+          "minor": 12000,
+          "currency": "EUR",
+          "plain": "120.00"
+        }
+      },
+      {
+        "name": "Health",
+        "amount": {
+          "minor": 11670,
+          "currency": "EUR",
+          "plain": "116.70"
+        }
+      }
+    ],
+    "de": [
+      {
+        "name": "Housing",
+        "amount": {
+          "minor": 935000,
+          "currency": "EUR",
+          "plain": "9350.00"
+        }
+      },
+      {
+        "name": "Groceries",
+        "amount": {
+          "minor": 192890,
+          "currency": "EUR",
+          "plain": "1928.90"
+        }
+      },
+      {
+        "name": "Restaurants & cafés",
+        "amount": {
+          "minor": 48560,
+          "currency": "EUR",
+          "plain": "485.60"
+        }
+      },
+      {
+        "name": "Energy",
+        "amount": {
+          "minor": 46200,
+          "currency": "EUR",
+          "plain": "462.00"
+        }
+      },
+      {
+        "name": "Transport",
+        "amount": {
+          "minor": 37150,
+          "currency": "EUR",
+          "plain": "371.50"
+        }
+      },
+      {
+        "name": "Phone, internet & media",
+        "amount": {
+          "minor": 32481,
+          "currency": "EUR",
+          "plain": "324.81"
+        }
+      },
+      {
+        "name": "Taxes & fees",
+        "amount": {
+          "minor": 12000,
+          "currency": "EUR",
+          "plain": "120.00"
+        }
+      },
+      {
+        "name": "Health",
+        "amount": {
+          "minor": 11670,
+          "currency": "EUR",
+          "plain": "116.70"
+        }
+      }
+    ]
+  },
+  "category_shares": {
+    "en": [
+      {
+        "category_id": 3,
+        "name": "Housing",
+        "amount": {
+          "minor": 935000,
+          "currency": "EUR",
+          "plain": "9350.00"
+        },
+        "color": "#C38400"
+      },
+      {
+        "category_id": 1,
+        "name": "Groceries",
+        "amount": {
+          "minor": 192890,
+          "currency": "EUR",
+          "plain": "1928.90"
+        },
+        "color": "#E76530"
+      },
+      {
+        "category_id": 14,
+        "name": "Restaurants & cafés",
+        "amount": {
+          "minor": 48560,
+          "currency": "EUR",
+          "plain": "485.60"
+        },
+        "color": "#3B88E7"
+      },
+      {
+        "category_id": 4,
+        "name": "Energy",
+        "amount": {
+          "minor": 46200,
+          "currency": "EUR",
+          "plain": "462.00"
+        },
+        "color": "#D56A93"
+      },
+      {
+        "category_id": 9,
+        "name": "Transport",
+        "amount": {
+          "minor": 37150,
+          "currency": "EUR",
+          "plain": "371.50"
+        },
+        "color": "#A77105"
+      },
+      {
+        "category_id": 5,
+        "name": "Phone, internet & media",
+        "amount": {
+          "minor": 32481,
+          "currency": "EUR",
+          "plain": "324.81"
+        },
+        "color": "#867DFF"
+      },
+      {
+        "category_id": 15,
+        "name": "Taxes & fees",
+        "amount": {
+          "minor": 12000,
+          "currency": "EUR",
+          "plain": "120.00"
+        },
+        "color": "#B57A03"
+      },
+      {
+        "category_id": 10,
+        "name": "Health",
+        "amount": {
+          "minor": 11670,
+          "currency": "EUR",
+          "plain": "116.70"
+        },
+        "color": "#BD547E"
+      }
+    ],
+    "de": [
+      {
+        "category_id": 3,
+        "name": "Housing",
+        "amount": {
+          "minor": 935000,
+          "currency": "EUR",
+          "plain": "9350.00"
+        },
+        "color": "#C38400"
+      },
+      {
+        "category_id": 1,
+        "name": "Groceries",
+        "amount": {
+          "minor": 192890,
+          "currency": "EUR",
+          "plain": "1928.90"
+        },
+        "color": "#E76530"
+      },
+      {
+        "category_id": 14,
+        "name": "Restaurants & cafés",
+        "amount": {
+          "minor": 48560,
+          "currency": "EUR",
+          "plain": "485.60"
+        },
+        "color": "#3B88E7"
+      },
+      {
+        "category_id": 4,
+        "name": "Energy",
+        "amount": {
+          "minor": 46200,
+          "currency": "EUR",
+          "plain": "462.00"
+        },
+        "color": "#D56A93"
+      },
+      {
+        "category_id": 9,
+        "name": "Transport",
+        "amount": {
+          "minor": 37150,
+          "currency": "EUR",
+          "plain": "371.50"
+        },
+        "color": "#A77105"
+      },
+      {
+        "category_id": 5,
+        "name": "Phone, internet & media",
+        "amount": {
+          "minor": 32481,
+          "currency": "EUR",
+          "plain": "324.81"
+        },
+        "color": "#867DFF"
+      },
+      {
+        "category_id": 15,
+        "name": "Taxes & fees",
+        "amount": {
+          "minor": 12000,
+          "currency": "EUR",
+          "plain": "120.00"
+        },
+        "color": "#B57A03"
+      },
+      {
+        "category_id": 10,
+        "name": "Health",
+        "amount": {
+          "minor": 11670,
+          "currency": "EUR",
+          "plain": "116.70"
+        },
+        "color": "#BD547E"
+      }
+    ]
+  }
+}

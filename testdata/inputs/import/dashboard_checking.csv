@@ -1,0 +1,87 @@
+Buchungstag;Betrag;Beguenstigter/Zahlungspflichtiger;Verwendungszweck;Saldo;Waehrung
+01.11.2025;5000,00;Max Mustermann;Startguthaben;5000,00;EUR
+01.11.2025;3200,00;Employer GmbH;Gehalt 11/2025;8200,00;EUR
+03.11.2025;-850,00;Vermieter;Miete 11/2025;7350,00;EUR
+08.11.2025;-96,40;REWE Markt GmbH;Wocheneinkauf;7253,60;EUR
+12.11.2025;-42,00;Stadtwerke Köln;Abschlag Strom;7211,60;EUR
+18.11.2025;-14,99;Netflix;Abo;7196,61;EUR
+23.11.2025;-150,00;Erika Musterfrau;Überweisung an Erika;7046,61;EUR
+26.11.2025;-33,50;Aral Tankstelle;Tanken;7013,11;EUR
+01.12.2025;3200,00;Employer GmbH;Gehalt 12/2025;10213,11;EUR
+03.12.2025;-850,00;Vermieter;Miete 12/2025;9363,11;EUR
+08.12.2025;-96,40;REWE Markt GmbH;Wocheneinkauf;9266,71;EUR
+12.12.2025;-42,00;Stadtwerke Köln;Abschlag Strom;9224,71;EUR
+18.12.2025;-14,99;Netflix;Abo;9209,72;EUR
+23.12.2025;-150,00;Erika Musterfrau;Überweisung an Erika;9059,72;EUR
+26.12.2025;-33,50;Aral Tankstelle;Tanken;9026,22;EUR
+01.01.2026;3200,00;Employer GmbH;Gehalt 01/2026;12226,22;EUR
+03.01.2026;-850,00;Vermieter;Miete 01/2026;11376,22;EUR
+08.01.2026;-92,40;REWE Markt GmbH;Wocheneinkauf;11283,82;EUR
+12.01.2026;-42,00;Stadtwerke Köln;Abschlag Strom;11241,82;EUR
+18.01.2026;-14,99;Netflix;Abo;11226,83;EUR
+23.01.2026;-150,00;Erika Musterfrau;Überweisung an Erika;11076,83;EUR
+26.01.2026;-29,50;Aral Tankstelle;Tanken;11047,33;EUR
+01.02.2026;3200,00;Employer GmbH;Gehalt 02/2026;14247,33;EUR
+03.02.2026;-850,00;Vermieter;Miete 02/2026;13397,33;EUR
+08.02.2026;-95,40;REWE Markt GmbH;Wocheneinkauf;13301,93;EUR
+12.02.2026;-42,00;Stadtwerke Köln;Abschlag Strom;13259,93;EUR
+18.02.2026;-14,99;Netflix;Abo;13244,94;EUR
+20.02.2026;-38,90;Apotheke am Markt;Medikamente;13206,04;EUR
+23.02.2026;-150,00;Erika Musterfrau;Überweisung an Erika;13056,04;EUR
+26.02.2026;-30,50;Aral Tankstelle;Tanken;13025,54;EUR
+01.03.2026;3200,00;Employer GmbH;Gehalt 03/2026;16225,54;EUR
+03.03.2026;-850,00;Vermieter;Miete 03/2026;15375,54;EUR
+08.03.2026;-98,40;REWE Markt GmbH;Wocheneinkauf;15277,14;EUR
+12.03.2026;-42,00;Stadtwerke Köln;Abschlag Strom;15235,14;EUR
+18.03.2026;-14,99;Netflix;Abo;15220,15;EUR
+21.03.2026;-64,00;Restaurant Zur Post;Abendessen;15156,15;EUR
+23.03.2026;-150,00;Erika Musterfrau;Überweisung an Erika;15006,15;EUR
+26.03.2026;-31,50;Aral Tankstelle;Tanken;14974,65;EUR
+01.04.2026;3200,00;Employer GmbH;Gehalt 04/2026;18174,65;EUR
+03.04.2026;-850,00;Vermieter;Miete 04/2026;17324,65;EUR
+08.04.2026;-101,40;REWE Markt GmbH;Wocheneinkauf;17223,25;EUR
+12.04.2026;-42,00;Stadtwerke Köln;Abschlag Strom;17181,25;EUR
+15.04.2026;-120,00;Spende Beispielhilfe;Spende;17061,25;EUR
+18.04.2026;-14,99;Netflix;Abo;17046,26;EUR
+23.04.2026;-150,00;Erika Musterfrau;Überweisung an Erika;16896,26;EUR
+26.04.2026;-32,50;Aral Tankstelle;Tanken;16863,76;EUR
+01.05.2026;3200,00;Employer GmbH;Gehalt 05/2026;20063,76;EUR
+03.05.2026;-850,00;Vermieter;Miete 05/2026;19213,76;EUR
+08.05.2026;-104,40;REWE Markt GmbH;Wocheneinkauf;19109,36;EUR
+12.05.2026;-42,00;Stadtwerke Köln;Abschlag Strom;19067,36;EUR
+18.05.2026;-14,99;Netflix;Abo;19052,37;EUR
+20.05.2026;-38,90;Apotheke am Markt;Medikamente;19013,47;EUR
+23.05.2026;-150,00;Erika Musterfrau;Überweisung an Erika;18863,47;EUR
+26.05.2026;-33,50;Aral Tankstelle;Tanken;18829,97;EUR
+01.06.2026;3200,00;Employer GmbH;Gehalt 06/2026;22029,97;EUR
+03.06.2026;-850,00;Vermieter;Miete 06/2026;21179,97;EUR
+08.06.2026;-107,40;REWE Markt GmbH;Wocheneinkauf;21072,57;EUR
+12.06.2026;-42,00;Stadtwerke Köln;Abschlag Strom;21030,57;EUR
+18.06.2026;-14,99;Netflix;Abo;21015,58;EUR
+21.06.2026;-64,00;Restaurant Zur Post;Abendessen;20951,58;EUR
+23.06.2026;-150,00;Erika Musterfrau;Überweisung an Erika;20801,58;EUR
+26.06.2026;-34,50;Aral Tankstelle;Tanken;20767,08;EUR
+01.08.2026;3200,00;Employer GmbH;Gehalt 08/2026;23967,08;EUR
+03.08.2026;-850,00;Vermieter;Miete 08/2026;23117,08;EUR
+08.08.2026;-113,40;REWE Markt GmbH;Wocheneinkauf;23003,68;EUR
+12.08.2026;-42,00;Stadtwerke Köln;Abschlag Strom;22961,68;EUR
+18.08.2026;-14,99;Netflix;Abo;22946,69;EUR
+20.08.2026;-38,90;Apotheke am Markt;Medikamente;22907,79;EUR
+23.08.2026;-150,00;Erika Musterfrau;Überweisung an Erika;22757,79;EUR
+26.08.2026;-36,50;Aral Tankstelle;Tanken;22721,29;EUR
+01.09.2026;3200,00;Employer GmbH;Gehalt 09/2026;25921,29;EUR
+03.09.2026;-850,00;Vermieter;Miete 09/2026;25071,29;EUR
+08.09.2026;-116,40;REWE Markt GmbH;Wocheneinkauf;24954,89;EUR
+12.09.2026;-42,00;Stadtwerke Köln;Abschlag Strom;24912,89;EUR
+18.09.2026;-14,99;Netflix;Abo;24897,90;EUR
+21.09.2026;-64,00;Restaurant Zur Post;Abendessen;24833,90;EUR
+23.09.2026;-150,00;Erika Musterfrau;Überweisung an Erika;24683,90;EUR
+26.09.2026;-37,50;Aral Tankstelle;Tanken;24646,40;EUR
+01.10.2026;3200,00;Employer GmbH;Gehalt 10/2026;27846,40;EUR
+03.10.2026;-850,00;Vermieter;Miete 10/2026;26996,40;EUR
+05.10.2026;-54,30;Beispiel Shop GmbH;Ihr Einkauf bei Beispiel Shop GmbH;26942,10;EUR
+08.10.2026;-119,40;REWE Markt GmbH;Wocheneinkauf;26822,70;EUR
+12.10.2026;-42,00;Stadtwerke Köln;Abschlag Strom;26780,70;EUR
+18.10.2026;-14,99;Netflix;Abo;26765,71;EUR
+23.10.2026;-150,00;Erika Musterfrau;Überweisung an Erika;26615,71;EUR
+26.10.2026;-38,50;Aral Tankstelle;Tanken;26577,21;EUR
