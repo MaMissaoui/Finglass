@@ -9,7 +9,8 @@ See every account, booking, receipt and report in one place. Nothing in Finglass
 
 > **Status: alpha, macOS only.** Everything FinDesk does, minus payments, is in, except the live bank sync (FinTS),
 > which comes next. Download the DMG from [Releases](https://github.com/MaMissaoui/Finglass/releases) or install from
-> a checkout (below). The plan is in [`docs/PLAN.md`](docs/PLAN.md).
+> a checkout (below). Finglass is being migrated from Rust + Slint to Go + Wails v3; 0.3.4 is the last Rust release.
+> The plan is in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## What Finglass is
 

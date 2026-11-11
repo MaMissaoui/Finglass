@@ -1,233 +1,250 @@
 # Finglass plan
 
-Finglass is a read-only, local-first personal finance desktop app in Rust with a Slint UI. It carries over what
-[FinDesk](https://github.com/MaMissaoui/FinDesk) does, except payments. This file is the work queue: keep the checkboxes
-in line with the code.
+Finglass is a read-only, local-first personal finance desktop app. It carries over what
+[FinDesk](https://github.com/MaMissaoui/FinDesk) does, except payments. Up to 0.3.4 it was written in Rust with a Slint
+UI; it is being migrated to Go with a Wails v3 UI. This file is the work queue: keep the checkboxes in line with the
+code. The Rust-era plan (milestones M0–M10) is kept in [`PLAN-rust.md`](PLAN-rust.md) for reference.
 
-## Scope
+Scope and the "out, by design" list are unchanged (see `PLAN-rust.md`): no payment code, no cloud, no telemetry, no
+currency conversion.
 
-**In:** accounts, bank file imports, live bank sync (read-only FinTS: balances and statements), transactions,
-categories and rules, dashboard, receipts with OCR, reports and tax exports, backups, profiles, an encrypted database,
-EN/DE/FR, installers for macOS, Windows and Linux.
+## Decisions (user, 2026-11-11)
 
-**Platforms:** macOS first. Until Finglass does everything FinDesk does except payments, CI builds and tests on macOS
-only, and Windows and Linux are neither built nor tested. Code stays portable, with no macOS-only APIs outside
-platform-guarded code. Once that point is reached, Windows and Linux go back into the CI matrix and get their
-installers.
+| Topic | Decision |
+|---|---|
+| Project | Finglass (latest Rust release 0.3.4). FinDesk stays Kotlin. |
+| UI | **Wails v3** (v3.1.0, stable since 2026-11-01) with **Svelte 5 + TypeScript + Vite**. |
+| Live sync | Our own read-only **Go FinTS 3.0 client**, as a separate milestone after the port. |
+| Approach | **Replace in place** in the Finglass repo. 0.3.4 (Rust) stays the installed app until the Go build reaches parity. |
+| Secrets | **Best effort, accepted.** Secrets are `[]byte` in Go, zeroed after use. The UI clears its fields and keeps no copies. Secrets are never logged and never appear in errors. Copies made by the Go GC and the webview (JS strings, JSON) cannot be wiped, and that is accepted. |
 
-**Out, by design:**
+Unchanged: no payment code, never a real bank, `FINGLASS_HOME`, macOS-first CI, EN/DE/FR, OpenCode implements and
+Claude specs and reviews, PRs only after your OK.
 
-- Transfers, scheduled transfers and standing orders. No code for them, not even read-only lists; no FinTS order
-  segments (`HKCCS`, `HKCSE`, `HKCDE` and relatives) are ever built.
-- Cloud sync, accounts, telemetry, ads.
-- Currency conversion: totals never mix currencies.
+## What is being migrated
 
-## Architecture
+| Area | Rust today | Lines (no tests) |
+|---|---|---|
+| Core (`finglass-core`) | db/migrations, repos, import (CSV, MT940, camt, OFX, QIF, XLSX), dedup and hashes, rules, dashboard, reports and tax export, documents and OCR, backup and restore, profiles, FinDesk import, first-run migration, i18n (~1000 keys × 3), sync core (gateway port, PIN handling, redactor, keychain) | ~50k |
+| App state (`finglass-core/src/app`) | view state per page, unlock, startup, switch, banking bridge | ~12k |
+| UI (`finglass`, `finglass-ui`) | Slint shell and 7 pages, dialogs, components (19 `.slint` files ~18k lines) | ~15k Rust + 18k Slint |
+| Tests | unit and integration tests in core; `tests/screenshots.rs` (5.7k lines) | ~15k |
+| Probe | `finglass-probe` on `fints-rs` | ~0.9k |
 
-- Cargo workspace:
-  - `crates/finglass-core` holds all logic and has no UI dependency. Its tests run headless.
-  - `crates/finglass` is the Slint app. It renders state from the core and sends actions back, with no logic of its
-    own.
-- **Data folder:** `FINGLASS_HOME`, otherwise `~/.finglass`. Profiles live in `profiles/<slug>/`. Tests and dev runs
-  always set `FINGLASS_HOME` to a temporary folder.
-- **Database:** SQLite through `rusqlite` with SQLCipher 4 (`bundled-sqlcipher`). Versioned migrations run through
-  `PRAGMA user_version`, one numbered step per change. FinDesk's create-missing-tables approach is not used.
-- **Secrets:** passphrases, PINs and TANs are held in `secrecy`/`zeroize` types from input to use. They are never
-  logged and never formatted into errors.
-- **Concurrency:** the Slint event loop stays free. Work runs on background threads, and results return through
-  `slint::invoke_from_event_loop`. Each action can be awaited in tests.
-- **Bank sync:** a `FintsGateway` trait is the port, with one adapter over the chosen FinTS library. Tests use fakes and
-  never contact a bank.
+## Target architecture
+
+```
+go.mod                       module github.com/MaMissaoui/Finglass
+cmd/finglass/                Wails v3 main: window, menu, single instance, services
+cmd/finglass-probe/          Go FinTS probe (G10)
+internal/core/...            one package per finglass-core module (db, repo, imports, rules, dashboard, report,
+                             documents, backup, profiles, findeskimport, i18n, sync, money, format, ...)
+internal/app/...             view-state services (the Rust app/ module): plain Go, testable headless
+internal/bind/               thin Wails services: map app state to DTOs, no logic
+internal/fints/              FinTS client (G10): only read-only segments exist
+frontend/                    Svelte 5 + TS + Vite; design tokens from docs/design.md as CSS variables
+frontend/bindings/           generated by `wails3 generate bindings` (typed TS)
+testdata/golden/             outputs captured from Rust 0.3.4 (G1)
+```
+
+- **Layering** stays as it is today. The core has no UI dependency. The UI renders state and sends actions, and holds no
+  logic. Every action is a Go method that returns when the work is done, so tests can call it directly.
+- **Concurrency:** Wails calls run off the UI thread. Long jobs report progress with Wails events. One `sync.Mutex`
+  per profile replaces the Rust `Busy` guard.
+- **i18n:** Go stays the single source. `go generate` writes a TS union of the key names plus a JSON table per language
+  into `frontend/`. A Go test checks that every key exists in EN, DE and FR, as the Rust test does.
+- **Webview rules:**
+  - strict CSP with no remote loads;
+  - fonts (IBM Plex) and icons bundled;
+  - no `{@html}`, so bank text, notes and OCR text are always rendered as text;
+  - no secrets in Svelte stores, localStorage or URLs.
+
+### Library mapping
+
+| Rust | Go | Note |
+|---|---|---|
+| rusqlite + bundled SQLCipher | `mutecomm/go-sqlcipher/v4`, or the WissCore fork (cgo) | **G0 gate.** The pool is pinned to one connection that never expires (`SetMaxOpenConns(1)`, `SetConnMaxLifetime(0)`). The key goes only through `PRAGMA key` on that connection, never in the DSN. |
+| rust_decimal / minor units | `int64` minor units, `shopspring/decimal` only where needed | Same representation as the schema, never `float64`. |
+| time | `time`, plus a civil date type | |
+| regex / **fancy_regex** | `regexp`, plus **`dlclark/regexp2`** for user rule patterns | User patterns use lookaround. A corpus test is built from all rules in the FinDesk/Finglass test files. |
+| encoding_rs, unicode-normalization | `golang.org/x/text/encoding`, `x/text/unicode/norm` | Passphrase NFC rule. |
+| roxmltree | `encoding/xml` | camt |
+| zip, xlsx export/import | `archive/zip`, `xuri/excelize/v2` | |
+| pdf-extract | `pdftotext` (poppler is already needed for `pdftoppm`), or `ledongthuc/pdf` | Spike in G0 against the receipt fixtures. |
+| pdf-writer | `signintech/gopdf` or `go-pdf/fpdf` | Spike in G0 with the tax report. |
+| sha2, uuid, tempfile, dirs | `crypto/sha256`, `google/uuid`, `t.TempDir`, `os.UserHomeDir` | |
+| apple-native-keyring-store | `keybase/go-keychain` (Security framework) | Not `zalando/go-keyring`: on macOS it calls `security … -w <pw>`, which puts the PIN in argv. Verify in G0. |
+| rfd, open | Wails dialogs, `open` via Wails/`exec` | |
+| instance lock | `flock` (`x/sys/unix`), plus Wails `SingleInstance` | The lock is still taken before startup or restore. |
+| tesseract subprocess | `os/exec` | Same lookup paths when the app is started from Finder (#52). |
+| Slint screenshots | Playwright against the Vite build with mocked bindings | Same real-data mode (`-screenshotData`) through a Go fixture server. |
+| fints-rs | `internal/fints` (own) | G10 |
 
 ## Milestones
 
-Each milestone is specified by Claude, implemented by OpenCode, reviewed by Claude and merged as one or more PRs.
+Each milestone has one or more specs → OpenCode → review → PR. Sizes: S < 1 week, M 1–2 weeks, L 3+ weeks, assuming
+the usual OpenCode pace.
 
-### M0 — FinTS feasibility probe (go/no-go for live sync)
+### G0 — Feasibility gate (S–M). Go/no-go for the whole migration
 
-- [x] `finglass-probe`, a small CLI on the FinTS library (candidate: `fints-rs`). It runs one dialog: account list,
-      balance and statements for the last 30 days, with pushTAN. It prints counts and dates only, never booking text,
-      account numbers or the PIN.
-- [ ] You run it against your bank. The code is never run against a real bank by an agent.
-- [ ] Decision recorded here:
-  - **Go:** live sync goes ahead in M5.
-  - **No-go:** Finglass ships with file imports first, and M5 waits for a library or a port of the needed parts.
-- [ ] Apply for a FinTS product registration with the Deutsche Kreditwirtschaft under the name Finglass. It must be in
-      place before live sync ships. Form sent to the DK on 2026-11-08; the DK names 10–15 working days. The id is
-      never committed: the build reads it from a local file or a CI secret.
-- [ ] **You, when the DK's registration number arrives:**
-  - [ ] Keep the number in your password manager. Don't paste it into a chat, an issue, a commit or any file in
-        this repository. Keep the DK's email too: changes or a deletion need the number.
-  - [ ] Store it as the repository secret the release build will read (the value is asked for without echo):
-        `gh secret set FINGLASS_FINTS_PRODUCT_ID -R MaMissaoui/Finglass`
-  - [ ] Run the M0 probe against each online bank (Volksbank, DKB, HVB). It asks for the PIN without echo and asks
-        you to confirm pushTAN in your banking app:
+Done on a branch. The Rust code is untouched.
 
-        ```sh
-        cd ~/Source/Github/Finglass && git switch main && git pull --ff-only
-        read -rs 'id?FinTS product id: '; echo
-        FINGLASS_FINTS_PRODUCT_ID="$id" FINGLASS_PROBE_BLZ=<BLZ> FINGLASS_PROBE_USER=<login> \
-          cargo run -p finglass-probe
-        unset id
-        ```
+- [ ] SQLCipher: the Go driver opens a 0.3.4 database. The database is created by the Rust app in a scratch
+  `FINGLASS_HOME`, never `~/.finglass`. Checks:
+  - the key is set by `PRAGMA key` only;
+  - the pool has one connection;
+  - wrong-key detection works;
+  - `user_version` reads correctly;
+  - a FinDesk DB (SQLCipher 4 defaults) also opens.
+- [ ] Wails v3.1 hello window on macOS. Checks:
+  - a typed generated binding works;
+  - an event goes from Go to the UI;
+  - the native menu bar works;
+  - a Playwright screenshot of the Svelte build is taken with mocked bindings;
+  - an ad-hoc-signed `.app` builds (cgo, arm64 + amd64 → universal binary).
+- [ ] Spikes:
+  - PDF text extraction and PDF writing on the existing fixtures;
+  - `regexp2` against all rule patterns in the fixtures;
+  - Keychain round trip on a test service name.
+- [ ] **Exit:** if SQLCipher or Wails fails, stop and come back to you (the fallbacks would be Wails v2, or cgo
+  `sqlite3` built with SQLCipher).
 
-        Add `FINGLASS_PROBE_URL=<server URL>` if the probe doesn't know the bank's FinTS server.
-  - [ ] Report only each bank's last line (`RESULT: GO` or `RESULT: NO-GO (<reason>)`) to Claude; the M0 decision
-        above is then recorded. Claude then builds the product id into the app (compile-time `FINGLASS_FINTS_PRODUCT_ID`,
-        sync stays off in builds without it) together with the M5b adapter.
-- [ ] Once the DK registration is in and its terms for the FinTS institute list are known, decide how Finglass gets
-      bank server URLs: the user loads the institute list they received (Finglass never redistributes it), or, only
-      if the terms allow it, the list ships with the app. Until then the add-bank dialog asks for the server URL.
+### G1 — Golden outputs from Rust (M)
 
-### M1 — Foundation
+This must happen before any Rust code is deleted. Once it is gone, its behaviour can no longer be checked.
 
-- [x] M1a: data folder (`FINGLASS_HOME`, profile slugs), passphrase rules (NFC, at least 10 characters, no surrounding
-      whitespace), encrypted database (create, open, change passphrase; one connection, passphrase dropped after
-      open), versioned migrations, settings, audit log.
-- [x] M1b: domain tables as migration 2, designed from FinDesk's tables so M8 maps one to one (no payment tables);
-      money type in integer minor units; repositories for accounts, groups, categories, rules and transactions.
-- [x] M1c: profiles and the remaining repositories (#12).
-- [x] Profile management in the app: list, create, rename, delete and the live switch (M8d-1 #29, M8d-2 #36).
+- [ ] A `cargo test`-driven exporter writes JSON or CSV into `testdata/golden/` for:
+  - every importer on every fixture (parsed bookings);
+  - dedup hashes (`import/hash.rs`), which must match byte for byte, or existing DBs re-import duplicates;
+  - rules matching;
+  - running balances and history;
+  - dashboard months and carry-forward;
+  - report and tax groups;
+  - money formatting in EN/DE/FR;
+  - IBAN and bank-directory lookups;
+  - the i18n tables.
+- [ ] Reference screenshots from the Slint suite, saved as the visual target for G7–G9.
+- [ ] A rule for the whole migration: **no new migrations** until the Go release. Schema and `user_version` stay
+  identical, so 0.3.4 and the Go build open the same DB, and you can go back to 0.3.4 at any time.
 
-### M2 — App shell
+### G2 — Go foundation (M)
 
-- [x] Unlock screen: create, unlock and change the passphrase (#11).
-- [x] Main window with sidebar navigation, light and dark theme (#11).
-- [x] M2c: top bar (sidebar toggle, language and theme switch) and the collapsible icon sidebar (#33).
-- [x] M2d: the standard widgets follow the app's light/dark choice (#35).
-- [x] Translations EN/DE/FR (a typed key enum and one table per language, with a test that every key exists in all
-      three) (#7).
-- [x] Settings and About (with the AboutSlint badge) (#11, #25).
-- [x] Headless screenshot tests with Slint's software renderer, if it can render to an image in tests. Otherwise a
-      documented manual check. (Software renderer; `FINGLASS_SCREENSHOTS=<dir> cargo test -p finglass --test
-      screenshots`.)
+- [ ] `go.mod`, the layout above, CI on macOS. The gates are `gofmt`, `go vet`, `golangci-lint`, `go test ./...` and
+  the `frontend` checks (`svelte-check`, `vitest`, `eslint`/`prettier`). The Rust CI keeps running until G6.
+- [ ] `paths`, `profiles`, `secret` (`[]byte` + zero), `settings`, `audit`, `db` (open, key, migrations 1..n verbatim),
+  `instance`.
+- [ ] i18n tables ported, plus the generator for the frontend.
 
-### M3 — Accounts and imports
+### G3 — Domain core (L)
 
-- [x] Manual accounts (IBAN check, currency, account type), groups and the account panel (#18, #26).
-- [x] Parsers for CSV (bank presets and detection), MT940, camt.052/053, OFX, QIF and XLSX. FinDesk's test files are
-      reused as fixtures.
-- [x] Import service with duplicate detection (bank booking id or running balance) (#6).
-- [x] Import dialog with preview and summary on the Transactions page (#39).
+- [ ] `money`, `format`, `iban`, `account_ids`, `model`, all repos (transactions is the largest), `account_grouping`,
+  `balance`.
+- [ ] Importers, dedup and hash, import service. Every golden test passes.
+- [ ] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
+  `bank_directory`, `bank_logo`.
 
-### M4 — Transactions, categories, dashboard
+### G4 — Reports, documents, backup, FinDesk import (L)
 
-- [x] Transactions view state (#22).
-- [x] Transactions page: list, filters, panel, selection, details (#34); import, re-apply rules, rule from booking,
-      CSV export, receipts (#39).
-- [x] Categories, rules and rule import/export; auto-categorisation on import (#6, #16, #25).
-- [x] Dashboard: balance, monthly income and expenses, expenses by category, budgets. Totals per currency, primary
-      currency for overviews (#9, #23).
+- [ ] Dashboard and report services, tax export, PDF/XLSX/CSV export.
+- [ ] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
+- [ ] Backup and two-phase restore, plus leftover handling. FinDesk import. First-run migration from FinDesk.
+- [ ] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
+  store. Every rule from CLAUDE.md "Read-only banking" is ported as a test.
 
-### M5 — Live sync, read-only (after M0 go)
+### G5 — App-state layer (M)
 
-- [x] M5d: bank directory lookup in the add-bank dialog: search by name, BLZ, BIC or IBAN in the Bundesbank's bank
-      code file, shipped unchanged with "Quelle: Deutsche Bundesbank"; HypoVereinsbank branches map to the central
-      FinTS BLZ (#45). Server URLs wait for the DK registration decision above.
-- [ ] Bank connections:
-  - TAN methods: pushTAN, photoTAN and QR; chipTAN flicker waits for M5b, since FinDesk's flicker rendering comes
-    from HBCI4Java and the code's format depends on the adapter;
-  - TAN media.
-- [ ] "Remember PIN": only in the OS credential store (`keyring`), saved only after a successful dialog, and deleted
-      when it is rejected, when the login changes or when the bank is removed.
-- [x] Bank message text is never stored unredacted, and never in the audit log (#21).
-- [x] M5a core: `sync` (gateway port with fakes, client, service, PIN handling with profile-scoped keys and
-      `credentials/bank-<id>` markers, redaction). A server-URL change also forgets the PIN (stricter than FinDesk).
-      Booking texts are stored as the bank sent them; error, warning and note texts are masked.
-- [ ] M5b prerequisites, from the M5c-3 review: a sync is one FinTS dialog per login, so two syncs of one bank must
-      never overlap (the UI keeps the live claim; re-check once a real gateway can block for minutes).
-- [ ] FinTS protocol trace (FinDesk's Settings switch and "save trace"): only the i18n keys exist. It records what
-      the adapter sends and receives, so it comes with M5b, with the same masking as the bank message text.
-- [ ] M5b: the fints-rs adapter (after the M0 probe). Login state (system id, bank parameter data) goes into
-      `bank_connections`' server-state columns cleared by `clear_login_state`, never into a side file.
-- [x] M5c-1: `app::banking` (bank-login state, sync one/all, history start) and the prompt bridge, with an
-      `UnavailableGateway` until M5b (#31).
-- [x] M5c-2: the macOS Keychain store; `delete_profile` calls `forget_pins_for_profile` with it (#37).
-- [x] M5c-3: bank UI on the Accounts page (add, edit, sync, sync all, history, PIN and TAN prompts) (#42).
-      `FinTsClient::new` gets `AppPaths::profile_dir(slug)`. A profile switch cancels an open prompt. Online banks
-      are deleted through `BankingState::remove_bank`; one profile `Busy` is shared by sync and the Accounts deletes.
-- [ ] Follow-up: statement imports and the FinDesk import don't take the profile `Busy` yet.
+- [ ] `internal/app`: unlock, startup (`apply_pending_restore` before unlock), switch, prefs, and every page state
+  (accounts, account panel, transactions, dashboard, reports, documents, settings, banking bridge, migration).
+  Headless tests port `app/**/tests.rs`.
 
-### M6 — Receipts and OCR
+### G6 — Remove the Rust core and app (S)
 
-- [x] Receipt storage per profile, PDF text extraction, Tesseract OCR for images and scans.
-- [x] Receipt parser (amount, date, merchant) and matching to bookings; Documents page (#10, #13, #14, #28).
+- [ ] Once G3–G5 are green against the goldens, one PR deletes `crates/finglass-core`, `crates/finglass-ui`,
+  `crates/finglass`, the Cargo files and the Rust CI. **`crates/finglass-probe` stays** until the M0 question
+  (below) is settled.
+- [ ] From here until G9, main builds no usable app. 0.3.4 stays installed.
 
-### M7 — Reports and tax
+### G7 — UI shell (M)
 
-- [x] Reports by period: categories, recurring costs, cost per year and month (#17, #20, #24).
-- [x] Tax groups and missing receipts; PDF and XLSX export. Printing goes through the system PDF viewer.
+- [ ] Design tokens from `docs/design.md` as CSS variables, light and dark. IBM Plex Sans, Material icons and the
+  type scale.
+- [ ] Unlock window: create, unlock, change passphrase, leftovers, profile selector.
+- [ ] Main window: maximized, sidebar (collapsible), top bar (language, theme), ⌘F, native menu, tooltips.
+- [ ] Shared components: pill and segmented buttons, filled fields, drop-downs, check boxes, dialogs, tables, the
+  period arrows.
+- [ ] Playwright screenshot suite plus the real-data mode.
 
-### M8 — Backups and FinDesk import
+### G8 — Pages (L)
 
-- [x] M8a: backup and two-phase restore of the encrypted database and the documents (core).
-- [x] M8b: Settings section for backup and restore; `apply_pending_restore` called at startup, before the unlock
-      window; after a restore staged with the backup's passphrase, the unlock screen says the backup's passphrase is
-      now needed (reuse FinDesk's wording from `UnlockViewModel.kt`) (#29).
-- [x] Unlock screen: list of leftover `pre-restore-*` folders, moved-aside deleted profiles and a staged restore that
-      still hold unencrypted documents, display only as in FinDesk; the label names the profile (M8f #40). Finglass
-      never has plaintext database copies.
-- [x] Single-instance lock taken before `app::startup::prepare`, so a second launch can't apply a staged restore
-      while the first instance has the database open (#32).
-- [x] One-time import from a FinDesk database. It reads a copy you select, with its passphrase (SQLCipher 4, `cipher`
-      sqlcipher, `legacy` 4), and brings over accounts, transactions, categories, rules and documents. FinDesk's
-      payment orders are never imported.
-  - [x] M8c core: `findesk_import` (copy opened, one transaction, ids kept, hashes verbatim, documents confined to
-        FinDesk's `documents/`, no payment orders, PIN flags or capabilities) (#15).
-  - [x] M8d-3: Settings entry, folder picker starting in FinDesk's data folder, passphrase, report, reload (#38).
-  - [x] Follow-up: run the empty-target check inside the import transaction, not just before it (#51).
+In order, each one compared with the G1 reference screenshots:
 
-- [x] M8g: first-run migration from the FinDesk install on this Mac: offered once when Finglass has no data and
-      FinDesk is found; every FinDesk profile becomes a Finglass profile with the same name, FinDesk's data is only
-      read (#46). A copy taken while FinDesk writes is refused and can be retried.
-  - [x] Follow-up: if a move fails after a named profile was created, the files go back to staging and the empty
-        profile is removed (#51).
+- [ ] Dashboard: month statement and carry-forward, with charts as Svelte SVG components following design.md's chart
+  rules.
+- [ ] Accounts, bank cards and the account panel.
+- [ ] Transactions: list, filters, panel, import dialog, rules.
+- [ ] Reports: export menu, tax donut.
+- [ ] Documents.
+- [ ] Settings: backup/restore, FinDesk import, profiles, About.
 
-### M9 — Packaging and release
+### G9 — Packaging and release (S–M)
 
-- [x] macOS: `Finglass.app` and a DMG (candidate: `cargo-packager`), with the icons from `assets/icons`, and a CI job
-      that builds it and launches the app once (#27).
-- [x] M9b: `install-mac.command` / `scripts/install-mac.sh` build the app and install it into `/Applications`; the
-      previous app goes to the Trash (#44).
-- [x] CI speed: lint as its own job, line tables only (#47); the Slint UI compiled once in `finglass-ui` (#48);
-      16 codegen units for the generated UI crate in release (#53).
-- [x] OCR helpers (tesseract, pdftoppm) found when the app is started from Finder (#52).
-- [ ] After full functionality: Windows and Linux back in CI, MSI/EXE and DEB/RPM installers, each launched once in
-      CI.
-- [x] Release workflow: a pushed `v<version>` tag publishes a GitHub pre-release with the DMG and checksums
-      (#50); first release v0.1.0.
-- [ ] Signing (macOS ad-hoc first).
+- [ ] `.app` and DMG (Wails v3 packaging or `hdiutil`), ad-hoc signed, icons from `assets/icons`, the minimum macOS
+  version.
+- [ ] `install-mac.command` / `scripts/install-mac.sh` and its test, the release workflow (tag → pre-release with DMG
+  and checksums).
+- [ ] **Release 0.4.0 (Go)** after your test with real data. From then on, new migrations are allowed again.
 
-### M10 — UI parity with FinDesk
+### G10 — Go FinTS client, read-only (L, needs you)
 
-Screen-by-screen comparison with FinDesk's screenshots; colours stay Finglass's.
+- [ ] `internal/fints`: message codec, dialog init/end (HKIDN, HKVVB, HKSYN, HKEND), BPD/UPD caching, HKTAN (process
+  4, decoupled app TAN and push), HKTAB, HKSPA, HKSAL, HKKAZ/HKCAZ (camt). Segment types exist only for these. A test
+  checks that no order segment (`HKCCS`, `HKCSE`, `HKCDE`, …) can be built.
+- [ ] Tests on synthetic and recorded fixtures only.
+- [ ] Product id from a CI secret via `-ldflags -X`, never in the tree. A CI check confirms its value never appears.
+  Without it, sync stays off.
+- [ ] Go `finglass-probe`. **You** run it per bank (Volksbank, DKB, HVB) and report only the `RESULT` line.
+- [ ] Adapter behind the gateway port, plus the M5b prerequisites (one dialog per login, the trace switch with
+  masking).
 
-- [x] One click activates every control (#54); the Dashboard opens on today's month, with FinDesk's month
-      drop-down (#55); the native macOS menu bar (#56).
-- [x] IBM Plex Sans, FinDesk's type scale and filled Material icons; the flag language selector (#57).
-- [x] Pill buttons with icons, segmented buttons, the Transactions filter pills, row alignment (#58).
-- [x] Settings as a section list (#59); the Reports header, Export menu and tables (#60).
-- [x] Outlined text fields, form drop-downs, check boxes, dialog chrome, the unlock window and the profile
-      selector (#62).
-- [x] Improvements after parity: the main window opens maximized as FinDesk's, ⌘F, tooltips on icon buttons,
-      row hover (#63). Released as v0.2.0.
-- [x] After 0.2.0, from the user's feedback: passphrase focus, Reports year arrows, panel rows (#65); FinDesk's
-      bank card and ⋮ menu, online sync shown as not available yet (#66); Dashboard links on the Dashboard's month
-      and the Back trail (#67); bank logos (#68). Released as v0.2.1.
-- [x] After a review with real data: the real-data screenshot mode (#72); layout bugs with real-sized data (#73);
-      German amounts as "2.450,37 €" (#76). Released as v0.2.2.
-- [x] The "Kontoauszug, modern" restyle (`docs/design.md`): design tokens (#79); palette, selection, amount
-      colours and shapes (#81); the Dashboard's month statement (#82); page details (#83). The Mac installer
-      installs the latest release (#80). Released as v0.3.0.
-- [x] After 0.3.0, from the user's feedback: the tax donut's arcs (#85); filled controls, round period arrows,
-      settings with icon rows and titled sections, search and filters on one line when they fit, 13 px small text,
-      an airier account list (#86). Released as v0.3.1.
-- [x] After 0.3.1: the carry-forward for every month (#88); one type and colour scale on every screen (#89).
-      Released as v0.3.2.
-- [x] After 0.3.2: account panel rows keep their height when the list is short (#91). Released as v0.3.3.
-- [x] After 0.3.3: validated category palette, the tax card as a split bar, capped bars, budget fill fix, balance
-      end dots (#93). Released as v0.3.4.
+### G11 — Windows and Linux (M, after parity)
 
-## Done
+- [ ] WebView2 / WebKitGTK, MSI/NSIS and DEB/RPM, credential stores, each installer launched once in CI.
 
-- [x] Repository, name, brand assets (icon, favicon, macOS icon, wordmark), workspace skeleton and CI.
+## Carried over from the Rust plan (your actions)
+
+- [ ] DK FinTS product registration under the name Finglass: form sent 2026-11-08, number expected ~2026-11-20..27.
+      Keep it in your password manager; never paste it into a chat, issue, commit or file. Store it with
+      `gh secret set FINGLASS_FINTS_PRODUCT_ID -R MaMissaoui/Finglass` (asked without echo).
+- [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
+      list you received, or it ships with the app only if the terms allow it).
+
+## Open questions for later
+
+1. **M0 probe:** the Rust probe tests `fints-rs`, which the Go app won't use. I propose to keep the DK registration
+   (still needed), skip the Rust probe run and run the Go probe in G10 instead. Then `crates/finglass-probe` is deleted
+   in G6. Your call when the product id arrives.
+2. **Version number:** 0.4.0 for the first Go release, or 1.0?
+
+## Risks
+
+- **SQLCipher in Go** is the weakest link: the drivers are thinly maintained and need cgo. G0 is a hard gate.
+- **Dedup hash drift** would create duplicates in existing DBs. The byte-exact golden tests catch it.
+- **User regex patterns:** `regexp2` is .NET-flavoured, not identical to fancy-regex. The corpus test covers it, and
+  rules it can't compile are reported, never silently dropped.
+- **Secret handling** is weaker than Rust's. This is accepted (see Decisions).
+- **No shippable main build** between G6 and G9. This is acceptable because 0.3.4 stays installed.
+- **FinTS** is the biggest single piece of work, and only you can verify it against a bank.
+
+## Repo docs to rewrite in G2
+
+`CLAUDE.md` (gates, layout, Go secret rule, network allowlist: Go module proxy + npm registry instead of crates.io),
+`README.md`, `ci.yml`,
+`package.yml`.
+
+## Sources
+
+- Wails v3 releases: https://github.com/wailsapp/wails/releases (v3.1.0 "Latest", 2026-11-01); status:
+  https://docs-preview.wails.io/status/
+- Go SQLCipher drivers: https://socket.dev/go/package/github.com/mutecomm/go-sqlcipher/v4,
+  https://awesome.ecosyste.ms/projects/github.com%2Fwisscore%2Fgo-sqlcipher,
+  https://pkg.go.dev/github.com/hanzoai/sqlcipher
