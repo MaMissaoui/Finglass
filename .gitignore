@@ -1,6 +1,11 @@
 # Build output
 /target/
 /build/
+frontend/node_modules/
+frontend/dist/*
+!frontend/dist/.keep
+frontend/test-results/
+frontend/playwright-report/
 
 # Local data: tests and dev runs use FINGLASS_HOME, but never commit a data folder by accident
 *.db
