@@ -5,6 +5,8 @@
 # into a temporary worktree and runs its headless screenshot suite there. Only the seeded, synthetic fixtures are
 # rendered; the real-data test is skipped because FINGLASS_SCREENSHOT_DATA is never set here.
 #
+# Builds go to target/slint-reference, their own cache, so they never invalidate the main target/ build.
+#
 # Usage: scripts/render-slint-reference.sh <output-dir> [git-ref]
 #   git-ref defaults to 107faa8, the last commit before the Go migration (Finglass 0.3.4 plus the chart fix).
 set -euo pipefail
@@ -39,7 +41,7 @@ git -C "$repo_root" worktree add --quiet --detach "$work/tree" "$ref"
   cd "$work/tree"
   unset FINGLASS_SCREENSHOT_DATA FINGLASS_SCREENSHOT_PASSPHRASE
   FINGLASS_HOME="$work/home" FINGLASS_SCREENSHOTS="$out" \
-    CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$repo_root/target}" \
+    CARGO_TARGET_DIR="$repo_root/target/slint-reference" \
     cargo test --quiet -p finglass --test screenshots
 )
 
