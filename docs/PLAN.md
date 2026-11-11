@@ -63,7 +63,7 @@ testdata/golden/             outputs captured from Rust 0.3.4 (G1)
 
 | Rust | Go | Note |
 |---|---|---|
-| rusqlite + bundled SQLCipher | `mutecomm/go-sqlcipher/v4`, or the WissCore fork (cgo) | **G0 gate.** The pool is pinned to one connection that never expires (`SetMaxOpenConns(1)`, `SetConnMaxLifetime(0)`). The key goes only through `PRAGMA key` on that connection, never in the DSN. |
+| rusqlite + bundled SQLCipher | `mutecomm/go-sqlcipher/v4`, or the WissCore fork (cgo) | **G0 gate.** The pool is pinned to one connection that never expires (`SetMaxOpenConns(1)`, `SetConnMaxLifetime(0)`). The key goes through the driver's `_pragma_key` (escaped) and a one-shot connector, and never stays for a reconnect. |
 | rust_decimal / minor units | `int64` minor units, `shopspring/decimal` only where needed | Same representation as the schema, never `float64`. |
 | time | `time`, plus a civil date type | |
 | regex / **fancy_regex** | `regexp`, plus **`dlclark/regexp2`** for user rule patterns | User patterns use lookaround. A corpus test is built from all rules in the FinDesk/Finglass test files. |
@@ -91,7 +91,7 @@ Done on a branch. The Rust code is untouched.
 
 - [ ] SQLCipher: the Go driver opens a 0.3.4 database. The database is created by the Rust app in a scratch
   `FINGLASS_HOME`, never `~/.finglass`. Checks:
-  - the key is set by `PRAGMA key` only;
+  - the key is the first statement, sent through the driver's `_pragma_key` with a one-shot connector;
   - the pool has one connection;
   - wrong-key detection works;
   - `user_version` reads correctly.

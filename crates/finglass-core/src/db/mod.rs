@@ -9,6 +9,8 @@
 //! logging hook on the connection.
 
 mod error;
+#[cfg(test)]
+mod go_fixtures;
 pub(crate) mod migrations;
 
 use std::fs::{self, File};
