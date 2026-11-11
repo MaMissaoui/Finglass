@@ -89,7 +89,7 @@ the usual OpenCode pace.
 
 Done on a branch. The Rust code is untouched.
 
-- [ ] SQLCipher: the Go driver opens a 0.3.4 database. The database is created by the Rust app in a scratch
+- [x] SQLCipher (#97): the Go driver opens a 0.3.4 database. The database is created by the Rust app in a scratch
   `FINGLASS_HOME`, never `~/.finglass`. Checks:
   - the key is the first statement, sent through the driver's `_pragma_key` with a one-shot connector;
   - the pool has one connection;
@@ -98,12 +98,13 @@ Done on a branch. The Rust code is untouched.
 
   The FinDesk DB check moves to G4 (FinDesk import). The Rust import opens FinDesk copies with the same bare
   `PRAGMA key` and SQLCipher 4 defaults as Finglass's own DB, so G0's fixture already covers the format.
-- [ ] Wails v3.1 hello window on macOS. Checks:
+- [x] Wails v3.1 hello window on macOS (G0b). Checks:
   - a typed generated binding works;
   - an event goes from Go to the UI;
   - the native menu bar works;
   - a Playwright screenshot of the Svelte build is taken with mocked bindings;
-  - an ad-hoc-signed `.app` builds (cgo, arm64 + amd64 → universal binary).
+  - an ad-hoc-signed `.app` builds (cgo, arm64 + amd64 → universal binary). Its minimum is macOS 13.0, because
+    Go 1.27's runtime is built for macOS 13.
 - [ ] Spikes:
   - PDF text extraction and PDF writing on the existing fixtures;
   - `regexp2` against all rule patterns in the fixtures;

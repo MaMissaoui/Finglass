@@ -22,7 +22,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run preview -- --host 127.0.0.1 --port 4173 --strictPort',
+    // The mock build lives in dist-mock, never in dist, which the app embeds.
+    command: 'npx vite preview --outDir dist-mock --host 127.0.0.1 --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: false,
     timeout: 120_000,

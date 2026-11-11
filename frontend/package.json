@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
-    "screenshots": "vite build --mode mock && playwright test"
+    "screenshots": "vite build --mode mock --outDir dist-mock --emptyOutDir && playwright test"
   },
   "dependencies": {
     "@wailsio/runtime": "3.1.0"

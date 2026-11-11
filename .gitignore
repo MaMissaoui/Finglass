@@ -4,6 +4,7 @@
 frontend/node_modules/
 frontend/dist/*
 !frontend/dist/.keep
+frontend/dist-mock/
 frontend/test-results/
 frontend/playwright-report/
 
