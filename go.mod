@@ -4,6 +4,10 @@ go 1.27
 
 require (
 	github.com/WissCore/go-sqlcipher/v4 v4.15.1
+	github.com/dlclark/regexp2 v1.12.0
+	github.com/keybase/go-keychain v0.0.2-0.20261015142909-81300cc4cb68
+	github.com/ledongthuc/pdf v0.0.0-20261020125853-5e46805f718e
+	github.com/signintech/gopdf v0.38.4
 	github.com/wailsapp/wails/v3 v3.1.0
 	golang.org/x/text v0.44.0
 )
@@ -51,7 +55,6 @@ require (
 	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
 	github.com/danieljoos/wincred v1.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/dominikbraun/graph v0.23.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ebitengine/purego v0.11.1 // indirect
@@ -104,7 +107,9 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	github.com/phpdave11/gofpdi v1.0.14-0.20211212211723-1f10f9844311 // indirect
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pterm/pterm v0.12.82 // indirect
 	github.com/radovskyb/watcher v1.0.7 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
