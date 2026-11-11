@@ -94,8 +94,10 @@ Done on a branch. The Rust code is untouched.
   - the key is set by `PRAGMA key` only;
   - the pool has one connection;
   - wrong-key detection works;
-  - `user_version` reads correctly;
-  - a FinDesk DB (SQLCipher 4 defaults) also opens.
+  - `user_version` reads correctly.
+
+  The FinDesk DB check moves to G4 (FinDesk import). The Rust import opens FinDesk copies with the same bare
+  `PRAGMA key` and SQLCipher 4 defaults as Finglass's own DB, so G0's fixture already covers the format.
 - [ ] Wails v3.1 hello window on macOS. Checks:
   - a typed generated binding works;
   - an event goes from Go to the UI;
@@ -147,7 +149,8 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 - [ ] Dashboard and report services, tax export, PDF/XLSX/CSV export.
 - [ ] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
-- [ ] Backup and two-phase restore, plus leftover handling. FinDesk import. First-run migration from FinDesk.
+- [ ] Backup and two-phase restore, plus leftover handling. FinDesk import, with a test that opens a real FinDesk
+  fixture DB (created by FinDesk's SQLCipher driver). First-run migration from FinDesk.
 - [ ] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
   store. Every rule from CLAUDE.md "Read-only banking" is ported as a test.
 
