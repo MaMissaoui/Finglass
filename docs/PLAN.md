@@ -105,10 +105,12 @@ Done on a branch. The Rust code is untouched.
   - a Playwright screenshot of the Svelte build is taken with mocked bindings;
   - an ad-hoc-signed `.app` builds (cgo, arm64 + amd64 → universal binary). Its minimum is macOS 13.0, because
     Go 1.27's runtime is built for macOS 13.
-- [ ] Spikes:
-  - PDF text extraction and PDF writing on the existing fixtures;
-  - `regexp2` against all rule patterns in the fixtures;
-  - Keychain round trip on a test service name.
+- [x] Spikes (G0c):
+  - PDF text extraction and PDF writing on the existing fixtures. `ledongthuc/pdf` passes every fixture, so the
+    `pdftotext` fallback isn't needed; writing uses `gopdf`;
+  - `regexp2` against all rule patterns in the fixtures: 68 patterns × 57 inputs match fancy-regex. The one
+    documented difference is `a{2,1}`, which Rust accepts and regexp2 treats as a substring;
+  - Keychain round trip on a test service name (`keybase/go-keychain`), run by hand.
 - [ ] **Exit:** if SQLCipher or Wails fails, stop and come back to you (the fallbacks would be Wails v2, or cgo
   `sqlite3` built with SQLCipher).
 
