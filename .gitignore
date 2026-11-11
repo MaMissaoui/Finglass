@@ -1,5 +1,6 @@
 # Build output
 /target/
+/build/
 
 # Local data: tests and dev runs use FINGLASS_HOME, but never commit a data folder by accident
 *.db
