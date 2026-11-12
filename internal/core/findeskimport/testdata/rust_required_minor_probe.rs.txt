@@ -1,0 +1,59 @@
+// Records findesk_import::convert::required_minor for synthetic values. The two functions below are copied verbatim
+// from crates/finglass-core/src/findesk_import/convert.rs (decimal, required_minor) and import/mod.rs
+// (amount_to_money), because they are pub(crate).
+use std::str::FromStr;
+use rust_decimal::Decimal;
+use serde_json::json;
+
+enum SourceNumber { Integer(i64), Real(f64), Text(String) }
+
+fn decimal(value: &SourceNumber) -> Option<Decimal> {
+    match value {
+        SourceNumber::Integer(value) => Some(Decimal::from(*value)),
+        SourceNumber::Real(value) => Decimal::from_str(&format!("{value}")).ok(),
+        SourceNumber::Text(text) => Decimal::from_str(text.trim()).ok(),
+    }
+}
+
+fn amount_to_money(amount: Decimal, exponent: u32) -> Result<i64, &'static str> {
+    let normalized = amount.normalize();
+    let scale = normalized.scale();
+    if scale > exponent { return Err("Invalid"); }
+    let factor = 10_i128.checked_pow(exponent - scale).ok_or("Invalid")?;
+    let minor = normalized.mantissa().checked_mul(factor).ok_or("Invalid")?;
+    i64::try_from(minor).map_err(|_| "Invalid")
+}
+
+fn required_minor(value: &SourceNumber, exponent: u32) -> Result<i64, &'static str> {
+    let amount = decimal(value).ok_or("Invalid")?;
+    let normalized = amount.normalize();
+    if normalized.scale() > exponent { return Err("FractionalAmount"); }
+    amount_to_money(amount, exponent)
+}
+
+fn main() {
+    let reals: Vec<f64> = vec![-0.1, 0.1 + 0.2, 1234567.89, -1234567.89, -0.0, 0.0, 1e21, 1e-7, 1e29, 1e15, 9.2e16,
+        12.3, 12.30, 0.005, 100.0, -5.5, 1.0 / 3.0, 92233720368547758.07, 1e300, f64::MAX, f64::MIN_POSITIVE,
+        f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 79228162514264337593543950335.0, 7.922816251426434e28];
+    let ints: Vec<i64> = vec![0, 100, -1, i64::MAX, i64::MIN, 92233720368547758];
+    let texts = vec![" 12.30 ", "12.30", "1e5", "+5", "-5", "NaN", "", " ", "1,5", "0.001", "1.000", "-0", ".5", "5.",
+        "1_000", "\t7\n", "１２", "79228162514264337593543950335", "79228162514264337593543950336",
+        "0.0000000000000000000000000001", "1.23456789012345678901234567890", "abc", "12.3x", "--1"];
+    let mut cases = Vec::new();
+    for exponent in [2u32, 0, 3] {
+        for r in &reals {
+            let shown = format!("{r}");
+            cases.push(json!({"kind":"real","bits":format!("{:016x}", r.to_bits()),"display":shown,"exponent":exponent,
+                "result": match required_minor(&SourceNumber::Real(*r), exponent) { Ok(m) => json!({"ok":m}), Err(e) => json!({"err":e}) }}));
+        }
+        for i in &ints {
+            cases.push(json!({"kind":"integer","value":i,"exponent":exponent,
+                "result": match required_minor(&SourceNumber::Integer(*i), exponent) { Ok(m) => json!({"ok":m}), Err(e) => json!({"err":e}) }}));
+        }
+        for t in &texts {
+            cases.push(json!({"kind":"text","value":t,"exponent":exponent,
+                "result": match required_minor(&SourceNumber::Text(t.to_string()), exponent) { Ok(m) => json!({"ok":m}), Err(e) => json!({"err":e}) }}));
+        }
+    }
+    println!("{}", serde_json::to_string_pretty(&json!({"cases": cases})).unwrap());
+}
