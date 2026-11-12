@@ -191,13 +191,17 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 - [ ] Backup and two-phase restore, plus leftover handling. FinDesk import, with a test that opens a real FinDesk
   fixture DB (created by FinDesk's SQLCipher driver). First-run migration from FinDesk.
   - [x] G4c: `backup` (create, inspect, stage, apply); Go and Rust 0.3.4 restore each other's backups.
-- [ ] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
+  - [x] G4j: `findeskimport` against FinDesk's own fixture DB, `db.OpenUnmigrated`, and `internal/app/prefs`. The
+    first-run migration from FinDesk follows in G5.
+- [x] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
   store. Every rule from CLAUDE.md "Read-only banking" is ported as a test.
   - [x] G4h: `banksync` (named so it does not shadow the standard `sync`): capabilities, config, failures, the
     read-only gateway port, interaction, redactor (byte for byte against a Rust probe), credentials and Keychain.
 
 ### G5 — App-state layer (M)
 
+  - [x] G4i: the FinTS client's PIN lifecycle and the banking service, with all 74 Rust tests and guards that no
+    TAN is stored and no PIN reaches the audit log or an error.
 - [ ] `internal/app`: unlock, startup (`apply_pending_restore` before unlock), switch, prefs, and every page state
   (accounts, account panel, transactions, dashboard, reports, documents, settings, banking bridge, migration).
   Headless tests port `app/**/tests.rs`.
