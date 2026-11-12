@@ -160,6 +160,9 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   - [x] G3b: `model` and every repository except transactions (`repo/accounts`, `accountgroups`, `categories`,
     `rules`, `pendingbookings`, `documents`, `bankconnections`), with Rust's SQL, column encodings and audit entries.
 - [ ] Importers, dedup and hash, import service. Every golden test passes.
+  - [x] G3f: the statement parsers (CSV, XLSX, MT940, CAMT.052/053 and ZIP, OFX, QIF) and the hashes, in
+    `internal/core/imports`; `import/statements.json` and `hash/hashes.json` pass. Go reads only Store/Deflate ZIP
+    entries, and malformed-XML messages carry Go's parser text.
 - [ ] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
   `bank_directory`, `bank_logo`.
   - [x] G3x: `bankdirectory` (embedded Bundesbank file) and `banklogo`.
