@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/finglass-core", "crates/finglass-ui", "crates/finglass", "crates/finglass-probe"]
+members = ["crates/finglass-probe"]
 
 [workspace.package]
 version = "0.3.4"
@@ -19,8 +19,3 @@ all = { level = "warn", priority = -1 }
 lto = "thin"
 codegen-units = 1
 strip = true
-
-# The generated Slint UI is one 22 MB Rust file. With the workspace's codegen-units = 1 it is optimised on a
-# single core; 16 units let that crate optimise in parallel. Thin LTO still runs across the whole binary.
-[profile.release.package.finglass-ui]
-codegen-units = 16

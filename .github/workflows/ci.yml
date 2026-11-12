@@ -22,9 +22,6 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: -D warnings
-  # Full debug info makes the generated Slint UI code slow to compile and link; file and line numbers in
-  # backtraces are all CI needs (locally 94 s -> 68 s for the test build).
-  CARGO_PROFILE_DEV_DEBUG: line-tables-only
 
 jobs:
   test:
@@ -34,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         # macOS only until Finglass reaches FinDesk's functionality (minus payments). Then add back
-        # ubuntu-latest and windows-latest; the Linux dependency step below is kept for that.
+        # ubuntu-latest and windows-latest.
         os: [macos-latest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -42,12 +39,8 @@ jobs:
         with:
           toolchain: stable
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      - name: Install Linux UI build dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libfontconfig1-dev libxkbcommon-dev libxcb-shape0-dev libxcb-xfixes0-dev
-      # The same script scripts/ci-local.sh runs: cargo test, then the Mac installer test on macOS.
+      # The same script scripts/ci-local.sh runs: cargo test (only crates/finglass-probe is left), then the Mac
+      # installer test on macOS.
       - name: Test
         run: bash scripts/ci/rust-test.sh
 
@@ -66,16 +59,11 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      - name: Install Linux UI build dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libfontconfig1-dev libxkbcommon-dev libxcb-shape0-dev libxcb-xfixes0-dev
       # The same script scripts/ci-local.sh runs: cargo fmt --check, then clippy.
       - name: Format and Clippy
         run: bash scripts/ci/rust-lint.sh
 
-  # The Go port (docs/PLAN.md, G0–G11). Runs next to the Rust jobs until the Rust code is removed in G6.
+  # The Go app (docs/PLAN.md). The Test and Lint jobs above cover only crates/finglass-probe and the installer.
   go:
     name: Go (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

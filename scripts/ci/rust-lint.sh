@@ -4,7 +4,6 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 export RUSTFLAGS="${RUSTFLAGS:--D warnings}"
-export CARGO_PROFILE_DEV_DEBUG="${CARGO_PROFILE_DEV_DEBUG:-line-tables-only}"
 
 printf '\n== cargo fmt\n'
 cargo fmt --all --check
