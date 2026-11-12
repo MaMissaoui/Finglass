@@ -2,10 +2,10 @@ package pdftext
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"testing"
 )
@@ -70,10 +70,6 @@ func readGolden(t *testing.T) []goldenPDF {
 	return golden
 }
 
-func words(text string) []string {
-	return strings.Fields(text)
-}
-
 func TestExtractAndInspectMatchTheRustGolden(t *testing.T) {
 	root := repoRoot(t)
 
@@ -93,11 +89,7 @@ func TestExtractAndInspectMatchTheRustGolden(t *testing.T) {
 				if text.PageCount != fixture.Text.PageCount {
 					t.Errorf("page count = %d, want %d", text.PageCount, fixture.Text.PageCount)
 				}
-				if text.Text == fixture.Text.Text {
-					t.Logf("%s: text is equal to Rust", fixture.File)
-				} else if slices.Equal(words(text.Text), words(fixture.Text.Text)) {
-					t.Logf("%s: text has the same words in the same order as Rust", fixture.File)
-				} else {
+				if text.Text != fixture.Text.Text {
 					t.Errorf(
 						"text differs from Rust:\n got: %q\nwant: %q",
 						text.Text,
@@ -178,5 +170,118 @@ func TestMissingAndOversizedFilesAreRefused(t *testing.T) {
 	}
 	if _, ok := Inspect(oversized); ok {
 		t.Error("Inspect accepted a file above the size cap")
+	}
+}
+
+type rustTextEntry struct {
+	File      string  `json:"file"`
+	MaxPages  int     `json:"max_pages"`
+	Text      *string `json:"text"`
+	PageCount *int    `json:"page_count"`
+}
+
+func readRustText(t *testing.T) []rustTextEntry {
+	t.Helper()
+
+	path := filepath.Join("testdata", "rust", "rust_text.json")
+	data, err := os.ReadFile(path) // #nosec G304 -- fixed path below the package directory
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
+	var entries []rustTextEntry
+	if err := json.Unmarshal(data, &entries); err != nil {
+		t.Fatalf("parse %s: %v", path, err)
+	}
+	if len(entries) == 0 {
+		t.Fatalf("%s is empty", path)
+	}
+	return entries
+}
+
+func rustFixturePath(t *testing.T, file string) string {
+	t.Helper()
+
+	rustPath := filepath.Join("testdata", "rust", file)
+	if _, err := os.Stat(rustPath); err == nil {
+		return rustPath
+	}
+	return filepath.Join(repoRoot(t), "testdata", "pdf", file)
+}
+
+func TestExtractMatchesRustPdfExtract(t *testing.T) {
+	for _, entry := range readRustText(t) {
+		t.Run(fmt.Sprintf("%s/max_pages=%d", entry.File, entry.MaxPages), func(t *testing.T) {
+			text, ok := Extract(rustFixturePath(t, entry.File), entry.MaxPages)
+			if entry.Text == nil {
+				if ok {
+					t.Fatalf("Extract(%s) succeeded, but Rust gives no text", entry.File)
+				}
+				return
+			}
+			if !ok {
+				t.Fatalf("Extract(%s) failed, but Rust returns text %q", entry.File, *entry.Text)
+			}
+			if text.Text != *entry.Text {
+				t.Errorf("text differs from Rust:\n got: %q\nwant: %q", text.Text, *entry.Text)
+			}
+			if entry.PageCount != nil && text.PageCount != *entry.PageCount {
+				t.Errorf("page count = %d, want %d", text.PageCount, *entry.PageCount)
+			}
+		})
+	}
+}
+
+func TestExtractNeverPanicsOnTruncatedPrefixes(t *testing.T) {
+	files := make([]string, 0)
+	for _, directory := range []string{
+		filepath.Join("testdata", "rust"),
+		filepath.Join(repoRoot(t), "testdata", "pdf"),
+	} {
+		matches, err := filepath.Glob(filepath.Join(directory, "*.pdf"))
+		if err != nil {
+			t.Fatalf("glob %s: %v", directory, err)
+		}
+		files = append(files, matches...)
+	}
+	if len(files) == 0 {
+		t.Fatal("no corpus PDFs found")
+	}
+
+	target := filepath.Join(t.TempDir(), "prefix.pdf")
+	for _, file := range files {
+		data, err := os.ReadFile(file) // #nosec G304 -- fixed corpus path
+		if err != nil {
+			t.Fatalf("read %s: %v", file, err)
+		}
+
+		lengths := make([]int, 0, 80)
+		for cut := 0; cut < len(data); cut++ {
+			if cut < 64 {
+				lengths = append(lengths, cut)
+			}
+		}
+		step := len(data) / 48
+		if step < 1 {
+			step = 1
+		}
+		for cut := 0; cut < len(data); cut += step {
+			lengths = append(lengths, cut)
+		}
+		lengths = append(lengths, len(data)-1)
+
+		for _, cut := range lengths {
+			// #nosec G703 -- target is created inside t.TempDir()
+			if err := os.WriteFile(target, data[:cut], 0o600); err != nil {
+				t.Fatalf("write prefix: %v", err)
+			}
+			func() {
+				defer func() {
+					if recovered := recover(); recovered != nil {
+						t.Fatalf("%s prefix %d panicked: %v", filepath.Base(file), cut, recovered)
+					}
+				}()
+				_, _ = Extract(target, 500)
+			}()
+		}
 	}
 }

@@ -1,0 +1,142 @@
+// Builds Rust's documents::test_support::text_pdf document and prints what pdf_text extracts.
+use std::path::Path;
+use pdf_extract::{Dictionary, Document, Object, Stream};
+
+fn escape_text(text: &str) -> String {
+    text.replace('\\', "\\\\").replace('(', "\\(").replace(')', "\\)")
+}
+
+fn write(path: &Path, content: Vec<u8>) { write_font(path, content, None) }
+
+fn write_font(path: &Path, content: Vec<u8>, custom: Option<Dictionary>) {
+    let mut document = Document::with_version("1.5");
+    let pages_id = document.new_object_id();
+    let mut font = Dictionary::new();
+    font.set("Type", Object::Name(b"Font".to_vec()));
+    font.set("Subtype", Object::Name(b"Type1".to_vec()));
+    font.set("BaseFont", Object::Name(b"Helvetica".to_vec()));
+    font.set("Encoding", Object::Name(b"WinAnsiEncoding".to_vec()));
+    let font = custom.unwrap_or(font);
+    let font_id = document.add_object(font);
+    let mut fonts = Dictionary::new();
+    fonts.set("F1", Object::Reference(font_id));
+    let mut resources = Dictionary::new();
+    resources.set("Font", fonts);
+    let resources_id = document.add_object(resources);
+    let content_id = document.add_object(Stream::new(Dictionary::new(), content));
+    let mut page = Dictionary::new();
+    page.set("Type", Object::Name(b"Page".to_vec()));
+    page.set("Parent", Object::Reference(pages_id));
+    page.set("MediaBox", Object::Array(vec![0.into(), 0.into(), 595.into(), 842.into()]));
+    page.set("Contents", Object::Reference(content_id));
+    page.set("Resources", Object::Reference(resources_id));
+    let page_id = document.add_object(page);
+    let mut pages = Dictionary::new();
+    pages.set("Type", Object::Name(b"Pages".to_vec()));
+    pages.set("Kids", Object::Array(vec![Object::Reference(page_id)]));
+    pages.set("Count", Object::Integer(1));
+    document.objects.insert(pages_id, Object::Dictionary(pages));
+    let mut catalog = Dictionary::new();
+    catalog.set("Type", Object::Name(b"Catalog".to_vec()));
+    catalog.set("Pages", Object::Reference(pages_id));
+    let catalog_id = document.add_object(catalog);
+    document.trailer.set("Root", Object::Reference(catalog_id));
+    document.save(path).unwrap();
+}
+
+fn main() {
+    let out = std::path::PathBuf::from(std::env::args().nth(1).unwrap());
+    let lines = ["REWE Markt GmbH", "Datum: 03.10.2026", "Milch 1,29", "Brot 2,49", "SUMME EUR 3,78"];
+    // Td (relative, Rust's test_support), TD, T* with TL, and the ' operator.
+    let mut td = String::from("BT\n/F1 12 Tf\n50 700 Td\n");
+    for line in lines { td.push_str(&format!("({}) Tj\n0 -16 Td\n", escape_text(line))); }
+    td.push_str("ET\n");
+    let mut tdd = String::from("BT\n/F1 12 Tf\n50 700 Td\n");
+    for line in lines { tdd.push_str(&format!("({}) Tj\n0 -16 TD\n", escape_text(line))); }
+    tdd.push_str("ET\n");
+    let mut tstar = String::from("BT\n/F1 12 Tf\n16 TL\n50 700 Td\n");
+    for line in lines { tstar.push_str(&format!("({}) Tj\nT*\n", escape_text(line))); }
+    tstar.push_str("ET\n");
+    let mut quote = String::from("BT\n/F1 12 Tf\n16 TL\n50 716 Td\n");
+    for line in lines { quote.push_str(&format!("({}) '\n", escape_text(line))); }
+    quote.push_str("ET\n");
+    let extra: Vec<(&str, String)> = vec![
+        ("tj_kern", "BT\n/F1 12 Tf\n50 700 Td\n[(Gesamt) -50 (betrag) -900 (89,99)] TJ\nET\n".into()),
+        ("two_runs", "BT\n/F1 12 Tf\n50 700 Td\n(Total) Tj\n200 0 Td\n(89,99 EUR) Tj\n-200 -20 Td\n(Next line) Tj\nET\n".into()),
+        ("columns_back", "BT\n/F1 12 Tf\n300 700 Td\n(Right) Tj\n-250 0 Td\n(Left) Tj\nET\n".into()),
+        ("cm_scale", "q\n2 0 0 2 0 0 cm\nBT\n/F1 10 Tf\n20 350 Td\n(Scaled line) Tj\n0 -12 Td\n(Second) Tj\nET\nQ\n".into()),
+        ("tc_tw", "BT\n/F1 12 Tf\n2 Tc\n5 Tw\n50 700 Td\n(Spaced words here) Tj\n0 -16 Td\n0 Tc\n0 Tw\n(Normal) Tj\nET\n".into()),
+        ("tm_lines", "BT\n/F1 12 Tf\n1 0 0 1 50 700 Tm\n(First) Tj\n1 0 0 1 50 690 Tm\n(Close below) Tj\n1 0 0 1 50 600 Tm\n(Far below) Tj\nET\n".into()),
+        ("small_gap", "BT\n/F1 12 Tf\n50 700 Td\n(AB) Tj\n14.5 0 Td\n(CD) Tj\n14.0 0 Td\n(EF) Tj\nET\n".into()),
+        ("tz_ts", "BT\n/F1 12 Tf\n50 Tz\n50 700 Td\n(Half width) Tj\n100 Tz\n3 Ts\n0 -16 Td\n(Raised) Tj\nET\n".into()),
+        ("multi_bt", "BT\n/F1 12 Tf\n50 700 Td\n(Block one) Tj\nET\nBT\n/F1 12 Tf\n50 650 Td\n(Block two) Tj\nET\n".into()),
+        ("umlauts", "BT\n/F1 12 Tf\n50 700 Td\n(M\\374nchen Stra\\337e \\200 5) Tj\nET\n".into()),
+    ];
+    for (name, content) in extra {
+        let path = out.join(format!("{name}.pdf"));
+        write(&path, content.into_bytes());
+    }
+    {
+        // A font with its own Widths and a Differences encoding.
+        let mut font = Dictionary::new();
+        font.set("Type", Object::Name(b"Font".to_vec()));
+        font.set("Subtype", Object::Name(b"Type1".to_vec()));
+        font.set("BaseFont", Object::Name(b"Helvetica".to_vec()));
+        font.set("FirstChar", Object::Integer(65));
+        font.set("LastChar", Object::Integer(70));
+        font.set("Widths", Object::Array(vec![600.into(), 600.into(), 600.into(), 600.into(), 600.into(), 600.into()]));
+        let mut enc = Dictionary::new();
+        enc.set("Type", Object::Name(b"Encoding".to_vec()));
+        enc.set("BaseEncoding", Object::Name(b"WinAnsiEncoding".to_vec()));
+        enc.set("Differences", Object::Array(vec![65.into(), Object::Name(b"Euro".to_vec()), Object::Name(b"adieresis".to_vec())]));
+        font.set("Encoding", Object::Dictionary(enc));
+        let path = out.join("widths_differences.pdf");
+        write_font(&path, b"BT\n/F1 12 Tf\n50 700 Td\n(ABCDEF) Tj\n0 -16 Td\n(CDEF) Tj\nET\n".to_vec(), Some(font));
+    }
+    for (name, content) in [("td", td), ("tdd", tdd), ("tstar", tstar), ("quote", quote)] {
+        let path = out.join(format!("{name}.pdf"));
+        write(&path, content.into_bytes());
+        let text = finglass_core::documents::pdf_text::extract_text(&path, 500);
+        println!("{name}: {:?}", text.map(|t| t.text));
+    }
+    // Exact text of every fixture PDF, for the Go port: name, max_pages, text (or null), page_count.
+    if let Some(dir) = std::env::args().nth(2) {
+        let mut names: Vec<String> = std::fs::read_dir(&dir).unwrap()
+            .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
+            .filter(|n| n.ends_with(".pdf")).collect();
+        names.sort();
+        let mut json = String::from("[\n");
+        let mut first = true;
+        for name in &names {
+            for max in [5usize, 500] {
+                let r = finglass_core::documents::pdf_text::extract_text(&std::path::Path::new(&dir).join(name), max);
+                let (text, count) = match r {
+                    Some(t) => (json_str(&t.text), t.page_count.to_string()),
+                    None => ("null".to_owned(), "null".to_owned()),
+                };
+                if !first { json.push_str(",\n"); }
+                first = false;
+                json.push_str(&format!("  {{\"file\": {}, \"max_pages\": {max}, \"text\": {text}, \"page_count\": {count}}}", json_str(name)));
+            }
+        }
+        json.push_str("\n]\n");
+        std::fs::write(out.join("rust_text.json"), json).unwrap();
+    }
+}
+
+fn json_str(s: &str) -> String {
+    let mut o = String::from("\"");
+    for c in s.chars() {
+        match c {
+            '"' => o.push_str("\\\""),
+            '\\' => o.push_str("\\\\"),
+            '\n' => o.push_str("\\n"),
+            '\r' => o.push_str("\\r"),
+            '\t' => o.push_str("\\t"),
+            c if (c as u32) < 0x20 => o.push_str(&format!("\\u{:04x}", c as u32)),
+            c => o.push(c),
+        }
+    }
+    o.push('"');
+    o
+}
