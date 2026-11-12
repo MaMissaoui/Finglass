@@ -139,8 +139,8 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 ### G2 — Go foundation (M)
 
-- [ ] `go.mod`, the layout above, CI on macOS. The gates are `gofmt`, `go vet`, `golangci-lint`, `go test ./...` and
-  the `frontend` checks (`svelte-check`, `vitest`, `eslint`/`prettier`). The Rust CI keeps running until G6.
+- [x] `go.mod`, the layout above, CI on macOS. The gates are `gofmt`, `go vet`, `golangci-lint`, `go test ./...` and
+  the `frontend` checks (`svelte-check`, `vitest`, `eslint`/`prettier`). The Rust CI keeps running until G6. (G0b/G0c, plus `eslint`/`prettier` in G2c.)
 - [x] `paths`, `profiles`, `secret` (`[]byte` + zero), `settings`, `audit`, `db` (open, key, migrations 1..n verbatim),
   `instance`. `db`, `secret` and `credentials` came with G0. G2a added the other five, on disk identical to 0.3.4:
   `profiles.properties` byte for byte, folder modes, and the `flock(2)` lock on `finglass.lock`, so Rust and Go
@@ -155,6 +155,8 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 - [ ] `money`, `format`, `iban`, `account_ids`, `model`, all repos (transactions is the largest), `account_grouping`,
   `balance`.
+  - [x] G3a: `money`, `format`, `iban`, `accountids`, plus `decimal` (rust_decimal's rules; arithmetic does not yet
+    round at the 96-bit/28-digit limits, which money never reaches) and `civil` (calendar dates).
 - [ ] Importers, dedup and hash, import service. Every golden test passes.
 - [ ] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
   `bank_directory`, `bank_logo`.
