@@ -714,6 +714,129 @@ type DashboardState struct {
 	Language i18n.Language
 }
 
+// Clone returns a deep copy of the state.
+//
+// The view's rows and every pointer in the state are copied too, so a load or a
+// mutation on the clone cannot change the original. The shell keeps one copy as
+// the published state and gives another to the background load.
+func (s DashboardState) Clone() DashboardState {
+	clone := s
+	clone.LoadedMonth = cloneYearMonth(s.LoadedMonth)
+	clone.Error = cloneText(s.Error)
+	clone.Months = cloneSlice(s.Months)
+	if s.View != nil {
+		view := cloneDashboardView(*s.View)
+		clone.View = &view
+	}
+	return clone
+}
+
+func cloneDashboardView(view DashboardView) DashboardView {
+	clone := view
+	clone.CarryForward = cloneMoney(view.CarryForward)
+	clone.OtherMovements = cloneMoney(view.OtherMovements)
+	clone.BalanceDate = cloneDate(view.BalanceDate)
+	clone.OtherBalances = cloneSlice(view.OtherBalances)
+	clone.ExpensesByCategory = cloneCategorySlices(view.ExpensesByCategory)
+	clone.ExpenseRows = cloneCategoryRows(view.ExpenseRows)
+	clone.TaxDeductionsByCategory = cloneCategorySlices(view.TaxDeductionsByCategory)
+	clone.TaxRows = cloneCategoryRows(view.TaxRows)
+	clone.MonthBars = cloneSlice(view.MonthBars)
+	clone.Budgets = cloneSlice(view.Budgets)
+	clone.Upcoming = cloneSlice(view.Upcoming)
+	clone.RecentTransactions = cloneTransactionRows(view.RecentTransactions)
+	clone.StatementLines = cloneSlice(view.StatementLines)
+	clone.PendingLines = cloneSlice(view.PendingLines)
+	clone.TransfersNote = cloneText(view.TransfersNote)
+	clone.ChartEmptyText = cloneText(view.ChartEmptyText)
+	return clone
+}
+
+func cloneCategorySlices(slices []CategorySliceView) []CategorySliceView {
+	if slices == nil {
+		return nil
+	}
+	clone := make([]CategorySliceView, len(slices))
+	for index, slice := range slices {
+		clone[index] = slice
+		clone[index].CategoryID = cloneCategoryID(slice.CategoryID)
+	}
+	return clone
+}
+
+func cloneCategoryRows(rows []CategoryRowView) []CategoryRowView {
+	if rows == nil {
+		return nil
+	}
+	clone := make([]CategoryRowView, len(rows))
+	for index, row := range rows {
+		clone[index] = row
+		clone[index].CategoryID = cloneCategoryID(row.CategoryID)
+	}
+	return clone
+}
+
+func cloneTransactionRows(rows []TransactionRowView) []TransactionRowView {
+	if rows == nil {
+		return nil
+	}
+	clone := make([]TransactionRowView, len(rows))
+	for index, row := range rows {
+		clone[index] = row
+		clone[index].Partner = cloneText(row.Partner)
+	}
+	return clone
+}
+
+func cloneSlice[T any](values []T) []T {
+	if values == nil {
+		return nil
+	}
+	clone := make([]T, len(values))
+	copy(clone, values)
+	return clone
+}
+
+func cloneYearMonth(value *dashboard.YearMonth) *dashboard.YearMonth {
+	if value == nil {
+		return nil
+	}
+	clone := *value
+	return &clone
+}
+
+func cloneMoney(value *money.Money) *money.Money {
+	if value == nil {
+		return nil
+	}
+	clone := *value
+	return &clone
+}
+
+func cloneDate(value *civil.Date) *civil.Date {
+	if value == nil {
+		return nil
+	}
+	clone := *value
+	return &clone
+}
+
+func cloneCategoryID(value *model.CategoryID) *model.CategoryID {
+	if value == nil {
+		return nil
+	}
+	clone := *value
+	return &clone
+}
+
+func cloneText(value *string) *string {
+	if value == nil {
+		return nil
+	}
+	clone := *value
+	return &clone
+}
+
 // New builds an empty state for language, opening on today's month.
 func New(language i18n.Language, today civil.Date) *DashboardState {
 	current := dashboard.YearMonthFromDate(today)

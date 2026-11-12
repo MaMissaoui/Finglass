@@ -46,6 +46,536 @@ export class AppInfoDTO {
 }
 
 /**
+ * DashboardBudgetRowDTO is one budget row.
+ */
+export class DashboardBudgetRowDTO {
+    "name": string;
+    "amountText": string;
+    "restText": string;
+    "ratio": number;
+    "over": boolean;
+    "warning": boolean;
+    "colour": string;
+
+    /** Creates a new DashboardBudgetRowDTO instance. */
+    constructor($$source: Partial<DashboardBudgetRowDTO> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("restText" in $$source)) {
+            this["restText"] = "";
+        }
+        if (!("ratio" in $$source)) {
+            this["ratio"] = 0;
+        }
+        if (!("over" in $$source)) {
+            this["over"] = false;
+        }
+        if (!("warning" in $$source)) {
+            this["warning"] = false;
+        }
+        if (!("colour" in $$source)) {
+            this["colour"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DashboardBudgetRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DashboardBudgetRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DashboardBudgetRowDTO($$parsedSource as Partial<DashboardBudgetRowDTO>);
+    }
+}
+
+/**
+ * DashboardCategoryRowDTO is one legend row of the spending split or the tax
+ * chart. CategoryID is -1 when the row opens the uncategorized list.
+ */
+export class DashboardCategoryRowDTO {
+    "label": string;
+    "percentText": string;
+    "amountText": string;
+    "colour": string;
+    "categoryId": number;
+    "isMore": boolean;
+    "fraction": number;
+
+    /** Creates a new DashboardCategoryRowDTO instance. */
+    constructor($$source: Partial<DashboardCategoryRowDTO> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("percentText" in $$source)) {
+            this["percentText"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("colour" in $$source)) {
+            this["colour"] = "";
+        }
+        if (!("categoryId" in $$source)) {
+            this["categoryId"] = 0;
+        }
+        if (!("isMore" in $$source)) {
+            this["isMore"] = false;
+        }
+        if (!("fraction" in $$source)) {
+            this["fraction"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DashboardCategoryRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DashboardCategoryRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DashboardCategoryRowDTO($$parsedSource as Partial<DashboardCategoryRowDTO>);
+    }
+}
+
+/**
+ * DashboardDTO is everything the Dashboard page shows.
+ * 
+ * Money is already formatted by dashboardview; the chart fractions and the
+ * budget ratio stay numbers. Tones and statement kinds are the strings Rust's
+ * tone_code and StatementLineKind mapping return.
+ */
+export class DashboardDTO {
+    "loading": boolean;
+    "firstRun": boolean;
+    "showContent": boolean;
+    "errorText": string;
+    "monthOptions": string[];
+    "monthSelected": number;
+    "monthLabel": string;
+    "previousEnabled": boolean;
+    "nextEnabled": boolean;
+    "isCurrentMonth": boolean;
+    "availableTitle": string;
+    "availableValue": string;
+    "availableSubtitle": string;
+    "availableTone": string;
+    "statementLines": DashboardStatementLineDTO[];
+    "incomeTitle": string;
+    "incomeValue": string;
+    "expensesTitle": string;
+    "expensesValue": string;
+    "pendingTitle": string;
+    "pendingValue": string;
+    "pendingSubtitle": string;
+    "pendingLines": string[];
+    "pendingEnabled": boolean;
+    "expensesSectionTitle": string;
+    "expensesEmptyText": string;
+    "expenseRows": DashboardCategoryRowDTO[];
+    "transfersNote": string;
+    "chartTitle": string;
+    "chartEmptyText": string;
+    "chartAxisTop": string;
+    "chartAxisMid": string;
+    "chartAxisZero": string;
+    "monthBars": DashboardMonthBarDTO[];
+    "incomeLegend": string;
+    "expensesLegend": string;
+    "partialNote": string;
+    "budgetsTitle": string;
+    "budgetRows": DashboardBudgetRowDTO[];
+    "hasBudgets": boolean;
+    "monthProgress": number;
+    "taxTitle": string;
+    "taxHint": string;
+    "taxValue": string;
+    "taxRows": DashboardCategoryRowDTO[];
+    "upcomingTitle": string;
+    "upcomingRows": DashboardUpcomingRowDTO[];
+    "hasUpcoming": boolean;
+    "recentTitle": string;
+    "recentEmptyText": string;
+    "recentRows": DashboardTransactionRowDTO[];
+    "viewAllLabel": string;
+
+    /** Creates a new DashboardDTO instance. */
+    constructor($$source: Partial<DashboardDTO> = {}) {
+        if (!("loading" in $$source)) {
+            this["loading"] = false;
+        }
+        if (!("firstRun" in $$source)) {
+            this["firstRun"] = false;
+        }
+        if (!("showContent" in $$source)) {
+            this["showContent"] = false;
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("monthOptions" in $$source)) {
+            this["monthOptions"] = [];
+        }
+        if (!("monthSelected" in $$source)) {
+            this["monthSelected"] = 0;
+        }
+        if (!("monthLabel" in $$source)) {
+            this["monthLabel"] = "";
+        }
+        if (!("previousEnabled" in $$source)) {
+            this["previousEnabled"] = false;
+        }
+        if (!("nextEnabled" in $$source)) {
+            this["nextEnabled"] = false;
+        }
+        if (!("isCurrentMonth" in $$source)) {
+            this["isCurrentMonth"] = false;
+        }
+        if (!("availableTitle" in $$source)) {
+            this["availableTitle"] = "";
+        }
+        if (!("availableValue" in $$source)) {
+            this["availableValue"] = "";
+        }
+        if (!("availableSubtitle" in $$source)) {
+            this["availableSubtitle"] = "";
+        }
+        if (!("availableTone" in $$source)) {
+            this["availableTone"] = "";
+        }
+        if (!("statementLines" in $$source)) {
+            this["statementLines"] = [];
+        }
+        if (!("incomeTitle" in $$source)) {
+            this["incomeTitle"] = "";
+        }
+        if (!("incomeValue" in $$source)) {
+            this["incomeValue"] = "";
+        }
+        if (!("expensesTitle" in $$source)) {
+            this["expensesTitle"] = "";
+        }
+        if (!("expensesValue" in $$source)) {
+            this["expensesValue"] = "";
+        }
+        if (!("pendingTitle" in $$source)) {
+            this["pendingTitle"] = "";
+        }
+        if (!("pendingValue" in $$source)) {
+            this["pendingValue"] = "";
+        }
+        if (!("pendingSubtitle" in $$source)) {
+            this["pendingSubtitle"] = "";
+        }
+        if (!("pendingLines" in $$source)) {
+            this["pendingLines"] = [];
+        }
+        if (!("pendingEnabled" in $$source)) {
+            this["pendingEnabled"] = false;
+        }
+        if (!("expensesSectionTitle" in $$source)) {
+            this["expensesSectionTitle"] = "";
+        }
+        if (!("expensesEmptyText" in $$source)) {
+            this["expensesEmptyText"] = "";
+        }
+        if (!("expenseRows" in $$source)) {
+            this["expenseRows"] = [];
+        }
+        if (!("transfersNote" in $$source)) {
+            this["transfersNote"] = "";
+        }
+        if (!("chartTitle" in $$source)) {
+            this["chartTitle"] = "";
+        }
+        if (!("chartEmptyText" in $$source)) {
+            this["chartEmptyText"] = "";
+        }
+        if (!("chartAxisTop" in $$source)) {
+            this["chartAxisTop"] = "";
+        }
+        if (!("chartAxisMid" in $$source)) {
+            this["chartAxisMid"] = "";
+        }
+        if (!("chartAxisZero" in $$source)) {
+            this["chartAxisZero"] = "";
+        }
+        if (!("monthBars" in $$source)) {
+            this["monthBars"] = [];
+        }
+        if (!("incomeLegend" in $$source)) {
+            this["incomeLegend"] = "";
+        }
+        if (!("expensesLegend" in $$source)) {
+            this["expensesLegend"] = "";
+        }
+        if (!("partialNote" in $$source)) {
+            this["partialNote"] = "";
+        }
+        if (!("budgetsTitle" in $$source)) {
+            this["budgetsTitle"] = "";
+        }
+        if (!("budgetRows" in $$source)) {
+            this["budgetRows"] = [];
+        }
+        if (!("hasBudgets" in $$source)) {
+            this["hasBudgets"] = false;
+        }
+        if (!("monthProgress" in $$source)) {
+            this["monthProgress"] = 0;
+        }
+        if (!("taxTitle" in $$source)) {
+            this["taxTitle"] = "";
+        }
+        if (!("taxHint" in $$source)) {
+            this["taxHint"] = "";
+        }
+        if (!("taxValue" in $$source)) {
+            this["taxValue"] = "";
+        }
+        if (!("taxRows" in $$source)) {
+            this["taxRows"] = [];
+        }
+        if (!("upcomingTitle" in $$source)) {
+            this["upcomingTitle"] = "";
+        }
+        if (!("upcomingRows" in $$source)) {
+            this["upcomingRows"] = [];
+        }
+        if (!("hasUpcoming" in $$source)) {
+            this["hasUpcoming"] = false;
+        }
+        if (!("recentTitle" in $$source)) {
+            this["recentTitle"] = "";
+        }
+        if (!("recentEmptyText" in $$source)) {
+            this["recentEmptyText"] = "";
+        }
+        if (!("recentRows" in $$source)) {
+            this["recentRows"] = [];
+        }
+        if (!("viewAllLabel" in $$source)) {
+            this["viewAllLabel"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DashboardDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DashboardDTO {
+        const $$createField4_0 = $$createType0;
+        const $$createField14_0 = $$createType2;
+        const $$createField22_0 = $$createType0;
+        const $$createField26_0 = $$createType4;
+        const $$createField33_0 = $$createType6;
+        const $$createField38_0 = $$createType8;
+        const $$createField44_0 = $$createType4;
+        const $$createField46_0 = $$createType10;
+        const $$createField50_0 = $$createType12;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("monthOptions" in $$parsedSource) {
+            $$parsedSource["monthOptions"] = $$createField4_0($$parsedSource["monthOptions"]);
+        }
+        if ("statementLines" in $$parsedSource) {
+            $$parsedSource["statementLines"] = $$createField14_0($$parsedSource["statementLines"]);
+        }
+        if ("pendingLines" in $$parsedSource) {
+            $$parsedSource["pendingLines"] = $$createField22_0($$parsedSource["pendingLines"]);
+        }
+        if ("expenseRows" in $$parsedSource) {
+            $$parsedSource["expenseRows"] = $$createField26_0($$parsedSource["expenseRows"]);
+        }
+        if ("monthBars" in $$parsedSource) {
+            $$parsedSource["monthBars"] = $$createField33_0($$parsedSource["monthBars"]);
+        }
+        if ("budgetRows" in $$parsedSource) {
+            $$parsedSource["budgetRows"] = $$createField38_0($$parsedSource["budgetRows"]);
+        }
+        if ("taxRows" in $$parsedSource) {
+            $$parsedSource["taxRows"] = $$createField44_0($$parsedSource["taxRows"]);
+        }
+        if ("upcomingRows" in $$parsedSource) {
+            $$parsedSource["upcomingRows"] = $$createField46_0($$parsedSource["upcomingRows"]);
+        }
+        if ("recentRows" in $$parsedSource) {
+            $$parsedSource["recentRows"] = $$createField50_0($$parsedSource["recentRows"]);
+        }
+        return new DashboardDTO($$parsedSource as Partial<DashboardDTO>);
+    }
+}
+
+/**
+ * DashboardMonthBarDTO is one month of the income-vs-expenses chart.
+ */
+export class DashboardMonthBarDTO {
+    "label": string;
+    "title": string;
+    "incomeText": string;
+    "expensesText": string;
+    "incomeFraction": number;
+    "expensesFraction": number;
+    "partial": boolean;
+
+    /** Creates a new DashboardMonthBarDTO instance. */
+    constructor($$source: Partial<DashboardMonthBarDTO> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("incomeText" in $$source)) {
+            this["incomeText"] = "";
+        }
+        if (!("expensesText" in $$source)) {
+            this["expensesText"] = "";
+        }
+        if (!("incomeFraction" in $$source)) {
+            this["incomeFraction"] = 0;
+        }
+        if (!("expensesFraction" in $$source)) {
+            this["expensesFraction"] = 0;
+        }
+        if (!("partial" in $$source)) {
+            this["partial"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DashboardMonthBarDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DashboardMonthBarDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DashboardMonthBarDTO($$parsedSource as Partial<DashboardMonthBarDTO>);
+    }
+}
+
+/**
+ * DashboardStatementLineDTO is one line of the month statement.
+ */
+export class DashboardStatementLineDTO {
+    "label": string;
+    "amountText": string;
+    "kind": string;
+
+    /** Creates a new DashboardStatementLineDTO instance. */
+    constructor($$source: Partial<DashboardStatementLineDTO> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DashboardStatementLineDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DashboardStatementLineDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DashboardStatementLineDTO($$parsedSource as Partial<DashboardStatementLineDTO>);
+    }
+}
+
+/**
+ * DashboardTransactionRowDTO is one recent booking. Partner is the value
+ * OpenPartner takes; "" opens the full list instead.
+ */
+export class DashboardTransactionRowDTO {
+    "dateText": string;
+    "title": string;
+    "meta": string;
+    "amountText": string;
+    "expense": boolean;
+    "partner": string;
+
+    /** Creates a new DashboardTransactionRowDTO instance. */
+    constructor($$source: Partial<DashboardTransactionRowDTO> = {}) {
+        if (!("dateText" in $$source)) {
+            this["dateText"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("meta" in $$source)) {
+            this["meta"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("expense" in $$source)) {
+            this["expense"] = false;
+        }
+        if (!("partner" in $$source)) {
+            this["partner"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DashboardTransactionRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DashboardTransactionRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DashboardTransactionRowDTO($$parsedSource as Partial<DashboardTransactionRowDTO>);
+    }
+}
+
+/**
+ * DashboardUpcomingRowDTO is one recurring payment due soon.
+ */
+export class DashboardUpcomingRowDTO {
+    "dateText": string;
+    "title": string;
+    "meta": string;
+    "amountText": string;
+    "expense": boolean;
+
+    /** Creates a new DashboardUpcomingRowDTO instance. */
+    constructor($$source: Partial<DashboardUpcomingRowDTO> = {}) {
+        if (!("dateText" in $$source)) {
+            this["dateText"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("meta" in $$source)) {
+            this["meta"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("expense" in $$source)) {
+            this["expense"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DashboardUpcomingRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DashboardUpcomingRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DashboardUpcomingRowDTO($$parsedSource as Partial<DashboardUpcomingRowDTO>);
+    }
+}
+
+/**
  * ProfileDTO is one entry of the top bar's profile menu.
  */
 export class ProfileDTO {
@@ -234,7 +764,7 @@ export class ShellDTO {
      */
     static createFrom($$source: any = {}): ShellDTO {
         const $$createField9_0 = $$createType0;
-        const $$createField18_0 = $$createType2;
+        const $$createField18_0 = $$createType14;
         const $$createField23_0 = $$createType0;
         const $$createField29_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
@@ -280,5 +810,17 @@ export class TickPayload {
 
 // Private type creation functions
 const $$createType0 = $Create.Array($Create.Any);
-const $$createType1 = ProfileDTO.createFrom;
+const $$createType1 = DashboardStatementLineDTO.createFrom;
 const $$createType2 = $Create.Array($$createType1);
+const $$createType3 = DashboardCategoryRowDTO.createFrom;
+const $$createType4 = $Create.Array($$createType3);
+const $$createType5 = DashboardMonthBarDTO.createFrom;
+const $$createType6 = $Create.Array($$createType5);
+const $$createType7 = DashboardBudgetRowDTO.createFrom;
+const $$createType8 = $Create.Array($$createType7);
+const $$createType9 = DashboardUpcomingRowDTO.createFrom;
+const $$createType10 = $Create.Array($$createType9);
+const $$createType11 = DashboardTransactionRowDTO.createFrom;
+const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = ProfileDTO.createFrom;
+const $$createType14 = $Create.Array($$createType13);
