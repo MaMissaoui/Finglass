@@ -427,6 +427,21 @@ func (s *Session) configureUnlockLocked(prepared startup.Startup) {
 	s.restored = copyString(prepared.RestoredFrom)
 }
 
+// ConfigureUnlock points the unlock screen at prepared, as
+// configure_unlock_window does after a teardown.
+func (s *Session) ConfigureUnlock(prepared startup.Startup) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.configureUnlockLocked(prepared)
+}
+
+// IsOpen reports whether a profile is unlocked and the main shell shows.
+func (s *Session) IsOpen() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.db != nil
+}
+
 // configureStartupErrorLocked is configure_startup_error without Slint.
 func (s *Session) configureStartupErrorLocked(message string) {
 	text := message
@@ -618,6 +633,7 @@ func (s *Session) finishOpen(
 	}
 	s.language = loadedPrefs.Language
 	s.theme = loadedPrefs.Theme
+	s.sidebarCollapsed = loadedPrefs.SidebarCollapsed
 	settings.Busy = busy
 	s.settings = settings
 	s.findesk = findesk.NewFindeskImportState(loadedPrefs.Language)

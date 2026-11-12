@@ -46,6 +46,152 @@ export class AppInfoDTO {
 }
 
 /**
+ * ShellDTO is everything the unlock view and the main shell show.
+ * 
+ * It never carries a passphrase or any other secret.
+ */
+export class ShellDTO {
+    "mode": string;
+    "allowChange": boolean;
+    "busy": boolean;
+    "restored": boolean;
+    "startupError": boolean;
+    "errorText": string;
+    "profileLabel": string;
+    "profileName": string;
+    "passphraseHint": string;
+    "leftoverLines": string[];
+    "shellOpen": boolean;
+    "language": string;
+    "theme": string;
+    "sidebarCollapsed": boolean;
+    "screen": string;
+    "screenTitle": string;
+    "backTitle": string;
+    "currentProfileName": string;
+    "version": string;
+    "findEnabled": boolean;
+    "migrationStep": string;
+    "migrationProfileNames": string[];
+    "migrationProfileHeading": string;
+    "migrationProfileName": string;
+    "migrationProfileCount": number;
+    "migrationSamePassphrase": boolean;
+    "migrationNewPassphraseRequired": boolean;
+    "migrationSummaryLines": string[];
+
+    /** Creates a new ShellDTO instance. */
+    constructor($$source: Partial<ShellDTO> = {}) {
+        if (!("mode" in $$source)) {
+            this["mode"] = "";
+        }
+        if (!("allowChange" in $$source)) {
+            this["allowChange"] = false;
+        }
+        if (!("busy" in $$source)) {
+            this["busy"] = false;
+        }
+        if (!("restored" in $$source)) {
+            this["restored"] = false;
+        }
+        if (!("startupError" in $$source)) {
+            this["startupError"] = false;
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("profileLabel" in $$source)) {
+            this["profileLabel"] = "";
+        }
+        if (!("profileName" in $$source)) {
+            this["profileName"] = "";
+        }
+        if (!("passphraseHint" in $$source)) {
+            this["passphraseHint"] = "";
+        }
+        if (!("leftoverLines" in $$source)) {
+            this["leftoverLines"] = [];
+        }
+        if (!("shellOpen" in $$source)) {
+            this["shellOpen"] = false;
+        }
+        if (!("language" in $$source)) {
+            this["language"] = "";
+        }
+        if (!("theme" in $$source)) {
+            this["theme"] = "";
+        }
+        if (!("sidebarCollapsed" in $$source)) {
+            this["sidebarCollapsed"] = false;
+        }
+        if (!("screen" in $$source)) {
+            this["screen"] = "";
+        }
+        if (!("screenTitle" in $$source)) {
+            this["screenTitle"] = "";
+        }
+        if (!("backTitle" in $$source)) {
+            this["backTitle"] = "";
+        }
+        if (!("currentProfileName" in $$source)) {
+            this["currentProfileName"] = "";
+        }
+        if (!("version" in $$source)) {
+            this["version"] = "";
+        }
+        if (!("findEnabled" in $$source)) {
+            this["findEnabled"] = false;
+        }
+        if (!("migrationStep" in $$source)) {
+            this["migrationStep"] = "";
+        }
+        if (!("migrationProfileNames" in $$source)) {
+            this["migrationProfileNames"] = [];
+        }
+        if (!("migrationProfileHeading" in $$source)) {
+            this["migrationProfileHeading"] = "";
+        }
+        if (!("migrationProfileName" in $$source)) {
+            this["migrationProfileName"] = "";
+        }
+        if (!("migrationProfileCount" in $$source)) {
+            this["migrationProfileCount"] = 0;
+        }
+        if (!("migrationSamePassphrase" in $$source)) {
+            this["migrationSamePassphrase"] = false;
+        }
+        if (!("migrationNewPassphraseRequired" in $$source)) {
+            this["migrationNewPassphraseRequired"] = false;
+        }
+        if (!("migrationSummaryLines" in $$source)) {
+            this["migrationSummaryLines"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ShellDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ShellDTO {
+        const $$createField9_0 = $$createType0;
+        const $$createField21_0 = $$createType0;
+        const $$createField27_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("leftoverLines" in $$parsedSource) {
+            $$parsedSource["leftoverLines"] = $$createField9_0($$parsedSource["leftoverLines"]);
+        }
+        if ("migrationProfileNames" in $$parsedSource) {
+            $$parsedSource["migrationProfileNames"] = $$createField21_0($$parsedSource["migrationProfileNames"]);
+        }
+        if ("migrationSummaryLines" in $$parsedSource) {
+            $$parsedSource["migrationSummaryLines"] = $$createField27_0($$parsedSource["migrationSummaryLines"]);
+        }
+        return new ShellDTO($$parsedSource as Partial<ShellDTO>);
+    }
+}
+
+/**
  * TickPayload is the payload of the appinfo:tick event.
  */
 export class TickPayload {
@@ -68,3 +214,6 @@ export class TickPayload {
         return new TickPayload($$parsedSource as Partial<TickPayload>);
     }
 }
+
+// Private type creation functions
+const $$createType0 = $Create.Array($Create.Any);
