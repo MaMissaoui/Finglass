@@ -168,6 +168,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   `bank_directory`, `bank_logo`.
   - [x] G3x: `bankdirectory` (embedded Bundesbank file) and `banklogo`.
   - [x] G3c: rule matcher, payment providers (PayPal shop names) and the rule file format, in `internal/core/rules`.
+  - [x] G3h: `recurring` (detecting repeating bookings) and `banktext`.
 
 ### G4 — Reports, documents, backup, FinDesk import (L)
 
@@ -176,6 +177,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
     reference PDFs and f32 width tables written by Rust). `export/pdfdoc` from G0 is no longer needed by the exports.
 - [ ] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
   - [x] G4a: `documents/programs` (helper programs found by absolute path, for launches from Finder).
+  - [x] G3h: `receipt` (the receipt text parser).
 - [ ] Backup and two-phase restore, plus leftover handling. FinDesk import, with a test that opens a real FinDesk
   fixture DB (created by FinDesk's SQLCipher driver). First-run migration from FinDesk.
 - [ ] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
