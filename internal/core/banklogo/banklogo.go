@@ -41,7 +41,7 @@ const (
 	Volksbank Logo = "volksbank"
 )
 
-// ID returns the file stem of the bundled SVG in crates/finglass-ui/ui/banks/.
+// ID returns the file stem of the bundled SVG in frontend/src/assets/banks/.
 func (l Logo) ID() string {
 	return string(l)
 }
