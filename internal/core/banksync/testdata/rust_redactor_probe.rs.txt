@@ -1,0 +1,69 @@
+// Runs Finglass's sync::redactor over a corpus and writes the results as JSON for the Go port.
+use finglass_core::sync::redactor::{fints_escaped, mask_account_numbers, redact, return_codes};
+use serde_json::json;
+
+fn main() {
+    let out = std::env::args().nth(1).unwrap();
+    let texts: Vec<&str> = vec![
+        "",
+        "Konto DE89370400440532013000 gesperrt",
+        "IBAN DE89 3704 0044 0532 0130 00 ungültig",
+        "iban de89 3704 0044 0532 0130 00 lower case",
+        "Invalid check digits DE00 3704 0044 0532 0130 00 here",
+        "AT611904300234573201 and GB82WEST12345698765432 and FR1420041010050500013M02606",
+        "CH9300762011623852957, NL91ABNA0417164300.",
+        "Müller überweist von DE89370400440532013000 an Ärzte",
+        "ÄÖÜ äöü ß DE44500105175407324931 ende",
+        "Kontonummer 1234567890 ist gesperrt",
+        "Kontonr. 0532013000, BLZ 37040044",
+        "Kto-Nr.: 12345 short",
+        "Kto.-Nr. 123 4567 89 spaced",
+        "Account no. 98765432 closed",
+        "account number 1234 5678 9012",
+        "acct 7654321",
+        "Konto 12345678,90 EUR is an amount",
+        "Betrag 1.234.567,89 EUR",
+        "Ref 123456 and 1234567 and 12345 and ABC123456 and 123456X",
+        "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK",
+        "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch",
+        "9931 Anmeldung gesperrt für Konto 5412345678901234",
+        "Karte 5412 3456 7890 1234 gesperrt",
+        "Mehrere: DE89370400440532013000; DE44500105175407324931; 1234567890",
+        "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78",
+        "Tab\tDE89370400440532013000\nnewline Kontonummer\t1234567890",
+        "Emoji 💶 DE89370400440532013000 💶",
+        "Zero-width\u{200b}DE89370400440532013000",
+        "Arabic digits ١٢٣٤٥٦٧ and full-width １２３４５６７",
+        "Prefix…DE89370400440532013000 and 9999",
+        "DE89370400440532013000DE44500105175407324931",
+        "XX12ABCDEFGHIJKLMNOP plausible shape",
+        "de8937040044053201300 short lower",
+        "PIN 12345 secret value correct horse",
+    ];
+    let secrets: Vec<Vec<&str>> = vec![
+        vec![],
+        vec!["12345"],
+        vec!["correct horse", "horse"],
+        vec!["a+b:c'd?e@f", "abc"],
+        vec!["   ", "abc", "1234"],
+    ];
+    let mut cases = Vec::new();
+    for text in &texts {
+        let masked = mask_account_numbers(text);
+        let mut redacted = Vec::new();
+        for set in &secrets {
+            redacted.push(json!({"secrets": set, "out": redact(text, set)}));
+        }
+        cases.push(json!({
+            "text": text,
+            "mask_account_numbers": masked,
+            "return_codes_of_masked": return_codes(Some(&masked)),
+            "return_codes_of_text": return_codes(Some(text)),
+            "redact": redacted,
+        }));
+    }
+    let escaped: Vec<_> = ["", "plain", "a+b:c'd?e@f", "??", "Ümlaut+"].iter()
+        .map(|value| json!({"value": value, "out": fints_escaped(value)})).collect();
+    let doc = json!({"cases": cases, "fints_escaped": escaped, "return_codes_none": return_codes(None)});
+    std::fs::write(format!("{out}/redactor.json"), serde_json::to_string_pretty(&doc).unwrap() + "\n").unwrap();
+}

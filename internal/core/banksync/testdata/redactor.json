@@ -1,0 +1,1419 @@
+{
+  "cases": [
+    {
+      "mask_account_numbers": "",
+      "redact": [
+        {
+          "out": "",
+          "secrets": []
+        },
+        {
+          "out": "",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": ""
+    },
+    {
+      "mask_account_numbers": "Konto …3000 gesperrt",
+      "redact": [
+        {
+          "out": "Konto X gesperrt",
+          "secrets": []
+        },
+        {
+          "out": "Konto X gesperrt",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Konto X gesperrt",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Konto X gesperrt",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Konto X gesperrt",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Konto DE89370400440532013000 gesperrt"
+    },
+    {
+      "mask_account_numbers": "IBAN …3000 ungültig",
+      "redact": [
+        {
+          "out": "IBAN X ungültig",
+          "secrets": []
+        },
+        {
+          "out": "IBAN X ungültig",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "IBAN X ungültig",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "IBAN X ungültig",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "IBAN X ungültig",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [
+        "3704"
+      ],
+      "text": "IBAN DE89 3704 0044 0532 0130 00 ungültig"
+    },
+    {
+      "mask_account_numbers": "iban …3000 lower case",
+      "redact": [
+        {
+          "out": "iban X lower case",
+          "secrets": []
+        },
+        {
+          "out": "iban X lower case",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "iban X lower case",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "iban X lower case",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "iban X lower case",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [
+        "3704"
+      ],
+      "text": "iban de89 3704 0044 0532 0130 00 lower case"
+    },
+    {
+      "mask_account_numbers": "Invalid check digits …3000 here",
+      "redact": [
+        {
+          "out": "Invalid check digits DE00 3704 0044 0532 0130 00 here",
+          "secrets": []
+        },
+        {
+          "out": "Invalid check digits DE00 3704 0044 0532 0130 00 here",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Invalid check digits DE00 3704 0044 0532 0130 00 here",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Invalid check digits DE00 3704 0044 0532 0130 00 here",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Invalid check digits DE00 3704 0044 0532 0130 00 here",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [
+        "3704"
+      ],
+      "text": "Invalid check digits DE00 3704 0044 0532 0130 00 here"
+    },
+    {
+      "mask_account_numbers": "…3201 and …5432 and …2606",
+      "redact": [
+        {
+          "out": "X and X and X",
+          "secrets": []
+        },
+        {
+          "out": "X and X and X",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "X and X and X",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "X and X and X",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "X and X and X",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "AT611904300234573201 and GB82WEST12345698765432 and FR1420041010050500013M02606"
+    },
+    {
+      "mask_account_numbers": "…2957, …4300.",
+      "redact": [
+        {
+          "out": "X, X.",
+          "secrets": []
+        },
+        {
+          "out": "X, X.",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "X, X.",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "X, X.",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "X, X.",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "CH9300762011623852957, NL91ABNA0417164300."
+    },
+    {
+      "mask_account_numbers": "Müller überweist von …3000 an Ärzte",
+      "redact": [
+        {
+          "out": "Müller überweist von X an Ärzte",
+          "secrets": []
+        },
+        {
+          "out": "Müller überweist von X an Ärzte",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Müller überweist von X an Ärzte",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Müller überweist von X an Ärzte",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Müller überweist von X an Ärzte",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Müller überweist von DE89370400440532013000 an Ärzte"
+    },
+    {
+      "mask_account_numbers": "ÄÖÜ äöü ß …4931 ende",
+      "redact": [
+        {
+          "out": "ÄÖÜ äöü ß X ende",
+          "secrets": []
+        },
+        {
+          "out": "ÄÖÜ äöü ß X ende",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "ÄÖÜ äöü ß X ende",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "ÄÖÜ äöü ß X ende",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "ÄÖÜ äöü ß X ende",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "ÄÖÜ äöü ß DE44500105175407324931 ende"
+    },
+    {
+      "mask_account_numbers": "Kontonummer …7890 ist gesperrt",
+      "redact": [
+        {
+          "out": "Kontonummer 1234567890 ist gesperrt",
+          "secrets": []
+        },
+        {
+          "out": "Kontonummer X67890 ist gesperrt",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Kontonummer 1234567890 ist gesperrt",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Kontonummer 1234567890 ist gesperrt",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Kontonummer X567890 ist gesperrt",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Kontonummer 1234567890 ist gesperrt"
+    },
+    {
+      "mask_account_numbers": "Kontonr. …3000, BLZ …0044",
+      "redact": [
+        {
+          "out": "Kontonr. 0532013000, BLZ 37040044",
+          "secrets": []
+        },
+        {
+          "out": "Kontonr. 0532013000, BLZ 37040044",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Kontonr. 0532013000, BLZ 37040044",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Kontonr. 0532013000, BLZ 37040044",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Kontonr. 0532013000, BLZ 37040044",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Kontonr. 0532013000, BLZ 37040044"
+    },
+    {
+      "mask_account_numbers": "Kto-Nr.: 12345 short",
+      "redact": [
+        {
+          "out": "Kto-Nr.: 12345 short",
+          "secrets": []
+        },
+        {
+          "out": "Kto-Nr.: X short",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Kto-Nr.: 12345 short",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Kto-Nr.: 12345 short",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Kto-Nr.: X5 short",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Kto-Nr.: 12345 short"
+    },
+    {
+      "mask_account_numbers": "Kto.-Nr. …6789 spaced",
+      "redact": [
+        {
+          "out": "Kto.-Nr. 123 4567 89 spaced",
+          "secrets": []
+        },
+        {
+          "out": "Kto.-Nr. 123 4567 89 spaced",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Kto.-Nr. 123 4567 89 spaced",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Kto.-Nr. 123 4567 89 spaced",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Kto.-Nr. 123 4567 89 spaced",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Kto.-Nr. 123 4567 89 spaced"
+    },
+    {
+      "mask_account_numbers": "Account no. …5432 closed",
+      "redact": [
+        {
+          "out": "Account no. 98765432 closed",
+          "secrets": []
+        },
+        {
+          "out": "Account no. 98765432 closed",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Account no. 98765432 closed",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Account no. 98765432 closed",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Account no. 98765432 closed",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Account no. 98765432 closed"
+    },
+    {
+      "mask_account_numbers": "account number …9012",
+      "redact": [
+        {
+          "out": "account number 1234 5678 9012",
+          "secrets": []
+        },
+        {
+          "out": "account number 1234 5678 9012",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "account number 1234 5678 9012",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "account number 1234 5678 9012",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "account number X 5678 9012",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [
+        "9012"
+      ],
+      "text": "account number 1234 5678 9012"
+    },
+    {
+      "mask_account_numbers": "acct …4321",
+      "redact": [
+        {
+          "out": "acct 7654321",
+          "secrets": []
+        },
+        {
+          "out": "acct 7654321",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "acct 7654321",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "acct 7654321",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "acct 7654321",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "acct 7654321"
+    },
+    {
+      "mask_account_numbers": "Konto …5678,90 EUR is an amount",
+      "redact": [
+        {
+          "out": "Konto 12345678,90 EUR is an amount",
+          "secrets": []
+        },
+        {
+          "out": "Konto X678,90 EUR is an amount",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Konto 12345678,90 EUR is an amount",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Konto 12345678,90 EUR is an amount",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Konto X5678,90 EUR is an amount",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Konto 12345678,90 EUR is an amount"
+    },
+    {
+      "mask_account_numbers": "Betrag 1.234.567,89 EUR",
+      "redact": [
+        {
+          "out": "Betrag 1.234.567,89 EUR",
+          "secrets": []
+        },
+        {
+          "out": "Betrag 1.234.567,89 EUR",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Betrag 1.234.567,89 EUR",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Betrag 1.234.567,89 EUR",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Betrag 1.234.567,89 EUR",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Betrag 1.234.567,89 EUR"
+    },
+    {
+      "mask_account_numbers": "Ref …3456 and …4567 and 12345 and ABC123456 and 123456X",
+      "redact": [
+        {
+          "out": "Ref 123456 and 1234567 and 12345 and ABC123456 and 123456X",
+          "secrets": []
+        },
+        {
+          "out": "Ref X6 and X67 and X and ABCX6 and X6X",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Ref 123456 and 1234567 and 12345 and ABC123456 and 123456X",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Ref 123456 and 1234567 and 12345 and ABC123456 and 123456X",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Ref X56 and X567 and X5 and ABCX56 and X56X",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Ref 123456 and 1234567 and 12345 and ABC123456 and 123456X"
+    },
+    {
+      "mask_account_numbers": "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK",
+      "redact": [
+        {
+          "out": "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK",
+          "secrets": []
+        },
+        {
+          "out": "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [
+        "3010",
+        "9010"
+      ],
+      "return_codes_of_text": [
+        "3010",
+        "9010"
+      ],
+      "text": "HIRMS:4:2:3+3010::Keine Umsätze vorhanden+9010::Auftrag abgelehnt+0020::OK"
+    },
+    {
+      "mask_account_numbers": "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch",
+      "redact": [
+        {
+          "out": "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch",
+          "secrets": []
+        },
+        {
+          "out": "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [
+        "3060",
+        "9942"
+      ],
+      "return_codes_of_text": [
+        "3060",
+        "9942"
+      ],
+      "text": "3060 Bitte beachten Sie die Warnung; Kunde …3000 hat 9942 PIN falsch"
+    },
+    {
+      "mask_account_numbers": "9931 Anmeldung gesperrt für Konto …1234",
+      "redact": [
+        {
+          "out": "9931 Anmeldung gesperrt für Konto 5412345678901234",
+          "secrets": []
+        },
+        {
+          "out": "9931 Anmeldung gesperrt für Konto 54X678901234",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "9931 Anmeldung gesperrt für Konto 5412345678901234",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "9931 Anmeldung gesperrt für Konto 5412345678901234",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "9931 Anmeldung gesperrt für Konto 54X567890X",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [
+        "9931"
+      ],
+      "return_codes_of_text": [
+        "9931"
+      ],
+      "text": "9931 Anmeldung gesperrt für Konto 5412345678901234"
+    },
+    {
+      "mask_account_numbers": "Karte 5412 3456 7890 1234 gesperrt",
+      "redact": [
+        {
+          "out": "Karte 5412 3456 7890 1234 gesperrt",
+          "secrets": []
+        },
+        {
+          "out": "Karte 5412 3456 7890 1234 gesperrt",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Karte 5412 3456 7890 1234 gesperrt",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Karte 5412 3456 7890 1234 gesperrt",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Karte 5412 3456 7890 X gesperrt",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [
+        "3456"
+      ],
+      "return_codes_of_text": [
+        "3456"
+      ],
+      "text": "Karte 5412 3456 7890 1234 gesperrt"
+    },
+    {
+      "mask_account_numbers": "Mehrere: …3000; …4931; …7890",
+      "redact": [
+        {
+          "out": "Mehrere: X; X; 1234567890",
+          "secrets": []
+        },
+        {
+          "out": "Mehrere: X; X; X67890",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Mehrere: X; X; 1234567890",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Mehrere: X; X; 1234567890",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Mehrere: X; X; X567890",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Mehrere: DE89370400440532013000; DE44500105175407324931; 1234567890"
+    },
+    {
+      "mask_account_numbers": "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78",
+      "redact": [
+        {
+          "out": "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78",
+          "secrets": []
+        },
+        {
+          "out": "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Kein Konto hier, nur Text mit Zahlen 2026 und 3,78"
+    },
+    {
+      "mask_account_numbers": "Tab\t…3000\nnewline Kontonummer\t…7890",
+      "redact": [
+        {
+          "out": "Tab\tX\nnewline Kontonummer\t1234567890",
+          "secrets": []
+        },
+        {
+          "out": "Tab\tX\nnewline Kontonummer\tX67890",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Tab\tX\nnewline Kontonummer\t1234567890",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Tab\tX\nnewline Kontonummer\t1234567890",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Tab\tX\nnewline Kontonummer\tX567890",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Tab\tDE89370400440532013000\nnewline Kontonummer\t1234567890"
+    },
+    {
+      "mask_account_numbers": "Emoji 💶 …3000 💶",
+      "redact": [
+        {
+          "out": "Emoji 💶 X 💶",
+          "secrets": []
+        },
+        {
+          "out": "Emoji 💶 X 💶",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Emoji 💶 X 💶",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Emoji 💶 X 💶",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Emoji 💶 X 💶",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Emoji 💶 DE89370400440532013000 💶"
+    },
+    {
+      "mask_account_numbers": "Zero-width​…3000",
+      "redact": [
+        {
+          "out": "Zero-width​X",
+          "secrets": []
+        },
+        {
+          "out": "Zero-width​X",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Zero-width​X",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Zero-width​X",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Zero-width​X",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Zero-width​DE89370400440532013000"
+    },
+    {
+      "mask_account_numbers": "Arabic digits …٤٥٦٧ and full-width …４５６７",
+      "redact": [
+        {
+          "out": "Arabic digits ١٢٣٤٥٦٧ and full-width １２３４５６７",
+          "secrets": []
+        },
+        {
+          "out": "Arabic digits ١٢٣٤٥٦٧ and full-width １２３４５６７",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Arabic digits ١٢٣٤٥٦٧ and full-width １２３４５６７",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Arabic digits ١٢٣٤٥٦٧ and full-width １２３４５６７",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Arabic digits ١٢٣٤٥٦٧ and full-width １２３４５６７",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "Arabic digits ١٢٣٤٥٦٧ and full-width １２３４５６７"
+    },
+    {
+      "mask_account_numbers": "Prefix……3000 and 9999",
+      "redact": [
+        {
+          "out": "Prefix…X and 9999",
+          "secrets": []
+        },
+        {
+          "out": "Prefix…X and 9999",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "Prefix…X and 9999",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "Prefix…X and 9999",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "Prefix…X and 9999",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [
+        "9999"
+      ],
+      "return_codes_of_text": [
+        "9999"
+      ],
+      "text": "Prefix…DE89370400440532013000 and 9999"
+    },
+    {
+      "mask_account_numbers": "DE89370400440532013000DE44500105175407324931",
+      "redact": [
+        {
+          "out": "DE89370400440532013000DE44500105175407324931",
+          "secrets": []
+        },
+        {
+          "out": "DE89370400440532013000DE44500105175407324931",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "DE89370400440532013000DE44500105175407324931",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "DE89370400440532013000DE44500105175407324931",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "DE89370400440532013000DE44500105175407324931",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "DE89370400440532013000DE44500105175407324931"
+    },
+    {
+      "mask_account_numbers": "…ible shape",
+      "redact": [
+        {
+          "out": "X plausible shape",
+          "secrets": []
+        },
+        {
+          "out": "X plausible shape",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "X plausible shape",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "X plausible shape",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "X plausible shape",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "XX12ABCDEFGHIJKLMNOP plausible shape"
+    },
+    {
+      "mask_account_numbers": "…1300 short lower",
+      "redact": [
+        {
+          "out": "de8937040044053201300 short lower",
+          "secrets": []
+        },
+        {
+          "out": "de8937040044053201300 short lower",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "de8937040044053201300 short lower",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "de8937040044053201300 short lower",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "de8937040044053201300 short lower",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "de8937040044053201300 short lower"
+    },
+    {
+      "mask_account_numbers": "PIN 12345 secret value correct horse",
+      "redact": [
+        {
+          "out": "PIN 12345 secret value correct horse",
+          "secrets": []
+        },
+        {
+          "out": "PIN X secret value correct horse",
+          "secrets": [
+            "12345"
+          ]
+        },
+        {
+          "out": "PIN 12345 secret value X",
+          "secrets": [
+            "correct horse",
+            "horse"
+          ]
+        },
+        {
+          "out": "PIN 12345 secret value correct horse",
+          "secrets": [
+            "a+b:c'd?e@f",
+            "abc"
+          ]
+        },
+        {
+          "out": "PIN X5 secret value correct horse",
+          "secrets": [
+            "   ",
+            "abc",
+            "1234"
+          ]
+        }
+      ],
+      "return_codes_of_masked": [],
+      "return_codes_of_text": [],
+      "text": "PIN 12345 secret value correct horse"
+    }
+  ],
+  "fints_escaped": [
+    {
+      "out": "",
+      "value": ""
+    },
+    {
+      "out": "plain",
+      "value": "plain"
+    },
+    {
+      "out": "a?+b?:c?'d??e?@f",
+      "value": "a+b:c'd?e@f"
+    },
+    {
+      "out": "????",
+      "value": "??"
+    },
+    {
+      "out": "Ümlaut?+",
+      "value": "Ümlaut+"
+    }
+  ],
+  "return_codes_none": []
+}
