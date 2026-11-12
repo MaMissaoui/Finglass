@@ -9,7 +9,6 @@ package pdftext
 import (
 	"math"
 	"os"
-	"strings"
 
 	"github.com/ledongthuc/pdf"
 )
@@ -42,58 +41,6 @@ type Info struct {
 	PageCount int
 	// Pages holds the pages in order.
 	Pages []Page
-}
-
-// Extract reads the text of at most maxPages pages.
-//
-// It returns ok=false when the PDF cannot be loaded or parsed. A malformed PDF
-// never panics, even when the underlying reader does.
-func Extract(path string, maxPages int) (text *Text, ok bool) {
-	defer func() {
-		if recover() != nil {
-			text = nil
-			ok = false
-		}
-	}()
-
-	if !withinSizeLimit(path) {
-		return nil, false
-	}
-
-	file, reader, err := pdf.Open(path)
-	if err != nil {
-		return nil, false
-	}
-	defer func() { _ = file.Close() }()
-
-	pageCount := reader.NumPage()
-	limit := pageCount
-	if maxPages < limit {
-		limit = maxPages
-	}
-
-	var builder strings.Builder
-	for page := 1; page <= limit; page++ {
-		// Group the page's text runs by baseline before joining them. Extractors
-		// that only replay the content stream, as GetPlainText does, glue
-		// separately positioned lines together ("4711Gesamtbetrag"). Rust's
-		// pdf-extract emits a line break there, and the row view keeps the words
-		// apart without guessing at glyph spacing.
-		rows, err := reader.Page(page).GetTextByRow()
-		if err != nil {
-			return nil, false
-		}
-		for _, row := range rows {
-			cells := make([]string, 0, len(row.Content))
-			for _, cell := range row.Content {
-				cells = append(cells, cell.S)
-			}
-			builder.WriteString(strings.Join(cells, " "))
-			builder.WriteByte('\n')
-		}
-	}
-
-	return &Text{Text: strings.TrimSpace(builder.String()), PageCount: pageCount}, true
 }
 
 // Inspect reads the page count and page sizes without extracting any text.
