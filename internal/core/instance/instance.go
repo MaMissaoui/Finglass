@@ -25,6 +25,11 @@ var ErrAlreadyRunning = errors.New("another Finglass instance is already using t
 // Lock is an exclusive lock on a data root.
 //
 // The lock file stays on disk after release; it holds no data.
+//
+// Keep the *Lock referenced until the process quits and call [Lock.Release]
+// then. Unlike Rust's value-scoped lock, an unreachable *Lock lets the garbage
+// collector close the file at some later point, which silently drops the lock
+// and lets a second instance start.
 type Lock struct {
 	file *os.File
 }
