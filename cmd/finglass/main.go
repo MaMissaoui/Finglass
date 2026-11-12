@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"log/slog"
 	"os"
 	"runtime"
 	"strings"
@@ -139,10 +140,20 @@ func services() []application.Service {
 	return result
 }
 
+// systemLogger is Wails' own logger. Wails logs every bound call's raw
+// arguments at Debug ("Binding call complete", "Runtime call"), and those
+// arguments include passphrases, so the level is pinned at Info whatever the
+// build tags.
+func systemLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
+}
+
 func applicationOptions(dist fs.FS) application.Options {
 	return application.Options{
 		Name:        "Finglass",
 		Description: "Read-only, local-first personal finance",
+		Logger:      systemLogger(),
+		LogLevel:    slog.LevelInfo,
 		Services:    services(),
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(dist),

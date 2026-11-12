@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"log/slog"
 	"strings"
 	"testing"
+	"testing/fstest"
 )
 
 func TestSelfCheckRegistryHasEveryBoundService(t *testing.T) {
@@ -29,5 +32,19 @@ func TestSelfCheckFailsWhenTheShellServiceIsMissing(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "Shell") {
 		t.Fatalf("checkServices error = %q, want it to name Shell", err)
+	}
+}
+
+// Wails logs bound-call arguments, passphrases included, at Debug.
+func TestTheWailsLoggerNeverLogsDebug(t *testing.T) {
+	options := applicationOptions(fstest.MapFS{})
+	if options.Logger == nil {
+		t.Fatal("no explicit Wails logger: Wails would pick its own by build tag")
+	}
+	if options.Logger.Enabled(context.Background(), slog.LevelDebug) {
+		t.Fatal("the Wails logger has Debug enabled and would log call arguments")
+	}
+	if options.LogLevel < slog.LevelInfo {
+		t.Fatalf("LogLevel = %v, want at least Info", options.LogLevel)
 	}
 }
