@@ -1,0 +1,47 @@
+use finglass_core::export::pdf::{PdfBuilder, PdfFont, fit, sanitize, width_of, winansi_bytes, text_from_winansi};
+use std::fs;
+fn main() {
+    let out = std::env::args().nth(1).unwrap();
+    fs::create_dir_all(&out).unwrap();
+    // 1. minimal
+    let mut b = PdfBuilder::new();
+    b.text("Hello", PdfFont::Bold, 18.0);
+    fs::write(format!("{out}/minimal.pdf"), b.finish()).unwrap();
+    // 2. flowing multi-page document with every drawing call
+    let mut b = PdfBuilder::new();
+    b.heading("Steuerrelevante Buchungen 2026 – Größe · € …");
+    b.text("Generated 15.10.2026 ✓ (tab\there, cr\rhere, nl\nhere) (parens) \\backslash", PdfFont::Regular, 9.0);
+    b.gap(6.5);
+    for i in 0..140 {
+        b.row(&format!("Zeile {i} – Bäckerei Schmidt"), &format!("-{}.{:02} €", i * 7, i % 100), PdfFont::Regular, 9.0);
+        b.ensure_space(14.0);
+        b.advance(13.25);
+        b.draw_fitted("Beispielhaft lang benannte Handwerksfirma mit sehr ausführlichem Namen und Ort", PdfFont::Regular, 8.5, 50.0, 232.0);
+        b.draw_right_fitted("…3000 -1.234.567,89", PdfFont::Bold, 8.5, 545.0, 61.3);
+        b.draw("\u{1}\u{7f}😀 Ω", PdfFont::Bold, 7.0, 300.33);
+    }
+    for (i, v) in ["(unbalanced", "close)", ")(", "a(b)c)d", "back\\slash(", "", " "].iter().enumerate() {
+        b.text(v, PdfFont::Regular, 8.25 + i as f32 * 0.1);
+        b.draw(v, PdfFont::Bold, 0.1 + 0.2, 1.0 / 3.0 + i as f32);
+        b.draw(v, PdfFont::Regular, 1e-7, 123456.79);
+    }
+    let pages = b.page_count();
+    for p in 0..pages { b.add_footer(p, &format!("Seite {} von {}", p + 1, pages)); }
+    fs::write(format!("{out}/flow.pdf"), b.finish()).unwrap();
+    // 3. metrics
+    let samples = ["", "short", "Beispielhaft lang benannte Handwerksfirma mit sehr ausführlichem Namen und Ort", "Größe · € – …", "WWWWWWWWWWWWWWWWWWWW", "iiiiiiiiiiiiiiiiiiiiiiiii", "a\nb\tc\rd", "Beispielhilfe ✓ e. V.", "😀x", "  trailing spaces before cut                                 xxxxxxxxxxxxxxxxxxxxxx"];
+    let mut lines = Vec::new();
+    for s in samples {
+        for font in [PdfFont::Regular, PdfFont::Bold] {
+            for (size, width) in [(9.0f32, 100.0f32), (8.5, 232.0), (12.0, 61.3), (7.0, 5.0), (9.0, 0.0)] {
+                let f = fit(s, font, size, width);
+                let cps = |t: &str| t.chars().map(|c| (c as u32).to_string()).collect::<Vec<_>>().join(",");
+                lines.push(format!("{{\"text\":[{}],\"font\":\"{:?}\",\"size_bits\":{},\"width_bits\":{},\"fit\":[{}],\"width_of_bits\":{},\"sanitize\":[{}],\"winansi\":{:?}}}",
+                    cps(s), font, size.to_bits(), width.to_bits(), cps(&f), width_of(s, font, size).to_bits(), cps(&sanitize(s)), winansi_bytes(&sanitize(s))));
+            }
+        }
+    }
+    let all: Vec<u8> = (0u8..=255).collect();
+    let from: Vec<String> = text_from_winansi(&all).chars().map(|c| (c as u32).to_string()).collect();
+    fs::write(format!("{out}/metrics.json"), format!("{{\"cases\":[\n{}\n],\n\"text_from_winansi\":[{}]}}\n", lines.join(",\n"), from.join(","))).unwrap();
+}

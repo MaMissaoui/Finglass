@@ -160,11 +160,15 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 - [ ] Importers, dedup and hash, import service. Every golden test passes.
 - [ ] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
   `bank_directory`, `bank_logo`.
+  - [x] G3x: `bankdirectory` (embedded Bundesbank file) and `banklogo`.
 
 ### G4 — Reports, documents, backup, FinDesk import (L)
 
 - [ ] Dashboard and report services, tax export, PDF/XLSX/CSV export.
+  - [x] G4a: `export/pdf`, the report PDF writer, byte-identical to Rust's `pdf-writer` output (checked against
+    reference PDFs and f32 width tables written by Rust). `export/pdfdoc` from G0 is no longer needed by the exports.
 - [ ] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
+  - [x] G4a: `documents/programs` (helper programs found by absolute path, for launches from Finder).
 - [ ] Backup and two-phase restore, plus leftover handling. FinDesk import, with a test that opens a real FinDesk
   fixture DB (created by FinDesk's SQLCipher driver). First-run migration from FinDesk.
 - [ ] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
