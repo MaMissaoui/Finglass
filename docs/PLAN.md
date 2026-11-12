@@ -159,6 +159,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
     round at the 96-bit/28-digit limits, which money never reaches) and `civil` (calendar dates).
   - [x] G3b: `model` and every repository except transactions (`repo/accounts`, `accountgroups`, `categories`,
     `rules`, `pendingbookings`, `documents`, `bankconnections`), with Rust's SQL, column encodings and audit entries.
+  - [x] G3e: `accountgrouping` and `balance` (running balance with bank differences, balance history).
 - [ ] Importers, dedup and hash, import service. Every golden test passes.
   - [x] G3f: the statement parsers (CSV, XLSX, MT940, CAMT.052/053 and ZIP, OFX, QIF) and the hashes, in
     `internal/core/imports`; `import/statements.json` and `hash/hashes.json` pass. Go reads only Store/Deflate ZIP
