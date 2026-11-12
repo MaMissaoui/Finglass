@@ -241,7 +241,10 @@ func (c *FinTsClient) storedPinFor(
 		return nil
 	}
 	if found && len(stored) > 0 {
-		return secret.NewText(stored)
+		// NewText copies; the store's buffer is wiped so the PIN is held once.
+		text := secret.NewText(stored)
+		clear(stored)
+		return text
 	}
 	_ = deleteSetting(ctx, database, flagKey)
 	return nil
