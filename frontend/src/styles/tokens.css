@@ -33,7 +33,7 @@
 :root {
   color-scheme: light dark;
 
-  /* Colour roles from docs/design.md. */
+  /* Colour roles from docs/design.md and theme.slint. Light values. */
   --color-ink: #1c2733;
   --color-slate: #5b6875;
   --color-paper: #ffffff;
@@ -49,10 +49,69 @@
   --color-caution: #9a5b00;
   --color-on-primary: #ffffff;
 
+  --color-primary-hover: #0b5a5f;
+  --color-alert-hover: #8c1d17;
+  --color-chart-out: #7a8795;
+  --color-scrim: #00000080;
+  --color-shadow: #1c273326;
+  --color-warning-pale: #9a5b0066;
+  --color-warning-strong: #6b3f00;
+
+  /* The dark values live here once; the two dark contexts below map them. */
+  --dark-color-ink: #e6eaee;
+  --dark-color-slate: #9aa5b1;
+  --dark-color-paper: #1a2129;
+  --dark-color-desk: #11161c;
+  --dark-color-rule: #2c3540;
+  --dark-color-petrol: #4fb3b9;
+  --dark-color-selected-fill: #232d37;
+  --dark-color-selected-accent: #1e3a44;
+  --dark-color-control-fill: #26303a;
+  --dark-color-control-fill-hover: #2f3a45;
+  --dark-color-inflow: #5cc28f;
+  --dark-color-alert: #f2867e;
+  --dark-color-caution: #e0a54a;
+  --dark-color-on-primary: #0b1f21;
+
+  --dark-color-primary-hover: #7ccbd0;
+  --dark-color-alert-hover: #f7a9a3;
+  --dark-color-chart-out: #6e7d8c;
+  --dark-color-shadow: #00000099;
+  --dark-color-warning-pale: #e0a54a66;
+  --dark-color-warning-strong: #f7d08a;
+
+  /* Theme.role aliases, so components can use the design names directly. */
+  --color-primary: var(--color-petrol);
+  --color-background: var(--color-desk);
+  --color-sidebar: var(--color-desk);
+  --color-surface: var(--color-paper);
+  --color-divider: var(--color-rule);
+  --color-text: var(--color-ink);
+  --color-muted-text: var(--color-slate);
+  --color-selected: var(--color-selected-fill);
+  --color-on-selected: var(--color-ink);
+  --color-money-in: var(--color-inflow);
+  --color-money-out: var(--color-ink);
+  --color-error: var(--color-alert);
+  --color-error-hover: var(--color-alert-hover);
+  --color-success: var(--color-inflow);
+  --color-chart-in: var(--color-inflow);
+  --color-document-pdf: var(--color-alert);
+  --color-document-image: var(--color-inflow);
+
+  --shadow-dialog: 0 8px 24px var(--color-shadow);
+  --shadow-menu: 0 4px 16px var(--color-shadow);
+
   /* Type roles. */
   --font-sans: 'IBM Plex Sans', sans-serif;
   --type-figure-size: 24px;
   --type-figure-weight: 600;
+  --type-headline-size: 24px;
+  --type-headline-weight: 600;
+  --type-amount-size: 24px;
+  --type-amount-weight: 600;
+  --type-page-title-size: 20px;
+  --type-page-title-weight: 600;
   --type-title-large-size: 20px;
   --type-title-large-weight: 600;
   --type-title-medium-size: 16px;
@@ -64,12 +123,15 @@
   --type-label-weight: 500;
   --type-body-size: 14px;
   --type-body-weight: 400;
+  --type-body-large-size: 15px;
+  --type-body-large-weight: 600;
   --type-body-small-size: 13px;
   --type-body-small-weight: 400;
   --type-label-small-size: 13px;
   --type-label-small-weight: 500;
   --type-caption-size: 12px;
   --type-caption-weight: 500;
+  --type-title-small-size: 14px;
   --type-title-small-weight: 500;
 
   /* Spacing roles and shape. */
@@ -78,8 +140,35 @@
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
+
+  --radius-hairline: 2px;
+  --radius-dot: 3px;
+  --radius-marker: 4px;
+  --radius-field: 8px;
+  --radius-thumbnail: 4px;
+  --radius-bar: 5px;
+  --radius-small: 6px;
+  --radius-panel: 8px;
+  --radius-counter: 9px;
+  --radius-icon-small: 10px;
+  --radius-badge: 10px;
+  --radius-menu: 8px;
+  --radius-tag: 11px;
   --radius-surface: 8px;
+  --radius-icon: 12px;
+  --radius-swatch: 13px;
+  --radius-chip: 14px;
+  --radius-icon-medium: 14px;
+  --radius-control-small: 8px;
   --radius-control: 8px;
+  --radius-dialog: 8px;
+
+  /* Control sizes from theme.slint and docs/design.md. */
+  --size-control-height: 36px;
+  --size-control-height-large: 40px;
+  --size-icon: 20px;
+  --size-icon-button: 36px;
+  --size-field-height: 56px;
 
   font-family: var(--font-sans);
   font-size: var(--type-body-size);
@@ -88,21 +177,60 @@
   background: var(--color-desk);
 }
 
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+:root[data-theme='dark'] {
+  --color-ink: var(--dark-color-ink);
+  --color-slate: var(--dark-color-slate);
+  --color-paper: var(--dark-color-paper);
+  --color-desk: var(--dark-color-desk);
+  --color-rule: var(--dark-color-rule);
+  --color-petrol: var(--dark-color-petrol);
+  --color-selected-fill: var(--dark-color-selected-fill);
+  --color-selected-accent: var(--dark-color-selected-accent);
+  --color-control-fill: var(--dark-color-control-fill);
+  --color-control-fill-hover: var(--dark-color-control-fill-hover);
+  --color-inflow: var(--dark-color-inflow);
+  --color-alert: var(--dark-color-alert);
+  --color-caution: var(--dark-color-caution);
+  --color-on-primary: var(--dark-color-on-primary);
+
+  --color-primary-hover: var(--dark-color-primary-hover);
+  --color-alert-hover: var(--dark-color-alert-hover);
+  --color-chart-out: var(--dark-color-chart-out);
+  --color-shadow: var(--dark-color-shadow);
+  --color-warning-pale: var(--dark-color-warning-pale);
+  --color-warning-strong: var(--dark-color-warning-strong);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-ink: #e6eaee;
-    --color-slate: #9aa5b1;
-    --color-paper: #1a2129;
-    --color-desk: #11161c;
-    --color-rule: #2c3540;
-    --color-petrol: #4fb3b9;
-    --color-selected-fill: #232d37;
-    --color-selected-accent: #1e3a44;
-    --color-control-fill: #26303a;
-    --color-control-fill-hover: #2f3a45;
-    --color-inflow: #5cc28f;
-    --color-alert: #f2867e;
-    --color-caution: #e0a54a;
-    --color-on-primary: #11161c;
+  :root:not([data-theme='light']) {
+    --color-ink: var(--dark-color-ink);
+    --color-slate: var(--dark-color-slate);
+    --color-paper: var(--dark-color-paper);
+    --color-desk: var(--dark-color-desk);
+    --color-rule: var(--dark-color-rule);
+    --color-petrol: var(--dark-color-petrol);
+    --color-selected-fill: var(--dark-color-selected-fill);
+    --color-selected-accent: var(--dark-color-selected-accent);
+    --color-control-fill: var(--dark-color-control-fill);
+    --color-control-fill-hover: var(--dark-color-control-fill-hover);
+    --color-inflow: var(--dark-color-inflow);
+    --color-alert: var(--dark-color-alert);
+    --color-caution: var(--dark-color-caution);
+    --color-on-primary: var(--dark-color-on-primary);
+
+    --color-primary-hover: var(--dark-color-primary-hover);
+    --color-alert-hover: var(--dark-color-alert-hover);
+    --color-chart-out: var(--dark-color-chart-out);
+    --color-shadow: var(--dark-color-shadow);
+    --color-warning-pale: var(--dark-color-warning-pale);
+    --color-warning-strong: var(--dark-color-warning-strong);
   }
 }
