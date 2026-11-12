@@ -146,9 +146,17 @@ func (c *FinTsClient) FetchAll(
 ) ([]AccountSnapshot, error) {
 	c.pinNotSaved.Store(false)
 
+	// The PIN bookkeeping after the dialog must finish even when the caller's
+	// context was cancelled mid-dialog, so a rejected PIN's flag and audit
+	// entry are never left behind.
+	cleanupCtx := context.WithoutCancel(ctx)
+
 	stored := c.storedPinFor(ctx, database, bank)
+	if stored != nil {
+		defer stored.Wipe()
+	}
 	onStoredRejected := func() {
-		c.ForgetPin(ctx, database, bank.ID)
+		c.ForgetPin(cleanupCtx, database, bank.ID)
 	}
 	remembering := newRememberingInteraction(interaction, stored, onStoredRejected)
 
@@ -165,12 +173,14 @@ func (c *FinTsClient) FetchAll(
 			value := c.mapGatewayError(gatewayValue)
 			mapped = &value
 		} else {
+			// Rust's gateway can only return GatewayError. Any other error text
+			// may carry bank text; NewBankingError masks it.
 			value := NewBankingError(CodeFintsError, gatewayErr.Error())
 			mapped = &value
 		}
 	}
 
-	c.finishFetchAll(ctx, database, bank.ID, remembering, mapped)
+	c.finishFetchAll(cleanupCtx, database, bank.ID, remembering, mapped)
 
 	if mapped != nil {
 		return nil, *mapped
@@ -201,6 +211,9 @@ func (c *FinTsClient) finishFetchAll(
 	bankingError *BankingError,
 ) {
 	entered := remembering.takeLastEntry()
+	if entered != nil && entered.Pin() != nil {
+		defer entered.Pin().Wipe()
+	}
 	if bankingError == nil {
 		if entered != nil && entered.Remember() && !entered.IsEmpty() {
 			if c.savePin(ctx, database, bankID, *entered) != nil {
