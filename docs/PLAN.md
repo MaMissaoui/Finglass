@@ -223,10 +223,17 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 ### G6 — Remove the Rust core and app (S)
 
-- [ ] Once G3–G5 are green against the goldens, one PR deletes `crates/finglass-core`, `crates/finglass-ui`,
+- [x] Once G3–G5 are green against the goldens, one PR deletes `crates/finglass-core`, `crates/finglass-ui`,
   `crates/finglass`, the Cargo files and the Rust CI. **`crates/finglass-probe` stays** until the M0 question
-  (below) is settled.
-- [ ] From here until G9, main builds no usable app. 0.3.4 stays installed.
+  (below) is settled. Done in #135:
+  - the Cargo workspace keeps only the probe, and CI's `Test`/`Lint` jobs now cover the probe and the installer test;
+  - the `Package` workflow (the Rust DMG) is gone until G9;
+  - the icons and bank logos moved to `frontend/src/assets/`;
+  - the goldens are frozen.
+- [x] From here until G9, main builds no usable app. 0.3.4 stays installed.
+- The Rust source stays in git at `feb4b79`, the last commit with the core, UI and app (and at the `v0.3.4` tag).
+  Specs for G7/G8/G10 point at a read-only checkout of it (`git worktree add --detach <dir> feb4b79`).
+  `scripts/render-slint-reference.sh <out-dir>` still renders the 157 Slint reference screenshots from `107faa8`.
 
 ### G7 — UI shell (M)
 
