@@ -828,3 +828,68 @@ func TestBankingStateCloneIsDeep(t *testing.T) {
 		t.Fatal("mutating the clone changed the original's CanRememberPin")
 	}
 }
+
+func TestTheCallerMayWipeItsBufferRightAfterAnswering(t *testing.T) {
+	textOf := func(t *testing.T, text *secret.Text) string {
+		t.Helper()
+		var got string
+		if err := text.Use(func(b []byte) error { got = string(b); return nil }); err != nil {
+			t.Fatalf("the delivered secret is unusable: %v", err)
+		}
+		return got
+	}
+
+	t.Run("pin", func(t *testing.T) {
+		bridge := bridgeForTest(5 * time.Second)
+		result := make(chan *banksync.PinEntry, 1)
+		go func() { result <- bridge.Pin("Bank", "user", true) }()
+		waitUntil(t, func() bool {
+			prompt := bridge.Prompt()
+			return prompt != nil && prompt.Kind == Pin
+		})
+
+		buffer := []byte("12345")
+		bridge.AnswerPin(buffer, true)
+		clear(buffer)
+
+		select {
+		case entry := <-result:
+			if entry == nil {
+				t.Fatal("no PIN arrived")
+			}
+			defer entry.Pin().Wipe()
+			if got := textOf(t, entry.Pin()); got != "12345" {
+				t.Fatalf("PIN = %q after the caller wiped its buffer", got)
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatal("the worker did not finish")
+		}
+	})
+
+	t.Run("tan", func(t *testing.T) {
+		bridge := bridgeForTest(5 * time.Second)
+		result := make(chan *secret.Text, 1)
+		go func() { result <- bridge.Tan(banksync.TanChallenge{Message: "Enter the TAN"}) }()
+		waitUntil(t, func() bool {
+			prompt := bridge.Prompt()
+			return prompt != nil && prompt.Kind == Tan
+		})
+
+		buffer := []byte("654321")
+		bridge.AnswerTan(buffer)
+		clear(buffer)
+
+		select {
+		case tan := <-result:
+			if tan == nil {
+				t.Fatal("no TAN arrived")
+			}
+			defer tan.Wipe()
+			if got := textOf(t, tan); got != "654321" {
+				t.Fatalf("TAN = %q after the caller wiped its buffer", got)
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatal("the worker did not finish")
+		}
+	})
+}
