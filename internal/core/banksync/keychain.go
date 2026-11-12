@@ -11,7 +11,7 @@ import (
 const KeychainService = credentials.KeychainService
 
 // CredentialStoreEnv can force the no-op store, e.g. for development runs.
-const CredentialStoreEnv = "FINGLASS_" + "CREDENTIAL_STORE"
+const CredentialStoreEnv = "FINGLASS_CREDENTIAL_STORE" // #nosec G101 -- an environment variable name, not a credential.
 
 // AccountFor returns the account string of a bank access's remembered PIN, in
 // the form the credential store uses.
