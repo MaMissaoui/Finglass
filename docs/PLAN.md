@@ -157,6 +157,8 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   `balance`.
   - [x] G3a: `money`, `format`, `iban`, `accountids`, plus `decimal` (rust_decimal's rules; arithmetic does not yet
     round at the 96-bit/28-digit limits, which money never reaches) and `civil` (calendar dates).
+  - [x] G3b: `model` and every repository except transactions (`repo/accounts`, `accountgroups`, `categories`,
+    `rules`, `pendingbookings`, `documents`, `bankconnections`), with Rust's SQL, column encodings and audit entries.
 - [ ] Importers, dedup and hash, import service. Every golden test passes.
 - [ ] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
   `bank_directory`, `bank_logo`.
