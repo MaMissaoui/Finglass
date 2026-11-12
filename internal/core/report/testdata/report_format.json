@@ -1,0 +1,9914 @@
+[
+{
+"fn": "month_name",
+"lang": "en",
+"month": 0,
+"out": "January"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 0,
+"out": "Jan"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 1,
+"out": "January"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 1,
+"out": "Jan"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 2,
+"out": "February"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 2,
+"out": "Feb"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 3,
+"out": "March"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 3,
+"out": "Mar"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 4,
+"out": "April"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 4,
+"out": "Apr"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 5,
+"out": "May"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 5,
+"out": "May"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 6,
+"out": "June"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 6,
+"out": "Jun"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 7,
+"out": "July"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 7,
+"out": "Jul"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 8,
+"out": "August"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 8,
+"out": "Aug"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 9,
+"out": "September"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 9,
+"out": "Sep"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 10,
+"out": "October"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 10,
+"out": "Oct"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 11,
+"out": "November"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 11,
+"out": "Nov"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 12,
+"out": "December"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 12,
+"out": "Dec"
+},
+{
+"fn": "month_name",
+"lang": "en",
+"month": 13,
+"out": "December"
+},
+{
+"fn": "month_short_name",
+"lang": "en",
+"month": 13,
+"out": "Dec"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "0",
+"signed": false,
+"out": "€0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "0",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "0",
+"signed": true,
+"out": "€0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "0",
+"signed": true,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "1",
+"signed": false,
+"out": "€0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "1",
+"signed": false,
+"out": "0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "1",
+"signed": true,
+"out": "+€0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "1",
+"signed": true,
+"out": "+0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-1",
+"signed": false,
+"out": "-€0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-1",
+"signed": false,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-1",
+"signed": true,
+"out": "-€0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-1",
+"signed": true,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "5",
+"signed": false,
+"out": "€0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "5",
+"signed": false,
+"out": "0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "5",
+"signed": true,
+"out": "+€0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "5",
+"signed": true,
+"out": "+0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "99",
+"signed": false,
+"out": "€0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "99",
+"signed": false,
+"out": "0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "99",
+"signed": true,
+"out": "+€0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "99",
+"signed": true,
+"out": "+0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "100",
+"signed": false,
+"out": "€1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "100",
+"signed": false,
+"out": "1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "100",
+"signed": true,
+"out": "+€1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "100",
+"signed": true,
+"out": "+1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-100",
+"signed": false,
+"out": "-€1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-100",
+"signed": false,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-100",
+"signed": true,
+"out": "-€1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-100",
+"signed": true,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "123456",
+"signed": false,
+"out": "€1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "123456",
+"signed": false,
+"out": "1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "123456",
+"signed": true,
+"out": "+€1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "123456",
+"signed": true,
+"out": "+1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-123456",
+"signed": false,
+"out": "-€1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-123456",
+"signed": false,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-123456",
+"signed": true,
+"out": "-€1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-123456",
+"signed": true,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "100000000",
+"signed": false,
+"out": "€1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "100000000",
+"signed": false,
+"out": "1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "100000000",
+"signed": true,
+"out": "+€1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "100000000",
+"signed": true,
+"out": "+1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": false,
+"out": "-€9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": false,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": true,
+"out": "-€9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": true,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": false,
+"out": "€12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": false,
+"out": "12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": true,
+"out": "+€12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "€92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+€92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-€92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-€92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "0",
+"signed": false,
+"out": "$0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "0",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "0",
+"signed": true,
+"out": "$0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "0",
+"signed": true,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "1",
+"signed": false,
+"out": "$0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "1",
+"signed": false,
+"out": "0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "1",
+"signed": true,
+"out": "+$0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "1",
+"signed": true,
+"out": "+0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-1",
+"signed": false,
+"out": "-$0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-1",
+"signed": false,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-1",
+"signed": true,
+"out": "-$0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-1",
+"signed": true,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "5",
+"signed": false,
+"out": "$0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "5",
+"signed": false,
+"out": "0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "5",
+"signed": true,
+"out": "+$0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "5",
+"signed": true,
+"out": "+0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "99",
+"signed": false,
+"out": "$0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "99",
+"signed": false,
+"out": "0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "99",
+"signed": true,
+"out": "+$0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "99",
+"signed": true,
+"out": "+0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "100",
+"signed": false,
+"out": "$1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "100",
+"signed": false,
+"out": "1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "100",
+"signed": true,
+"out": "+$1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "100",
+"signed": true,
+"out": "+1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-100",
+"signed": false,
+"out": "-$1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-100",
+"signed": false,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-100",
+"signed": true,
+"out": "-$1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-100",
+"signed": true,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "123456",
+"signed": false,
+"out": "$1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "123456",
+"signed": false,
+"out": "1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "123456",
+"signed": true,
+"out": "+$1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "123456",
+"signed": true,
+"out": "+1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-123456",
+"signed": false,
+"out": "-$1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-123456",
+"signed": false,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-123456",
+"signed": true,
+"out": "-$1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-123456",
+"signed": true,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "100000000",
+"signed": false,
+"out": "$1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "100000000",
+"signed": false,
+"out": "1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "100000000",
+"signed": true,
+"out": "+$1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "100000000",
+"signed": true,
+"out": "+1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-987654321",
+"signed": false,
+"out": "-$9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-987654321",
+"signed": false,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-987654321",
+"signed": true,
+"out": "-$9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-987654321",
+"signed": true,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": false,
+"out": "$12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": false,
+"out": "12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+$12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "$92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+$92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-$92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-$92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "0",
+"signed": false,
+"out": "£0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "0",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "0",
+"signed": true,
+"out": "£0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "0",
+"signed": true,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "1",
+"signed": false,
+"out": "£0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "1",
+"signed": false,
+"out": "0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "1",
+"signed": true,
+"out": "+£0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "1",
+"signed": true,
+"out": "+0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-1",
+"signed": false,
+"out": "-£0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-1",
+"signed": false,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-1",
+"signed": true,
+"out": "-£0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-1",
+"signed": true,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "5",
+"signed": false,
+"out": "£0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "5",
+"signed": false,
+"out": "0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "5",
+"signed": true,
+"out": "+£0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "5",
+"signed": true,
+"out": "+0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "99",
+"signed": false,
+"out": "£0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "99",
+"signed": false,
+"out": "0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "99",
+"signed": true,
+"out": "+£0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "99",
+"signed": true,
+"out": "+0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "100",
+"signed": false,
+"out": "£1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "100",
+"signed": false,
+"out": "1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "100",
+"signed": true,
+"out": "+£1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "100",
+"signed": true,
+"out": "+1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-100",
+"signed": false,
+"out": "-£1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-100",
+"signed": false,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-100",
+"signed": true,
+"out": "-£1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-100",
+"signed": true,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "123456",
+"signed": false,
+"out": "£1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "123456",
+"signed": false,
+"out": "1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "123456",
+"signed": true,
+"out": "+£1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "123456",
+"signed": true,
+"out": "+1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-123456",
+"signed": false,
+"out": "-£1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-123456",
+"signed": false,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-123456",
+"signed": true,
+"out": "-£1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-123456",
+"signed": true,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "100000000",
+"signed": false,
+"out": "£1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "100000000",
+"signed": false,
+"out": "1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "100000000",
+"signed": true,
+"out": "+£1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "100000000",
+"signed": true,
+"out": "+1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": false,
+"out": "-£9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": false,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": true,
+"out": "-£9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": true,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": false,
+"out": "£12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": false,
+"out": "12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": true,
+"out": "+£12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "£92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+£92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-£92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-£92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "0",
+"signed": false,
+"out": "CHF0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "0",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "0",
+"signed": true,
+"out": "CHF0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "0",
+"signed": true,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "1",
+"signed": false,
+"out": "CHF0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "1",
+"signed": false,
+"out": "0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "1",
+"signed": true,
+"out": "+CHF0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "1",
+"signed": true,
+"out": "+0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-1",
+"signed": false,
+"out": "-CHF0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-1",
+"signed": false,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-1",
+"signed": true,
+"out": "-CHF0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-1",
+"signed": true,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "5",
+"signed": false,
+"out": "CHF0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "5",
+"signed": false,
+"out": "0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "5",
+"signed": true,
+"out": "+CHF0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "5",
+"signed": true,
+"out": "+0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "99",
+"signed": false,
+"out": "CHF0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "99",
+"signed": false,
+"out": "0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "99",
+"signed": true,
+"out": "+CHF0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "99",
+"signed": true,
+"out": "+0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "100",
+"signed": false,
+"out": "CHF1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "100",
+"signed": false,
+"out": "1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "100",
+"signed": true,
+"out": "+CHF1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "100",
+"signed": true,
+"out": "+1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-100",
+"signed": false,
+"out": "-CHF1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-100",
+"signed": false,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-100",
+"signed": true,
+"out": "-CHF1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-100",
+"signed": true,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "123456",
+"signed": false,
+"out": "CHF1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "123456",
+"signed": false,
+"out": "1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "123456",
+"signed": true,
+"out": "+CHF1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "123456",
+"signed": true,
+"out": "+1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-123456",
+"signed": false,
+"out": "-CHF1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-123456",
+"signed": false,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-123456",
+"signed": true,
+"out": "-CHF1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-123456",
+"signed": true,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "100000000",
+"signed": false,
+"out": "CHF1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "100000000",
+"signed": false,
+"out": "1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "100000000",
+"signed": true,
+"out": "+CHF1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "100000000",
+"signed": true,
+"out": "+1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": false,
+"out": "-CHF9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": false,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": true,
+"out": "-CHF9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": true,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": false,
+"out": "CHF12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": false,
+"out": "12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": true,
+"out": "+CHF12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "CHF92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+CHF92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-CHF92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-CHF92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "0",
+"signed": false,
+"out": "¥0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "0",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "0",
+"signed": true,
+"out": "¥0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "0",
+"signed": true,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "1",
+"signed": false,
+"out": "¥1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "1",
+"signed": false,
+"out": "1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "1",
+"signed": true,
+"out": "+¥1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "1",
+"signed": true,
+"out": "+1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-1",
+"signed": false,
+"out": "-¥1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-1",
+"signed": false,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-1",
+"signed": true,
+"out": "-¥1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-1",
+"signed": true,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "5",
+"signed": false,
+"out": "¥5.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "5",
+"signed": false,
+"out": "5.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "5",
+"signed": true,
+"out": "+¥5.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "5",
+"signed": true,
+"out": "+5.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "99",
+"signed": false,
+"out": "¥99.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "99",
+"signed": false,
+"out": "99.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "99",
+"signed": true,
+"out": "+¥99.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "99",
+"signed": true,
+"out": "+99.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "100",
+"signed": false,
+"out": "¥100.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "100",
+"signed": false,
+"out": "100.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "100",
+"signed": true,
+"out": "+¥100.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "100",
+"signed": true,
+"out": "+100.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-100",
+"signed": false,
+"out": "-¥100.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-100",
+"signed": false,
+"out": "-100.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-100",
+"signed": true,
+"out": "-¥100.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-100",
+"signed": true,
+"out": "-100.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "123456",
+"signed": false,
+"out": "¥123,456.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "123456",
+"signed": false,
+"out": "123,456.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "123456",
+"signed": true,
+"out": "+¥123,456.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "123456",
+"signed": true,
+"out": "+123,456.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-123456",
+"signed": false,
+"out": "-¥123,456.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-123456",
+"signed": false,
+"out": "-123,456.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-123456",
+"signed": true,
+"out": "-¥123,456.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-123456",
+"signed": true,
+"out": "-123,456.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "100000000",
+"signed": false,
+"out": "¥100,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "100000000",
+"signed": false,
+"out": "100,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "100000000",
+"signed": true,
+"out": "+¥100,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "100000000",
+"signed": true,
+"out": "+100,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": false,
+"out": "-¥987,654,321.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": false,
+"out": "-987,654,321.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": true,
+"out": "-¥987,654,321.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": true,
+"out": "-987,654,321.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": false,
+"out": "¥1,234,567,890,123.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": false,
+"out": "1,234,567,890,123.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": true,
+"out": "+¥1,234,567,890,123.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1,234,567,890,123.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "¥184,467,440,737,095,516.15"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "184,467,440,737,095,516.15"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+¥184,467,440,737,095,516.15"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+184,467,440,737,095,516.15"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-¥184,467,440,737,095,516.15"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-184,467,440,737,095,516.15"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-¥184,467,440,737,095,516.15"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-184,467,440,737,095,516.15"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "0",
+"signed": false,
+"out": "SEK0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "0",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "0",
+"signed": true,
+"out": "SEK0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "0",
+"signed": true,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "1",
+"signed": false,
+"out": "SEK0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "1",
+"signed": false,
+"out": "0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "1",
+"signed": true,
+"out": "+SEK0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "1",
+"signed": true,
+"out": "+0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-1",
+"signed": false,
+"out": "-SEK0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-1",
+"signed": false,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-1",
+"signed": true,
+"out": "-SEK0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-1",
+"signed": true,
+"out": "-0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "5",
+"signed": false,
+"out": "SEK0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "5",
+"signed": false,
+"out": "0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "5",
+"signed": true,
+"out": "+SEK0.05"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "5",
+"signed": true,
+"out": "+0.05"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "99",
+"signed": false,
+"out": "SEK0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "99",
+"signed": false,
+"out": "0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "99",
+"signed": true,
+"out": "+SEK0.99"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "99",
+"signed": true,
+"out": "+0.99"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "100",
+"signed": false,
+"out": "SEK1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "100",
+"signed": false,
+"out": "1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "100",
+"signed": true,
+"out": "+SEK1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "100",
+"signed": true,
+"out": "+1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-100",
+"signed": false,
+"out": "-SEK1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-100",
+"signed": false,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-100",
+"signed": true,
+"out": "-SEK1.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-100",
+"signed": true,
+"out": "-1.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "123456",
+"signed": false,
+"out": "SEK1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "123456",
+"signed": false,
+"out": "1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "123456",
+"signed": true,
+"out": "+SEK1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "123456",
+"signed": true,
+"out": "+1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-123456",
+"signed": false,
+"out": "-SEK1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-123456",
+"signed": false,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-123456",
+"signed": true,
+"out": "-SEK1,234.56"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-123456",
+"signed": true,
+"out": "-1,234.56"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "100000000",
+"signed": false,
+"out": "SEK1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "100000000",
+"signed": false,
+"out": "1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "100000000",
+"signed": true,
+"out": "+SEK1,000,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "100000000",
+"signed": true,
+"out": "+1,000,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": false,
+"out": "-SEK9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": false,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": true,
+"out": "-SEK9,876,543.21"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": true,
+"out": "-9,876,543.21"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": false,
+"out": "SEK12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": false,
+"out": "12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": true,
+"out": "+SEK12,345,678,901.23"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12,345,678,901.23"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "SEK92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+SEK92,233,720,368,547,758.07"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92,233,720,368,547,758.07"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-SEK92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-SEK92,233,720,368,547,758.08"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92,233,720,368,547,758.08"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "0",
+"signed": false,
+"out": "KWD0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "0",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "0",
+"signed": true,
+"out": "KWD0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "0",
+"signed": true,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "1",
+"signed": false,
+"out": "KWD0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "1",
+"signed": false,
+"out": "0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "1",
+"signed": true,
+"out": "+KWD0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "1",
+"signed": true,
+"out": "+0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-1",
+"signed": false,
+"out": "-KWD0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-1",
+"signed": false,
+"out": "-0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-1",
+"signed": true,
+"out": "-KWD0.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-1",
+"signed": true,
+"out": "-0.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "5",
+"signed": false,
+"out": "KWD0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "5",
+"signed": false,
+"out": "0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "5",
+"signed": true,
+"out": "+KWD0.01"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "5",
+"signed": true,
+"out": "+0.01"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "99",
+"signed": false,
+"out": "KWD0.10"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "99",
+"signed": false,
+"out": "0.10"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "99",
+"signed": true,
+"out": "+KWD0.10"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "99",
+"signed": true,
+"out": "+0.10"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "100",
+"signed": false,
+"out": "KWD0.10"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "100",
+"signed": false,
+"out": "0.10"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "100",
+"signed": true,
+"out": "+KWD0.10"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "100",
+"signed": true,
+"out": "+0.10"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-100",
+"signed": false,
+"out": "-KWD0.10"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-100",
+"signed": false,
+"out": "-0.10"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-100",
+"signed": true,
+"out": "-KWD0.10"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-100",
+"signed": true,
+"out": "-0.10"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "123456",
+"signed": false,
+"out": "KWD123.46"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "123456",
+"signed": false,
+"out": "123.46"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "123456",
+"signed": true,
+"out": "+KWD123.46"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "123456",
+"signed": true,
+"out": "+123.46"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-123456",
+"signed": false,
+"out": "-KWD123.46"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-123456",
+"signed": false,
+"out": "-123.46"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-123456",
+"signed": true,
+"out": "-KWD123.46"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-123456",
+"signed": true,
+"out": "-123.46"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "100000000",
+"signed": false,
+"out": "KWD100,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "100000000",
+"signed": false,
+"out": "100,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "100000000",
+"signed": true,
+"out": "+KWD100,000.00"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "100000000",
+"signed": true,
+"out": "+100,000.00"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": false,
+"out": "-KWD987,654.32"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": false,
+"out": "-987,654.32"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": true,
+"out": "-KWD987,654.32"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": true,
+"out": "-987,654.32"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": false,
+"out": "KWD1,234,567,890.12"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": false,
+"out": "1,234,567,890.12"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+KWD1,234,567,890.12"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1,234,567,890.12"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "KWD9,223,372,036,854,775.81"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "9,223,372,036,854,775.81"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+KWD9,223,372,036,854,775.81"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+9,223,372,036,854,775.81"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-KWD9,223,372,036,854,775.81"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-9,223,372,036,854,775.81"
+},
+{
+"fn": "money",
+"lang": "en",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-KWD9,223,372,036,854,775.81"
+},
+{
+"fn": "pdf_amount",
+"lang": "en",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-9,223,372,036,854,775.81"
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 0,
+"out": "Januar"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 0,
+"out": "Jan."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 1,
+"out": "Januar"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 1,
+"out": "Jan."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 2,
+"out": "Februar"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 2,
+"out": "Feb."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 3,
+"out": "März"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 3,
+"out": "März"
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 4,
+"out": "April"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 4,
+"out": "Apr."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 5,
+"out": "Mai"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 5,
+"out": "Mai"
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 6,
+"out": "Juni"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 6,
+"out": "Juni"
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 7,
+"out": "Juli"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 7,
+"out": "Juli"
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 8,
+"out": "August"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 8,
+"out": "Aug."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 9,
+"out": "September"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 9,
+"out": "Sept."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 10,
+"out": "Oktober"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 10,
+"out": "Okt."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 11,
+"out": "November"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 11,
+"out": "Nov."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 12,
+"out": "Dezember"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 12,
+"out": "Dez."
+},
+{
+"fn": "month_name",
+"lang": "de",
+"month": 13,
+"out": "Dezember"
+},
+{
+"fn": "month_short_name",
+"lang": "de",
+"month": 13,
+"out": "Dez."
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "0",
+"signed": false,
+"out": "0,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "0",
+"signed": true,
+"out": "0,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "1",
+"signed": false,
+"out": "0,01 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "1",
+"signed": true,
+"out": "+0,01 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-1",
+"signed": false,
+"out": "-0,01 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-1",
+"signed": true,
+"out": "-0,01 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "5",
+"signed": false,
+"out": "0,05 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "5",
+"signed": true,
+"out": "+0,05 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "99",
+"signed": false,
+"out": "0,99 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "99",
+"signed": true,
+"out": "+0,99 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "100",
+"signed": false,
+"out": "1,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "100",
+"signed": true,
+"out": "+1,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-100",
+"signed": false,
+"out": "-1,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-100",
+"signed": true,
+"out": "-1,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08 €"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "0",
+"signed": false,
+"out": "0,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "0",
+"signed": true,
+"out": "0,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "1",
+"signed": false,
+"out": "0,01 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "1",
+"signed": true,
+"out": "+0,01 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-1",
+"signed": false,
+"out": "-0,01 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-1",
+"signed": true,
+"out": "-0,01 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "5",
+"signed": false,
+"out": "0,05 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "5",
+"signed": true,
+"out": "+0,05 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "99",
+"signed": false,
+"out": "0,99 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "99",
+"signed": true,
+"out": "+0,99 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "100",
+"signed": false,
+"out": "1,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "100",
+"signed": true,
+"out": "+1,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-100",
+"signed": false,
+"out": "-1,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-100",
+"signed": true,
+"out": "-1,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08 $"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "0",
+"signed": false,
+"out": "0,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "0",
+"signed": true,
+"out": "0,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "1",
+"signed": false,
+"out": "0,01 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "1",
+"signed": true,
+"out": "+0,01 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-1",
+"signed": false,
+"out": "-0,01 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-1",
+"signed": true,
+"out": "-0,01 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "5",
+"signed": false,
+"out": "0,05 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "5",
+"signed": true,
+"out": "+0,05 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "99",
+"signed": false,
+"out": "0,99 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "99",
+"signed": true,
+"out": "+0,99 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "100",
+"signed": false,
+"out": "1,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "100",
+"signed": true,
+"out": "+1,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-100",
+"signed": false,
+"out": "-1,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-100",
+"signed": true,
+"out": "-1,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08 £"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "0",
+"signed": false,
+"out": "0,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "0",
+"signed": true,
+"out": "0,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "1",
+"signed": false,
+"out": "0,01 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "1",
+"signed": true,
+"out": "+0,01 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-1",
+"signed": false,
+"out": "-0,01 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-1",
+"signed": true,
+"out": "-0,01 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "5",
+"signed": false,
+"out": "0,05 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "5",
+"signed": true,
+"out": "+0,05 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "99",
+"signed": false,
+"out": "0,99 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "99",
+"signed": true,
+"out": "+0,99 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "100",
+"signed": false,
+"out": "1,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "100",
+"signed": true,
+"out": "+1,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-100",
+"signed": false,
+"out": "-1,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-100",
+"signed": true,
+"out": "-1,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08 CHF"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "0",
+"signed": false,
+"out": "0,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "0",
+"signed": true,
+"out": "0,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "1",
+"signed": false,
+"out": "1,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "1",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "1",
+"signed": true,
+"out": "+1,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "1",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-1",
+"signed": false,
+"out": "-1,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-1",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-1",
+"signed": true,
+"out": "-1,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-1",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "5",
+"signed": false,
+"out": "5,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "5",
+"signed": false,
+"out": "5,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "5",
+"signed": true,
+"out": "+5,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "5",
+"signed": true,
+"out": "+5,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "99",
+"signed": false,
+"out": "99,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "99",
+"signed": false,
+"out": "99,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "99",
+"signed": true,
+"out": "+99,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "99",
+"signed": true,
+"out": "+99,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "100",
+"signed": false,
+"out": "100,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "100",
+"signed": false,
+"out": "100,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "100",
+"signed": true,
+"out": "+100,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "100",
+"signed": true,
+"out": "+100,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-100",
+"signed": false,
+"out": "-100,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-100",
+"signed": false,
+"out": "-100,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-100",
+"signed": true,
+"out": "-100,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-100",
+"signed": true,
+"out": "-100,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "123456",
+"signed": false,
+"out": "123.456,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "123456",
+"signed": false,
+"out": "123.456,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "123456",
+"signed": true,
+"out": "+123.456,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "123456",
+"signed": true,
+"out": "+123.456,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-123456",
+"signed": false,
+"out": "-123.456,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-123456",
+"signed": false,
+"out": "-123.456,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-123456",
+"signed": true,
+"out": "-123.456,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-123456",
+"signed": true,
+"out": "-123.456,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "100000000",
+"signed": false,
+"out": "100.000.000,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "100000000",
+"signed": false,
+"out": "100.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "100000000",
+"signed": true,
+"out": "+100.000.000,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "100000000",
+"signed": true,
+"out": "+100.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": false,
+"out": "-987.654.321,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": false,
+"out": "-987.654.321,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": true,
+"out": "-987.654.321,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": true,
+"out": "-987.654.321,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": false,
+"out": "1.234.567.890.123,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": false,
+"out": "1.234.567.890.123,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1.234.567.890.123,00 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1.234.567.890.123,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "184.467.440.737.095.516,15 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "184.467.440.737.095.516,15"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+184.467.440.737.095.516,15 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+184.467.440.737.095.516,15"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-184.467.440.737.095.516,15 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-184.467.440.737.095.516,15"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-184.467.440.737.095.516,15 ¥"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-184.467.440.737.095.516,15"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "0",
+"signed": false,
+"out": "0,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "0",
+"signed": true,
+"out": "0,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "1",
+"signed": false,
+"out": "0,01 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "1",
+"signed": true,
+"out": "+0,01 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-1",
+"signed": false,
+"out": "-0,01 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-1",
+"signed": true,
+"out": "-0,01 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "5",
+"signed": false,
+"out": "0,05 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "5",
+"signed": true,
+"out": "+0,05 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "99",
+"signed": false,
+"out": "0,99 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "99",
+"signed": true,
+"out": "+0,99 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "100",
+"signed": false,
+"out": "1,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "100",
+"signed": true,
+"out": "+1,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-100",
+"signed": false,
+"out": "-1,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-100",
+"signed": true,
+"out": "-1,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "123456",
+"signed": false,
+"out": "1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "123456",
+"signed": true,
+"out": "+1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-123456",
+"signed": false,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-123456",
+"signed": true,
+"out": "-1.234,56"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "100000000",
+"signed": false,
+"out": "1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "100000000",
+"signed": true,
+"out": "+1.000.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": false,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": true,
+"out": "-9.876.543,21"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": false,
+"out": "12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12.345.678.901,23"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92.233.720.368.547.758,07"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08 SEK"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92.233.720.368.547.758,08"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "0",
+"signed": false,
+"out": "0,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "0",
+"signed": true,
+"out": "0,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "1",
+"signed": false,
+"out": "0,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "1",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "1",
+"signed": true,
+"out": "+0,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "1",
+"signed": true,
+"out": "+0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-1",
+"signed": false,
+"out": "-0,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-1",
+"signed": false,
+"out": "-0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-1",
+"signed": true,
+"out": "-0,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-1",
+"signed": true,
+"out": "-0,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "5",
+"signed": false,
+"out": "0,01 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "5",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "5",
+"signed": true,
+"out": "+0,01 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "5",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "99",
+"signed": false,
+"out": "0,10 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "99",
+"signed": false,
+"out": "0,10"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "99",
+"signed": true,
+"out": "+0,10 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "99",
+"signed": true,
+"out": "+0,10"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "100",
+"signed": false,
+"out": "0,10 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "100",
+"signed": false,
+"out": "0,10"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "100",
+"signed": true,
+"out": "+0,10 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "100",
+"signed": true,
+"out": "+0,10"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-100",
+"signed": false,
+"out": "-0,10 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-100",
+"signed": false,
+"out": "-0,10"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-100",
+"signed": true,
+"out": "-0,10 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-100",
+"signed": true,
+"out": "-0,10"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "123456",
+"signed": false,
+"out": "123,46 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "123456",
+"signed": false,
+"out": "123,46"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "123456",
+"signed": true,
+"out": "+123,46 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "123456",
+"signed": true,
+"out": "+123,46"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-123456",
+"signed": false,
+"out": "-123,46 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-123456",
+"signed": false,
+"out": "-123,46"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-123456",
+"signed": true,
+"out": "-123,46 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-123456",
+"signed": true,
+"out": "-123,46"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "100000000",
+"signed": false,
+"out": "100.000,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "100000000",
+"signed": false,
+"out": "100.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "100000000",
+"signed": true,
+"out": "+100.000,00 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "100000000",
+"signed": true,
+"out": "+100.000,00"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": false,
+"out": "-987.654,32 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": false,
+"out": "-987.654,32"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": true,
+"out": "-987.654,32 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": true,
+"out": "-987.654,32"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": false,
+"out": "1.234.567.890,12 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": false,
+"out": "1.234.567.890,12"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1.234.567.890,12 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1.234.567.890,12"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "9.223.372.036.854.775,81 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "9.223.372.036.854.775,81"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+9.223.372.036.854.775,81 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+9.223.372.036.854.775,81"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-9.223.372.036.854.775,81 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-9.223.372.036.854.775,81"
+},
+{
+"fn": "money",
+"lang": "de",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-9.223.372.036.854.775,81 KWD"
+},
+{
+"fn": "pdf_amount",
+"lang": "de",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-9.223.372.036.854.775,81"
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 0,
+"out": "janvier"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 0,
+"out": "janv."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 1,
+"out": "janvier"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 1,
+"out": "janv."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 2,
+"out": "février"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 2,
+"out": "févr."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 3,
+"out": "mars"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 3,
+"out": "mars"
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 4,
+"out": "avril"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 4,
+"out": "avr."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 5,
+"out": "mai"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 5,
+"out": "mai"
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 6,
+"out": "juin"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 6,
+"out": "juin"
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 7,
+"out": "juillet"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 7,
+"out": "juil."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 8,
+"out": "août"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 8,
+"out": "août"
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 9,
+"out": "septembre"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 9,
+"out": "sept."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 10,
+"out": "octobre"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 10,
+"out": "oct."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 11,
+"out": "novembre"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 11,
+"out": "nov."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 12,
+"out": "décembre"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 12,
+"out": "déc."
+},
+{
+"fn": "month_name",
+"lang": "fr",
+"month": 13,
+"out": "décembre"
+},
+{
+"fn": "month_short_name",
+"lang": "fr",
+"month": 13,
+"out": "déc."
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "0",
+"signed": false,
+"out": "€0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "0",
+"signed": true,
+"out": "€0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1",
+"signed": false,
+"out": "€0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1",
+"signed": true,
+"out": "+€0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-1",
+"signed": false,
+"out": "-€0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-1",
+"signed": true,
+"out": "-€0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "5",
+"signed": false,
+"out": "€0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "5",
+"signed": true,
+"out": "+€0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "99",
+"signed": false,
+"out": "€0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "99",
+"signed": true,
+"out": "+€0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100",
+"signed": false,
+"out": "€1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100",
+"signed": true,
+"out": "+€1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-100",
+"signed": false,
+"out": "-€1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-100",
+"signed": true,
+"out": "-€1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "123456",
+"signed": false,
+"out": "€1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "123456",
+"signed": false,
+"out": "1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "123456",
+"signed": true,
+"out": "+€1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "123456",
+"signed": true,
+"out": "+1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-123456",
+"signed": false,
+"out": "-€1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-123456",
+"signed": false,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-123456",
+"signed": true,
+"out": "-€1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-123456",
+"signed": true,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100000000",
+"signed": false,
+"out": "€1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100000000",
+"signed": false,
+"out": "1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100000000",
+"signed": true,
+"out": "+€1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "100000000",
+"signed": true,
+"out": "+1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": false,
+"out": "-€9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": false,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": true,
+"out": "-€9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-987654321",
+"signed": true,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": false,
+"out": "€12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": false,
+"out": "12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": true,
+"out": "+€12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "€92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+€92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-€92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-€92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "EUR",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "0",
+"signed": false,
+"out": "$0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "0",
+"signed": true,
+"out": "$0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "1",
+"signed": false,
+"out": "$0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "1",
+"signed": true,
+"out": "+$0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-1",
+"signed": false,
+"out": "-$0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-1",
+"signed": true,
+"out": "-$0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "5",
+"signed": false,
+"out": "$0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "5",
+"signed": true,
+"out": "+$0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "99",
+"signed": false,
+"out": "$0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "99",
+"signed": true,
+"out": "+$0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "100",
+"signed": false,
+"out": "$1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "100",
+"signed": true,
+"out": "+$1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-100",
+"signed": false,
+"out": "-$1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-100",
+"signed": true,
+"out": "-$1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "123456",
+"signed": false,
+"out": "$1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "123456",
+"signed": false,
+"out": "1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "123456",
+"signed": true,
+"out": "+$1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "123456",
+"signed": true,
+"out": "+1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-123456",
+"signed": false,
+"out": "-$1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-123456",
+"signed": false,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-123456",
+"signed": true,
+"out": "-$1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-123456",
+"signed": true,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "100000000",
+"signed": false,
+"out": "$1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "100000000",
+"signed": false,
+"out": "1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "100000000",
+"signed": true,
+"out": "+$1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "100000000",
+"signed": true,
+"out": "+1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-987654321",
+"signed": false,
+"out": "-$9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-987654321",
+"signed": false,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-987654321",
+"signed": true,
+"out": "-$9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-987654321",
+"signed": true,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": false,
+"out": "$12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": false,
+"out": "12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+$12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "$92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+$92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-$92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-$92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "USD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "0",
+"signed": false,
+"out": "£0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "0",
+"signed": true,
+"out": "£0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1",
+"signed": false,
+"out": "£0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1",
+"signed": true,
+"out": "+£0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-1",
+"signed": false,
+"out": "-£0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-1",
+"signed": true,
+"out": "-£0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "5",
+"signed": false,
+"out": "£0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "5",
+"signed": true,
+"out": "+£0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "99",
+"signed": false,
+"out": "£0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "99",
+"signed": true,
+"out": "+£0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100",
+"signed": false,
+"out": "£1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100",
+"signed": true,
+"out": "+£1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-100",
+"signed": false,
+"out": "-£1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-100",
+"signed": true,
+"out": "-£1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "123456",
+"signed": false,
+"out": "£1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "123456",
+"signed": false,
+"out": "1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "123456",
+"signed": true,
+"out": "+£1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "123456",
+"signed": true,
+"out": "+1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-123456",
+"signed": false,
+"out": "-£1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-123456",
+"signed": false,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-123456",
+"signed": true,
+"out": "-£1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-123456",
+"signed": true,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100000000",
+"signed": false,
+"out": "£1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100000000",
+"signed": false,
+"out": "1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100000000",
+"signed": true,
+"out": "+£1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "100000000",
+"signed": true,
+"out": "+1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": false,
+"out": "-£9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": false,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": true,
+"out": "-£9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-987654321",
+"signed": true,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": false,
+"out": "£12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": false,
+"out": "12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": true,
+"out": "+£12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "£92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+£92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-£92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-£92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "GBP",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "0",
+"signed": false,
+"out": "CHF0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "0",
+"signed": true,
+"out": "CHF0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1",
+"signed": false,
+"out": "CHF0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1",
+"signed": true,
+"out": "+CHF0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-1",
+"signed": false,
+"out": "-CHF0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-1",
+"signed": true,
+"out": "-CHF0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "5",
+"signed": false,
+"out": "CHF0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "5",
+"signed": true,
+"out": "+CHF0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "99",
+"signed": false,
+"out": "CHF0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "99",
+"signed": true,
+"out": "+CHF0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100",
+"signed": false,
+"out": "CHF1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100",
+"signed": true,
+"out": "+CHF1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-100",
+"signed": false,
+"out": "-CHF1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-100",
+"signed": true,
+"out": "-CHF1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "123456",
+"signed": false,
+"out": "CHF1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "123456",
+"signed": false,
+"out": "1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "123456",
+"signed": true,
+"out": "+CHF1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "123456",
+"signed": true,
+"out": "+1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-123456",
+"signed": false,
+"out": "-CHF1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-123456",
+"signed": false,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-123456",
+"signed": true,
+"out": "-CHF1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-123456",
+"signed": true,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100000000",
+"signed": false,
+"out": "CHF1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100000000",
+"signed": false,
+"out": "1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100000000",
+"signed": true,
+"out": "+CHF1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "100000000",
+"signed": true,
+"out": "+1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": false,
+"out": "-CHF9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": false,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": true,
+"out": "-CHF9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-987654321",
+"signed": true,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": false,
+"out": "CHF12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": false,
+"out": "12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": true,
+"out": "+CHF12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "CHF92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+CHF92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-CHF92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-CHF92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "CHF",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "0",
+"signed": false,
+"out": "¥0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "0",
+"signed": true,
+"out": "¥0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1",
+"signed": false,
+"out": "¥1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1",
+"signed": true,
+"out": "+¥1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-1",
+"signed": false,
+"out": "-¥1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-1",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-1",
+"signed": true,
+"out": "-¥1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-1",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "5",
+"signed": false,
+"out": "¥5,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "5",
+"signed": false,
+"out": "5,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "5",
+"signed": true,
+"out": "+¥5,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "5",
+"signed": true,
+"out": "+5,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "99",
+"signed": false,
+"out": "¥99,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "99",
+"signed": false,
+"out": "99,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "99",
+"signed": true,
+"out": "+¥99,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "99",
+"signed": true,
+"out": "+99,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100",
+"signed": false,
+"out": "¥100,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100",
+"signed": false,
+"out": "100,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100",
+"signed": true,
+"out": "+¥100,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100",
+"signed": true,
+"out": "+100,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-100",
+"signed": false,
+"out": "-¥100,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-100",
+"signed": false,
+"out": "-100,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-100",
+"signed": true,
+"out": "-¥100,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-100",
+"signed": true,
+"out": "-100,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "123456",
+"signed": false,
+"out": "¥123 456,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "123456",
+"signed": false,
+"out": "123 456,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "123456",
+"signed": true,
+"out": "+¥123 456,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "123456",
+"signed": true,
+"out": "+123 456,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-123456",
+"signed": false,
+"out": "-¥123 456,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-123456",
+"signed": false,
+"out": "-123 456,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-123456",
+"signed": true,
+"out": "-¥123 456,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-123456",
+"signed": true,
+"out": "-123 456,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100000000",
+"signed": false,
+"out": "¥100 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100000000",
+"signed": false,
+"out": "100 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100000000",
+"signed": true,
+"out": "+¥100 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "100000000",
+"signed": true,
+"out": "+100 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": false,
+"out": "-¥987 654 321,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": false,
+"out": "-987 654 321,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": true,
+"out": "-¥987 654 321,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-987654321",
+"signed": true,
+"out": "-987 654 321,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": false,
+"out": "¥1 234 567 890 123,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": false,
+"out": "1 234 567 890 123,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": true,
+"out": "+¥1 234 567 890 123,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1 234 567 890 123,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "¥184 467 440 737 095 516,15"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "184 467 440 737 095 516,15"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+¥184 467 440 737 095 516,15"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+184 467 440 737 095 516,15"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-¥184 467 440 737 095 516,15"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-184 467 440 737 095 516,15"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-¥184 467 440 737 095 516,15"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "JPY",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-184 467 440 737 095 516,15"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "0",
+"signed": false,
+"out": "SEK0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "0",
+"signed": true,
+"out": "SEK0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1",
+"signed": false,
+"out": "SEK0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1",
+"signed": true,
+"out": "+SEK0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-1",
+"signed": false,
+"out": "-SEK0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-1",
+"signed": false,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-1",
+"signed": true,
+"out": "-SEK0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-1",
+"signed": true,
+"out": "-0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "5",
+"signed": false,
+"out": "SEK0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "5",
+"signed": false,
+"out": "0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "5",
+"signed": true,
+"out": "+SEK0,05"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "5",
+"signed": true,
+"out": "+0,05"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "99",
+"signed": false,
+"out": "SEK0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "99",
+"signed": false,
+"out": "0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "99",
+"signed": true,
+"out": "+SEK0,99"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "99",
+"signed": true,
+"out": "+0,99"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100",
+"signed": false,
+"out": "SEK1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100",
+"signed": false,
+"out": "1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100",
+"signed": true,
+"out": "+SEK1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100",
+"signed": true,
+"out": "+1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-100",
+"signed": false,
+"out": "-SEK1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-100",
+"signed": false,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-100",
+"signed": true,
+"out": "-SEK1,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-100",
+"signed": true,
+"out": "-1,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "123456",
+"signed": false,
+"out": "SEK1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "123456",
+"signed": false,
+"out": "1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "123456",
+"signed": true,
+"out": "+SEK1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "123456",
+"signed": true,
+"out": "+1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-123456",
+"signed": false,
+"out": "-SEK1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-123456",
+"signed": false,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-123456",
+"signed": true,
+"out": "-SEK1 234,56"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-123456",
+"signed": true,
+"out": "-1 234,56"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100000000",
+"signed": false,
+"out": "SEK1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100000000",
+"signed": false,
+"out": "1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100000000",
+"signed": true,
+"out": "+SEK1 000 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "100000000",
+"signed": true,
+"out": "+1 000 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": false,
+"out": "-SEK9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": false,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": true,
+"out": "-SEK9 876 543,21"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-987654321",
+"signed": true,
+"out": "-9 876 543,21"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": false,
+"out": "SEK12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": false,
+"out": "12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": true,
+"out": "+SEK12 345 678 901,23"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "1234567890123",
+"signed": true,
+"out": "+12 345 678 901,23"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "SEK92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+SEK92 233 720 368 547 758,07"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+92 233 720 368 547 758,07"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-SEK92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-SEK92 233 720 368 547 758,08"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "SEK",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-92 233 720 368 547 758,08"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "0",
+"signed": false,
+"out": "KWD0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "0",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "0",
+"signed": true,
+"out": "KWD0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "0",
+"signed": true,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1",
+"signed": false,
+"out": "KWD0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1",
+"signed": false,
+"out": "0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1",
+"signed": true,
+"out": "+KWD0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1",
+"signed": true,
+"out": "+0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-1",
+"signed": false,
+"out": "-KWD0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-1",
+"signed": false,
+"out": "-0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-1",
+"signed": true,
+"out": "-KWD0,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-1",
+"signed": true,
+"out": "-0,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "5",
+"signed": false,
+"out": "KWD0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "5",
+"signed": false,
+"out": "0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "5",
+"signed": true,
+"out": "+KWD0,01"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "5",
+"signed": true,
+"out": "+0,01"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "99",
+"signed": false,
+"out": "KWD0,10"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "99",
+"signed": false,
+"out": "0,10"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "99",
+"signed": true,
+"out": "+KWD0,10"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "99",
+"signed": true,
+"out": "+0,10"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100",
+"signed": false,
+"out": "KWD0,10"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100",
+"signed": false,
+"out": "0,10"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100",
+"signed": true,
+"out": "+KWD0,10"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100",
+"signed": true,
+"out": "+0,10"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-100",
+"signed": false,
+"out": "-KWD0,10"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-100",
+"signed": false,
+"out": "-0,10"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-100",
+"signed": true,
+"out": "-KWD0,10"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-100",
+"signed": true,
+"out": "-0,10"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "123456",
+"signed": false,
+"out": "KWD123,46"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "123456",
+"signed": false,
+"out": "123,46"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "123456",
+"signed": true,
+"out": "+KWD123,46"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "123456",
+"signed": true,
+"out": "+123,46"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-123456",
+"signed": false,
+"out": "-KWD123,46"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-123456",
+"signed": false,
+"out": "-123,46"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-123456",
+"signed": true,
+"out": "-KWD123,46"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-123456",
+"signed": true,
+"out": "-123,46"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100000000",
+"signed": false,
+"out": "KWD100 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100000000",
+"signed": false,
+"out": "100 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100000000",
+"signed": true,
+"out": "+KWD100 000,00"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "100000000",
+"signed": true,
+"out": "+100 000,00"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": false,
+"out": "-KWD987 654,32"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": false,
+"out": "-987 654,32"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": true,
+"out": "-KWD987 654,32"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-987654321",
+"signed": true,
+"out": "-987 654,32"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": false,
+"out": "KWD1 234 567 890,12"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": false,
+"out": "1 234 567 890,12"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+KWD1 234 567 890,12"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "1234567890123",
+"signed": true,
+"out": "+1 234 567 890,12"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "KWD9 223 372 036 854 775,81"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": false,
+"out": "9 223 372 036 854 775,81"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+KWD9 223 372 036 854 775,81"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "9223372036854775807",
+"signed": true,
+"out": "+9 223 372 036 854 775,81"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-KWD9 223 372 036 854 775,81"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": false,
+"out": "-9 223 372 036 854 775,81"
+},
+{
+"fn": "money",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-KWD9 223 372 036 854 775,81"
+},
+{
+"fn": "pdf_amount",
+"lang": "fr",
+"currency": "KWD",
+"minor": "-9223372036854775808",
+"signed": true,
+"out": "-9 223 372 036 854 775,81"
+}
+]
