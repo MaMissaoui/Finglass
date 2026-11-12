@@ -1,0 +1,45 @@
+use finglass_core::export::xlsx::{Cell, XlsxWriter};
+use finglass_core::money::{Currency, Money};
+use std::path::Path;
+use finglass_core::report::format as rf;
+use finglass_core::i18n::Language;
+use time::macros::date;
+fn main() {
+    let out = std::env::args().nth(1).unwrap();
+    std::fs::create_dir_all(&out).unwrap();
+    let mut w = XlsxWriter::new();
+    w.sheet("Buchungen 2026", vec![12.0, 30.5, 14.25, 8.0, 0.1 + 0.2, 1e7, 7.0], true, true, |s| {
+        s.row(vec![Cell::bold("Datum"), Cell::bold("Partner"), Cell::bold("Betrag"), Cell::bold("Anzahl"), Cell::bold("Leer"), Cell::bold("X"), Cell::bold("Y")]);
+        s.row(vec![Cell::date(date!(2026 - 10 - 15)), Cell::text("Bäckerei <Schmidt> & \"Söhne\" 'x'"), Cell::money(Money { minor: -123456, currency: Currency::EUR }), Cell::number(3), Cell::empty(), Cell::text("=SUM(A1)"), Cell::text("+1")]);
+        s.row(vec![Cell::date(date!(1900 - 03 - 01)), Cell::text("ctrl\u{1}\u{8}\u{b}\u{c}tab\tnl\ncr\r\u{fffe}\u{ffff}?end"), Cell::money(Money { minor: 5, currency: Currency::EUR }), Cell::number("12.5"), Cell::text("-neg"), Cell::text("@at"), Cell::text("  leading and trailing  ")]);
+        s.row(vec![Cell::empty(), Cell::empty(), Cell::money(Money { minor: 0, currency: Currency::EUR })]);
+        s.row(vec![Cell::text("😀 emoji 𝄞")]);
+    });
+    w.sheet("Zusammenfassung", vec![], false, false, |s| { s.row(vec![Cell::text("only")]); });
+    for name in ["", "History", "history", "a:b\\c/d?e*f[g]h", "'quoted'", "Ein sehr langer Blattname der über einunddreißig Zeichen hinausgeht", "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀", "Zusammenfassung"] {
+        w.sheet(name, vec![10.0], false, false, |s| { s.row(vec![Cell::text(name)]); });
+    }
+    w.write(Path::new(&format!("{out}/reference.xlsx"))).unwrap();
+    let mut e = XlsxWriter::new();
+    e.sheet("Empty", vec![], true, true, |_| {});
+    e.write(Path::new(&format!("{out}/empty.xlsx"))).unwrap();
+
+    let mut lines = Vec::new();
+    for (code, lang) in [("en", Language::En), ("de", Language::De), ("fr", Language::Fr)] {
+        for month in 0u8..=13 {
+            lines.push(format!("{{\"fn\":\"month_name\",\"lang\":\"{code}\",\"month\":{month},\"out\":{:?}}}", rf::month_name(lang, month)));
+            lines.push(format!("{{\"fn\":\"month_short_name\",\"lang\":\"{code}\",\"month\":{month},\"out\":{:?}}}", rf::month_short_name(lang, month)));
+        }
+        for cur in ["EUR", "USD", "GBP", "CHF", "JPY", "SEK", "KWD"] {
+            let currency: Currency = cur.parse().unwrap();
+            for minor in [0i64, 1, -1, 5, 99, 100, -100, 123456, -123456, 100000000, -987654321, 1234567890123, i64::MAX, i64::MIN] {
+                for signed in [false, true] {
+                    let m = Money { minor, currency };
+                    lines.push(format!("{{\"fn\":\"money\",\"lang\":\"{code}\",\"currency\":\"{cur}\",\"minor\":\"{minor}\",\"signed\":{signed},\"out\":{:?}}}", rf::money(m, lang, signed)));
+                    lines.push(format!("{{\"fn\":\"pdf_amount\",\"lang\":\"{code}\",\"currency\":\"{cur}\",\"minor\":\"{minor}\",\"signed\":{signed},\"out\":{:?}}}", rf::pdf_amount(m, lang, signed)));
+                }
+            }
+        }
+    }
+    std::fs::write(format!("{out}/report_format.json"), format!("[\n{}\n]\n", lines.join(",\n"))).unwrap();
+}
