@@ -13,6 +13,12 @@ npm ci --no-audit --no-fund
 step "svelte-check"
 npm run check
 
+step "eslint"
+npm run lint
+
+step "prettier"
+npm run format:check
+
 step "vitest"
 npm test
 

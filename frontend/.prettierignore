@@ -1,0 +1,8 @@
+bindings/
+src/lib/generated/
+dist/
+dist-mock/
+node_modules/
+test-results/
+playwright-report/
+package-lock.json
