@@ -1,155 +1,116 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import logo from './assets/finglass-logo.svg';
-  import logoDark from './assets/finglass-logo-dark.svg';
-  import { getApi, type AppInfoDTO } from './lib/api';
-  import {
-    defaultLanguage,
-    languages,
-    translate,
-    type Language,
-    type MessageKey,
-  } from './lib/i18n';
+  import type { Api, ShellDTO } from './lib/api';
+  import { getApi } from './lib/api';
+  import { defaultLanguage, translate } from './lib/i18n';
+  import { applyTheme, type ThemeMode } from './lib/theme';
+  import MainShell from './views/MainShell.svelte';
+  import UnlockView from './views/UnlockView.svelte';
 
-  let language = $state<Language>(defaultLanguage);
-  let info = $state<AppInfoDTO | null>(null);
-  let name = $state('');
-  let greeting = $state('');
-  let greetError = $state('');
-  let tick = $state(0);
+  let api = $state<Api | null>(null);
+  let dto = $state<ShellDTO | null>(null);
   let loadError = $state('');
 
-  const t = (key: MessageKey): string => translate(language, key);
+  function themeMode(mode: string): ThemeMode {
+    if (mode === 'light' || mode === 'dark') {
+      return mode;
+    }
+    return 'system';
+  }
+
+  function pageSearchField(): HTMLElement | null {
+    return (
+      document.querySelector<HTMLElement>('[data-page-search] input') ??
+      document.querySelector<HTMLElement>('[data-page-search]')
+    );
+  }
+
+  function focusPageSearch(): void {
+    pageSearchField()?.focus();
+  }
 
   onMount(() => {
-    let stop: (() => void) | undefined;
     let disposed = false;
+    let stopShell: (() => void) | undefined;
+    let stopMenu: (() => void) | undefined;
 
     void (async () => {
       try {
-        const api = await getApi();
+        const loaded = await getApi();
         if (disposed) {
           return;
         }
-        info = await api.info();
+        api = loaded;
+        dto = await loaded.state();
         if (disposed) {
           return;
         }
-        stop = api.onTick((payload) => {
-          tick = payload.count;
+        stopShell = loaded.onShellChanged((next) => {
+          dto = next;
+        });
+        stopMenu = loaded.onMenuAction((action) => {
+          if (action === 'find') {
+            focusPageSearch();
+          }
         });
       } catch {
         if (!disposed) {
-          loadError = t('loadError');
+          loadError = translate(defaultLanguage, 'ErrorUnexpected');
         }
       }
     })();
 
+    const onKeydown = (event: KeyboardEvent) => {
+      if (!dto?.shellOpen || event.key.toLowerCase() !== 'f' || !(event.metaKey || event.ctrlKey)) {
+        return;
+      }
+      if (pageSearchField()) {
+        event.preventDefault();
+        focusPageSearch();
+      }
+    };
+    window.addEventListener('keydown', onKeydown);
+
     return () => {
       disposed = true;
-      stop?.();
+      stopShell?.();
+      stopMenu?.();
+      window.removeEventListener('keydown', onKeydown);
     };
   });
 
-  async function greet(): Promise<void> {
-    greeting = '';
-    greetError = '';
-
-    const trimmed = name.trim();
-    if (!trimmed) {
-      greetError = t('errorEmptyName');
-      return;
+  $effect(() => {
+    if (dto) {
+      applyTheme(themeMode(dto.theme));
     }
+  });
 
-    try {
-      const api = await getApi();
-      greeting = await api.greet(trimmed);
-    } catch (error) {
-      greetError = error instanceof Error ? error.message : String(error);
-    }
+  function onchange(next: ShellDTO): void {
+    dto = next;
   }
 </script>
 
-<main class="window">
-  <header class="masthead">
-    <h1 class="wordmark">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset={logoDark} />
-        <img src={logo} alt="Finglass" width="280" height="64" />
-      </picture>
-    </h1>
-    <p class="tagline">{t('appTagline')}</p>
+{#if dto && api}
+  {#if dto.shellOpen}
+    <MainShell {dto} {api} {onchange} />
+  {:else}
+    <UnlockView {dto} {api} {onchange} />
+  {/if}
+{:else if loadError}
+  <p class="load-error" role="alert">{loadError}</p>
+{:else}
+  <div class="loading" aria-hidden="true"></div>
+{/if}
 
-    <div class="language" role="group" aria-label={t('languageLabel')}>
-      {#each languages as code (code)}
-        <button
-          type="button"
-          class:active={language === code}
-          aria-pressed={language === code}
-          onclick={() => (language = code)}
-        >
-          {code.toUpperCase()}
-        </button>
-      {/each}
-    </div>
-  </header>
+<style>
+  .load-error {
+    margin: var(--space-lg);
+    color: var(--color-error);
+    font-size: var(--type-body-size);
+  }
 
-  <section class="surface" aria-labelledby="info-heading">
-    <h2 id="info-heading">{t('infoHeading')}</h2>
-
-    {#if info}
-      <dl class="info">
-        <div>
-          <dt>{t('nameLabel')}</dt>
-          <dd>{info.name}</dd>
-        </div>
-        <div>
-          <dt>{t('version')}</dt>
-          <dd>{info.version}</dd>
-        </div>
-        <div>
-          <dt>{t('goVersion')}</dt>
-          <dd>{info.goVersion}</dd>
-        </div>
-        <div>
-          <dt>{t('os')}</dt>
-          <dd>{info.os}</dd>
-        </div>
-        <div>
-          <dt>{t('arch')}</dt>
-          <dd>{info.arch}</dd>
-        </div>
-      </dl>
-    {:else if loadError}
-      <p class="error" role="alert">{loadError}</p>
-    {:else}
-      <p class="muted">{t('loading')}</p>
-    {/if}
-  </section>
-
-  <section class="surface" aria-labelledby="greet-heading">
-    <h2 id="greet-heading">{t('greetingLabel')}</h2>
-
-    <div class="greet-form">
-      <label for="name">{t('nameLabel')}</label>
-      <input id="name" type="text" autocomplete="off" bind:value={name} />
-      <button type="button" class="primary" onclick={greet}>{t('greetButton')}</button>
-    </div>
-
-    {#if greeting}
-      <p class="result" data-testid="greeting">
-        <span>{t('greetingLabel')}:</span>
-        {greeting}
-      </p>
-    {/if}
-
-    {#if greetError}
-      <p class="error" role="alert" data-testid="greet-error">{greetError}</p>
-    {/if}
-  </section>
-
-  <footer class="tick-line">
-    <span>{t('tickLabel')}:</span>
-    <span data-testid="tick-count">{tick}</span>
-  </footer>
-</main>
+  .loading {
+    min-height: 100vh;
+    background: var(--color-background);
+  }
+</style>

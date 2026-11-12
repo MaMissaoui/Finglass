@@ -10,6 +10,7 @@ export {
 
 export {
     AppInfoDTO,
+    ProfileDTO,
     ShellDTO,
     TickPayload
 } from "./models.js";

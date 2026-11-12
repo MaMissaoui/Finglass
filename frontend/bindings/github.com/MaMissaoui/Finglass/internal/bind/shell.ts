@@ -45,6 +45,15 @@ export function Create(passphrase: string, repeat: string, acknowledged: boolean
 }
 
 /**
+ * ManageProfiles opens Settings on its profiles section.
+ */
+export function ManageProfiles(): $CancellablePromise<$models.ShellDTO> {
+    return $Call.ByID(376609545).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * MigrationContinue makes the migrated profile active and prepares it.
  */
 export function MigrationContinue(): $CancellablePromise<$models.ShellDTO> {
@@ -178,6 +187,16 @@ export function ShowChange(change: boolean): $CancellablePromise<$models.ShellDT
  */
 export function State(): $CancellablePromise<$models.ShellDTO> {
     return $Call.ByID(1855004701).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * SwitchProfile opens another profile. The target always starts at its unlock
+ * view, so the shell closes first.
+ */
+export function SwitchProfile(index: number): $CancellablePromise<$models.ShellDTO> {
+    return $Call.ByID(3585951729, index).then(($result: any) => {
         return $$createType0($result);
     });
 }
