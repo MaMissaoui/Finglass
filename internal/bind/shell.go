@@ -337,6 +337,10 @@ func (s *Shell) MigrationSubmit(passphrase, newPassphrase, repeat string, samePa
 		repeatInput,
 		samePassphrase,
 	)
+	// Wiped now, before the key derivation below; the defers only cover a panic.
+	wipe(findeskInput)
+	wipe(newInput)
+	wipe(repeatInput)
 
 	if err != nil {
 		s.migrationMu.Unlock()
