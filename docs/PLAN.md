@@ -197,11 +197,11 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   store. Every rule from CLAUDE.md "Read-only banking" is ported as a test.
   - [x] G4h: `banksync` (named so it does not shadow the standard `sync`): capabilities, config, failures, the
     read-only gateway port, interaction, redactor (byte for byte against a Rust probe), credentials and Keychain.
+  - [x] G4i: the FinTS client's PIN lifecycle and the banking service, with all 74 Rust tests and guards that no
+    TAN is stored and no PIN reaches the audit log or an error.
 
 ### G5 — App-state layer (M)
 
-  - [x] G4i: the FinTS client's PIN lifecycle and the banking service, with all 74 Rust tests and guards that no
-    TAN is stored and no PIN reaches the audit log or an error.
 - [ ] `internal/app`: unlock, startup (`apply_pending_restore` before unlock), switch, prefs, and every page state
   (accounts, account panel, transactions, dashboard, reports, documents, settings, banking bridge, migration).
   Headless tests port `app/**/tests.rs`.
