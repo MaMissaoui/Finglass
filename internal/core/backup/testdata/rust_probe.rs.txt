@@ -1,0 +1,111 @@
+// Writes Rust-made backups for the Go port, and verifies a Go-made backup.
+//   backupprobe write <outdir>
+//   backupprobe verify <backup.zip> <workdir>
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use finglass_core::backup::{BackupService, DB_NAME};
+use finglass_core::db::Database;
+use finglass_core::model::{AccountType, NewAccount, NewTransaction};
+use finglass_core::money::{Currency, Money};
+use finglass_core::repo::{accounts, transactions};
+use finglass_core::secret::{Passphrase, PassphrasePurpose};
+use time::OffsetDateTime;
+use time::macros::date;
+
+const PASS: &str = "correct horse battery staple";
+const OTHER: &str = "a different backup passphrase";
+
+fn pass(value: &str) -> Passphrase {
+    Passphrase::new(value, PassphrasePurpose::New).unwrap()
+}
+
+fn fixture(dir: &Path, passphrase: &str) -> Database {
+    fs::create_dir_all(dir.join("documents")).unwrap();
+    let db = Database::create(&dir.join(DB_NAME), &pass(passphrase)).unwrap();
+    let account_id = accounts::create(
+        &db,
+        NewAccount {
+            bank_connection_id: None,
+            institution: None,
+            name: Some("Probe account".to_owned()),
+            iban: None,
+            account_number: None,
+            currency: Currency::EUR,
+            account_type: AccountType::Checking,
+            balance: Money { minor: 0, currency: Currency::EUR },
+            balance_updated_at: None,
+            group_id: None,
+        },
+    )
+    .unwrap();
+    for (partner, hash, minor) in [("Bakery", "probe-1", -350), ("Employer", "probe-2", 250_000)] {
+        transactions::insert_imported(
+            &db,
+            account_id,
+            vec![NewTransaction {
+                booking_date: date!(2026 - 01 - 02),
+                amount: Money { minor, currency: Currency::EUR },
+                balance_after: None,
+                partner_name: Some(partner.to_owned()),
+                purpose: None,
+                category_id: None,
+                import_hash: hash.to_owned(),
+                created_at: OffsetDateTime::now_utc(),
+                is_new: false,
+                tax_override: None,
+            }],
+        )
+        .unwrap();
+    }
+    fs::write(dir.join("documents").join("a-receipt.txt"), b"receipt text\n").unwrap();
+    fs::write(dir.join("documents").join("b-scan.pdf"), b"%PDF-1.7 probe\n").unwrap();
+    db
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    match args[1].as_str() {
+        "write" => {
+            let out = PathBuf::from(&args[2]);
+            for (name, passphrase) in [("rust-backup.zip", PASS), ("rust-backup-other-passphrase.zip", OTHER)] {
+                let work = out.join(format!("work-{name}"));
+                let _ = fs::remove_dir_all(&work);
+                let db = fixture(&work, passphrase);
+                let info = BackupService::new(work.clone()).create_backup(&db, &out.join(name)).unwrap();
+                println!("{name}: {info:?}");
+                drop(db);
+                fs::remove_dir_all(&work).unwrap();
+            }
+        }
+        "verify" => {
+            let backup = PathBuf::from(&args[2]);
+            let work = PathBuf::from(&args[3]).join("data");
+            let _ = fs::remove_dir_all(&work);
+            fs::create_dir_all(&work).unwrap();
+            let db = Database::create(&work.join(DB_NAME), &pass(PASS)).unwrap();
+            let service = BackupService::new(work.clone());
+            println!("inspect: {:?}", service.inspect(&backup).unwrap());
+            service.stage_restore(&db, &backup, None).unwrap();
+            drop(db);
+            service.apply_pending_restore(OffsetDateTime::now_utc()).unwrap().unwrap();
+            let db = Database::open(&work.join(DB_NAME), &pass(PASS)).unwrap();
+            let names = db
+                .with_conn(|conn| {
+                    let mut st = conn.prepare("SELECT partner_name FROM transactions ORDER BY id")?;
+                    let rows = st.query_map([], |row| row.get::<_, Option<String>>(0))?.collect::<Result<Vec<_>, _>>()?;
+                    Ok(rows)
+                })
+                .unwrap();
+            println!("partners: {names:?}");
+            let mut docs: Vec<String> = fs::read_dir(work.join("documents"))
+                .unwrap()
+                .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
+                .collect();
+            docs.sort();
+            println!("documents: {docs:?}");
+            println!("VERIFY OK");
+        }
+        _ => panic!("usage"),
+    }
+}
