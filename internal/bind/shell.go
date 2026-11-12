@@ -321,6 +321,9 @@ func (s *Shell) MigrationSubmit(passphrase, newPassphrase, repeat string, samePa
 	findeskInput := []byte(passphrase)
 	newInput := []byte(newPassphrase)
 	repeatInput := []byte(repeat)
+	defer wipe(findeskInput)
+	defer wipe(newInput)
+	defer wipe(repeatInput)
 	if s.observePassphrase != nil {
 		s.observePassphrase(findeskInput)
 		s.observePassphrase(newInput)
@@ -334,9 +337,6 @@ func (s *Shell) MigrationSubmit(passphrase, newPassphrase, repeat string, samePa
 		repeatInput,
 		samePassphrase,
 	)
-	wipe(findeskInput)
-	wipe(newInput)
-	wipe(repeatInput)
 
 	if err != nil {
 		s.migrationMu.Unlock()
@@ -420,8 +420,7 @@ func (s *Shell) MigrationContinue() (ShellDTO, error) {
 		return s.publish(), nil
 	}
 
-	s.session.Teardown(prepared)
-	s.session.ConfigureUnlock(prepared)
+	s.session.TeardownToUnlock(prepared)
 	s.wizard.FinishContinue()
 	s.active.Store(false)
 	s.migrationMu.Unlock()

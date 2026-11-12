@@ -323,3 +323,33 @@ func TestNothingStartsBetweenTheTeardownAndTheEndOfASwitch(t *testing.T) {
 	}
 	session.jobs.EndGeneration(generation)
 }
+
+// A review addition: the migration's Continue points the unlock screen at the
+// migrated profile, whose database exists, so it must offer Unlock.
+func TestTeardownToUnlockShowsTheUnlockModeOfTheTarget(t *testing.T) {
+	appPaths := testPaths(t)
+	target, err := profiles.Create(appPaths, "Business")
+	if err != nil {
+		t.Fatalf("create target profile: %v", err)
+	}
+	slug := target.Slug
+	targetDB := createTestDatabase(t, appPaths, slug)
+	if err := targetDB.Close(); err != nil {
+		t.Fatalf("close target database: %v", err)
+	}
+
+	session := newTestSession(t, appPaths)
+	if screen := session.UnlockScreen(); screen.Mode != "create" {
+		t.Fatalf("mode before = %q, want create", screen.Mode)
+	}
+
+	session.TeardownToUnlock(startup.Startup{Slug: &slug})
+
+	screen := session.UnlockScreen()
+	if screen.Mode != "unlock" || !screen.AllowChange {
+		t.Fatalf("unlock screen = mode %q, allow change %v; want unlock, true", screen.Mode, screen.AllowChange)
+	}
+	if got := session.Slug(); got == nil || *got != slug {
+		t.Fatalf("session slug = %v, want %q", got, slug)
+	}
+}

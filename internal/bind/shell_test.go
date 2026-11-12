@@ -335,8 +335,23 @@ func TestEveryPassphraseSliceIsWiped(t *testing.T) {
 		t.Fatalf("MigrationPassphraseChanged: %v", err)
 	}
 
-	if len(fixture.observed) < 6 {
-		t.Fatalf("observed %d passphrase slices, want at least 6", len(fixture.observed))
+	// A FinDesk profile in an empty temp folder: the migration itself fails,
+	// but the three slices are created and must still be wiped.
+	findeskRoot := t.TempDir()
+	fixture.service.wizard = shell.NewMigrationSession(coremigration.FinDeskInstall{
+		Root:     findeskRoot,
+		Profiles: []coremigration.FinDeskProfile{{Name: "Personal", DataDir: findeskRoot}},
+	}, startup.Startup{})
+	before := len(fixture.observed)
+	if _, err := fixture.service.MigrationSubmit(testPassphrase, "another good passphrase", "another good passphrase", false); err != nil {
+		t.Fatalf("MigrationSubmit: %v", err)
+	}
+	if got := len(fixture.observed) - before; got != 3 {
+		t.Fatalf("MigrationSubmit created %d observed slices, want 3", got)
+	}
+
+	if len(fixture.observed) < 9 {
+		t.Fatalf("observed %d passphrase slices, want at least 9", len(fixture.observed))
 	}
 	for index, value := range fixture.observed {
 		for _, b := range value {

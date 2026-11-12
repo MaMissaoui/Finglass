@@ -3,6 +3,7 @@ package main
 
 import (
 	"sync"
+	"sync/atomic"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
@@ -251,6 +252,10 @@ type menuController struct {
 
 	state    menuState
 	language i18n.Language
+
+	// running is set once the first menu is in place before app.Run; later
+	// rebuilds come from Wails' worker goroutines.
+	running atomic.Bool
 }
 
 // apply follows a shell DTO and rebuilds the menu.
@@ -287,14 +292,24 @@ func (c *menuController) effectiveDark(theme string) bool {
 	}
 }
 
+// rebuild replaces the native menu. Wails marshals only setMainMenu to the main
+// thread, while AppKit wants the NSMenu items built there too, so once the app
+// runs every rebuild goes through InvokeAsync. The closure reads the newest
+// state when it runs, so out-of-order rebuilds still end on the latest one.
 func (c *menuController) rebuild() {
-	c.mu.Lock()
-	language := c.language
-	state := c.state
-	c.mu.Unlock()
+	set := func() {
+		c.mu.Lock()
+		language := c.language
+		state := c.state
+		c.mu.Unlock()
 
-	menu := nativeMenu(c.app, language, state, c.actions())
-	c.app.Menu.Set(menu)
+		c.app.Menu.Set(nativeMenu(c.app, language, state, c.actions()))
+	}
+	if c.running.Load() {
+		application.InvokeAsync(set)
+		return
+	}
+	set()
 }
 
 func (c *menuController) actions() menuActions {
