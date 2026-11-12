@@ -237,13 +237,14 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 ### G7 — UI shell (M)
 
-- [ ] Design tokens from `docs/design.md` as CSS variables, light and dark. IBM Plex Sans, Material icons and the
+- [x] Design tokens from `docs/design.md` as CSS variables, light and dark. IBM Plex Sans, Material icons and the
   type scale.
-- [ ] Unlock window: create, unlock, change passphrase, leftovers, profile selector.
-- [ ] Main window: maximized, sidebar (collapsible), top bar (language, theme), ⌘F, native menu, tooltips.
-- [ ] Shared components: pill and segmented buttons, filled fields, drop-downs, check boxes, dialogs, tables, the
+- [x] Unlock window: create, unlock, change passphrase, leftovers, profile selector.
+- [x] Main window: maximized, sidebar (collapsible), top bar (language, theme), ⌘F, native menu, tooltips.
+- [x] Shared components: pill and segmented buttons, filled fields, drop-downs, check boxes, dialogs, tables, the
   period arrows.
-- [ ] Playwright screenshot suite plus the real-data mode.
+- [ ] Playwright screenshot suite plus the real-data mode. The suite is done (one screenshot per Slint reference,
+  G7c-2); the real-data mode is open and needs **you**: it runs against your own data.
 
 ### G8 — Pages (L)
 
