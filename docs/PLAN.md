@@ -193,6 +193,8 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   - [x] G4c: `backup` (create, inspect, stage, apply); Go and Rust 0.3.4 restore each other's backups.
 - [ ] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
   store. Every rule from CLAUDE.md "Read-only banking" is ported as a test.
+  - [x] G4h: `banksync` (named so it does not shadow the standard `sync`): capabilities, config, failures, the
+    read-only gateway port, interaction, redactor (byte for byte against a Rust probe), credentials and Keychain.
 
 ### G5 — App-state layer (M)
 
@@ -239,6 +241,11 @@ In order, each one compared with the G1 reference screenshots:
 
 ### G10 — Go FinTS client, read-only (L, needs you)
 
+- Basis (your decision, 2026-11-12): port **fints-rs 0.2.0** (MIT, © 2025 Florian Minnecker; keep its notice). Drop
+  HKWPD (securities depot) and its test server. Add HKCAZ/camt from the FinTS specification, since fints-rs only has
+  MT940. The LGPL/GPL clients (python-fints, libfintx, hbci4java, lib-fints) are behavioural references only; no
+  code is copied. Before porting: clear the source and licence of fints-rs's bundled bank list, and leave out its
+  raw wire dumps.
 - [ ] `internal/fints`: message codec, dialog init/end (HKIDN, HKVVB, HKSYN, HKEND), BPD/UPD caching, HKTAN (process
   4, decoupled app TAN and push), HKTAB, HKSPA, HKSAL, HKKAZ/HKCAZ (camt). Segment types exist only for these. A test
   checks that no order segment (`HKCCS`, `HKCSE`, `HKCDE`, …) can be built.
