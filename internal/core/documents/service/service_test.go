@@ -13,7 +13,6 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
-	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/limits"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/ocr"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/service"
@@ -25,6 +24,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/repo/documents"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/transactions"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 )
 
 func testDatabase(t *testing.T) *db.Database {

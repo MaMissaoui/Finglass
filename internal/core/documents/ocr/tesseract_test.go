@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
-	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/programs"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 	"github.com/MaMissaoui/Finglass/internal/core/receipt"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 )
 
 func tsvRow(level, page, block, paragraph, line, confidence, text string) string {

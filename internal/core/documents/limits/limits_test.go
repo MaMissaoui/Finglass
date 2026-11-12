@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/limits"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 )
 
 func writeFile(t *testing.T, name string, data []byte) string {
