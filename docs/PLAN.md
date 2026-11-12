@@ -141,8 +141,10 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 - [ ] `go.mod`, the layout above, CI on macOS. The gates are `gofmt`, `go vet`, `golangci-lint`, `go test ./...` and
   the `frontend` checks (`svelte-check`, `vitest`, `eslint`/`prettier`). The Rust CI keeps running until G6.
-- [ ] `paths`, `profiles`, `secret` (`[]byte` + zero), `settings`, `audit`, `db` (open, key, migrations 1..n verbatim),
-  `instance`.
+- [x] `paths`, `profiles`, `secret` (`[]byte` + zero), `settings`, `audit`, `db` (open, key, migrations 1..n verbatim),
+  `instance`. `db`, `secret` and `credentials` came with G0. G2a added the other five, on disk identical to 0.3.4:
+  `profiles.properties` byte for byte, folder modes, and the `flock(2)` lock on `finglass.lock`, so Rust and Go
+  exclude each other.
 - [ ] i18n tables ported, plus the generator for the frontend.
 
 ### G3 — Domain core (L)
