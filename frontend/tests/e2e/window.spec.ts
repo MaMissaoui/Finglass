@@ -39,9 +39,7 @@ test('the proof window renders, greets, ticks and keeps a clean CSP', async ({ p
   });
 
   const cspViolations = () =>
-    page.evaluate(
-      () => (window as unknown as { __cspViolations: string[] }).__cspViolations,
-    );
+    page.evaluate(() => (window as unknown as { __cspViolations: string[] }).__cspViolations);
 
   await page.goto('/');
 
@@ -55,10 +53,7 @@ test('the proof window renders, greets, ticks and keeps a clean CSP', async ({ p
   await expect(page.getByTestId('greeting')).toContainText('Hello, Ada');
 
   await expect
-    .poll(
-      async () => Number(await page.getByTestId('tick-count').innerText()),
-      { timeout: 6000 },
-    )
+    .poll(async () => Number(await page.getByTestId('tick-count').innerText()), { timeout: 6000 })
     .toBeGreaterThan(0);
 
   await page.getByRole('button', { name: 'DE' }).click();
@@ -80,10 +75,7 @@ test('the proof window renders, greets, ticks and keeps a clean CSP', async ({ p
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Finglass' })).toBeVisible();
   await expect
-    .poll(
-      async () => Number(await page.getByTestId('tick-count').innerText()),
-      { timeout: 6000 },
-    )
+    .poll(async () => Number(await page.getByTestId('tick-count').innerText()), { timeout: 6000 })
     .toBeGreaterThan(0);
   expect(problems).toEqual([]);
   expect(await cspViolations()).toEqual([]);

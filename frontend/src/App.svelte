@@ -81,7 +81,7 @@
     <p class="tagline">{t('appTagline')}</p>
 
     <div class="language" role="group" aria-label={t('languageLabel')}>
-      {#each languages as code}
+      {#each languages as code (code)}
         <button
           type="button"
           class:active={language === code}
@@ -138,7 +138,8 @@
 
     {#if greeting}
       <p class="result" data-testid="greeting">
-        <span>{t('greetingLabel')}:</span> {greeting}
+        <span>{t('greetingLabel')}:</span>
+        {greeting}
       </p>
     {/if}
 
