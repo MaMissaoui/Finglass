@@ -160,6 +160,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   - [x] G3b: `model` and every repository except transactions (`repo/accounts`, `accountgroups`, `categories`,
     `rules`, `pendingbookings`, `documents`, `bankconnections`), with Rust's SQL, column encodings and audit entries.
   - [x] G3e: `accountgrouping` and `balance` (running balance with bank differences, balance history).
+  - [x] G3g: `repo/transactions`; with it every repository is ported.
 - [ ] Importers, dedup and hash, import service. Every golden test passes.
   - [x] G3f: the statement parsers (CSV, XLSX, MT940, CAMT.052/053 and ZIP, OFX, QIF) and the hashes, in
     `internal/core/imports`; `import/statements.json` and `hash/hashes.json` pass. Go reads only Store/Deflate ZIP
@@ -169,6 +170,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   - [x] G3x: `bankdirectory` (embedded Bundesbank file) and `banklogo`.
   - [x] G3c: rule matcher, payment providers (PayPal shop names) and the rule file format, in `internal/core/rules`.
   - [x] G3h: `recurring` (detecting repeating bookings) and `banktext`.
+  - [x] G3g: the rule import service (`internal/core/ruleimport`).
 
 ### G4 — Reports, documents, backup, FinDesk import (L)
 
