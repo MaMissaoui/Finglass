@@ -180,11 +180,15 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
     reference PDFs and f32 width tables written by Rust). `export/pdfdoc` from G0 is no longer needed by the exports.
   - [x] G4b: `export/xlsx` (package parts byte-identical to Rust's) and the `report` format helpers.
   - [x] G4e: `dashboard` (month figures, budgets, chart slices); `dashboard/months.json` passes.
-- [ ] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
+- [x] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
   - [x] G4a: `documents/programs` (helper programs found by absolute path, for launches from Finder).
   - [x] G3h: `receipt` (the receipt text parser).
+  - [x] G4g: `documents/pdftext` now ports pdf-extract's text path; the extracted text matches Rust's byte for byte.
+  - [x] G4d: `documents/limits`, `ocr` (with the Tesseract engine) and `service`. Image sizes are read for JPEG,
+    PNG, GIF, TIFF, WebP, BMP and PNM only.
 - [ ] Backup and two-phase restore, plus leftover handling. FinDesk import, with a test that opens a real FinDesk
   fixture DB (created by FinDesk's SQLCipher driver). First-run migration from FinDesk.
+  - [x] G4c: `backup` (create, inspect, stage, apply); Go and Rust 0.3.4 restore each other's backups.
 - [ ] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
   store. Every rule from CLAUDE.md "Read-only banking" is ported as a test.
 
