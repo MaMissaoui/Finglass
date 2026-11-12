@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/MaMissaoui/Finglass/internal/core/documents/internal/testpdf"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 )
 
 type countingEngine struct {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/MaMissaoui/Finglass/internal/core/documents/internal/testpdf"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/limits"
 )
 

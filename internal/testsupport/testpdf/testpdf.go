@@ -1,5 +1,5 @@
 // Package testpdf writes the PDF and PNG fixtures shared by the document
-// package tests.
+// package tests and the app-state tests.
 //
 // It is the Go home of Rust's `documents::test_support` module. The PDF is
 // written by hand, with a correct cross-reference table, so it has no test
