@@ -45,6 +45,8 @@ var (
 	ErrNoOpenProfile = errors.New("no profile is open")
 	// ErrNotStarted means Start refused and the session has no usable state.
 	ErrNotStarted = errors.New("the session did not start")
+	// ErrShutDown means Shutdown already ran; the session takes no more work.
+	ErrShutDown = errors.New("the session has shut down")
 	// ErrStaleResult means a job from a torn-down profile tried to publish.
 	ErrStaleResult = errors.New("the result belongs to a closed profile")
 )
@@ -153,6 +155,9 @@ type Session struct {
 
 	jobs      Jobs
 	switching bool
+	// shutDown is set once by Shutdown; every later open, job or switch is
+	// refused, so nothing opens a database without the instance lock.
+	shutDown bool
 
 	unlockBusy  bool
 	unlockMode  unlock.UnlockMode
@@ -437,7 +442,7 @@ func (s *Session) configureStartupErrorLocked(message string) {
 // The caller holds the session mutex, so a switch cannot slip in between the
 // check and the count.
 func (s *Session) beginJobLocked() (uint64, bool) {
-	if s.switching {
+	if s.switching || s.shutDown {
 		return 0, false
 	}
 	return s.jobs.Begin(), true
@@ -455,6 +460,9 @@ func (s *Session) startOpen() (uint64, *string, i18n.Language, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	if s.shutDown {
+		return 0, nil, i18n.En, ErrShutDown
+	}
 	if s.startupErr != nil {
 		return 0, nil, i18n.En, ErrNotStarted
 	}
@@ -592,8 +600,10 @@ func (s *Session) finishOpen(
 	s.mu.Lock()
 	if !s.jobs.IsCurrent(generation) {
 		s.mu.Unlock()
-		s.jobs.EndGeneration(generation)
+		// Close before the job ends: ending it may run an idle callback (the
+		// shutdown's lock release) that must not see this handle still open.
 		s.closeDatabase(opened)
+		s.jobs.EndGeneration(generation)
 		return ErrStaleResult
 	}
 	s.jobs.EndGeneration(generation)
@@ -652,6 +662,10 @@ func (s *Session) ShowChange(change bool) {
 func (s *Session) SwitchProfile(index int) error {
 	s.mu.Lock()
 	language := s.language
+	if s.shutDown {
+		s.mu.Unlock()
+		return ErrShutDown
+	}
 	if s.switching || s.jobs.Active() {
 		s.mu.Unlock()
 		err := &profileswitch.SwitchError{Kind: profileswitch.SwitchBusy}
@@ -732,9 +746,12 @@ func (s *Session) SwitchProfile(index int) error {
 // profile. The database is closed after the last job of the old generation
 // ends, or at once when none is running.
 func (s *Session) Teardown(prepared startup.Startup) {
+	// The next bridge is in place in the same critical section that removes the
+	// old one, so Bridge() never returns nil in between.
+	next := newPromptBridge()
 	s.mu.Lock()
 	oldBridge := s.bridge
-	s.bridge = nil
+	s.bridge = next
 	oldGeneration := s.jobs.Generation()
 	s.jobs.Bump()
 	s.teardownLocked(prepared, oldGeneration)
@@ -743,10 +760,6 @@ func (s *Session) Teardown(prepared startup.Startup) {
 	if oldBridge != nil {
 		oldBridge.CancelPending()
 	}
-	next := newPromptBridge()
-	s.mu.Lock()
-	s.bridge = next
-	s.mu.Unlock()
 }
 
 func (s *Session) teardownLocked(prepared startup.Startup, oldGeneration uint64) {
@@ -804,6 +817,9 @@ func (s *Session) closeDatabase(database *db.Database) {
 // ReloadAfterFindeskImport reloads everything the imported database changed, as
 // a fresh unlock would: theme, language, settings and every page's state. It
 // returns the new language and false when no profile is open.
+//
+// It is the one exception to the begin/run/publish pattern: its loads are short
+// reads of the open database, so it runs them under the session mutex.
 func (s *Session) ReloadAfterFindeskImport() (i18n.Language, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -1089,16 +1105,27 @@ func (s *Session) KeepLiveSyncFields(result *banking.BankingState) {
 	result.SyncAll = copySyncAll(s.banking.SyncAll)
 }
 
-// Shutdown cancels the open prompt, closes the database and releases the
-// instance lock, in that order.
+// Shutdown ends the session for good. Under the mutex it marks the session
+// shut down (every later open, job or switch is refused) and bumps the
+// generation, so an open still in its key derivation cannot publish. Then it
+// cancels the open prompt, closes the database, waits until every job of the
+// old generation has ended (a stale open closes its own handle first), and
+// releases the instance lock last.
 func (s *Session) Shutdown() error {
 	s.mu.Lock()
+	if s.shutDown {
+		s.mu.Unlock()
+		return nil
+	}
+	s.shutDown = true
 	bridge := s.bridge
 	s.bridge = nil
 	database := s.db
 	s.db = nil
 	lock := s.lock
 	s.lock = nil
+	oldGeneration := s.jobs.Generation()
+	s.jobs.Bump()
 	s.unlockBusy = false
 	s.mu.Unlock()
 
@@ -1106,6 +1133,11 @@ func (s *Session) Shutdown() error {
 		bridge.CancelPending()
 	}
 	s.closeDatabase(database)
+
+	idle := make(chan struct{})
+	s.jobs.WhenIdle(oldGeneration, func() { close(idle) })
+	<-idle
+
 	if lock != nil {
 		return lock.Release()
 	}
