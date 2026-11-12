@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/pdftext"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 )
 
 func TestTextPDFRoundTripsThroughThePDFTextReader(t *testing.T) {
