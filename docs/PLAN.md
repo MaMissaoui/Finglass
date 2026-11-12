@@ -188,11 +188,13 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   - [x] G4g: `documents/pdftext` now ports pdf-extract's text path; the extracted text matches Rust's byte for byte.
   - [x] G4d: `documents/limits`, `ocr` (with the Tesseract engine) and `service`. Image sizes are read for JPEG,
     PNG, GIF, TIFF, WebP, BMP and PNM only.
-- [ ] Backup and two-phase restore, plus leftover handling. FinDesk import, with a test that opens a real FinDesk
+- [x] Backup and two-phase restore, plus leftover handling. FinDesk import, with a test that opens a real FinDesk
   fixture DB (created by FinDesk's SQLCipher driver). First-run migration from FinDesk.
   - [x] G4c: `backup` (create, inspect, stage, apply); Go and Rust 0.3.4 restore each other's backups.
   - [x] G4j: `findeskimport` against FinDesk's own fixture DB, `db.OpenUnmigrated`, and `internal/app/prefs`. The
     first-run migration from FinDesk follows in G5.
+  - [x] G5b: leftover handling (`internal/app/startup`) and the first-run migration from FinDesk
+    (`internal/app/migration`).
 - [x] Sync core without the adapter: gateway port and fakes, client, service, PIN rules, redactor, failures, Keychain
   store. Every rule from CLAUDE.md "Read-only banking" is ported as a test.
   - [x] G4h: `banksync` (named so it does not shadow the standard `sync`): capabilities, config, failures, the
@@ -202,9 +204,22 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 ### G5 — App-state layer (M)
 
-- [ ] `internal/app`: unlock, startup (`apply_pending_restore` before unlock), switch, prefs, and every page state
+- [x] `internal/app`: unlock, startup (`apply_pending_restore` before unlock), switch, prefs, and every page state
   (accounts, account panel, transactions, dashboard, reports, documents, settings, banking bridge, migration).
   Headless tests port `app/**/tests.rs`.
+  - [x] G5a: `unlock`, `auditview`, `accountpanel`, `accountsview` (with the profile `Busy`).
+  - [x] G5b: `startup` (staged restore applied before unlock, leftovers), `profileswitch`, `migration`, `findesk`.
+  - [x] G5c: `transactionsview`.
+  - [x] G5d: `reportsview`, `documentsview`.
+  - [x] G5e: `banking` with the `PromptBridge` (channel and timer instead of a condvar; every unused PIN or TAN is
+    wiped; `-race` clean).
+  - [x] G5f: `settingsview`. `settingsview.BackupVersion` must be set from `bind.Version` in G7.
+  - [x] G5g: `dashboardview`, with the dashboard-to-transactions links tested end to end.
+- Still in the Rust UI crate (`crates/finglass/src`), with about 100 tests, and not yet in Go. It goes to the bind
+  layer in G7/G8: the navigation stack (`nav.rs`: back, at most ten entries, a dashboard link remembers a past month
+  only), the shell (teardown drops every database, late results after a teardown are dropped, a second instance does
+  not apply a staged restore, locale detection, the ⌘F rules), the menu, the job and profile-busy handling, the
+  photo-TAN image decoding, the BLZ suggestions, and the row and label mapping of every page.
 
 ### G6 — Remove the Rust core and app (S)
 
