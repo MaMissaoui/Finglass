@@ -1,0 +1,1426 @@
+{
+  "cases": [
+    {
+      "bits": "bfb999999999999a",
+      "display": "-0.1",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": -10
+      }
+    },
+    {
+      "bits": "3fd3333333333334",
+      "display": "0.30000000000000004",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "4132d687e3d70a3d",
+      "display": "1234567.89",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 123456789
+      }
+    },
+    {
+      "bits": "c132d687e3d70a3d",
+      "display": "-1234567.89",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": -123456789
+      }
+    },
+    {
+      "bits": "8000000000000000",
+      "display": "-0",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "0000000000000000",
+      "display": "0",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "444b1ae4d6e2ef50",
+      "display": "1000000000000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "3e7ad7f29abcaf48",
+      "display": "0.0000001",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "45f431e0fae6d721",
+      "display": "100000000000000000000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "430c6bf526340000",
+      "display": "1000000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 100000000000000000
+      }
+    },
+    {
+      "bits": "43746d9833756000",
+      "display": "92000000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 9200000000000000000
+      }
+    },
+    {
+      "bits": "402899999999999a",
+      "display": "12.3",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 1230
+      }
+    },
+    {
+      "bits": "402899999999999a",
+      "display": "12.3",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 1230
+      }
+    },
+    {
+      "bits": "3f747ae147ae147b",
+      "display": "0.005",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "4059000000000000",
+      "display": "100",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 10000
+      }
+    },
+    {
+      "bits": "c016000000000000",
+      "display": "-5.5",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": -550
+      }
+    },
+    {
+      "bits": "3fd5555555555555",
+      "display": "0.3333333333333333",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "43747ae147ae147b",
+      "display": "92233720368547760",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7e37e43c8800759c",
+      "display": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7fefffffffffffff",
+      "display": "179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "0010000000000000",
+      "display": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000022250738585072014",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "7ff8000000000000",
+      "display": "NaN",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7ff0000000000000",
+      "display": "inf",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "fff0000000000000",
+      "display": "-inf",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "45f0000000000000",
+      "display": "79228162514264340000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "45f0000000000000",
+      "display": "79228162514264340000000000000",
+      "exponent": 2,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "exponent": 2,
+      "kind": "integer",
+      "result": {
+        "ok": 0
+      },
+      "value": 0
+    },
+    {
+      "exponent": 2,
+      "kind": "integer",
+      "result": {
+        "ok": 10000
+      },
+      "value": 100
+    },
+    {
+      "exponent": 2,
+      "kind": "integer",
+      "result": {
+        "ok": -100
+      },
+      "value": -1
+    },
+    {
+      "exponent": 2,
+      "kind": "integer",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": 9223372036854775807
+    },
+    {
+      "exponent": 2,
+      "kind": "integer",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": -9223372036854775808
+    },
+    {
+      "exponent": 2,
+      "kind": "integer",
+      "result": {
+        "ok": 9223372036854775800
+      },
+      "value": 92233720368547758
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 1230
+      },
+      "value": " 12.30 "
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 1230
+      },
+      "value": "12.30"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 10000000
+      },
+      "value": "1e5"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 500
+      },
+      "value": "+5"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": -500
+      },
+      "value": "-5"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "NaN"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": ""
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": " "
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "1,5"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "0.001"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 100
+      },
+      "value": "1.000"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 0
+      },
+      "value": "-0"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 50
+      },
+      "value": ".5"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 500
+      },
+      "value": "5."
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 100000
+      },
+      "value": "1_000"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "ok": 700
+      },
+      "value": "\t7\n"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "１２"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "79228162514264337593543950335"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "79228162514264337593543950336"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "0.0000000000000000000000000001"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "1.23456789012345678901234567890"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "abc"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "12.3x"
+    },
+    {
+      "exponent": 2,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "--1"
+    },
+    {
+      "bits": "bfb999999999999a",
+      "display": "-0.1",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "3fd3333333333334",
+      "display": "0.30000000000000004",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "4132d687e3d70a3d",
+      "display": "1234567.89",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "c132d687e3d70a3d",
+      "display": "-1234567.89",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "8000000000000000",
+      "display": "-0",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "0000000000000000",
+      "display": "0",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "444b1ae4d6e2ef50",
+      "display": "1000000000000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "3e7ad7f29abcaf48",
+      "display": "0.0000001",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "45f431e0fae6d721",
+      "display": "100000000000000000000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "430c6bf526340000",
+      "display": "1000000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "ok": 1000000000000000
+      }
+    },
+    {
+      "bits": "43746d9833756000",
+      "display": "92000000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "ok": 92000000000000000
+      }
+    },
+    {
+      "bits": "402899999999999a",
+      "display": "12.3",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "402899999999999a",
+      "display": "12.3",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "3f747ae147ae147b",
+      "display": "0.005",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "4059000000000000",
+      "display": "100",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "ok": 100
+      }
+    },
+    {
+      "bits": "c016000000000000",
+      "display": "-5.5",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "3fd5555555555555",
+      "display": "0.3333333333333333",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "43747ae147ae147b",
+      "display": "92233720368547760",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "ok": 92233720368547760
+      }
+    },
+    {
+      "bits": "7e37e43c8800759c",
+      "display": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7fefffffffffffff",
+      "display": "179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "0010000000000000",
+      "display": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000022250738585072014",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "7ff8000000000000",
+      "display": "NaN",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7ff0000000000000",
+      "display": "inf",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "fff0000000000000",
+      "display": "-inf",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "45f0000000000000",
+      "display": "79228162514264340000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "45f0000000000000",
+      "display": "79228162514264340000000000000",
+      "exponent": 0,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "exponent": 0,
+      "kind": "integer",
+      "result": {
+        "ok": 0
+      },
+      "value": 0
+    },
+    {
+      "exponent": 0,
+      "kind": "integer",
+      "result": {
+        "ok": 100
+      },
+      "value": 100
+    },
+    {
+      "exponent": 0,
+      "kind": "integer",
+      "result": {
+        "ok": -1
+      },
+      "value": -1
+    },
+    {
+      "exponent": 0,
+      "kind": "integer",
+      "result": {
+        "ok": 9223372036854775807
+      },
+      "value": 9223372036854775807
+    },
+    {
+      "exponent": 0,
+      "kind": "integer",
+      "result": {
+        "ok": -9223372036854775808
+      },
+      "value": -9223372036854775808
+    },
+    {
+      "exponent": 0,
+      "kind": "integer",
+      "result": {
+        "ok": 92233720368547758
+      },
+      "value": 92233720368547758
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": " 12.30 "
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "12.30"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": 100000
+      },
+      "value": "1e5"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": 5
+      },
+      "value": "+5"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": -5
+      },
+      "value": "-5"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "NaN"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": ""
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": " "
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "1,5"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "0.001"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": 1
+      },
+      "value": "1.000"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": 0
+      },
+      "value": "-0"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": ".5"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": 5
+      },
+      "value": "5."
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": 1000
+      },
+      "value": "1_000"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "ok": 7
+      },
+      "value": "\t7\n"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "１２"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "79228162514264337593543950335"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "79228162514264337593543950336"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "0.0000000000000000000000000001"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "1.23456789012345678901234567890"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "abc"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "12.3x"
+    },
+    {
+      "exponent": 0,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "--1"
+    },
+    {
+      "bits": "bfb999999999999a",
+      "display": "-0.1",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": -100
+      }
+    },
+    {
+      "bits": "3fd3333333333334",
+      "display": "0.30000000000000004",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "4132d687e3d70a3d",
+      "display": "1234567.89",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 1234567890
+      }
+    },
+    {
+      "bits": "c132d687e3d70a3d",
+      "display": "-1234567.89",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": -1234567890
+      }
+    },
+    {
+      "bits": "8000000000000000",
+      "display": "-0",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "0000000000000000",
+      "display": "0",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "444b1ae4d6e2ef50",
+      "display": "1000000000000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "3e7ad7f29abcaf48",
+      "display": "0.0000001",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "45f431e0fae6d721",
+      "display": "100000000000000000000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "430c6bf526340000",
+      "display": "1000000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 1000000000000000000
+      }
+    },
+    {
+      "bits": "43746d9833756000",
+      "display": "92000000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "402899999999999a",
+      "display": "12.3",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 12300
+      }
+    },
+    {
+      "bits": "402899999999999a",
+      "display": "12.3",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 12300
+      }
+    },
+    {
+      "bits": "3f747ae147ae147b",
+      "display": "0.005",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 5
+      }
+    },
+    {
+      "bits": "4059000000000000",
+      "display": "100",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 100000
+      }
+    },
+    {
+      "bits": "c016000000000000",
+      "display": "-5.5",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": -5500
+      }
+    },
+    {
+      "bits": "3fd5555555555555",
+      "display": "0.3333333333333333",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "FractionalAmount"
+      }
+    },
+    {
+      "bits": "43747ae147ae147b",
+      "display": "92233720368547760",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7e37e43c8800759c",
+      "display": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7fefffffffffffff",
+      "display": "179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "0010000000000000",
+      "display": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000022250738585072014",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "ok": 0
+      }
+    },
+    {
+      "bits": "7ff8000000000000",
+      "display": "NaN",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "7ff0000000000000",
+      "display": "inf",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "fff0000000000000",
+      "display": "-inf",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "45f0000000000000",
+      "display": "79228162514264340000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "bits": "45f0000000000000",
+      "display": "79228162514264340000000000000",
+      "exponent": 3,
+      "kind": "real",
+      "result": {
+        "err": "Invalid"
+      }
+    },
+    {
+      "exponent": 3,
+      "kind": "integer",
+      "result": {
+        "ok": 0
+      },
+      "value": 0
+    },
+    {
+      "exponent": 3,
+      "kind": "integer",
+      "result": {
+        "ok": 100000
+      },
+      "value": 100
+    },
+    {
+      "exponent": 3,
+      "kind": "integer",
+      "result": {
+        "ok": -1000
+      },
+      "value": -1
+    },
+    {
+      "exponent": 3,
+      "kind": "integer",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": 9223372036854775807
+    },
+    {
+      "exponent": 3,
+      "kind": "integer",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": -9223372036854775808
+    },
+    {
+      "exponent": 3,
+      "kind": "integer",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": 92233720368547758
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 12300
+      },
+      "value": " 12.30 "
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 12300
+      },
+      "value": "12.30"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 100000000
+      },
+      "value": "1e5"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 5000
+      },
+      "value": "+5"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": -5000
+      },
+      "value": "-5"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "NaN"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": ""
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": " "
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "1,5"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 1
+      },
+      "value": "0.001"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 1000
+      },
+      "value": "1.000"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 0
+      },
+      "value": "-0"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 500
+      },
+      "value": ".5"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 5000
+      },
+      "value": "5."
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 1000000
+      },
+      "value": "1_000"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "ok": 7000
+      },
+      "value": "\t7\n"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "１２"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "79228162514264337593543950335"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "79228162514264337593543950336"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "0.0000000000000000000000000001"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "FractionalAmount"
+      },
+      "value": "1.23456789012345678901234567890"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "abc"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "12.3x"
+    },
+    {
+      "exponent": 3,
+      "kind": "text",
+      "result": {
+        "err": "Invalid"
+      },
+      "value": "--1"
+    }
+  ]
+}
