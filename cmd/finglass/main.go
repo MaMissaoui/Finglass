@@ -27,6 +27,9 @@ import (
 // self-check process only inspects its type, so its zero value is enough.
 var shellService = bind.NewShell(nil, nil, bind.ShellOptions{})
 
+// dashboardService is set from main once the shell service exists.
+var dashboardService = bind.NewDashboard(nil, bind.DashboardOptions{})
+
 func main() {
 	// Finder may add its own arguments, so look for the flag instead of
 	// handing all of os.Args to flag.Parse.
@@ -80,6 +83,7 @@ func main() {
 			}
 		},
 	})
+	dashboardService = bind.NewDashboard(session, bind.DashboardOptions{Shell: shellService})
 
 	dist, err := fs.Sub(frontend.Dist, "dist")
 	if err != nil {
@@ -128,6 +132,7 @@ func boundServices() []boundService {
 	return []boundService{
 		{name: "AppInfo", service: application.NewService(&bind.AppInfo{})},
 		{name: "Shell", service: application.NewService(shellService)},
+		{name: "Dashboard", service: application.NewService(dashboardService)},
 	}
 }
 
@@ -244,6 +249,13 @@ var expectedServices = []expectedService{
 		name: "Shell",
 		matches: func(instance any) bool {
 			_, ok := instance.(*bind.Shell)
+			return ok
+		},
+	},
+	{
+		name: "Dashboard",
+		matches: func(instance any) bool {
+			_, ok := instance.(*bind.Dashboard)
 			return ok
 		},
 	},

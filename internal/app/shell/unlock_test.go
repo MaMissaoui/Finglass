@@ -24,6 +24,7 @@ func TestTeardownClosesTheOldDatabaseAtOnceWhenNoJobRuns(t *testing.T) {
 	if err := session.Unlock([]byte(testPassphrase)); err != nil {
 		t.Fatalf("unlock: %v", err)
 	}
+	waitForJobs(t, session)
 	old := sessionDatabase(t, session)
 
 	session.mu.Lock()
@@ -58,6 +59,7 @@ func TestTeardownClosesTheOldDatabaseWhenTheLastOldJobEnds(t *testing.T) {
 	if err := session.Unlock([]byte(testPassphrase)); err != nil {
 		t.Fatalf("unlock: %v", err)
 	}
+	waitForJobs(t, session)
 	old := sessionDatabase(t, session)
 
 	generation, ok := session.beginJob()

@@ -13,6 +13,7 @@ declare module "@wailsio/runtime" {
     namespace Events {
         interface CustomEvents {
             "appinfo:tick": bind$0.TickPayload;
+            "dashboard:changed": bind$0.DashboardDTO;
             "menu:action": string;
             "shell:changed": bind$0.ShellDTO;
         }

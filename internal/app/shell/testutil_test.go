@@ -95,6 +95,21 @@ func requireOpen(t *testing.T, database *db.Database, what string) {
 	}
 }
 
+// waitForJobs waits until no job of the session's current generation runs. The
+// Dashboard starts a load after an unlock, so a test that tears the profile
+// down must let that load finish first.
+func waitForJobs(t *testing.T, session *Session) {
+	t.Helper()
+	generation := session.jobs.Generation()
+	idle := make(chan struct{})
+	session.jobs.WhenIdle(generation, func() { close(idle) })
+	select {
+	case <-idle:
+	case <-time.After(10 * time.Second):
+		t.Fatal("the session's jobs did not finish")
+	}
+}
+
 func requireClosed(t *testing.T, database *db.Database, what string) {
 	t.Helper()
 	err := database.WithConn(context.Background(), func(context.Context, *sql.Conn) error {

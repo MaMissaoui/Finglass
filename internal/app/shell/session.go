@@ -155,6 +155,14 @@ type Session struct {
 
 	jobs      Jobs
 	switching bool
+
+	// listeners hear about a published page change after the mutex is
+	// released. nextListener numbers them so remove takes out exactly one.
+	listeners    []listenerEntry
+	nextListener uint64
+	// pageRequests is each page's latest request number. A page job publishes
+	// only while it still is its page's latest request.
+	pageRequests map[string]uint64
 	// shutDown is set once by Shutdown; every later open, job or switch is
 	// refused, so nothing opens a database without the instance lock.
 	shutDown bool
@@ -179,6 +187,129 @@ type Session struct {
 	// switchGate is nil in production. Tests set it to hold a SwitchProfile
 	// after the teardown and before the switch ends.
 	switchGate func()
+	// pageLoadGate is nil in production. Tests set it to hold a page job after
+	// it spawned and before it touches the database.
+	pageLoadGate func(page string)
+}
+
+// Change says which screen's state a listener must publish.
+//
+// Page is a screen name ("dashboard", …), or "shell" when a job changed the
+// navigation (Back, a link or an opened page).
+type Change struct {
+	// Page is the screen whose state changed.
+	Page string
+}
+
+type listenerEntry struct {
+	id       uint64
+	listener func(Change)
+}
+
+// AddListener registers listener for every published change. It returns a
+// function that removes the listener; calling it more than once is harmless.
+//
+// Listeners run after the session mutex is released, from the goroutine that
+// published, so a listener may call back into the session.
+func (s *Session) AddListener(listener func(Change)) func() {
+	if listener == nil {
+		return func() {}
+	}
+
+	s.mu.Lock()
+	s.nextListener++
+	id := s.nextListener
+	s.listeners = append(s.listeners, listenerEntry{id: id, listener: listener})
+	s.mu.Unlock()
+
+	var once sync.Once
+	return func() {
+		once.Do(func() {
+			s.mu.Lock()
+			defer s.mu.Unlock()
+			for index, entry := range s.listeners {
+				if entry.id == id {
+					s.listeners = append(s.listeners[:index], s.listeners[index+1:]...)
+					return
+				}
+			}
+		})
+	}
+}
+
+// notify calls every listener registered now. The caller must not hold the
+// session mutex: listeners may call the session's readers.
+func (s *Session) notify(change Change) {
+	s.mu.Lock()
+	listeners := make([]func(Change), len(s.listeners))
+	for index, entry := range s.listeners {
+		listeners[index] = entry.listener
+	}
+	s.mu.Unlock()
+
+	for _, listener := range listeners {
+		listener(change)
+	}
+}
+
+// nextPageRequestLocked takes the next request number for page. The caller
+// holds the session mutex.
+func (s *Session) nextPageRequestLocked(page string) uint64 {
+	if s.pageRequests == nil {
+		s.pageRequests = make(map[string]uint64)
+	}
+	s.pageRequests[page]++
+	return s.pageRequests[page]
+}
+
+// isLatestPageRequestLocked reports whether request is still page's latest.
+func (s *Session) isLatestPageRequestLocked(page string, request uint64) bool {
+	return s.pageRequests[page] == request
+}
+
+// pageJob is one page load prepared under the mutex and run after it.
+type pageJob struct {
+	page       string
+	generation uint64
+	request    uint64
+	database   *db.Database
+	load       func(context.Context, *db.Database)
+	publish    func()
+}
+
+// startPageJob announces the prepared state and runs the load on a goroutine.
+//
+// The loading state has already been published under the mutex. The goroutine
+// runs the load with the database handle taken at preparation time, then
+// publishes the pending state only while its generation is current and its
+// request is still the page's latest. A superseded load is dropped, and the
+// job slot is always released after the last database use.
+func (s *Session) startPageJob(job *pageJob) {
+	if job == nil {
+		return
+	}
+	s.notify(Change{Page: job.page})
+	go s.runPageJob(job)
+}
+
+func (s *Session) runPageJob(job *pageJob) {
+	if gate := s.pageLoadGate; gate != nil {
+		gate(job.page)
+	}
+	job.load(context.Background(), job.database)
+
+	s.mu.Lock()
+	publish := s.jobs.IsCurrent(job.generation) &&
+		s.isLatestPageRequestLocked(job.page, job.request)
+	if publish {
+		job.publish()
+	}
+	s.jobs.EndGeneration(job.generation)
+	s.mu.Unlock()
+
+	if publish {
+		s.notify(Change{Page: job.page})
+	}
 }
 
 // Start takes the instance lock first, then prepares the active profile, as
@@ -475,8 +606,13 @@ func (s *Session) ProfileRows() []ProfileRow {
 // navigate_to_section does: a plain navigation, no back entry.
 func (s *Session) NavigateToSection(screen string, section int) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.navigateToLocked(screen, &section)
+	job, changed := s.navigateToLocked(screen, &section)
+	s.mu.Unlock()
+	if !changed {
+		return
+	}
+	s.notify(Change{Page: "shell"})
+	s.startPageJob(job)
 }
 
 // configureStartupErrorLocked is configure_startup_error without Slint.
@@ -688,8 +824,11 @@ func (s *Session) finishOpen(
 	s.unlockError = nil
 	s.startupErr = nil
 	s.auditRows = rows
+	job := s.beginDashboardOpenLocked()
 	s.mu.Unlock()
 
+	s.notify(Change{Page: "shell"})
+	s.startPageJob(job)
 	return nil
 }
 
@@ -936,18 +1075,23 @@ func (s *Session) ReloadAfterFindeskImport() (i18n.Language, bool) {
 // Navigate switches to screen directly, starting a new back trail.
 func (s *Session) Navigate(screen string) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.navigateToLocked(screen, nil)
+	job, changed := s.navigateToLocked(screen, nil)
+	s.mu.Unlock()
+	if !changed {
+		return
+	}
+	s.notify(Change{Page: "shell"})
+	s.startPageJob(job)
 }
 
-func (s *Session) navigateToLocked(screen string, section *int) {
+func (s *Session) navigateToLocked(screen string, section *int) (*pageJob, bool) {
 	known, ok := ScreenName(screen)
 	if !ok {
-		return
+		return nil, false
 	}
 	args := PageArgs{SettingsSection: SettingsSectionFor(known, section)}
 	s.nav.Enter(args)
-	s.openPageLocked(known, args)
+	return s.openPageLocked(known, args), true
 }
 
 // FollowLink follows a link inside a screen: it leaves a back entry for where
@@ -955,29 +1099,39 @@ func (s *Session) navigateToLocked(screen string, section *int) {
 // only changes its arguments.
 func (s *Session) FollowLink(target string, args PageArgs) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 
 	knownTarget, ok := ScreenName(target)
 	if !ok {
+		s.mu.Unlock()
 		return
 	}
 	from, ok := ScreenName(s.screen)
 	if !ok {
+		s.mu.Unlock()
 		return
 	}
 	leave := s.leavingArgsLocked(from)
 	s.nav.Follow(from, knownTarget, leave, args)
-	s.openPageLocked(knownTarget, args)
+	job := s.openPageLocked(knownTarget, args)
+	s.mu.Unlock()
+
+	s.notify(Change{Page: "shell"})
+	s.startPageJob(job)
 }
 
 // Back goes back one step, or does nothing when the stack is empty.
 func (s *Session) Back() {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	entry, ok := s.nav.Back()
-	if ok {
-		s.openPageLocked(entry.Screen, entry.Args)
+	if !ok {
+		s.mu.Unlock()
+		return
 	}
+	job := s.openPageLocked(entry.Screen, entry.Args)
+	s.mu.Unlock()
+
+	s.notify(Change{Page: "shell"})
+	s.startPageJob(job)
 }
 
 // NavTarget returns the screen Back would reopen.
@@ -1012,18 +1166,22 @@ func (s *Session) leavingArgsLocked(from string) PageArgs {
 	return s.nav.Current()
 }
 
-// openPageLocked opens screen with args, without touching the back stack. It
-// applies only the state the shell owns; the page loads are G8's.
-func (s *Session) openPageLocked(screen string, args PageArgs) {
+// openPageLocked opens screen with args, without touching the back stack, and
+// returns the page load to start after the mutex is released.
+//
+// Other pages keep today's behaviour: only the shell state and the back trail
+// change. Their loads hook into this switch as each G8 phase lands.
+func (s *Session) openPageLocked(screen string, args PageArgs) *pageJob {
 	s.screen = screen
-	if screen != "dashboard" {
-		return
+	switch screen {
+	case "dashboard":
+		if args.DashboardMonth != nil {
+			return s.beginDashboardLoadLocked(*args.DashboardMonth)
+		}
+		return s.beginDashboardOpenLocked()
+	default:
+		return nil
 	}
-	if args.DashboardMonth != nil {
-		s.dashboard.BeginLoad(*args.DashboardMonth, s.today())
-		return
-	}
-	s.dashboard.Open(s.today())
 }
 
 // resetReportsLocked replaces the Reports state with a fresh one.
@@ -1180,9 +1338,9 @@ func (s *Session) KeepLiveSyncFields(result *banking.BankingState) {
 // Shutdown ends the session for good. Under the mutex it marks the session
 // shut down (every later open, job or switch is refused) and bumps the
 // generation, so an open still in its key derivation cannot publish. Then it
-// cancels the open prompt, closes the database, waits until every job of the
-// old generation has ended (a stale open closes its own handle first), and
-// releases the instance lock last.
+// cancels the open prompt, closes the database once the last job of the old
+// generation has ended (a stale open closes its own handle first), waits for
+// those jobs, and releases the instance lock last.
 func (s *Session) Shutdown() error {
 	s.mu.Lock()
 	if s.shutDown {
@@ -1204,7 +1362,9 @@ func (s *Session) Shutdown() error {
 	if bridge != nil {
 		bridge.CancelPending()
 	}
-	s.closeDatabase(database)
+	// A page load may still be reading the handle. Close it when that last job
+	// of the old generation ends, before the idle wait below returns.
+	s.retireDatabaseLocked(database, oldGeneration)
 
 	idle := make(chan struct{})
 	s.jobs.WhenIdle(oldGeneration, func() { close(idle) })
