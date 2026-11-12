@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -294,17 +295,150 @@ func TestFormattingTheSessionNeverContainsAPassphrase(t *testing.T) {
 	if err := session.Unlock([]byte(wrong)); err == nil {
 		t.Fatal("the wrong passphrase was accepted")
 	}
-	formatted := fmt.Sprintf("%v %+v %#v", session, session, session)
-	if strings.Contains(formatted, wrong) {
-		t.Fatal("a failed unlock left the passphrase in the session's format")
-	}
+	requireNoSecretIn(t, session, wrong, "a failed unlock")
 
 	createClosedTestDatabase(t, appPaths, "default")
 	if err := session.Unlock([]byte(testPassphrase)); err != nil {
 		t.Fatalf("unlock: %v", err)
 	}
-	formatted = fmt.Sprintf("%v %+v %#v", session, session, session)
-	if strings.Contains(formatted, testPassphrase) {
-		t.Fatal("a successful unlock left the passphrase in the session's format")
+	requireNoSecretIn(t, session, testPassphrase, "a successful unlock")
+}
+
+// requireNoSecretIn checks the session's %v/%+v/%#v output and, because those
+// print nested pointers only as addresses, every string and byte slice reachable
+// from it through pointers, structs, slices, arrays, maps and interfaces.
+func requireNoSecretIn(t *testing.T, session *Session, secretText, after string) {
+	t.Helper()
+	formatted := fmt.Sprintf("%v %+v %#v", session, session, session)
+	if strings.Contains(formatted, secretText) {
+		t.Fatalf("%s left the passphrase in the session's format", after)
+	}
+	session.mu.Lock()
+	defer session.mu.Unlock()
+	if path, found := findText(reflect.ValueOf(session), secretText, "session", map[uintptr]bool{}); found {
+		t.Fatalf("%s left the passphrase reachable at %s", after, path)
+	}
+}
+
+func findText(v reflect.Value, needle, path string, seen map[uintptr]bool) (string, bool) {
+	switch v.Kind() {
+	case reflect.String:
+		return path, strings.Contains(v.String(), needle)
+	case reflect.Pointer, reflect.Interface:
+		if v.IsNil() {
+			return "", false
+		}
+		if v.Kind() == reflect.Pointer {
+			if seen[v.Pointer()] {
+				return "", false
+			}
+			seen[v.Pointer()] = true
+		}
+		return findText(v.Elem(), needle, path, seen)
+	case reflect.Struct:
+		for i := range v.NumField() {
+			if p, found := findText(v.Field(i), needle, path+"."+v.Type().Field(i).Name, seen); found {
+				return p, true
+			}
+		}
+	case reflect.Slice, reflect.Array:
+		if v.Kind() == reflect.Slice && v.Type().Elem().Kind() == reflect.Uint8 {
+			return path, strings.Contains(string(v.Bytes()), needle)
+		}
+		for i := range v.Len() {
+			if p, found := findText(v.Index(i), needle, fmt.Sprintf("%s[%d]", path, i), seen); found {
+				return p, true
+			}
+		}
+	case reflect.Map:
+		iter := v.MapRange()
+		for iter.Next() {
+			if p, found := findText(iter.Key(), needle, path+"{key}", seen); found {
+				return p, true
+			}
+			if p, found := findText(iter.Value(), needle, path+"{value}", seen); found {
+				return p, true
+			}
+		}
+	}
+	return "", false
+}
+
+// A review addition: an open still in its key derivation when Shutdown starts
+// must neither publish nor outlive the instance lock, and Shutdown is final.
+func TestShutdownWaitsForAnOpenInFlightAndRefusesEverythingAfterwards(t *testing.T) {
+	appPaths := testPaths(t)
+	createClosedTestDatabase(t, appPaths, "default")
+	session, _, refusal := Start(
+		appPaths,
+		banksync.NoCredentialStore{},
+		nil,
+		testClock,
+		testToday,
+		testGetenv,
+	)
+	if refusal != nil {
+		t.Fatalf("Start refused: %+v", refusal)
+	}
+
+	gate := make(chan struct{})
+	claimed := make(chan struct{}, 1)
+	session.unlockGate = func() {
+		claimed <- struct{}{}
+		<-gate
+	}
+	unlocked := make(chan error, 1)
+	go func() { unlocked <- session.Unlock([]byte(testPassphrase)) }()
+	<-claimed
+
+	shutDown := make(chan error, 1)
+	go func() { shutDown <- session.Shutdown() }()
+
+	select {
+	case err := <-shutDown:
+		t.Fatalf("Shutdown returned (%v) while an open was still in flight", err)
+	case <-time.After(300 * time.Millisecond):
+	}
+	if held, err := instance.Acquire(appPaths); err == nil {
+		_ = held.Release()
+		t.Fatal("the instance lock was released while an open was still in flight")
+	}
+
+	close(gate)
+	if err := <-unlocked; !errors.Is(err, ErrStaleResult) {
+		t.Fatalf("the in-flight Unlock = %v, want ErrStaleResult", err)
+	}
+	select {
+	case err := <-shutDown:
+		if err != nil {
+			t.Fatalf("Shutdown: %v", err)
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("Shutdown did not return after the open ended")
+	}
+
+	if got := session.closedDatabases.Load(); got != 1 {
+		t.Fatalf("closed databases = %d, want 1 (the stale open's handle)", got)
+	}
+	if sessionDatabase(t, session) != nil {
+		t.Fatal("the stale open installed its database after Shutdown")
+	}
+	held, err := instance.Acquire(appPaths)
+	if err != nil {
+		t.Fatalf("the instance lock is still held after Shutdown: %v", err)
+	}
+	if err := held.Release(); err != nil {
+		t.Fatalf("release: %v", err)
+	}
+
+	session.unlockGate = nil
+	if err := session.Unlock([]byte(testPassphrase)); !errors.Is(err, ErrShutDown) {
+		t.Fatalf("Unlock after Shutdown = %v, want ErrShutDown", err)
+	}
+	if _, ok := session.beginJob(); ok {
+		t.Fatal("a job began after Shutdown")
+	}
+	if err := session.SwitchProfile(0); !errors.Is(err, ErrShutDown) {
+		t.Fatalf("SwitchProfile after Shutdown = %v, want ErrShutDown", err)
 	}
 }
