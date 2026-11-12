@@ -13,7 +13,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
-	"github.com/MaMissaoui/Finglass/internal/core/documents/internal/testpdf"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/testpdf"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/limits"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/ocr"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/service"
