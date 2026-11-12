@@ -175,11 +175,13 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 ### G4 — Reports, documents, backup, FinDesk import (L)
 
-- [ ] Dashboard and report services, tax export, PDF/XLSX/CSV export.
+- [x] Dashboard and report services, tax export, PDF/XLSX/CSV export.
   - [x] G4a: `export/pdf`, the report PDF writer, byte-identical to Rust's `pdf-writer` output (checked against
     reference PDFs and f32 width tables written by Rust). `export/pdfdoc` from G0 is no longer needed by the exports.
   - [x] G4b: `export/xlsx` (package parts byte-identical to Rust's) and the `report` format helpers.
   - [x] G4e: `dashboard` (month figures, budgets, chart slices); `dashboard/months.json` passes.
+  - [x] G4f: `report` services, tax suggestions and the CSV, XLSX and PDF exports; `report/reports.json` and
+    `export/exports.json` pass (CSV bytes, every XLSX cell, and the exact PDF text).
 - [x] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
   - [x] G4a: `documents/programs` (helper programs found by absolute path, for launches from Finder).
   - [x] G3h: `receipt` (the receipt text parser).
