@@ -46,6 +46,49 @@ export class AppInfoDTO {
 }
 
 /**
+ * ProfileDTO is one entry of the top bar's profile menu.
+ */
+export class ProfileDTO {
+    /**
+     * Name is the profile's display name.
+     */
+    "name": string;
+
+    /**
+     * Slug is the profile's slug; "" is the default profile.
+     */
+    "slug": string;
+
+    /**
+     * Open says whether this profile's database is open now.
+     */
+    "open": boolean;
+
+    /** Creates a new ProfileDTO instance. */
+    constructor($$source: Partial<ProfileDTO> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("slug" in $$source)) {
+            this["slug"] = "";
+        }
+        if (!("open" in $$source)) {
+            this["open"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ProfileDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ProfileDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ProfileDTO($$parsedSource as Partial<ProfileDTO>);
+    }
+}
+
+/**
  * ShellDTO is everything the unlock view and the main shell show.
  * 
  * It never carries a passphrase or any other secret.
@@ -69,7 +112,17 @@ export class ShellDTO {
     "screenTitle": string;
     "backTitle": string;
     "currentProfileName": string;
+    "profiles": ProfileDTO[];
+
+    /**
+     * Version is the bare version the sidebar shows, as Slint's version.
+     */
     "version": string;
+
+    /**
+     * AboutVersion is the localized "Version %s" text About shows.
+     */
+    "aboutVersion": string;
     "findEnabled": boolean;
     "migrationStep": string;
     "migrationProfileNames": string[];
@@ -136,8 +189,14 @@ export class ShellDTO {
         if (!("currentProfileName" in $$source)) {
             this["currentProfileName"] = "";
         }
+        if (!("profiles" in $$source)) {
+            this["profiles"] = [];
+        }
         if (!("version" in $$source)) {
             this["version"] = "";
+        }
+        if (!("aboutVersion" in $$source)) {
+            this["aboutVersion"] = "";
         }
         if (!("findEnabled" in $$source)) {
             this["findEnabled"] = false;
@@ -175,17 +234,21 @@ export class ShellDTO {
      */
     static createFrom($$source: any = {}): ShellDTO {
         const $$createField9_0 = $$createType0;
-        const $$createField21_0 = $$createType0;
-        const $$createField27_0 = $$createType0;
+        const $$createField18_0 = $$createType2;
+        const $$createField23_0 = $$createType0;
+        const $$createField29_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("leftoverLines" in $$parsedSource) {
             $$parsedSource["leftoverLines"] = $$createField9_0($$parsedSource["leftoverLines"]);
         }
+        if ("profiles" in $$parsedSource) {
+            $$parsedSource["profiles"] = $$createField18_0($$parsedSource["profiles"]);
+        }
         if ("migrationProfileNames" in $$parsedSource) {
-            $$parsedSource["migrationProfileNames"] = $$createField21_0($$parsedSource["migrationProfileNames"]);
+            $$parsedSource["migrationProfileNames"] = $$createField23_0($$parsedSource["migrationProfileNames"]);
         }
         if ("migrationSummaryLines" in $$parsedSource) {
-            $$parsedSource["migrationSummaryLines"] = $$createField27_0($$parsedSource["migrationSummaryLines"]);
+            $$parsedSource["migrationSummaryLines"] = $$createField29_0($$parsedSource["migrationSummaryLines"]);
         }
         return new ShellDTO($$parsedSource as Partial<ShellDTO>);
     }
@@ -217,3 +280,5 @@ export class TickPayload {
 
 // Private type creation functions
 const $$createType0 = $Create.Array($Create.Any);
+const $$createType1 = ProfileDTO.createFrom;
+const $$createType2 = $Create.Array($$createType1);

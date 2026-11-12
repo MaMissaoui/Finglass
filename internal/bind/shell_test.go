@@ -11,12 +11,14 @@ import (
 	"time"
 
 	coremigration "github.com/MaMissaoui/Finglass/internal/app/migration"
+	"github.com/MaMissaoui/Finglass/internal/app/profileswitch"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/app/startup"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
+	"github.com/MaMissaoui/Finglass/internal/core/profiles"
 )
 
 const testPassphrase = "correct horse battery staple"
@@ -178,8 +180,8 @@ func TestFullShellFlow(t *testing.T) {
 	if state.Screen != "dashboard" || state.ScreenTitle != shell.Title("dashboard", i18n.En) {
 		t.Fatalf("initial screen = %q / %q", state.Screen, state.ScreenTitle)
 	}
-	if state.Version != shell.AboutVersionText(i18n.En, Version) {
-		t.Fatalf("version text = %q", state.Version)
+	if state.Version != Version || state.AboutVersion != shell.AboutVersionText(i18n.En, Version) {
+		t.Fatalf("version = %q, about text = %q", state.Version, state.AboutVersion)
 	}
 	if len(fixture.events) != 0 {
 		t.Fatalf("State emitted %d events", len(fixture.events))
@@ -312,6 +314,114 @@ func TestFullShellFlow(t *testing.T) {
 		t.Fatal("the saved collapsed sidebar was not restored on unlock")
 	}
 	requireEvent(t, restarted, opened)
+}
+
+func TestProfileListSwitchAndRefusedBusySwitch(t *testing.T) {
+	fixture := newShellFixture(t)
+
+	if _, err := profiles.Create(fixture.paths, "Business"); err != nil {
+		t.Fatalf("create Business profile: %v", err)
+	}
+	if _, err := fixture.service.Create(testPassphrase, testPassphrase, true); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	state, err := fixture.service.State()
+	if err != nil {
+		t.Fatalf("State: %v", err)
+	}
+	if len(state.Profiles) != 2 {
+		t.Fatalf("profiles = %+v, want two", state.Profiles)
+	}
+	if state.Profiles[0].Name != "Personal" || !state.Profiles[0].Open || state.Profiles[0].Slug != "" {
+		t.Fatalf("default profile = %+v", state.Profiles[0])
+	}
+	if state.Profiles[1].Name != "Business" || state.Profiles[1].Open || state.Profiles[1].Slug == "" {
+		t.Fatalf("Business profile = %+v", state.Profiles[1])
+	}
+
+	// The menu lists the loaded Settings rows SwitchProfile indexes, so a
+	// profile created on disk meanwhile cannot shift the indexes.
+	if _, err := profiles.Create(fixture.paths, "Aardvark"); err != nil {
+		t.Fatalf("create a later profile: %v", err)
+	}
+	if later, err := fixture.service.State(); err != nil || !reflect.DeepEqual(later.Profiles, state.Profiles) {
+		t.Fatalf("profiles after a disk change = %+v (%v), want the loaded %+v", later.Profiles, err, state.Profiles)
+	}
+
+	switched, err := fixture.service.SwitchProfile(1)
+	if err != nil {
+		t.Fatalf("SwitchProfile: %v", err)
+	}
+	if switched.ShellOpen {
+		t.Fatal("the shell is open after switching profiles")
+	}
+	if switched.Mode != "create" {
+		t.Fatalf("target mode = %q, want create", switched.Mode)
+	}
+	if switched.ProfileName != "Business" || switched.CurrentProfileName != "Business" {
+		t.Fatalf("target profile = %q / %q", switched.ProfileName, switched.CurrentProfileName)
+	}
+	for _, profile := range switched.Profiles {
+		if profile.Open {
+			t.Fatalf("profile %q is marked open after the teardown", profile.Name)
+		}
+	}
+	requireEvent(t, fixture, switched)
+
+	busyFixture := newShellFixture(t)
+	if _, err := profiles.Create(busyFixture.paths, "Business"); err != nil {
+		t.Fatalf("create Business profile: %v", err)
+	}
+	if _, err := busyFixture.service.Create(testPassphrase, testPassphrase, true); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	before, err := busyFixture.service.State()
+	if err != nil {
+		t.Fatalf("State: %v", err)
+	}
+	events := len(busyFixture.events)
+	busyFixture.service.switchProfile = func(int) error {
+		return &profileswitch.SwitchError{Kind: profileswitch.SwitchBusy}
+	}
+
+	refused, err := busyFixture.service.SwitchProfile(1)
+	if err == nil {
+		t.Fatal("a busy switch was accepted")
+	}
+	if !reflect.DeepEqual(refused, before) {
+		t.Fatalf("a refused switch changed the DTO: %+v, want %+v", refused, before)
+	}
+	if len(busyFixture.events) != events {
+		t.Fatal("a refused switch emitted an event")
+	}
+	after, err := busyFixture.service.State()
+	if err != nil {
+		t.Fatalf("State after refusal: %v", err)
+	}
+	if !reflect.DeepEqual(after, before) {
+		t.Fatalf("a refused switch changed the state: %+v, want %+v", after, before)
+	}
+}
+
+func TestManageProfilesOpensSettings(t *testing.T) {
+	fixture := newShellFixture(t)
+	if _, err := fixture.service.Create(testPassphrase, testPassphrase, true); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	dto, err := fixture.service.ManageProfiles()
+	if err != nil {
+		t.Fatalf("ManageProfiles: %v", err)
+	}
+	if dto.Screen != "settings" || dto.ScreenTitle != shell.Title("settings", i18n.En) {
+		t.Fatalf("screen = %q / %q", dto.Screen, dto.ScreenTitle)
+	}
+	// Rust's navigate_to_section is a plain navigation: no back entry.
+	if dto.BackTitle != "" {
+		t.Fatalf("back title = %q after Manage profiles, want none", dto.BackTitle)
+	}
+	requireEvent(t, fixture, dto)
 }
 
 func TestEveryPassphraseSliceIsWiped(t *testing.T) {

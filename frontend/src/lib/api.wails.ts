@@ -1,7 +1,10 @@
 import { Events } from '@wailsio/runtime';
-import { AppInfo } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index.js';
-import { AppinfoTick } from '../../bindings/events/index.js';
-import type { Api, AppInfoDTO, TickPayload } from './api';
+import {
+  AppInfo,
+  Shell,
+} from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index.js';
+import { AppinfoTick, MenuAction, ShellChanged } from '../../bindings/events/index.js';
+import type { Api, AppInfoDTO, ShellDTO, TickPayload } from './api';
 
 export function createWailsApi(): Api {
   return {
@@ -20,6 +23,93 @@ export function createWailsApi(): Api {
     },
     onTick(callback: (payload: TickPayload) => void): () => void {
       return Events.On(AppinfoTick, (event) => {
+        callback(event.data);
+      });
+    },
+
+    state(): Promise<ShellDTO> {
+      return Shell.State();
+    },
+    unlock(passphrase: string): Promise<ShellDTO> {
+      return Shell.Unlock(passphrase);
+    },
+    create(passphrase: string, repeat: string, acknowledged: boolean): Promise<ShellDTO> {
+      return Shell.Create(passphrase, repeat, acknowledged);
+    },
+    change(
+      current: string,
+      passphrase: string,
+      repeat: string,
+      acknowledged: boolean,
+    ): Promise<ShellDTO> {
+      return Shell.Change(current, passphrase, repeat, acknowledged);
+    },
+    showChange(change: boolean): Promise<ShellDTO> {
+      return Shell.ShowChange(change);
+    },
+    navigate(screen: string): Promise<ShellDTO> {
+      return Shell.Navigate(screen);
+    },
+    navigateMenuItem(index: number): Promise<ShellDTO> {
+      return Shell.NavigateMenuItem(index);
+    },
+    back(): Promise<ShellDTO> {
+      return Shell.Back();
+    },
+    setLanguage(code: string): Promise<ShellDTO> {
+      return Shell.SetLanguage(code);
+    },
+    setTheme(code: string): Promise<ShellDTO> {
+      return Shell.SetTheme(code);
+    },
+    setSidebarCollapsed(collapsed: boolean): Promise<ShellDTO> {
+      return Shell.SetSidebarCollapsed(collapsed);
+    },
+    switchProfile(index: number): Promise<ShellDTO> {
+      return Shell.SwitchProfile(index);
+    },
+    manageProfiles(): Promise<ShellDTO> {
+      return Shell.ManageProfiles();
+    },
+
+    migrationMigrate(acknowledged: boolean): Promise<ShellDTO> {
+      return Shell.MigrationMigrate(acknowledged);
+    },
+    migrationStartEmpty(): Promise<ShellDTO> {
+      return Shell.MigrationStartEmpty();
+    },
+    migrationSubmit(
+      passphrase: string,
+      newPassphrase: string,
+      repeat: string,
+      samePassphrase: boolean,
+    ): Promise<ShellDTO> {
+      return Shell.MigrationSubmit(passphrase, newPassphrase, repeat, samePassphrase);
+    },
+    migrationSkip(): Promise<ShellDTO> {
+      return Shell.MigrationSkip();
+    },
+    migrationContinue(): Promise<ShellDTO> {
+      return Shell.MigrationContinue();
+    },
+    migrationPassphraseChanged(text: string): Promise<ShellDTO> {
+      return Shell.MigrationPassphraseChanged(text);
+    },
+
+    openGitHub(): Promise<ShellDTO> {
+      return Shell.OpenGitHub();
+    },
+    reportProblem(): Promise<ShellDTO> {
+      return Shell.ReportProblem();
+    },
+
+    onShellChanged(callback: (dto: ShellDTO) => void): () => void {
+      return Events.On(ShellChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onMenuAction(callback: (action: string) => void): () => void {
+      return Events.On(MenuAction, (event) => {
         callback(event.data);
       });
     },

@@ -434,6 +434,51 @@ func (s *Session) IsOpen() bool {
 	return s.db != nil
 }
 
+// ProfileRow is one profile of the top bar's menu, as Rust's profile_model
+// builds it from the loaded Settings list.
+type ProfileRow struct {
+	// Index is the profile's place in the list SwitchProfile takes.
+	Index int
+	// Name is the display name.
+	Name string
+	// Slug is the slug, or "" for the default profile.
+	Slug string
+	// Open says whether this is the profile running now.
+	Open bool
+}
+
+// ProfileRows returns the loaded Settings profile list. SwitchProfile indexes
+// the same list, so a menu built from it always switches to the row clicked.
+func (s *Session) ProfileRows() []ProfileRow {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.settings == nil {
+		return []ProfileRow{}
+	}
+	open := ""
+	if s.settings.OpenProfile != nil {
+		open = *s.settings.OpenProfile
+	}
+	rows := make([]ProfileRow, 0, len(s.settings.Profiles))
+	for index, profile := range s.settings.Profiles {
+		rows = append(rows, ProfileRow{
+			Index: index,
+			Name:  profile.Name,
+			Slug:  profile.Slug,
+			Open:  profile.Slug == open,
+		})
+	}
+	return rows
+}
+
+// NavigateToSection opens screen on a Settings section, as
+// navigate_to_section does: a plain navigation, no back entry.
+func (s *Session) NavigateToSection(screen string, section int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.navigateToLocked(screen, &section)
+}
+
 // configureStartupErrorLocked is configure_startup_error without Slint.
 func (s *Session) configureStartupErrorLocked(message string) {
 	text := message

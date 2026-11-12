@@ -31,6 +31,16 @@ func init() {
 // ErrNoMigration means the first-run migration offer was not made.
 var ErrNoMigration = errors.New("no migration is offered")
 
+// ProfileDTO is one entry of the top bar's profile menu.
+type ProfileDTO struct {
+	// Name is the profile's display name.
+	Name string `json:"name"`
+	// Slug is the profile's slug; "" is the default profile.
+	Slug string `json:"slug"`
+	// Open says whether this profile's database is open now.
+	Open bool `json:"open"`
+}
+
 // ShellDTO is everything the unlock view and the main shell show.
 //
 // It never carries a passphrase or any other secret.
@@ -46,16 +56,20 @@ type ShellDTO struct {
 	PassphraseHint string   `json:"passphraseHint"`
 	LeftoverLines  []string `json:"leftoverLines"`
 
-	ShellOpen          bool   `json:"shellOpen"`
-	Language           string `json:"language"`
-	Theme              string `json:"theme"`
-	SidebarCollapsed   bool   `json:"sidebarCollapsed"`
-	Screen             string `json:"screen"`
-	ScreenTitle        string `json:"screenTitle"`
-	BackTitle          string `json:"backTitle"`
-	CurrentProfileName string `json:"currentProfileName"`
-	Version            string `json:"version"`
-	FindEnabled        bool   `json:"findEnabled"`
+	ShellOpen          bool         `json:"shellOpen"`
+	Language           string       `json:"language"`
+	Theme              string       `json:"theme"`
+	SidebarCollapsed   bool         `json:"sidebarCollapsed"`
+	Screen             string       `json:"screen"`
+	ScreenTitle        string       `json:"screenTitle"`
+	BackTitle          string       `json:"backTitle"`
+	CurrentProfileName string       `json:"currentProfileName"`
+	Profiles           []ProfileDTO `json:"profiles"`
+	// Version is the bare version the sidebar shows, as Slint's version.
+	Version string `json:"version"`
+	// AboutVersion is the localized "Version %s" text About shows.
+	AboutVersion string `json:"aboutVersion"`
+	FindEnabled  bool   `json:"findEnabled"`
 
 	MigrationStep                  string   `json:"migrationStep"`
 	MigrationProfileNames          []string `json:"migrationProfileNames"`
@@ -105,6 +119,9 @@ type Shell struct {
 	// observePassphrase is a test seam. Production leaves it nil; tests use it
 	// to capture the exact slice handed to the session and check it is wiped.
 	observePassphrase func([]byte)
+	// switchProfile is a test seam. Production leaves it nil and the service
+	// calls the session; tests use it to exercise a busy refusal.
+	switchProfile func(int) error
 }
 
 // NewShell builds the shell service. session may be nil only for the
@@ -277,6 +294,31 @@ func (s *Shell) SetSidebarCollapsed(collapsed bool) (ShellDTO, error) {
 	}
 	err := s.session.SetSidebarCollapsed(collapsed)
 	return s.publish(), err
+}
+
+// SwitchProfile opens another profile. The target always starts at its unlock
+// view, so the shell closes first.
+func (s *Shell) SwitchProfile(index int) (ShellDTO, error) {
+	if s.session == nil {
+		return ShellDTO{}, errors.New("shell is not started")
+	}
+	switchProfile := s.switchProfile
+	if switchProfile == nil {
+		switchProfile = s.session.SwitchProfile
+	}
+	if err := switchProfile(index); err != nil {
+		return s.snapshot(), err
+	}
+	return s.publish(), nil
+}
+
+// ManageProfiles opens Settings on its profiles section.
+func (s *Shell) ManageProfiles() (ShellDTO, error) {
+	if s.session == nil {
+		return ShellDTO{}, errors.New("shell is not started")
+	}
+	s.session.NavigateToSection("settings", shell.SettingsProfiles)
+	return s.publish(), nil
 }
 
 // MigrationMigrate writes the migrate marker and moves to the first profile.
@@ -518,7 +560,9 @@ func (s *Shell) snapshot() ShellDTO {
 		Screen:             screen,
 		ScreenTitle:        shell.Title(screen, language),
 		CurrentProfileName: unlock.ProfileName,
-		Version:            shell.AboutVersionText(language, Version),
+		Profiles:           s.profileList(),
+		Version:            Version,
+		AboutVersion:       shell.AboutVersionText(language, Version),
 		FindEnabled:        shell.FindEnabled(screen, false),
 	}
 	if target, ok := s.session.NavTarget(); ok {
@@ -544,6 +588,23 @@ func (s *Shell) snapshot() ShellDTO {
 	}
 	s.migrationMu.Unlock()
 	return dto
+}
+
+// profileList returns the menu's profiles, the open one marked. The rows come
+// from the loaded Settings list SwitchProfile indexes, as Rust's do; the list is
+// empty until a profile is open.
+func (s *Shell) profileList() []ProfileDTO {
+	open := s.session.IsOpen()
+	rows := s.session.ProfileRows()
+	result := make([]ProfileDTO, 0, len(rows))
+	for _, row := range rows {
+		result = append(result, ProfileDTO{
+			Name: row.Name,
+			Slug: row.Slug,
+			Open: open && row.Open,
+		})
+	}
+	return result
 }
 
 func (s *Shell) language() i18n.Language {

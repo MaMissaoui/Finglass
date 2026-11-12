@@ -1,4 +1,5 @@
-import type { Api, AppInfoDTO, TickPayload } from './api';
+import type { Api, AppInfoDTO, ShellDTO, TickPayload } from './api';
+import { languageFromCode, translate, type Language } from './i18n';
 
 const info: AppInfoDTO = {
   name: 'Finglass',
@@ -8,8 +9,336 @@ const info: AppInfoDTO = {
   arch: 'arm64',
 };
 
-export function createMockApi(): Api {
+const correctPassphrase = 'correct horse battery staple';
+const versionText = '0.4.0-dev';
+const passphraseMinimum = 10;
+
+type MockProfile = {
+  name: string;
+  slug: string;
+  open: boolean;
+};
+
+type MockState = {
+  mode: string;
+  allowChange: boolean;
+  busy: boolean;
+  restored: boolean;
+  startupError: boolean;
+  errorText: string;
+  profileName: string;
+  leftoverLines: string[];
+  shellOpen: boolean;
+  language: Language;
+  theme: string;
+  sidebarCollapsed: boolean;
+  screen: string;
+  backTitle: string;
+  backScreen: string;
+  profiles: MockProfile[];
+
+  migrationStep: string;
+  migrationProfileNames: string[];
+  migrationProfileHeading: string;
+  migrationProfileName: string;
+  migrationProfileIndex: number;
+  migrationSamePassphrase: boolean;
+  migrationNeedsNewPassphrase: boolean;
+  migrationSummaryLines: string[];
+};
+
+const pageTargets = ['dashboard', 'accounts', 'transactions', 'documents', 'reports', 'settings'];
+
+const titleKeys: Record<string, string> = {
+  dashboard: 'NavDashboard',
+  accounts: 'NavAccounts',
+  transactions: 'NavTransactions',
+  documents: 'NavDocuments',
+  reports: 'NavReports',
+  settings: 'NavSettings',
+};
+
+// A migration report is runtime data the Go wizard puts into the DTO, not a
+// translation key. This is the empty report the reference screenshot shows.
+const emptyMigrationReport =
+  'Imported 0 account groups, 0 bank connections, 0 accounts, 0 categories, 0 rules, ' +
+  '0 transactions, 0 deleted bookings, 0 pending bookings, 0 documents, 0 OCR texts ' +
+  'and 0 settings. Skipped 0 rows, 0 documents with a missing file and 0 refused ' +
+  'documents. Left 0 payment orders behind.';
+
+function scenarioName(): string {
+  if (typeof location === 'undefined') {
+    return '';
+  }
+  return new URLSearchParams(location.search).get('scenario') ?? '';
+}
+
+function runeCount(value: string): number {
+  return Array.from(value).length;
+}
+
+function hasSurroundingSpace(value: string): boolean {
+  return /^\s|\s$/u.test(value) || /^\s+$/u.test(value);
+}
+
+function sameText(left: string, right: string): boolean {
+  return left.normalize('NFC') === right.normalize('NFC');
+}
+
+function profileLabel(language: Language, name: string): string {
+  return translate(language, 'UnlockProfile', name);
+}
+
+function heading(language: Language, index: number, count: number, name: string): string {
+  return translate(language, 'MigrationProfileHeading', index, count, name);
+}
+
+function baseState(): MockState {
   return {
+    mode: 'create',
+    allowChange: false,
+    busy: false,
+    restored: false,
+    startupError: false,
+    errorText: '',
+    profileName: 'Personal',
+    leftoverLines: [],
+    shellOpen: false,
+    language: 'en',
+    theme: 'light',
+    sidebarCollapsed: false,
+    screen: 'dashboard',
+    backTitle: '',
+    backScreen: '',
+    profiles: [{ name: 'Personal', slug: '', open: false }],
+
+    migrationStep: '',
+    migrationProfileNames: [],
+    migrationProfileHeading: '',
+    migrationProfileName: '',
+    migrationProfileIndex: 0,
+    migrationSamePassphrase: true,
+    migrationNeedsNewPassphrase: false,
+    migrationSummaryLines: [],
+  };
+}
+
+function openShell(state: MockState): void {
+  state.shellOpen = true;
+  state.mode = 'unlock';
+  state.allowChange = true;
+  state.startupError = false;
+  state.restored = false;
+  state.errorText = '';
+  state.screen = 'dashboard';
+  state.backTitle = '';
+  state.backScreen = '';
+  for (const profile of state.profiles) {
+    profile.open = profile.slug === '' || profile.name === state.profileName;
+  }
+  state.profileName = state.profiles.find((profile) => profile.open)?.name ?? state.profileName;
+}
+
+function initialState(): MockState {
+  const state = baseState();
+  const scenario = scenarioName();
+
+  switch (scenario) {
+    case 'leftovers':
+      state.mode = 'unlock';
+      state.allowChange = true;
+      state.language = 'en';
+      state.leftoverLines = [
+        `${translate('en', 'PlaintextLeftoverPreRestore')} · pre-restore-20261015-123456`,
+        `${translate('en', 'PlaintextLeftoverDeletedProfile')} · profiles-deleted/business-20261015-123456`,
+      ];
+      break;
+    case 'restored':
+      state.mode = 'unlock';
+      state.allowChange = true;
+      state.restored = true;
+      break;
+    case 'already-running':
+      state.mode = 'unlock';
+      state.startupError = true;
+      state.errorText = translate('en', 'ErrorAlreadyRunning');
+      break;
+    case 'target-after-switch':
+      state.mode = 'unlock';
+      state.allowChange = true;
+      state.profileName = 'Business';
+      state.profiles = [
+        { name: 'Personal', slug: '', open: false },
+        { name: 'Business', slug: 'business', open: false },
+      ];
+      break;
+    case 'unlock-wrong-de':
+      state.mode = 'unlock';
+      state.allowChange = true;
+      state.language = 'de';
+      break;
+    case 'shell':
+    case 'shell-collapsed':
+    case 'shell-de-dark':
+    case 'shell-profiles':
+    case 'shell-profiles-de':
+    case 'shell-back':
+      openShell(state);
+      state.theme = scenario === 'shell-de-dark' ? 'dark' : 'light';
+      state.language =
+        scenario === 'shell-de-dark' || scenario === 'shell-profiles-de' ? 'de' : 'en';
+      state.sidebarCollapsed = scenario === 'shell-collapsed' || scenario === 'shell-de-dark';
+      if (scenario === 'shell-profiles' || scenario === 'shell-profiles-de') {
+        state.profiles = [
+          { name: 'Personal', slug: '', open: true },
+          { name: 'Business', slug: 'business', open: false },
+        ];
+        state.profileName = 'Personal';
+      }
+      if (scenario === 'shell-back') {
+        state.screen = 'reports';
+        state.backTitle = translate(state.language, 'NavDashboard');
+        state.backScreen = 'dashboard';
+      }
+      break;
+    case 'migration-welcome':
+      state.mode = 'migrate';
+      state.migrationStep = 'welcome';
+      state.migrationProfileNames = ['Personal', 'Business'];
+      break;
+    case 'migration-profile':
+    case 'migration-profile-new-passphrase':
+    case 'migration-wrong-passphrase':
+      state.mode = 'migrate';
+      state.migrationStep = 'profile';
+      state.migrationProfileNames = ['Personal', 'Business'];
+      state.migrationProfileIndex = 1;
+      state.migrationProfileName = 'Business';
+      if (scenario === 'migration-profile-new-passphrase') {
+        state.migrationSamePassphrase = false;
+        state.migrationNeedsNewPassphrase = true;
+      }
+      if (scenario === 'migration-wrong-passphrase') {
+        state.language = 'de';
+        state.theme = 'dark';
+        state.errorText = translate('de', 'WrongPassphrase');
+      }
+      state.migrationProfileHeading = heading(state.language, 2, 2, 'Business');
+      break;
+    case 'migration-summary':
+      state.mode = 'migrate';
+      state.migrationStep = 'summary';
+      state.migrationSummaryLines = [
+        translate('en', 'MigrationProfileMigrated', 'Personal', emptyMigrationReport),
+        translate('en', 'MigrationProfileSkipped', 'Business'),
+      ];
+      break;
+    default:
+      break;
+  }
+
+  return state;
+}
+
+export function createMockApi(): Api {
+  const state = initialState();
+  const shellListeners = new Set<(dto: ShellDTO) => void>();
+  const menuListeners = new Set<(action: string) => void>();
+
+  function dto(): ShellDTO {
+    const language = state.language;
+    const openProfile = state.profiles.find((profile) => profile.open);
+    return {
+      mode: state.mode,
+      allowChange: state.allowChange,
+      busy: state.busy,
+      restored: state.restored,
+      startupError: state.startupError,
+      errorText: state.errorText,
+      profileLabel: profileLabel(language, state.profileName),
+      profileName: state.profileName,
+      passphraseHint: translate(language, 'PassphraseHint', passphraseMinimum),
+      leftoverLines: [...state.leftoverLines],
+      shellOpen: state.shellOpen,
+      language,
+      theme: state.theme,
+      sidebarCollapsed: state.sidebarCollapsed,
+      screen: state.screen,
+      screenTitle: translate(language, titleKeys[state.screen] ?? 'NavDashboard'),
+      backTitle: state.backTitle,
+      currentProfileName: state.shellOpen
+        ? (openProfile?.name ?? state.profileName)
+        : state.profileName,
+      profiles: state.profiles.map((profile) => ({ ...profile })),
+      version: versionText,
+      aboutVersion: translate(language, 'AboutVersion', versionText),
+      findEnabled: state.screen === 'transactions' || state.screen === 'documents',
+      migrationStep: state.migrationStep,
+      migrationProfileNames: [...state.migrationProfileNames],
+      migrationProfileHeading: state.migrationProfileHeading,
+      migrationProfileName: state.migrationProfileName,
+      migrationProfileCount: state.migrationProfileNames.length,
+      migrationSamePassphrase: state.migrationSamePassphrase,
+      migrationNewPassphraseRequired:
+        !state.migrationSamePassphrase || state.migrationNeedsNewPassphrase,
+      migrationSummaryLines: [...state.migrationSummaryLines],
+    };
+  }
+
+  function publish(): ShellDTO {
+    const next = dto();
+    for (const listener of shellListeners) {
+      listener(next);
+    }
+    return next;
+  }
+
+  function validateNew(passphrase: string, repeat: string, acknowledged: boolean): string {
+    if (runeCount(passphrase) < passphraseMinimum) {
+      return translate(state.language, 'PassphraseTooShort', passphraseMinimum);
+    }
+    if (hasSurroundingSpace(passphrase)) {
+      return translate(state.language, 'PassphraseSpaces');
+    }
+    if (!sameText(passphrase, repeat)) {
+      return translate(state.language, 'PassphraseMismatch');
+    }
+    if (!acknowledged) {
+      return translate(state.language, 'PassphraseAcknowledge');
+    }
+    return '';
+  }
+
+  function advanceMigration(outcome: 'migrated' | 'skipped'): void {
+    const name = state.migrationProfileName;
+    if (name !== '') {
+      state.migrationSummaryLines.push(
+        outcome === 'skipped'
+          ? translate(state.language, 'MigrationProfileSkipped', name)
+          : translate(state.language, 'MigrationProfileMigrated', name, emptyMigrationReport),
+      );
+    }
+    state.migrationProfileIndex += 1;
+    state.migrationSamePassphrase = true;
+    state.migrationNeedsNewPassphrase = false;
+    state.errorText = '';
+    if (state.migrationProfileIndex >= state.migrationProfileNames.length) {
+      state.migrationStep = 'summary';
+      state.migrationProfileHeading = '';
+      state.migrationProfileName = '';
+      return;
+    }
+    state.migrationStep = 'profile';
+    state.migrationProfileName = state.migrationProfileNames[state.migrationProfileIndex] ?? '';
+    state.migrationProfileHeading = heading(
+      state.language,
+      state.migrationProfileIndex + 1,
+      state.migrationProfileNames.length,
+      state.migrationProfileName,
+    );
+  }
+
+  const api: Api = {
     async info() {
       return { ...info };
     },
@@ -28,5 +357,226 @@ export function createMockApi(): Api {
       }, 1000);
       return () => clearInterval(timer);
     },
+
+    async state() {
+      return dto();
+    },
+    async unlock(passphrase: string) {
+      if (sameText(passphrase, correctPassphrase)) {
+        openShell(state);
+        state.errorText = '';
+        state.profileName =
+          state.profiles.find((profile) => profile.open)?.name ?? state.profileName;
+      } else {
+        state.errorText = translate(state.language, 'WrongPassphrase');
+      }
+      return publish();
+    },
+    async create(passphrase: string, repeat: string, acknowledged: boolean) {
+      const error = validateNew(passphrase, repeat, acknowledged);
+      if (error !== '') {
+        state.errorText = error;
+        state.shellOpen = false;
+        return publish();
+      }
+      openShell(state);
+      state.errorText = '';
+      return publish();
+    },
+    async change(current: string, passphrase: string, repeat: string, acknowledged: boolean) {
+      if (!sameText(current, correctPassphrase)) {
+        state.errorText = translate(state.language, 'WrongPassphrase');
+        return publish();
+      }
+      const error = validateNew(passphrase, repeat, acknowledged);
+      if (error !== '') {
+        state.errorText = error;
+        return publish();
+      }
+      openShell(state);
+      state.errorText = '';
+      return publish();
+    },
+    async showChange(change: boolean) {
+      state.mode = change ? 'change' : 'unlock';
+      state.errorText = '';
+      return publish();
+    },
+    async navigate(screen: string) {
+      if (pageTargets.includes(screen)) {
+        state.screen = screen;
+        state.backTitle = '';
+        state.backScreen = '';
+      }
+      return publish();
+    },
+    async navigateMenuItem(index: number) {
+      const screen = pageTargets[index];
+      if (screen !== undefined) {
+        state.screen = screen;
+        state.backTitle = '';
+        state.backScreen = '';
+      }
+      return publish();
+    },
+    async back() {
+      if (state.backTitle !== '') {
+        state.screen = state.backScreen || 'dashboard';
+        state.backTitle = '';
+        state.backScreen = '';
+      }
+      return publish();
+    },
+    async setLanguage(code: string) {
+      state.language = languageFromCode(code);
+      return publish();
+    },
+    async setTheme(code: string) {
+      if (code === 'light' || code === 'dark' || code === 'system') {
+        state.theme = code;
+      }
+      return publish();
+    },
+    async setSidebarCollapsed(collapsed: boolean) {
+      state.sidebarCollapsed = collapsed;
+      return publish();
+    },
+    async switchProfile(index: number) {
+      const target = state.profiles[index];
+      if (target === undefined || !state.shellOpen) {
+        return dto();
+      }
+      if (target.open) {
+        return dto();
+      }
+      for (const profile of state.profiles) {
+        profile.open = false;
+      }
+      target.open = true;
+      state.profileName = target.name;
+      state.mode = 'unlock';
+      state.allowChange = true;
+      state.shellOpen = false;
+      state.screen = 'dashboard';
+      state.backTitle = '';
+      state.backScreen = '';
+      state.errorText = '';
+      return publish();
+    },
+    async manageProfiles() {
+      state.screen = 'settings';
+      state.backTitle = '';
+      state.backScreen = '';
+      return publish();
+    },
+
+    async migrationMigrate(acknowledged: boolean) {
+      if (acknowledged && state.migrationStep === 'welcome') {
+        state.migrationStep = 'profile';
+        state.migrationProfileIndex = 0;
+        state.migrationProfileName = state.migrationProfileNames[0] ?? '';
+        state.migrationProfileHeading = heading(
+          state.language,
+          1,
+          state.migrationProfileNames.length,
+          state.migrationProfileName,
+        );
+        state.errorText = '';
+      }
+      return publish();
+    },
+    async migrationStartEmpty() {
+      state.mode = 'create';
+      state.migrationStep = '';
+      state.migrationProfileNames = [];
+      state.migrationSummaryLines = [];
+      state.errorText = '';
+      return publish();
+    },
+    async migrationSubmit(
+      passphrase: string,
+      newPassphrase: string,
+      repeat: string,
+      samePassphrase: boolean,
+    ) {
+      if (state.migrationStep !== 'profile') {
+        return dto();
+      }
+      state.migrationSamePassphrase = samePassphrase;
+      if (passphrase === '') {
+        state.errorText = translate(state.language, 'WrongPassphrase');
+        return publish();
+      }
+      if (samePassphrase) {
+        if (runeCount(passphrase) < passphraseMinimum) {
+          state.migrationNeedsNewPassphrase = true;
+          state.errorText = translate(state.language, 'MigrationNewPassphraseNeeded');
+          return publish();
+        }
+      } else {
+        const error = validateNew(newPassphrase, repeat, true);
+        if (error !== '') {
+          state.errorText = error;
+          return publish();
+        }
+      }
+      state.migrationNeedsNewPassphrase = false;
+      advanceMigration('migrated');
+      return publish();
+    },
+    async migrationSkip() {
+      if (state.migrationStep === 'profile') {
+        advanceMigration('skipped');
+      }
+      return publish();
+    },
+    async migrationContinue() {
+      state.mode = 'create';
+      state.migrationStep = '';
+      state.migrationProfileNames = [];
+      state.migrationSummaryLines = [];
+      state.profileName = 'Personal';
+      state.profiles = [{ name: 'Personal', slug: '', open: false }];
+      state.shellOpen = false;
+      state.allowChange = false;
+      state.errorText = '';
+      return publish();
+    },
+    async migrationPassphraseChanged(text: string) {
+      if (state.migrationStep !== 'profile' || !state.migrationSamePassphrase) {
+        return publish();
+      }
+      state.migrationNeedsNewPassphrase = text !== '' && runeCount(text) < passphraseMinimum;
+      return publish();
+    },
+
+    async openGitHub() {
+      return dto();
+    },
+    async reportProblem() {
+      return dto();
+    },
+
+    onShellChanged(callback: (next: ShellDTO) => void) {
+      shellListeners.add(callback);
+      return () => shellListeners.delete(callback);
+    },
+    onMenuAction(callback: (action: string) => void) {
+      menuListeners.add(callback);
+      return () => menuListeners.delete(callback);
+    },
   };
+
+  if (typeof window !== 'undefined') {
+    // Mock-build only: lets the end-to-end tests deliver a menu:action event
+    // without a native menu.
+    window.addEventListener('finglass:mock-menu-action', (event) => {
+      const action = (event as CustomEvent<string>).detail;
+      for (const listener of menuListeners) {
+        listener(action);
+      }
+    });
+  }
+
+  return api;
 }
