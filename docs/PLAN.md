@@ -143,7 +143,11 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
   the `frontend` checks (`svelte-check`, `vitest`, `eslint`/`prettier`). The Rust CI keeps running until G6.
 - [ ] `paths`, `profiles`, `secret` (`[]byte` + zero), `settings`, `audit`, `db` (open, key, migrations 1..n verbatim),
   `instance`.
-- [ ] i18n tables ported, plus the generator for the frontend.
+- [x] i18n tables ported, plus the generator for the frontend (G2b): `internal/core/i18n` (874 keys × EN/DE/FR,
+  checked against `testdata/golden/i18n/keys.json`; `Format` with placeholders and plurals). The Rust variant
+  `Language` is `LanguageKey` in Go, because `Language` is the type. `go generate ./internal/core/i18n/...` writes
+  `frontend/src/lib/generated/i18n/` (`keys.ts` and one JSON per language); `TestFrontendFilesAreCurrent` keeps it
+  current.
 
 ### G3 — Domain core (L)
 
