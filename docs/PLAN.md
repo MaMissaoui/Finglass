@@ -153,7 +153,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 ### G3 — Domain core (L)
 
-- [ ] `money`, `format`, `iban`, `account_ids`, `model`, all repos (transactions is the largest), `account_grouping`,
+- [x] `money`, `format`, `iban`, `account_ids`, `model`, all repos (transactions is the largest), `account_grouping`,
   `balance`.
   - [x] G3a: `money`, `format`, `iban`, `accountids`, plus `decimal` (rust_decimal's rules; arithmetic does not yet
     round at the 96-bit/28-digit limits, which money never reaches) and `civil` (calendar dates).
@@ -161,11 +161,12 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
     `rules`, `pendingbookings`, `documents`, `bankconnections`), with Rust's SQL, column encodings and audit entries.
   - [x] G3e: `accountgrouping` and `balance` (running balance with bank differences, balance history).
   - [x] G3g: `repo/transactions`; with it every repository is ported.
-- [ ] Importers, dedup and hash, import service. Every golden test passes.
+- [x] Importers, dedup and hash, import service. Every golden test passes.
   - [x] G3f: the statement parsers (CSV, XLSX, MT940, CAMT.052/053 and ZIP, OFX, QIF) and the hashes, in
     `internal/core/imports`; `import/statements.json` and `hash/hashes.json` pass. Go reads only Store/Deflate ZIP
     entries, and malformed-XML messages carry Go's parser text.
-- [ ] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
+  - [x] G3i: duplicate planning and the import service; `dedup/reports.json` passes.
+- [x] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
   `bank_directory`, `bank_logo`.
   - [x] G3x: `bankdirectory` (embedded Bundesbank file) and `banklogo`.
   - [x] G3c: rule matcher, payment providers (PayPal shop names) and the rule file format, in `internal/core/rules`.
@@ -177,6 +178,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 - [ ] Dashboard and report services, tax export, PDF/XLSX/CSV export.
   - [x] G4a: `export/pdf`, the report PDF writer, byte-identical to Rust's `pdf-writer` output (checked against
     reference PDFs and f32 width tables written by Rust). `export/pdfdoc` from G0 is no longer needed by the exports.
+  - [x] G4b: `export/xlsx` (package parts byte-identical to Rust's) and the `report` format helpers.
 - [ ] Documents: storage, limits, PDF text, Tesseract OCR, receipt parser and matching.
   - [x] G4a: `documents/programs` (helper programs found by absolute path, for launches from Finder).
   - [x] G3h: `receipt` (the receipt text parser).
