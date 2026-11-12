@@ -13,9 +13,9 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"unicode"
 
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/rustfmt"
 	"github.com/MaMissaoui/Finglass/internal/core/settings"
 )
 
@@ -48,13 +48,13 @@ var EUR = Currency{code: [3]byte{'E', 'U', 'R'}}
 // upper-casing them.
 func NewCurrency(text string) (Currency, error) {
 	if len(text) != 3 {
-		return Currency{}, InvalidError{Msg: "invalid currency code " + rustQuote(text)}
+		return Currency{}, InvalidError{Msg: "invalid currency code " + rustfmt.Quote(text)}
 	}
 	var code [3]byte
 	for index := 0; index < 3; index++ {
 		character := text[index]
 		if (character < 'a' || character > 'z') && (character < 'A' || character > 'Z') {
-			return Currency{}, InvalidError{Msg: "invalid currency code " + rustQuote(text)}
+			return Currency{}, InvalidError{Msg: "invalid currency code " + rustfmt.Quote(text)}
 		}
 		if character >= 'a' && character <= 'z' {
 			character -= 'a' - 'A'
@@ -208,7 +208,7 @@ func SumByCurrency[T any](items []T, primary Currency, currency func(T) Currency
 func ParseDecimal(text string, currency Currency) (Money, error) {
 	trimmed := strings.TrimSpace(text)
 	invalid := func() error {
-		return InvalidError{Msg: "invalid amount " + rustQuote(text)}
+		return InvalidError{Msg: "invalid amount " + rustfmt.Quote(text)}
 	}
 
 	if trimmed == "" {
@@ -389,44 +389,6 @@ func FormatPlain(m Money) string {
 		sign = "-"
 	}
 	return fmt.Sprintf("%s%d.%0*d", sign, whole, int(exponent), fraction)
-}
-
-// rustQuote quotes a string as Rust's Debug formatting does.
-func rustQuote(text string) string {
-	var quoted strings.Builder
-	quoted.WriteByte('"')
-	for _, character := range text {
-		switch character {
-		case '\\':
-			quoted.WriteString(`\\`)
-		case '"':
-			quoted.WriteString(`\"`)
-		case '\n':
-			quoted.WriteString(`\n`)
-		case '\r':
-			quoted.WriteString(`\r`)
-		case '\t':
-			quoted.WriteString(`\t`)
-		case '\x00':
-			quoted.WriteString(`\0`)
-		default:
-			if !strconv.IsPrint(character) || isCombiningMark(character) {
-				quoted.WriteString(`\u{`)
-				quoted.WriteString(strconv.FormatInt(int64(character), 16))
-				quoted.WriteByte('}')
-			} else {
-				quoted.WriteRune(character)
-			}
-		}
-	}
-	quoted.WriteByte('"')
-	return quoted.String()
-}
-
-func isCombiningMark(character rune) bool {
-	return unicode.Is(unicode.Mn, character) ||
-		unicode.Is(unicode.Me, character) ||
-		unicode.Is(unicode.Other_Grapheme_Extend, character)
 }
 
 func addInt64(left, right int64) (int64, bool) {
