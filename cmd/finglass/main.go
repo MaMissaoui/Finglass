@@ -109,6 +109,7 @@ func main() {
 		if dto, stateErr := shellService.State(); stateErr == nil {
 			menu.apply(dto)
 		}
+		menu.running.Store(true)
 	}
 
 	if err := app.Run(); err != nil {

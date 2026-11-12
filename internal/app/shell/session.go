@@ -427,14 +427,6 @@ func (s *Session) configureUnlockLocked(prepared startup.Startup) {
 	s.restored = copyString(prepared.RestoredFrom)
 }
 
-// ConfigureUnlock points the unlock screen at prepared, as
-// configure_unlock_window does after a teardown.
-func (s *Session) ConfigureUnlock(prepared startup.Startup) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.configureUnlockLocked(prepared)
-}
-
 // IsOpen reports whether a profile is unlocked and the main shell shows.
 func (s *Session) IsOpen() bool {
 	s.mu.Lock()
@@ -771,6 +763,25 @@ func (s *Session) Teardown(prepared startup.Startup) {
 	oldGeneration := s.jobs.Generation()
 	s.jobs.Bump()
 	s.teardownLocked(prepared, oldGeneration)
+	s.mu.Unlock()
+
+	if oldBridge != nil {
+		oldBridge.CancelPending()
+	}
+}
+
+// TeardownToUnlock is Teardown followed by configure_unlock_window, as the
+// migration's Continue does. Both happen in one critical section, so no caller
+// sees the new profile with the old unlock mode.
+func (s *Session) TeardownToUnlock(prepared startup.Startup) {
+	next := newPromptBridge()
+	s.mu.Lock()
+	oldBridge := s.bridge
+	s.bridge = next
+	oldGeneration := s.jobs.Generation()
+	s.jobs.Bump()
+	s.teardownLocked(prepared, oldGeneration)
+	s.configureUnlockLocked(prepared)
 	s.mu.Unlock()
 
 	if oldBridge != nil {
