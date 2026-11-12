@@ -17,6 +17,7 @@ frontend/playwright-report/
 
 # The cross-language SQLCipher fixtures are committed on purpose (dummy passphrase)
 !testdata/sqlcipher/*.db
+!internal/core/findeskimport/testdata/findesk/findesk.db
 
 # Agent and editor files
 CLAUDE.md
