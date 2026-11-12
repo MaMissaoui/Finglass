@@ -13,10 +13,12 @@ import * as bind$0 from "../../../../MaMissaoui/Finglass/internal/bind/models.js
 function configure() {
     Object.freeze(Object.assign($Create.Events, {
         "appinfo:tick": $$createType0,
+        "shell:changed": $$createType1,
     }));
 }
 
 // Private type creation functions
 const $$createType0 = bind$0.TickPayload.createFrom;
+const $$createType1 = bind$0.ShellDTO.createFrom;
 
 configure();

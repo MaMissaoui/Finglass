@@ -8,12 +8,23 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	"github.com/MaMissaoui/Finglass/frontend"
+	"github.com/MaMissaoui/Finglass/internal/app/findesk"
+	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/bind"
+	"github.com/MaMissaoui/Finglass/internal/core/banksync"
+	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/paths"
 )
+
+// shellService is set from main before the Wails application is built. The
+// self-check process only inspects its type, so its zero value is enough.
+var shellService = bind.NewShell(nil, nil, bind.ShellOptions{})
 
 func main() {
 	// Finder may add its own arguments, so look for the flag instead of
@@ -24,18 +35,59 @@ func main() {
 		}
 	}
 
+	appPaths, err := paths.FromEnv()
+	if err != nil {
+		log.Fatalf("resolve data paths: %v", err)
+	}
+
+	session, offer, _ := shell.Start(
+		appPaths,
+		banksync.SystemCredentialStore(),
+		findesk.DefaultFindeskStartDir(),
+		time.Now,
+		func() civil.Date { return civil.FromTime(time.Now()) },
+		os.LookupEnv,
+	)
+
+	var app *application.App
+	var window *application.WebviewWindow
+	var menu *menuController
+	var shellStateMu sync.Mutex
+	shellWasOpen := false
+
+	openURL := func(url string) {
+		if app != nil {
+			_ = app.Browser.OpenURL(url)
+		}
+	}
+
+	shellService = bind.NewShell(session, offer, bind.ShellOptions{
+		Paths:   appPaths,
+		Clock:   time.Now,
+		OpenURL: openURL,
+		AfterChange: func(dto bind.ShellDTO) {
+			shellStateMu.Lock()
+			maximise := dto.ShellOpen && !shellWasOpen
+			shellWasOpen = dto.ShellOpen
+			shellStateMu.Unlock()
+
+			if maximise && window != nil {
+				window.Maximise()
+			}
+			if menu != nil {
+				menu.apply(dto)
+			}
+		},
+	})
+
 	dist, err := fs.Sub(frontend.Dist, "dist")
 	if err != nil {
 		log.Fatalf("open embedded frontend: %v", err)
 	}
 
-	app := application.New(applicationOptions(dist))
+	app = application.New(applicationOptions(dist))
 
-	if runtime.GOOS == "darwin" {
-		app.Menu.Set(applicationMenu(app))
-	}
-
-	app.Window.NewWithOptions(application.WebviewWindowOptions{
+	window = app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Name:             "main",
 		Title:            "Finglass",
 		Width:            1100,
@@ -46,6 +98,18 @@ func main() {
 		BackgroundColour: application.NewRGB(255, 255, 255),
 		DevToolsEnabled:  false,
 	})
+
+	if runtime.GOOS == "darwin" {
+		menu = &menuController{
+			app:     app,
+			window:  window,
+			service: shellService,
+			openURL: openURL,
+		}
+		if dto, stateErr := shellService.State(); stateErr == nil {
+			menu.apply(dto)
+		}
+	}
 
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
@@ -61,6 +125,7 @@ type boundService struct {
 func boundServices() []boundService {
 	return []boundService{
 		{name: "AppInfo", service: application.NewService(&bind.AppInfo{})},
+		{name: "Shell", service: application.NewService(shellService)},
 	}
 }
 
@@ -89,31 +154,6 @@ func applicationOptions(dist fs.FS) application.Options {
 			ExitCode: 1,
 		},
 	}
-}
-
-// applicationMenu builds the native macOS menu. The Edit roles are what give
-// text fields the standard shortcuts.
-func applicationMenu(app *application.App) *application.Menu {
-	menu := app.NewMenu()
-
-	appMenu := menu.AddSubmenu("Finglass")
-	appMenu.AddRole(application.About)
-	appMenu.AddSeparator()
-	appMenu.AddRole(application.Hide)
-	appMenu.AddSeparator()
-	appMenu.AddRole(application.Quit)
-
-	editMenu := menu.AddSubmenu("Edit")
-	editMenu.AddRole(application.Undo)
-	editMenu.AddRole(application.Redo)
-	editMenu.AddSeparator()
-	editMenu.AddRole(application.Cut)
-	editMenu.AddRole(application.Copy)
-	editMenu.AddRole(application.Paste)
-	editMenu.AddSeparator()
-	editMenu.AddRole(application.SelectAll)
-
-	return menu
 }
 
 func runSelfCheck() int {
@@ -185,6 +225,13 @@ var expectedServices = []expectedService{
 		name: "AppInfo",
 		matches: func(instance any) bool {
 			_, ok := instance.(*bind.AppInfo)
+			return ok
+		},
+	},
+	{
+		name: "Shell",
+		matches: func(instance any) bool {
+			_, ok := instance.(*bind.Shell)
 			return ok
 		},
 	},

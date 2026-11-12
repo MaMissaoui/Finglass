@@ -13,3 +13,13 @@ import "../github.com/wailsapp/wails/v3/internal/eventcreate.js";
  */
 export const AppinfoTick = "appinfo:tick";
 
+/**
+ * Name of the custom event "menu:action".
+ */
+export const MenuAction = "menu:action";
+
+/**
+ * Name of the custom event "shell:changed".
+ */
+export const ShellChanged = "shell:changed";
+
