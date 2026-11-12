@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"testing"
 	"time"
 
@@ -898,7 +897,7 @@ func TestExportsMatchTheRustGolden(t *testing.T) {
 	if golden.TaxPDF.Text == nil {
 		t.Fatal("the golden has no tax PDF text")
 	}
-	if !sameWords(pdfText.Text, golden.TaxPDF.Text.Text) {
+	if pdfText.Text != golden.TaxPDF.Text.Text {
 		t.Errorf("tax PDF text:\n got: %q\nwant: %q", pdfText.Text, golden.TaxPDF.Text.Text)
 	}
 	if pdfText.PageCount != golden.TaxPDF.Text.PageCount {
@@ -939,7 +938,7 @@ func TestExportsMatchTheRustGolden(t *testing.T) {
 	if golden.ReportPDF.Text == nil {
 		t.Fatal("the golden has no report PDF text")
 	}
-	if !sameWords(reportText.Text, golden.ReportPDF.Text.Text) {
+	if reportText.Text != golden.ReportPDF.Text.Text {
 		t.Errorf("report PDF text:\n got: %q\nwant: %q", reportText.Text, golden.ReportPDF.Text.Text)
 	}
 	if reportText.PageCount != golden.ReportPDF.Text.PageCount {
@@ -955,12 +954,4 @@ func TestExportsMatchTheRustGolden(t *testing.T) {
 	if reportInfo.PageCount != golden.ReportPDF.Info.PageCount {
 		t.Errorf("report PDF info page count = %d, want %d", reportInfo.PageCount, golden.ReportPDF.Info.PageCount)
 	}
-}
-
-// sameWords compares two text layers as ordered words. Go's pdftext reader
-// ignores the Td operator this writer uses for positioning, so it returns the
-// page's words as one row; Rust's pdf-extract keeps the line breaks. The words
-// themselves and their order are what the export promises.
-func sameWords(got, want string) bool {
-	return slices.Equal(strings.Fields(got), strings.Fields(want))
 }
