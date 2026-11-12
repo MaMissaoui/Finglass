@@ -167,6 +167,7 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 - [ ] Rules (matcher with `regexp2`, file import/export, payment providers), `recurring`, `bank_text`,
   `bank_directory`, `bank_logo`.
   - [x] G3x: `bankdirectory` (embedded Bundesbank file) and `banklogo`.
+  - [x] G3c: rule matcher, payment providers (PayPal shop names) and the rule file format, in `internal/core/rules`.
 
 ### G4 — Reports, documents, backup, FinDesk import (L)
 
