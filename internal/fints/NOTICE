@@ -25,11 +25,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Parts of this package (the wire syntax, the message envelope, the read-only
-segment builders, the generic response parsing and the typed BPD/UPD/TAN,
-balance and statement response parsers) are ported from fints-rs 0.2.0 by
-Florian Minnecker. They were adapted, not copied verbatim: the port is
+segment builders, the generic response parsing, the typed BPD/UPD/TAN,
+balance and statement response parsers, the dialog state machine, the bank
+parameter state and the balance/statement workflows) are ported from fints-rs
+0.2.0 by Florian Minnecker. They were adapted, not copied verbatim: the port is
 read-only, drops the securities-depot request and its parsers, adds the camt
 statement request and parameter/response values, uses a closed type for the
 HKTAN reference, keeps bank text unexported with masked formatting, uses the
 project's decimal type for money and reports characters outside ISO-8859-1 as
-errors.
+errors. The dialog is a checked state machine instead of Rust's typestate, it
+sends HKEND best effort on error paths, bounds decoupled polling and touchdown
+paging, and always wipes requests and TANs.
