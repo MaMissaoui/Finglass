@@ -126,7 +126,7 @@ func answerPinInBackground(bridge *PromptBridge, pin string, remember bool) <-ch
 		for {
 			prompt := bridge.Prompt()
 			if prompt != nil && prompt.Kind == Pin {
-				bridge.AnswerPin([]byte(pin), remember)
+				answerPinPrompt(bridge, []byte(pin), remember)
 				return
 			}
 			if !time.Now().Before(deadline) {

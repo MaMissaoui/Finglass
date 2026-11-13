@@ -191,6 +191,9 @@ type Session struct {
 	// pageLoadGate is nil in production. Tests set it to hold a page job after
 	// it spawned and before it touches the database.
 	pageLoadGate func(page string)
+	// gatewayFactory is nil in production. The shell tests set it to inject a
+	// fake FinTS gateway; no production path ever opens a socket.
+	gatewayFactory func(i18n.Language) banksync.FinTsGateway
 }
 
 // Change says which screen's state a listener must publish.
@@ -276,6 +279,13 @@ type pageJob struct {
 	database   *db.Database
 	load       func(context.Context, *db.Database)
 	publish    func()
+	// publishExtra runs under the mutex with publish, before the notify. The
+	// Accounts page uses it to merge the banking state it loaded or to keep the
+	// bank list in step with an Accounts action.
+	publishExtra func()
+	// also is another page to notify after page. The Accounts page notifies
+	// "banking" because it refreshes or merges the bank-login state too.
+	also string
 }
 
 // startPageJob announces the prepared state and runs the load on a goroutine.
@@ -304,12 +314,18 @@ func (s *Session) runPageJob(job *pageJob) {
 		s.isLatestPageRequestLocked(job.page, job.request)
 	if publish {
 		job.publish()
+		if job.publishExtra != nil {
+			job.publishExtra()
+		}
 	}
 	s.jobs.EndGeneration(job.generation)
 	s.mu.Unlock()
 
 	if publish {
 		s.notify(Change{Page: job.page})
+		if job.also != "" {
+			s.notify(Change{Page: job.also})
+		}
 	}
 }
 
@@ -400,7 +416,7 @@ func newSession(
 	transactions := transactionsview.New(language)
 	transactions.SetBusy(profileBusy)
 
-	return &Session{
+	session := &Session{
 		paths:        appPaths,
 		credentials:  credentials,
 		clock:        clock,
@@ -415,7 +431,6 @@ func newSession(
 		findesk:      findesk.NewFindeskImportState(language),
 		accounts:     newAccountsState(language, profileBusy),
 		banking:      banking.New(language),
-		bridge:       newPromptBridge(),
 		profileBusy:  profileBusy,
 		accountsWork: accountsWork,
 		documents:    documentsview.New(language, false),
@@ -423,6 +438,8 @@ func newSession(
 		nav:          NavState{},
 		screen:       "dashboard",
 	}
+	session.bridge = session.newLiveBridge()
+	return session
 }
 
 // newAccountsState builds an Accounts state that shares the profile's one busy
@@ -439,10 +456,6 @@ func newSettingsState(language i18n.Language, busy accountsview.Busy) *settingsv
 	settings := settingsview.New(language)
 	settings.Busy = busy
 	return settings
-}
-
-func newPromptBridge() *banking.PromptBridge {
-	return banking.NewPromptBridge(PromptTimeout, func() {})
 }
 
 // Credentials returns the one credential store the shell was given.
@@ -942,7 +955,7 @@ func (s *Session) SwitchProfile(index int) error {
 func (s *Session) Teardown(prepared startup.Startup) {
 	// The next bridge is in place in the same critical section that removes the
 	// old one, so Bridge() never returns nil in between.
-	next := newPromptBridge()
+	next := s.newLiveBridge()
 	s.mu.Lock()
 	oldBridge := s.bridge
 	s.bridge = next
@@ -960,7 +973,7 @@ func (s *Session) Teardown(prepared startup.Startup) {
 // migration's Continue does. Both happen in one critical section, so no caller
 // sees the new profile with the old unlock mode.
 func (s *Session) TeardownToUnlock(prepared startup.Startup) {
-	next := newPromptBridge()
+	next := s.newLiveBridge()
 	s.mu.Lock()
 	oldBridge := s.bridge
 	s.bridge = next
@@ -1333,12 +1346,7 @@ func (s *Session) KeepLiveSyncFields(result *banking.BankingState) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.banking == nil {
-		return
-	}
-	result.SyncingBank = copyBankConnectionID(s.banking.SyncingBank)
-	result.SyncStep = copyString(s.banking.SyncStep)
-	result.SyncAll = copySyncAll(s.banking.SyncAll)
+	s.keepLiveSyncFieldsLocked(result)
 }
 
 // Shutdown ends the session for good. Under the mutex it marks the session

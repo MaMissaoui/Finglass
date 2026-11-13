@@ -14,15 +14,19 @@ function configure() {
     Object.freeze(Object.assign($Create.Events, {
         "accounts:changed": $$createType0,
         "appinfo:tick": $$createType1,
-        "dashboard:changed": $$createType2,
-        "shell:changed": $$createType3,
+        "banking:changed": $$createType2,
+        "banking:prompt": $$createType3,
+        "dashboard:changed": $$createType4,
+        "shell:changed": $$createType5,
     }));
 }
 
 // Private type creation functions
 const $$createType0 = bind$0.AccountsDTO.createFrom;
 const $$createType1 = bind$0.TickPayload.createFrom;
-const $$createType2 = bind$0.DashboardDTO.createFrom;
-const $$createType3 = bind$0.ShellDTO.createFrom;
+const $$createType2 = bind$0.BankingDTO.createFrom;
+const $$createType3 = bind$0.PromptDTO.createFrom;
+const $$createType4 = bind$0.DashboardDTO.createFrom;
+const $$createType5 = bind$0.ShellDTO.createFrom;
 
 configure();

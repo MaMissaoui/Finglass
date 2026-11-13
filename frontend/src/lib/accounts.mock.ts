@@ -70,6 +70,15 @@ interface MockDialog {
   offline: boolean;
   bankId: number;
   accountId: number;
+  connectionName: string;
+  connectionBlz: string;
+  connectionUserId: string;
+  connectionServerUrl: string;
+  connectionHasPin: boolean;
+  connectionPinText: string;
+  connectionSyncing: boolean;
+  historyDate: string;
+  historyHasStart: boolean;
 }
 
 const accountTypes: AccountType[] = ['checking', 'savings', 'credit_card', 'loan', 'depot'];
@@ -93,6 +102,15 @@ function emptyDialog(): MockDialog {
     offline: false,
     bankId: 0,
     accountId: 0,
+    connectionName: '',
+    connectionBlz: '',
+    connectionUserId: '',
+    connectionServerUrl: '',
+    connectionHasPin: false,
+    connectionPinText: '',
+    connectionSyncing: false,
+    historyDate: '',
+    historyHasStart: false,
   };
 }
 
@@ -653,6 +671,12 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
       accountCountText: translate(language, 'AccountCount', rows.length),
       totals: currencyTotals(rows, language),
       accounts: rows.map(accountRow),
+      syncing: false,
+      syncStep: '',
+      syncEnabled: false,
+      syncTooltip: '',
+      pinText: '',
+      menu: [],
       logo: bank.badge.logo,
       logoLetters: bank.badge.letters,
       logoColour: bank.badge.colour,
@@ -671,6 +695,12 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
       accountCountText: translate(language, 'AccountCount', rows.length),
       totals: currencyTotals(rows, language),
       accounts: rows.map(accountRow),
+      syncing: false,
+      syncStep: '',
+      syncEnabled: false,
+      syncTooltip: '',
+      pinText: '',
+      menu: [],
       logo: '',
       logoLetters: '',
       logoColour: 0,

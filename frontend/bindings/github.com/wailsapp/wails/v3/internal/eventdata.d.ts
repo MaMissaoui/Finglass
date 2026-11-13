@@ -14,6 +14,8 @@ declare module "@wailsio/runtime" {
         interface CustomEvents {
             "accounts:changed": bind$0.AccountsDTO;
             "appinfo:tick": bind$0.TickPayload;
+            "banking:changed": bind$0.BankingDTO;
+            "banking:prompt": bind$0.PromptDTO;
             "dashboard:changed": bind$0.DashboardDTO;
             "menu:action": string;
             "shell:changed": bind$0.ShellDTO;

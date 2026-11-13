@@ -36,6 +36,42 @@ func openPromptForTest(bridge *PromptBridge, kind PromptKind) {
 	bridge.prompt = &BankingPrompt{Kind: kind}
 }
 
+// promptID returns the open prompt's id, or 0 when none is open. Direct answer
+// calls in these discard-path tests pass it so they reach the same code the
+// bind layer does.
+func promptID(bridge *PromptBridge) uint64 {
+	if prompt := bridge.Prompt(); prompt != nil {
+		return prompt.ID
+	}
+	return 0
+}
+
+// The helpers read the open prompt's id so a test answers the prompt it sees,
+// exactly as the bind layer does.
+func answerPinPrompt(bridge *PromptBridge, pin []byte, remember bool) {
+	if prompt := bridge.Prompt(); prompt != nil {
+		bridge.AnswerPin(prompt.ID, pin, remember)
+	}
+}
+
+func answerTanPrompt(bridge *PromptBridge, tan []byte) {
+	if prompt := bridge.Prompt(); prompt != nil {
+		bridge.AnswerTan(prompt.ID, tan)
+	}
+}
+
+func answerChoicePrompt(bridge *PromptBridge, choice *string) {
+	if prompt := bridge.Prompt(); prompt != nil {
+		bridge.AnswerChoice(prompt.ID, choice)
+	}
+}
+
+func answerDecoupledPrompt(bridge *PromptBridge, confirmed bool) {
+	if prompt := bridge.Prompt(); prompt != nil {
+		bridge.AnswerDecoupled(prompt.ID, confirmed)
+	}
+}
+
 func pinText(t *testing.T, entry *banksync.PinEntry) string {
 	t.Helper()
 	if entry == nil {
@@ -144,7 +180,7 @@ func TestAnAnsweredPinArrivesWithRemember(t *testing.T) {
 		prompt := bridge.Prompt()
 		return prompt != nil && prompt.Kind == Pin
 	})
-	bridge.AnswerPin([]byte("12345"), true)
+	answerPinPrompt(bridge, []byte("12345"), true)
 	var entry *banksync.PinEntry
 	select {
 	case entry = <-result:
@@ -174,7 +210,7 @@ func TestAnEmptyPinCancels(t *testing.T) {
 		prompt := bridge.Prompt()
 		return prompt != nil && prompt.Kind == Pin
 	})
-	bridge.AnswerPin([]byte(""), false)
+	answerPinPrompt(bridge, []byte(""), false)
 	select {
 	case entry := <-result:
 		if entry != nil {
@@ -196,15 +232,15 @@ func TestAWrongKindAnswerIsIgnored(t *testing.T) {
 		prompt := bridge.Prompt()
 		return prompt != nil && prompt.Kind == Pin
 	})
-	bridge.AnswerChoice(stringPointer("942"))
-	bridge.AnswerTan([]byte("999999"))
-	bridge.AnswerDecoupled(true)
+	answerChoicePrompt(bridge, stringPointer("942"))
+	answerTanPrompt(bridge, []byte("999999"))
+	answerDecoupledPrompt(bridge, true)
 	prompt := bridge.Prompt()
 	if prompt == nil || prompt.Kind != Pin {
 		t.Fatal("a wrong-kind answer closed the PIN prompt")
 	}
 
-	bridge.AnswerPin([]byte("12345"), false)
+	answerPinPrompt(bridge, []byte("12345"), false)
 	var entry *banksync.PinEntry
 	select {
 	case entry = <-result:
@@ -231,7 +267,7 @@ func TestOnChangeFiresWhenThePromptOpensAndCloses(t *testing.T) {
 	}()
 
 	waitUntil(t, func() bool { return changes.Load() >= 1 })
-	bridge.AnswerPin([]byte("12345"), false)
+	answerPinPrompt(bridge, []byte("12345"), false)
 	select {
 	case <-result:
 	case <-time.After(time.Second):
@@ -262,7 +298,7 @@ func TestPromptsAndStateDebugNeverContainAPinOrTan(t *testing.T) {
 			t.Fatalf("%s prompt leaked the PIN: %s", verb, debug)
 		}
 	}
-	bridge.AnswerPin([]byte(pin), false)
+	answerPinPrompt(bridge, []byte(pin), false)
 	select {
 	case entry := <-result:
 		entry.Pin().Wipe()
@@ -284,7 +320,7 @@ func TestPromptsAndStateDebugNeverContainAPinOrTan(t *testing.T) {
 			t.Fatalf("%s prompt leaked the TAN: %s", verb, debug)
 		}
 	}
-	bridge.AnswerTan([]byte(tan))
+	answerTanPrompt(bridge, []byte(tan))
 	select {
 	case answer := <-resultTan:
 		if answer != nil {
@@ -315,7 +351,7 @@ func TestPromptsAndStateDebugNeverContainAPinOrTan(t *testing.T) {
 	pinBridge := bridgeForTest(time.Second)
 	openPromptForTest(pinBridge, Pin)
 	pinAnswer := secret.NewText([]byte(pin))
-	pinBridge.answerPinText(pinAnswer, true)
+	pinBridge.answerPinText(promptID(pinBridge), pinAnswer, true)
 	for _, verb := range verbs {
 		debug := fmt.Sprintf(verb, pinBridge)
 		if strings.Contains(debug, pin) {
@@ -328,7 +364,7 @@ func TestPromptsAndStateDebugNeverContainAPinOrTan(t *testing.T) {
 	tanBridge := bridgeForTest(time.Second)
 	openPromptForTest(tanBridge, Tan)
 	tanAnswer := secret.NewText([]byte(tan))
-	tanBridge.answerTanText(tanAnswer)
+	tanBridge.answerTanText(promptID(tanBridge), tanAnswer)
 	for _, verb := range verbs {
 		debug := fmt.Sprintf(verb, tanBridge)
 		if strings.Contains(debug, tan) {
@@ -372,7 +408,7 @@ func TestOnChangeCallingPromptAndInfoDoesNotDeadlock(t *testing.T) {
 	if got := stringValue(bridge.CurrentInfo()); got != "Waiting for the bank" {
 		t.Fatalf("info = %q", got)
 	}
-	bridge.AnswerPin([]byte("12345"), false)
+	answerPinPrompt(bridge, []byte("12345"), false)
 	select {
 	case entry := <-result:
 		if entry != nil {
@@ -411,7 +447,7 @@ func TestAConcurrentSecondAskReturnsNilWhileTheFirstStaysOpen(t *testing.T) {
 		t.Fatal("the first prompt is no longer open")
 	}
 
-	bridge.AnswerPin([]byte("12345"), false)
+	answerPinPrompt(bridge, []byte("12345"), false)
 	select {
 	case entry := <-first:
 		if entry == nil {
@@ -448,7 +484,7 @@ func TestATimeoutClosesThePromptAndIgnoresALateAnswer(t *testing.T) {
 	}
 
 	late := secret.NewText([]byte("PIN-LATE"))
-	bridge.answerPinText(late, false)
+	bridge.answerPinText(promptID(bridge), late, false)
 	assertTextWiped(t, late)
 	if bridge.Prompt() != nil {
 		t.Fatal("the late answer reopened the prompt")
@@ -461,11 +497,11 @@ func TestEveryDiscardPathWipesTheAnswerSecret(t *testing.T) {
 	t.Run("no open prompt", func(t *testing.T) {
 		bridge := bridgeForTest(time.Second)
 		text := secret.NewText([]byte("PIN-SECRET"))
-		bridge.answerPinText(text, false)
+		bridge.answerPinText(promptID(bridge), text, false)
 		assertTextWiped(t, text)
 
 		tan := secret.NewText([]byte("TAN-SECRET"))
-		bridge.answerTanText(tan)
+		bridge.answerTanText(promptID(bridge), tan)
 		assertTextWiped(t, tan)
 	})
 
@@ -481,7 +517,7 @@ func TestEveryDiscardPathWipesTheAnswerSecret(t *testing.T) {
 		})
 
 		text := secret.NewText([]byte("PIN-SECRET"))
-		bridge.answerPinText(text, false)
+		bridge.answerPinText(promptID(bridge), text, false)
 		assertTextWiped(t, text)
 
 		bridge.CancelPending()
@@ -496,11 +532,11 @@ func TestEveryDiscardPathWipesTheAnswerSecret(t *testing.T) {
 		bridge := bridgeForTest(time.Second)
 		bridge.CancelPending()
 		text := secret.NewText([]byte("PIN-SECRET"))
-		bridge.answerPinText(text, false)
+		bridge.answerPinText(promptID(bridge), text, false)
 		assertTextWiped(t, text)
 
 		tan := secret.NewText([]byte("TAN-SECRET"))
-		bridge.answerTanText(tan)
+		bridge.answerTanText(promptID(bridge), tan)
 		assertTextWiped(t, tan)
 	})
 
@@ -516,7 +552,7 @@ func TestEveryDiscardPathWipesTheAnswerSecret(t *testing.T) {
 		})
 
 		text := secret.NewText(nil)
-		bridge.answerPinText(text, false)
+		bridge.answerPinText(promptID(bridge), text, false)
 		assertTextWiped(t, text)
 		select {
 		case entry := <-result:
@@ -533,7 +569,7 @@ func TestEveryDiscardPathWipesTheAnswerSecret(t *testing.T) {
 		openPromptForTest(bridge, Pin)
 
 		text := secret.NewText([]byte("PIN-SECRET"))
-		bridge.answerPinText(text, false)
+		bridge.answerPinText(promptID(bridge), text, false)
 		bridge.CancelPending()
 		assertTextWiped(t, text)
 		if bridge.Prompt() != nil {
@@ -546,9 +582,9 @@ func TestEveryDiscardPathWipesTheAnswerSecret(t *testing.T) {
 		openPromptForTest(bridge, Pin)
 
 		first := secret.NewText([]byte("PIN-FIRST"))
-		bridge.answerPinText(first, false)
+		bridge.answerPinText(promptID(bridge), first, false)
 		second := secret.NewText([]byte("PIN-SECOND"))
-		bridge.answerPinText(second, false)
+		bridge.answerPinText(promptID(bridge), second, false)
 		assertTextWiped(t, first)
 		if second.Len() == 0 {
 			t.Fatal("the replacing answer was wiped before it was consumed")
@@ -585,6 +621,76 @@ func TestEveryDiscardPathWipesTheAnswerSecret(t *testing.T) {
 	})
 }
 
+func TestAnAnswerForAnEarlierPromptCannotAnswerTheNextOne(t *testing.T) {
+	bridge := bridgeForTest(5 * time.Second)
+
+	firstResult := make(chan *banksync.PinEntry, 1)
+	go func() {
+		firstResult <- bridge.Pin("Bank", "user", true)
+	}()
+	first := bridge.Prompt()
+	for first == nil || first.Kind != Pin {
+		time.Sleep(time.Millisecond)
+		first = bridge.Prompt()
+	}
+	bridge.AnswerPin(first.ID, []byte("1111"), false)
+	select {
+	case entry := <-firstResult:
+		if entry == nil {
+			t.Fatal("the first PIN was not answered")
+		}
+		entry.Pin().Wipe()
+	case <-time.After(time.Second):
+		t.Fatal("the first prompt did not finish")
+	}
+
+	secondResult := make(chan *banksync.PinEntry, 1)
+	go func() {
+		secondResult <- bridge.Pin("Bank", "user", true)
+	}()
+	second := bridge.Prompt()
+	for second == nil || second.Kind != Pin || second.ID == first.ID {
+		time.Sleep(time.Millisecond)
+		second = bridge.Prompt()
+	}
+	if second.ID <= first.ID {
+		t.Fatalf("prompt ids did not increase: %d then %d", first.ID, second.ID)
+	}
+
+	bridge.AnswerPin(first.ID, []byte("late"), false)
+	open := bridge.Prompt()
+	if open == nil || open.ID != second.ID {
+		t.Fatalf("a stale answer closed the open prompt: %+v", open)
+	}
+	select {
+	case entry := <-secondResult:
+		if entry != nil {
+			entry.Pin().Wipe()
+		}
+		t.Fatal("the stale answer reached the second prompt")
+	case <-time.After(20 * time.Millisecond):
+	}
+
+	bridge.AnswerPin(second.ID, []byte("2222"), false)
+	select {
+	case entry := <-secondResult:
+		if entry == nil {
+			t.Fatal("the second prompt was not answered")
+		}
+		var value string
+		_ = entry.Pin().Use(func(bytes []byte) error {
+			value = string(bytes)
+			return nil
+		})
+		if value != "2222" {
+			t.Fatalf("PIN = %q", value)
+		}
+		entry.Pin().Wipe()
+	case <-time.After(time.Second):
+		t.Fatal("the second prompt did not finish")
+	}
+}
+
 func TestEachAnswerTypeReachesTheMatchingMethod(t *testing.T) {
 	t.Run("pin", func(t *testing.T) {
 		bridge := bridgeForTest(5 * time.Second)
@@ -597,7 +703,7 @@ func TestEachAnswerTypeReachesTheMatchingMethod(t *testing.T) {
 			return prompt != nil && prompt.Kind == Pin && prompt.BankName == "Bank" &&
 				prompt.UserID == "user" && prompt.OfferRemember
 		})
-		bridge.AnswerPin([]byte("12345"), true)
+		answerPinPrompt(bridge, []byte("12345"), true)
 		entry := <-result
 		if got := pinText(t, entry); got != "12345" {
 			t.Fatalf("PIN = %q", got)
@@ -623,7 +729,7 @@ func TestEachAnswerTypeReachesTheMatchingMethod(t *testing.T) {
 			return prompt != nil && prompt.Kind == ChooseTanMethod && len(prompt.TanMethods) == 2
 		})
 		choice := "942"
-		bridge.AnswerChoice(&choice)
+		answerChoicePrompt(bridge, &choice)
 		select {
 		case got := <-result:
 			if got == nil || *got != "942" {
@@ -645,7 +751,7 @@ func TestEachAnswerTypeReachesTheMatchingMethod(t *testing.T) {
 			return prompt != nil && prompt.Kind == ChooseTanMedium && len(prompt.TanMediums) == 2
 		})
 		choice := "phone"
-		bridge.AnswerChoice(&choice)
+		answerChoicePrompt(bridge, &choice)
 		select {
 		case got := <-result:
 			if got == nil || *got != "phone" {
@@ -667,7 +773,7 @@ func TestEachAnswerTypeReachesTheMatchingMethod(t *testing.T) {
 			prompt := bridge.Prompt()
 			return prompt != nil && prompt.Kind == Tan && prompt.Challenge.Message == "Bitte TAN"
 		})
-		bridge.AnswerTan([]byte("999999"))
+		answerTanPrompt(bridge, []byte("999999"))
 		select {
 		case answer := <-result:
 			if got := secretText(t, answer); got != "999999" {
@@ -689,7 +795,7 @@ func TestEachAnswerTypeReachesTheMatchingMethod(t *testing.T) {
 			prompt := bridge.Prompt()
 			return prompt != nil && prompt.Kind == Decoupled && prompt.Message == "Confirm in the app"
 		})
-		bridge.AnswerDecoupled(true)
+		answerDecoupledPrompt(bridge, true)
 		select {
 		case confirmed := <-result:
 			if !confirmed {
@@ -849,7 +955,7 @@ func TestTheCallerMayWipeItsBufferRightAfterAnswering(t *testing.T) {
 		})
 
 		buffer := []byte("12345")
-		bridge.AnswerPin(buffer, true)
+		answerPinPrompt(bridge, buffer, true)
 		clear(buffer)
 
 		select {
@@ -876,7 +982,7 @@ func TestTheCallerMayWipeItsBufferRightAfterAnswering(t *testing.T) {
 		})
 
 		buffer := []byte("654321")
-		bridge.AnswerTan(buffer)
+		answerTanPrompt(bridge, buffer)
 		clear(buffer)
 
 		select {
