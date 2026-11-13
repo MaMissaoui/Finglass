@@ -250,9 +250,9 @@ This must happen before any Rust code is deleted. Once it is gone, its behaviour
 
 In order, each one compared with the G1 reference screenshots:
 
-- [ ] Dashboard: month statement and carry-forward, with charts as Svelte SVG components following design.md's chart
+- [x] Dashboard: month statement and carry-forward, with charts as Svelte SVG components following design.md's chart
   rules.
-- [ ] Accounts, bank cards and the account panel.
+- [x] Accounts, bank cards and the account panel.
 - [ ] Transactions: list, filters, panel, import dialog, rules.
 - [ ] Reports: export menu, tax donut.
 - [ ] Documents.
