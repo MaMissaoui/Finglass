@@ -240,9 +240,11 @@ func nativeMenu(
 	return menu
 }
 
-// transactionsMenuService opens the Transactions page with its add dialog.
+// transactionsMenuService opens the Transactions page with the dialog the menu
+// asked for.
 type transactionsMenuService interface {
 	OpenWithAdd() (bind.TransactionsDTO, error)
+	OpenWithImport() (bind.TransactionsDTO, error)
 }
 
 // menuController owns the menu's copy of the shell state and rebuilds the
@@ -342,7 +344,11 @@ func (c *menuController) actions() menuActions {
 				_, _ = c.transactions.OpenWithAdd()
 			}
 		},
-		ImportStatement: func() { emit("importStatement") },
+		ImportStatement: func() {
+			if c.transactions != nil {
+				_, _ = c.transactions.OpenWithImport()
+			}
+		},
 		Navigate: func(screen string) {
 			_, _ = c.service.Navigate(screen)
 		},

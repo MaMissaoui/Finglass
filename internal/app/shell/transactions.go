@@ -2,11 +2,13 @@ package shell
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"strings"
 	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/app/accountpanel"
+	"github.com/MaMissaoui/Finglass/internal/app/accountsview"
 	"github.com/MaMissaoui/Finglass/internal/app/transactionsview"
 	"github.com/MaMissaoui/Finglass/internal/core/banktext"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
@@ -15,6 +17,7 @@ import (
 	documentsservice "github.com/MaMissaoui/Finglass/internal/core/documents/service"
 	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
+	"github.com/MaMissaoui/Finglass/internal/core/imports"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 )
@@ -78,6 +81,16 @@ type TransactionsDialogState struct {
 	// MultiDeleteMore is the "... and N more" line.
 	MultiDeleteMore string
 }
+
+// transactionsPendingOpenKind is Rust's PendingOpen: the dialog the menu asked
+// for, opened once its page load has finished.
+type transactionsPendingOpenKind uint8
+
+const (
+	transactionsPendingNone transactionsPendingOpenKind = iota
+	transactionsPendingAdd
+	transactionsPendingImport
+)
 
 // pendingTransactionsSearch is Rust's PendingSearch: the newest query typed
 // while a job was running, kept until that job has finished.
@@ -197,17 +210,214 @@ func (s *Session) TransactionsOpen(args transactionsview.StartArgs) {
 // TransactionsOpenWithAdd opens the page and then the add dialog, as the File
 // menu does.
 func (s *Session) TransactionsOpenWithAdd() {
+	s.transactionsOpenWithPending(transactionsPendingAdd)
+}
+
+// TransactionsOpenWithImport opens the page and then the statement-import
+// dialog, as the File menu does.
+func (s *Session) TransactionsOpenWithImport() {
+	s.transactionsOpenWithPending(transactionsPendingImport)
+}
+
+func (s *Session) transactionsOpenWithPending(pending transactionsPendingOpenKind) {
 	args := PageArgs{Transactions: transactionsview.StartArgs{}}
 	s.mu.Lock()
 	s.nav.Enter(args)
-	s.transactionsPendingOpen = true
+	s.transactionsPendingOpen = pending
 	job := s.openPageLocked("transactions", args)
 	if job == nil {
-		s.transactionsPendingOpen = false
+		s.transactionsPendingOpen = transactionsPendingNone
 	}
 	s.mu.Unlock()
 
 	s.notify(Change{Page: "shell"})
+	s.startPageJob(job)
+}
+
+// TransactionsOpenImport asks for statement files and opens the import preview,
+// as the page's Import button does.
+func (s *Session) TransactionsOpenImport() {
+	s.mu.Lock()
+	dialogs := s.fileDialogs
+	language := s.language
+	job, _ := s.beginTransactionsJobLocked(false, func(
+		ctx context.Context,
+		view *transactionsview.TransactionsView,
+		database *db.Database,
+	) {
+		if dialogs == nil {
+			return
+		}
+		files, ok := dialogs.PickStatements(i18n.Text(language, i18n.ImportBankStatement))
+		if !ok || len(files) == 0 {
+			return
+		}
+		_ = view.OpenImport(ctx, database, files, nil, s.today())
+	})
+	s.mu.Unlock()
+	s.startPageJob(job)
+}
+
+// TransactionsImportAccountChanged picks the account for the open preview.
+func (s *Session) TransactionsImportAccountChanged(index int) {
+	s.mu.Lock()
+	var accountID *model.AccountID
+	if s.transactions != nil {
+		accounts := s.transactions.State().Accounts
+		if index >= 0 && index < len(accounts) {
+			id := accounts[index].ID
+			accountID = &id
+		}
+	}
+	s.mu.Unlock()
+	if accountID == nil {
+		return
+	}
+	s.startTransactionsAction(func(
+		ctx context.Context,
+		view *transactionsview.TransactionsView,
+		database *db.Database,
+		today civil.Date,
+	) {
+		_ = view.SelectImportAccount(ctx, database, *accountID, today)
+	})
+}
+
+// TransactionsImportCSVChanged applies one CSV mapping change from the dialog.
+func (s *Session) TransactionsImportCSVChanged(field string, value string) {
+	s.mu.Lock()
+	language := s.language
+	var mapping *imports.CsvMapping
+	if s.transactions != nil {
+		preview := s.transactions.State().ImportPreview
+		if preview != nil {
+			for index := range preview.Entries {
+				csv := preview.Entries[index].Statement.Csv
+				if csv == nil {
+					continue
+				}
+				options := ImportCSVOptions(csv, language)
+				optionIndex := 0
+				for position, option := range options {
+					if option == value {
+						optionIndex = position
+						break
+					}
+				}
+				remapped := RemapCSVMapping(csv.Mapping, field, optionIndex)
+				mapping = &remapped
+				break
+			}
+		}
+	}
+	s.mu.Unlock()
+	if mapping == nil {
+		return
+	}
+	s.startTransactionsAction(func(
+		ctx context.Context,
+		view *transactionsview.TransactionsView,
+		database *db.Database,
+		today civil.Date,
+	) {
+		_ = view.RemapImport(ctx, database, *mapping, today)
+	})
+}
+
+// TransactionsConfirmImport imports the previewed entries, holding the profile
+// busy on top of the page's own as spawn_import does.
+func (s *Session) TransactionsConfirmImport(updateBalance bool) {
+	s.mu.Lock()
+	today := s.today()
+	job, _ := s.beginTransactionsImportJobLocked(func(
+		ctx context.Context,
+		view *transactionsview.TransactionsView,
+		database *db.Database,
+	) {
+		_ = view.ConfirmImport(ctx, database, updateBalance, today)
+	})
+	s.mu.Unlock()
+	s.startPageJob(job)
+}
+
+// TransactionsCancelImport closes the preview without importing.
+func (s *Session) TransactionsCancelImport() {
+	s.mu.Lock()
+	if s.transactionsWork.Active() || s.transactions == nil {
+		// Rust's update_view finds no view while a worker owns it.
+		s.mu.Unlock()
+		return
+	}
+	s.transactions.CancelImport()
+	s.mu.Unlock()
+	s.notify(Change{Page: "transactions"})
+}
+
+// TransactionsExportCSV asks where to write the export and writes exactly what
+// is shown.
+func (s *Session) TransactionsExportCSV() {
+	s.mu.Lock()
+	dialogs := s.fileDialogs
+	language := s.language
+	today := s.today()
+	job, _ := s.beginTransactionsJobLocked(false, func(
+		ctx context.Context,
+		view *transactionsview.TransactionsView,
+		database *db.Database,
+	) {
+		if dialogs == nil {
+			return
+		}
+		defaultName := fmt.Sprintf(
+			"transactions-%04d-%02d-%02d.csv",
+			today.Year(),
+			int(today.Month()),
+			today.Day(),
+		)
+		path, ok := dialogs.SaveCSV(i18n.Text(language, i18n.ExportTransactions), defaultName)
+		if !ok || strings.TrimSpace(path) == "" {
+			return
+		}
+		_ = view.ExportCSV(ctx, database, path)
+	})
+	s.mu.Unlock()
+	s.startPageJob(job)
+}
+
+// TransactionsAttachReceipt asks for receipt files and attaches them to the
+// selected booking.
+func (s *Session) TransactionsAttachReceipt() {
+	s.mu.Lock()
+	if s.transactions == nil {
+		s.mu.Unlock()
+		return
+	}
+	state := s.transactions.State()
+	selected := state.Selected
+	if selected == nil {
+		s.mu.Unlock()
+		return
+	}
+	id := selected.ID
+	dialogs := s.fileDialogs
+	language := s.language
+	documentsDir := s.transactionsDocumentsDirLocked()
+	job, _ := s.beginTransactionsJobLocked(false, func(
+		ctx context.Context,
+		view *transactionsview.TransactionsView,
+		database *db.Database,
+	) {
+		if dialogs == nil {
+			return
+		}
+		files, ok := dialogs.PickReceipts(i18n.Text(language, i18n.AttachReceipt))
+		if !ok || len(files) == 0 {
+			return
+		}
+		service := documentsservice.NewService(database, ocr.WithoutOCR(), documentsDir)
+		_ = view.AttachDocuments(ctx, database, service, id, files, s.today())
+	})
+	s.mu.Unlock()
 	s.startPageJob(job)
 }
 
@@ -238,14 +448,38 @@ func (s *Session) beginTransactionsJobLocked(
 	loading bool,
 	work func(context.Context, *transactionsview.TransactionsView, *db.Database),
 ) (*pageJob, bool) {
+	return s.beginTransactionsJobWithProfileBusyLocked(loading, false, work)
+}
+
+// beginTransactionsImportJobLocked is spawn_import: it holds the profile Busy on
+// top of the page's own for the whole import job.
+func (s *Session) beginTransactionsImportJobLocked(
+	work func(context.Context, *transactionsview.TransactionsView, *db.Database),
+) (*pageJob, bool) {
+	return s.beginTransactionsJobWithProfileBusyLocked(false, true, work)
+}
+
+func (s *Session) beginTransactionsJobWithProfileBusyLocked(
+	loading bool,
+	holdProfileBusy bool,
+	work func(context.Context, *transactionsview.TransactionsView, *db.Database),
+) (*pageJob, bool) {
 	if s.db == nil || s.transactionsWork.Active() || s.transactions == nil {
 		return nil, false
 	}
 
 	busy := s.transactionsWork
 	busy.Begin()
+	var profileBusy accountsview.Busy
+	if holdProfileBusy {
+		profileBusy = s.profileBusy
+		profileBusy.Begin()
+	}
 	generation, ok := s.beginJobLocked()
 	if !ok {
+		if holdProfileBusy {
+			profileBusy.End()
+		}
 		busy.End()
 		return nil, false
 	}
@@ -274,9 +508,16 @@ func (s *Session) beginTransactionsJobLocked(
 			s.transactions = pending
 			s.runTransactionsPendingOpenLocked()
 		},
-		finish: func(bool) {
-			// Rust's BusyGuard ends after the result is returned.
+		finish: func(published bool) {
+			// Rust's BusyGuard ends after the result is returned; the pending
+			// import dialog starts once the page's own busy section is over.
+			if holdProfileBusy {
+				profileBusy.End()
+			}
 			busy.End()
+			if published {
+				s.runPendingTransactionsImport()
+			}
 		},
 		afterPublish: func(bool) {
 			s.runPendingTransactionsSearch()
@@ -288,19 +529,37 @@ func (s *Session) beginTransactionsJobLocked(
 // attach/reset clears.
 func (s *Session) resetTransactionsAuxLocked() {
 	s.transactionsDialog = TransactionsDialogState{}
-	s.transactionsPendingOpen = false
+	s.transactionsPendingOpen = transactionsPendingNone
 	s.transactionsMultiDeleteIDs = nil
 	s.transactionsReapplyExcluded = nil
 }
 
-// runTransactionsPendingOpenLocked opens the dialog the menu asked for once the
-// page load has finished. The caller holds the session mutex.
+// runTransactionsPendingOpenLocked opens the add dialog the menu asked for once
+// the page load has finished. The import dialog needs a job of its own, so it
+// stays pending until runPendingTransactionsImport. The caller holds the
+// session mutex.
 func (s *Session) runTransactionsPendingOpenLocked() {
-	if !s.transactionsPendingOpen {
-		return
+	switch s.transactionsPendingOpen {
+	case transactionsPendingAdd:
+		s.transactionsPendingOpen = transactionsPendingNone
+		s.openTransactionsAddLocked()
+	case transactionsPendingImport:
+		// Started without the mutex, once this job has finished.
 	}
-	s.transactionsPendingOpen = false
-	s.openTransactionsAddLocked()
+}
+
+// runPendingTransactionsImport starts the import dialog the menu asked for. It
+// runs after the page's job released the mutex and its busy section.
+func (s *Session) runPendingTransactionsImport() {
+	s.mu.Lock()
+	pending := s.transactionsPendingOpen == transactionsPendingImport
+	if pending {
+		s.transactionsPendingOpen = transactionsPendingNone
+	}
+	s.mu.Unlock()
+	if pending {
+		s.TransactionsOpenImport()
+	}
 }
 
 // runPendingTransactionsSearch starts the latest deferred query when no job is
@@ -1302,4 +1561,64 @@ func transactionsID(id int64) int {
 		return -1
 	}
 	return int(id)
+}
+
+// ImportCSVOptions is one CSV column picker's choices: the localized "none" and
+// the file's headers, with blank headers shown as "Column N".
+func ImportCSVOptions(csv *imports.CsvLayout, language i18n.Language) []string {
+	if csv == nil {
+		return nil
+	}
+	options := make([]string, 0, len(csv.Headers)+1)
+	options = append(options, i18n.Text(language, i18n.NoneDash))
+	for index, header := range csv.Headers {
+		if strings.TrimSpace(header) == "" {
+			options = append(options, i18n.Format(language, i18n.ColumnN, i18n.Int(int64(index+1))))
+		} else {
+			options = append(options, header)
+		}
+	}
+	return options
+}
+
+// RemapCSVMapping applies one CSV mapping field change from the dialog. A zero
+// or negative index means "none"; Rust's index is one-based.
+func RemapCSVMapping(mapping imports.CsvMapping, field string, index int) imports.CsvMapping {
+	column := csvColumn(index)
+	switch field {
+	case "date":
+		mapping.Date = column
+	case "amount":
+		mapping.Amount = column
+		if column != nil {
+			mapping.Debit = nil
+			mapping.Credit = nil
+		}
+	case "debit":
+		mapping.Debit = column
+		if column != nil {
+			mapping.Amount = nil
+		}
+	case "credit":
+		mapping.Credit = column
+		if column != nil {
+			mapping.Amount = nil
+		}
+	case "partner":
+		mapping.Partner = column
+	case "purpose":
+		mapping.Purpose = column
+	case "balance":
+		mapping.Balance = column
+	}
+	return mapping
+}
+
+// csvColumn converts a one-based dialog index into a zero-based header index.
+func csvColumn(index int) *int {
+	if index <= 0 {
+		return nil
+	}
+	column := index - 1
+	return &column
 }

@@ -51,6 +51,16 @@ export function ApplyRange($from: string, to: string): $CancellablePromise<$mode
 }
 
 /**
+ * AttachReceipt asks for receipt files and attaches them to the selected
+ * booking.
+ */
+export function AttachReceipt(): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(513446044).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * AutoCategorize applies the auto-apply rules.
  */
 export function AutoCategorize(): $CancellablePromise<$models.TransactionsDTO> {
@@ -91,6 +101,15 @@ export function BatchTax(index: number): $CancellablePromise<$models.Transaction
  */
 export function CancelDelete(): $CancellablePromise<$models.TransactionsDTO> {
     return $Call.ByID(1864256628).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * CancelImport closes the preview without importing.
+ */
+export function CancelImport(): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(2533330790).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -195,6 +214,15 @@ export function ConfirmDuplicate(): $CancellablePromise<$models.TransactionsDTO>
 }
 
 /**
+ * ConfirmImport imports the previewed entries.
+ */
+export function ConfirmImport(updateBalance: boolean): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(230587954, updateBalance).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * ConfirmMultiDelete deletes the selected bookings.
  */
 export function ConfirmMultiDelete(): $CancellablePromise<$models.TransactionsDTO> {
@@ -285,6 +313,33 @@ export function DismissMessage(): $CancellablePromise<$models.TransactionsDTO> {
 }
 
 /**
+ * ExportCSV asks where to write the export and writes exactly what is shown.
+ */
+export function ExportCSV(): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(3746643785).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * ImportAccountChanged picks the account for the open preview.
+ */
+export function ImportAccountChanged(index: number): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(1573556797, index).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * ImportCSVChanged applies one CSV mapping change from the dialog.
+ */
+export function ImportCSVChanged(field: string, value: string): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(261675724, field, value).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * Load loads the page with no navigation filter.
  */
 export function Load(): $CancellablePromise<$models.TransactionsDTO> {
@@ -330,6 +385,15 @@ export function OpenDetail(id: number): $CancellablePromise<$models.Transactions
 }
 
 /**
+ * OpenImport asks for statement files and opens the import preview.
+ */
+export function OpenImport(): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(2365463492).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * OpenMultiDelete opens the multi-delete confirmation.
  */
 export function OpenMultiDelete(): $CancellablePromise<$models.TransactionsDTO> {
@@ -362,6 +426,16 @@ export function OpenRule(): $CancellablePromise<$models.TransactionsDTO> {
  */
 export function OpenWithAdd(): $CancellablePromise<$models.TransactionsDTO> {
     return $Call.ByID(1093970240).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * OpenWithImport opens the page and then the statement-import dialog, as the
+ * File menu does.
+ */
+export function OpenWithImport(): $CancellablePromise<$models.TransactionsDTO> {
+    return $Call.ByID(700685888).then(($result: any) => {
         return $$createType0($result);
     });
 }

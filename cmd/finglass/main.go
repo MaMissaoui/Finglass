@@ -124,6 +124,8 @@ func main() {
 		DevToolsEnabled:  false,
 	})
 
+	session.SetFileDialogs(newWailsFileDialogs(app, window))
+
 	if runtime.GOOS == "darwin" {
 		menu = &menuController{
 			app:          app,

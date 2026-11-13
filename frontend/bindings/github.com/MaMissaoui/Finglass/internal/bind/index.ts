@@ -40,6 +40,8 @@ export {
     DashboardStatementLineDTO,
     DashboardTransactionRowDTO,
     DashboardUpcomingRowDTO,
+    ImportCSVFieldDTO,
+    ImportFileRowDTO,
     ProfileDTO,
     PromptDTO,
     ReapplyGroupRowDTO,
