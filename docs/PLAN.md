@@ -256,14 +256,14 @@ In order, each one compared with the G1 reference screenshots:
 - [x] Transactions: list, filters, panel, import dialog, rules.
 - [x] Reports: export menu, tax donut.
 - [x] Documents.
-- [ ] Settings: backup/restore, FinDesk import, profiles, About.
+- [x] Settings: backup/restore, FinDesk import, profiles, About.
 
 ### G9 — Packaging and release (S–M)
 
-- [ ] `.app` and DMG (Wails v3 packaging or `hdiutil`), ad-hoc signed, icons from `assets/icons`, the minimum macOS
+- [x] `.app` and DMG (Wails v3 packaging or `hdiutil`), ad-hoc signed, icons from `assets/icons`, the minimum macOS
   version.
-- [ ] `install-mac.command` / `scripts/install-mac.sh` and its test, the release workflow (tag → pre-release with DMG
-  and checksums).
+- [x] `install-mac.command` / `scripts/install-mac.sh` and its test, the release workflow (tag → pre-release with DMG
+  and checksums). The workflow publishes only when `docs/releases/<tag>.md` exists.
 - [ ] **Release 0.4.0 (Go)** after your test with real data. From then on, new migrations are allowed again.
 
 ### G10 — Go FinTS client, read-only (L, needs you)
