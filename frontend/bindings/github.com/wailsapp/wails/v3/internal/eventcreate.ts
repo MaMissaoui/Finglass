@@ -18,8 +18,9 @@ function configure() {
         "banking:prompt": $$createType3,
         "dashboard:changed": $$createType4,
         "reports:changed": $$createType5,
-        "shell:changed": $$createType6,
-        "transactions:changed": $$createType7,
+        "settings:changed": $$createType6,
+        "shell:changed": $$createType7,
+        "transactions:changed": $$createType8,
     }));
 }
 
@@ -30,7 +31,8 @@ const $$createType2 = bind$0.BankingDTO.createFrom;
 const $$createType3 = bind$0.PromptDTO.createFrom;
 const $$createType4 = bind$0.DashboardDTO.createFrom;
 const $$createType5 = bind$0.ReportsDTO.createFrom;
-const $$createType6 = bind$0.ShellDTO.createFrom;
-const $$createType7 = bind$0.TransactionsDTO.createFrom;
+const $$createType6 = bind$0.SettingsDTO.createFrom;
+const $$createType7 = bind$0.ShellDTO.createFrom;
+const $$createType8 = bind$0.TransactionsDTO.createFrom;
 
 configure();

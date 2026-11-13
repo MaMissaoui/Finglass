@@ -46,6 +46,17 @@ type fakeFileDialogs struct {
 	fileDefaultName string
 	fileCalls       int
 	onFile          func()
+
+	rulesPath   string
+	rulesResult bool
+	rulesTitle  string
+	rulesName   string
+	rulesCalls  int
+
+	ruleFile       string
+	ruleFileResult bool
+	ruleFileTitle  string
+	ruleFileCalls  int
 }
 
 func (f *fakeFileDialogs) PickStatements(title string) ([]string, bool) {
@@ -104,6 +115,23 @@ func (f *fakeFileDialogs) counts() (statements int, receipts int, saves int) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return f.statementsCalls, f.receiptsCalls, f.saveCalls
+}
+
+func (f *fakeFileDialogs) SaveRules(title string, defaultName string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.rulesTitle = title
+	f.rulesName = defaultName
+	f.rulesCalls++
+	return f.rulesPath, f.rulesResult
+}
+
+func (f *fakeFileDialogs) PickRuleFile(title string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.ruleFileTitle = title
+	f.ruleFileCalls++
+	return f.ruleFile, f.ruleFileResult
 }
 
 func importFixture(t *testing.T, name string) string {

@@ -138,19 +138,22 @@ type Session struct {
 	language i18n.Language
 	theme    prefs.ThemePref
 
-	db             *db.Database
-	dashboard      *dashboardview.DashboardState
-	reports        *reportsview.ReportsState
-	settings       *settingsview.SettingsState
-	findesk        *findesk.FindeskImportState
-	accounts       *accountsview.AccountsState
-	accountsDialog AccountsDialogState
-	banking        *banking.BankingState
-	bridge         *banking.PromptBridge
-	profileBusy    accountsview.Busy
-	accountsWork   accountsview.Busy
-	documents      *documentsview.DocumentsState
-	transactions   *transactionsview.TransactionsView
+	db              *db.Database
+	dashboard       *dashboardview.DashboardState
+	reports         *reportsview.ReportsState
+	settings        *settingsview.SettingsState
+	settingsDialog  SettingsDialogState
+	settingsWork    accountsview.Busy
+	settingsSection int
+	findesk         *findesk.FindeskImportState
+	accounts        *accountsview.AccountsState
+	accountsDialog  AccountsDialogState
+	banking         *banking.BankingState
+	bridge          *banking.PromptBridge
+	profileBusy     accountsview.Busy
+	accountsWork    accountsview.Busy
+	documents       *documentsview.DocumentsState
+	transactions    *transactionsview.TransactionsView
 
 	reportsWork       accountsview.Busy
 	reportsTab        string
@@ -442,6 +445,7 @@ func newSession(
 	accountsWork := accountsview.NewBusy()
 	transactionsWork := accountsview.NewBusy()
 	reportsWork := accountsview.NewBusy()
+	settingsWork := accountsview.NewBusy()
 	transactions := transactionsview.New(language)
 	transactions.SetBusy(profileBusy)
 	rangeFrom, rangeTo := reportsDefaultRange(date)
@@ -458,6 +462,7 @@ func newSession(
 		dashboard:        dashboardview.New(language, date),
 		reports:          reportsview.New(language, date),
 		settings:         newSettingsState(language, profileBusy),
+		settingsWork:     settingsWork,
 		findesk:          findesk.NewFindeskImportState(language),
 		accounts:         newAccountsState(language, profileBusy),
 		banking:          banking.New(language),
@@ -858,6 +863,9 @@ func (s *Session) finishOpen(
 	s.sidebarCollapsed = loadedPrefs.SidebarCollapsed
 	settings.Busy = busy
 	s.settings = settings
+	s.settingsDialog = SettingsDialogState{}
+	s.settingsWork = accountsview.NewBusy()
+	s.settingsSection = SettingsAppearance
 	s.findesk = findesk.NewFindeskImportState(loadedPrefs.Language)
 	s.accounts = newAccountsState(loadedPrefs.Language, busy)
 	s.resetAccountsDialogLocked()
@@ -1038,6 +1046,9 @@ func (s *Session) teardownLocked(prepared startup.Startup, oldGeneration uint64)
 	s.dashboard = dashboardview.New(s.language, s.today())
 	s.settings = newSettingsState(s.language, busy)
 	s.findesk = findesk.NewFindeskImportState(s.language)
+	s.settingsDialog = SettingsDialogState{}
+	s.settingsWork = accountsview.NewBusy()
+	s.settingsSection = SettingsAppearance
 	s.accounts = newAccountsState(s.language, busy)
 	s.resetAccountsDialogLocked()
 	s.banking = banking.New(s.language)
@@ -1109,6 +1120,9 @@ func (s *Session) ReloadAfterFindeskImport() (i18n.Language, bool) {
 	settings.Busy = s.profileBusy
 	s.settings = settings
 	s.settings.AuditLog = rows
+	s.settingsDialog = SettingsDialogState{}
+	s.settingsWork = accountsview.NewBusy()
+	s.settingsSection = SettingsAppearance
 	s.dashboard = dashboardview.New(loadedPrefs.Language, s.today())
 	s.accounts = newAccountsState(loadedPrefs.Language, s.profileBusy)
 	s.resetAccountsDialogLocked()
@@ -1244,6 +1258,13 @@ func (s *Session) openPageLocked(screen string, args PageArgs) *pageJob {
 			s.reportsTab = "tax"
 		}
 		return s.beginReportsOpenLocked(args.ReportsYear)
+	case "settings":
+		section := SettingsAppearance
+		if args.SettingsSection != nil {
+			section = *args.SettingsSection
+		}
+		s.settingsSection = section
+		return s.beginSettingsLoadLocked()
 	default:
 		return nil
 	}

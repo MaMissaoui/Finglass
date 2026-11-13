@@ -26,6 +26,12 @@ type FileDialogs interface {
 	// i18n key of the dialog title; defaultName is the suggested file name. The
 	// boolean is false when the user cancelled.
 	SaveFile(title i18n.Key, defaultName string) (string, bool)
+	// SaveRules asks where to write the rule export. The boolean is false when
+	// the user cancelled.
+	SaveRules(title string, defaultName string) (string, bool)
+	// PickRuleFile asks for one rule file. The boolean is false when the user
+	// cancelled.
+	PickRuleFile(title string) (string, bool)
 }
 
 // SetFileDialogs installs the native file-dialog seam. Production sets it once,
