@@ -46,6 +46,16 @@ export function AnswerTan(id: number, tan: string): $CancellablePromise<void> {
 }
 
 /**
+ * BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ, as
+ * Rust's update_bank_blz does.
+ */
+export function BankBLZChanged(name: string, blz: string, bic: string): $CancellablePromise<$models.AddBankFieldsDTO> {
+    return $Call.ByID(3863024602, name, blz, bic).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * CancelChoice cancels the open choice prompt.
  */
 export function CancelChoice(id: number): $CancellablePromise<void> {
@@ -71,7 +81,7 @@ export function CancelTan(id: number): $CancellablePromise<void> {
  */
 export function ClearHistory(bankID: number): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(1160975679, bankID).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -87,7 +97,7 @@ export function ClearInfo(): $CancellablePromise<void> {
  */
 export function ClearMessages(): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(1958142869).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -96,7 +106,7 @@ export function ClearMessages(): $CancellablePromise<$models.BankingDTO> {
  */
 export function DeleteBank(bankID: number): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(1250079673, bankID).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -105,7 +115,7 @@ export function DeleteBank(bankID: number): $CancellablePromise<$models.BankingD
  */
 export function ForgetPin(bankID: number): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(8207040, bankID).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -114,7 +124,7 @@ export function ForgetPin(bankID: number): $CancellablePromise<$models.BankingDT
  */
 export function HandleBankMenu(bankID: number, action: string): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(419326815, bankID, action).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -123,7 +133,7 @@ export function HandleBankMenu(bankID: number, action: string): $CancellableProm
  */
 export function Load(): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(2928618996).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -132,7 +142,7 @@ export function Load(): $CancellablePromise<$models.BankingDTO> {
  */
 export function OpenAddBank(): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(3924753625).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -141,7 +151,7 @@ export function OpenAddBank(): $CancellablePromise<$models.BankingDTO> {
  */
 export function OpenConnectionDialog(bankID: number): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(3860462104, bankID).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -150,6 +160,16 @@ export function OpenConnectionDialog(bankID: number): $CancellablePromise<$model
  */
 export function OpenHistoryDialog(bankID: number): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(2243325176, bankID).then(($result: any) => {
+        return $$createType1($result);
+    });
+}
+
+/**
+ * PickBankSuggestion maps a picked search suggestion to the dialog fields, as
+ * Rust's pick_bank_suggestion does.
+ */
+export function PickBankSuggestion(name: string, blz: string, bic: string): $CancellablePromise<$models.AddBankFieldsDTO> {
+    return $Call.ByID(2551104547, name, blz, bic).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -159,7 +179,7 @@ export function OpenHistoryDialog(bankID: number): $CancellablePromise<$models.B
  */
 export function Prompt(): $CancellablePromise<$models.PromptDTO> {
     return $Call.ByID(3726591374).then(($result: any) => {
-        return $$createType1($result);
+        return $$createType2($result);
     });
 }
 
@@ -168,7 +188,17 @@ export function Prompt(): $CancellablePromise<$models.PromptDTO> {
  */
 export function Refresh(): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(4110948291).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
+    });
+}
+
+/**
+ * SearchBanks re-runs the in-memory bank search for the dialog's current query,
+ * as Rust's update_bank_search does.
+ */
+export function SearchBanks(query: string): $CancellablePromise<$models.BankSuggestionDTO[]> {
+    return $Call.ByID(816010235, query).then(($result: any) => {
+        return $$createType4($result);
     });
 }
 
@@ -177,7 +207,7 @@ export function Refresh(): $CancellablePromise<$models.BankingDTO> {
  */
 export function SetIncludeInSyncAll(bankID: number): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(294442863, bankID).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -186,7 +216,7 @@ export function SetIncludeInSyncAll(bankID: number): $CancellablePromise<$models
  */
 export function StartSync(bankID: number): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(1553728423, bankID).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -195,7 +225,7 @@ export function StartSync(bankID: number): $CancellablePromise<$models.BankingDT
  */
 export function StartSyncAll(): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(1377722882).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -204,7 +234,7 @@ export function StartSyncAll(): $CancellablePromise<$models.BankingDTO> {
  */
 export function State(): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(4029414397).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -213,7 +243,7 @@ export function State(): $CancellablePromise<$models.BankingDTO> {
  */
 export function SubmitAddOnlineBank(name: string, blz: string, bic: string, userID: string, serverURL: string): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(3125178666, name, blz, bic, userID, serverURL).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -222,7 +252,7 @@ export function SubmitAddOnlineBank(name: string, blz: string, bic: string, user
  */
 export function SubmitConnection(bankID: number, name: string, blz: string, userID: string, serverURL: string): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(1729665352, bankID, name, blz, userID, serverURL).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -231,10 +261,13 @@ export function SubmitConnection(bankID: number, name: string, blz: string, user
  */
 export function SubmitHistory(bankID: number, date: string): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(3550999016, bankID, date).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 // Private type creation functions
-const $$createType0 = $models.BankingDTO.createFrom;
-const $$createType1 = $models.PromptDTO.createFrom;
+const $$createType0 = $models.AddBankFieldsDTO.createFrom;
+const $$createType1 = $models.BankingDTO.createFrom;
+const $$createType2 = $models.PromptDTO.createFrom;
+const $$createType3 = $models.BankSuggestionDTO.createFrom;
+const $$createType4 = $Create.Array($$createType3);

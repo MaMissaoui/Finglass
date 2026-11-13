@@ -5,11 +5,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"image/png"
+	"strings"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
+	"github.com/MaMissaoui/Finglass/internal/core/bankdirectory"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 )
 
@@ -76,6 +78,23 @@ type BankingBankDTO struct {
 	SyncTooltip string            `json:"syncTooltip"`
 	PinText     string            `json:"pinText"`
 	Menu        []BankMenuItemDTO `json:"menu"`
+}
+
+// BankSuggestionDTO is one row of the add-online-bank search.
+type BankSuggestionDTO struct {
+	Name   string `json:"name"`
+	Detail string `json:"detail"`
+	BLZ    string `json:"blz"`
+	BIC    string `json:"bic"`
+}
+
+// AddBankFieldsDTO is the fields a picked suggestion or a typed BLZ fills in the
+// add-online-bank dialog, plus the central-BLZ note.
+type AddBankFieldsDTO struct {
+	Name        string `json:"name"`
+	BLZ         string `json:"blz"`
+	BIC         string `json:"bic"`
+	CentralNote string `json:"centralNote"`
 }
 
 // BankingDTO is everything the banking part of the Accounts page shows, as
@@ -183,6 +202,31 @@ func (b *Banking) SubmitAddOnlineBank(name string, blz string, bic string, userI
 	return b.action(func() {
 		b.session.BankingSubmitAddOnlineBank(name, blz, bic, userID, serverURL)
 	})
+}
+
+// SearchBanks re-runs the in-memory bank search for the dialog's current query,
+// as Rust's update_bank_search does.
+func (b *Banking) SearchBanks(query string) ([]BankSuggestionDTO, error) {
+	entries := bankdirectory.Bundled().Search(query, 15)
+	rows := make([]BankSuggestionDTO, 0, len(entries))
+	for _, entry := range entries {
+		rows = append(rows, suggestionRow(entry))
+	}
+	return rows, nil
+}
+
+// PickBankSuggestion maps a picked search suggestion to the dialog fields, as
+// Rust's pick_bank_suggestion does.
+func (b *Banking) PickBankSuggestion(name string, blz string, bic string) (AddBankFieldsDTO, error) {
+	fields := pickedBankFields(bankdirectory.Bundled(), name, blz, bic)
+	return b.addBankFieldsDTO(fields), nil
+}
+
+// BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ, as
+// Rust's update_bank_blz does.
+func (b *Banking) BankBLZChanged(name string, blz string, bic string) (AddBankFieldsDTO, error) {
+	fields := typedBankBLZ(bankdirectory.Bundled(), name, blz, bic)
+	return b.addBankFieldsDTO(fields), nil
 }
 
 // SubmitConnection saves the connection dialog.
@@ -502,6 +546,118 @@ func promptDTO(prompt *bankingcore.BankingPrompt, language i18n.Language, canRem
 		dto.Text = prompt.Message
 	}
 	return dto
+}
+
+// addBankFields is Rust's AddBankFields: the dialog fields plus the branch BLZ
+// when the stored BLZ is a central code.
+type addBankFields struct {
+	Name        string
+	BLZ         string
+	BIC         string
+	OriginalBLZ *string
+}
+
+// pickedBankFields is Rust's picked_bank.
+func pickedBankFields(directory *bankdirectory.BankDirectory, name string, blz string, bic string) addBankFields {
+	original := strings.TrimSpace(blz)
+	mapped := bankdirectory.FintsBLZ(directory, original)
+	return addBankFields{
+		Name:        strings.TrimSpace(name),
+		BLZ:         mapped,
+		BIC:         strings.TrimSpace(bic),
+		OriginalBLZ: branchBLZ(mapped, original),
+	}
+}
+
+// typedBankBLZ is Rust's typed_bank_blz: a valid 8-digit BLZ fills only the
+// empty name and BIC fields; anything else leaves every field as it was.
+func typedBankBLZ(directory *bankdirectory.BankDirectory, name string, blz string, bic string) addBankFields {
+	trimmed := strings.TrimSpace(blz)
+	if !isEightDigits(trimmed) {
+		return addBankFields{Name: name, BLZ: blz, BIC: bic}
+	}
+	entry, ok := directory.Lookup(trimmed)
+	if !ok {
+		return addBankFields{Name: name, BLZ: blz, BIC: bic}
+	}
+	mapped := bankdirectory.FintsBLZ(directory, trimmed)
+	fields := addBankFields{
+		Name:        name,
+		BLZ:         mapped,
+		BIC:         bic,
+		OriginalBLZ: branchBLZ(mapped, trimmed),
+	}
+	if strings.TrimSpace(name) == "" {
+		fields.Name = entry.Name
+	}
+	if strings.TrimSpace(bic) == "" {
+		fields.BIC = entry.BIC
+	}
+	return fields
+}
+
+// branchBLZ returns original when the mapped BLZ differs from it, as Rust's
+// AddBankFields.original_blz does.
+func branchBLZ(mapped string, original string) *string {
+	if mapped == original {
+		return nil
+	}
+	value := original
+	return &value
+}
+
+// centralNote is Rust's central_note.
+func centralNote(language i18n.Language, fields addBankFields) string {
+	if fields.OriginalBLZ == nil {
+		return ""
+	}
+	return i18n.Format(
+		language,
+		i18n.CentralBlzNote,
+		i18n.Str(fields.BLZ),
+		i18n.Str(*fields.OriginalBLZ),
+	)
+}
+
+// suggestionRow is Rust's suggestion_row.
+func suggestionRow(entry bankdirectory.BankEntry) BankSuggestionDTO {
+	parts := make([]string, 0, 3)
+	for _, part := range []string{entry.BLZ, entry.City, entry.BIC} {
+		if strings.TrimSpace(part) != "" {
+			parts = append(parts, part)
+		}
+	}
+	return BankSuggestionDTO{
+		Name:   entry.Name,
+		Detail: strings.Join(parts, " · "),
+		BLZ:    entry.BLZ,
+		BIC:    entry.BIC,
+	}
+}
+
+func isEightDigits(text string) bool {
+	if len(text) != 8 {
+		return false
+	}
+	for index := 0; index < len(text); index++ {
+		if text[index] < '0' || text[index] > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+func (b *Banking) addBankFieldsDTO(fields addBankFields) AddBankFieldsDTO {
+	language := i18n.En
+	if b.session != nil {
+		language = b.session.Language()
+	}
+	return AddBankFieldsDTO{
+		Name:        fields.Name,
+		BLZ:         fields.BLZ,
+		BIC:         fields.BIC,
+		CentralNote: centralNote(language, fields),
+	}
 }
 
 func isBlank(text string) bool {

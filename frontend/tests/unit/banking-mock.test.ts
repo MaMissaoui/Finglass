@@ -278,6 +278,70 @@ describe('banking.mock', () => {
     expect(menu.dialogs.at(-1)).toBe('delete:2');
   });
 
+  it('searches the invented bank directory with the detail format', () => {
+    const { banking } = fake();
+    const rows = banking.searchBanks('hypo');
+    expect(rows.map((row) => row.name)).toEqual(['Rheintal Hypobank', 'Alpen Hypothekenbank']);
+    expect(rows[0]).toEqual({
+      name: 'Rheintal Hypobank',
+      detail: '70020270 · München · HYVEDEMM488',
+      blz: '70020270',
+      bic: 'HYVEDEMM488',
+    });
+    expect(banking.searchBanks('   ')).toEqual([]);
+    expect(banking.searchBanks('zzzzzz')).toEqual([]);
+  });
+
+  it('picks a suggestion and maps a branch BLZ to its central code', () => {
+    const { banking } = fake();
+    const picked = banking.pickBankSuggestion(' Rheintal Hypobank ', '70020270', ' HYVEDEMM488 ');
+    expect(picked).toEqual({
+      name: 'Rheintal Hypobank',
+      blz: '70020270',
+      bic: 'HYVEDEMM488',
+      centralNote: translate('en', 'CentralBlzNote', '70020270', '10020890'),
+    });
+
+    const branch = banking.pickBankSuggestion('Rheintal Hypobank', '10020890', 'HYVEDEMM488');
+    expect(branch.blz).toBe('70020270');
+    expect(branch.centralNote).toBe(translate('en', 'CentralBlzNote', '70020270', '10020890'));
+
+    const other = banking.pickBankSuggestion('Nordlicht Bank', '20050550', 'NOLADEHHXXX');
+    expect(other.blz).toBe('20050550');
+    expect(other.centralNote).toBe('');
+  });
+
+  it('fills only empty fields from a typed 8-digit BLZ and maps its branch code', () => {
+    const { banking } = fake();
+    const empty = banking.bankBlzChanged('', '10020890', '');
+    expect(empty.name).toBe('Rheintal Hypobank');
+    expect(empty.blz).toBe('70020270');
+    expect(empty.bic).toBe('HYVEDEMM488');
+    expect(empty.centralNote).toBe(translate('en', 'CentralBlzNote', '70020270', '10020890'));
+
+    const filled = banking.bankBlzChanged('My bank', '10020890', 'MYBIC');
+    expect(filled.name).toBe('My bank');
+    expect(filled.blz).toBe('70020270');
+    expect(filled.bic).toBe('MYBIC');
+
+    const partial = banking.bankBlzChanged('My bank', '1002', 'MYBIC');
+    expect(partial).toEqual({
+      name: 'My bank',
+      blz: '1002',
+      bic: 'MYBIC',
+      centralNote: '',
+    });
+
+    const unknown = banking.bankBlzChanged('', '99999999', '');
+    expect(unknown).toEqual({ name: '', blz: '99999999', bic: '', centralNote: '' });
+  });
+
+  it('localizes the central note from the current language', () => {
+    const { banking } = fake('accounts', 'de');
+    const picked = banking.pickBankSuggestion('Rheintal Hypobank', '10020890', 'HYVEDEMM488');
+    expect(picked.centralNote).toBe(translate('de', 'CentralBlzNote', '70020270', '10020890'));
+  });
+
   it('shows the sync state of its reference scenarios', () => {
     const syncing = fake('accounts-syncing').banking.state();
     expect(syncing.syncing).toBe(true);

@@ -683,6 +683,43 @@ export class AccountsFigureDTO {
 }
 
 /**
+ * AddBankFieldsDTO is the fields a picked suggestion or a typed BLZ fills in the
+ * add-online-bank dialog, plus the central-BLZ note.
+ */
+export class AddBankFieldsDTO {
+    "name": string;
+    "blz": string;
+    "bic": string;
+    "centralNote": string;
+
+    /** Creates a new AddBankFieldsDTO instance. */
+    constructor($$source: Partial<AddBankFieldsDTO> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("blz" in $$source)) {
+            this["blz"] = "";
+        }
+        if (!("bic" in $$source)) {
+            this["bic"] = "";
+        }
+        if (!("centralNote" in $$source)) {
+            this["centralNote"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AddBankFieldsDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AddBankFieldsDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AddBankFieldsDTO($$parsedSource as Partial<AddBankFieldsDTO>);
+    }
+}
+
+/**
  * AppInfoDTO is the information shown in the window.
  */
 export class AppInfoDTO {
@@ -819,6 +856,42 @@ export class BankMenuItemDTO {
     static createFrom($$source: any = {}): BankMenuItemDTO {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new BankMenuItemDTO($$parsedSource as Partial<BankMenuItemDTO>);
+    }
+}
+
+/**
+ * BankSuggestionDTO is one row of the add-online-bank search.
+ */
+export class BankSuggestionDTO {
+    "name": string;
+    "detail": string;
+    "blz": string;
+    "bic": string;
+
+    /** Creates a new BankSuggestionDTO instance. */
+    constructor($$source: Partial<BankSuggestionDTO> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("detail" in $$source)) {
+            this["detail"] = "";
+        }
+        if (!("blz" in $$source)) {
+            this["blz"] = "";
+        }
+        if (!("bic" in $$source)) {
+            this["bic"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BankSuggestionDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BankSuggestionDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BankSuggestionDTO($$parsedSource as Partial<BankSuggestionDTO>);
     }
 }
 

@@ -439,6 +439,39 @@ test('the add-online-bank dialog searches and stores a login', async ({ page }) 
   await expectClean(watcher);
 });
 
+test('the add-online-bank dialog maps a typed branch BLZ and keeps filled fields', async ({
+  page,
+}) => {
+  const watcher = await watch(page);
+  await goto(page, 'banking-walkthrough');
+
+  await page.getByRole('button', { name: 'Add bank', exact: true }).click();
+  const dialog = page.getByTestId('accounts-dialog');
+  await page.getByRole('radio', { name: 'Online banking (FinTS)' }).click();
+
+  await dialog.getByLabel('BLZ (8 digits)').fill('10020890');
+  await expect(dialog.getByLabel('Bank name')).toHaveValue('Rheintal Hypobank');
+  await expect(dialog.getByLabel('BLZ (8 digits)')).toHaveValue('70020270');
+  await expect(dialog.getByLabel('BIC (optional)')).toHaveValue('HYVEDEMM488');
+  await expect(
+    dialog.getByText("This bank's online banking uses bank code 70020270"),
+  ).toBeVisible();
+
+  await dialog.getByLabel('Bank name').fill('My bank');
+  await dialog.getByLabel('BIC (optional)').fill('MYBIC');
+  await dialog.getByLabel('BLZ (8 digits)').fill('10020890');
+  await expect(dialog.getByLabel('Bank name')).toHaveValue('My bank');
+  await expect(dialog.getByLabel('BIC (optional)')).toHaveValue('MYBIC');
+
+  await dialog.getByLabel('BLZ (8 digits)').fill('1002');
+  await expect(dialog.getByLabel('BLZ (8 digits)')).toHaveValue('1002');
+  await expect(dialog.getByLabel('Bank name')).toHaveValue('My bank');
+  await expect(dialog.getByLabel('BIC (optional)')).toHaveValue('MYBIC');
+  await expect(dialog.getByText("This bank's online banking uses bank code")).toHaveCount(0);
+
+  await expectClean(watcher);
+});
+
 test('every banking scenario renders without a CSP or console error', async ({ page }) => {
   const watcher = await watch(page);
 

@@ -1,21 +1,17 @@
 <script lang="ts">
   import type { AccountsDialogDTO } from '../../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
-  import {
-    bankByBlz,
-    bankByBranchBlz,
-    bankDirectory,
-    searchBanks,
-    type BankSuggestion,
-  } from '../../lib/bankDirectory';
+  import type { Api, BankSuggestionDTO } from '../../lib/api';
   import { OutlinedField, PrimaryButton, SegmentedButton, TextButton } from '../../lib/components';
 
   let {
+    api,
     dialog,
     t,
     onClose,
     onSubmitOffline,
     onSubmitOnline,
   }: {
+    api: Api;
     dialog: AccountsDialogDTO;
     t: (key: string, ...args: (string | number)[]) => string;
     onClose: () => void;
@@ -29,10 +25,6 @@
     ) => void;
   } = $props();
 
-  // The Go banking service has no bank-directory DTO yet, so only the mock
-  // build has entries to search. The real build asks for the details.
-  const directory = bankDirectory(import.meta.env.MODE === 'mock');
-
   // Offline is the historical default, as Rust's dialog-online starts false.
   let online = $state(false);
   let name = $state('');
@@ -41,41 +33,68 @@
   let userID = $state('');
   let serverURL = $state('');
   let search = $state('');
-  let suggestions = $state<BankSuggestion[]>([]);
+  let suggestions = $state<BankSuggestionDTO[]>([]);
   let centralNote = $state('');
+  // The dialog's searches and BLZ changes are asynchronous; a newer edit wins.
+  let searchToken = 0;
+  let blzToken = 0;
 
-  function updateSearch(text: string): void {
+  async function updateSearch(text: string): Promise<void> {
     search = text;
-    suggestions = searchBanks(directory, text);
-  }
-
-  function chooseSuggestion(suggestion: BankSuggestion): void {
-    name = suggestion.name;
-    blz = suggestion.blz;
-    bic = suggestion.bic;
-    centralNote =
-      suggestion.branchBlz === undefined
-        ? ''
-        : t('CentralBlzNote', suggestion.blz, suggestion.branchBlz);
-  }
-
-  function updateBlz(text: string): void {
-    const branch = bankByBranchBlz(directory, text);
-    if (branch !== undefined && branch.branchBlz !== undefined) {
-      blz = branch.blz;
-      if (name.trim() === '') {
-        name = branch.name;
+    const token = ++searchToken;
+    try {
+      const rows = await api.bankingSearchBanks(text);
+      if (token === searchToken) {
+        suggestions = rows;
       }
-      if (bic.trim() === '') {
-        bic = branch.bic;
+    } catch {
+      if (token === searchToken) {
+        suggestions = [];
       }
-      centralNote = t('CentralBlzNote', branch.blz, branch.branchBlz);
-      return;
     }
-    blz = text;
-    const exact = bankByBlz(directory, text);
-    centralNote =
-      exact?.branchBlz === undefined ? '' : t('CentralBlzNote', exact.blz, exact.branchBlz);
+  }
+
+  async function chooseSuggestion(suggestion: BankSuggestionDTO): Promise<void> {
+    const token = ++searchToken;
+    try {
+      const fields = await api.bankingPickBankSuggestion(
+        suggestion.name,
+        suggestion.blz,
+        suggestion.bic,
+      );
+      if (token !== searchToken) {
+        return;
+      }
+      name = fields.name;
+      blz = fields.blz;
+      bic = fields.bic;
+      search = '';
+      suggestions = [];
+      centralNote = fields.centralNote;
+    } catch {
+      if (token === searchToken) {
+        suggestions = [];
+      }
+    }
+  }
+
+  async function updateBlz(text: string): Promise<void> {
+    const token = ++blzToken;
+    try {
+      const fields = await api.bankingBankBlzChanged(name, text, bic);
+      if (token !== blzToken) {
+        return;
+      }
+      name = fields.name;
+      blz = fields.blz;
+      bic = fields.bic;
+      centralNote = fields.centralNote;
+    } catch {
+      if (token === blzToken) {
+        blz = text;
+        centralNote = '';
+      }
+    }
   }
 
   function submit(): void {
