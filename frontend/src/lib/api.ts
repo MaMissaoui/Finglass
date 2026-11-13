@@ -43,6 +43,10 @@ export type {
   ReportSuggestionRowDTO,
   ReportTaxRowDTO,
   ReportVendorRowDTO,
+  SettingsDTO,
+  SettingsCategoryRowDTO,
+  SettingsColourSwatchDTO,
+  SettingsRuleRowDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 import type {
@@ -55,6 +59,7 @@ import type {
   ShellDTO,
   TransactionsDTO,
   ReportsDTO,
+  SettingsDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 export interface Api {
@@ -318,6 +323,48 @@ export interface Api {
   reportsExportTaxPDF(): Promise<ReportsDTO>;
   reportsPrintTax(): Promise<ReportsDTO>;
   reportsOpenCategory(categoryID: number): Promise<ReportsDTO>;
+  settingsState(): Promise<SettingsDTO>;
+  settingsLoad(): Promise<SettingsDTO>;
+  settingsDismissMessage(): Promise<SettingsDTO>;
+  settingsSetPrimaryCurrency(code: string): Promise<SettingsDTO>;
+  settingsAddDefaultCategories(): Promise<SettingsDTO>;
+  settingsFixDuplicateColours(): Promise<SettingsDTO>;
+  settingsOpenAddCategory(): Promise<SettingsDTO>;
+  settingsOpenEditCategory(id: number): Promise<SettingsDTO>;
+  settingsOpenDeleteCategory(id: number): Promise<SettingsDTO>;
+  settingsCategoryChanged(name: string, colour: string): Promise<SettingsDTO>;
+  settingsSaveCategory(
+    name: string,
+    colour: string,
+    budget: string,
+    taxRelevant: boolean,
+    transfer: boolean,
+  ): Promise<SettingsDTO>;
+  settingsCloseCategoryDialog(): Promise<SettingsDTO>;
+  settingsConfirmDeleteCategory(): Promise<SettingsDTO>;
+  settingsCancelDeleteCategory(): Promise<SettingsDTO>;
+  settingsOpenAddRule(): Promise<SettingsDTO>;
+  settingsOpenEditRule(id: number): Promise<SettingsDTO>;
+  settingsOpenDeleteRule(id: number): Promise<SettingsDTO>;
+  settingsRuleChanged(pattern: string, priority: string): Promise<SettingsDTO>;
+  settingsSaveRule(
+    pattern: string,
+    categoryIndex: number,
+    priority: string,
+    autoApply: boolean,
+    fieldIndex: number,
+    flow: number,
+    taxIndex: number,
+  ): Promise<SettingsDTO>;
+  settingsCloseRuleDialog(): Promise<SettingsDTO>;
+  settingsConfirmDeleteRule(): Promise<SettingsDTO>;
+  settingsCancelDeleteRule(): Promise<SettingsDTO>;
+  settingsSaveTaxKeywords(text: string): Promise<SettingsDTO>;
+  settingsResetTaxKeywords(): Promise<SettingsDTO>;
+  settingsExportRules(): Promise<SettingsDTO>;
+  settingsImportRules(): Promise<SettingsDTO>;
+  settingsConfirmRuleImport(categorize: boolean): Promise<SettingsDTO>;
+  settingsCancelRuleImport(): Promise<SettingsDTO>;
 
   onShellChanged(callback: (dto: ShellDTO) => void): () => void;
   onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void;
@@ -327,6 +374,7 @@ export interface Api {
   onDashboardChanged(callback: (dto: DashboardDTO) => void): () => void;
   onTransactionsChanged(callback: (dto: TransactionsDTO) => void): () => void;
   onReportsChanged(callback: (dto: ReportsDTO) => void): () => void;
+  onSettingsChanged(callback: (dto: SettingsDTO) => void): () => void;
 }
 
 let loaded: Promise<Api> | undefined;

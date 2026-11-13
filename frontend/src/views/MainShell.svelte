@@ -6,6 +6,7 @@
   import { languageFromCode, translate, type FormatArg, type Language } from '../lib/i18n';
   import DashboardPage from './pages/DashboardPage.svelte';
   import AccountsPage from './pages/AccountsPage.svelte';
+  import SettingsPage from './pages/SettingsPage.svelte';
   import TransactionsPage from './pages/TransactionsPage.svelte';
   import ReportsPage from './pages/ReportsPage.svelte';
   import LanguageFlag from './LanguageFlag.svelte';
@@ -232,6 +233,8 @@
         <TransactionsPage {api} {dto} />
       {:else if dto.screen === 'reports'}
         <ReportsPage {api} {dto} />
+      {:else if dto.screen === 'settings'}
+        <SettingsPage {api} {dto} />
       {/if}
     </section>
 
