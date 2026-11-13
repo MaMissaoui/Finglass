@@ -28,6 +28,21 @@ func TestFilterPatternTrimsDotsAndEmptyExtensions(t *testing.T) {
 	}
 }
 
+func TestExportFilterPatternUsesTheSuggestedNamesExtension(t *testing.T) {
+	cases := map[string]string{
+		"report-2026.pdf":          "*.pdf",
+		"finglass-2026.csv":        "*.csv",
+		"tax-bookings-2026.xlsx":   "*.xlsx",
+		"tax-bookings-2025-12.xpd": "*.xpd",
+		"no-extension":             "",
+	}
+	for name, want := range cases {
+		if got := exportFilterPattern(name); got != want {
+			t.Fatalf("exportFilterPattern(%q) = %q, want %q", name, got, want)
+		}
+	}
+}
+
 func TestSelectedPathsTreatsCancelErrorAndEmptySelectionAlike(t *testing.T) {
 	if paths, ok := selectedPaths([]string{"/tmp/a.csv"}, nil); !ok || len(paths) != 1 {
 		t.Fatalf("selected paths = %v, %v", paths, ok)

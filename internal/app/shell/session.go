@@ -130,6 +130,7 @@ type Session struct {
 	paths       paths.AppPaths
 	credentials credentials.Store
 	fileDialogs FileDialogs
+	fileOpener  FileOpener
 	clock       func() time.Time
 	today       func() civil.Date
 	getenv      func(string) (string, bool)
@@ -150,6 +151,12 @@ type Session struct {
 	accountsWork   accountsview.Busy
 	documents      *documentsview.DocumentsState
 	transactions   *transactionsview.TransactionsView
+
+	reportsWork       accountsview.Busy
+	reportsTab        string
+	reportsRangeFrom  string
+	reportsRangeTo    string
+	reportsRangeError string
 
 	transactionsWork            accountsview.Busy
 	transactionsDialog          TransactionsDialogState
@@ -434,8 +441,10 @@ func newSession(
 	profileBusy := accountsview.NewBusy()
 	accountsWork := accountsview.NewBusy()
 	transactionsWork := accountsview.NewBusy()
+	reportsWork := accountsview.NewBusy()
 	transactions := transactionsview.New(language)
 	transactions.SetBusy(profileBusy)
+	rangeFrom, rangeTo := reportsDefaultRange(date)
 
 	session := &Session{
 		paths:            appPaths,
@@ -459,6 +468,10 @@ func newSession(
 		nav:              NavState{},
 		screen:           "dashboard",
 		transactionsWork: transactionsWork,
+		reportsWork:      reportsWork,
+		reportsTab:       "summary",
+		reportsRangeFrom: rangeFrom,
+		reportsRangeTo:   rangeTo,
 	}
 	session.bridge = session.newLiveBridge()
 	return session
@@ -850,7 +863,7 @@ func (s *Session) finishOpen(
 	s.resetAccountsDialogLocked()
 	s.banking = banking.New(loadedPrefs.Language)
 	s.dashboard = dashboardview.New(loadedPrefs.Language, s.today())
-	s.reports = reportsview.New(loadedPrefs.Language, s.today())
+	s.resetReportsLocked()
 	s.documents = documentsview.New(loadedPrefs.Language, s.documents.IsOCRAvailable)
 	s.documents.SetProfile(startup.SlugKey(slug))
 	s.transactions = transactionsview.New(loadedPrefs.Language)
@@ -1029,7 +1042,7 @@ func (s *Session) teardownLocked(prepared startup.Startup, oldGeneration uint64)
 	s.resetAccountsDialogLocked()
 	s.banking = banking.New(s.language)
 	s.nav.Reset()
-	s.reports = reportsview.New(s.language, s.today())
+	s.resetReportsLocked()
 	ocrAvailable := s.documents != nil && s.documents.IsOCRAvailable
 	s.documents = documentsview.New(s.language, ocrAvailable)
 	s.documents.SetProfile(startup.SlugKey(prepared.Slug))
@@ -1101,7 +1114,7 @@ func (s *Session) ReloadAfterFindeskImport() (i18n.Language, bool) {
 	s.resetAccountsDialogLocked()
 	s.banking = banking.New(loadedPrefs.Language)
 	s.nav.Reset()
-	s.reports = reportsview.New(loadedPrefs.Language, s.today())
+	s.resetReportsLocked()
 	ocrAvailable := s.documents != nil && s.documents.IsOCRAvailable
 	s.documents = documentsview.New(loadedPrefs.Language, ocrAvailable)
 	s.documents.SetProfile(startup.SlugKey(slug))
@@ -1225,14 +1238,15 @@ func (s *Session) openPageLocked(screen string, args PageArgs) *pageJob {
 		return s.beginAccountsLoadLocked()
 	case "transactions":
 		return s.beginTransactionsOpenLocked(args.Transactions)
+	case "reports":
+		s.reportsTab = "summary"
+		if args.ReportsYear != nil {
+			s.reportsTab = "tax"
+		}
+		return s.beginReportsOpenLocked(args.ReportsYear)
 	default:
 		return nil
 	}
-}
-
-// resetReportsLocked replaces the Reports state with a fresh one.
-func (s *Session) resetReportsLocked() {
-	s.reports = reportsview.New(s.language, s.today())
 }
 
 // resetDocumentsLocked replaces the Documents state with a fresh one, keeping
@@ -1279,6 +1293,7 @@ func (s *Session) applyLanguageLocked(language i18n.Language) {
 	s.language = language
 	s.dashboard.Language = language
 	s.reports.Language = language
+	s.reportsRangeError = ""
 	s.settings.Language = language
 	s.findesk.Language = language
 	s.accounts.Language = language

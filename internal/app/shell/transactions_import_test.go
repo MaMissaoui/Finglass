@@ -39,6 +39,13 @@ type fakeFileDialogs struct {
 	saveTitle  string
 	saveName   string
 	saveCalls  int
+
+	filePath        string
+	fileResult      bool
+	fileTitle       i18n.Key
+	fileDefaultName string
+	fileCalls       int
+	onFile          func()
 }
 
 func (f *fakeFileDialogs) PickStatements(title string) ([]string, bool) {
@@ -76,6 +83,21 @@ func (f *fakeFileDialogs) SaveCSV(title string, defaultName string) (string, boo
 	f.saveName = defaultName
 	f.saveCalls++
 	return f.savePath, f.saveResult
+}
+
+func (f *fakeFileDialogs) SaveFile(title i18n.Key, defaultName string) (string, bool) {
+	f.mu.Lock()
+	f.fileTitle = title
+	f.fileDefaultName = defaultName
+	f.fileCalls++
+	callback := f.onFile
+	f.mu.Unlock()
+	if callback != nil {
+		callback()
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.filePath, f.fileResult
 }
 
 func (f *fakeFileDialogs) counts() (statements int, receipts int, saves int) {

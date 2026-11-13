@@ -1760,6 +1760,647 @@ export class ReapplyGroupRowDTO {
 }
 
 /**
+ * ReportAmountRowDTO is one row of the tax-relevant amount list.
+ */
+export class ReportAmountRowDTO {
+    "label": string;
+    "amountText": string;
+    "fraction": number;
+
+    /** Creates a new ReportAmountRowDTO instance. */
+    constructor($$source: Partial<ReportAmountRowDTO> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("fraction" in $$source)) {
+            this["fraction"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportAmountRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportAmountRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReportAmountRowDTO($$parsedSource as Partial<ReportAmountRowDTO>);
+    }
+}
+
+/**
+ * ReportCategoryRowDTO is one category share row.
+ */
+export class ReportCategoryRowDTO {
+    "label": string;
+    "percentText": string;
+    "amountText": string;
+    "colour": string;
+    "categoryId": number;
+    "isMore": boolean;
+    "fraction": number;
+
+    /** Creates a new ReportCategoryRowDTO instance. */
+    constructor($$source: Partial<ReportCategoryRowDTO> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("percentText" in $$source)) {
+            this["percentText"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("colour" in $$source)) {
+            this["colour"] = "";
+        }
+        if (!("categoryId" in $$source)) {
+            this["categoryId"] = 0;
+        }
+        if (!("isMore" in $$source)) {
+            this["isMore"] = false;
+        }
+        if (!("fraction" in $$source)) {
+            this["fraction"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportCategoryRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportCategoryRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReportCategoryRowDTO($$parsedSource as Partial<ReportCategoryRowDTO>);
+    }
+}
+
+/**
+ * ReportMonthlyRowDTO is one month of the monthly breakdown.
+ */
+export class ReportMonthlyRowDTO {
+    "month": string;
+    "incomeText": string;
+    "expensesText": string;
+    "netText": string;
+    "incomeZero": boolean;
+    "expensesZero": boolean;
+    "netZero": boolean;
+    "netTone": string;
+
+    /** Creates a new ReportMonthlyRowDTO instance. */
+    constructor($$source: Partial<ReportMonthlyRowDTO> = {}) {
+        if (!("month" in $$source)) {
+            this["month"] = "";
+        }
+        if (!("incomeText" in $$source)) {
+            this["incomeText"] = "";
+        }
+        if (!("expensesText" in $$source)) {
+            this["expensesText"] = "";
+        }
+        if (!("netText" in $$source)) {
+            this["netText"] = "";
+        }
+        if (!("incomeZero" in $$source)) {
+            this["incomeZero"] = false;
+        }
+        if (!("expensesZero" in $$source)) {
+            this["expensesZero"] = false;
+        }
+        if (!("netZero" in $$source)) {
+            this["netZero"] = false;
+        }
+        if (!("netTone" in $$source)) {
+            this["netTone"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportMonthlyRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportMonthlyRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReportMonthlyRowDTO($$parsedSource as Partial<ReportMonthlyRowDTO>);
+    }
+}
+
+/**
+ * ReportRecurringRowDTO is one recurring-payment row.
+ */
+export class ReportRecurringRowDTO {
+    "name": string;
+    "meta": string;
+    "cadence": string;
+    "nextText": string;
+    "amountText": string;
+    "yearlyText": string;
+    "income": boolean;
+
+    /** Creates a new ReportRecurringRowDTO instance. */
+    constructor($$source: Partial<ReportRecurringRowDTO> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("meta" in $$source)) {
+            this["meta"] = "";
+        }
+        if (!("cadence" in $$source)) {
+            this["cadence"] = "";
+        }
+        if (!("nextText" in $$source)) {
+            this["nextText"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("yearlyText" in $$source)) {
+            this["yearlyText"] = "";
+        }
+        if (!("income" in $$source)) {
+            this["income"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportRecurringRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportRecurringRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReportRecurringRowDTO($$parsedSource as Partial<ReportRecurringRowDTO>);
+    }
+}
+
+/**
+ * ReportSuggestionRowDTO is one tax-suggestion row.
+ */
+export class ReportSuggestionRowDTO {
+    "id": number;
+    "dateText": string;
+    "title": string;
+    "keywordText": string;
+    "amountText": string;
+    "expense": boolean;
+
+    /** Creates a new ReportSuggestionRowDTO instance. */
+    constructor($$source: Partial<ReportSuggestionRowDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("dateText" in $$source)) {
+            this["dateText"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("keywordText" in $$source)) {
+            this["keywordText"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("expense" in $$source)) {
+            this["expense"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportSuggestionRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportSuggestionRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReportSuggestionRowDTO($$parsedSource as Partial<ReportSuggestionRowDTO>);
+    }
+}
+
+/**
+ * ReportTaxRowDTO is one flattened Tax bookings row: a section, a group or a
+ * booking.
+ */
+export class ReportTaxRowDTO {
+    "kind": string;
+    "title": string;
+    "subtitle": string;
+    "colour": string;
+    "summary": string;
+    "id": number;
+    "dateText": string;
+    "accountText": string;
+    "amountText": string;
+    "expense": boolean;
+    "hasReceipt": boolean;
+    "missingReceipt": boolean;
+    "canReset": boolean;
+
+    /** Creates a new ReportTaxRowDTO instance. */
+    constructor($$source: Partial<ReportTaxRowDTO> = {}) {
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("subtitle" in $$source)) {
+            this["subtitle"] = "";
+        }
+        if (!("colour" in $$source)) {
+            this["colour"] = "";
+        }
+        if (!("summary" in $$source)) {
+            this["summary"] = "";
+        }
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("dateText" in $$source)) {
+            this["dateText"] = "";
+        }
+        if (!("accountText" in $$source)) {
+            this["accountText"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("expense" in $$source)) {
+            this["expense"] = false;
+        }
+        if (!("hasReceipt" in $$source)) {
+            this["hasReceipt"] = false;
+        }
+        if (!("missingReceipt" in $$source)) {
+            this["missingReceipt"] = false;
+        }
+        if (!("canReset" in $$source)) {
+            this["canReset"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportTaxRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportTaxRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReportTaxRowDTO($$parsedSource as Partial<ReportTaxRowDTO>);
+    }
+}
+
+/**
+ * ReportVendorRowDTO is one top-vendor row.
+ */
+export class ReportVendorRowDTO {
+    "rank": string;
+    "name": string;
+    "amountText": string;
+
+    /** Creates a new ReportVendorRowDTO instance. */
+    constructor($$source: Partial<ReportVendorRowDTO> = {}) {
+        if (!("rank" in $$source)) {
+            this["rank"] = "";
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportVendorRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportVendorRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReportVendorRowDTO($$parsedSource as Partial<ReportVendorRowDTO>);
+    }
+}
+
+/**
+ * ReportsDTO is everything the Reports page shows.
+ * 
+ * Every value Rust's apply, apply_recurring and apply_tax_bookings set has a
+ * field here. Money is already formatted by the page; chart and bar geometry
+ * stay numbers.
+ */
+export class ReportsDTO {
+    "tab": string;
+    "year": number;
+    "yearLabel": string;
+    "loading": boolean;
+    "exporting": boolean;
+    "rangeFrom": string;
+    "rangeTo": string;
+    "rangeError": string;
+    "custom": boolean;
+    "errorText": string;
+    "messageText": string;
+    "hasReport": boolean;
+    "empty": boolean;
+    "canExportReport": boolean;
+    "exportDisabledReason": string;
+    "canExportTax": boolean;
+    "linkable": boolean;
+    "emptyTitle": string;
+    "emptyHint": string;
+    "otherCurrencyHint": string;
+    "incomeValue": string;
+    "expensesValue": string;
+    "netValue": string;
+    "taxValue": string;
+    "netTone": string;
+    "taxRelevantRows": ReportAmountRowDTO[];
+    "taxRelevantEmpty": string;
+    "statTransactions": string;
+    "statCategories": string;
+    "statAverage": string;
+    "statHighest": string;
+    "monthlyTitle": string;
+    "monthlyRows": ReportMonthlyRowDTO[];
+    "monthlyTotalIncome": string;
+    "monthlyTotalExpenses": string;
+    "monthlyTotalNet": string;
+    "monthlyTotalTone": string;
+    "monthlyTotalIncomeZero": boolean;
+    "monthlyTotalExpensesZero": boolean;
+    "monthlyTotalNetZero": boolean;
+    "categoryRows": ReportCategoryRowDTO[];
+    "transfersNote": string;
+    "vendorRows": ReportVendorRowDTO[];
+    "recurringEmpty": boolean;
+    "recurringCount": string;
+    "recurringYearly": string;
+    "recurringMonthly": string;
+    "recurringRows": ReportRecurringRowDTO[];
+    "hasTax": boolean;
+    "missingReceiptsOnly": boolean;
+    "taxEmpty": boolean;
+    "taxEmptyTitle": string;
+    "taxEmptyHint": string;
+    "taxIncomeValue": string;
+    "taxDeductionValue": string;
+    "taxNetValue": string;
+    "taxNetTone": string;
+    "taxReceiptsMissing": boolean;
+    "taxReceiptsValue": string;
+    "taxReceiptsSubtitle": string;
+    "taxOtherHint": string;
+    "taxSuggestionsTitle": string;
+    "taxSuggestionsHint": string;
+    "taxSuggestions": ReportSuggestionRowDTO[];
+    "taxRows": ReportTaxRowDTO[];
+
+    /** Creates a new ReportsDTO instance. */
+    constructor($$source: Partial<ReportsDTO> = {}) {
+        if (!("tab" in $$source)) {
+            this["tab"] = "";
+        }
+        if (!("year" in $$source)) {
+            this["year"] = 0;
+        }
+        if (!("yearLabel" in $$source)) {
+            this["yearLabel"] = "";
+        }
+        if (!("loading" in $$source)) {
+            this["loading"] = false;
+        }
+        if (!("exporting" in $$source)) {
+            this["exporting"] = false;
+        }
+        if (!("rangeFrom" in $$source)) {
+            this["rangeFrom"] = "";
+        }
+        if (!("rangeTo" in $$source)) {
+            this["rangeTo"] = "";
+        }
+        if (!("rangeError" in $$source)) {
+            this["rangeError"] = "";
+        }
+        if (!("custom" in $$source)) {
+            this["custom"] = false;
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("messageText" in $$source)) {
+            this["messageText"] = "";
+        }
+        if (!("hasReport" in $$source)) {
+            this["hasReport"] = false;
+        }
+        if (!("empty" in $$source)) {
+            this["empty"] = false;
+        }
+        if (!("canExportReport" in $$source)) {
+            this["canExportReport"] = false;
+        }
+        if (!("exportDisabledReason" in $$source)) {
+            this["exportDisabledReason"] = "";
+        }
+        if (!("canExportTax" in $$source)) {
+            this["canExportTax"] = false;
+        }
+        if (!("linkable" in $$source)) {
+            this["linkable"] = false;
+        }
+        if (!("emptyTitle" in $$source)) {
+            this["emptyTitle"] = "";
+        }
+        if (!("emptyHint" in $$source)) {
+            this["emptyHint"] = "";
+        }
+        if (!("otherCurrencyHint" in $$source)) {
+            this["otherCurrencyHint"] = "";
+        }
+        if (!("incomeValue" in $$source)) {
+            this["incomeValue"] = "";
+        }
+        if (!("expensesValue" in $$source)) {
+            this["expensesValue"] = "";
+        }
+        if (!("netValue" in $$source)) {
+            this["netValue"] = "";
+        }
+        if (!("taxValue" in $$source)) {
+            this["taxValue"] = "";
+        }
+        if (!("netTone" in $$source)) {
+            this["netTone"] = "";
+        }
+        if (!("taxRelevantRows" in $$source)) {
+            this["taxRelevantRows"] = [];
+        }
+        if (!("taxRelevantEmpty" in $$source)) {
+            this["taxRelevantEmpty"] = "";
+        }
+        if (!("statTransactions" in $$source)) {
+            this["statTransactions"] = "";
+        }
+        if (!("statCategories" in $$source)) {
+            this["statCategories"] = "";
+        }
+        if (!("statAverage" in $$source)) {
+            this["statAverage"] = "";
+        }
+        if (!("statHighest" in $$source)) {
+            this["statHighest"] = "";
+        }
+        if (!("monthlyTitle" in $$source)) {
+            this["monthlyTitle"] = "";
+        }
+        if (!("monthlyRows" in $$source)) {
+            this["monthlyRows"] = [];
+        }
+        if (!("monthlyTotalIncome" in $$source)) {
+            this["monthlyTotalIncome"] = "";
+        }
+        if (!("monthlyTotalExpenses" in $$source)) {
+            this["monthlyTotalExpenses"] = "";
+        }
+        if (!("monthlyTotalNet" in $$source)) {
+            this["monthlyTotalNet"] = "";
+        }
+        if (!("monthlyTotalTone" in $$source)) {
+            this["monthlyTotalTone"] = "";
+        }
+        if (!("monthlyTotalIncomeZero" in $$source)) {
+            this["monthlyTotalIncomeZero"] = false;
+        }
+        if (!("monthlyTotalExpensesZero" in $$source)) {
+            this["monthlyTotalExpensesZero"] = false;
+        }
+        if (!("monthlyTotalNetZero" in $$source)) {
+            this["monthlyTotalNetZero"] = false;
+        }
+        if (!("categoryRows" in $$source)) {
+            this["categoryRows"] = [];
+        }
+        if (!("transfersNote" in $$source)) {
+            this["transfersNote"] = "";
+        }
+        if (!("vendorRows" in $$source)) {
+            this["vendorRows"] = [];
+        }
+        if (!("recurringEmpty" in $$source)) {
+            this["recurringEmpty"] = false;
+        }
+        if (!("recurringCount" in $$source)) {
+            this["recurringCount"] = "";
+        }
+        if (!("recurringYearly" in $$source)) {
+            this["recurringYearly"] = "";
+        }
+        if (!("recurringMonthly" in $$source)) {
+            this["recurringMonthly"] = "";
+        }
+        if (!("recurringRows" in $$source)) {
+            this["recurringRows"] = [];
+        }
+        if (!("hasTax" in $$source)) {
+            this["hasTax"] = false;
+        }
+        if (!("missingReceiptsOnly" in $$source)) {
+            this["missingReceiptsOnly"] = false;
+        }
+        if (!("taxEmpty" in $$source)) {
+            this["taxEmpty"] = false;
+        }
+        if (!("taxEmptyTitle" in $$source)) {
+            this["taxEmptyTitle"] = "";
+        }
+        if (!("taxEmptyHint" in $$source)) {
+            this["taxEmptyHint"] = "";
+        }
+        if (!("taxIncomeValue" in $$source)) {
+            this["taxIncomeValue"] = "";
+        }
+        if (!("taxDeductionValue" in $$source)) {
+            this["taxDeductionValue"] = "";
+        }
+        if (!("taxNetValue" in $$source)) {
+            this["taxNetValue"] = "";
+        }
+        if (!("taxNetTone" in $$source)) {
+            this["taxNetTone"] = "";
+        }
+        if (!("taxReceiptsMissing" in $$source)) {
+            this["taxReceiptsMissing"] = false;
+        }
+        if (!("taxReceiptsValue" in $$source)) {
+            this["taxReceiptsValue"] = "";
+        }
+        if (!("taxReceiptsSubtitle" in $$source)) {
+            this["taxReceiptsSubtitle"] = "";
+        }
+        if (!("taxOtherHint" in $$source)) {
+            this["taxOtherHint"] = "";
+        }
+        if (!("taxSuggestionsTitle" in $$source)) {
+            this["taxSuggestionsTitle"] = "";
+        }
+        if (!("taxSuggestionsHint" in $$source)) {
+            this["taxSuggestionsHint"] = "";
+        }
+        if (!("taxSuggestions" in $$source)) {
+            this["taxSuggestions"] = [];
+        }
+        if (!("taxRows" in $$source)) {
+            this["taxRows"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReportsDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReportsDTO {
+        const $$createField25_0 = $$createType39;
+        const $$createField32_0 = $$createType41;
+        const $$createField40_0 = $$createType43;
+        const $$createField42_0 = $$createType45;
+        const $$createField47_0 = $$createType47;
+        const $$createField63_0 = $$createType49;
+        const $$createField64_0 = $$createType51;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("taxRelevantRows" in $$parsedSource) {
+            $$parsedSource["taxRelevantRows"] = $$createField25_0($$parsedSource["taxRelevantRows"]);
+        }
+        if ("monthlyRows" in $$parsedSource) {
+            $$parsedSource["monthlyRows"] = $$createField32_0($$parsedSource["monthlyRows"]);
+        }
+        if ("categoryRows" in $$parsedSource) {
+            $$parsedSource["categoryRows"] = $$createField40_0($$parsedSource["categoryRows"]);
+        }
+        if ("vendorRows" in $$parsedSource) {
+            $$parsedSource["vendorRows"] = $$createField42_0($$parsedSource["vendorRows"]);
+        }
+        if ("recurringRows" in $$parsedSource) {
+            $$parsedSource["recurringRows"] = $$createField47_0($$parsedSource["recurringRows"]);
+        }
+        if ("taxSuggestions" in $$parsedSource) {
+            $$parsedSource["taxSuggestions"] = $$createField63_0($$parsedSource["taxSuggestions"]);
+        }
+        if ("taxRows" in $$parsedSource) {
+            $$parsedSource["taxRows"] = $$createField64_0($$parsedSource["taxRows"]);
+        }
+        return new ReportsDTO($$parsedSource as Partial<ReportsDTO>);
+    }
+}
+
+/**
  * ShellDTO is everything the unlock view and the main shell show.
  * 
  * It never carries a passphrase or any other secret.
@@ -1905,7 +2546,7 @@ export class ShellDTO {
      */
     static createFrom($$source: any = {}): ShellDTO {
         const $$createField9_0 = $$createType16;
-        const $$createField18_0 = $$createType39;
+        const $$createField18_0 = $$createType53;
         const $$createField23_0 = $$createType16;
         const $$createField29_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
@@ -2566,16 +3207,16 @@ export class TransactionsDTO {
         const $$createField19_0 = $$createType16;
         const $$createField21_0 = $$createType11;
         const $$createField22_0 = $$createType13;
-        const $$createField26_0 = $$createType41;
+        const $$createField26_0 = $$createType55;
         const $$createField29_0 = $$createType16;
         const $$createField32_0 = $$createType16;
         const $$createField52_0 = $$createType16;
         const $$createField53_0 = $$createType16;
-        const $$createField78_0 = $$createType43;
+        const $$createField78_0 = $$createType57;
         const $$createField95_0 = $$createType16;
         const $$createField106_0 = $$createType16;
-        const $$createField111_0 = $$createType45;
-        const $$createField112_0 = $$createType47;
+        const $$createField111_0 = $$createType59;
+        const $$createField112_0 = $$createType61;
         const $$createField114_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("incomeAmounts" in $$parsedSource) {
@@ -2678,13 +3319,27 @@ const $$createType34 = DashboardTransactionRowDTO.createFrom;
 const $$createType35 = $Create.Array($$createType34);
 const $$createType36 = BankingPromptChoiceDTO.createFrom;
 const $$createType37 = $Create.Array($$createType36);
-const $$createType38 = ProfileDTO.createFrom;
+const $$createType38 = ReportAmountRowDTO.createFrom;
 const $$createType39 = $Create.Array($$createType38);
-const $$createType40 = TransactionRowDTO.createFrom;
+const $$createType40 = ReportMonthlyRowDTO.createFrom;
 const $$createType41 = $Create.Array($$createType40);
-const $$createType42 = ReapplyGroupRowDTO.createFrom;
+const $$createType42 = ReportCategoryRowDTO.createFrom;
 const $$createType43 = $Create.Array($$createType42);
-const $$createType44 = ImportFileRowDTO.createFrom;
+const $$createType44 = ReportVendorRowDTO.createFrom;
 const $$createType45 = $Create.Array($$createType44);
-const $$createType46 = ImportCSVFieldDTO.createFrom;
+const $$createType46 = ReportRecurringRowDTO.createFrom;
 const $$createType47 = $Create.Array($$createType46);
+const $$createType48 = ReportSuggestionRowDTO.createFrom;
+const $$createType49 = $Create.Array($$createType48);
+const $$createType50 = ReportTaxRowDTO.createFrom;
+const $$createType51 = $Create.Array($$createType50);
+const $$createType52 = ProfileDTO.createFrom;
+const $$createType53 = $Create.Array($$createType52);
+const $$createType54 = TransactionRowDTO.createFrom;
+const $$createType55 = $Create.Array($$createType54);
+const $$createType56 = ReapplyGroupRowDTO.createFrom;
+const $$createType57 = $Create.Array($$createType56);
+const $$createType58 = ImportFileRowDTO.createFrom;
+const $$createType59 = $Create.Array($$createType58);
+const $$createType60 = ImportCSVFieldDTO.createFrom;
+const $$createType61 = $Create.Array($$createType60);

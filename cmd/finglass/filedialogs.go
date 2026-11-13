@@ -1,11 +1,13 @@
 package main
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	documentsservice "github.com/MaMissaoui/Finglass/internal/core/documents/service"
+	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 )
 
 // statementExtensions is Rust's STATEMENT_EXTENSIONS as one Wails filter
@@ -16,13 +18,18 @@ const statementExtensions = "*.csv;*.sta;*.mt940;*.xml;*.zip;*.ofx;*.qfx;*.qif;*
 // inside a job, without its mutex, and every dialog is attached to the main
 // window.
 type wailsFileDialogs struct {
-	app    *application.App
-	window *application.WebviewWindow
+	app      *application.App
+	window   *application.WebviewWindow
+	language func() i18n.Language
 }
 
 // newWailsFileDialogs builds the native dialog seam for the main window.
-func newWailsFileDialogs(app *application.App, window *application.WebviewWindow) *wailsFileDialogs {
-	return &wailsFileDialogs{app: app, window: window}
+func newWailsFileDialogs(
+	app *application.App,
+	window *application.WebviewWindow,
+	language func() i18n.Language,
+) *wailsFileDialogs {
+	return &wailsFileDialogs{app: app, window: window, language: language}
 }
 
 // PickStatements asks for one or more bank statement files.
@@ -65,6 +72,44 @@ func (d *wailsFileDialogs) SaveCSV(title string, defaultName string) (string, bo
 		return "", false
 	}
 	return path, true
+}
+
+// SaveFile asks where to write one of the Reports exports. The title key is
+// localized with the profile's current language.
+func (d *wailsFileDialogs) SaveFile(title i18n.Key, defaultName string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	language := i18n.En
+	if d.language != nil {
+		language = d.language()
+	}
+	titleText := i18n.Text(language, title)
+	pattern := exportFilterPattern(defaultName)
+	options := &application.SaveFileDialogOptions{
+		Title:                titleText,
+		Filename:             defaultName,
+		CanCreateDirectories: true,
+		Window:               d.window,
+	}
+	if pattern != "" {
+		options.Filters = []application.FileFilter{{DisplayName: titleText, Pattern: pattern}}
+	}
+	path, err := d.app.Dialog.SaveFileWithOptions(options).PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
+}
+
+// exportFilterPattern turns a suggested file name's extension into Wails'
+// filter pattern.
+func exportFilterPattern(defaultName string) string {
+	extension := strings.ToLower(filepath.Ext(defaultName))
+	if extension == "" || extension == "." {
+		return ""
+	}
+	return "*" + extension
 }
 
 func selectedPaths(paths []string, err error) ([]string, bool) {

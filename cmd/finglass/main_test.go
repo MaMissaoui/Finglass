@@ -77,6 +77,27 @@ func TestSelfCheckFailsWhenTheTransactionsServiceIsMissing(t *testing.T) {
 	}
 }
 
+func TestSelfCheckFailsWhenTheReportsServiceIsMissing(t *testing.T) {
+	original := expectedServices
+	t.Cleanup(func() { expectedServices = original })
+
+	filtered := make([]expectedService, 0, len(original))
+	for _, expected := range original {
+		if expected.name != "Reports" {
+			filtered = append(filtered, expected)
+		}
+	}
+	expectedServices = filtered
+
+	err := checkServices()
+	if err == nil {
+		t.Fatal("checkServices accepted a registry without the Reports service")
+	}
+	if !strings.Contains(err.Error(), "Reports") {
+		t.Fatalf("checkServices error = %q, want it to name Reports", err)
+	}
+}
+
 func TestSelfCheckFailsWhenTheAccountsServiceIsMissing(t *testing.T) {
 	original := expectedServices
 	t.Cleanup(func() { expectedServices = original })
