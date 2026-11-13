@@ -253,8 +253,8 @@ In order, each one compared with the G1 reference screenshots:
 - [x] Dashboard: month statement and carry-forward, with charts as Svelte SVG components following design.md's chart
   rules.
 - [x] Accounts, bank cards and the account panel.
-- [ ] Transactions: list, filters, panel, import dialog, rules.
-- [ ] Reports: export menu, tax donut.
+- [x] Transactions: list, filters, panel, import dialog, rules.
+- [x] Reports: export menu, tax donut.
 - [ ] Documents.
 - [ ] Settings: backup/restore, FinDesk import, profiles, About.
 
