@@ -19,8 +19,9 @@ For every SEPA account that the login can see, it prints one line containing:
   booking date, and the parsed format (`MT940` or `camt`).
 
 Before the account loop it asks the bank for the SEPA account details (HKSPA).
-Accounts without an IBAN or BIC, or without balance/statement access (for
-example securities depots and some credit cards), are listed as
+Accounts without an IBAN, without balance/statement access, or without the
+identifiers the bank's request versions need (for example securities depots and
+some credit cards) are listed as
 `IBAN <masked, or -> | skipped (no balance/statement access)` and do not count
 for the decision.
 
@@ -109,6 +110,6 @@ A NO-GO with a bank code right after the login usually names what the bank
 refused. Look the code up before retrying with the PIN.
 
 `statements unavailable` means the balance may still be present but the
-statement request or its parse failed. Accounts without an IBAN or BIC, or
-without balance/statement access, are listed as skipped and do not make the
-result a NO-GO.
+statement request or its parse failed. Accounts without an IBAN, without
+balance/statement access, or without the identifiers the bank's request
+versions need are listed as skipped and do not make the result a NO-GO.
