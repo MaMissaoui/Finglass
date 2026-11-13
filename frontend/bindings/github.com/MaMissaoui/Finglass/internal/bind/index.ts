@@ -6,12 +6,14 @@ import * as AppInfo from "./appinfo.js";
 import * as Banking from "./banking.js";
 import * as Dashboard from "./dashboard.js";
 import * as Shell from "./shell.js";
+import * as Transactions from "./transactions.js";
 export {
     Accounts,
     AppInfo,
     Banking,
     Dashboard,
-    Shell
+    Shell,
+    Transactions
 };
 
 export {
@@ -40,6 +42,9 @@ export {
     DashboardUpcomingRowDTO,
     ProfileDTO,
     PromptDTO,
+    ReapplyGroupRowDTO,
     ShellDTO,
-    TickPayload
+    TickPayload,
+    TransactionRowDTO,
+    TransactionsDTO
 } from "./models.js";

@@ -240,15 +240,21 @@ func nativeMenu(
 	return menu
 }
 
+// transactionsMenuService opens the Transactions page with its add dialog.
+type transactionsMenuService interface {
+	OpenWithAdd() (bind.TransactionsDTO, error)
+}
+
 // menuController owns the menu's copy of the shell state and rebuilds the
 // native menu whenever the shell changes.
 type menuController struct {
 	mu sync.Mutex
 
-	app     *application.App
-	window  *application.WebviewWindow
-	service *bind.Shell
-	openURL func(string)
+	app          *application.App
+	window       *application.WebviewWindow
+	service      *bind.Shell
+	transactions transactionsMenuService
+	openURL      func(string)
 
 	state    menuState
 	language i18n.Language
@@ -331,7 +337,11 @@ func (c *menuController) actions() menuActions {
 	}
 
 	return menuActions{
-		NewTransaction:  func() { emit("newTransaction") },
+		NewTransaction: func() {
+			if c.transactions != nil {
+				_, _ = c.transactions.OpenWithAdd()
+			}
+		},
 		ImportStatement: func() { emit("importStatement") },
 		Navigate: func(screen string) {
 			_, _ = c.service.Navigate(screen)

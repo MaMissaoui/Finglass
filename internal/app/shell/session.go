@@ -150,6 +150,13 @@ type Session struct {
 	documents      *documentsview.DocumentsState
 	transactions   *transactionsview.TransactionsView
 
+	transactionsWork            accountsview.Busy
+	transactionsDialog          TransactionsDialogState
+	transactionsPendingOpen     bool
+	transactionsPendingSearch   pendingTransactionsSearch
+	transactionsMultiDeleteIDs  map[model.TransactionID]struct{}
+	transactionsReapplyExcluded map[transactionsReapplyKey]struct{}
+
 	nav      NavState
 	slug     *string
 	restored *string
@@ -286,6 +293,12 @@ type pageJob struct {
 	// also is another page to notify after page. The Accounts page notifies
 	// "banking" because it refreshes or merges the bank-login state too.
 	also string
+	// finish runs after the result was published or dropped, before listeners
+	// see it: Transactions uses it for Rust's BusyGuard.
+	finish func(published bool)
+	// afterPublish runs after listeners saw the change, without the session
+	// mutex: Transactions uses it for Rust's PendingSearch.
+	afterPublish func(published bool)
 }
 
 // startPageJob announces the prepared state and runs the load on a goroutine.
@@ -321,11 +334,17 @@ func (s *Session) runPageJob(job *pageJob) {
 	s.jobs.EndGeneration(job.generation)
 	s.mu.Unlock()
 
+	if job.finish != nil {
+		job.finish(publish)
+	}
 	if publish {
 		s.notify(Change{Page: job.page})
 		if job.also != "" {
 			s.notify(Change{Page: job.also})
 		}
+	}
+	if job.afterPublish != nil {
+		job.afterPublish(publish)
 	}
 }
 
@@ -413,30 +432,32 @@ func newSession(
 	date := today()
 	profileBusy := accountsview.NewBusy()
 	accountsWork := accountsview.NewBusy()
+	transactionsWork := accountsview.NewBusy()
 	transactions := transactionsview.New(language)
 	transactions.SetBusy(profileBusy)
 
 	session := &Session{
-		paths:        appPaths,
-		credentials:  credentials,
-		clock:        clock,
-		today:        today,
-		getenv:       getenv,
-		language:     language,
-		theme:        prefs.ThemeSystem,
-		db:           nil,
-		dashboard:    dashboardview.New(language, date),
-		reports:      reportsview.New(language, date),
-		settings:     newSettingsState(language, profileBusy),
-		findesk:      findesk.NewFindeskImportState(language),
-		accounts:     newAccountsState(language, profileBusy),
-		banking:      banking.New(language),
-		profileBusy:  profileBusy,
-		accountsWork: accountsWork,
-		documents:    documentsview.New(language, false),
-		transactions: transactions,
-		nav:          NavState{},
-		screen:       "dashboard",
+		paths:            appPaths,
+		credentials:      credentials,
+		clock:            clock,
+		today:            today,
+		getenv:           getenv,
+		language:         language,
+		theme:            prefs.ThemeSystem,
+		db:               nil,
+		dashboard:        dashboardview.New(language, date),
+		reports:          reportsview.New(language, date),
+		settings:         newSettingsState(language, profileBusy),
+		findesk:          findesk.NewFindeskImportState(language),
+		accounts:         newAccountsState(language, profileBusy),
+		banking:          banking.New(language),
+		profileBusy:      profileBusy,
+		accountsWork:     accountsWork,
+		documents:        documentsview.New(language, false),
+		transactions:     transactions,
+		nav:              NavState{},
+		screen:           "dashboard",
+		transactionsWork: transactionsWork,
 	}
 	session.bridge = session.newLiveBridge()
 	return session
@@ -833,6 +854,7 @@ func (s *Session) finishOpen(
 	s.documents.SetProfile(startup.SlugKey(slug))
 	s.transactions = transactionsview.New(loadedPrefs.Language)
 	s.transactions.SetBusy(busy)
+	s.resetTransactionsAuxLocked()
 	s.nav.Reset()
 	s.screen = "dashboard"
 	s.unlockBusy = false
@@ -1012,6 +1034,7 @@ func (s *Session) teardownLocked(prepared startup.Startup, oldGeneration uint64)
 	s.documents.SetProfile(startup.SlugKey(prepared.Slug))
 	s.transactions = transactionsview.New(s.language)
 	s.transactions.SetBusy(busy)
+	s.resetTransactionsAuxLocked()
 
 	s.unlockBusy = false
 	s.unlockError = nil
@@ -1083,6 +1106,7 @@ func (s *Session) ReloadAfterFindeskImport() (i18n.Language, bool) {
 	s.documents.SetProfile(startup.SlugKey(slug))
 	s.transactions = transactionsview.New(loadedPrefs.Language)
 	s.transactions.SetBusy(s.profileBusy)
+	s.resetTransactionsAuxLocked()
 	s.nav.Reset()
 	s.screen = "settings"
 
@@ -1198,6 +1222,8 @@ func (s *Session) openPageLocked(screen string, args PageArgs) *pageJob {
 		return s.beginDashboardOpenLocked()
 	case "accounts":
 		return s.beginAccountsLoadLocked()
+	case "transactions":
+		return s.beginTransactionsOpenLocked(args.Transactions)
 	default:
 		return nil
 	}
@@ -1227,6 +1253,7 @@ func (s *Session) resetTransactionsLocked() {
 	busy := s.profileBusy
 	s.transactions = transactionsview.New(s.language)
 	s.transactions.SetBusy(busy)
+	s.resetTransactionsAuxLocked()
 }
 
 // SetLanguage changes and saves the UI language, as on_set_language does.

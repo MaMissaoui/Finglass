@@ -36,6 +36,9 @@ var accountsService = bind.NewAccounts(nil, bind.AccountsOptions{})
 // bankingService is set from main once the shell service exists.
 var bankingService = bind.NewBanking(nil, bind.BankingOptions{})
 
+// transactionsService is set from main once the shell service exists.
+var transactionsService = bind.NewTransactions(nil, bind.TransactionsOptions{})
+
 func main() {
 	// Finder may add its own arguments, so look for the flag instead of
 	// handing all of os.Args to flag.Parse.
@@ -92,12 +95,14 @@ func main() {
 	dashboardService = bind.NewDashboard(session, bind.DashboardOptions{})
 	accountsService = bind.NewAccounts(session, bind.AccountsOptions{})
 	bankingService = bind.NewBanking(session, bind.BankingOptions{})
+	transactionsService = bind.NewTransactions(session, bind.TransactionsOptions{})
 
 	router := bind.NewRouter(session)
 	router.Register("dashboard", dashboardService)
 	router.Register("accounts", accountsService)
 	router.Register("banking", bankingService)
 	router.RegisterPrompt("banking-prompt", bankingService)
+	router.Register("transactions", transactionsService)
 	router.RegisterShell(shellService)
 
 	dist, err := fs.Sub(frontend.Dist, "dist")
@@ -121,10 +126,11 @@ func main() {
 
 	if runtime.GOOS == "darwin" {
 		menu = &menuController{
-			app:     app,
-			window:  window,
-			service: shellService,
-			openURL: openURL,
+			app:          app,
+			window:       window,
+			service:      shellService,
+			transactions: transactionsService,
+			openURL:      openURL,
 		}
 		if dto, stateErr := shellService.State(); stateErr == nil {
 			menu.apply(dto)
@@ -150,6 +156,7 @@ func boundServices() []boundService {
 		{name: "Dashboard", service: application.NewService(dashboardService)},
 		{name: "Accounts", service: application.NewService(accountsService)},
 		{name: "Banking", service: application.NewService(bankingService)},
+		{name: "Transactions", service: application.NewService(transactionsService)},
 	}
 }
 
@@ -287,6 +294,13 @@ var expectedServices = []expectedService{
 		name: "Banking",
 		matches: func(instance any) bool {
 			_, ok := instance.(*bind.Banking)
+			return ok
+		},
+	},
+	{
+		name: "Transactions",
+		matches: func(instance any) bool {
+			_, ok := instance.(*bind.Transactions)
 			return ok
 		},
 	},

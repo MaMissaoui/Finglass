@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
+	"github.com/MaMissaoui/Finglass/internal/bind"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 )
 
@@ -152,6 +153,24 @@ func TestFindBackAndThemeFollowTheShellState(t *testing.T) {
 	}
 	if !menuItem(t, view, i18n.Text(i18n.En, i18n.DarkTheme)).Checked {
 		t.Fatal("the dark theme item is not checked")
+	}
+}
+
+type fakeTransactionsMenu struct {
+	called bool
+}
+
+func (f *fakeTransactionsMenu) OpenWithAdd() (bind.TransactionsDTO, error) {
+	f.called = true
+	return bind.TransactionsDTO{}, nil
+}
+
+func TestNewTransactionCallsTheTransactionsServiceDirectly(t *testing.T) {
+	transactions := &fakeTransactionsMenu{}
+	controller := &menuController{transactions: transactions}
+	controller.actions().NewTransaction()
+	if !transactions.called {
+		t.Fatal("the New transaction menu action did not call the Transactions service")
 	}
 }
 
