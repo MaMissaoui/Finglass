@@ -42,6 +42,25 @@ type FinTsClient struct {
 	pinNotSaved atomic.Bool
 }
 
+// String returns a representation that never contains the product id or the
+// profile folder.
+func (c *FinTsClient) String() string {
+	if c == nil {
+		return "FinTsClient(nil)"
+	}
+	return fmt.Sprintf("FinTsClient{ProductID:%q Language:%v}", maskedProductID(c.productID), c.language)
+}
+
+// GoString returns the same masked representation as String.
+func (c *FinTsClient) GoString() string {
+	return c.String()
+}
+
+// Format returns the masked representation for every fmt verb.
+func (c *FinTsClient) Format(f fmt.State, _ rune) {
+	_, _ = f.Write([]byte(c.String()))
+}
+
 // NewFinTsClient builds a client. productID is the caller's FinTS registration
 // id; core never hard-codes it.
 //

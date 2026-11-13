@@ -63,6 +63,7 @@ jobs:
       - name: Build app and DMG
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          FINGLASS_FINTS_PRODUCT_ID: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.FINGLASS_FINTS_PRODUCT_ID || '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -89,9 +90,13 @@ jobs:
           mount_point=$(mktemp -d)
           copy_dir=$(mktemp -d)
           home=$(mktemp -d)
+          check_home=""
           cleanup() {
             hdiutil detach "$mount_point" >/dev/null 2>&1 || true
             rm -rf "$mount_point" "$copy_dir" "$home"
+            if [ -n "$check_home" ]; then
+              rm -rf "$check_home"
+            fi
           }
           trap cleanup EXIT
 
@@ -99,6 +104,16 @@ jobs:
           echo "Mounted $dmg at $mount_point"
 
           ditto "$mount_point/Finglass.app" "$copy_dir/Finglass.app"
+
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            check_home=$(mktemp -d)
+            check_output=$(FINGLASS_HOME="$check_home" "$copy_dir/Finglass.app/Contents/MacOS/Finglass" --self-check)
+            printf '%s\n' "$check_output"
+            if [[ "$check_output" != *"FinTS product id: present"* ]]; then
+              echo "::error::the release build did not report the FinTS product id as present"
+              exit 1
+            fi
+          fi
 
           log="$RUNNER_TEMP/finglass-launch.log"
           FINGLASS_HOME="$home" "$copy_dir/Finglass.app/Contents/MacOS/Finglass" >"$log" 2>&1 &
@@ -128,6 +143,11 @@ jobs:
             exit 1
           fi
           echo "Launch check passed; FINGLASS_HOME holds only the instance lock."
+
+          # The later --from-source install rebuilds build/go/. Stage the DMG this step checked
+          # so only that file is uploaded.
+          mkdir -p "$RUNNER_TEMP/dist"
+          cp "$dmg" "$RUNNER_TEMP/dist/"
       - name: Install into a scratch folder twice
         shell: bash
         run: |
@@ -163,7 +183,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: finglass-macos-dmg
-          path: build/go/*.dmg
+          path: ${{ runner.temp }}/dist/*.dmg
           if-no-files-found: error
           retention-days: 14
 

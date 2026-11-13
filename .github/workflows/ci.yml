@@ -115,3 +115,29 @@ jobs:
       # Universal, ad-hoc-signed Finglass.app with its --self-check.
       - name: Package the Go app
         run: bash scripts/ci/go-package.sh
+
+  # The FinTS product id is a release secret. Forks and PRs without the secret skip the scan.
+  secret-scan:
+    name: Secret scan (macos-latest)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Scan for the FinTS product id
+        env:
+          ID: ${{ secrets.FINGLASS_FINTS_PRODUCT_ID }}
+        run: bash scripts/ci/secret-scan.sh
+      # The packager's own rule, checked against the real secret so a wrong guess about its format shows up
+      # here and not on a release tag. Prints only valid/invalid, never the value.
+      - name: Check the FinTS product id format
+        env:
+          FINGLASS_FINTS_PRODUCT_ID: ${{ secrets.FINGLASS_FINTS_PRODUCT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${FINGLASS_FINTS_PRODUCT_ID:-}" ]; then
+            echo "product id secret not available; skipping"
+            exit 0
+          fi
+          bash scripts/go-package-macos.sh --validate-only

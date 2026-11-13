@@ -7,7 +7,8 @@
 # - With Docker running, the Go checks also run in a Linux container. CI is macOS-only until FinDesk parity
 #   (docs/PLAN.md), so this is an extra portability check, not a copy of a CI job.
 #
-# Usage: scripts/ci-local.sh [go] [frontend] [package] [install] [lint] [test] [linux]   (no arguments: all of them)
+# Usage: scripts/ci-local.sh [go] [frontend] [package] [install] [lint] [test] [linux] [secret-scan]
+# (no arguments: all of the default jobs; secret-scan is optional)
 # Logs: build/ci-local/<job>.log. Exit status is non-zero if any job failed.
 set -euo pipefail
 
@@ -108,8 +109,15 @@ for job in "${jobs[@]}"; do
         skip_job linux "Docker is not running"
       fi
       ;;
+    secret-scan)
+      if [ -n "${ID:-}" ]; then
+        run_job secret-scan bash scripts/ci/secret-scan.sh
+      else
+        skip_job secret-scan "ID is not set"
+      fi
+      ;;
     *)
-      echo "unknown job: $job (expected go, frontend, package, install, lint, test or linux)" >&2
+      echo "unknown job: $job (expected go, frontend, package, install, lint, test, linux or secret-scan)" >&2
       exit 2
       ;;
   esac

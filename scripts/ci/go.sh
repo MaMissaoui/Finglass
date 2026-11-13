@@ -21,3 +21,6 @@ golangci-lint run ./...
 
 step "go test"
 go test ./...
+
+step "product id"
+bash scripts/tests/product-id.sh

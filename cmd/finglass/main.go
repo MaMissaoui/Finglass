@@ -20,6 +20,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/bind"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/fintsproduct"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
 )
 
@@ -235,7 +236,17 @@ func runSelfCheck() int {
 		return 1
 	}
 	fmt.Printf("OK: %s\n", bind.Version)
+	fmt.Println(finTsProductIDStatus())
 	return 0
+}
+
+// finTsProductIDStatus is the self-check's product id line. It reports only
+// presence, never the value.
+func finTsProductIDStatus() string {
+	if fintsproduct.Present() {
+		return "FinTS product id: present"
+	}
+	return "FinTS product id: absent"
 }
 
 func checkAssets() error {

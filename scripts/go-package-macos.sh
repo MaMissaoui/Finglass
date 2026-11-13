@@ -6,9 +6,49 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-version="${1:-0.4.0-dev}"
-if [[ ! "$version" =~ ^[0-9A-Za-z._-]+$ ]]; then
-  echo "invalid version: $version" >&2
+validate_only=0
+if [[ "${1:-}" == "--validate-only" ]]; then
+  validate_only=1
+  shift
+fi
+
+version=""
+if [[ "$validate_only" -eq 0 ]]; then
+  version="${1:-0.4.0-dev}"
+  if [[ ! "$version" =~ ^[0-9A-Za-z._-]+$ ]]; then
+    echo "invalid version: $version" >&2
+    exit 1
+  fi
+fi
+
+# The product id is a release secret. Read it only from the environment, check
+# it before any build, and never echo its value.
+is_valid_product_id() {
+  [[ "$1" =~ ^[A-Za-z0-9]{1,30}$ ]]
+}
+
+product_id="${FINGLASS_FINTS_PRODUCT_ID:-}"
+unset FINGLASS_FINTS_PRODUCT_ID
+product_id_present=0
+if [[ -n "$product_id" ]]; then
+  product_id_present=1
+fi
+
+if [[ "$product_id_present" -eq 1 ]] && ! is_valid_product_id "$product_id"; then
+  if [[ "$validate_only" -eq 1 ]]; then
+    echo "product id: invalid"
+  else
+    echo "FINGLASS_FINTS_PRODUCT_ID is not a valid product id" >&2
+  fi
+  exit 1
+fi
+
+if [[ "$validate_only" -eq 1 ]]; then
+  if [[ "$product_id_present" -eq 1 ]]; then
+    echo "product id: valid"
+    exit 0
+  fi
+  echo "product id: not set"
   exit 1
 fi
 
@@ -42,6 +82,9 @@ fi
 
 # 3. Universal Go binary.
 ldflags="-s -w -X github.com/MaMissaoui/Finglass/internal/bind.Version=$version"
+if [[ "$product_id_present" -eq 1 ]]; then
+  ldflags+=" -X github.com/MaMissaoui/Finglass/internal/core/fintsproduct.productID=$product_id"
+fi
 export GOOS=darwin
 export CGO_ENABLED=1
 # 13.0, not the Wails template's 12.0: Go 1.27's runtime objects are built for macOS 13 (the linker warns otherwise).
@@ -115,6 +158,15 @@ check_output="$(FINGLASS_HOME="$tmp_home" "$app/Contents/MacOS/Finglass" --self-
 printf '%s\n' "$check_output"
 if [[ "$check_output" != OK:* ]]; then
   echo "self-check failed" >&2
+  exit 1
+fi
+if [[ "$product_id_present" -eq 1 ]]; then
+  if [[ "$check_output" != *"FinTS product id: present"* ]]; then
+    echo "self-check did not report the FinTS product id as present" >&2
+    exit 1
+  fi
+elif [[ "$check_output" != *"FinTS product id: absent"* ]]; then
+  echo "self-check did not report the FinTS product id as absent" >&2
   exit 1
 fi
 

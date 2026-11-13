@@ -1,5 +1,7 @@
 package banksync
 
+import "fmt"
+
 // FinTsConfig is the configuration for a FinTS/HBCI banking connection.
 //
 // The product registration id is deliberately a value supplied by the caller
@@ -50,4 +52,38 @@ func (c FinTsConfig) CustomerIDOrDefault() string {
 		return *c.CustomerID
 	}
 	return c.UserID
+}
+
+// String returns a representation that never contains the bank user id, the
+// customer id or the product id.
+func (c FinTsConfig) String() string {
+	customer := "<nil>"
+	if c.CustomerID != nil {
+		customer = "***"
+	}
+	return fmt.Sprintf(
+		"FinTsConfig{BankName:%q BLZ:%q BIC:%q UserID:%q CustomerID:%s HBCIVersion:%q ServerURL:%v TANMethod:%v ProductID:%q}",
+		c.BankName, c.BLZ, c.BIC, "***", customer, c.HBCIVersion, stringOrNil(c.ServerURL), stringOrNil(c.TANMethod),
+		maskedProductID(c.ProductID),
+	)
+}
+
+// GoString returns a representation that never contains the bank user id, the
+// customer id or the product id.
+func (c FinTsConfig) GoString() string {
+	return c.String()
+}
+
+// Format returns a representation that never contains the bank user id, the
+// customer id or the product id, for every fmt verb.
+func (c FinTsConfig) Format(f fmt.State, _ rune) {
+	_, _ = f.Write([]byte(c.String()))
+}
+
+// stringOrNil quotes an optional value or prints <nil>.
+func stringOrNil(value *string) string {
+	if value == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("%q", *value)
 }
