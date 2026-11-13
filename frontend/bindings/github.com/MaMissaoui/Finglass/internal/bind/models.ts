@@ -1639,6 +1639,46 @@ export class PromptDTO {
 }
 
 /**
+ * ReapplyGroupRowDTO is one checkbox row of the re-apply preview dialog.
+ */
+export class ReapplyGroupRowDTO {
+    "fromId": number;
+    "toId": number;
+    "title": string;
+    "detail": string;
+    "ticked": boolean;
+
+    /** Creates a new ReapplyGroupRowDTO instance. */
+    constructor($$source: Partial<ReapplyGroupRowDTO> = {}) {
+        if (!("fromId" in $$source)) {
+            this["fromId"] = 0;
+        }
+        if (!("toId" in $$source)) {
+            this["toId"] = 0;
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("detail" in $$source)) {
+            this["detail"] = "";
+        }
+        if (!("ticked" in $$source)) {
+            this["ticked"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ReapplyGroupRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ReapplyGroupRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ReapplyGroupRowDTO($$parsedSource as Partial<ReapplyGroupRowDTO>);
+    }
+}
+
+/**
  * ShellDTO is everything the unlock view and the main shell show.
  * 
  * It never carries a passphrase or any other secret.
@@ -1828,6 +1868,624 @@ export class TickPayload {
     }
 }
 
+/**
+ * TransactionRowDTO is one row of the booking list, including the pending bank
+ * lines shown above it.
+ */
+export class TransactionRowDTO {
+    "pending": boolean;
+    "id": number;
+    "dateText": string;
+    "title": string;
+    "subtitle": string;
+    "categoryText": string;
+    "categoryColour": string;
+    "partner": string;
+    "partnerLinkText": string;
+    "amountText": string;
+    "expense": boolean;
+    "isNew": boolean;
+    "selected": boolean;
+    "hasDocuments": boolean;
+    "documentsText": string;
+    "balanceText": string;
+    "balanceTone": string;
+    "balanceWarning": boolean;
+    "balanceMismatch": string;
+
+    /** Creates a new TransactionRowDTO instance. */
+    constructor($$source: Partial<TransactionRowDTO> = {}) {
+        if (!("pending" in $$source)) {
+            this["pending"] = false;
+        }
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("dateText" in $$source)) {
+            this["dateText"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("subtitle" in $$source)) {
+            this["subtitle"] = "";
+        }
+        if (!("categoryText" in $$source)) {
+            this["categoryText"] = "";
+        }
+        if (!("categoryColour" in $$source)) {
+            this["categoryColour"] = "";
+        }
+        if (!("partner" in $$source)) {
+            this["partner"] = "";
+        }
+        if (!("partnerLinkText" in $$source)) {
+            this["partnerLinkText"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("expense" in $$source)) {
+            this["expense"] = false;
+        }
+        if (!("isNew" in $$source)) {
+            this["isNew"] = false;
+        }
+        if (!("selected" in $$source)) {
+            this["selected"] = false;
+        }
+        if (!("hasDocuments" in $$source)) {
+            this["hasDocuments"] = false;
+        }
+        if (!("documentsText" in $$source)) {
+            this["documentsText"] = "";
+        }
+        if (!("balanceText" in $$source)) {
+            this["balanceText"] = "";
+        }
+        if (!("balanceTone" in $$source)) {
+            this["balanceTone"] = "";
+        }
+        if (!("balanceWarning" in $$source)) {
+            this["balanceWarning"] = false;
+        }
+        if (!("balanceMismatch" in $$source)) {
+            this["balanceMismatch"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TransactionRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TransactionRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new TransactionRowDTO($$parsedSource as Partial<TransactionRowDTO>);
+    }
+}
+
+/**
+ * TransactionsDTO is everything the Transactions page shows.
+ * 
+ * Money is already formatted by the view; chart coordinates stay numbers.
+ * Every value Rust's apply_with_excluded, apply_reapply, apply_chart,
+ * apply_selection, apply_detail and apply_duplicate set has a field here. The
+ * statement-import dialog is G8c-2 and has no fields yet.
+ */
+export class TransactionsDTO {
+    "loading": boolean;
+    "hasAccounts": boolean;
+    "errorText": string;
+    "messageText": string;
+    "countText": string;
+    "incomeAmounts": AccountAmountDTO[];
+    "expenseAmounts": AccountAmountDTO[];
+    "hasBalance": boolean;
+    "balanceText": string;
+    "balanceTone": string;
+    "showBack": boolean;
+    "periodOptions": string[];
+    "periodIndex": number;
+    "periodExtra": string;
+    "categoryOptions": string[];
+    "categoryIndex": number;
+    "directionOptions": string[];
+    "directionIndex": number;
+    "amountLabel": string;
+    "accountOptions": string[];
+    "accountIndex": number;
+    "panelRows": AccountPanelRowDTO[];
+    "groupChoices": AccountGroupChoiceDTO[];
+    "panelFilterText": string;
+    "panelShownText": string;
+    "pendingHeader": string;
+    "rows": TransactionRowDTO[];
+    "hasTransactions": boolean;
+    "hasBalanceColumn": boolean;
+    "addCategoryNames": string[];
+    "addDate": string;
+    "addAmountLabel": string;
+    "addAccountOptions": string[];
+    "addAccountIndex": number;
+    "hasChart": boolean;
+    "chartCollapsed": boolean;
+    "chartLine": string;
+    "chartArea": string;
+    "chartAxisTop": string;
+    "chartAxisBottom": string;
+    "chartAxisStart": string;
+    "chartAxisMid": string;
+    "chartAxisEnd": string;
+    "chartValue": string;
+    "chartNotFromZero": boolean;
+    "chartEndX": number;
+    "chartEndY": number;
+    "chartEndLabel": string;
+    "selectionVisible": boolean;
+    "allSelected": boolean;
+    "selectionCountText": string;
+    "selectionTotalsText": string;
+    "categoryNames": string[];
+    "taxOptions": string[];
+    "detailOpen": boolean;
+    "detailCanCreateRule": boolean;
+    "detailTitle": string;
+    "detailAmount": string;
+    "detailExpense": boolean;
+    "detailDate": string;
+    "detailAccount": string;
+    "detailPartner": string;
+    "detailShop": string;
+    "detailPurpose": string;
+    "detailCategoryIndex": number;
+    "detailTaxRelevant": boolean;
+    "detailTaxState": string;
+    "detailTaxIndex": number;
+    "detailHasMismatch": boolean;
+    "detailMismatch": string;
+    "detailPartnerLink": string;
+    "duplicateOpen": boolean;
+    "duplicateTitle": string;
+    "duplicateText": string;
+    "canUndoReapply": boolean;
+    "reapplyOpen": boolean;
+    "reapplySummary": string;
+    "reapplyWarning": string;
+    "reapplyGroups": ReapplyGroupRowDTO[];
+    "reapplyConfirmText": string;
+    "reapplyConfirmEnabled": boolean;
+    "rangeOpen": boolean;
+    "rangeFrom": string;
+    "rangeTo": string;
+    "rangeError": string;
+    "amountOpen": boolean;
+    "amountMin": string;
+    "amountMax": string;
+    "amountMinLabel": string;
+    "amountMaxLabel": string;
+    "amountError": string;
+    "addOpen": boolean;
+    "addError": string;
+    "ruleOpen": boolean;
+    "rulePattern": string;
+    "ruleCategories": string[];
+    "ruleCategoryIndex": number;
+    "ruleError": string;
+    "deleteOpen": boolean;
+    "deleteId": number;
+    "deleteTitle": string;
+    "deleteText": string;
+    "multiDeleteOpen": boolean;
+    "multiDeleteTitle": string;
+    "multiDeleteRange": string;
+    "multiDeleteTotals": string;
+    "multiDeleteLines": string[];
+    "multiDeleteMore": string;
+
+    /** Creates a new TransactionsDTO instance. */
+    constructor($$source: Partial<TransactionsDTO> = {}) {
+        if (!("loading" in $$source)) {
+            this["loading"] = false;
+        }
+        if (!("hasAccounts" in $$source)) {
+            this["hasAccounts"] = false;
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("messageText" in $$source)) {
+            this["messageText"] = "";
+        }
+        if (!("countText" in $$source)) {
+            this["countText"] = "";
+        }
+        if (!("incomeAmounts" in $$source)) {
+            this["incomeAmounts"] = [];
+        }
+        if (!("expenseAmounts" in $$source)) {
+            this["expenseAmounts"] = [];
+        }
+        if (!("hasBalance" in $$source)) {
+            this["hasBalance"] = false;
+        }
+        if (!("balanceText" in $$source)) {
+            this["balanceText"] = "";
+        }
+        if (!("balanceTone" in $$source)) {
+            this["balanceTone"] = "";
+        }
+        if (!("showBack" in $$source)) {
+            this["showBack"] = false;
+        }
+        if (!("periodOptions" in $$source)) {
+            this["periodOptions"] = [];
+        }
+        if (!("periodIndex" in $$source)) {
+            this["periodIndex"] = 0;
+        }
+        if (!("periodExtra" in $$source)) {
+            this["periodExtra"] = "";
+        }
+        if (!("categoryOptions" in $$source)) {
+            this["categoryOptions"] = [];
+        }
+        if (!("categoryIndex" in $$source)) {
+            this["categoryIndex"] = 0;
+        }
+        if (!("directionOptions" in $$source)) {
+            this["directionOptions"] = [];
+        }
+        if (!("directionIndex" in $$source)) {
+            this["directionIndex"] = 0;
+        }
+        if (!("amountLabel" in $$source)) {
+            this["amountLabel"] = "";
+        }
+        if (!("accountOptions" in $$source)) {
+            this["accountOptions"] = [];
+        }
+        if (!("accountIndex" in $$source)) {
+            this["accountIndex"] = 0;
+        }
+        if (!("panelRows" in $$source)) {
+            this["panelRows"] = [];
+        }
+        if (!("groupChoices" in $$source)) {
+            this["groupChoices"] = [];
+        }
+        if (!("panelFilterText" in $$source)) {
+            this["panelFilterText"] = "";
+        }
+        if (!("panelShownText" in $$source)) {
+            this["panelShownText"] = "";
+        }
+        if (!("pendingHeader" in $$source)) {
+            this["pendingHeader"] = "";
+        }
+        if (!("rows" in $$source)) {
+            this["rows"] = [];
+        }
+        if (!("hasTransactions" in $$source)) {
+            this["hasTransactions"] = false;
+        }
+        if (!("hasBalanceColumn" in $$source)) {
+            this["hasBalanceColumn"] = false;
+        }
+        if (!("addCategoryNames" in $$source)) {
+            this["addCategoryNames"] = [];
+        }
+        if (!("addDate" in $$source)) {
+            this["addDate"] = "";
+        }
+        if (!("addAmountLabel" in $$source)) {
+            this["addAmountLabel"] = "";
+        }
+        if (!("addAccountOptions" in $$source)) {
+            this["addAccountOptions"] = [];
+        }
+        if (!("addAccountIndex" in $$source)) {
+            this["addAccountIndex"] = 0;
+        }
+        if (!("hasChart" in $$source)) {
+            this["hasChart"] = false;
+        }
+        if (!("chartCollapsed" in $$source)) {
+            this["chartCollapsed"] = false;
+        }
+        if (!("chartLine" in $$source)) {
+            this["chartLine"] = "";
+        }
+        if (!("chartArea" in $$source)) {
+            this["chartArea"] = "";
+        }
+        if (!("chartAxisTop" in $$source)) {
+            this["chartAxisTop"] = "";
+        }
+        if (!("chartAxisBottom" in $$source)) {
+            this["chartAxisBottom"] = "";
+        }
+        if (!("chartAxisStart" in $$source)) {
+            this["chartAxisStart"] = "";
+        }
+        if (!("chartAxisMid" in $$source)) {
+            this["chartAxisMid"] = "";
+        }
+        if (!("chartAxisEnd" in $$source)) {
+            this["chartAxisEnd"] = "";
+        }
+        if (!("chartValue" in $$source)) {
+            this["chartValue"] = "";
+        }
+        if (!("chartNotFromZero" in $$source)) {
+            this["chartNotFromZero"] = false;
+        }
+        if (!("chartEndX" in $$source)) {
+            this["chartEndX"] = 0;
+        }
+        if (!("chartEndY" in $$source)) {
+            this["chartEndY"] = 0;
+        }
+        if (!("chartEndLabel" in $$source)) {
+            this["chartEndLabel"] = "";
+        }
+        if (!("selectionVisible" in $$source)) {
+            this["selectionVisible"] = false;
+        }
+        if (!("allSelected" in $$source)) {
+            this["allSelected"] = false;
+        }
+        if (!("selectionCountText" in $$source)) {
+            this["selectionCountText"] = "";
+        }
+        if (!("selectionTotalsText" in $$source)) {
+            this["selectionTotalsText"] = "";
+        }
+        if (!("categoryNames" in $$source)) {
+            this["categoryNames"] = [];
+        }
+        if (!("taxOptions" in $$source)) {
+            this["taxOptions"] = [];
+        }
+        if (!("detailOpen" in $$source)) {
+            this["detailOpen"] = false;
+        }
+        if (!("detailCanCreateRule" in $$source)) {
+            this["detailCanCreateRule"] = false;
+        }
+        if (!("detailTitle" in $$source)) {
+            this["detailTitle"] = "";
+        }
+        if (!("detailAmount" in $$source)) {
+            this["detailAmount"] = "";
+        }
+        if (!("detailExpense" in $$source)) {
+            this["detailExpense"] = false;
+        }
+        if (!("detailDate" in $$source)) {
+            this["detailDate"] = "";
+        }
+        if (!("detailAccount" in $$source)) {
+            this["detailAccount"] = "";
+        }
+        if (!("detailPartner" in $$source)) {
+            this["detailPartner"] = "";
+        }
+        if (!("detailShop" in $$source)) {
+            this["detailShop"] = "";
+        }
+        if (!("detailPurpose" in $$source)) {
+            this["detailPurpose"] = "";
+        }
+        if (!("detailCategoryIndex" in $$source)) {
+            this["detailCategoryIndex"] = 0;
+        }
+        if (!("detailTaxRelevant" in $$source)) {
+            this["detailTaxRelevant"] = false;
+        }
+        if (!("detailTaxState" in $$source)) {
+            this["detailTaxState"] = "";
+        }
+        if (!("detailTaxIndex" in $$source)) {
+            this["detailTaxIndex"] = 0;
+        }
+        if (!("detailHasMismatch" in $$source)) {
+            this["detailHasMismatch"] = false;
+        }
+        if (!("detailMismatch" in $$source)) {
+            this["detailMismatch"] = "";
+        }
+        if (!("detailPartnerLink" in $$source)) {
+            this["detailPartnerLink"] = "";
+        }
+        if (!("duplicateOpen" in $$source)) {
+            this["duplicateOpen"] = false;
+        }
+        if (!("duplicateTitle" in $$source)) {
+            this["duplicateTitle"] = "";
+        }
+        if (!("duplicateText" in $$source)) {
+            this["duplicateText"] = "";
+        }
+        if (!("canUndoReapply" in $$source)) {
+            this["canUndoReapply"] = false;
+        }
+        if (!("reapplyOpen" in $$source)) {
+            this["reapplyOpen"] = false;
+        }
+        if (!("reapplySummary" in $$source)) {
+            this["reapplySummary"] = "";
+        }
+        if (!("reapplyWarning" in $$source)) {
+            this["reapplyWarning"] = "";
+        }
+        if (!("reapplyGroups" in $$source)) {
+            this["reapplyGroups"] = [];
+        }
+        if (!("reapplyConfirmText" in $$source)) {
+            this["reapplyConfirmText"] = "";
+        }
+        if (!("reapplyConfirmEnabled" in $$source)) {
+            this["reapplyConfirmEnabled"] = false;
+        }
+        if (!("rangeOpen" in $$source)) {
+            this["rangeOpen"] = false;
+        }
+        if (!("rangeFrom" in $$source)) {
+            this["rangeFrom"] = "";
+        }
+        if (!("rangeTo" in $$source)) {
+            this["rangeTo"] = "";
+        }
+        if (!("rangeError" in $$source)) {
+            this["rangeError"] = "";
+        }
+        if (!("amountOpen" in $$source)) {
+            this["amountOpen"] = false;
+        }
+        if (!("amountMin" in $$source)) {
+            this["amountMin"] = "";
+        }
+        if (!("amountMax" in $$source)) {
+            this["amountMax"] = "";
+        }
+        if (!("amountMinLabel" in $$source)) {
+            this["amountMinLabel"] = "";
+        }
+        if (!("amountMaxLabel" in $$source)) {
+            this["amountMaxLabel"] = "";
+        }
+        if (!("amountError" in $$source)) {
+            this["amountError"] = "";
+        }
+        if (!("addOpen" in $$source)) {
+            this["addOpen"] = false;
+        }
+        if (!("addError" in $$source)) {
+            this["addError"] = "";
+        }
+        if (!("ruleOpen" in $$source)) {
+            this["ruleOpen"] = false;
+        }
+        if (!("rulePattern" in $$source)) {
+            this["rulePattern"] = "";
+        }
+        if (!("ruleCategories" in $$source)) {
+            this["ruleCategories"] = [];
+        }
+        if (!("ruleCategoryIndex" in $$source)) {
+            this["ruleCategoryIndex"] = 0;
+        }
+        if (!("ruleError" in $$source)) {
+            this["ruleError"] = "";
+        }
+        if (!("deleteOpen" in $$source)) {
+            this["deleteOpen"] = false;
+        }
+        if (!("deleteId" in $$source)) {
+            this["deleteId"] = 0;
+        }
+        if (!("deleteTitle" in $$source)) {
+            this["deleteTitle"] = "";
+        }
+        if (!("deleteText" in $$source)) {
+            this["deleteText"] = "";
+        }
+        if (!("multiDeleteOpen" in $$source)) {
+            this["multiDeleteOpen"] = false;
+        }
+        if (!("multiDeleteTitle" in $$source)) {
+            this["multiDeleteTitle"] = "";
+        }
+        if (!("multiDeleteRange" in $$source)) {
+            this["multiDeleteRange"] = "";
+        }
+        if (!("multiDeleteTotals" in $$source)) {
+            this["multiDeleteTotals"] = "";
+        }
+        if (!("multiDeleteLines" in $$source)) {
+            this["multiDeleteLines"] = [];
+        }
+        if (!("multiDeleteMore" in $$source)) {
+            this["multiDeleteMore"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TransactionsDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TransactionsDTO {
+        const $$createField5_0 = $$createType1;
+        const $$createField6_0 = $$createType1;
+        const $$createField11_0 = $$createType16;
+        const $$createField14_0 = $$createType16;
+        const $$createField16_0 = $$createType16;
+        const $$createField19_0 = $$createType16;
+        const $$createField21_0 = $$createType11;
+        const $$createField22_0 = $$createType13;
+        const $$createField26_0 = $$createType41;
+        const $$createField29_0 = $$createType16;
+        const $$createField32_0 = $$createType16;
+        const $$createField52_0 = $$createType16;
+        const $$createField53_0 = $$createType16;
+        const $$createField78_0 = $$createType43;
+        const $$createField95_0 = $$createType16;
+        const $$createField106_0 = $$createType16;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("incomeAmounts" in $$parsedSource) {
+            $$parsedSource["incomeAmounts"] = $$createField5_0($$parsedSource["incomeAmounts"]);
+        }
+        if ("expenseAmounts" in $$parsedSource) {
+            $$parsedSource["expenseAmounts"] = $$createField6_0($$parsedSource["expenseAmounts"]);
+        }
+        if ("periodOptions" in $$parsedSource) {
+            $$parsedSource["periodOptions"] = $$createField11_0($$parsedSource["periodOptions"]);
+        }
+        if ("categoryOptions" in $$parsedSource) {
+            $$parsedSource["categoryOptions"] = $$createField14_0($$parsedSource["categoryOptions"]);
+        }
+        if ("directionOptions" in $$parsedSource) {
+            $$parsedSource["directionOptions"] = $$createField16_0($$parsedSource["directionOptions"]);
+        }
+        if ("accountOptions" in $$parsedSource) {
+            $$parsedSource["accountOptions"] = $$createField19_0($$parsedSource["accountOptions"]);
+        }
+        if ("panelRows" in $$parsedSource) {
+            $$parsedSource["panelRows"] = $$createField21_0($$parsedSource["panelRows"]);
+        }
+        if ("groupChoices" in $$parsedSource) {
+            $$parsedSource["groupChoices"] = $$createField22_0($$parsedSource["groupChoices"]);
+        }
+        if ("rows" in $$parsedSource) {
+            $$parsedSource["rows"] = $$createField26_0($$parsedSource["rows"]);
+        }
+        if ("addCategoryNames" in $$parsedSource) {
+            $$parsedSource["addCategoryNames"] = $$createField29_0($$parsedSource["addCategoryNames"]);
+        }
+        if ("addAccountOptions" in $$parsedSource) {
+            $$parsedSource["addAccountOptions"] = $$createField32_0($$parsedSource["addAccountOptions"]);
+        }
+        if ("categoryNames" in $$parsedSource) {
+            $$parsedSource["categoryNames"] = $$createField52_0($$parsedSource["categoryNames"]);
+        }
+        if ("taxOptions" in $$parsedSource) {
+            $$parsedSource["taxOptions"] = $$createField53_0($$parsedSource["taxOptions"]);
+        }
+        if ("reapplyGroups" in $$parsedSource) {
+            $$parsedSource["reapplyGroups"] = $$createField78_0($$parsedSource["reapplyGroups"]);
+        }
+        if ("ruleCategories" in $$parsedSource) {
+            $$parsedSource["ruleCategories"] = $$createField95_0($$parsedSource["ruleCategories"]);
+        }
+        if ("multiDeleteLines" in $$parsedSource) {
+            $$parsedSource["multiDeleteLines"] = $$createField106_0($$parsedSource["multiDeleteLines"]);
+        }
+        return new TransactionsDTO($$parsedSource as Partial<TransactionsDTO>);
+    }
+}
+
 // Private type creation functions
 const $$createType0 = AccountAmountDTO.createFrom;
 const $$createType1 = $Create.Array($$createType0);
@@ -1869,3 +2527,7 @@ const $$createType36 = BankingPromptChoiceDTO.createFrom;
 const $$createType37 = $Create.Array($$createType36);
 const $$createType38 = ProfileDTO.createFrom;
 const $$createType39 = $Create.Array($$createType38);
+const $$createType40 = TransactionRowDTO.createFrom;
+const $$createType41 = $Create.Array($$createType40);
+const $$createType42 = ReapplyGroupRowDTO.createFrom;
+const $$createType43 = $Create.Array($$createType42);

@@ -43,3 +43,8 @@ export const MenuAction = "menu:action";
  */
 export const ShellChanged = "shell:changed";
 
+/**
+ * Name of the custom event "transactions:changed".
+ */
+export const TransactionsChanged = "transactions:changed";
+

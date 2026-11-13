@@ -19,6 +19,7 @@ declare module "@wailsio/runtime" {
             "dashboard:changed": bind$0.DashboardDTO;
             "menu:action": string;
             "shell:changed": bind$0.ShellDTO;
+            "transactions:changed": bind$0.TransactionsDTO;
         }
     }
 }
