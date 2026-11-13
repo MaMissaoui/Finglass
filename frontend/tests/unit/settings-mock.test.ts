@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { translate } from '../../src/lib/i18n';
-import { createMockSettings, mockPalette } from '../../src/lib/settings.mock';
+import {
+  createMockSettings,
+  mockBackupFile,
+  mockBackupPassphrase,
+  mockFindeskFolder,
+  mockFindeskPassphrase,
+  mockPalette,
+} from '../../src/lib/settings.mock';
 
 function fake() {
   return createMockSettings();
@@ -273,6 +280,153 @@ describe('settings.mock', () => {
     expect(imported.categoryRows.some((row) => row.name === 'Household')).toBe(true);
     expect(imported.categoryRows.some((row) => row.name === 'Salary')).toBe(true);
     expect(imported.ruleRows).toHaveLength(6);
+  });
+
+  it('creates, renames, validates and deletes profiles by index', () => {
+    const settings = fake();
+    const initial = settings.state();
+    expect(initial.profileRows.map((row) => row.name)).toEqual(['Personal', 'Business']);
+    expect(initial.profileRows[0]).toMatchObject({
+      index: 0,
+      open: true,
+      canSwitch: false,
+      canDelete: false,
+    });
+    expect(initial.profileRows[1]).toMatchObject({
+      index: 1,
+      open: false,
+      canSwitch: true,
+      canDelete: true,
+    });
+
+    settings.newProfile();
+    expect(settings.state().profileDialogOpen).toBe(true);
+    expect(settings.state().profileDialogIndex).toBe(-1);
+    expect(settings.state().profileDialogTitle).toBe(translate('en', 'NewProfile'));
+
+    const blank = settings.saveProfile('   ');
+    expect(blank.profileDialogOpen).toBe(true);
+    expect(blank.profileDialogError).toBe(translate('en', 'ErrorNameRequired'));
+
+    const created = settings.saveProfile(' Work ');
+    expect(created.profileDialogOpen).toBe(false);
+    expect(created.profileRows.map((row) => row.name)).toEqual(['Personal', 'Business', 'Work']);
+
+    settings.renameProfile(2);
+    expect(settings.state().profileDialogTitle).toBe(translate('en', 'RenameProfile', 'Work'));
+    expect(settings.state().profileDialogName).toBe('Work');
+    const renamed = settings.saveProfile('Work two');
+    expect(renamed.profileRows.map((row) => row.name)).toEqual([
+      'Personal',
+      'Business',
+      'Work two',
+    ]);
+
+    settings.deleteProfile(2);
+    expect(settings.state().profileDeleteTitle).toBe(translate('en', 'DeleteProfile', 'Work two'));
+    expect(settings.state().profileDeleteText).toBe(
+      translate('en', 'DeleteProfileText', 'Work two'),
+    );
+    const deleted = settings.confirmDeleteProfile();
+    expect(deleted.profileDeleteOpen).toBe(false);
+    expect(deleted.profileRows.map((row) => row.name)).toEqual(['Personal', 'Business']);
+  });
+
+  it('creates a backup, confirms or cancels a restore and cancels a pending one', () => {
+    const settings = fake();
+
+    const saved = settings.createBackup();
+    expect(saved.messageText).toBe(translate('en', 'MessageBackupSaved', mockBackupFile, 42, 3));
+
+    const chosen = settings.restoreBackup();
+    expect(chosen.restoreOpen).toBe(true);
+    expect(chosen.restoreTitle).toBe(translate('en', 'RestoreFileTitle', mockBackupFile));
+    expect(chosen.restoreText).toContain(translate('en', 'RestoreExplanation'));
+    expect(chosen.restoreText).toContain('42 transactions');
+    expect(settings.cancelRestore().restoreOpen).toBe(false);
+
+    settings.restoreBackup();
+    const staged = settings.confirmRestore();
+    expect(staged.restoreOpen).toBe(false);
+    expect(staged.hasPendingRestore).toBe(true);
+    expect(staged.messageText).toBe(translate('en', 'MessageRestorePrepared'));
+
+    const cancelled = settings.cancelPendingRestore();
+    expect(cancelled.hasPendingRestore).toBe(false);
+    expect(cancelled.messageText).toBe(translate('en', 'MessageRestoreCancelled'));
+
+    const restored = createMockSettings({ backupRestored: true }).state();
+    expect(restored.backupRestoredText).toContain('Backup restored at this start.');
+  });
+
+  it('checks the backup passphrase once and forgets it', () => {
+    const settings = createMockSettings({ restorePassphrase: true });
+    expect(settings.state().restorePassphraseOpen).toBe(true);
+    expect(settings.state().restorePassphraseFile).toBe(mockBackupFile);
+
+    const wrongToken = 'wrong backup secret 51c1';
+    const wrong = settings.confirmRestorePassphrase(wrongToken);
+    expect(wrong.restorePassphraseOpen).toBe(true);
+    expect(wrong.restorePassphraseWrong).toBe(true);
+    expect(JSON.stringify(wrong)).not.toContain(wrongToken);
+
+    const rightToken = mockBackupPassphrase;
+    const right = settings.confirmRestorePassphrase(rightToken);
+    expect(right.restorePassphraseOpen).toBe(false);
+    expect(right.restorePassphraseWrong).toBe(false);
+    expect(right.hasPendingRestore).toBe(true);
+    expect(JSON.stringify(right)).not.toContain(rightToken);
+
+    const cancelled = settings.cancelRestorePassphrase();
+    expect(cancelled.restorePassphraseOpen).toBe(false);
+    expect(cancelled.restorePassphraseWrong).toBe(false);
+  });
+
+  it('chooses the FinDesk folder, checks its passphrase and reports the import', () => {
+    const notAFolder = createMockSettings({ findeskNotAFolder: true }).importFindesk();
+    expect(notAFolder.findeskPassphraseOpen).toBe(false);
+    expect(notAFolder.errorText).toBe(translate('en', 'ErrorFinDeskNotAFolder'));
+
+    const settings = fake();
+    const opened = settings.importFindesk();
+    expect(opened.findeskPassphraseOpen).toBe(true);
+    expect(opened.findeskFolder).toBe(mockFindeskFolder);
+
+    const cancelled = settings.cancelFindeskPassphrase();
+    expect(cancelled.findeskPassphraseOpen).toBe(false);
+    expect(cancelled.findeskFolder).toBe('');
+
+    settings.importFindesk();
+    const wrongToken = 'wrong findesk secret 7d2a';
+    const wrong = settings.submitFindeskPassphrase(wrongToken);
+    expect(wrong.findeskPassphraseOpen).toBe(true);
+    expect(wrong.findeskPassphraseWrong).toBe(true);
+    expect(JSON.stringify(wrong)).not.toContain(wrongToken);
+
+    const rightToken = mockFindeskPassphrase;
+    const imported = settings.submitFindeskPassphrase(rightToken);
+    expect(imported.findeskPassphraseOpen).toBe(false);
+    expect(imported.findeskPassphraseWrong).toBe(false);
+    expect(imported.findeskReportOpen).toBe(true);
+    expect(imported.findeskReportTitle).toBe(translate('en', 'FinDeskImportReportTitle'));
+    expect(imported.findeskReportText).toContain('Imported 1 account groups');
+    expect(imported.findeskReportText).toContain('Skipped: 1 rows without their account');
+    expect(JSON.stringify(imported)).not.toContain(rightToken);
+
+    const closed = settings.closeFindeskReport();
+    expect(closed.findeskReportOpen).toBe(false);
+    expect(closed.findeskReportText).toBe('');
+  });
+
+  it('shows the FinDesk importing state and the target-not-empty report', () => {
+    const importing = createMockSettings({ findeskBusy: true }).state();
+    expect(importing.findeskBusy).toBe(true);
+    expect(importing.findeskPassphraseOpen).toBe(true);
+
+    const target = createMockSettings({ findeskTargetNotEmpty: true }).state();
+    expect(target.findeskReportOpen).toBe(true);
+    expect(target.findeskReportError).toBe(true);
+    expect(target.findeskReportText).toBe(translate('en', 'ErrorFinDeskTargetNotEmpty'));
   });
 
   it('publishes every change to its subscribers', () => {

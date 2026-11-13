@@ -382,6 +382,24 @@ export interface Api {
   documentsDismiss(): Promise<DocumentsDTO>;
   documentsUpload(): Promise<DocumentsDTO>;
   documentsOpen(): Promise<DocumentsDTO>;
+  settingsCreateBackup(): Promise<SettingsDTO>;
+  settingsRestoreBackup(): Promise<SettingsDTO>;
+  settingsConfirmRestore(): Promise<SettingsDTO>;
+  settingsCancelRestore(): Promise<SettingsDTO>;
+  settingsConfirmRestorePassphrase(passphrase: string): Promise<SettingsDTO>;
+  settingsCancelRestorePassphrase(): Promise<SettingsDTO>;
+  settingsCancelPendingRestore(): Promise<SettingsDTO>;
+  settingsImportFindesk(): Promise<SettingsDTO>;
+  settingsSubmitFindeskPassphrase(passphrase: string): Promise<SettingsDTO>;
+  settingsCancelFindeskPassphrase(): Promise<SettingsDTO>;
+  settingsCloseFindeskReport(): Promise<SettingsDTO>;
+  settingsNewProfile(): Promise<SettingsDTO>;
+  settingsRenameProfile(index: number): Promise<SettingsDTO>;
+  settingsCloseProfileDialog(): Promise<SettingsDTO>;
+  settingsSaveProfile(name: string): Promise<SettingsDTO>;
+  settingsDeleteProfile(index: number): Promise<SettingsDTO>;
+  settingsCancelDeleteProfile(): Promise<SettingsDTO>;
+  settingsConfirmDeleteProfile(): Promise<SettingsDTO>;
 
   onShellChanged(callback: (dto: ShellDTO) => void): () => void;
   onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void;

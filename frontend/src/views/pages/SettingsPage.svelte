@@ -18,7 +18,11 @@
   } from '../../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../../lib/i18n';
   import icon from '../../assets/finglass-icon.png';
+  import BackupPassphraseDialog from './settings/BackupPassphraseDialog.svelte';
   import CategoryDialog from './settings/CategoryDialog.svelte';
+  import FindeskPassphraseDialog from './settings/FindeskPassphraseDialog.svelte';
+  import FindeskReportDialog from './settings/FindeskReportDialog.svelte';
+  import ProfileNameDialog from './settings/ProfileNameDialog.svelte';
   import RuleDialog from './settings/RuleDialog.svelte';
   import RuleImportDialog from './settings/RuleImportDialog.svelte';
   import SettingsBanner from './settings/SettingsBanner.svelte';
@@ -143,6 +147,21 @@
     if (code !== undefined) {
       void run(() => api.settingsSetPrimaryCurrency(code));
     }
+  }
+
+  function switchProfile(index: number): void {
+    if (pending) {
+      return;
+    }
+    pending = true;
+    void api
+      .switchProfile(index)
+      .catch(() => {
+        loadFailed = true;
+      })
+      .finally(() => {
+        pending = false;
+      });
   }
 
   function themeIndex(): number {
@@ -359,6 +378,51 @@
         </div>
       </div>
     </section>
+  {:else if dto !== null && section === 1}
+    <section class="section" aria-label={t('Profiles')}>
+      <header class="section-header">
+        <h2 class="section-title">{t('Profiles')}</h2>
+        <PrimaryButton
+          text={t('NewProfile')}
+          icon="add"
+          onclick={() => run(() => api.settingsNewProfile())}
+        />
+      </header>
+
+      <div class="list-body">
+        <p class="muted-text">{t('ProfilesHint')}</p>
+
+        {#each dto.profileRows as row (row.index)}
+          <div class="profile-row" data-profile-index={row.index}>
+            <span class="row-name">{row.name}</span>
+            {#if row.open}
+              <span class="tag">{t('ProfileOpen')}</span>
+            {/if}
+            {#if row.nextStart}
+              <span class="small">{t('ProfileNextStart')}</span>
+            {/if}
+            {#if row.canSwitch}
+              <TextButton text={t('OpenProfile')} onclick={() => switchProfile(row.index)} />
+            {/if}
+            <IconButton
+              icon="edit"
+              label={t('Edit')}
+              iconSize={20}
+              onclick={() => run(() => api.settingsRenameProfile(row.index))}
+            />
+            {#if row.canDelete}
+              <IconButton
+                icon="delete"
+                label={t('Delete')}
+                iconSize={20}
+                destructive
+                onclick={() => run(() => api.settingsDeleteProfile(row.index))}
+              />
+            {/if}
+          </div>
+        {/each}
+      </div>
+    </section>
   {:else if dto !== null && section === 2}
     <section class="section" aria-label={t('Categories')}>
       <header class="section-header">
@@ -526,6 +590,68 @@
         {/each}
       </div>
     </section>
+  {:else if dto !== null && section === 5}
+    <section class="section" aria-label={t('BackupAndRestore')}>
+      <header class="section-header">
+        <h2 class="section-title">{t('BackupAndRestore')}</h2>
+      </header>
+
+      <div class="list-body">
+        <p class="muted-text">{t('BackupHint')}</p>
+
+        <div class="backup-actions">
+          <PrimaryButton
+            text={t('CreateBackup')}
+            enabled={!dto.busy}
+            onclick={() => run(() => api.settingsCreateBackup())}
+          />
+          <TextButton
+            text={t('RestoreFromBackup')}
+            enabled={!dto.busy && !dto.hasPendingRestore}
+            onclick={() => run(() => api.settingsRestoreBackup())}
+          />
+          {#if dto.busy}
+            <span class="spinner" aria-hidden="true"></span>
+          {/if}
+        </div>
+
+        {#if dto.hasPendingRestore}
+          <div class="pending-restore">
+            <span class="pending-text">{t('RestoreWaiting')}</span>
+            <TextButton
+              text={t('CancelRestore')}
+              enabled={!dto.busy}
+              onclick={() => run(() => api.settingsCancelPendingRestore())}
+            />
+          </div>
+        {/if}
+
+        {#if dto.backupRestoredText !== ''}
+          <p class="restore-note">{dto.backupRestoredText}</p>
+        {/if}
+      </div>
+    </section>
+  {:else if dto !== null && section === 6}
+    <section class="section" aria-label={t('FinDeskImportTitle')}>
+      <header class="section-header">
+        <h2 class="section-title">{t('FinDeskImportTitle')}</h2>
+      </header>
+
+      <div class="list-body">
+        <p class="muted-text">{t('FinDeskImportHint')}</p>
+
+        <div class="backup-actions">
+          <PrimaryButton
+            text={t('FinDeskImportChooseFolder')}
+            enabled={!dto.findeskBusy}
+            onclick={() => run(() => api.settingsImportFindesk())}
+          />
+          {#if dto.findeskBusy}
+            <span class="spinner" aria-hidden="true"></span>
+          {/if}
+        </div>
+      </div>
+    </section>
   {:else if dto !== null && section === 8}
     <section class="section" aria-label={t('AboutTitle')}>
       <header class="section-header">
@@ -658,6 +784,86 @@
     importText={t('Import')}
     onconfirm={(categorize) => run(() => api.settingsConfirmRuleImport(categorize))}
     oncancel={() => run(() => api.settingsCancelRuleImport())}
+  />
+{/if}
+
+{#if dto !== null && dto.profileDialogOpen}
+  <ProfileNameDialog
+    title={dto.profileDialogTitle}
+    name={dto.profileDialogName}
+    errorText={dto.profileDialogError}
+    nameLabel={t('ProfileName')}
+    cancelText={t('Cancel')}
+    saveText={t('Save')}
+    onclose={() => run(() => api.settingsCloseProfileDialog())}
+    onsave={(name) => run(() => api.settingsSaveProfile(name))}
+  />
+{/if}
+
+{#if dto !== null && dto.profileDeleteOpen}
+  <SettingsConfirmDialog
+    title={dto.profileDeleteTitle}
+    text={dto.profileDeleteText}
+    confirmText={t('Delete')}
+    cancelText={t('Cancel')}
+    testId="profile-delete-dialog"
+    onconfirm={() => run(() => api.settingsConfirmDeleteProfile())}
+    oncancel={() => run(() => api.settingsCancelDeleteProfile())}
+  />
+{/if}
+
+{#if dto !== null && dto.restoreOpen}
+  <SettingsConfirmDialog
+    title={dto.restoreTitle}
+    text={dto.restoreText}
+    confirmText={t('PrepareRestore')}
+    cancelText={t('Cancel')}
+    testId="restore-dialog"
+    busy={dto.busy || dto.findeskBusy}
+    onconfirm={() => run(() => api.settingsConfirmRestore())}
+    oncancel={() => run(() => api.settingsCancelRestore())}
+  />
+{/if}
+
+{#if dto !== null && dto.restorePassphraseOpen}
+  <BackupPassphraseDialog
+    title={t('BackupPassphraseTitle')}
+    fileName={dto.restorePassphraseFile}
+    text={t('BackupPassphraseText')}
+    wrong={dto.restorePassphraseWrong}
+    busy={dto.busy || dto.findeskBusy}
+    passphraseLabel={t('Passphrase')}
+    wrongText={t('WrongPassphrase')}
+    cancelText={t('Cancel')}
+    confirmText={t('PrepareRestore')}
+    onsubmit={(passphrase) => run(() => api.settingsConfirmRestorePassphrase(passphrase))}
+    oncancel={() => run(() => api.settingsCancelRestorePassphrase())}
+  />
+{/if}
+
+{#if dto !== null && dto.findeskPassphraseOpen}
+  <FindeskPassphraseDialog
+    title={t('FinDeskPassphraseTitle')}
+    folder={dto.findeskFolder}
+    text={t('FinDeskPassphraseText')}
+    wrong={dto.findeskPassphraseWrong}
+    busy={dto.busy || dto.findeskBusy}
+    passphraseLabel={t('Passphrase')}
+    wrongText={t('WrongPassphrase')}
+    cancelText={t('Cancel')}
+    importText={t('Import')}
+    onsubmit={(passphrase) => run(() => api.settingsSubmitFindeskPassphrase(passphrase))}
+    oncancel={() => run(() => api.settingsCancelFindeskPassphrase())}
+  />
+{/if}
+
+{#if dto !== null && dto.findeskReportOpen}
+  <FindeskReportDialog
+    title={dto.findeskReportTitle}
+    text={dto.findeskReportText}
+    isError={dto.findeskReportError}
+    closeText={t('Close')}
+    onclose={() => run(() => api.settingsCloseFindeskReport())}
   />
 {/if}
 
@@ -1074,6 +1280,62 @@
 
   .prio {
     flex: none;
+  }
+
+  .profile-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 46px;
+  }
+
+  .tag {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: var(--radius-tag);
+    background: var(--color-selected);
+    color: var(--color-on-selected);
+    font-size: var(--type-label-small-size);
+    font-weight: var(--type-label-small-weight);
+    white-space: nowrap;
+  }
+
+  .backup-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .backup-actions .spinner {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+
+  .pending-restore {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pending-text {
+    flex: 1;
+    min-width: 0;
+    color: var(--color-caution);
+    font-size: var(--type-body-size);
+    font-weight: var(--type-body-weight);
+    line-height: 1.35;
+  }
+
+  .restore-note {
+    margin: 0;
+    color: var(--color-muted-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    line-height: 1.35;
   }
 
   .about {
