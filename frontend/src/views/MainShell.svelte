@@ -4,6 +4,7 @@
   import type { Api, ShellDTO } from '../lib/api';
   import { Icon, IconButton, SidebarItem } from '../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../lib/i18n';
+  import DashboardPage from './pages/DashboardPage.svelte';
   import LanguageFlag from './LanguageFlag.svelte';
 
   let {
@@ -219,7 +220,11 @@
 
     <div class="title-divider" role="none"></div>
 
-    <section class="page" data-page-area aria-label={dto.screenTitle}></section>
+    <section class="page" data-page-area aria-label={dto.screenTitle}>
+      {#if dto.screen === 'dashboard'}
+        <DashboardPage {api} {language} />
+      {/if}
+    </section>
 
     {#if languageMenuOpen}
       <button
@@ -296,9 +301,12 @@
 </div>
 
 <style>
+  /* A fixed window as Slint's: only the page area scrolls, so the sidebar
+     (and its version) and the top bar stay in place. */
   .shell {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background: var(--color-background);
     color: var(--color-text);
   }
@@ -417,8 +425,14 @@
   }
 
   .page {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     min-height: 0;
+    overflow-y: auto;
+    /* A scrollbar that comes and goes would resize the charts, which resize
+       the page, which toggles the scrollbar again. */
+    scrollbar-gutter: stable;
     background: var(--color-background);
   }
 

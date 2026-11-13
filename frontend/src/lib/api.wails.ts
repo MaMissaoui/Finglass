@@ -1,10 +1,16 @@
 import { Events } from '@wailsio/runtime';
 import {
   AppInfo,
+  Dashboard,
   Shell,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index.js';
-import { AppinfoTick, MenuAction, ShellChanged } from '../../bindings/events/index.js';
-import type { Api, AppInfoDTO, ShellDTO, TickPayload } from './api';
+import {
+  AppinfoTick,
+  DashboardChanged,
+  MenuAction,
+  ShellChanged,
+} from '../../bindings/events/index.js';
+import type { Api, AppInfoDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
 
 export function createWailsApi(): Api {
   return {
@@ -103,6 +109,46 @@ export function createWailsApi(): Api {
       return Shell.ReportProblem();
     },
 
+    dashboardState(): Promise<DashboardDTO> {
+      return Dashboard.State();
+    },
+    dashboardPreviousMonth(): Promise<DashboardDTO> {
+      return Dashboard.PreviousMonth();
+    },
+    dashboardNextMonth(): Promise<DashboardDTO> {
+      return Dashboard.NextMonth();
+    },
+    dashboardCurrentMonth(): Promise<DashboardDTO> {
+      return Dashboard.CurrentMonth();
+    },
+    dashboardSelectMonth(index: number): Promise<DashboardDTO> {
+      return Dashboard.SelectMonth(index);
+    },
+    dashboardDismissError(): Promise<DashboardDTO> {
+      return Dashboard.DismissError();
+    },
+    dashboardOpenCategory(categoryID: number): Promise<DashboardDTO> {
+      return Dashboard.OpenCategory(categoryID);
+    },
+    dashboardOpenUncategorized(): Promise<DashboardDTO> {
+      return Dashboard.OpenUncategorized();
+    },
+    dashboardOpenAll(): Promise<DashboardDTO> {
+      return Dashboard.OpenAll();
+    },
+    dashboardOpenPartner(partner: string): Promise<DashboardDTO> {
+      return Dashboard.OpenPartner(partner);
+    },
+    dashboardOpenAccounts(): Promise<DashboardDTO> {
+      return Dashboard.OpenAccounts();
+    },
+    dashboardOpenSettings(): Promise<DashboardDTO> {
+      return Dashboard.OpenSettings();
+    },
+    dashboardOpenTax(): Promise<DashboardDTO> {
+      return Dashboard.OpenTax();
+    },
+
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {
         callback(event.data);
@@ -110,6 +156,11 @@ export function createWailsApi(): Api {
     },
     onMenuAction(callback: (action: string) => void): () => void {
       return Events.On(MenuAction, (event) => {
+        callback(event.data);
+      });
+    },
+    onDashboardChanged(callback: (dto: DashboardDTO) => void): () => void {
+      return Events.On(DashboardChanged, (event) => {
         callback(event.data);
       });
     },
