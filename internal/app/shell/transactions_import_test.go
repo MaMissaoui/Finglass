@@ -57,6 +57,23 @@ type fakeFileDialogs struct {
 	ruleFileResult bool
 	ruleFileTitle  string
 	ruleFileCalls  int
+
+	backupPath   string
+	backupResult bool
+	backupTitle  string
+	backupName   string
+	backupCalls  int
+
+	pickBackup       string
+	pickBackupResult bool
+	pickBackupTitle  string
+	pickBackupCalls  int
+
+	findeskFolder string
+	findeskResult bool
+	findeskTitle  string
+	findeskStart  string
+	findeskCalls  int
 }
 
 func (f *fakeFileDialogs) PickStatements(title string) ([]string, bool) {
@@ -132,6 +149,32 @@ func (f *fakeFileDialogs) PickRuleFile(title string) (string, bool) {
 	f.ruleFileTitle = title
 	f.ruleFileCalls++
 	return f.ruleFile, f.ruleFileResult
+}
+
+func (f *fakeFileDialogs) SaveBackup(title string, defaultName string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.backupTitle = title
+	f.backupName = defaultName
+	f.backupCalls++
+	return f.backupPath, f.backupResult
+}
+
+func (f *fakeFileDialogs) PickBackup(title string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.pickBackupTitle = title
+	f.pickBackupCalls++
+	return f.pickBackup, f.pickBackupResult
+}
+
+func (f *fakeFileDialogs) PickFindeskFolder(title string, startDir string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.findeskTitle = title
+	f.findeskStart = startDir
+	f.findeskCalls++
+	return f.findeskFolder, f.findeskResult
 }
 
 func importFixture(t *testing.T, name string) string {

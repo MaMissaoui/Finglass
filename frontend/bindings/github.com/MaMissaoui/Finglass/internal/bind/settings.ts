@@ -33,10 +33,58 @@ export function CancelDeleteCategory(): $CancellablePromise<$models.SettingsDTO>
 }
 
 /**
+ * CancelDeleteProfile closes the delete confirmation without moving anything.
+ */
+export function CancelDeleteProfile(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2908010269).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * CancelDeleteRule closes the rule delete confirmation.
  */
 export function CancelDeleteRule(): $CancellablePromise<$models.SettingsDTO> {
     return $Call.ByID(878983686).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * CancelFindeskPassphrase closes the passphrase dialog and forgets the chosen
+ * folder.
+ */
+export function CancelFindeskPassphrase(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2739252805).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * CancelPendingRestore removes a staged restore that waits for the next start.
+ */
+export function CancelPendingRestore(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2791671952).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * CancelRestoreChoice drops the restore confirmation without changing
+ * anything.
+ */
+export function CancelRestoreChoice(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(1693833688).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * CancelRestorePassphrase drops the passphrase request for a backup made under
+ * another passphrase.
+ */
+export function CancelRestorePassphrase(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(3720306267).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -69,6 +117,24 @@ export function CloseCategoryDialog(): $CancellablePromise<$models.SettingsDTO> 
 }
 
 /**
+ * CloseFindeskReport closes the success report or failure dialog.
+ */
+export function CloseFindeskReport(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2341318339).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * CloseProfileDialog closes the name dialog without changing anything.
+ */
+export function CloseProfileDialog(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2204887420).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * CloseRuleDialog closes the rule dialog without changing anything.
  */
 export function CloseRuleDialog(): $CancellablePromise<$models.SettingsDTO> {
@@ -87,6 +153,15 @@ export function ConfirmDeleteCategory(): $CancellablePromise<$models.SettingsDTO
 }
 
 /**
+ * ConfirmDeleteProfile moves the confirmed profile's folder aside.
+ */
+export function ConfirmDeleteProfile(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(4146502601).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * ConfirmDeleteRule deletes the rule whose confirmation is open.
  */
 export function ConfirmDeleteRule(): $CancellablePromise<$models.SettingsDTO> {
@@ -96,10 +171,49 @@ export function ConfirmDeleteRule(): $CancellablePromise<$models.SettingsDTO> {
 }
 
 /**
+ * ConfirmRestore confirms the restore candidate in the confirmation dialog.
+ */
+export function ConfirmRestore(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(146204039).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * ConfirmRestorePassphrase confirms a backup made with another passphrase.
+ * 
+ * The input is converted once, handed to the session, which owns and wipes it
+ * on every path. No path, error or DTO keeps it.
+ */
+export function ConfirmRestorePassphrase(passphrase: string): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(3137337343, passphrase).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * ConfirmRuleImport applies the confirmed rule-import preview.
  */
 export function ConfirmRuleImport(categorize: boolean): $CancellablePromise<$models.SettingsDTO> {
     return $Call.ByID(605141848, categorize).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * CreateBackup asks for a target and writes a backup of the open profile.
+ */
+export function CreateBackup(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(4099606167).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * DeleteProfile opens the confirmation for deleting the profile at index.
+ */
+export function DeleteProfile(index: number): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2353079895, index).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -132,6 +246,16 @@ export function FixDuplicateColours(): $CancellablePromise<$models.SettingsDTO> 
 }
 
 /**
+ * ImportFindesk asks for a FinDesk folder and opens the passphrase dialog for a
+ * valid one.
+ */
+export function ImportFindesk(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(1045573500).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * ImportRules asks for a rule file and prepares its preview.
  */
 export function ImportRules(): $CancellablePromise<$models.SettingsDTO> {
@@ -145,6 +269,15 @@ export function ImportRules(): $CancellablePromise<$models.SettingsDTO> {
  */
 export function Load(): $CancellablePromise<$models.SettingsDTO> {
     return $Call.ByID(2409381145).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * NewProfile opens the name dialog for a new profile.
+ */
+export function NewProfile(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2937079154).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -204,10 +337,28 @@ export function OpenEditRule(id: number): $CancellablePromise<$models.SettingsDT
 }
 
 /**
+ * RenameProfile opens the name dialog for the profile at index.
+ */
+export function RenameProfile(index: number): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(1831956108, index).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * ResetTaxKeywords removes the custom keywords so the defaults apply again.
  */
 export function ResetTaxKeywords(): $CancellablePromise<$models.SettingsDTO> {
     return $Call.ByID(318967965).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * RestoreBackup asks for a backup file and prepares its confirmation dialog.
+ */
+export function RestoreBackup(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(3780461187).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -226,6 +377,15 @@ export function RuleChanged(pattern: string, priority: string): $CancellableProm
  */
 export function SaveCategory(name: string, colour: string, budget: string, taxRelevant: boolean, transfer: boolean): $CancellablePromise<$models.SettingsDTO> {
     return $Call.ByID(3234409776, name, colour, budget, taxRelevant, transfer).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * SaveProfile creates or renames the profile the name dialog shows.
+ */
+export function SaveProfile(name: string): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(927107901, name).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -266,6 +426,19 @@ export function SetPrimaryCurrency(code: string): $CancellablePromise<$models.Se
  */
 export function State(): $CancellablePromise<$models.SettingsDTO> {
     return $Call.ByID(1137278374).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * SubmitFindeskPassphrase runs the chosen FinDesk import.
+ * 
+ * The input is converted once into a secret.Passphrase and every intermediate
+ * slice is wiped before this method returns. The session owns the passphrase and
+ * wipes it on every path; no DTO, event, error or log keeps it.
+ */
+export function SubmitFindeskPassphrase(passphrase: string): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(347775427, passphrase).then(($result: any) => {
         return $$createType0($result);
     });
 }

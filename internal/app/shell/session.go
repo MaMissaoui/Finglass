@@ -217,6 +217,12 @@ type Session struct {
 	// pageLoadGate is nil in production. Tests set it to hold a page job after
 	// it spawned and before it touches the database.
 	pageLoadGate func(page string)
+	// findeskStartDir is the folder the FinDesk picker starts in. cmd/finglass
+	// computes it once in production; the shell only forwards it to the seam.
+	findeskStartDir string
+	// findeskImportGate is nil in production. Tests set it to hold a FinDesk
+	// import inside its profile-busy section, before it opens the source.
+	findeskImportGate func()
 	// gatewayFactory is nil in production. The shell tests set it to inject a
 	// fake FinTS gateway; no production path ever opens a socket.
 	gatewayFactory func(i18n.Language) banksync.FinTsGateway

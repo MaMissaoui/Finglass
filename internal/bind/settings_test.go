@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MaMissaoui/Finglass/internal/app/findesk"
 	"github.com/MaMissaoui/Finglass/internal/app/settingsview"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
@@ -355,7 +356,7 @@ func TestRuleImportDTOTruncatesLongListsAndSizesTheDialog(t *testing.T) {
 	}
 	dialog := shell.SettingsDialogState{RuleImportOpen: true, RuleImportCategorize: false}
 
-	dto := settingsDTO(state, dialog, 0)
+	dto := settingsDTO(state, dialog, 0, nil, findesk.FindeskImportState{Language: i18n.En})
 	if !dto.RuleImportOpen || !dto.RuleImportShowCategorize || !dto.RuleImportConfirmEnabled {
 		t.Fatalf("rule import flags = %+v", dto)
 	}
@@ -404,6 +405,12 @@ var allowedSettingsParameters = map[string][]string{
 	},
 	"SaveTaxKeywords":   {"text"},
 	"ConfirmRuleImport": {"categorize"},
+
+	"ConfirmRestorePassphrase": {"passphrase"},
+	"SubmitFindeskPassphrase":  {"passphrase"},
+	"RenameProfile":            {"index"},
+	"SaveProfile":              {"name"},
+	"DeleteProfile":            {"index"},
 }
 
 func TestSettingsBindingsNeverTakeAPath(t *testing.T) {
