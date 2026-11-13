@@ -349,6 +349,10 @@ func TestProfileListSwitchAndRefusedBusySwitch(t *testing.T) {
 		t.Fatalf("profiles after a disk change = %+v (%v), want the loaded %+v", later.Profiles, err, state.Profiles)
 	}
 
+	// The unlock started the dashboard's first load, and a switch is refused
+	// while a job runs (as Rust's), so let that load finish first.
+	waitForDashboardLoad(t, fixture.session)
+
 	switched, err := fixture.service.SwitchProfile(1)
 	if err != nil {
 		t.Fatalf("SwitchProfile: %v", err)
@@ -697,5 +701,30 @@ func TestMigrationWithoutAnOfferIsRefused(t *testing.T) {
 	}
 	if _, err := fixture.service.MigrationPassphraseChanged("a"); !errors.Is(err, ErrNoMigration) {
 		t.Fatalf("MigrationPassphraseChanged error = %v, want ErrNoMigration", err)
+	}
+}
+
+// waitForDashboardLoad waits until the dashboard's load has published. A page
+// job ends its generation before it notifies, so after that notification no
+// dashboard job runs any more.
+func waitForDashboardLoad(t *testing.T, session *shell.Session) {
+	t.Helper()
+	done := make(chan struct{}, 1)
+	remove := session.AddListener(func(change shell.Change) {
+		if change.Page == "dashboard" && !session.DashboardState().IsLoading {
+			select {
+			case done <- struct{}{}:
+			default:
+			}
+		}
+	})
+	defer remove()
+	if !session.DashboardState().IsLoading {
+		return
+	}
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("the dashboard load did not finish")
 	}
 }
