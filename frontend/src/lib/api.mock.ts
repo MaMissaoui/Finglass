@@ -1,4 +1,5 @@
-import type { Api, AppInfoDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
+import type { Api, AppInfoDTO, AccountsDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
+import { createMockAccounts } from './accounts.mock';
 import { languageFromCode, translate, type Language } from './i18n';
 import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
 
@@ -213,11 +214,29 @@ function initialState(scenario: string): MockState {
     case 'shell-profiles':
     case 'shell-profiles-de':
     case 'shell-back':
+    case 'accounts':
+    case 'accounts-empty':
+    case 'accounts-add-account':
+    case 'accounts-detail':
+    case 'accounts-panel':
+    case 'accounts-de-light':
+    case 'accounts-de-dark':
+    case 'accounts-detail-flat-de':
       openShell(state);
-      state.theme = scenario === 'shell-de-dark' ? 'dark' : 'light';
+      state.theme =
+        scenario === 'shell-de-dark' || scenario === 'accounts-de-dark' ? 'dark' : 'light';
       state.language =
-        scenario === 'shell-de-dark' || scenario === 'shell-profiles-de' ? 'de' : 'en';
+        scenario === 'shell-de-dark' ||
+        scenario === 'shell-profiles-de' ||
+        scenario === 'accounts-de-light' ||
+        scenario === 'accounts-de-dark' ||
+        scenario === 'accounts-detail-flat-de'
+          ? 'de'
+          : 'en';
       state.sidebarCollapsed = scenario === 'shell-collapsed' || scenario === 'shell-de-dark';
+      if (scenario.startsWith('accounts')) {
+        state.screen = 'accounts';
+      }
       if (scenario === 'shell-profiles' || scenario === 'shell-profiles-de') {
         state.profiles = [
           { name: 'Personal', slug: '', open: true },
@@ -279,6 +298,11 @@ export function createMockApi(scenario = scenarioName()): Api {
   const shellListeners = new Set<(dto: ShellDTO) => void>();
   const menuListeners = new Set<(action: string) => void>();
   const dashboardListeners = new Set<(dto: DashboardDTO) => void>();
+  const accounts = createMockAccounts(scenarioName(), state.language);
+  const debug = { accountsStateCalls: 0 };
+  if (typeof window !== 'undefined') {
+    (window as unknown as { __finglassMock?: typeof debug }).__finglassMock = debug;
+  }
 
   function dto(): ShellDTO {
     const language = state.language;
@@ -485,6 +509,7 @@ export function createMockApi(scenario = scenarioName()): Api {
     async setLanguage(code: string) {
       state.language = languageFromCode(code);
       dashboard.setLanguage(state.language);
+      accounts.setLanguage(state.language);
       const next = publish();
       publishDashboard();
       return next;
@@ -654,10 +679,122 @@ export function createMockApi(scenario = scenarioName()): Api {
     async dashboardOpenTax() {
       return openScreen('reports');
     },
+    accountsState() {
+      debug.accountsStateCalls += 1;
+      return Promise.resolve(accounts.state());
+    },
+    accountsLoad() {
+      return Promise.resolve(accounts.load());
+    },
+    accountsOpenAddBank() {
+      return Promise.resolve(accounts.openAddBank());
+    },
+    accountsCloseDialog() {
+      return Promise.resolve(accounts.closeDialog());
+    },
+    accountsSubmitAddBank(name: string) {
+      return Promise.resolve(accounts.submitAddBank(name));
+    },
+    accountsOpenAddAccount(bankID: number) {
+      return Promise.resolve(accounts.openAddAccount(bankID));
+    },
+    accountsSubmitAddAccount(
+      bankID: number,
+      name: string,
+      identifier: string,
+      accountType: string,
+      currency: string,
+      balance: string,
+    ) {
+      return Promise.resolve(
+        accounts.submitAddAccount(bankID, name, identifier, accountType, currency, balance),
+      );
+    },
+    accountsOpenBalance(accountID: number) {
+      return Promise.resolve(accounts.openBalance(accountID));
+    },
+    accountsSubmitBalance(accountID: number, balance: string, accountType: string) {
+      return Promise.resolve(accounts.submitBalance(accountID, balance, accountType));
+    },
+    accountsOpenRename(accountID: number) {
+      return Promise.resolve(accounts.openRename(accountID));
+    },
+    accountsSubmitRename(accountID: number, name: string) {
+      return Promise.resolve(accounts.submitRename(accountID, name));
+    },
+    accountsOpenDeleteAccount(accountID: number) {
+      return Promise.resolve(accounts.openDeleteAccount(accountID));
+    },
+    accountsConfirmDeleteAccount(accountID: number) {
+      return Promise.resolve(accounts.confirmDeleteAccount(accountID));
+    },
+    accountsOpenDeleteBank(bankID: number) {
+      return Promise.resolve(accounts.openDeleteBank(bankID));
+    },
+    accountsConfirmDeleteBank(bankID: number) {
+      return Promise.resolve(accounts.confirmDeleteBank(bankID));
+    },
+    accountsOpenDetail(accountID: number) {
+      return Promise.resolve(accounts.openDetail(accountID));
+    },
+    accountsSelectDays(accountID: number, days: number) {
+      return Promise.resolve(accounts.selectDays(accountID, days));
+    },
+    accountsCloseDetail() {
+      return Promise.resolve(accounts.closeDetail());
+    },
+    accountsFilterChanged(text: string) {
+      return Promise.resolve(accounts.filterChanged(text));
+    },
+    accountsDismissMessage() {
+      return Promise.resolve(accounts.dismissMessage());
+    },
+    accountsSelect(kind: string, groupKind: string, id: number, accountType: string) {
+      return Promise.resolve(accounts.select(kind, groupKind, id, accountType));
+    },
+    accountsToggleGroup(kind: string, groupKind: string, id: number, accountType: string) {
+      return Promise.resolve(accounts.toggleGroup(kind, groupKind, id, accountType));
+    },
+    accountsMarkRead(kind: string, groupKind: string, id: number, accountType: string) {
+      return Promise.resolve(accounts.markRead(kind, groupKind, id, accountType));
+    },
+    accountsToggleBank(bankID: number) {
+      return Promise.resolve(accounts.toggleBank(bankID));
+    },
+    accountsForgetDeleted(accountID: number) {
+      return Promise.resolve(accounts.forgetDeleted(accountID));
+    },
+    accountsNewGroup(name: string) {
+      return Promise.resolve(accounts.newGroup(name));
+    },
+    accountsRenameGroup(id: number, name: string) {
+      return Promise.resolve(accounts.renameGroup(id, name));
+    },
+    accountsDeleteGroup(id: number) {
+      return Promise.resolve(accounts.deleteGroup(id));
+    },
+    accountsMoveGroup(id: number, up: boolean) {
+      return Promise.resolve(accounts.moveGroup(id, up));
+    },
+    accountsMoveAccount(accountID: number, groupID: number) {
+      return Promise.resolve(accounts.moveAccount(accountID, groupID));
+    },
+    accountsOpenTransactions(accountID: number) {
+      void accountID;
+      const result = accounts.state();
+      state.screen = 'transactions';
+      state.backTitle = translate(state.language, 'NavAccounts');
+      state.backScreen = 'accounts';
+      publish();
+      return Promise.resolve(result);
+    },
 
     onShellChanged(callback: (next: ShellDTO) => void) {
       shellListeners.add(callback);
       return () => shellListeners.delete(callback);
+    },
+    onAccountsChanged(callback: (next: AccountsDTO) => void) {
+      return accounts.subscribe(callback);
     },
     onMenuAction(callback: (action: string) => void) {
       menuListeners.add(callback);

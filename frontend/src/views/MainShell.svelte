@@ -5,6 +5,7 @@
   import { Icon, IconButton, SidebarItem } from '../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../lib/i18n';
   import DashboardPage from './pages/DashboardPage.svelte';
+  import AccountsPage from './pages/AccountsPage.svelte';
   import LanguageFlag from './LanguageFlag.svelte';
 
   let {
@@ -223,6 +224,8 @@
     <section class="page" data-page-area aria-label={dto.screenTitle}>
       {#if dto.screen === 'dashboard'}
         <DashboardPage {api} {language} />
+      {:else if dto.screen === 'accounts'}
+        <AccountsPage {api} {dto} />
       {/if}
     </section>
 
@@ -318,6 +321,7 @@
     width: 240px;
     padding: 16px;
     gap: 4px;
+    overflow-y: auto;
     background: var(--color-sidebar);
   }
 
@@ -396,6 +400,7 @@
     display: flex;
     flex: 1;
     min-width: 0;
+    min-height: 0;
     flex-direction: column;
     background: var(--color-background);
   }

@@ -1,16 +1,18 @@
 import { Events } from '@wailsio/runtime';
 import {
+  Accounts,
   AppInfo,
   Dashboard,
   Shell,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index.js';
 import {
+  AccountsChanged,
   AppinfoTick,
   DashboardChanged,
   MenuAction,
   ShellChanged,
 } from '../../bindings/events/index.js';
-import type { Api, AppInfoDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
+import type { Api, AppInfoDTO, AccountsDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
 
 export function createWailsApi(): Api {
   return {
@@ -148,9 +150,114 @@ export function createWailsApi(): Api {
     dashboardOpenTax(): Promise<DashboardDTO> {
       return Dashboard.OpenTax();
     },
+    accountsState() {
+      return Accounts.State();
+    },
+    accountsLoad() {
+      return Accounts.Load();
+    },
+    accountsOpenAddBank() {
+      return Accounts.OpenAddBank();
+    },
+    accountsCloseDialog() {
+      return Accounts.CloseDialog();
+    },
+    accountsSubmitAddBank(name: string) {
+      return Accounts.SubmitAddBank(name);
+    },
+    accountsOpenAddAccount(bankID: number) {
+      return Accounts.OpenAddAccount(bankID);
+    },
+    accountsSubmitAddAccount(
+      bankID: number,
+      name: string,
+      identifier: string,
+      accountType: string,
+      currency: string,
+      balance: string,
+    ) {
+      return Accounts.SubmitAddAccount(bankID, name, identifier, accountType, currency, balance);
+    },
+    accountsOpenBalance(accountID: number) {
+      return Accounts.OpenBalance(accountID);
+    },
+    accountsSubmitBalance(accountID: number, balance: string, accountType: string) {
+      return Accounts.SubmitBalance(accountID, balance, accountType);
+    },
+    accountsOpenRename(accountID: number) {
+      return Accounts.OpenRename(accountID);
+    },
+    accountsSubmitRename(accountID: number, name: string) {
+      return Accounts.SubmitRename(accountID, name);
+    },
+    accountsOpenDeleteAccount(accountID: number) {
+      return Accounts.OpenDeleteAccount(accountID);
+    },
+    accountsConfirmDeleteAccount(accountID: number) {
+      return Accounts.ConfirmDeleteAccount(accountID);
+    },
+    accountsOpenDeleteBank(bankID: number) {
+      return Accounts.OpenDeleteBank(bankID);
+    },
+    accountsConfirmDeleteBank(bankID: number) {
+      return Accounts.ConfirmDeleteBank(bankID);
+    },
+    accountsOpenDetail(accountID: number) {
+      return Accounts.OpenDetail(accountID);
+    },
+    accountsSelectDays(accountID: number, days: number) {
+      return Accounts.SelectDays(accountID, days);
+    },
+    accountsCloseDetail() {
+      return Accounts.CloseDetail();
+    },
+    accountsFilterChanged(text: string) {
+      return Accounts.FilterChanged(text);
+    },
+    accountsDismissMessage() {
+      return Accounts.DismissMessage();
+    },
+    accountsSelect(kind: string, groupKind: string, id: number, accountType: string) {
+      return Accounts.Select(kind, groupKind, id, accountType);
+    },
+    accountsToggleGroup(kind: string, groupKind: string, id: number, accountType: string) {
+      return Accounts.ToggleGroup(kind, groupKind, id, accountType);
+    },
+    accountsMarkRead(kind: string, groupKind: string, id: number, accountType: string) {
+      return Accounts.MarkRead(kind, groupKind, id, accountType);
+    },
+    accountsToggleBank(bankID: number) {
+      return Accounts.ToggleBank(bankID);
+    },
+    accountsForgetDeleted(accountID: number) {
+      return Accounts.ForgetDeleted(accountID);
+    },
+    accountsNewGroup(name: string) {
+      return Accounts.NewGroup(name);
+    },
+    accountsRenameGroup(id: number, name: string) {
+      return Accounts.RenameGroup(id, name);
+    },
+    accountsDeleteGroup(id: number) {
+      return Accounts.DeleteGroup(id);
+    },
+    accountsMoveGroup(id: number, up: boolean) {
+      return Accounts.MoveGroup(id, up);
+    },
+    accountsMoveAccount(accountID: number, groupID: number) {
+      return Accounts.MoveAccount(accountID, groupID);
+    },
+    accountsOpenTransactions(accountID: number) {
+      return Accounts.OpenTransactions(accountID);
+    },
 
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void {
+      return Events.On(AccountsChanged, (event) => {
         callback(event.data);
       });
     },
