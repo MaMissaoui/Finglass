@@ -65,6 +65,62 @@ func TestWorkflowFetchBalance(t *testing.T) {
 	bank.assertRequestsWiped(t)
 }
 
+func TestWorkflowFetchBalanceUsesNationalFormForVersion6(t *testing.T) {
+	bank := newFakeBank(t)
+	dialog := newSyncedDialog(t, bank, syncResponse(hipins("HKSAL:N"), hisals(6)))
+	workflow := NewWorkflow(dialog, &fakePrompter{})
+
+	var received DEG
+	bank.handler = func(call int, request fakeExchange) (string, error) {
+		if call == 0 {
+			return executedResponse("dialog-init"), nil
+		}
+		outer, err := ParseMessage(request.request)
+		if err != nil {
+			return "", err
+		}
+		segments, err := flattenResponses(outer, 0)
+		if err != nil {
+			return "", err
+		}
+		for _, segment := range segments {
+			if segment.Type() == "HKSAL" {
+				if got := segment.DEG(0).Text(2); got != "6" {
+					t.Errorf("HKSAL version = %q, want 6", got)
+				}
+				received = segment.DEG(1)
+			}
+		}
+		return executedResponse("dialog-init", hisalPayload()), nil
+	}
+
+	if _, err := dialog.Init(context.Background()); err != nil {
+		t.Fatalf("Init: %v", err)
+	}
+	if _, ok, err := workflow.FetchBalance(context.Background(), testAccount()); err != nil || !ok {
+		t.Fatalf("FetchBalance = ok:%t err:%v", ok, err)
+	}
+	if received == nil {
+		t.Fatal("the bank received no HKSAL account group")
+	}
+	if received.Len() != 4 {
+		t.Fatalf("account group has %d elements, want 4", received.Len())
+	}
+	if got := received.Text(0); got != "1234567" {
+		t.Fatalf("account number = %q, want 1234567", got)
+	}
+	if got := received.Text(1); got != "" {
+		t.Fatalf("sub-account = %q, want empty", got)
+	}
+	if got := received.Text(2); got != "280" {
+		t.Fatalf("account group identifier = %q, want 280", got)
+	}
+	if got := received.Text(3); got != testBLZ {
+		t.Fatalf("BLZ = %q, want %q", got, testBLZ)
+	}
+	bank.assertRequestsWiped(t)
+}
+
 func TestWorkflowFetchBalanceWithTAN(t *testing.T) {
 	bank := newFakeBank(t)
 	syncBody := syncResponse(
@@ -241,7 +297,7 @@ func TestWorkflowFetchStatementsViaHKKAZWithoutCamt(t *testing.T) {
 	}
 	statements, err := workflow.FetchStatements(
 		context.Background(),
-		Account{IBAN: testIBAN, BIC: testBIC},
+		testAccount(),
 		Date{Year: 2026, Month: 1, Day: 1},
 		Date{Year: 2026, Month: 3, Day: 31},
 	)
@@ -289,7 +345,7 @@ func TestWorkflowTouchdownLimit(t *testing.T) {
 	}
 	_, err := workflow.FetchStatements(
 		context.Background(),
-		Account{IBAN: testIBAN, BIC: testBIC},
+		testAccount(),
 		Date{Year: 2026, Month: 1, Day: 1},
 		Date{Year: 2026, Month: 3, Day: 31},
 	)

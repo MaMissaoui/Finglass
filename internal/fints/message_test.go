@@ -413,7 +413,7 @@ func TestWipeZeroesTheBuffer(t *testing.T) {
 }
 
 func TestBuildMessageRejectsAnInvalidSegment(t *testing.T) {
-	if _, err := BuildMessage(messageInput(testPIN, ""), NewHKSAL(7, "", testBIC, nil)); err == nil {
+	if _, err := BuildMessage(messageInput(testPIN, ""), NewHKSAL(7, Account{IBAN: "", BIC: testBIC}, nil)); err == nil {
 		t.Fatal("BuildMessage accepted an empty IBAN")
 	}
 }

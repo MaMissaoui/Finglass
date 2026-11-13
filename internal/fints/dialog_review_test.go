@@ -179,7 +179,7 @@ func TestDialogPinRejectedCodesAfterOpen(t *testing.T) {
 			if _, err := dialog.Init(context.Background()); err != nil {
 				t.Fatalf("Init: %v", err)
 			}
-			_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+			_, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 			dialogError := assertDialogErrorKind(t, err, ErrorKindPinRejected)
 			if len(dialogError.Codes) != 1 || dialogError.Codes[0] != code {
 				t.Fatalf("codes = %v, want [%s]", dialogError.Codes, code)
@@ -277,7 +277,7 @@ func TestDialogSendScaExemption(t *testing.T) {
 	if _, err := dialog.Init(context.Background()); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	result, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	result, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 	if err != nil {
 		t.Fatalf("Send: %v", err)
 	}
@@ -339,7 +339,7 @@ func TestDialogTransportErrorKeepsHTTPStatusOnly(t *testing.T) {
 	if _, err := dialog.Init(context.Background()); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	_, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 	dialogError := assertDialogErrorKind(t, err, ErrorKindTransport)
 	if dialogError.HTTPStatus != 503 {
 		t.Fatalf("HTTPStatus = %d, want 503", dialogError.HTTPStatus)
@@ -369,7 +369,7 @@ func TestDialogNoHKENDAfterDialogAborted(t *testing.T) {
 	if _, err := dialog.Init(context.Background()); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	_, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 	_ = assertDialogErrorKind(t, err, ErrorKindBankError)
 	if dialog.State() != DialogEnded {
 		t.Fatalf("state = %s, want ended", dialog.State())
