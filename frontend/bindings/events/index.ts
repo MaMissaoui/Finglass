@@ -44,6 +44,11 @@ export const MenuAction = "menu:action";
 export const ReportsChanged = "reports:changed";
 
 /**
+ * Name of the custom event "settings:changed".
+ */
+export const SettingsChanged = "settings:changed";
+
+/**
  * Name of the custom event "shell:changed".
  */
 export const ShellChanged = "shell:changed";

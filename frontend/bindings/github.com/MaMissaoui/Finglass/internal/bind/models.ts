@@ -2474,6 +2474,422 @@ export class ReportsDTO {
 }
 
 /**
+ * SettingsCategoryRowDTO is one row of the category list.
+ */
+export class SettingsCategoryRowDTO {
+    "id": number;
+    "name": string;
+    "colour": string;
+    "budgetText": string;
+    "usageText": string;
+    "taxRelevant": boolean;
+    "transfer": boolean;
+
+    /** Creates a new SettingsCategoryRowDTO instance. */
+    constructor($$source: Partial<SettingsCategoryRowDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("colour" in $$source)) {
+            this["colour"] = "";
+        }
+        if (!("budgetText" in $$source)) {
+            this["budgetText"] = "";
+        }
+        if (!("usageText" in $$source)) {
+            this["usageText"] = "";
+        }
+        if (!("taxRelevant" in $$source)) {
+            this["taxRelevant"] = false;
+        }
+        if (!("transfer" in $$source)) {
+            this["transfer"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SettingsCategoryRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SettingsCategoryRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SettingsCategoryRowDTO($$parsedSource as Partial<SettingsCategoryRowDTO>);
+    }
+}
+
+/**
+ * SettingsColourSwatchDTO is one palette choice of the category dialog.
+ */
+export class SettingsColourSwatchDTO {
+    "hex": string;
+    "colour": string;
+
+    /** Creates a new SettingsColourSwatchDTO instance. */
+    constructor($$source: Partial<SettingsColourSwatchDTO> = {}) {
+        if (!("hex" in $$source)) {
+            this["hex"] = "";
+        }
+        if (!("colour" in $$source)) {
+            this["colour"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SettingsColourSwatchDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SettingsColourSwatchDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SettingsColourSwatchDTO($$parsedSource as Partial<SettingsColourSwatchDTO>);
+    }
+}
+
+/**
+ * SettingsDTO is everything the Settings page shows.
+ * 
+ * It carries only the parts G8f-1 ports: appearance, the primary currency,
+ * categories, rules, tax keywords and the rule import/export dialog. The
+ * profiles, backup/restore and FinDesk import parts are G8f-2.
+ */
+export class SettingsDTO {
+    "loading": boolean;
+    "section": number;
+    "errorText": string;
+    "messageText": string;
+    "categoriesEmpty": boolean;
+    "hasDuplicateColours": boolean;
+    "currencyOptions": string[];
+    "primaryCurrency": string;
+    "primaryCurrencyIndex": number;
+    "categoryRows": SettingsCategoryRowDTO[];
+    "ruleRows": SettingsRuleRowDTO[];
+    "taxKeywords": string;
+    "taxKeywordsCount": string;
+    "categoryDialogSwatches": SettingsColourSwatchDTO[];
+    "ruleDialogCategories": string[];
+    "ruleDialogFieldOptions": string[];
+    "ruleDialogDirectionOptions": string[];
+    "ruleDialogTaxOptions": string[];
+    "categoryDialogOpen": boolean;
+    "categoryDialogId": number;
+    "categoryDialogName": string;
+    "categoryDialogColour": string;
+    "categoryDialogBudget": string;
+    "categoryDialogTax": boolean;
+    "categoryDialogTransfer": boolean;
+    "categoryDialogError": string;
+    "categoryDeleteOpen": boolean;
+    "categoryDeleteId": number;
+    "categoryDeleteTitle": string;
+    "categoryDeleteText": string;
+    "ruleDialogOpen": boolean;
+    "ruleDialogId": number;
+    "ruleDialogPattern": string;
+    "ruleDialogCategoryIndex": number;
+    "ruleDialogPriority": string;
+    "ruleDialogAutoApply": boolean;
+    "ruleDialogFieldIndex": number;
+    "ruleDialogDirectionIndex": number;
+    "ruleDialogTaxIndex": number;
+    "ruleDialogError": string;
+    "ruleDeleteOpen": boolean;
+    "ruleDeleteId": number;
+    "ruleDeleteTitle": string;
+    "ruleDeleteText": string;
+    "ruleImportOpen": boolean;
+    "ruleImportBusy": boolean;
+    "ruleImportCategorize": boolean;
+    "ruleImportNewRulesText": string;
+    "ruleImportCategoriesText": string;
+    "ruleImportCategoriesList": string;
+    "ruleImportDuplicatesText": string;
+    "ruleImportConflictsText": string;
+    "ruleImportConflictsList": string;
+    "ruleImportErrorsText": string;
+    "ruleImportErrorsList": string;
+    "ruleImportShowCategorize": boolean;
+    "ruleImportCategorizeText": string;
+    "ruleImportConfirmEnabled": boolean;
+
+    /**
+     * Busy is the backup/restore busy flag, which G8f-2 fills.
+     */
+    "busy": boolean;
+
+    /** Creates a new SettingsDTO instance. */
+    constructor($$source: Partial<SettingsDTO> = {}) {
+        if (!("loading" in $$source)) {
+            this["loading"] = false;
+        }
+        if (!("section" in $$source)) {
+            this["section"] = 0;
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("messageText" in $$source)) {
+            this["messageText"] = "";
+        }
+        if (!("categoriesEmpty" in $$source)) {
+            this["categoriesEmpty"] = false;
+        }
+        if (!("hasDuplicateColours" in $$source)) {
+            this["hasDuplicateColours"] = false;
+        }
+        if (!("currencyOptions" in $$source)) {
+            this["currencyOptions"] = [];
+        }
+        if (!("primaryCurrency" in $$source)) {
+            this["primaryCurrency"] = "";
+        }
+        if (!("primaryCurrencyIndex" in $$source)) {
+            this["primaryCurrencyIndex"] = 0;
+        }
+        if (!("categoryRows" in $$source)) {
+            this["categoryRows"] = [];
+        }
+        if (!("ruleRows" in $$source)) {
+            this["ruleRows"] = [];
+        }
+        if (!("taxKeywords" in $$source)) {
+            this["taxKeywords"] = "";
+        }
+        if (!("taxKeywordsCount" in $$source)) {
+            this["taxKeywordsCount"] = "";
+        }
+        if (!("categoryDialogSwatches" in $$source)) {
+            this["categoryDialogSwatches"] = [];
+        }
+        if (!("ruleDialogCategories" in $$source)) {
+            this["ruleDialogCategories"] = [];
+        }
+        if (!("ruleDialogFieldOptions" in $$source)) {
+            this["ruleDialogFieldOptions"] = [];
+        }
+        if (!("ruleDialogDirectionOptions" in $$source)) {
+            this["ruleDialogDirectionOptions"] = [];
+        }
+        if (!("ruleDialogTaxOptions" in $$source)) {
+            this["ruleDialogTaxOptions"] = [];
+        }
+        if (!("categoryDialogOpen" in $$source)) {
+            this["categoryDialogOpen"] = false;
+        }
+        if (!("categoryDialogId" in $$source)) {
+            this["categoryDialogId"] = 0;
+        }
+        if (!("categoryDialogName" in $$source)) {
+            this["categoryDialogName"] = "";
+        }
+        if (!("categoryDialogColour" in $$source)) {
+            this["categoryDialogColour"] = "";
+        }
+        if (!("categoryDialogBudget" in $$source)) {
+            this["categoryDialogBudget"] = "";
+        }
+        if (!("categoryDialogTax" in $$source)) {
+            this["categoryDialogTax"] = false;
+        }
+        if (!("categoryDialogTransfer" in $$source)) {
+            this["categoryDialogTransfer"] = false;
+        }
+        if (!("categoryDialogError" in $$source)) {
+            this["categoryDialogError"] = "";
+        }
+        if (!("categoryDeleteOpen" in $$source)) {
+            this["categoryDeleteOpen"] = false;
+        }
+        if (!("categoryDeleteId" in $$source)) {
+            this["categoryDeleteId"] = 0;
+        }
+        if (!("categoryDeleteTitle" in $$source)) {
+            this["categoryDeleteTitle"] = "";
+        }
+        if (!("categoryDeleteText" in $$source)) {
+            this["categoryDeleteText"] = "";
+        }
+        if (!("ruleDialogOpen" in $$source)) {
+            this["ruleDialogOpen"] = false;
+        }
+        if (!("ruleDialogId" in $$source)) {
+            this["ruleDialogId"] = 0;
+        }
+        if (!("ruleDialogPattern" in $$source)) {
+            this["ruleDialogPattern"] = "";
+        }
+        if (!("ruleDialogCategoryIndex" in $$source)) {
+            this["ruleDialogCategoryIndex"] = 0;
+        }
+        if (!("ruleDialogPriority" in $$source)) {
+            this["ruleDialogPriority"] = "";
+        }
+        if (!("ruleDialogAutoApply" in $$source)) {
+            this["ruleDialogAutoApply"] = false;
+        }
+        if (!("ruleDialogFieldIndex" in $$source)) {
+            this["ruleDialogFieldIndex"] = 0;
+        }
+        if (!("ruleDialogDirectionIndex" in $$source)) {
+            this["ruleDialogDirectionIndex"] = 0;
+        }
+        if (!("ruleDialogTaxIndex" in $$source)) {
+            this["ruleDialogTaxIndex"] = 0;
+        }
+        if (!("ruleDialogError" in $$source)) {
+            this["ruleDialogError"] = "";
+        }
+        if (!("ruleDeleteOpen" in $$source)) {
+            this["ruleDeleteOpen"] = false;
+        }
+        if (!("ruleDeleteId" in $$source)) {
+            this["ruleDeleteId"] = 0;
+        }
+        if (!("ruleDeleteTitle" in $$source)) {
+            this["ruleDeleteTitle"] = "";
+        }
+        if (!("ruleDeleteText" in $$source)) {
+            this["ruleDeleteText"] = "";
+        }
+        if (!("ruleImportOpen" in $$source)) {
+            this["ruleImportOpen"] = false;
+        }
+        if (!("ruleImportBusy" in $$source)) {
+            this["ruleImportBusy"] = false;
+        }
+        if (!("ruleImportCategorize" in $$source)) {
+            this["ruleImportCategorize"] = false;
+        }
+        if (!("ruleImportNewRulesText" in $$source)) {
+            this["ruleImportNewRulesText"] = "";
+        }
+        if (!("ruleImportCategoriesText" in $$source)) {
+            this["ruleImportCategoriesText"] = "";
+        }
+        if (!("ruleImportCategoriesList" in $$source)) {
+            this["ruleImportCategoriesList"] = "";
+        }
+        if (!("ruleImportDuplicatesText" in $$source)) {
+            this["ruleImportDuplicatesText"] = "";
+        }
+        if (!("ruleImportConflictsText" in $$source)) {
+            this["ruleImportConflictsText"] = "";
+        }
+        if (!("ruleImportConflictsList" in $$source)) {
+            this["ruleImportConflictsList"] = "";
+        }
+        if (!("ruleImportErrorsText" in $$source)) {
+            this["ruleImportErrorsText"] = "";
+        }
+        if (!("ruleImportErrorsList" in $$source)) {
+            this["ruleImportErrorsList"] = "";
+        }
+        if (!("ruleImportShowCategorize" in $$source)) {
+            this["ruleImportShowCategorize"] = false;
+        }
+        if (!("ruleImportCategorizeText" in $$source)) {
+            this["ruleImportCategorizeText"] = "";
+        }
+        if (!("ruleImportConfirmEnabled" in $$source)) {
+            this["ruleImportConfirmEnabled"] = false;
+        }
+        if (!("busy" in $$source)) {
+            this["busy"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SettingsDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SettingsDTO {
+        const $$createField6_0 = $$createType16;
+        const $$createField9_0 = $$createType53;
+        const $$createField10_0 = $$createType55;
+        const $$createField13_0 = $$createType57;
+        const $$createField14_0 = $$createType16;
+        const $$createField15_0 = $$createType16;
+        const $$createField16_0 = $$createType16;
+        const $$createField17_0 = $$createType16;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("currencyOptions" in $$parsedSource) {
+            $$parsedSource["currencyOptions"] = $$createField6_0($$parsedSource["currencyOptions"]);
+        }
+        if ("categoryRows" in $$parsedSource) {
+            $$parsedSource["categoryRows"] = $$createField9_0($$parsedSource["categoryRows"]);
+        }
+        if ("ruleRows" in $$parsedSource) {
+            $$parsedSource["ruleRows"] = $$createField10_0($$parsedSource["ruleRows"]);
+        }
+        if ("categoryDialogSwatches" in $$parsedSource) {
+            $$parsedSource["categoryDialogSwatches"] = $$createField13_0($$parsedSource["categoryDialogSwatches"]);
+        }
+        if ("ruleDialogCategories" in $$parsedSource) {
+            $$parsedSource["ruleDialogCategories"] = $$createField14_0($$parsedSource["ruleDialogCategories"]);
+        }
+        if ("ruleDialogFieldOptions" in $$parsedSource) {
+            $$parsedSource["ruleDialogFieldOptions"] = $$createField15_0($$parsedSource["ruleDialogFieldOptions"]);
+        }
+        if ("ruleDialogDirectionOptions" in $$parsedSource) {
+            $$parsedSource["ruleDialogDirectionOptions"] = $$createField16_0($$parsedSource["ruleDialogDirectionOptions"]);
+        }
+        if ("ruleDialogTaxOptions" in $$parsedSource) {
+            $$parsedSource["ruleDialogTaxOptions"] = $$createField17_0($$parsedSource["ruleDialogTaxOptions"]);
+        }
+        return new SettingsDTO($$parsedSource as Partial<SettingsDTO>);
+    }
+}
+
+/**
+ * SettingsRuleRowDTO is one row of the rule list.
+ */
+export class SettingsRuleRowDTO {
+    "id": number;
+    "pattern": string;
+    "categoryText": string;
+    "colour": string;
+    "detail": string;
+    "prioText": string;
+
+    /** Creates a new SettingsRuleRowDTO instance. */
+    constructor($$source: Partial<SettingsRuleRowDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("pattern" in $$source)) {
+            this["pattern"] = "";
+        }
+        if (!("categoryText" in $$source)) {
+            this["categoryText"] = "";
+        }
+        if (!("colour" in $$source)) {
+            this["colour"] = "";
+        }
+        if (!("detail" in $$source)) {
+            this["detail"] = "";
+        }
+        if (!("prioText" in $$source)) {
+            this["prioText"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SettingsRuleRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SettingsRuleRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SettingsRuleRowDTO($$parsedSource as Partial<SettingsRuleRowDTO>);
+    }
+}
+
+/**
  * ShellDTO is everything the unlock view and the main shell show.
  * 
  * It never carries a passphrase or any other secret.
@@ -2619,7 +3035,7 @@ export class ShellDTO {
      */
     static createFrom($$source: any = {}): ShellDTO {
         const $$createField9_0 = $$createType16;
-        const $$createField18_0 = $$createType53;
+        const $$createField18_0 = $$createType59;
         const $$createField23_0 = $$createType16;
         const $$createField29_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
@@ -3280,16 +3696,16 @@ export class TransactionsDTO {
         const $$createField19_0 = $$createType16;
         const $$createField21_0 = $$createType11;
         const $$createField22_0 = $$createType13;
-        const $$createField26_0 = $$createType55;
+        const $$createField26_0 = $$createType61;
         const $$createField29_0 = $$createType16;
         const $$createField32_0 = $$createType16;
         const $$createField52_0 = $$createType16;
         const $$createField53_0 = $$createType16;
-        const $$createField78_0 = $$createType57;
+        const $$createField78_0 = $$createType63;
         const $$createField95_0 = $$createType16;
         const $$createField106_0 = $$createType16;
-        const $$createField111_0 = $$createType59;
-        const $$createField112_0 = $$createType61;
+        const $$createField111_0 = $$createType65;
+        const $$createField112_0 = $$createType67;
         const $$createField114_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("incomeAmounts" in $$parsedSource) {
@@ -3406,13 +3822,19 @@ const $$createType48 = ReportSuggestionRowDTO.createFrom;
 const $$createType49 = $Create.Array($$createType48);
 const $$createType50 = ReportTaxRowDTO.createFrom;
 const $$createType51 = $Create.Array($$createType50);
-const $$createType52 = ProfileDTO.createFrom;
+const $$createType52 = SettingsCategoryRowDTO.createFrom;
 const $$createType53 = $Create.Array($$createType52);
-const $$createType54 = TransactionRowDTO.createFrom;
+const $$createType54 = SettingsRuleRowDTO.createFrom;
 const $$createType55 = $Create.Array($$createType54);
-const $$createType56 = ReapplyGroupRowDTO.createFrom;
+const $$createType56 = SettingsColourSwatchDTO.createFrom;
 const $$createType57 = $Create.Array($$createType56);
-const $$createType58 = ImportFileRowDTO.createFrom;
+const $$createType58 = ProfileDTO.createFrom;
 const $$createType59 = $Create.Array($$createType58);
-const $$createType60 = ImportCSVFieldDTO.createFrom;
+const $$createType60 = TransactionRowDTO.createFrom;
 const $$createType61 = $Create.Array($$createType60);
+const $$createType62 = ReapplyGroupRowDTO.createFrom;
+const $$createType63 = $Create.Array($$createType62);
+const $$createType64 = ImportFileRowDTO.createFrom;
+const $$createType65 = $Create.Array($$createType64);
+const $$createType66 = ImportCSVFieldDTO.createFrom;
+const $$createType67 = $Create.Array($$createType66);

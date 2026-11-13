@@ -102,6 +102,22 @@ func (d *wailsFileDialogs) SaveFile(title i18n.Key, defaultName string) (string,
 	return path, true
 }
 
+// SaveRules asks where to write the rule export.
+func (d *wailsFileDialogs) SaveRules(title string, defaultName string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	path, err := d.app.Dialog.SaveFile().
+		SetFilename(defaultName).
+		AddFilter(title, "*.tsv").
+		AttachToWindow(d.window).
+		PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
+}
+
 // exportFilterPattern turns a suggested file name's extension into Wails'
 // filter pattern.
 func exportFilterPattern(defaultName string) string {
@@ -110,6 +126,22 @@ func exportFilterPattern(defaultName string) string {
 		return ""
 	}
 	return "*" + extension
+}
+
+// PickRuleFile asks for one rule file.
+func (d *wailsFileDialogs) PickRuleFile(title string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	path, err := d.app.Dialog.OpenFile().
+		CanChooseFiles(true).
+		AddFilter(title, "*.tsv;*.txt").
+		AttachToWindow(d.window).
+		PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
 }
 
 func selectedPaths(paths []string, err error) ([]string, bool) {
