@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"path/filepath"
 	"strings"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -18,6 +19,8 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
+	"github.com/MaMissaoui/Finglass/internal/core/iban"
+	"github.com/MaMissaoui/Finglass/internal/core/imports"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 	"github.com/MaMissaoui/Finglass/internal/core/report"
@@ -202,6 +205,22 @@ type TransactionsDTO struct {
 	MultiDeleteTotals string   `json:"multiDeleteTotals"`
 	MultiDeleteLines  []string `json:"multiDeleteLines"`
 	MultiDeleteMore   string   `json:"multiDeleteMore"`
+
+	ImportOpen           bool                `json:"importOpen"`
+	ImportTitle          string              `json:"importTitle"`
+	ImportSummary        string              `json:"importSummary"`
+	ImportFiles          []ImportFileRowDTO  `json:"importFiles"`
+	ImportCSVFields      []ImportCSVFieldDTO `json:"importCsvFields"`
+	ImportCSVHint        string              `json:"importCsvHint"`
+	ImportAccountOptions []string            `json:"importAccountOptions"`
+	ImportAccountIndex   int                 `json:"importAccountIndex"`
+	ImportBalanceAllowed bool                `json:"importBalanceAllowed"`
+	ImportUpdateBalance  bool                `json:"importUpdateBalance"`
+	ImportBalanceText    string              `json:"importBalanceText"`
+	ImportNewerText      string              `json:"importNewerText"`
+	Importing            bool                `json:"importing"`
+	ImportConfirmText    string              `json:"importConfirmText"`
+	ImportConfirmEnabled bool                `json:"importConfirmEnabled"`
 }
 
 // TransactionsOptions is the process wiring the caller supplies.
@@ -255,6 +274,48 @@ func (t *Transactions) Load() (TransactionsDTO, error) {
 // menu does.
 func (t *Transactions) OpenWithAdd() (TransactionsDTO, error) {
 	return t.action(func() { t.session.TransactionsOpenWithAdd() })
+}
+
+// OpenWithImport opens the page and then the statement-import dialog, as the
+// File menu does.
+func (t *Transactions) OpenWithImport() (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsOpenWithImport() })
+}
+
+// OpenImport asks for statement files and opens the import preview.
+func (t *Transactions) OpenImport() (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsOpenImport() })
+}
+
+// ImportAccountChanged picks the account for the open preview.
+func (t *Transactions) ImportAccountChanged(index int) (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsImportAccountChanged(index) })
+}
+
+// ImportCSVChanged applies one CSV mapping change from the dialog.
+func (t *Transactions) ImportCSVChanged(field string, value string) (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsImportCSVChanged(field, value) })
+}
+
+// ConfirmImport imports the previewed entries.
+func (t *Transactions) ConfirmImport(updateBalance bool) (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsConfirmImport(updateBalance) })
+}
+
+// CancelImport closes the preview without importing.
+func (t *Transactions) CancelImport() (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsCancelImport() })
+}
+
+// ExportCSV asks where to write the export and writes exactly what is shown.
+func (t *Transactions) ExportCSV() (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsExportCSV() })
+}
+
+// AttachReceipt asks for receipt files and attaches them to the selected
+// booking.
+func (t *Transactions) AttachReceipt() (TransactionsDTO, error) {
+	return t.action(func() { t.session.TransactionsAttachReceipt() })
 }
 
 // Search applies the latest search text, deferring while another job runs.
@@ -673,6 +734,7 @@ func transactionsDTO(
 	transactionsApplyChart(&dto, state, language)
 	transactionsApplySelection(&dto, state, language)
 	transactionsApplyDetail(&dto, state, language)
+	transactionsApplyImport(&dto, state, language)
 	transactionsApplyReapply(&dto, state, language, excludedKeys)
 	return dto
 }
@@ -1578,4 +1640,291 @@ func transactionsID(id int64) int {
 		return -1
 	}
 	return int(id)
+}
+
+// ImportFileRowDTO is one row of the import dialog's file list, including the
+// selections that could not be read.
+type ImportFileRowDTO struct {
+	Name        string `json:"name"`
+	CountText   string `json:"countText"`
+	PeriodText  string `json:"periodText"`
+	WarningText string `json:"warningText"`
+	Failure     bool   `json:"failure"`
+}
+
+// ImportCSVFieldDTO is one row of the CSV mapping editor.
+type ImportCSVFieldDTO struct {
+	Field   string   `json:"field"`
+	Label   string   `json:"label"`
+	Options []string `json:"options"`
+	Index   int      `json:"index"`
+}
+
+// transactionsApplyImport sets every value Rust's apply_import sets.
+func transactionsApplyImport(
+	dto *TransactionsDTO,
+	state transactionsview.TransactionsState,
+	language i18n.Language,
+) {
+	preview := state.ImportPreview
+	if preview == nil {
+		dto.ImportOpen = false
+		return
+	}
+
+	title := ""
+	if len(preview.Files) <= 1 {
+		name := ""
+		if len(preview.Files) > 0 {
+			name = transactionsImportDisplayName(preview.Files[0])
+		}
+		title = i18n.Format(language, i18n.ImportFile, i18n.Str(name))
+	} else {
+		title = i18n.Format(language, i18n.ImportFiles, i18n.Int(int64(len(preview.Files))))
+	}
+	summary := ""
+	if len(preview.Files) > 1 {
+		summary = i18n.Format(language, i18n.BookingCount, i18n.Int(int64(preview.BookingCount())))
+	}
+
+	var selectedAccount *accountsview.AccountItem
+	accountOptions := make([]string, 0, len(state.Accounts))
+	for index := range state.Accounts {
+		accountOptions = append(accountOptions, accountsAccountLabel(state.Accounts[index], language))
+		if preview.AccountID != nil && state.Accounts[index].ID == *preview.AccountID {
+			selectedAccount = &state.Accounts[index]
+		}
+	}
+	accountIndex := 0
+	if preview.AccountID != nil {
+		for index := range state.Accounts {
+			if state.Accounts[index].ID == *preview.AccountID {
+				accountIndex = index
+				break
+			}
+		}
+	}
+
+	newerText := ""
+	if transactionsImportHasBalances(preview) && !preview.BalanceUpdateAllowed {
+		newerText = i18n.Text(language, i18n.NewerBookingsUnchanged)
+	}
+
+	confirmText := i18n.Format(
+		language,
+		i18n.ImportCount,
+		i18n.Int(int64(preview.BookingCount())),
+	)
+	if state.IsImporting {
+		confirmText = i18n.Text(language, i18n.Importing)
+	}
+
+	dto.ImportOpen = true
+	dto.ImportTitle = title
+	dto.ImportSummary = summary
+	dto.ImportFiles = transactionsImportFileRows(preview, language, selectedAccount)
+	dto.ImportCSVFields = transactionsImportCSVFields(preview, language)
+	dto.ImportCSVHint = transactionsImportCSVHint(preview, language)
+	dto.ImportAccountOptions = accountOptions
+	dto.ImportAccountIndex = accountIndex
+	dto.ImportBalanceAllowed = preview.BalanceUpdateAllowed
+	dto.ImportUpdateBalance = preview.BalanceUpdateAllowed
+	dto.ImportBalanceText = i18n.Text(language, i18n.SetAccountBalance)
+	dto.ImportNewerText = newerText
+	dto.Importing = state.IsImporting
+	dto.ImportConfirmText = confirmText
+	dto.ImportConfirmEnabled = !state.IsImporting &&
+		preview.AccountID != nil &&
+		preview.BookingCount() > 0
+}
+
+// transactionsImportFileRows is import_file_rows: each readable file's period
+// and warnings, then the unreadable selections.
+func transactionsImportFileRows(
+	preview *transactionsview.ImportPreview,
+	language i18n.Language,
+	selectedAccount *accountsview.AccountItem,
+) []ImportFileRowDTO {
+	rows := make([]ImportFileRowDTO, 0, len(preview.Entries)+len(preview.Failures))
+	multi := len(preview.Files) > 1
+	for _, entry := range preview.Entries {
+		bookings := entry.Statement.Bookings
+		var from, to *imports.ImportedBooking
+		for index := range bookings {
+			booking := &bookings[index]
+			if from == nil || booking.Date.Before(from.Date) {
+				from = booking
+			}
+			if to == nil || booking.Date.After(to.Date) {
+				to = booking
+			}
+		}
+		periodText := ""
+		if from != nil && to != nil {
+			if from.Date == to.Date {
+				periodText = format.Date(from.Date)
+			} else {
+				periodText = format.Date(from.Date) + "–" + format.Date(to.Date)
+			}
+		}
+
+		warnings := make([]string, 0, 3)
+		if entry.Statement.PendingSkipped > 0 {
+			warnings = append(warnings, i18n.Format(
+				language,
+				i18n.PendingLeftOut,
+				i18n.Int(int64(entry.Statement.PendingSkipped)),
+			))
+		}
+		if len(entry.Statement.Skipped) > 0 {
+			warnings = append(warnings, i18n.Format(
+				language,
+				i18n.UnreadableCount,
+				i18n.Int(int64(len(entry.Statement.Skipped))),
+			))
+		}
+		if selectedAccount != nil && entry.Statement.AccountIBAN != nil &&
+			iban.Normalize(selectedAccount.IBAN) != iban.Normalize(*entry.Statement.AccountIBAN) {
+			if multi {
+				warnings = append(warnings, i18n.Format(
+					language,
+					i18n.FileBelongsToNamed,
+					i18n.Str(transactionsImportDisplayName(entry.File)),
+					i18n.Str(format.IBAN(*entry.Statement.AccountIBAN)),
+				))
+			} else {
+				warnings = append(warnings, i18n.Format(
+					language,
+					i18n.FileBelongsTo,
+					i18n.Str(format.IBAN(*entry.Statement.AccountIBAN)),
+				))
+			}
+		}
+
+		rows = append(rows, ImportFileRowDTO{
+			Name:        transactionsImportDisplayName(entry.File),
+			CountText:   i18n.Format(language, i18n.BookingCount, i18n.Int(int64(len(bookings)))),
+			PeriodText:  periodText,
+			WarningText: strings.Join(warnings, " · "),
+			Failure:     false,
+		})
+	}
+	for _, failure := range preview.Failures {
+		rows = append(rows, ImportFileRowDTO{
+			Name:        failure.FileName,
+			WarningText: failure.Message,
+			Failure:     true,
+		})
+	}
+	return rows
+}
+
+// transactionsImportCSVFields is import_csv_fields: the mapping editor's rows,
+// empty when the preview has no CSV file.
+func transactionsImportCSVFields(
+	preview *transactionsview.ImportPreview,
+	language i18n.Language,
+) []ImportCSVFieldDTO {
+	var csv *imports.CsvLayout
+	for index := range preview.Entries {
+		if preview.Entries[index].Statement.Csv != nil {
+			csv = preview.Entries[index].Statement.Csv
+			break
+		}
+	}
+	if csv == nil {
+		return []ImportCSVFieldDTO{}
+	}
+	options := shell.ImportCSVOptions(csv, language)
+	fields := []struct {
+		field string
+		label i18n.Key
+		index *int
+	}{
+		{"date", i18n.ColDate, csv.Mapping.Date},
+		{"amount", i18n.ColAmount, csv.Mapping.Amount},
+		{"debit", i18n.ColDebit, csv.Mapping.Debit},
+		{"credit", i18n.ColCredit, csv.Mapping.Credit},
+		{"partner", i18n.ColPartner, csv.Mapping.Partner},
+		{"purpose", i18n.ColPurpose, csv.Mapping.Purpose},
+		{"balance", i18n.ColBalance, csv.Mapping.Balance},
+	}
+	rows := make([]ImportCSVFieldDTO, 0, len(fields))
+	for _, field := range fields {
+		index := 0
+		if field.index != nil {
+			index = *field.index + 1
+		}
+		rows = append(rows, ImportCSVFieldDTO{
+			Field:   field.field,
+			Label:   i18n.Text(language, field.label),
+			Options: append([]string(nil), options...),
+			Index:   index,
+		})
+	}
+	return rows
+}
+
+// transactionsImportCSVHint is import_csv_hint: how many selected CSV files the
+// shown columns apply to.
+func transactionsImportCSVHint(
+	preview *transactionsview.ImportPreview,
+	language i18n.Language,
+) string {
+	var csv *imports.CsvLayout
+	for index := range preview.Entries {
+		if preview.Entries[index].Statement.Csv != nil {
+			csv = preview.Entries[index].Statement.Csv
+			break
+		}
+	}
+	if csv == nil {
+		return ""
+	}
+	same := 0
+	for index := range preview.Entries {
+		other := preview.Entries[index].Statement.Csv
+		if other != nil && equalStrings(other.Headers, csv.Headers) {
+			same++
+		}
+	}
+	if len(preview.Entries) > 1 {
+		return i18n.Format(language, i18n.ColumnsApplyToSame, i18n.Int(int64(same)))
+	}
+	return ""
+}
+
+// transactionsImportHasBalances is import_has_balances: whether the newest file
+// carries balances that could update the account.
+func transactionsImportHasBalances(preview *transactionsview.ImportPreview) bool {
+	if len(preview.Entries) == 0 {
+		return false
+	}
+	newest := preview.Newest().Statement
+	for _, booking := range newest.Bookings {
+		if booking.BalanceAfter != nil {
+			return true
+		}
+	}
+	return newest.ClosingBalance != nil
+}
+
+func transactionsImportDisplayName(file string) string {
+	base := filepath.Base(file)
+	if base == "." || base == ".." || base == string(filepath.Separator) {
+		return file
+	}
+	return base
+}
+
+func equalStrings(left, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	for index := range left {
+		if left[index] != right[index] {
+			return false
+		}
+	}
+	return true
 }

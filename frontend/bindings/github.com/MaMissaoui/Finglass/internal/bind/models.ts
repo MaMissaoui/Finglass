@@ -1519,6 +1519,87 @@ export class DashboardUpcomingRowDTO {
 }
 
 /**
+ * ImportCSVFieldDTO is one row of the CSV mapping editor.
+ */
+export class ImportCSVFieldDTO {
+    "field": string;
+    "label": string;
+    "options": string[];
+    "index": number;
+
+    /** Creates a new ImportCSVFieldDTO instance. */
+    constructor($$source: Partial<ImportCSVFieldDTO> = {}) {
+        if (!("field" in $$source)) {
+            this["field"] = "";
+        }
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("options" in $$source)) {
+            this["options"] = [];
+        }
+        if (!("index" in $$source)) {
+            this["index"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ImportCSVFieldDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ImportCSVFieldDTO {
+        const $$createField2_0 = $$createType16;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("options" in $$parsedSource) {
+            $$parsedSource["options"] = $$createField2_0($$parsedSource["options"]);
+        }
+        return new ImportCSVFieldDTO($$parsedSource as Partial<ImportCSVFieldDTO>);
+    }
+}
+
+/**
+ * ImportFileRowDTO is one row of the import dialog's file list, including the
+ * selections that could not be read.
+ */
+export class ImportFileRowDTO {
+    "name": string;
+    "countText": string;
+    "periodText": string;
+    "warningText": string;
+    "failure": boolean;
+
+    /** Creates a new ImportFileRowDTO instance. */
+    constructor($$source: Partial<ImportFileRowDTO> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("countText" in $$source)) {
+            this["countText"] = "";
+        }
+        if (!("periodText" in $$source)) {
+            this["periodText"] = "";
+        }
+        if (!("warningText" in $$source)) {
+            this["warningText"] = "";
+        }
+        if (!("failure" in $$source)) {
+            this["failure"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ImportFileRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ImportFileRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ImportFileRowDTO($$parsedSource as Partial<ImportFileRowDTO>);
+    }
+}
+
+/**
  * ProfileDTO is one entry of the top bar's profile menu.
  */
 export class ProfileDTO {
@@ -2082,6 +2163,21 @@ export class TransactionsDTO {
     "multiDeleteTotals": string;
     "multiDeleteLines": string[];
     "multiDeleteMore": string;
+    "importOpen": boolean;
+    "importTitle": string;
+    "importSummary": string;
+    "importFiles": ImportFileRowDTO[];
+    "importCsvFields": ImportCSVFieldDTO[];
+    "importCsvHint": string;
+    "importAccountOptions": string[];
+    "importAccountIndex": number;
+    "importBalanceAllowed": boolean;
+    "importUpdateBalance": boolean;
+    "importBalanceText": string;
+    "importNewerText": string;
+    "importing": boolean;
+    "importConfirmText": string;
+    "importConfirmEnabled": boolean;
 
     /** Creates a new TransactionsDTO instance. */
     constructor($$source: Partial<TransactionsDTO> = {}) {
@@ -2409,6 +2505,51 @@ export class TransactionsDTO {
         if (!("multiDeleteMore" in $$source)) {
             this["multiDeleteMore"] = "";
         }
+        if (!("importOpen" in $$source)) {
+            this["importOpen"] = false;
+        }
+        if (!("importTitle" in $$source)) {
+            this["importTitle"] = "";
+        }
+        if (!("importSummary" in $$source)) {
+            this["importSummary"] = "";
+        }
+        if (!("importFiles" in $$source)) {
+            this["importFiles"] = [];
+        }
+        if (!("importCsvFields" in $$source)) {
+            this["importCsvFields"] = [];
+        }
+        if (!("importCsvHint" in $$source)) {
+            this["importCsvHint"] = "";
+        }
+        if (!("importAccountOptions" in $$source)) {
+            this["importAccountOptions"] = [];
+        }
+        if (!("importAccountIndex" in $$source)) {
+            this["importAccountIndex"] = 0;
+        }
+        if (!("importBalanceAllowed" in $$source)) {
+            this["importBalanceAllowed"] = false;
+        }
+        if (!("importUpdateBalance" in $$source)) {
+            this["importUpdateBalance"] = false;
+        }
+        if (!("importBalanceText" in $$source)) {
+            this["importBalanceText"] = "";
+        }
+        if (!("importNewerText" in $$source)) {
+            this["importNewerText"] = "";
+        }
+        if (!("importing" in $$source)) {
+            this["importing"] = false;
+        }
+        if (!("importConfirmText" in $$source)) {
+            this["importConfirmText"] = "";
+        }
+        if (!("importConfirmEnabled" in $$source)) {
+            this["importConfirmEnabled"] = false;
+        }
 
         Object.assign(this, $$source);
     }
@@ -2433,6 +2574,9 @@ export class TransactionsDTO {
         const $$createField78_0 = $$createType43;
         const $$createField95_0 = $$createType16;
         const $$createField106_0 = $$createType16;
+        const $$createField111_0 = $$createType45;
+        const $$createField112_0 = $$createType47;
+        const $$createField114_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("incomeAmounts" in $$parsedSource) {
             $$parsedSource["incomeAmounts"] = $$createField5_0($$parsedSource["incomeAmounts"]);
@@ -2481,6 +2625,15 @@ export class TransactionsDTO {
         }
         if ("multiDeleteLines" in $$parsedSource) {
             $$parsedSource["multiDeleteLines"] = $$createField106_0($$parsedSource["multiDeleteLines"]);
+        }
+        if ("importFiles" in $$parsedSource) {
+            $$parsedSource["importFiles"] = $$createField111_0($$parsedSource["importFiles"]);
+        }
+        if ("importCsvFields" in $$parsedSource) {
+            $$parsedSource["importCsvFields"] = $$createField112_0($$parsedSource["importCsvFields"]);
+        }
+        if ("importAccountOptions" in $$parsedSource) {
+            $$parsedSource["importAccountOptions"] = $$createField114_0($$parsedSource["importAccountOptions"]);
         }
         return new TransactionsDTO($$parsedSource as Partial<TransactionsDTO>);
     }
@@ -2531,3 +2684,7 @@ const $$createType40 = TransactionRowDTO.createFrom;
 const $$createType41 = $Create.Array($$createType40);
 const $$createType42 = ReapplyGroupRowDTO.createFrom;
 const $$createType43 = $Create.Array($$createType42);
+const $$createType44 = ImportFileRowDTO.createFrom;
+const $$createType45 = $Create.Array($$createType44);
+const $$createType46 = ImportCSVFieldDTO.createFrom;
+const $$createType47 = $Create.Array($$createType46);

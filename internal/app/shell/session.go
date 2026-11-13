@@ -129,6 +129,7 @@ type Session struct {
 
 	paths       paths.AppPaths
 	credentials credentials.Store
+	fileDialogs FileDialogs
 	clock       func() time.Time
 	today       func() civil.Date
 	getenv      func(string) (string, bool)
@@ -152,7 +153,7 @@ type Session struct {
 
 	transactionsWork            accountsview.Busy
 	transactionsDialog          TransactionsDialogState
-	transactionsPendingOpen     bool
+	transactionsPendingOpen     transactionsPendingOpenKind
 	transactionsPendingSearch   pendingTransactionsSearch
 	transactionsMultiDeleteIDs  map[model.TransactionID]struct{}
 	transactionsReapplyExcluded map[transactionsReapplyKey]struct{}

@@ -157,11 +157,17 @@ func TestFindBackAndThemeFollowTheShellState(t *testing.T) {
 }
 
 type fakeTransactionsMenu struct {
-	called bool
+	calledAdd    bool
+	calledImport bool
 }
 
 func (f *fakeTransactionsMenu) OpenWithAdd() (bind.TransactionsDTO, error) {
-	f.called = true
+	f.calledAdd = true
+	return bind.TransactionsDTO{}, nil
+}
+
+func (f *fakeTransactionsMenu) OpenWithImport() (bind.TransactionsDTO, error) {
+	f.calledImport = true
 	return bind.TransactionsDTO{}, nil
 }
 
@@ -169,8 +175,17 @@ func TestNewTransactionCallsTheTransactionsServiceDirectly(t *testing.T) {
 	transactions := &fakeTransactionsMenu{}
 	controller := &menuController{transactions: transactions}
 	controller.actions().NewTransaction()
-	if !transactions.called {
+	if !transactions.calledAdd {
 		t.Fatal("the New transaction menu action did not call the Transactions service")
+	}
+}
+
+func TestImportStatementCallsTheTransactionsServiceDirectly(t *testing.T) {
+	transactions := &fakeTransactionsMenu{}
+	controller := &menuController{transactions: transactions}
+	controller.actions().ImportStatement()
+	if !transactions.calledImport {
+		t.Fatal("the Import statement menu action did not call the Transactions service")
 	}
 }
 
