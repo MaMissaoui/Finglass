@@ -255,7 +255,7 @@ In order, each one compared with the G1 reference screenshots:
 - [x] Accounts, bank cards and the account panel.
 - [x] Transactions: list, filters, panel, import dialog, rules.
 - [x] Reports: export menu, tax donut.
-- [ ] Documents.
+- [x] Documents.
 - [ ] Settings: backup/restore, FinDesk import, profiles, About.
 
 ### G9 — Packaging and release (S–M)
