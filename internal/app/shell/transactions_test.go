@@ -1024,6 +1024,10 @@ func TestTransactionsStateIsSafeWhileActionsRun(t *testing.T) {
 			default:
 				_ = session.TransactionsState()
 				_ = session.TransactionsDialog()
+				// A short pause keeps the reader overlapping every action
+				// without starving the job of the session mutex on a slow,
+				// race-instrumented CI runner.
+				time.Sleep(100 * time.Microsecond)
 			}
 		}
 	}()
