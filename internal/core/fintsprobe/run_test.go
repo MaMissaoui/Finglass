@@ -268,9 +268,27 @@ func hiupd(iban, accountNumber, currency string) string {
 		"+G+" + currency + "+" + testOwner + "++Girokonto+HKSAL:1+HKKAZ:1+TESTDEFFXXX'"
 }
 
-func hiupdWithoutIBAN(accountNumber, currency string) string {
+func hiupdWithoutBIC(iban, accountNumber, currency string) string {
+	return "HIUPD:7:6:4+" + accountNumber + "::280:" + testBLZ + "+" + iban + "+" + testUser +
+		"+G+" + currency + "+" + testOwner + "++Girokonto+HKSAL:1+HKKAZ:1'"
+}
+
+func hiupdDepot(accountNumber, currency string) string {
 	return "HIUPD:9:6:4+" + accountNumber + "::280:" + testBLZ + "+" + accountNumber + "+" + testUser +
-		"+G+" + currency + "+" + testOwner + "++Girokonto+HKSAL:1+HKKAZ:1+TESTDEFFXXX'"
+		"+G+" + currency + "+" + testOwner + "++Depot+HKDVB:1'"
+}
+
+func hiupdWithTransactions(iban, accountNumber, currency, transactions string) string {
+	return "HIUPD:7:6:4+" + accountNumber + "::280:" + testBLZ + "+" + iban + "+" + testUser +
+		"+G+" + currency + "+" + testOwner + "++Girokonto+" + transactions + "+TESTDEFFXXX'"
+}
+
+func hispa(accounts ...string) string {
+	return "HISPA:5:4:3+" + strings.Join(accounts, "+") + "'"
+}
+
+func hispaAccount(iban, bic, accountNumber string) string {
+	return "J:" + iban + ":" + bic + ":" + accountNumber + "::280:" + testBLZ
 }
 
 func hisalPayload() string {
@@ -411,6 +429,7 @@ func TestRunGoWithTwoAccountsMT940(t *testing.T) {
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
 		requestShape("HKEND"),
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
 		requestShape("HKSAL"),
 		requestShape("HKKAZ"),
 		requestShape("HKSAL"),
@@ -420,7 +439,7 @@ func TestRunGoWithTwoAccountsMT940(t *testing.T) {
 	bank.reply(syncResponse(
 		decoupledHitans(60, 5, 2),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N+HKKAZ:N"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
 		hisals(7),
 		hikazs(6),
 		hiupd(testIBAN, "00000001", "EUR"),
@@ -428,6 +447,10 @@ func TestRunGoWithTwoAccountsMT940(t *testing.T) {
 	))
 	bank.reply(successResponse("dialog-sync"))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+		hispaAccount(testIBAN2, "TESTDEFFXXX", "00000002"),
+	)))
 	bank.reply(executedResponse(testDialogID, hisalPayload()))
 	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
 	bank.reply(executedResponse(testDialogID, hisalPayload()))
@@ -461,6 +484,7 @@ func TestRunGoViaCamt(t *testing.T) {
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
 		requestShape("HKEND"),
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
 		requestShape("HKSAL"),
 		requestShape("HKCAZ"),
 		requestShape("HKEND"),
@@ -468,13 +492,16 @@ func TestRunGoViaCamt(t *testing.T) {
 	bank.reply(syncResponse(
 		decoupledHitans(60, 5, 2),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N+HKCAZ:N"),
+		hipins("HKSAL:N+HKCAZ:N+HKSPA:N"),
 		hisals(7),
 		hicazs(2, "urn:iso:std:iso:20022:tech:xsd:camt.052.001.02"),
 		hiupd(testIBAN, "00000001", "EUR"),
 	))
 	bank.reply(successResponse("dialog-sync"))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
 	bank.reply(executedResponse(testDialogID, hisalPayload()))
 	// The pending document repeats the booked entries; they must not count.
 	bank.reply(executedResponse(testDialogID, hicazPayload(camtBooked(), camtBooked())))
@@ -506,6 +533,7 @@ func TestRunInitDecoupledThenConfirmed(t *testing.T) {
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
 		requestShape("HKTAN"),
 		requestShape("HKTAN"),
+		requestShape("HKSPA"),
 		requestShape("HKSAL"),
 		requestShape("HKKAZ"),
 		requestShape("HKEND"),
@@ -513,7 +541,7 @@ func TestRunInitDecoupledThenConfirmed(t *testing.T) {
 	bank.reply(syncResponse(
 		decoupledHitans(4, 7, 3),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N+HKKAZ:N"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
 		hisals(7),
 		hikazs(6),
 		hiupd(testIBAN, "00000001", "EUR"),
@@ -522,6 +550,9 @@ func TestRunInitDecoupledThenConfirmed(t *testing.T) {
 	bank.reply(decoupledResponse(testDialogID, "task-1", testChallenge))
 	bank.reply(decoupledPendingResponse(testDialogID))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
 	bank.reply(executedResponse(testDialogID, hisalPayload()))
 	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
 	bank.reply(successResponse(testDialogID))
@@ -583,6 +614,7 @@ func TestRunTypedTANSubmitted(t *testing.T) {
 		requestShape("HKEND"),
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
 		requestShape("HKTAN"),
+		requestShape("HKSPA"),
 		requestShape("HKSAL"),
 		requestShape("HKKAZ"),
 		requestShape("HKEND"),
@@ -590,7 +622,7 @@ func TestRunTypedTANSubmitted(t *testing.T) {
 	bank.reply(syncResponse(
 		chipHitans("chipTAN manuell", 5, 2),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N+HKKAZ:N"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
 		hisals(7),
 		hikazs(6),
 		hiupd(testIBAN, "00000001", "EUR"),
@@ -598,6 +630,9 @@ func TestRunTypedTANSubmitted(t *testing.T) {
 	bank.reply(successResponse("dialog-sync"))
 	bank.reply(tanRequiredResponse(testDialogID, "task-3", testChallenge))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
 	bank.reply(executedResponse(testDialogID, hisalPayload()))
 	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
 	bank.reply(successResponse(testDialogID))
@@ -750,6 +785,7 @@ func TestRunBalanceAbsent(t *testing.T) {
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
 		requestShape("HKEND"),
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
 		requestShape("HKSAL"),
 		requestShape("HKKAZ"),
 		requestShape("HKEND"),
@@ -757,12 +793,15 @@ func TestRunBalanceAbsent(t *testing.T) {
 	bank.reply(syncResponse(
 		decoupledHitans(60, 5, 2),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N+HKKAZ:N"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
 		hikazs(6),
 		hiupd(testIBAN, "00000001", "EUR"),
 	))
 	bank.reply(successResponse("dialog-sync"))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
 	bank.reply(executedResponse(testDialogID))
 	bank.reply(executedResponse(testDialogID, hikazPayload(nil, nil)))
 	bank.reply(successResponse(testDialogID))
@@ -789,6 +828,7 @@ func TestRunStatementsErrorIsUnavailable(t *testing.T) {
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
 		requestShape("HKEND"),
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
 		requestShape("HKSAL"),
 		requestShape("HKKAZ"),
 		requestShape("HKEND"),
@@ -796,12 +836,15 @@ func TestRunStatementsErrorIsUnavailable(t *testing.T) {
 	bank.reply(syncResponse(
 		decoupledHitans(60, 5, 2),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N+HKKAZ:N"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
 		hikazs(6),
 		hiupd(testIBAN, "00000001", "EUR"),
 	))
 	bank.reply(successResponse("dialog-sync"))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
 	bank.reply(executedResponse(testDialogID, hisalPayload()))
 	bank.reply(codeResponse(testDialogID, "9010"))
 	bank.reply(successResponse(testDialogID))
@@ -828,6 +871,7 @@ func TestRunStatementParseFailureIsUnavailable(t *testing.T) {
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
 		requestShape("HKEND"),
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
 		requestShape("HKSAL"),
 		requestShape("HKKAZ"),
 		requestShape("HKEND"),
@@ -835,12 +879,15 @@ func TestRunStatementParseFailureIsUnavailable(t *testing.T) {
 	bank.reply(syncResponse(
 		decoupledHitans(60, 5, 2),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N+HKKAZ:N"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
 		hikazs(6),
 		hiupd(testIBAN, "00000001", "EUR"),
 	))
 	bank.reply(successResponse("dialog-sync"))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
 	bank.reply(executedResponse(testDialogID, hisalPayload()))
 	bank.reply(executedResponse(testDialogID, hikazPayload([]byte("not an MT940 statement"), nil)))
 	bank.reply(successResponse(testDialogID))
@@ -879,7 +926,7 @@ func TestRunTransportError(t *testing.T) {
 	assertNoSecrets(t, terminal.output(), false)
 }
 
-func TestRunAccountWithoutIBAN(t *testing.T) {
+func TestRunSkipsDepotWithoutIBANThenProbesCurrentAccount(t *testing.T) {
 	bank := newFakeTransport(t)
 	terminal := &fakeTerminal{}
 
@@ -887,16 +934,69 @@ func TestRunAccountWithoutIBAN(t *testing.T) {
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
 		requestShape("HKEND"),
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKSAL"),
+		requestShape("HKKAZ"),
 		requestShape("HKEND"),
 	)
 	bank.reply(syncResponse(
 		decoupledHitans(60, 5, 2),
 		allowedSecurityFunction("942"),
-		hipins("HKSAL:N"),
-		hiupdWithoutIBAN("00000001", "EUR"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
+		hikazs(6),
+		hiupdDepot("00000000", "EUR"),
+		hiupdWithoutBIC(testIBAN, "00000001", "EUR"),
 	))
 	bank.reply(successResponse("dialog-sync"))
 	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
+	bank.reply(executedResponse(testDialogID, hisalPayload()))
+	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
+	bank.reply(successResponse(testDialogID))
+
+	code := runProbe(t, bank, terminal, &fakeSleeper{}, 30)
+	if code != 0 {
+		t.Fatalf("exit code = %d, want 0", code)
+	}
+	output := terminal.output()
+	skipped := "IBAN - | skipped (no balance/statement access)"
+	if !strings.Contains(output, skipped) {
+		t.Fatalf("missing skipped line %q in:\n%s", skipped, output)
+	}
+	current := "IBAN DE****************0001 | currency EUR | balance present | statements 3 bookings (2026-03-01..2026-03-15) MT940"
+	if !strings.Contains(output, current) {
+		t.Fatalf("missing current account line %q in:\n%s", current, output)
+	}
+	if !strings.HasSuffix(output, "RESULT: GO") {
+		t.Fatalf("output does not end with GO:\n%s", output)
+	}
+	assertNoSecrets(t, output, false)
+}
+
+func TestRunSkipsAccountWithoutBalanceOrStatementAccess(t *testing.T) {
+	bank := newFakeTransport(t)
+	terminal := &fakeTerminal{}
+
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		decoupledHitans(60, 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSPA:N"),
+		hiupdWithTransactions(testIBAN, "00000001", "EUR", "HKKKU:1"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
 	bank.reply(successResponse(testDialogID))
 
 	code := runProbe(t, bank, terminal, &fakeSleeper{}, 30)
@@ -904,11 +1004,52 @@ func TestRunAccountWithoutIBAN(t *testing.T) {
 		t.Fatalf("exit code = %d, want 1", code)
 	}
 	output := terminal.output()
-	if !strings.Contains(output, "IBAN  | currency EUR | balance absent | statements unavailable") {
-		t.Fatalf("missing account line:\n%s", output)
+	skipped := "IBAN DE****************0001 | skipped (no balance/statement access)"
+	if !strings.Contains(output, skipped) {
+		t.Fatalf("missing skipped line %q in:\n%s", skipped, output)
 	}
-	if !strings.HasSuffix(output, "RESULT: NO-GO (other: MissingIBAN)") {
+	if !strings.HasSuffix(output, "RESULT: NO-GO (other: NoAccounts)") {
 		t.Fatalf("output = %q", output)
+	}
+	assertNoSecrets(t, output, false)
+}
+
+func TestRunSEPAAccountsBankErrorStopsBeforeBalance(t *testing.T) {
+	bank := newFakeTransport(t)
+	terminal := &fakeTerminal{}
+
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		decoupledHitans(60, 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N+HKSPA:N"),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(executedResponse(testDialogID))
+	bank.reply(codeResponse(testDialogID, "9050"))
+	bank.reply(successResponse(testDialogID))
+
+	code := runProbe(t, bank, terminal, &fakeSleeper{}, 30)
+	if code != 1 {
+		t.Fatalf("exit code = %d, want 1", code)
+	}
+	output := terminal.output()
+	if !strings.HasSuffix(output, "RESULT: NO-GO (other: BankError: 9050)") {
+		t.Fatalf("output = %q", output)
+	}
+	for _, record := range bank.records {
+		for _, segmentType := range record {
+			if segmentType == "HKSAL" {
+				t.Fatal("a balance request was sent after the HKSPA bank error")
+			}
+		}
 	}
 	assertNoSecrets(t, output, false)
 }
@@ -921,8 +1062,9 @@ func TestRunWipesPINOnEveryPath(t *testing.T) {
 		{
 			name: "success",
 			replies: func(bank *fakeTransport) {
-				bank.reply(syncResponse(hipins("HKSAL:N")))
+				bank.reply(syncResponse(hipins("HKSAL:N+HKSPA:N")))
 				bank.reply(successResponse("dialog-sync"))
+				bank.reply(executedResponse(testDialogID))
 				bank.reply(executedResponse(testDialogID))
 				bank.reply(successResponse(testDialogID))
 			},

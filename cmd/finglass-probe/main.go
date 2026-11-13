@@ -71,6 +71,13 @@ func main() {
 	// Ctrl-C cancels the dialog cleanly (it still sends HKEND) instead of
 	// killing the process mid-dialog.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	// Once the first Ctrl-C cancels ctx, restore the default handler, so a
+	// second Ctrl-C ends the process even while a prompt or the best-effort
+	// HKEND is still running.
+	go func() {
+		<-ctx.Done()
+		stop()
+	}()
 	code := fintsprobe.Run(ctx, fintsprobe.Env{
 		Inputs:         inputs,
 		PIN:            pin,

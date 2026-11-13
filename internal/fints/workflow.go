@@ -110,6 +110,35 @@ func (w *Workflow) FetchBalance(ctx context.Context, account Account) (balance B
 	return balance, ok, nil
 }
 
+// FetchSEPAAccounts fetches the SEPA account connections with HKSPA, completing
+// any TAN step through the prompter. It is read-only and requests only SEPA
+// account connections. The dialog merges the returned accounts into
+// Params().Accounts, so an account already listed from HIUPD gains the BIC. A
+// response without a HISPA returns an empty list and no error.
+func (w *Workflow) FetchSEPAAccounts(ctx context.Context) ([]Account, error) {
+	if w == nil || w.dialog == nil {
+		return nil, newInvalidStateError()
+	}
+	if err := w.ensureOpen(ctx); err != nil {
+		return nil, err
+	}
+
+	version := maxUint16(w.dialog.params.SupportedVersion(BusinessHKSPA, 3), 1)
+	segment := NewHKSPA(version)
+	response, _, err := w.send(ctx, segment, true)
+	if err != nil {
+		return nil, err
+	}
+
+	accounts := make([]Account, 0)
+	for _, parsed := range response.Segments {
+		if parsed.Type() == "HISPA" {
+			accounts = append(accounts, ParseHISPA(parsed)...)
+		}
+	}
+	return accounts, nil
+}
+
 // FetchStatements fetches one account's statements from HKCAZ when the bank
 // offers an accepted camt format, otherwise from HKKAZ. It follows touchdown
 // pages up to [maxTouchdownPages] and returns the raw documents unchanged.

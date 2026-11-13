@@ -78,28 +78,35 @@ func Run(ctx context.Context, env Env) int {
 	})
 	if err != nil {
 		reason := NoGoReason{Kind: NoGoOther, Other: "InvalidState"}
-		return finish(env.Terminal, nil, &reason)
+		return finish(env.Terminal, nil, nil, &reason)
 	}
 
 	if err := dialog.Sync(ctx); err != nil {
 		reason := classifyError(err)
-		return finish(env.Terminal, nil, &reason)
+		return finish(env.Terminal, nil, nil, &reason)
 	}
 
 	initResult, err := dialog.Init(ctx)
 	if err != nil {
 		reason := classifyError(err)
-		return finish(env.Terminal, nil, &reason)
+		return finish(env.Terminal, nil, nil, &reason)
 	}
 	if !initResult.Opened {
 		if reason, done := completeInitialTAN(ctx, env, dialog, initResult); done {
-			return finish(env.Terminal, nil, reason)
+			return finish(env.Terminal, nil, nil, reason)
 		}
 	}
 
-	summaries, failure := probeAccounts(ctx, env, dialog)
+	workflow := fints.NewWorkflow(dialog, terminalPrompter{terminal: env.Terminal})
+	if _, err := workflow.FetchSEPAAccounts(ctx); err != nil {
+		reason := classifyError(err)
+		_ = dialog.End(ctx)
+		return finish(env.Terminal, nil, nil, &reason)
+	}
+
+	summaries, lines, failure := probeAccounts(ctx, env, dialog, workflow)
 	_ = dialog.End(ctx)
-	return finish(env.Terminal, summaries, failure)
+	return finish(env.Terminal, summaries, lines, failure)
 }
 
 // completeInitialTAN handles a TAN-pending Init. done reports that the probe
@@ -155,15 +162,26 @@ func completeInitialTAN(
 	return nil, false
 }
 
-// probeAccounts fetches the balance and statements of every account, stopping
-// after the first failure.
-func probeAccounts(ctx context.Context, env Env, dialog *fints.Dialog) ([]AccountSummary, *NoGoReason) {
-	workflow := fints.NewWorkflow(dialog, terminalPrompter{terminal: env.Terminal})
+// probeAccounts fetches the balance and statements of every usable account,
+// printing a skipped line for accounts without balance/statement access and
+// stopping after the first failure.
+func probeAccounts(
+	ctx context.Context,
+	env Env,
+	dialog *fints.Dialog,
+	workflow *fints.Workflow,
+) ([]AccountSummary, []string, *NoGoReason) {
 	summaries := make([]AccountSummary, 0)
+	lines := make([]string, 0)
 	from := env.Today.AddDays(-env.Inputs.Days)
 	to := env.Today
 
 	for _, account := range dialog.Params().Accounts {
+		if skipAccount(account) {
+			lines = append(lines, SkippedAccountLine(account.IBAN))
+			continue
+		}
+
 		summary := NewAccountSummary(
 			account.IBAN,
 			account.Currency,
@@ -171,17 +189,12 @@ func probeAccounts(ctx context.Context, env Env, dialog *fints.Dialog) ([]Accoun
 			UnavailableStatements(),
 		)
 
-		if account.IBAN == "" {
-			summaries = append(summaries, summary)
-			reason := NoGoReason{Kind: NoGoOther, Other: "MissingIBAN"}
-			return summaries, &reason
-		}
-
 		balance, ok, err := workflow.FetchBalance(ctx, account)
 		if err != nil {
 			reason := classifyError(err)
 			summaries = append(summaries, summary)
-			return summaries, &reason
+			lines = append(lines, SummaryLine(summary))
+			return summaries, lines, &reason
 		}
 		if ok {
 			summary.BalancePresent = true
@@ -193,11 +206,35 @@ func probeAccounts(ctx context.Context, env Env, dialog *fints.Dialog) ([]Accoun
 		statement, reason := fetchStatementState(ctx, workflow, account, from, to)
 		summary.Statement = statement
 		summaries = append(summaries, summary)
+		lines = append(lines, SummaryLine(summary))
 		if reason != nil {
-			return summaries, reason
+			return summaries, lines, reason
 		}
 	}
-	return summaries, nil
+	return summaries, lines, nil
+}
+
+// skipAccount reports whether an account has no usable balance or statement
+// access. An empty allowed-transactions list means the bank did not restrict
+// the account.
+func skipAccount(account fints.Account) bool {
+	if account.IBAN == "" || account.BIC == "" {
+		return true
+	}
+	if len(account.AllowedBusinessTransactions) == 0 {
+		return false
+	}
+	hasBalance := false
+	hasStatement := false
+	for _, transaction := range account.AllowedBusinessTransactions {
+		switch transaction {
+		case "HKSAL":
+			hasBalance = true
+		case "HKKAZ", "HKCAZ":
+			hasStatement = true
+		}
+	}
+	return !hasBalance || !hasStatement
 }
 
 func fetchStatementState(
@@ -315,9 +352,14 @@ func wipeBytes(value []byte) {
 	}
 }
 
-func finish(terminal Terminal, summaries []AccountSummary, failure *NoGoReason) int {
-	for _, summary := range summaries {
-		terminal.Println(SummaryLine(summary))
+func finish(
+	terminal Terminal,
+	summaries []AccountSummary,
+	lines []string,
+	failure *NoGoReason,
+) int {
+	for _, line := range lines {
+		terminal.Println(line)
 	}
 
 	decision := Decide(summaries, failure)

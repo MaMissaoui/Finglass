@@ -18,6 +18,12 @@ For every SEPA account that the login can see, it prints one line containing:
 - the statement result: number of booked transactions, earliest and latest
   booking date, and the parsed format (`MT940` or `camt`).
 
+Before the account loop it asks the bank for the SEPA account details (HKSPA).
+Accounts without an IBAN or BIC, or without balance/statement access (for
+example securities depots and some credit cards), are listed as
+`IBAN <masked, or -> | skipped (no balance/statement access)` and do not count
+for the decision.
+
 At the end it prints either `RESULT: GO` or `RESULT: NO-GO (<reason>)`, where
 the reason is one of `login rejected`, `TAN method unsupported`, `TAN timeout`,
 `statements unavailable`, or `other: <error kind>`.
@@ -99,6 +105,10 @@ A wrong PIN is only one possible reason for `login rejected`. The bank codes
 retrying, because every retry with a wrong PIN counts against the bank's PIN
 limit.
 
+A NO-GO with a bank code right after the login usually names what the bank
+refused. Look the code up before retrying with the PIN.
+
 `statements unavailable` means the balance may still be present but the
-statement request or its parse failed. An account without an IBAN is reported
-as `other: MissingIBAN`; the probe does not fall back to HKSPA.
+statement request or its parse failed. Accounts without an IBAN or BIC, or
+without balance/statement access, are listed as skipped and do not make the
+result a NO-GO.
