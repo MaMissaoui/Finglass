@@ -125,6 +125,10 @@ func waitForTransactions(
 	predicate func(transactionsview.TransactionsState) bool,
 ) transactionsview.TransactionsState {
 	t.Helper()
+	// The change may already have been published before this wait started.
+	if state := session.TransactionsState(); predicate(state) {
+		return state
+	}
 	deadline := time.After(10 * time.Second)
 	for {
 		select {
@@ -151,9 +155,11 @@ func newLoadedTransactionsSession(t *testing.T) (*Session, transactionsSeedData)
 		t.Fatalf("unlock: %v", err)
 	}
 	waitForJobs(t, session)
-	session.Navigate("transactions")
+	// Listen before navigating: a fast load can finish before a listener
+	// added afterwards would see its event.
 	events, remove := listenForChanges(session)
 	defer remove()
+	session.Navigate("transactions")
 	waitForTransactions(t, session, events, "the loaded transactions", func(state transactionsview.TransactionsState) bool {
 		return !state.IsLoading && len(state.Accounts) == 2 && len(state.Transactions) > 0
 	})
