@@ -4,6 +4,7 @@ import {
   AppInfo,
   Banking,
   Dashboard,
+  Settings,
   Shell,
   Transactions,
   Reports,
@@ -15,6 +16,7 @@ import {
   BankingPrompt,
   DashboardChanged,
   MenuAction,
+  SettingsChanged,
   ShellChanged,
   TransactionsChanged,
   ReportsChanged,
@@ -30,6 +32,7 @@ import type {
   TickPayload,
   TransactionsDTO,
   ReportsDTO,
+  SettingsDTO,
 } from './api';
 
 export function createWailsApi(): Api {
@@ -655,6 +658,112 @@ export function createWailsApi(): Api {
     reportsOpenCategory(categoryID: number): Promise<ReportsDTO> {
       return Reports.OpenCategory(categoryID);
     },
+    settingsState(): Promise<SettingsDTO> {
+      return Settings.State();
+    },
+    settingsLoad(): Promise<SettingsDTO> {
+      return Settings.Load();
+    },
+    settingsDismissMessage(): Promise<SettingsDTO> {
+      return Settings.DismissMessage();
+    },
+    settingsSetPrimaryCurrency(code: string): Promise<SettingsDTO> {
+      return Settings.SetPrimaryCurrency(code);
+    },
+    settingsAddDefaultCategories(): Promise<SettingsDTO> {
+      return Settings.AddDefaultCategories();
+    },
+    settingsFixDuplicateColours(): Promise<SettingsDTO> {
+      return Settings.FixDuplicateColours();
+    },
+    settingsOpenAddCategory(): Promise<SettingsDTO> {
+      return Settings.OpenAddCategory();
+    },
+    settingsOpenEditCategory(id: number): Promise<SettingsDTO> {
+      return Settings.OpenEditCategory(id);
+    },
+    settingsOpenDeleteCategory(id: number): Promise<SettingsDTO> {
+      return Settings.OpenDeleteCategory(id);
+    },
+    settingsCategoryChanged(name: string, colour: string): Promise<SettingsDTO> {
+      return Settings.CategoryChanged(name, colour);
+    },
+    settingsSaveCategory(
+      name: string,
+      colour: string,
+      budget: string,
+      taxRelevant: boolean,
+      transfer: boolean,
+    ): Promise<SettingsDTO> {
+      return Settings.SaveCategory(name, colour, budget, taxRelevant, transfer);
+    },
+    settingsCloseCategoryDialog(): Promise<SettingsDTO> {
+      return Settings.CloseCategoryDialog();
+    },
+    settingsConfirmDeleteCategory(): Promise<SettingsDTO> {
+      return Settings.ConfirmDeleteCategory();
+    },
+    settingsCancelDeleteCategory(): Promise<SettingsDTO> {
+      return Settings.CancelDeleteCategory();
+    },
+    settingsOpenAddRule(): Promise<SettingsDTO> {
+      return Settings.OpenAddRule();
+    },
+    settingsOpenEditRule(id: number): Promise<SettingsDTO> {
+      return Settings.OpenEditRule(id);
+    },
+    settingsOpenDeleteRule(id: number): Promise<SettingsDTO> {
+      return Settings.OpenDeleteRule(id);
+    },
+    settingsRuleChanged(pattern: string, priority: string): Promise<SettingsDTO> {
+      return Settings.RuleChanged(pattern, priority);
+    },
+    settingsSaveRule(
+      pattern: string,
+      categoryIndex: number,
+      priority: string,
+      autoApply: boolean,
+      fieldIndex: number,
+      flow: number,
+      taxIndex: number,
+    ): Promise<SettingsDTO> {
+      return Settings.SaveRule(
+        pattern,
+        categoryIndex,
+        priority,
+        autoApply,
+        fieldIndex,
+        flow,
+        taxIndex,
+      );
+    },
+    settingsCloseRuleDialog(): Promise<SettingsDTO> {
+      return Settings.CloseRuleDialog();
+    },
+    settingsConfirmDeleteRule(): Promise<SettingsDTO> {
+      return Settings.ConfirmDeleteRule();
+    },
+    settingsCancelDeleteRule(): Promise<SettingsDTO> {
+      return Settings.CancelDeleteRule();
+    },
+    settingsSaveTaxKeywords(text: string): Promise<SettingsDTO> {
+      return Settings.SaveTaxKeywords(text);
+    },
+    settingsResetTaxKeywords(): Promise<SettingsDTO> {
+      return Settings.ResetTaxKeywords();
+    },
+    settingsExportRules(): Promise<SettingsDTO> {
+      return Settings.ExportRules();
+    },
+    settingsImportRules(): Promise<SettingsDTO> {
+      return Settings.ImportRules();
+    },
+    settingsConfirmRuleImport(categorize: boolean): Promise<SettingsDTO> {
+      return Settings.ConfirmRuleImport(categorize);
+    },
+    settingsCancelRuleImport(): Promise<SettingsDTO> {
+      return Settings.CancelRuleImport();
+    },
 
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {
@@ -693,6 +802,11 @@ export function createWailsApi(): Api {
     },
     onReportsChanged(callback: (dto: ReportsDTO) => void): () => void {
       return Events.On(ReportsChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onSettingsChanged(callback: (dto: SettingsDTO) => void): () => void {
+      return Events.On(SettingsChanged, (event) => {
         callback(event.data);
       });
     },

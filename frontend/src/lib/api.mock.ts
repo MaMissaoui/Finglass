@@ -9,12 +9,14 @@ import type {
   TickPayload,
   TransactionsDTO,
   ReportsDTO,
+  SettingsDTO,
 } from './api';
 import { createMockAccounts } from './accounts.mock';
 import { createMockBanking } from './banking.mock';
 import { languageFromCode, translate, type Language } from './i18n';
 import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
 import { MockReports } from './reports.mock';
+import { createMockSettings } from './settings.mock';
 import { createMockTransactions } from './transactions.mock';
 
 const info: AppInfoDTO = {
@@ -133,6 +135,59 @@ const reportsScenarios: Record<string, { language: Language; theme: string }> = 
   'reports-tax-missing-en-light': { language: 'en', theme: 'light' },
   'reports-tax-narrow-en-light': { language: 'en', theme: 'light' },
   'reports-export-menu-en-light': { language: 'en', theme: 'light' },
+};
+
+// The Settings reference states. The section, language and theme are what the
+// screenshot shows; the dialogs are part of the state because the page opens
+// them through the DTO.
+type SettingsScenario = {
+  language: Language;
+  theme: string;
+  section: number;
+  emptyCategories?: boolean;
+  categoryDialogFood?: boolean;
+  ruleDialogFood?: boolean;
+  ruleImportPreview?: boolean;
+};
+
+const settingsScenarios: Record<string, SettingsScenario> = {
+  settings: { language: 'en', theme: 'light', section: 0 },
+  'settings-empty': { language: 'en', theme: 'light', section: 2, emptyCategories: true },
+  'settings-appearance-de-light': { language: 'de', theme: 'light', section: 0 },
+  'settings-appearance-de-dark': { language: 'de', theme: 'dark', section: 0 },
+  'settings-currency-en-light': { language: 'en', theme: 'light', section: 0 },
+  'settings-currency-de-dark': { language: 'de', theme: 'dark', section: 0 },
+  'settings-categories-en-light': { language: 'en', theme: 'light', section: 2 },
+  'settings-categories-de-light': { language: 'de', theme: 'light', section: 2 },
+  'settings-categories-de-dark': { language: 'de', theme: 'dark', section: 2 },
+  'settings-categories-de-narrow': { language: 'de', theme: 'light', section: 2 },
+  'settings-category-dialog-en': {
+    language: 'en',
+    theme: 'light',
+    section: 2,
+    categoryDialogFood: true,
+  },
+  'settings-rules-en-light': { language: 'en', theme: 'light', section: 3 },
+  'settings-rules-de-light': { language: 'de', theme: 'light', section: 3 },
+  'settings-rules-de-dark': { language: 'de', theme: 'dark', section: 3 },
+  'settings-rule-dialog-en': {
+    language: 'en',
+    theme: 'light',
+    section: 3,
+    ruleDialogFood: true,
+  },
+  'settings-rule-import-en': {
+    language: 'en',
+    theme: 'light',
+    section: 3,
+    ruleImportPreview: true,
+  },
+  'settings-tax-keywords-en-light': { language: 'en', theme: 'light', section: 2 },
+  'settings-tax-keywords-de-dark': { language: 'de', theme: 'dark', section: 2 },
+  'settings-about-bank-codes-en': { language: 'en', theme: 'light', section: 8 },
+  'settings-section-menu-en-light': { language: 'en', theme: 'light', section: 0 },
+  'settings-narrow-en-light': { language: 'en', theme: 'light', section: 0 },
+  'settings-fr-light': { language: 'fr', theme: 'light', section: 0 },
 };
 
 // The dashboard reference states. The page's own interactions (the month menu
@@ -262,6 +317,22 @@ function initialState(scenario: string): MockState {
     state.language = reports.language;
     state.theme = reports.theme;
     state.screen = 'reports';
+    return state;
+  }
+
+  const settingsScenario = settingsScenarios[scenario];
+  if (settingsScenario !== undefined) {
+    openShell(state);
+    state.language = settingsScenario.language;
+    state.theme = settingsScenario.theme;
+    state.screen = 'settings';
+    // The reference window shows the top bar's profile menu, which appears
+    // once a second profile exists.
+    state.profiles = [
+      { name: 'Personal', slug: '', open: true },
+      { name: 'Business', slug: 'business', open: false },
+    ];
+    state.profileName = 'Personal';
     return state;
   }
 
@@ -417,6 +488,16 @@ export function createMockApi(scenario = scenarioName()): Api {
   const accounts = createMockAccounts(scenario, state.language);
   const transactions = createMockTransactions(scenario, state.language);
   const reports = new MockReports(scenario, state.language);
+  const settingsScenario = settingsScenarios[scenario];
+  const settings = createMockSettings({
+    language: state.language,
+    section: settingsScenario?.section ?? 0,
+    emptyCategories: settingsScenario?.emptyCategories ?? false,
+    categoryDialogFood: settingsScenario?.categoryDialogFood ?? false,
+    ruleDialogFood: settingsScenario?.ruleDialogFood ?? false,
+    ruleDialogPriority: scenario === 'settings-rule-dialog-en' ? '5' : undefined,
+    ruleImportPreview: settingsScenario?.ruleImportPreview ?? false,
+  });
   const banking = createMockBanking(scenario, state.language, {
     openAddBank: () => {
       accounts.openAddBank();
@@ -483,6 +564,8 @@ export function createMockApi(scenario = scenarioName()): Api {
     reportsStateCalls: 0,
     reportsCalls: [] as string[],
     reportsExportCalls: [] as string[],
+    settingsStateCalls: 0,
+    settingsLoadCalls: 0,
   };
   if (typeof window !== 'undefined') {
     (window as unknown as { __finglassMock?: typeof debug }).__finglassMock = debug;
@@ -710,6 +793,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       const next = publish();
       publishDashboard();
       reports.refresh();
+      settings.setLanguage(state.language);
       return next;
     },
     async setTheme(code: string) {
@@ -745,6 +829,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       return publish();
     },
     async manageProfiles() {
+      settings.setSection(1);
       state.screen = 'settings';
       state.backTitle = '';
       state.backScreen = '';
@@ -876,6 +961,8 @@ export function createMockApi(scenario = scenarioName()): Api {
       return openScreen('accounts');
     },
     async dashboardOpenSettings() {
+      // Rust's dashboard_open_settings opens the categories section.
+      settings.setSection(2);
       return openScreen('settings');
     },
     async dashboardOpenTax() {
@@ -1404,6 +1491,108 @@ export function createMockApi(scenario = scenarioName()): Api {
       publish();
       return Promise.resolve(reports.state());
     },
+    settingsState() {
+      debug.settingsStateCalls += 1;
+      return Promise.resolve(settings.state());
+    },
+    settingsLoad() {
+      debug.settingsLoadCalls += 1;
+      return Promise.resolve(settings.load());
+    },
+    settingsDismissMessage() {
+      return Promise.resolve(settings.dismissMessage());
+    },
+    settingsSetPrimaryCurrency(code: string) {
+      return Promise.resolve(settings.setPrimaryCurrency(code));
+    },
+    settingsAddDefaultCategories() {
+      return Promise.resolve(settings.addDefaultCategories());
+    },
+    settingsFixDuplicateColours() {
+      return Promise.resolve(settings.fixDuplicateColours());
+    },
+    settingsOpenAddCategory() {
+      return Promise.resolve(settings.openAddCategory());
+    },
+    settingsOpenEditCategory(id: number) {
+      return Promise.resolve(settings.openEditCategory(id));
+    },
+    settingsOpenDeleteCategory(id: number) {
+      return Promise.resolve(settings.openDeleteCategory(id));
+    },
+    settingsCategoryChanged(name: string, colour: string) {
+      return Promise.resolve(settings.categoryChanged(name, colour));
+    },
+    settingsSaveCategory(
+      name: string,
+      colour: string,
+      budget: string,
+      taxRelevant: boolean,
+      transfer: boolean,
+    ) {
+      return Promise.resolve(settings.saveCategory(name, colour, budget, taxRelevant, transfer));
+    },
+    settingsCloseCategoryDialog() {
+      return Promise.resolve(settings.closeCategoryDialog());
+    },
+    settingsConfirmDeleteCategory() {
+      return Promise.resolve(settings.confirmDeleteCategory());
+    },
+    settingsCancelDeleteCategory() {
+      return Promise.resolve(settings.cancelDeleteCategory());
+    },
+    settingsOpenAddRule() {
+      return Promise.resolve(settings.openAddRule());
+    },
+    settingsOpenEditRule(id: number) {
+      return Promise.resolve(settings.openEditRule(id));
+    },
+    settingsOpenDeleteRule(id: number) {
+      return Promise.resolve(settings.openDeleteRule(id));
+    },
+    settingsRuleChanged(pattern: string, priority: string) {
+      return Promise.resolve(settings.ruleChanged(pattern, priority));
+    },
+    settingsSaveRule(
+      pattern: string,
+      categoryIndex: number,
+      priority: string,
+      autoApply: boolean,
+      fieldIndex: number,
+      flow: number,
+      taxIndex: number,
+    ) {
+      return Promise.resolve(
+        settings.saveRule(pattern, categoryIndex, priority, autoApply, fieldIndex, flow, taxIndex),
+      );
+    },
+    settingsCloseRuleDialog() {
+      return Promise.resolve(settings.closeRuleDialog());
+    },
+    settingsConfirmDeleteRule() {
+      return Promise.resolve(settings.confirmDeleteRule());
+    },
+    settingsCancelDeleteRule() {
+      return Promise.resolve(settings.cancelDeleteRule());
+    },
+    settingsSaveTaxKeywords(text: string) {
+      return Promise.resolve(settings.saveTaxKeywords(text));
+    },
+    settingsResetTaxKeywords() {
+      return Promise.resolve(settings.resetTaxKeywords());
+    },
+    settingsExportRules() {
+      return Promise.resolve(settings.exportRules());
+    },
+    settingsImportRules() {
+      return Promise.resolve(settings.importRules());
+    },
+    settingsConfirmRuleImport(categorize: boolean) {
+      return Promise.resolve(settings.confirmRuleImport(categorize));
+    },
+    settingsCancelRuleImport() {
+      return Promise.resolve(settings.cancelRuleImport());
+    },
 
     onShellChanged(callback: (next: ShellDTO) => void) {
       shellListeners.add(callback);
@@ -1431,6 +1620,9 @@ export function createMockApi(scenario = scenarioName()): Api {
     },
     onReportsChanged(callback: (next: ReportsDTO) => void) {
       return reports.subscribe(callback);
+    },
+    onSettingsChanged(callback: (next: SettingsDTO) => void) {
+      return settings.subscribe(callback);
     },
   };
 
