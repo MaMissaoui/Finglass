@@ -9,6 +9,7 @@
   import SettingsPage from './pages/SettingsPage.svelte';
   import TransactionsPage from './pages/TransactionsPage.svelte';
   import ReportsPage from './pages/ReportsPage.svelte';
+  import DocumentsPage from './pages/DocumentsPage.svelte';
   import LanguageFlag from './LanguageFlag.svelte';
 
   let {
@@ -235,6 +236,8 @@
         <ReportsPage {api} {dto} />
       {:else if dto.screen === 'settings'}
         <SettingsPage {api} {dto} />
+      {:else if dto.screen === 'documents'}
+        <DocumentsPage {api} {dto} />
       {/if}
     </section>
 

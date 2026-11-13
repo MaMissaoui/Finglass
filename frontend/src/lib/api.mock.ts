@@ -4,6 +4,7 @@ import type {
   AccountsDTO,
   BankingDTO,
   DashboardDTO,
+  DocumentsDTO,
   PromptDTO,
   ShellDTO,
   TickPayload,
@@ -13,6 +14,7 @@ import type {
 } from './api';
 import { createMockAccounts } from './accounts.mock';
 import { createMockBanking } from './banking.mock';
+import { createMockDocuments } from './documents.mock';
 import { languageFromCode, translate, type Language } from './i18n';
 import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
 import { MockReports } from './reports.mock';
@@ -190,6 +192,30 @@ const settingsScenarios: Record<string, SettingsScenario> = {
   'settings-fr-light': { language: 'fr', theme: 'light', section: 0 },
 };
 
+// The Documents reference states. The page's own interactions (a selected row,
+// the delete dialog) are driven by the browser test; these scenarios choose the
+// reference state and the detail states the fake can serve.
+type DocumentsScenario = {
+  language: Language;
+  theme: string;
+};
+
+const documentsScenarios: Record<string, DocumentsScenario> = {
+  documents: { language: 'en', theme: 'light' },
+  'documents-en-light': { language: 'en', theme: 'light' },
+  'documents-de-light': { language: 'de', theme: 'light' },
+  'documents-de-dark': { language: 'de', theme: 'dark' },
+  'documents-empty-en': { language: 'en', theme: 'light' },
+  'documents-linked-en-light': { language: 'en', theme: 'light' },
+  'documents-candidates-en': { language: 'en', theme: 'light' },
+  'documents-uploading-en': { language: 'en', theme: 'light' },
+  'documents-message-en': { language: 'en', theme: 'light' },
+  'documents-error-en': { language: 'en', theme: 'light' },
+  'documents-ocr-unavailable-en': { language: 'en', theme: 'light' },
+  'documents-loading-en': { language: 'en', theme: 'light' },
+  'documents-no-match-en': { language: 'en', theme: 'light' },
+};
+
 // The dashboard reference states. The page's own interactions (the month menu
 // and a chart hover) are driven by the browser test, so those scenarios only
 // choose the same figures as the plain one.
@@ -333,6 +359,15 @@ function initialState(scenario: string): MockState {
       { name: 'Business', slug: 'business', open: false },
     ];
     state.profileName = 'Personal';
+    return state;
+  }
+
+  const documents = documentsScenarios[scenario];
+  if (documents !== undefined) {
+    openShell(state);
+    state.language = documents.language;
+    state.theme = documents.theme;
+    state.screen = 'documents';
     return state;
   }
 
@@ -498,6 +533,7 @@ export function createMockApi(scenario = scenarioName()): Api {
     ruleDialogPriority: scenario === 'settings-rule-dialog-en' ? '5' : undefined,
     ruleImportPreview: settingsScenario?.ruleImportPreview ?? false,
   });
+  const documents = createMockDocuments(scenario, state.language);
   const banking = createMockBanking(scenario, state.language, {
     openAddBank: () => {
       accounts.openAddBank();
@@ -566,6 +602,11 @@ export function createMockApi(scenario = scenarioName()): Api {
     reportsExportCalls: [] as string[],
     settingsStateCalls: 0,
     settingsLoadCalls: 0,
+    documentsStateCalls: 0,
+    documentsSearchCalls: [] as string[],
+    documentsLinkCalls: [] as number[],
+    documentsUploadCalls: 0,
+    documentsOpenCalls: 0,
   };
   if (typeof window !== 'undefined') {
     (window as unknown as { __finglassMock?: typeof debug }).__finglassMock = debug;
@@ -790,6 +831,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       banking.setLanguage(state.language);
       transactions.setLanguage(state.language);
       reports.setLanguage(state.language);
+      documents.setLanguage(state.language);
       const next = publish();
       publishDashboard();
       reports.refresh();
@@ -1593,6 +1635,50 @@ export function createMockApi(scenario = scenarioName()): Api {
     settingsCancelRuleImport() {
       return Promise.resolve(settings.cancelRuleImport());
     },
+    documentsState() {
+      debug.documentsStateCalls += 1;
+      return Promise.resolve(documents.state());
+    },
+    documentsSetTab(tab: string) {
+      return Promise.resolve(documents.setTab(tab));
+    },
+    documentsSearch(query: string) {
+      debug.documentsSearchCalls.push(query);
+      return Promise.resolve(documents.search(query));
+    },
+    documentsSelect(id: number) {
+      return Promise.resolve(documents.select(id));
+    },
+    documentsCloseDetail() {
+      return Promise.resolve(documents.closeDetail());
+    },
+    documentsCandidateQueryChanged(query: string) {
+      return Promise.resolve(documents.candidateQueryChanged(query));
+    },
+    documentsLink(transactionID: number) {
+      debug.documentsLinkCalls.push(transactionID);
+      return Promise.resolve(documents.link(transactionID));
+    },
+    documentsUnlink() {
+      return Promise.resolve(documents.unlink());
+    },
+    documentsReprocess() {
+      return Promise.resolve(documents.reprocess());
+    },
+    documentsConfirmDelete() {
+      return Promise.resolve(documents.confirmDelete());
+    },
+    documentsDismiss() {
+      return Promise.resolve(documents.dismiss());
+    },
+    documentsUpload() {
+      debug.documentsUploadCalls += 1;
+      return Promise.resolve(documents.upload());
+    },
+    documentsOpen() {
+      debug.documentsOpenCalls += 1;
+      return Promise.resolve(documents.open());
+    },
 
     onShellChanged(callback: (next: ShellDTO) => void) {
       shellListeners.add(callback);
@@ -1623,6 +1709,9 @@ export function createMockApi(scenario = scenarioName()): Api {
     },
     onSettingsChanged(callback: (next: SettingsDTO) => void) {
       return settings.subscribe(callback);
+    },
+    onDocumentsChanged(callback: (next: DocumentsDTO) => void) {
+      return documents.subscribe(callback);
     },
   };
 
