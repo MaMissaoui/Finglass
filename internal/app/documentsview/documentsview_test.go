@@ -12,6 +12,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/ocr"
+	"github.com/MaMissaoui/Finglass/internal/core/documents/service"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
@@ -414,5 +415,91 @@ func TestClearMessagesClearsTheErrorAndMessage(t *testing.T) {
 	}
 	if state.Message != nil {
 		t.Fatalf("message = %v, want nil", state.Message)
+	}
+}
+
+func TestCloneCopiesEverySliceAndPointedToField(t *testing.T) {
+	transactionID := model.TransactionID(7)
+	label := "Shop (2026-03-13)"
+	confidence := 88.0
+	ocrText := "SUMME 3,78"
+	errorText := "error"
+	message := "message"
+	taxOverride := false
+	categoryID := model.CategoryID(3)
+	partner := "Shop"
+
+	state := New(i18n.En, true)
+	state.Documents = []model.DocumentItem{{
+		ID:               1,
+		FileName:         "bon.png",
+		StoredPath:       "documents/bon.png",
+		MIMEType:         "image/png",
+		TransactionID:    &transactionID,
+		TransactionLabel: &label,
+		HasOCR:           true,
+		OCRConfidence:    &confidence,
+	}}
+	state.SelectedDocument = &state.Documents[0]
+	state.SelectedOCRText = &ocrText
+	state.Suggestions = []service.MatchSuggestion{{
+		Transaction: model.TransactionItem{
+			ID:             transactionID,
+			PartnerName:    &partner,
+			CategoryID:     &categoryID,
+			TaxOverride:    &taxOverride,
+			TaxRulePattern: &partner,
+		},
+		Score: 0.8,
+	}}
+	state.LinkCandidates = []model.TransactionItem{{
+		ID:          transactionID,
+		PartnerName: &partner,
+		Purpose:     &ocrText,
+	}}
+	state.Error = &errorText
+	state.Message = &message
+
+	cloned := state.Clone()
+	if cloned == state {
+		t.Fatal("Clone returned the same state pointer")
+	}
+
+	// Mutating the clone must not touch the original, and the other way round.
+	cloned.Documents[0].FileName = "changed.png"
+	*cloned.Documents[0].TransactionLabel = "changed"
+	*cloned.Documents[0].OCRConfidence = 10
+	cloned.SelectedDocument.FileName = "changed.png"
+	*cloned.SelectedOCRText = "changed"
+	cloned.Suggestions[0].Transaction.ID = 99
+	*cloned.Suggestions[0].Transaction.PartnerName = "changed"
+	*cloned.Suggestions[0].Transaction.CategoryID = 99
+	*cloned.Suggestions[0].Transaction.TaxOverride = true
+	*cloned.Suggestions[0].Transaction.TaxRulePattern = "changed"
+	cloned.LinkCandidates[0].ID = 99
+	*cloned.LinkCandidates[0].Purpose = "changed"
+	*cloned.Error = "changed"
+	*cloned.Message = "changed"
+
+	if state.Documents[0].FileName != "bon.png" ||
+		*state.Documents[0].TransactionLabel != label ||
+		*state.Documents[0].OCRConfidence != confidence {
+		t.Fatalf("the clone shares the document: %+v", state.Documents[0])
+	}
+	if state.SelectedDocument.FileName != "bon.png" || *state.SelectedOCRText != ocrText {
+		t.Fatalf("the clone shares the selection: %+v %q", state.SelectedDocument, *state.SelectedOCRText)
+	}
+	if state.Suggestions[0].Transaction.ID != transactionID ||
+		*state.Suggestions[0].Transaction.PartnerName != partner ||
+		*state.Suggestions[0].Transaction.CategoryID != categoryID ||
+		*state.Suggestions[0].Transaction.TaxOverride ||
+		*state.Suggestions[0].Transaction.TaxRulePattern != partner {
+		t.Fatalf("the clone shares the suggestion: %+v", state.Suggestions[0])
+	}
+	if state.LinkCandidates[0].ID != transactionID || *state.LinkCandidates[0].Purpose != ocrText {
+		t.Fatalf("the clone shares the candidate: %+v", state.LinkCandidates[0])
+	}
+	if *state.Error != errorText || *state.Message != message {
+		t.Fatalf("the clone shares the messages: %q %q", *state.Error, *state.Message)
 	}
 }

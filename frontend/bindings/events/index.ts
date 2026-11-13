@@ -34,6 +34,11 @@ export const BankingPrompt = "banking:prompt";
 export const DashboardChanged = "dashboard:changed";
 
 /**
+ * Name of the custom event "documents:changed".
+ */
+export const DocumentsChanged = "documents:changed";
+
+/**
  * Name of the custom event "menu:action".
  */
 export const MenuAction = "menu:action";

@@ -26,6 +26,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/documents/ocr"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/instance"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -154,6 +155,13 @@ type Session struct {
 	accountsWork    accountsview.Busy
 	documents       *documentsview.DocumentsState
 	transactions    *transactionsview.TransactionsView
+
+	documentsWork           accountsview.Busy
+	documentsPreview        documentsPreview
+	documentsCandidateQuery string
+	documentsStarted        bool
+	documentsEngine         ocr.Engine
+	documentsEngineFactory  func() ocr.Engine
 
 	reportsWork       accountsview.Busy
 	reportsTab        string
@@ -446,6 +454,7 @@ func newSession(
 	transactionsWork := accountsview.NewBusy()
 	reportsWork := accountsview.NewBusy()
 	settingsWork := accountsview.NewBusy()
+	documentsWork := accountsview.NewBusy()
 	transactions := transactionsview.New(language)
 	transactions.SetBusy(profileBusy)
 	rangeFrom, rangeTo := reportsDefaultRange(date)
@@ -474,6 +483,8 @@ func newSession(
 		screen:           "dashboard",
 		transactionsWork: transactionsWork,
 		reportsWork:      reportsWork,
+		documentsWork:    documentsWork,
+		documentsPreview: documentsPreview{Kind: "none"},
 		reportsTab:       "summary",
 		reportsRangeFrom: rangeFrom,
 		reportsRangeTo:   rangeTo,
@@ -874,6 +885,7 @@ func (s *Session) finishOpen(
 	s.resetReportsLocked()
 	s.documents = documentsview.New(loadedPrefs.Language, s.documents.IsOCRAvailable)
 	s.documents.SetProfile(startup.SlugKey(slug))
+	s.resetDocumentsPreviewLocked()
 	s.transactions = transactionsview.New(loadedPrefs.Language)
 	s.transactions.SetBusy(busy)
 	s.resetTransactionsAuxLocked()
@@ -1057,6 +1069,7 @@ func (s *Session) teardownLocked(prepared startup.Startup, oldGeneration uint64)
 	ocrAvailable := s.documents != nil && s.documents.IsOCRAvailable
 	s.documents = documentsview.New(s.language, ocrAvailable)
 	s.documents.SetProfile(startup.SlugKey(prepared.Slug))
+	s.resetDocumentsAuxLocked()
 	s.transactions = transactionsview.New(s.language)
 	s.transactions.SetBusy(busy)
 	s.resetTransactionsAuxLocked()
@@ -1132,6 +1145,7 @@ func (s *Session) ReloadAfterFindeskImport() (i18n.Language, bool) {
 	ocrAvailable := s.documents != nil && s.documents.IsOCRAvailable
 	s.documents = documentsview.New(loadedPrefs.Language, ocrAvailable)
 	s.documents.SetProfile(startup.SlugKey(slug))
+	s.resetDocumentsAuxLocked()
 	s.transactions = transactionsview.New(loadedPrefs.Language)
 	s.transactions.SetBusy(s.profileBusy)
 	s.resetTransactionsAuxLocked()
@@ -1252,6 +1266,8 @@ func (s *Session) openPageLocked(screen string, args PageArgs) *pageJob {
 		return s.beginAccountsLoadLocked()
 	case "transactions":
 		return s.beginTransactionsOpenLocked(args.Transactions)
+	case "documents":
+		return s.beginDocumentsOpenLocked()
 	case "reports":
 		s.reportsTab = "summary"
 		if args.ReportsYear != nil {
@@ -1281,6 +1297,7 @@ func (s *Session) resetDocumentsLocked() {
 	}
 	s.documents = documentsview.New(s.language, ocrAvailable)
 	s.documents.SetProfile(profile)
+	s.resetDocumentsAuxLocked()
 }
 
 // resetTransactionsLocked replaces the Transactions state with a fresh one,

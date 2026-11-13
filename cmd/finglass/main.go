@@ -45,6 +45,9 @@ var reportsService = bind.NewReports(nil, bind.ReportsOptions{})
 // settingsService is set from main once the shell service exists.
 var settingsService = bind.NewSettings(nil, bind.SettingsOptions{})
 
+// documentsService is set from main once the shell service exists.
+var documentsService = bind.NewDocuments(nil, bind.DocumentsOptions{})
+
 func main() {
 	// Finder may add its own arguments, so look for the flag instead of
 	// handing all of os.Args to flag.Parse.
@@ -104,6 +107,7 @@ func main() {
 	transactionsService = bind.NewTransactions(session, bind.TransactionsOptions{})
 	reportsService = bind.NewReports(session, bind.ReportsOptions{})
 	settingsService = bind.NewSettings(session, bind.SettingsOptions{})
+	documentsService = bind.NewDocuments(session, bind.DocumentsOptions{})
 
 	router := bind.NewRouter(session)
 	router.Register("dashboard", dashboardService)
@@ -113,6 +117,7 @@ func main() {
 	router.Register("transactions", transactionsService)
 	router.Register("reports", reportsService)
 	router.Register("settings", settingsService)
+	router.Register("documents", documentsService)
 	router.RegisterShell(shellService)
 
 	dist, err := fs.Sub(frontend.Dist, "dist")
@@ -172,6 +177,7 @@ func boundServices() []boundService {
 		{name: "Transactions", service: application.NewService(transactionsService)},
 		{name: "Reports", service: application.NewService(reportsService)},
 		{name: "Settings", service: application.NewService(settingsService)},
+		{name: "Documents", service: application.NewService(documentsService)},
 	}
 }
 
@@ -330,6 +336,13 @@ var expectedServices = []expectedService{
 		name: "Settings",
 		matches: func(instance any) bool {
 			_, ok := instance.(*bind.Settings)
+			return ok
+		},
+	},
+	{
+		name: "Documents",
+		matches: func(instance any) bool {
+			_, ok := instance.(*bind.Documents)
 			return ok
 		},
 	},
