@@ -39,7 +39,13 @@ const (
 //
 // Only the fields of the variant named by Kind are meaningful; the other fields
 // stay at their zero values.
+//
+// ID is the bridge's sequence number for this prompt. Every answer must carry
+// it: an answer meant for an earlier prompt of the same kind can then never
+// answer the next one. Rust has no such token; this is a deliberate deviation.
 type BankingPrompt struct {
+	// ID is the bridge's prompt sequence number.
+	ID uint64
 	// Kind says which Rust variant this prompt is.
 	Kind PromptKind
 
@@ -108,6 +114,7 @@ func (a *answer) wipe() {
 // CurrentInfo() again.
 type PromptBridge struct {
 	mu       sync.Mutex
+	nextID   uint64
 	prompt   *BankingPrompt
 	info     *string
 	answer   *answer
@@ -168,29 +175,31 @@ func (b *PromptBridge) ClearInfo() {
 //
 // The caller owns pin and may wipe it after the call; the bridge copies it into
 // a secret.Text and wipes that text unless it is handed to the waiting worker.
-func (b *PromptBridge) AnswerPin(pin []byte, remember bool) {
-	b.answerPinText(secret.NewText(pin), remember)
+// An answer whose id is not the open prompt's id is ignored.
+func (b *PromptBridge) AnswerPin(id uint64, pin []byte, remember bool) {
+	b.answerPinText(id, secret.NewText(pin), remember)
 }
 
 // answerPinText is the body of AnswerPin, split out so tests can hold the
 // secret.Text the bridge would have created and verify that it is wiped on every
 // discard path.
-func (b *PromptBridge) answerPinText(text *secret.Text, remember bool) {
+func (b *PromptBridge) answerPinText(id uint64, text *secret.Text, remember bool) {
 	if text == nil || text.Len() == 0 {
 		if text != nil {
 			text.Wipe()
 		}
-		b.answerIf(func(kind PromptKind) bool { return kind == Pin }, answer{kind: answerPin})
+		b.answerIf(id, func(kind PromptKind) bool { return kind == Pin }, answer{kind: answerPin})
 		return
 	}
 	entry := banksync.NewPinEntry(text, remember)
-	b.answerIf(func(kind PromptKind) bool { return kind == Pin }, answer{kind: answerPin, pin: &entry})
+	b.answerIf(id, func(kind PromptKind) bool { return kind == Pin }, answer{kind: answerPin, pin: &entry})
 }
 
 // AnswerChoice answers a TAN-procedure or TAN-medium prompt. A nil choice
-// cancels.
-func (b *PromptBridge) AnswerChoice(choice *string) {
+// cancels. An answer whose id is not the open prompt's id is ignored.
+func (b *PromptBridge) AnswerChoice(id uint64, choice *string) {
 	b.answerIf(
+		id,
 		func(kind PromptKind) bool { return kind == ChooseTanMethod || kind == ChooseTanMedium },
 		answer{kind: answerChoice, choice: choice},
 	)
@@ -200,24 +209,27 @@ func (b *PromptBridge) AnswerChoice(choice *string) {
 //
 // The caller owns tan and may wipe it after the call; the bridge copies it into
 // a secret.Text and wipes that text unless it is handed to the waiting worker.
-func (b *PromptBridge) AnswerTan(tan []byte) {
+// An answer whose id is not the open prompt's id is ignored.
+func (b *PromptBridge) AnswerTan(id uint64, tan []byte) {
 	var text *secret.Text
 	if tan != nil {
 		text = secret.NewText(tan)
 	}
-	b.answerTanText(text)
+	b.answerTanText(id, text)
 }
 
 // answerTanText is the body of AnswerTan, split out so tests can hold the
 // secret.Text the bridge would have created and verify that it is wiped on every
 // discard path.
-func (b *PromptBridge) answerTanText(text *secret.Text) {
-	b.answerIf(func(kind PromptKind) bool { return kind == Tan }, answer{kind: answerTan, tan: text})
+func (b *PromptBridge) answerTanText(id uint64, text *secret.Text) {
+	b.answerIf(id, func(kind PromptKind) bool { return kind == Tan }, answer{kind: answerTan, tan: text})
 }
 
-// AnswerDecoupled answers a decoupled-confirmation prompt.
-func (b *PromptBridge) AnswerDecoupled(confirmed bool) {
+// AnswerDecoupled answers a decoupled-confirmation prompt. An answer whose id is
+// not the open prompt's id is ignored.
+func (b *PromptBridge) AnswerDecoupled(id uint64, confirmed bool) {
 	b.answerIf(
+		id,
 		func(kind PromptKind) bool { return kind == Decoupled },
 		answer{kind: answerDecoupled, decoupled: confirmed},
 	)
@@ -246,11 +258,11 @@ func (b *PromptBridge) CancelPending() {
 	}
 }
 
-// answerIf sets an answer only when the open prompt is of the expected kind;
-// otherwise the answer's secret is wiped and the answer is ignored.
-func (b *PromptBridge) answerIf(matches func(PromptKind) bool, value answer) {
+// answerIf sets an answer only when the open prompt has the expected id and
+// kind; otherwise the answer's secret is wiped and the answer is ignored.
+func (b *PromptBridge) answerIf(id uint64, matches func(PromptKind) bool, value answer) {
 	b.mu.Lock()
-	if b.closed || b.prompt == nil || !matches(b.prompt.Kind) {
+	if b.closed || b.prompt == nil || b.prompt.ID != id || !matches(b.prompt.Kind) {
 		b.mu.Unlock()
 		value.wipe()
 		return
@@ -277,6 +289,8 @@ func (b *PromptBridge) ask(prompt BankingPrompt) *answer {
 	}
 	previous := b.answer
 	b.answer = nil
+	b.nextID++
+	prompt.ID = b.nextID
 	published := clonePrompt(&prompt)
 	b.prompt = published
 	b.notifyLocked()

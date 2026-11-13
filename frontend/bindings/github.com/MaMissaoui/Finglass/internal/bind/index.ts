@@ -3,11 +3,13 @@
 
 import * as Accounts from "./accounts.js";
 import * as AppInfo from "./appinfo.js";
+import * as Banking from "./banking.js";
 import * as Dashboard from "./dashboard.js";
 import * as Shell from "./shell.js";
 export {
     Accounts,
     AppInfo,
+    Banking,
     Dashboard,
     Shell
 };
@@ -25,6 +27,10 @@ export {
     AccountsFigureDTO,
     AppInfoDTO,
     BankAccountRowDTO,
+    BankMenuItemDTO,
+    BankingBankDTO,
+    BankingDTO,
+    BankingPromptChoiceDTO,
     DashboardBudgetRowDTO,
     DashboardCategoryRowDTO,
     DashboardDTO,
@@ -33,6 +39,7 @@ export {
     DashboardTransactionRowDTO,
     DashboardUpcomingRowDTO,
     ProfileDTO,
+    PromptDTO,
     ShellDTO,
     TickPayload
 } from "./models.js";

@@ -246,8 +246,8 @@ export class AccountTypeChoiceDTO {
 }
 
 /**
- * AccountsBankCardDTO is one bank card. G8b-2 adds the online-banking fields
- * (sync state, menu, PIN) to this struct.
+ * AccountsBankCardDTO is one bank card, including the online-banking fields
+ * Rust's banking::bank_cards sets (sync state, menu, PIN).
  */
 export class AccountsBankCardDTO {
     "bankId": number;
@@ -259,6 +259,12 @@ export class AccountsBankCardDTO {
     "accountCountText": string;
     "totals": AccountAmountDTO[];
     "accounts": BankAccountRowDTO[];
+    "syncing": boolean;
+    "syncStep": string;
+    "syncEnabled": boolean;
+    "syncTooltip": string;
+    "pinText": string;
+    "menu": BankMenuItemDTO[];
     "logo": string;
     "logoLetters": string;
     "logoColour": number;
@@ -292,6 +298,24 @@ export class AccountsBankCardDTO {
         if (!("accounts" in $$source)) {
             this["accounts"] = [];
         }
+        if (!("syncing" in $$source)) {
+            this["syncing"] = false;
+        }
+        if (!("syncStep" in $$source)) {
+            this["syncStep"] = "";
+        }
+        if (!("syncEnabled" in $$source)) {
+            this["syncEnabled"] = false;
+        }
+        if (!("syncTooltip" in $$source)) {
+            this["syncTooltip"] = "";
+        }
+        if (!("pinText" in $$source)) {
+            this["pinText"] = "";
+        }
+        if (!("menu" in $$source)) {
+            this["menu"] = [];
+        }
         if (!("logo" in $$source)) {
             this["logo"] = "";
         }
@@ -311,12 +335,16 @@ export class AccountsBankCardDTO {
     static createFrom($$source: any = {}): AccountsBankCardDTO {
         const $$createField7_0 = $$createType1;
         const $$createField8_0 = $$createType3;
+        const $$createField14_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("totals" in $$parsedSource) {
             $$parsedSource["totals"] = $$createField7_0($$parsedSource["totals"]);
         }
         if ("accounts" in $$parsedSource) {
             $$parsedSource["accounts"] = $$createField8_0($$parsedSource["accounts"]);
+        }
+        if ("menu" in $$parsedSource) {
+            $$parsedSource["menu"] = $$createField14_0($$parsedSource["menu"]);
         }
         return new AccountsBankCardDTO($$parsedSource as Partial<AccountsBankCardDTO>);
     }
@@ -473,16 +501,16 @@ export class AccountsDTO {
      * Creates a new AccountsDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): AccountsDTO {
-        const $$createField5_0 = $$createType5;
-        const $$createField6_0 = $$createType7;
-        const $$createField7_0 = $$createType9;
-        const $$createField8_0 = $$createType11;
-        const $$createField11_0 = $$createType13;
-        const $$createField12_0 = $$createType14;
-        const $$createField13_0 = $$createType16;
-        const $$createField14_0 = $$createType14;
-        const $$createField15_0 = $$createType17;
-        const $$createField33_0 = $$createType19;
+        const $$createField5_0 = $$createType7;
+        const $$createField6_0 = $$createType9;
+        const $$createField7_0 = $$createType11;
+        const $$createField8_0 = $$createType13;
+        const $$createField11_0 = $$createType15;
+        const $$createField12_0 = $$createType16;
+        const $$createField13_0 = $$createType18;
+        const $$createField14_0 = $$createType16;
+        const $$createField15_0 = $$createType19;
+        const $$createField33_0 = $$createType21;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("figures" in $$parsedSource) {
             $$parsedSource["figures"] = $$createField5_0($$parsedSource["figures"]);
@@ -533,6 +561,15 @@ export class AccountsDialogDTO {
     "offline": boolean;
     "bankId": number;
     "accountId": number;
+    "connectionName": string;
+    "connectionBlz": string;
+    "connectionUserId": string;
+    "connectionServerUrl": string;
+    "connectionHasPin": boolean;
+    "connectionPinText": string;
+    "connectionSyncing": boolean;
+    "historyDate": string;
+    "historyHasStart": boolean;
 
     /** Creates a new AccountsDialogDTO instance. */
     constructor($$source: Partial<AccountsDialogDTO> = {}) {
@@ -568,6 +605,33 @@ export class AccountsDialogDTO {
         }
         if (!("accountId" in $$source)) {
             this["accountId"] = 0;
+        }
+        if (!("connectionName" in $$source)) {
+            this["connectionName"] = "";
+        }
+        if (!("connectionBlz" in $$source)) {
+            this["connectionBlz"] = "";
+        }
+        if (!("connectionUserId" in $$source)) {
+            this["connectionUserId"] = "";
+        }
+        if (!("connectionServerUrl" in $$source)) {
+            this["connectionServerUrl"] = "";
+        }
+        if (!("connectionHasPin" in $$source)) {
+            this["connectionHasPin"] = false;
+        }
+        if (!("connectionPinText" in $$source)) {
+            this["connectionPinText"] = "";
+        }
+        if (!("connectionSyncing" in $$source)) {
+            this["connectionSyncing"] = false;
+        }
+        if (!("historyDate" in $$source)) {
+            this["historyDate"] = "";
+        }
+        if (!("historyHasStart" in $$source)) {
+            this["historyHasStart"] = false;
         }
 
         Object.assign(this, $$source);
@@ -711,6 +775,216 @@ export class BankAccountRowDTO {
     static createFrom($$source: any = {}): BankAccountRowDTO {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new BankAccountRowDTO($$parsedSource as Partial<BankAccountRowDTO>);
+    }
+}
+
+/**
+ * BankMenuItemDTO is one entry of a bank card's menu.
+ */
+export class BankMenuItemDTO {
+    "action": string;
+    "label": string;
+    "checked": boolean;
+    "danger": boolean;
+    "enabled": boolean;
+    "icon": string;
+
+    /** Creates a new BankMenuItemDTO instance. */
+    constructor($$source: Partial<BankMenuItemDTO> = {}) {
+        if (!("action" in $$source)) {
+            this["action"] = "";
+        }
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("checked" in $$source)) {
+            this["checked"] = false;
+        }
+        if (!("danger" in $$source)) {
+            this["danger"] = false;
+        }
+        if (!("enabled" in $$source)) {
+            this["enabled"] = false;
+        }
+        if (!("icon" in $$source)) {
+            this["icon"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BankMenuItemDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BankMenuItemDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BankMenuItemDTO($$parsedSource as Partial<BankMenuItemDTO>);
+    }
+}
+
+/**
+ * BankingBankDTO is one bank's online-banking fields, as bank_cards and
+ * bank_menu build them for the page.
+ */
+export class BankingBankDTO {
+    "bankId": number;
+    "syncing": boolean;
+    "syncStep": string;
+    "syncEnabled": boolean;
+    "syncTooltip": string;
+    "pinText": string;
+    "menu": BankMenuItemDTO[];
+
+    /** Creates a new BankingBankDTO instance. */
+    constructor($$source: Partial<BankingBankDTO> = {}) {
+        if (!("bankId" in $$source)) {
+            this["bankId"] = 0;
+        }
+        if (!("syncing" in $$source)) {
+            this["syncing"] = false;
+        }
+        if (!("syncStep" in $$source)) {
+            this["syncStep"] = "";
+        }
+        if (!("syncEnabled" in $$source)) {
+            this["syncEnabled"] = false;
+        }
+        if (!("syncTooltip" in $$source)) {
+            this["syncTooltip"] = "";
+        }
+        if (!("pinText" in $$source)) {
+            this["pinText"] = "";
+        }
+        if (!("menu" in $$source)) {
+            this["menu"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BankingBankDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BankingBankDTO {
+        const $$createField6_0 = $$createType5;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("menu" in $$parsedSource) {
+            $$parsedSource["menu"] = $$createField6_0($$parsedSource["menu"]);
+        }
+        return new BankingBankDTO($$parsedSource as Partial<BankingBankDTO>);
+    }
+}
+
+/**
+ * BankingDTO is everything the banking part of the Accounts page shows, as
+ * apply_props, publish, sync_all_* and online_sync_note set it.
+ */
+export class BankingDTO {
+    "errorText": string;
+    "messageText": string;
+    "busy": boolean;
+    "syncing": boolean;
+    "syncBankId": number;
+    "syncStep": string;
+    "syncAllText": string;
+    "syncAllVisible": boolean;
+    "syncAllEnabled": boolean;
+    "syncControlsVisible": boolean;
+    "onlineSyncAvailable": boolean;
+    "canRememberPin": boolean;
+    "onlineSyncNote": string;
+    "banks": BankingBankDTO[];
+    "infoText": string;
+
+    /** Creates a new BankingDTO instance. */
+    constructor($$source: Partial<BankingDTO> = {}) {
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("messageText" in $$source)) {
+            this["messageText"] = "";
+        }
+        if (!("busy" in $$source)) {
+            this["busy"] = false;
+        }
+        if (!("syncing" in $$source)) {
+            this["syncing"] = false;
+        }
+        if (!("syncBankId" in $$source)) {
+            this["syncBankId"] = 0;
+        }
+        if (!("syncStep" in $$source)) {
+            this["syncStep"] = "";
+        }
+        if (!("syncAllText" in $$source)) {
+            this["syncAllText"] = "";
+        }
+        if (!("syncAllVisible" in $$source)) {
+            this["syncAllVisible"] = false;
+        }
+        if (!("syncAllEnabled" in $$source)) {
+            this["syncAllEnabled"] = false;
+        }
+        if (!("syncControlsVisible" in $$source)) {
+            this["syncControlsVisible"] = false;
+        }
+        if (!("onlineSyncAvailable" in $$source)) {
+            this["onlineSyncAvailable"] = false;
+        }
+        if (!("canRememberPin" in $$source)) {
+            this["canRememberPin"] = false;
+        }
+        if (!("onlineSyncNote" in $$source)) {
+            this["onlineSyncNote"] = "";
+        }
+        if (!("banks" in $$source)) {
+            this["banks"] = [];
+        }
+        if (!("infoText" in $$source)) {
+            this["infoText"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BankingDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BankingDTO {
+        const $$createField13_0 = $$createType23;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("banks" in $$parsedSource) {
+            $$parsedSource["banks"] = $$createField13_0($$parsedSource["banks"]);
+        }
+        return new BankingDTO($$parsedSource as Partial<BankingDTO>);
+    }
+}
+
+/**
+ * BankingPromptChoiceDTO is one choice in a TAN-procedure or TAN-medium prompt.
+ */
+export class BankingPromptChoiceDTO {
+    "id": string;
+    "label": string;
+
+    /** Creates a new BankingPromptChoiceDTO instance. */
+    constructor($$source: Partial<BankingPromptChoiceDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BankingPromptChoiceDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BankingPromptChoiceDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BankingPromptChoiceDTO($$parsedSource as Partial<BankingPromptChoiceDTO>);
     }
 }
 
@@ -1038,15 +1312,15 @@ export class DashboardDTO {
      * Creates a new DashboardDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): DashboardDTO {
-        const $$createField4_0 = $$createType14;
-        const $$createField14_0 = $$createType21;
-        const $$createField22_0 = $$createType14;
-        const $$createField26_0 = $$createType23;
-        const $$createField33_0 = $$createType25;
-        const $$createField38_0 = $$createType27;
-        const $$createField44_0 = $$createType23;
-        const $$createField46_0 = $$createType29;
-        const $$createField50_0 = $$createType31;
+        const $$createField4_0 = $$createType16;
+        const $$createField14_0 = $$createType25;
+        const $$createField22_0 = $$createType16;
+        const $$createField26_0 = $$createType27;
+        const $$createField33_0 = $$createType29;
+        const $$createField38_0 = $$createType31;
+        const $$createField44_0 = $$createType27;
+        const $$createField46_0 = $$createType33;
+        const $$createField50_0 = $$createType35;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("monthOptions" in $$parsedSource) {
             $$parsedSource["monthOptions"] = $$createField4_0($$parsedSource["monthOptions"]);
@@ -1288,6 +1562,83 @@ export class ProfileDTO {
 }
 
 /**
+ * PromptDTO is the UI model of one open banking prompt, without any answer.
+ * 
+ * It carries only what Rust's prompt_view shows (plus the bridge's sequence id,
+ * a deliberate deviation from Rust): kind, titles, the PIN prompt's bank name
+ * and user id, the choice list, the TAN challenge and flicker note, and the
+ * decoded challenge image as a data: URL. No field ever holds a PIN or a TAN.
+ */
+export class PromptDTO {
+    "id": number;
+    "kind": string;
+    "title": string;
+    "text": string;
+    "label": string;
+    "bankName": string;
+    "userId": string;
+    "rememberVisible": boolean;
+    "choices": BankingPromptChoiceDTO[];
+    "challenge": string;
+    "flickerNote": string;
+    "imageUrl": string;
+
+    /** Creates a new PromptDTO instance. */
+    constructor($$source: Partial<PromptDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("text" in $$source)) {
+            this["text"] = "";
+        }
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("bankName" in $$source)) {
+            this["bankName"] = "";
+        }
+        if (!("userId" in $$source)) {
+            this["userId"] = "";
+        }
+        if (!("rememberVisible" in $$source)) {
+            this["rememberVisible"] = false;
+        }
+        if (!("choices" in $$source)) {
+            this["choices"] = [];
+        }
+        if (!("challenge" in $$source)) {
+            this["challenge"] = "";
+        }
+        if (!("flickerNote" in $$source)) {
+            this["flickerNote"] = "";
+        }
+        if (!("imageUrl" in $$source)) {
+            this["imageUrl"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PromptDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): PromptDTO {
+        const $$createField8_0 = $$createType37;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("choices" in $$parsedSource) {
+            $$parsedSource["choices"] = $$createField8_0($$parsedSource["choices"]);
+        }
+        return new PromptDTO($$parsedSource as Partial<PromptDTO>);
+    }
+}
+
+/**
  * ShellDTO is everything the unlock view and the main shell show.
  * 
  * It never carries a passphrase or any other secret.
@@ -1432,10 +1783,10 @@ export class ShellDTO {
      * Creates a new ShellDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ShellDTO {
-        const $$createField9_0 = $$createType14;
-        const $$createField18_0 = $$createType33;
-        const $$createField23_0 = $$createType14;
-        const $$createField29_0 = $$createType14;
+        const $$createField9_0 = $$createType16;
+        const $$createField18_0 = $$createType39;
+        const $$createField23_0 = $$createType16;
+        const $$createField29_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("leftoverLines" in $$parsedSource) {
             $$parsedSource["leftoverLines"] = $$createField9_0($$parsedSource["leftoverLines"]);
@@ -1482,33 +1833,39 @@ const $$createType0 = AccountAmountDTO.createFrom;
 const $$createType1 = $Create.Array($$createType0);
 const $$createType2 = BankAccountRowDTO.createFrom;
 const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = AccountsFigureDTO.createFrom;
+const $$createType4 = BankMenuItemDTO.createFrom;
 const $$createType5 = $Create.Array($$createType4);
-const $$createType6 = AccountsBankCardDTO.createFrom;
+const $$createType6 = AccountsFigureDTO.createFrom;
 const $$createType7 = $Create.Array($$createType6);
-const $$createType8 = AccountPanelRowDTO.createFrom;
+const $$createType8 = AccountsBankCardDTO.createFrom;
 const $$createType9 = $Create.Array($$createType8);
-const $$createType10 = AccountGroupChoiceDTO.createFrom;
+const $$createType10 = AccountPanelRowDTO.createFrom;
 const $$createType11 = $Create.Array($$createType10);
-const $$createType12 = AccountTypeChoiceDTO.createFrom;
+const $$createType12 = AccountGroupChoiceDTO.createFrom;
 const $$createType13 = $Create.Array($$createType12);
-const $$createType14 = $Create.Array($Create.Any);
-const $$createType15 = AccountDaysChoiceDTO.createFrom;
-const $$createType16 = $Create.Array($$createType15);
-const $$createType17 = AccountsDialogDTO.createFrom;
-const $$createType18 = AccountDetailRowDTO.createFrom;
-const $$createType19 = $Create.Array($$createType18);
-const $$createType20 = DashboardStatementLineDTO.createFrom;
+const $$createType14 = AccountTypeChoiceDTO.createFrom;
+const $$createType15 = $Create.Array($$createType14);
+const $$createType16 = $Create.Array($Create.Any);
+const $$createType17 = AccountDaysChoiceDTO.createFrom;
+const $$createType18 = $Create.Array($$createType17);
+const $$createType19 = AccountsDialogDTO.createFrom;
+const $$createType20 = AccountDetailRowDTO.createFrom;
 const $$createType21 = $Create.Array($$createType20);
-const $$createType22 = DashboardCategoryRowDTO.createFrom;
+const $$createType22 = BankingBankDTO.createFrom;
 const $$createType23 = $Create.Array($$createType22);
-const $$createType24 = DashboardMonthBarDTO.createFrom;
+const $$createType24 = DashboardStatementLineDTO.createFrom;
 const $$createType25 = $Create.Array($$createType24);
-const $$createType26 = DashboardBudgetRowDTO.createFrom;
+const $$createType26 = DashboardCategoryRowDTO.createFrom;
 const $$createType27 = $Create.Array($$createType26);
-const $$createType28 = DashboardUpcomingRowDTO.createFrom;
+const $$createType28 = DashboardMonthBarDTO.createFrom;
 const $$createType29 = $Create.Array($$createType28);
-const $$createType30 = DashboardTransactionRowDTO.createFrom;
+const $$createType30 = DashboardBudgetRowDTO.createFrom;
 const $$createType31 = $Create.Array($$createType30);
-const $$createType32 = ProfileDTO.createFrom;
+const $$createType32 = DashboardUpcomingRowDTO.createFrom;
 const $$createType33 = $Create.Array($$createType32);
+const $$createType34 = DashboardTransactionRowDTO.createFrom;
+const $$createType35 = $Create.Array($$createType34);
+const $$createType36 = BankingPromptChoiceDTO.createFrom;
+const $$createType37 = $Create.Array($$createType36);
+const $$createType38 = ProfileDTO.createFrom;
+const $$createType39 = $Create.Array($$createType38);

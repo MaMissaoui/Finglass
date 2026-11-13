@@ -12,6 +12,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/app/accountpanel"
 	"github.com/MaMissaoui/Finglass/internal/app/accountsview"
+	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/core/accountgrouping"
 	"github.com/MaMissaoui/Finglass/internal/core/accountids"
@@ -74,8 +75,8 @@ type BankAccountRowDTO struct {
 	LogoColour  int    `json:"logoColour"`
 }
 
-// AccountsBankCardDTO is one bank card. G8b-2 adds the online-banking fields
-// (sync state, menu, PIN) to this struct.
+// AccountsBankCardDTO is one bank card, including the online-banking fields
+// Rust's banking::bank_cards sets (sync state, menu, PIN).
 type AccountsBankCardDTO struct {
 	BankID           int                 `json:"bankId"`
 	Name             string              `json:"name"`
@@ -86,6 +87,12 @@ type AccountsBankCardDTO struct {
 	AccountCountText string              `json:"accountCountText"`
 	Totals           []AccountAmountDTO  `json:"totals"`
 	Accounts         []BankAccountRowDTO `json:"accounts"`
+	Syncing          bool                `json:"syncing"`
+	SyncStep         string              `json:"syncStep"`
+	SyncEnabled      bool                `json:"syncEnabled"`
+	SyncTooltip      string              `json:"syncTooltip"`
+	PinText          string              `json:"pinText"`
+	Menu             []BankMenuItemDTO   `json:"menu"`
 	Logo             string              `json:"logo"`
 	LogoLetters      string              `json:"logoLetters"`
 	LogoColour       int                 `json:"logoColour"`
@@ -151,6 +158,16 @@ type AccountsDialogDTO struct {
 	Offline      bool   `json:"offline"`
 	BankID       int    `json:"bankId"`
 	AccountID    int    `json:"accountId"`
+
+	ConnectionName      string `json:"connectionName"`
+	ConnectionBLZ       string `json:"connectionBlz"`
+	ConnectionUserID    string `json:"connectionUserId"`
+	ConnectionServerURL string `json:"connectionServerUrl"`
+	ConnectionHasPin    bool   `json:"connectionHasPin"`
+	ConnectionPinText   string `json:"connectionPinText"`
+	ConnectionSyncing   bool   `json:"connectionSyncing"`
+	HistoryDate         string `json:"historyDate"`
+	HistoryHasStart     bool   `json:"historyHasStart"`
 }
 
 // AccountsDTO is everything the Accounts page shows.
@@ -415,10 +432,18 @@ func (a *Accounts) snapshot() AccountsDTO {
 	if a.session == nil {
 		return AccountsDTO{}
 	}
-	return accountsDTO(a.session.AccountsState(), a.session.AccountsDialog())
+	return accountsDTO(
+		a.session.AccountsState(),
+		a.session.AccountsDialog(),
+		a.session.BankingState(),
+	)
 }
 
-func accountsDTO(state accountsview.AccountsState, dialog shell.AccountsDialogState) AccountsDTO {
+func accountsDTO(
+	state accountsview.AccountsState,
+	dialog shell.AccountsDialogState,
+	bankingState bankingcore.BankingState,
+) AccountsDTO {
 	language := state.Language
 	hasContent := len(state.BankAccesses) > 0 || len(state.Accounts) > 0
 	dto := AccountsDTO{
@@ -426,7 +451,7 @@ func accountsDTO(state accountsview.AccountsState, dialog shell.AccountsDialogSt
 		ShowContent:   state.IsLoading || hasContent,
 		HasContent:    hasContent,
 		Figures:       accountsFigures(state, language),
-		BankCards:     accountsBankCards(state, language),
+		BankCards:     accountsBankCards(state, bankingState, language),
 		PanelRows:     accountsPanelRows(state, language),
 		GroupChoices:  accountsGroupChoices(state),
 		FilterText:    state.AccountFilterText,
@@ -436,17 +461,26 @@ func accountsDTO(state accountsview.AccountsState, dialog shell.AccountsDialogSt
 		DaysChoices:   accountsDaysChoices(language),
 		DayLabels:     accountsDayLabels(language),
 		Dialog: AccountsDialogDTO{
-			Kind:         dialog.Kind,
-			Title:        dialog.Title,
-			Text:         dialog.Text,
-			ErrorText:    dialog.ErrorText,
-			AccountLabel: dialog.AccountLabel,
-			AccountName:  dialog.AccountName,
-			Balance:      dialog.Balance,
-			AccountType:  dialog.AccountType,
-			Offline:      dialog.Offline,
-			BankID:       dialog.BankID,
-			AccountID:    dialog.AccountID,
+			Kind:                dialog.Kind,
+			Title:               dialog.Title,
+			Text:                dialog.Text,
+			ErrorText:           dialog.ErrorText,
+			AccountLabel:        dialog.AccountLabel,
+			AccountName:         dialog.AccountName,
+			Balance:             dialog.Balance,
+			AccountType:         dialog.AccountType,
+			Offline:             dialog.Offline,
+			BankID:              dialog.BankID,
+			AccountID:           dialog.AccountID,
+			ConnectionName:      dialog.ConnectionName,
+			ConnectionBLZ:       dialog.ConnectionBLZ,
+			ConnectionUserID:    dialog.ConnectionUserID,
+			ConnectionServerURL: dialog.ConnectionServerURL,
+			ConnectionHasPin:    dialog.ConnectionHasPin,
+			ConnectionPinText:   dialog.ConnectionPinText,
+			ConnectionSyncing:   dialog.ConnectionSyncing,
+			HistoryDate:         dialog.HistoryDate,
+			HistoryHasStart:     dialog.HistoryHasStart,
 		},
 	}
 	if state.Error != nil {
@@ -454,6 +488,14 @@ func accountsDTO(state accountsview.AccountsState, dialog shell.AccountsDialogSt
 	}
 	if state.Message != nil {
 		dto.MessageText = *state.Message
+	}
+	// Banking errors and messages take the page's one banner; keep the accounts
+	// texts when the banking state is quiet (Rust's apply_props).
+	if bankingState.Error != nil {
+		dto.ErrorText = *bankingState.Error
+	}
+	if bankingState.Message != nil {
+		dto.MessageText = *bankingState.Message
 	}
 	accountsApplyDetail(&dto, state, language)
 	return dto
@@ -557,7 +599,11 @@ func accountsAmounts(
 	return rows
 }
 
-func accountsBankCards(state accountsview.AccountsState, language i18n.Language) []AccountsBankCardDTO {
+func accountsBankCards(
+	state accountsview.AccountsState,
+	bankingState bankingcore.BankingState,
+	language i18n.Language,
+) []AccountsBankCardDTO {
 	cards := make([]AccountsBankCardDTO, 0, len(state.BankAccesses)+1)
 	for _, bank := range state.BankAccesses {
 		accounts := make([]accountsview.AccountItem, 0)
@@ -566,9 +612,11 @@ func accountsBankCards(state accountsview.AccountsState, language i18n.Language)
 				accounts = append(accounts, account)
 			}
 		}
-		cards = append(cards, accountsBankCard(state, bank.ID, bank.BankName, bank.BLZ, bank.BIC,
+		card := accountsBankCard(state, bank.ID, bank.BankName, bank.BLZ, bank.BIC,
 			accountsBankSubtitle(bank, language), accountsCentralBLZHint(bank, language),
-			bank.Offline, accountsCollapsedBank(state, bank.ID), accounts, language))
+			bank.Offline, accountsCollapsedBank(state, bank.ID), accounts, language)
+		applyBankingCard(&card, &bankingState, state.Busy.Active(), language)
+		cards = append(cards, card)
 	}
 
 	withoutBank := make([]accountsview.AccountItem, 0)
@@ -578,7 +626,7 @@ func accountsBankCards(state accountsview.AccountsState, language i18n.Language)
 		}
 	}
 	if len(withoutBank) > 0 {
-		cards = append(cards, accountsBankCard(
+		card := accountsBankCard(
 			state,
 			-1,
 			i18n.Text(language, i18n.AccountsWithoutBank),
@@ -590,9 +638,41 @@ func accountsBankCards(state accountsview.AccountsState, language i18n.Language)
 			false,
 			withoutBank,
 			language,
-		))
+		)
+		applyBankingCard(&card, &bankingState, state.Busy.Active(), language)
+		cards = append(cards, card)
 	}
 	return cards
+}
+
+// applyBankingCard fills the online fields Rust's banking::bank_cards sets. A
+// card without a banking bank keeps the accounts defaults and an empty menu.
+func applyBankingCard(
+	card *AccountsBankCardDTO,
+	bankingState *bankingcore.BankingState,
+	accountsBusy bool,
+	language i18n.Language,
+) {
+	bank := bankingBankForCard(bankingState, card.BankID)
+	if bank == nil {
+		card.Menu = []BankMenuItemDTO{}
+		return
+	}
+	card.Syncing = bankingState.SyncingBank != nil && *bankingState.SyncingBank == bank.ID
+	card.SyncStep = bankSyncStep(bankingState, language)
+	card.SyncEnabled = shell.OnlineSyncAvailable && !bankingState.IsSyncing()
+	card.SyncTooltip = bankSyncTooltip(language)
+	card.PinText = bankPinText(bank, bankingState, language)
+	card.Menu = bankMenu(bank, bankingState, accountsBusy, language)
+}
+
+func bankingBankForCard(state *bankingcore.BankingState, bankID int) *bankingcore.BankItem {
+	for index := range state.Banks {
+		if int64(state.Banks[index].ID) == int64(bankID) {
+			return &state.Banks[index]
+		}
+	}
+	return nil
 }
 
 func accountsBankCard(
@@ -638,6 +718,8 @@ func accountsBankCard(
 		AccountCountText: i18n.Format(language, i18n.AccountCount, i18n.Int(int64(len(accounts)))),
 		Totals:           accountsAmounts(totals, groupingAccounts, language, false),
 		Accounts:         rows,
+		SyncEnabled:      true,
+		Menu:             []BankMenuItemDTO{},
 		Logo:             badge.Logo,
 		LogoLetters:      badge.Letters,
 		LogoColour:       badge.Colour,

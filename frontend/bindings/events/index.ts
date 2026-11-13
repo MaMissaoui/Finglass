@@ -19,6 +19,16 @@ export const AccountsChanged = "accounts:changed";
 export const AppinfoTick = "appinfo:tick";
 
 /**
+ * Name of the custom event "banking:changed".
+ */
+export const BankingChanged = "banking:changed";
+
+/**
+ * Name of the custom event "banking:prompt".
+ */
+export const BankingPrompt = "banking:prompt";
+
+/**
  * Name of the custom event "dashboard:changed".
  */
 export const DashboardChanged = "dashboard:changed";

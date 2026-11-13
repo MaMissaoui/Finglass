@@ -6,9 +6,11 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/app/accountpanel"
 	"github.com/MaMissaoui/Finglass/internal/app/accountsview"
+	"github.com/MaMissaoui/Finglass/internal/app/banking"
 	"github.com/MaMissaoui/Finglass/internal/app/transactionsview"
 	"github.com/MaMissaoui/Finglass/internal/core/accountgrouping"
 	"github.com/MaMissaoui/Finglass/internal/core/accountids"
+	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -42,6 +44,24 @@ type AccountsDialogState struct {
 	BankID int
 	// AccountID is the account the balance, rename or delete dialog is about.
 	AccountID int
+	// ConnectionName is the connection dialog's name field.
+	ConnectionName string
+	// ConnectionBLZ is the connection dialog's bank code.
+	ConnectionBLZ string
+	// ConnectionUserID is the connection dialog's online-banking user id.
+	ConnectionUserID string
+	// ConnectionServerURL is the connection dialog's FinTS server URL.
+	ConnectionServerURL string
+	// ConnectionHasPin says whether the connection has a remembered PIN.
+	ConnectionHasPin bool
+	// ConnectionPinText explains the remembered-PIN state.
+	ConnectionPinText string
+	// ConnectionSyncing says whether this bank is syncing now.
+	ConnectionSyncing bool
+	// HistoryDate is the history-from dialog's date field.
+	HistoryDate string
+	// HistoryHasStart says whether the bank already has a stored history start.
+	HistoryHasStart bool
 }
 
 // AccountsState returns a deep copy of the Accounts page state.
@@ -111,6 +131,23 @@ func (s *Session) beginAccountsJobLocked(
 	if loading {
 		pending.IsLoading = true
 	}
+
+	// Rust refreshes the banking state in the same worker as an Accounts load,
+	// then merges only the fresh bank list into the live state so a sync that
+	// was claimed meanwhile keeps its spinner and progress.
+	var (
+		bankingPending *banking.BankingState
+		bankingService *banksync.BankingService
+	)
+	if loading && s.banking != nil {
+		candidate := s.banking.Clone()
+		candidate.Language = s.language
+		if service, ok := s.bankingServiceLocked(s.language); ok {
+			bankingPending = candidate
+			bankingService = service
+		}
+	}
+
 	// The published loading/action state is a copy: the worker mutates pending
 	// without the session mutex, exactly as the Dashboard's job does.
 	published := pending.Clone()
@@ -122,14 +159,35 @@ func (s *Session) beginAccountsJobLocked(
 		generation: generation,
 		request:    request,
 		database:   database,
+		also:       "banking",
 		load: func(ctx context.Context, open *db.Database) {
 			// Rust's BusyGuard ends the busy section when the worker returns,
 			// before the event-loop publish.
 			defer busy.End()
 			work(&pending, open)
+			if bankingPending != nil {
+				_ = bankingPending.Refresh(ctx, open, bankingService)
+			}
 		},
 		publish: func() {
+			// The free-text filter is UI-only and actions never change it. A
+			// filter change may have happened while the worker ran, as the
+			// event loop would have serialized in Rust; the live text wins over
+			// the snapshot's.
+			pending.AccountFilterText = s.accounts.AccountFilterText
 			s.accounts = &pending
+		},
+		publishExtra: func() {
+			if loading {
+				if bankingPending == nil || s.banking == nil {
+					return
+				}
+				s.banking.Language = bankingPending.Language
+				s.banking.Banks = append([]banking.BankItem(nil), bankingPending.Banks...)
+				s.banking.CanRememberPin = bankingPending.CanRememberPin
+				return
+			}
+			s.mergeBanksLocked(&pending)
 		},
 	}
 }
@@ -143,9 +201,13 @@ func (s *Session) resetAccountsDialogLocked() {
 func (s *Session) AccountsOpenAddBank() {
 	s.mu.Lock()
 	s.accounts.ClearMessages()
+	if s.banking != nil {
+		s.banking.ClearMessages()
+	}
 	s.accountsDialog = AccountsDialogState{Kind: "add-bank"}
 	s.mu.Unlock()
 	s.notify(Change{Page: "accounts"})
+	s.notify(Change{Page: "banking"})
 }
 
 // AccountsCloseDialog closes the current dialog and clears its error.
@@ -409,14 +471,24 @@ func (s *Session) AccountsConfirmDeleteBank(bankID int) {
 		offline = bank.Offline
 	}
 	s.closeAccountsDialogLocked()
-	var job *pageJob
+	var (
+		job        *pageJob
+		bankingRun *bankingJob
+	)
 	if offline {
 		job = s.beginAccountsActionLocked(func(pending *accountsview.AccountsState, database *db.Database) {
 			_ = pending.DeleteBankAccess(context.Background(), database, model.BankConnectionID(bankID))
 		})
+	} else {
+		// Online banks belong to the banking service, which also clears the
+		// remembered PIN and the stored FinTS registration.
+		if !s.refuseBankingIfSyncingLocked() {
+			bankingRun = s.beginDeleteOnlineBankLocked(bankID)
+		}
 	}
 	s.mu.Unlock()
 	s.startPageJob(job)
+	s.startBankingJob(bankingRun)
 }
 
 // AccountsOpenDetail opens the detail view with FinDesk's default window.
@@ -467,8 +539,12 @@ func (s *Session) AccountsFilterChanged(text string) {
 func (s *Session) AccountsDismissMessage() {
 	s.mu.Lock()
 	s.accounts.ClearMessages()
+	if s.banking != nil {
+		s.banking.ClearMessages()
+	}
 	s.mu.Unlock()
 	s.notify(Change{Page: "accounts"})
+	s.notify(Change{Page: "banking"})
 }
 
 // AccountsSelect selects an account, group or all accounts in the shared panel.
