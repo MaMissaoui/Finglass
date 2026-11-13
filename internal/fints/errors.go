@@ -58,6 +58,8 @@ var (
 	errTooManySegments         = errors.New("fints: too many segments")
 	errEmptyIBAN               = errors.New("fints: IBAN must not be empty")
 	errEmptyBIC                = errors.New("fints: BIC must not be empty")
+	errEmptyAccountNumber      = errors.New("fints: account number must not be empty")
+	errEmptyBLZ                = errors.New("fints: BLZ must not be empty")
 	errUnknownTanReference     = errors.New("fints: unknown HKTAN segment reference")
 	errInvalidDate             = errors.New("fints: invalid date")
 	errInvalidMaxEntries       = errors.New("fints: max entries must not be negative")

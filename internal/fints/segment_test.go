@@ -15,14 +15,25 @@ const (
 	camtFormat053 = "urn:iso:std:iso:20022:tech:xsd:camt.053.001.02"
 )
 
+// testAccount is the invented account used by the account-form wire tests.
+func testAccount() Account {
+	return Account{
+		IBAN:          testIBAN,
+		BIC:           testBIC,
+		AccountNumber: "1234567",
+		SubAccount:    "",
+		BLZ:           testBLZ,
+	}
+}
+
 func TestSegmentFormattingShowsNoContent(t *testing.T) {
-	segment := NewHKSAL(7, testIBAN, testBIC, nil)
+	segment := NewHKSAL(7, testAccount(), nil)
 	for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q", "%x"} {
 		got := fmt.Sprintf(format, segment)
 		if !strings.Contains(got, "HKSAL") {
 			t.Fatalf("%s = %q, want the segment type", format, got)
 		}
-		for _, forbidden := range []string{testIBAN, testBIC} {
+		for _, forbidden := range []string{testIBAN, testBIC, "1234567"} {
 			if strings.Contains(got, forbidden) {
 				t.Fatalf("%s of Segment leaked %q: %q", format, forbidden, got)
 			}
@@ -31,7 +42,7 @@ func TestSegmentFormattingShowsNoContent(t *testing.T) {
 }
 
 func TestKTIProducesTwoDataElements(t *testing.T) {
-	segment := NewHKSAL(7, testIBAN, testBIC, nil)
+	segment := NewHKSAL(7, testAccount(), nil)
 	if len(segment.degs) < 2 {
 		t.Fatalf("HKSAL has %d groups, want at least 2", len(segment.degs))
 	}
@@ -48,60 +59,171 @@ func TestKTIProducesTwoDataElements(t *testing.T) {
 }
 
 func TestKTISerializesAsIBANColonBIC(t *testing.T) {
-	wire := segmentWire(t, NewHKSAL(7, testIBAN, testBIC, nil), 3)
+	wire := segmentWire(t, NewHKSAL(7, testAccount(), nil), 3)
 	if wire != "HKSAL:3:7+DE00999999990000000001:TESTDEFFXXX+N'" {
 		t.Fatalf("HKSAL v7 wire = %q", wire)
 	}
 }
 
-func TestHKSALVersion7WireFormat(t *testing.T) {
-	got := segmentWire(t, NewHKSAL(7, testIBAN, testBIC, nil), 3)
-	if got != "HKSAL:3:7+DE00999999990000000001:TESTDEFFXXX+N'" {
-		t.Fatalf("wire = %q", got)
-	}
-}
+func TestHKSALAccountFormPerVersion(t *testing.T) {
+	withSubAccount := testAccount()
+	withSubAccount.SubAccount = "0001"
+	escapedAccountNumber := testAccount()
+	escapedAccountNumber.AccountNumber = "1234?567"
 
-func TestHKSALVersion5WireFormat(t *testing.T) {
-	got := segmentWire(t, NewHKSAL(5, testIBAN, testBIC, nil), 3)
-	if got != "HKSAL:3:5+DE00999999990000000001::280:TESTDEFFXXX+N'" {
-		t.Fatalf("wire = %q", got)
+	cases := []struct {
+		name    string
+		version uint16
+		account Account
+		want    string
+	}{
+		{
+			name:    "version 5 national",
+			version: 5,
+			account: testAccount(),
+			want:    "HKSAL:3:5+1234567::280:99999999+N'",
+		},
+		{
+			name:    "version 6 national",
+			version: 6,
+			account: testAccount(),
+			want:    "HKSAL:3:6+1234567::280:99999999+N'",
+		},
+		{
+			name:    "version 7 international",
+			version: 7,
+			account: testAccount(),
+			want:    "HKSAL:3:7+DE00999999990000000001:TESTDEFFXXX+N'",
+		},
+		{
+			name:    "version 6 with sub-account",
+			version: 6,
+			account: withSubAccount,
+			want:    "HKSAL:3:6+1234567:0001:280:99999999+N'",
+		},
+		{
+			name:    "version 6 escapes the account number",
+			version: 6,
+			account: escapedAccountNumber,
+			want:    "HKSAL:3:6+1234??567::280:99999999+N'",
+		},
+	}
+
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			got := segmentWire(t, NewHKSAL(testCase.version, testCase.account, nil), 3)
+			if got != testCase.want {
+				t.Fatalf("wire = %q\nwant %q", got, testCase.want)
+			}
+		})
 	}
 }
 
 func TestHKSALWithTouchdown(t *testing.T) {
 	touchdown := "TOUCH123"
-	got := segmentWire(t, NewHKSAL(7, testIBAN, testBIC, &touchdown), 3)
+	got := segmentWire(t, NewHKSAL(7, testAccount(), &touchdown), 3)
 	if got != "HKSAL:3:7+DE00999999990000000001:TESTDEFFXXX+N++TOUCH123'" {
 		t.Fatalf("wire = %q", got)
 	}
 }
 
-func TestHKKAZVersion7WireFormat(t *testing.T) {
-	start := Date{Year: 2025, Month: 3, Day: 29}
-	end := Date{Year: 2026, Month: 3, Day: 29}
-	got := segmentWire(t, NewHKKAZ(7, testIBAN, testBIC, start, end, nil), 3)
-	if got != "HKKAZ:3:7+DE00999999990000000001:TESTDEFFXXX+N+20250329+20260329'" {
-		t.Fatalf("wire = %q", got)
-	}
-}
-
-func TestHKKAZVersion5WireFormat(t *testing.T) {
-	start := Date{Year: 2025, Month: 3, Day: 29}
-	end := Date{Year: 2026, Month: 3, Day: 29}
-	got := segmentWire(t, NewHKKAZ(5, testIBAN, testBIC, start, end, nil), 3)
-	if got != "HKKAZ:3:5+DE00999999990000000001::280:TESTDEFFXXX+N+20250329+20260329'" {
-		t.Fatalf("wire = %q", got)
-	}
-}
-
-func TestHKKAZWithTouchdown(t *testing.T) {
+func TestHKKAZAccountFormPerVersion(t *testing.T) {
 	start := Date{Year: 2025, Month: 3, Day: 29}
 	end := Date{Year: 2026, Month: 3, Day: 29}
 	touchdown := "TOUCH123"
-	got := segmentWire(t, NewHKKAZ(7, testIBAN, testBIC, start, end, &touchdown), 3)
-	want := "HKKAZ:3:7+DE00999999990000000001:TESTDEFFXXX+N+20250329+20260329++TOUCH123'"
+	withSubAccount := testAccount()
+	withSubAccount.SubAccount = "0001"
+	escapedAccountNumber := testAccount()
+	escapedAccountNumber.AccountNumber = "1234?567"
+
+	cases := []struct {
+		name      string
+		version   uint16
+		account   Account
+		touchdown *string
+		want      string
+	}{
+		{
+			name:    "version 5 national",
+			version: 5,
+			account: testAccount(),
+			want:    "HKKAZ:3:5+1234567::280:99999999+N+20250329+20260329'",
+		},
+		{
+			name:    "version 6 national",
+			version: 6,
+			account: testAccount(),
+			want:    "HKKAZ:3:6+1234567::280:99999999+N+20250329+20260329'",
+		},
+		{
+			name:    "version 7 international",
+			version: 7,
+			account: testAccount(),
+			want:    "HKKAZ:3:7+DE00999999990000000001:TESTDEFFXXX+N+20250329+20260329'",
+		},
+		{
+			name:      "version 5 national with touchdown",
+			version:   5,
+			account:   testAccount(),
+			touchdown: &touchdown,
+			want:      "HKKAZ:3:5+1234567::280:99999999+N+20250329+20260329++TOUCH123'",
+		},
+		{
+			name:      "version 6 national with touchdown",
+			version:   6,
+			account:   testAccount(),
+			touchdown: &touchdown,
+			want:      "HKKAZ:3:6+1234567::280:99999999+N+20250329+20260329++TOUCH123'",
+		},
+		{
+			name:      "version 7 international with touchdown",
+			version:   7,
+			account:   testAccount(),
+			touchdown: &touchdown,
+			want:      "HKKAZ:3:7+DE00999999990000000001:TESTDEFFXXX+N+20250329+20260329++TOUCH123'",
+		},
+		{
+			name:    "version 6 with sub-account",
+			version: 6,
+			account: withSubAccount,
+			want:    "HKKAZ:3:6+1234567:0001:280:99999999+N+20250329+20260329'",
+		},
+		{
+			name:    "version 6 escapes the account number",
+			version: 6,
+			account: escapedAccountNumber,
+			want:    "HKKAZ:3:6+1234??567::280:99999999+N+20250329+20260329'",
+		},
+	}
+
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			got := segmentWire(t, NewHKKAZ(testCase.version, testCase.account, start, end, testCase.touchdown), 3)
+			if got != testCase.want {
+				t.Fatalf("wire = %q\nwant %q", got, testCase.want)
+			}
+		})
+	}
+}
+
+func TestHKCAZVersion1UsesKTI(t *testing.T) {
+	start := Date{Year: 2025, Month: 1, Day: 2}
+	end := Date{Year: 2025, Month: 1, Day: 31}
+	got := segmentWire(t, NewHKCAZ(
+		1,
+		testAccount(),
+		[]string{camtFormat052},
+		false,
+		start,
+		end,
+		nil,
+		nil,
+	), 3)
+	want := "HKCAZ:3:1+DE00999999990000000001:TESTDEFFXXX+" +
+		"urn?:iso?:std?:iso?:20022?:tech?:xsd?:camt.052.001.02" +
+		"+N+20250102+20250131'"
 	if got != want {
-		t.Fatalf("wire = %q", got)
+		t.Fatalf("wire = %q\nwant %q", got, want)
 	}
 }
 
@@ -111,8 +233,7 @@ func TestHKCAZWireFormat(t *testing.T) {
 	maxEntries := 100
 	got := segmentWire(t, NewHKCAZ(
 		7,
-		testIBAN,
-		testBIC,
+		testAccount(),
 		[]string{camtFormat052},
 		true,
 		start,
@@ -131,10 +252,11 @@ func TestHKCAZWireFormat(t *testing.T) {
 func TestHKCAZWithoutOptionalFields(t *testing.T) {
 	start := Date{Year: 2025, Month: 3, Day: 29}
 	end := Date{Year: 2026, Month: 3, Day: 29}
+	account := testAccount()
+	account.IBAN = testIBAN2
 	got := segmentWire(t, NewHKCAZ(
 		6,
-		testIBAN2,
-		testBIC,
+		account,
 		[]string{camtFormat053},
 		false,
 		start,
@@ -154,7 +276,7 @@ func TestHKCAZAcceptsSeveralFormats(t *testing.T) {
 	start := Date{Year: 2025, Month: 1, Day: 2}
 	end := Date{Year: 2025, Month: 1, Day: 31}
 	got := segmentWire(t, NewHKCAZ(
-		7, testIBAN, testBIC,
+		7, testAccount(),
 		[]string{camtFormat052, camtFormat053},
 		false, start, end, nil, nil,
 	), 3)
@@ -172,7 +294,7 @@ func TestHKCAZWithTouchdown(t *testing.T) {
 	end := Date{Year: 2025, Month: 1, Day: 31}
 	touchdown := "TOUCH123"
 	got := segmentWire(t, NewHKCAZ(
-		7, testIBAN, testBIC,
+		7, testAccount(),
 		[]string{camtFormat052},
 		true, start, end, nil, &touchdown,
 	), 3)
@@ -189,22 +311,26 @@ func TestHKCAZRejectsBadArguments(t *testing.T) {
 	end := Date{Year: 2025, Month: 1, Day: 31}
 	formats := []string{camtFormat052}
 	negative := -1
+	noIBAN := testAccount()
+	noIBAN.IBAN = ""
+	noBIC := testAccount()
+	noBIC.BIC = ""
 
 	encode := func(segment Segment) error {
 		_, err := appendOutgoingSegment(nil, segment, 3)
 		return err
 	}
 
-	if err := encode(NewHKCAZ(7, "", testBIC, formats, true, start, end, nil, nil)); !errors.Is(err, errEmptyIBAN) {
+	if err := encode(NewHKCAZ(7, noIBAN, formats, true, start, end, nil, nil)); !errors.Is(err, errEmptyIBAN) {
 		t.Fatalf("empty IBAN error = %v", err)
 	}
-	if err := encode(NewHKCAZ(7, testIBAN, "", formats, true, start, end, nil, nil)); !errors.Is(err, errEmptyBIC) {
+	if err := encode(NewHKCAZ(7, noBIC, formats, true, start, end, nil, nil)); !errors.Is(err, errEmptyBIC) {
 		t.Fatalf("empty BIC error = %v", err)
 	}
-	if err := encode(NewHKCAZ(7, testIBAN, testBIC, formats, true, Date{}, end, nil, nil)); !errors.Is(err, errInvalidDate) {
+	if err := encode(NewHKCAZ(7, testAccount(), formats, true, Date{}, end, nil, nil)); !errors.Is(err, errInvalidDate) {
 		t.Fatalf("invalid date error = %v", err)
 	}
-	if err := encode(NewHKCAZ(7, testIBAN, testBIC, formats, true, start, end, &negative, nil)); !errors.Is(err, errInvalidMaxEntries) {
+	if err := encode(NewHKCAZ(7, testAccount(), formats, true, start, end, &negative, nil)); !errors.Is(err, errInvalidMaxEntries) {
 		t.Fatalf("negative max entries error = %v", err)
 	}
 }
@@ -332,10 +458,63 @@ func TestHKSALRejectsEmptyAccountIdentifiers(t *testing.T) {
 		_, err := appendOutgoingSegment(nil, segment, 3)
 		return err
 	}
-	if err := encode(NewHKSAL(7, "", testBIC, nil)); !errors.Is(err, errEmptyIBAN) {
-		t.Fatalf("empty IBAN error = %v", err)
+
+	noIBAN := testAccount()
+	noIBAN.IBAN = ""
+	noBIC := testAccount()
+	noBIC.BIC = ""
+	noAccountNumber := testAccount()
+	noAccountNumber.AccountNumber = ""
+	noBLZ := testAccount()
+	noBLZ.BLZ = ""
+
+	emptyIBAN := encode(NewHKSAL(7, noIBAN, nil))
+	if !errors.Is(emptyIBAN, errEmptyIBAN) {
+		t.Fatalf("empty IBAN error = %v", emptyIBAN)
 	}
-	if err := encode(NewHKSAL(7, testIBAN, "", nil)); !errors.Is(err, errEmptyBIC) {
+	emptyBIC := encode(NewHKSAL(7, noBIC, nil))
+	if !errors.Is(emptyBIC, errEmptyBIC) {
+		t.Fatalf("empty BIC error = %v", emptyBIC)
+	}
+	emptyAccountNumber := encode(NewHKSAL(6, noAccountNumber, nil))
+	if !errors.Is(emptyAccountNumber, errEmptyAccountNumber) {
+		t.Fatalf("empty account number error = %v", emptyAccountNumber)
+	}
+	emptyBLZ := encode(NewHKSAL(6, noBLZ, nil))
+	if !errors.Is(emptyBLZ, errEmptyBLZ) {
+		t.Fatalf("empty BLZ error = %v", emptyBLZ)
+	}
+
+	for _, err := range []error{emptyIBAN, emptyBIC, emptyAccountNumber, emptyBLZ} {
+		for _, forbidden := range []string{testIBAN, "1234567"} {
+			if strings.Contains(err.Error(), forbidden) {
+				t.Fatalf("error %q leaked %q", err, forbidden)
+			}
+		}
+	}
+}
+
+func TestHKKAZRejectsEmptyAccountIdentifiers(t *testing.T) {
+	valid := Date{Year: 2025, Month: 3, Day: 29}
+	encode := func(segment Segment) error {
+		_, err := appendOutgoingSegment(nil, segment, 3)
+		return err
+	}
+
+	noAccountNumber := testAccount()
+	noAccountNumber.AccountNumber = ""
+	noBLZ := testAccount()
+	noBLZ.BLZ = ""
+	noBIC := testAccount()
+	noBIC.BIC = ""
+
+	if err := encode(NewHKKAZ(6, noAccountNumber, valid, valid, nil)); !errors.Is(err, errEmptyAccountNumber) {
+		t.Fatalf("empty account number error = %v", err)
+	}
+	if err := encode(NewHKKAZ(6, noBLZ, valid, valid, nil)); !errors.Is(err, errEmptyBLZ) {
+		t.Fatalf("empty BLZ error = %v", err)
+	}
+	if err := encode(NewHKKAZ(7, noBIC, valid, valid, nil)); !errors.Is(err, errEmptyBIC) {
 		t.Fatalf("empty BIC error = %v", err)
 	}
 }
@@ -346,10 +525,10 @@ func TestHKKAZRejectsBadDates(t *testing.T) {
 		_, err := appendOutgoingSegment(nil, segment, 3)
 		return err
 	}
-	if err := encode(NewHKKAZ(7, testIBAN, testBIC, Date{}, valid, nil)); !errors.Is(err, errInvalidDate) {
+	if err := encode(NewHKKAZ(7, testAccount(), Date{}, valid, nil)); !errors.Is(err, errInvalidDate) {
 		t.Fatalf("invalid start date error = %v", err)
 	}
-	if err := encode(NewHKKAZ(7, testIBAN, testBIC, valid, Date{Year: 2025, Month: 13, Day: 1}, nil)); !errors.Is(err, errInvalidDate) {
+	if err := encode(NewHKKAZ(7, testAccount(), valid, Date{Year: 2025, Month: 13, Day: 1}, nil)); !errors.Is(err, errInvalidDate) {
 		t.Fatalf("invalid end date error = %v", err)
 	}
 }

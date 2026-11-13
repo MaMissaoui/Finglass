@@ -146,15 +146,31 @@ func ktiGroup(iban, bic string) (DEG, error) {
 	return DEG{textElement(iban), textElement(bic)}, nil
 }
 
-// nationalAccountGroup is the pre-version-6 account form used by HKSAL and
-// HKKAZ: account number : sub-account : bank identifier : BIC.
-func nationalAccountGroup(iban, bic string) DEG {
-	return DEG{
-		valueElement(iban),
-		emptyElement(),
-		textElement("280"),
-		valueElement(bic),
+// nationalAccountForm is the pre-version-7 Kontoverbindung used by HKSAL and
+// HKKAZ: account number : sub-account : 280 : BLZ. The sub-account may be
+// empty; the account number and the BLZ are required.
+func nationalAccountForm(account Account) (DEG, error) {
+	if account.AccountNumber == "" {
+		return nil, errEmptyAccountNumber
 	}
+	if account.BLZ == "" {
+		return nil, errEmptyBLZ
+	}
+	return DEG{
+		valueElement(account.AccountNumber),
+		valueElement(account.SubAccount),
+		textElement("280"),
+		valueElement(account.BLZ),
+	}, nil
+}
+
+// accountGroupFor builds HKSAL's and HKKAZ's Kontoverbindung: the
+// international form (KTI) from version 7 on, the national form before.
+func accountGroupFor(version uint16, account Account) (DEG, error) {
+	if version >= 7 {
+		return ktiGroup(account.IBAN, account.BIC)
+	}
+	return nationalAccountForm(account)
 }
 
 func dateElement(date Date) DataElement {
@@ -285,21 +301,17 @@ func NewHKSPA(version uint16) Segment {
 
 // NewHKSAL builds HKSAL, a balance request for one account.
 //
-// Version 6 and later use the international account form (KTI: IBAN:BIC);
-// older versions use the national form. An empty IBAN or BIC is an error.
-func NewHKSAL(version uint16, iban, bic string, touchdown *string) Segment {
-	var account DEG
-	if version >= 6 {
-		international, err := ktiGroup(iban, bic)
-		if err != nil {
-			return Segment{err: err}
-		}
-		account = international
-	} else {
-		account = nationalAccountGroup(iban, bic)
+// Version 7 and later use the international account form (KTI: IBAN:BIC);
+// older versions use the national form (account number : sub-account : 280 :
+// BLZ). An empty IBAN or BIC is an error for the international form; an empty
+// account number or BLZ is an error for the national form.
+func NewHKSAL(version uint16, account Account, touchdown *string) Segment {
+	group, err := accountGroupFor(version, account)
+	if err != nil {
+		return Segment{err: err}
 	}
 
-	body := []DEG{account, DEG{textElement("N")}, DEG{emptyElement()}}
+	body := []DEG{group, DEG{textElement("N")}, DEG{emptyElement()}}
 	if touchdown != nil {
 		body = append(body, DEG{valueElement(*touchdown)})
 	}
@@ -307,24 +319,18 @@ func NewHKSAL(version uint16, iban, bic string, touchdown *string) Segment {
 }
 
 // NewHKKAZ builds HKKAZ, an MT940 statement request for one account.
-func NewHKKAZ(version uint16, iban, bic string, start, end Date, touchdown *string) Segment {
+func NewHKKAZ(version uint16, account Account, start, end Date, touchdown *string) Segment {
 	if !start.valid() || !end.valid() {
 		return Segment{err: errInvalidDate}
 	}
 
-	var account DEG
-	if version >= 6 {
-		international, err := ktiGroup(iban, bic)
-		if err != nil {
-			return Segment{err: err}
-		}
-		account = international
-	} else {
-		account = nationalAccountGroup(iban, bic)
+	group, err := accountGroupFor(version, account)
+	if err != nil {
+		return Segment{err: err}
 	}
 
 	body := []DEG{
-		account,
+		group,
 		DEG{textElement("N")},
 		DEG{dateElement(start)},
 		DEG{dateElement(end)},
@@ -338,12 +344,13 @@ func NewHKKAZ(version uint16, iban, bic string, start, end Date, touchdown *stri
 
 // NewHKCAZ builds HKCAZ, a camt statement request for one account.
 //
+// Every HKCAZ version uses the international account form (KTI: IBAN:BIC).
 // The accepted camt formats travel as one data element group, for example
 // "urn:iso:std:iso:20022:tech:xsd:camt.052.001.02". allAccounts is the
 // all-accounts flag (J/N). maxEntries and touchdown are optional.
 func NewHKCAZ(
 	version uint16,
-	iban, bic string,
+	account Account,
 	camtFormats []string,
 	allAccounts bool,
 	start, end Date,
@@ -353,7 +360,7 @@ func NewHKCAZ(
 	if !start.valid() || !end.valid() {
 		return Segment{err: errInvalidDate}
 	}
-	international, err := ktiGroup(iban, bic)
+	international, err := ktiGroup(account.IBAN, account.BIC)
 	if err != nil {
 		return Segment{err: err}
 	}

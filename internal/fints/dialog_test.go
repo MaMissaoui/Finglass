@@ -312,7 +312,7 @@ func TestDialogSendBeforeInitIsInvalid(t *testing.T) {
 	bank := newFakeBank(t)
 	dialog := newTestDialog(t, bank)
 
-	_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	_, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 	_ = assertDialogErrorKind(t, err, ErrorKindInvalidState)
 	if len(bank.records) != 0 {
 		t.Fatalf("an invalid transition sent %d exchanges", len(bank.records))
@@ -361,7 +361,7 @@ func TestDialogTransportErrorSendsHKEND(t *testing.T) {
 	if _, err := dialog.Init(context.Background()); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	_, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 	dialogError := assertDialogErrorKind(t, err, ErrorKindTransport)
 	for _, forbidden := range []string{testPIN, testIBAN, "Erika Musterfrau-Geheim"} {
 		for _, text := range []string{
@@ -397,7 +397,7 @@ func TestDialogMalformedResponse(t *testing.T) {
 	if _, err := dialog.Init(context.Background()); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	_, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 	_ = assertDialogErrorKind(t, err, ErrorKindProtocol)
 	bank.assertRequestsWiped(t)
 }
@@ -470,7 +470,7 @@ func TestEveryRequestUsesOnlyAllowedSegmentTypes(t *testing.T) {
 	if _, err := dialog.Init(context.Background()); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	if _, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil)); err != nil {
+	if _, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil)); err != nil {
 		t.Fatalf("Send: %v", err)
 	}
 
@@ -530,7 +530,7 @@ func TestDialogBankErrorCarriesOnlyCodes(t *testing.T) {
 	if _, err := dialog.Init(context.Background()); err != nil {
 		t.Fatalf("Init: %v", err)
 	}
-	_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	_, err := dialog.Send(context.Background(), NewHKSAL(7, Account{IBAN: testIBAN, BIC: testBIC}, nil))
 	dialogError := assertDialogErrorKind(t, err, ErrorKindBankError)
 	if len(dialogError.Codes) != 1 || dialogError.Codes[0] != "9010" {
 		t.Fatalf("codes = %v, want [9010]", dialogError.Codes)

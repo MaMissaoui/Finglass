@@ -100,7 +100,7 @@ func (w *Workflow) FetchBalance(ctx context.Context, account Account) (balance B
 	}
 
 	version := maxUint16(w.dialog.params.SupportedVersion(BusinessHKSAL, 7), 5)
-	segment := NewHKSAL(version, account.IBAN, account.BIC, nil)
+	segment := NewHKSAL(version, account, nil)
 	response, _, err := w.send(ctx, segment, true)
 	if err != nil {
 		return Balance{}, false, err
@@ -203,10 +203,10 @@ func (w *Workflow) statementSegment(
 	}
 	if useCamt {
 		version := w.dialog.params.SupportedVersion(BusinessHKCAZ, 7)
-		return NewHKCAZ(version, account.IBAN, account.BIC, []string{camtFormat}, false, from, to, nil, point)
+		return NewHKCAZ(version, account, []string{camtFormat}, false, from, to, nil, point)
 	}
 	version := maxUint16(w.dialog.params.SupportedVersion(BusinessHKKAZ, 7), 5)
-	return NewHKKAZ(version, account.IBAN, account.BIC, from, to, point)
+	return NewHKKAZ(version, account, from, to, point)
 }
 
 // ensureOpen completes a pending initial TAN and requires an open dialog.
