@@ -278,8 +278,10 @@ In order, each one compared with the G1 reference screenshots:
 - [ ] `internal/fints`: message codec, dialog init/end (HKIDN, HKVVB, HKSYN, HKEND), BPD/UPD caching, HKTAN (process
   4, decoupled app TAN and push), HKTAB, HKSPA, HKSAL, HKKAZ/HKCAZ (camt). Segment types exist only for these. A test
   checks that no order segment (`HKCCS`, `HKCSE`, `HKCDE`, …) can be built.
-  Progress: the wire codec, envelope and request builders (G10-1) are done; typed responses (G10-2), the dialog
-  and the TAN flow are next.
+  Progress: done are the wire codec, envelope and request builders (G10-1), typed responses (G10-2), the dialog,
+  bank parameters and TAN flow (G10-3: decoupled polling bounded, no HKEND after a PIN rejection) and the HTTPS
+  transport (`internal/fints/httptransport`, G10-4a: https only, no redirects, bounded response). The Go probe
+  (G10-5) is next, then the adapter (G10-4b).
 - [ ] Tests on synthetic and recorded fixtures only.
 - [x] Product id from a CI secret via `-ldflags -X`, never in the tree. A CI check confirms its value never appears.
   Without it, sync stays off.
