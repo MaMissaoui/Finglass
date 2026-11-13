@@ -96,6 +96,20 @@ func (f *fakeTransport) Exchange(_ context.Context, request []byte) ([]byte, err
 	return []byte(reply.body), nil
 }
 
+// captureTransport lets a test inspect one exchange before the fake bank
+// records and answers it.
+type captureTransport struct {
+	*fakeTransport
+	onExchange func(call int, request []byte)
+}
+
+func (c *captureTransport) Exchange(ctx context.Context, request []byte) ([]byte, error) {
+	if c.onExchange != nil {
+		c.onExchange(len(c.records), request)
+	}
+	return c.fakeTransport.Exchange(ctx, request)
+}
+
 func requestTypes(request []byte) ([]string, error) {
 	segments, err := flattenRequest(request)
 	if err != nil {
@@ -971,6 +985,81 @@ func TestRunSkipsDepotWithoutIBANThenProbesCurrentAccount(t *testing.T) {
 	}
 	if !strings.HasSuffix(output, "RESULT: GO") {
 		t.Fatalf("output does not end with GO:\n%s", output)
+	}
+	assertNoSecrets(t, output, false)
+}
+
+func TestRunSkipsAccountWithoutVersion6Identifiers(t *testing.T) {
+	bank := newFakeTransport(t)
+	terminal := &fakeTerminal{}
+	var hksalAccount []string
+	transport := &captureTransport{
+		fakeTransport: bank,
+		onExchange: func(_ int, request []byte) {
+			segments, err := flattenRequest(request)
+			if err != nil {
+				t.Fatalf("inspect request: %v", err)
+			}
+			for _, segment := range segments {
+				if segment.Type() != "HKSAL" {
+					continue
+				}
+				group := segment.DEG(1)
+				hksalAccount = make([]string, group.Len())
+				for index := range hksalAccount {
+					hksalAccount[index] = group.Text(index)
+				}
+			}
+		},
+	}
+
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKSAL"),
+		requestShape("HKKAZ"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		decoupledHitans(60, 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
+		hisals(6),
+		hikazs(6),
+		hiupdWithoutBIC(testIBAN, "", "EUR"),
+		hiupdWithoutBIC(testIBAN2, "00000002", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", ""),
+		hispaAccount(testIBAN2, "TESTDEFFXXX", "00000002"),
+	)))
+	bank.reply(executedResponse(testDialogID, hisalPayload()))
+	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
+	bank.reply(successResponse(testDialogID))
+
+	code := runProbe(t, transport, terminal, &fakeSleeper{}, 30)
+	if code != 0 {
+		t.Fatalf("exit code = %d, want 0", code)
+	}
+	output := terminal.output()
+	skipped := "IBAN DE****************0001 | skipped (no balance/statement access)"
+	if !strings.Contains(output, skipped) {
+		t.Fatalf("missing skipped line %q in:\n%s", skipped, output)
+	}
+	complete := "IBAN DE****************0002 | currency EUR | balance present | statements 3 bookings (2026-03-01..2026-03-15) MT940"
+	if !strings.Contains(output, complete) {
+		t.Fatalf("missing complete account line %q in:\n%s", complete, output)
+	}
+	if !strings.HasSuffix(output, "RESULT: GO") {
+		t.Fatalf("output does not end with GO:\n%s", output)
+	}
+	wantAccount := []string{"00000002", "", "280", testBLZ}
+	if fmt.Sprint(hksalAccount) != fmt.Sprint(wantAccount) {
+		t.Fatalf("HKSAL account group = %v, want %v", hksalAccount, wantAccount)
 	}
 	assertNoSecrets(t, output, false)
 }

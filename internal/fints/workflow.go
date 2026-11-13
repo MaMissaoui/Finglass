@@ -99,8 +99,7 @@ func (w *Workflow) FetchBalance(ctx context.Context, account Account) (balance B
 		return Balance{}, false, err
 	}
 
-	version := maxUint16(w.dialog.params.SupportedVersion(BusinessHKSAL, 7), 5)
-	segment := NewHKSAL(version, account, nil)
+	segment := NewHKSAL(w.hksalVersion(), account, nil)
 	response, _, err := w.send(ctx, segment, true)
 	if err != nil {
 		return Balance{}, false, err
@@ -108,6 +107,30 @@ func (w *Workflow) FetchBalance(ctx context.Context, account Account) (balance B
 
 	balance, ok = response.Balance()
 	return balance, ok, nil
+}
+
+// CanRequest reports whether the workflow can build both request segments that
+// FetchBalance and FetchStatements would send for account. It builds the HKSAL
+// segment and the first-page statement segment without sending them, using the
+// same version choices and camt decision as the real requests. It checks only
+// that the account carries the identifiers the bank's segment versions need; it
+// sends nothing.
+func (w *Workflow) CanRequest(account Account) bool {
+	if w == nil || w.dialog == nil {
+		return false
+	}
+	if NewHKSAL(w.hksalVersion(), account, nil).err != nil {
+		return false
+	}
+	camtFormat, useCamt := acceptedCamtFormat(w.dialog.params.CamtFormats)
+	date := Date{Year: 2000, Month: 1, Day: 1}
+	return w.statementSegment(account, date, date, "", camtFormat, useCamt).err == nil
+}
+
+// hksalVersion is the version that both FetchBalance and CanRequest build HKSAL
+// with.
+func (w *Workflow) hksalVersion() uint16 {
+	return maxUint16(w.dialog.params.SupportedVersion(BusinessHKSAL, 7), 5)
 }
 
 // FetchSEPAAccounts fetches the SEPA account connections with HKSPA, completing

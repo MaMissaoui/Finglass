@@ -177,7 +177,7 @@ func probeAccounts(
 	to := env.Today
 
 	for _, account := range dialog.Params().Accounts {
-		if skipAccount(account) {
+		if skipAccount(workflow, account) {
 			lines = append(lines, SkippedAccountLine(account.IBAN))
 			continue
 		}
@@ -215,26 +215,30 @@ func probeAccounts(
 }
 
 // skipAccount reports whether an account has no usable balance or statement
-// access. An empty allowed-transactions list means the bank did not restrict
-// the account.
-func skipAccount(account fints.Account) bool {
-	if account.IBAN == "" || account.BIC == "" {
+// access. An account without an IBAN is skipped because the summary line and
+// the app key accounts by IBAN. An empty allowed-transactions list means the
+// bank did not restrict the account. The workflow decides whether the account
+// carries the identifiers the bank's request versions need.
+func skipAccount(workflow *fints.Workflow, account fints.Account) bool {
+	if account.IBAN == "" {
 		return true
 	}
-	if len(account.AllowedBusinessTransactions) == 0 {
-		return false
-	}
-	hasBalance := false
-	hasStatement := false
-	for _, transaction := range account.AllowedBusinessTransactions {
-		switch transaction {
-		case "HKSAL":
-			hasBalance = true
-		case "HKKAZ", "HKCAZ":
-			hasStatement = true
+	if len(account.AllowedBusinessTransactions) > 0 {
+		hasBalance := false
+		hasStatement := false
+		for _, transaction := range account.AllowedBusinessTransactions {
+			switch transaction {
+			case "HKSAL":
+				hasBalance = true
+			case "HKKAZ", "HKCAZ":
+				hasStatement = true
+			}
+		}
+		if !hasBalance || !hasStatement {
+			return true
 		}
 	}
-	return !hasBalance || !hasStatement
+	return !workflow.CanRequest(account)
 }
 
 func fetchStatementState(
