@@ -1,12 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { AccountsDTO, Api, ShellDTO } from '../../lib/api';
-  import { Icon, MessageBanner, PrimaryButton } from '../../lib/components';
+  import type { AccountsDTO, Api, BankingDTO, PromptDTO, ShellDTO } from '../../lib/api';
+  import { Icon, MessageBanner, PrimaryButton, SecondaryButton } from '../../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../../lib/i18n';
   import AccountDetail from './AccountDetail.svelte';
   import AccountPanel from './AccountPanel.svelte';
+  import AccountsAddBankDialog from './AccountsAddBankDialog.svelte';
   import AccountsBankCard from './AccountsBankCard.svelte';
   import AccountsDialog from './AccountsDialog.svelte';
+  import BankingConnectionDialog from './BankingConnectionDialog.svelte';
+  import BankingHistoryDialog from './BankingHistoryDialog.svelte';
+  import BankingInfoBanner from './BankingInfoBanner.svelte';
+  import BankingPromptDialog from './BankingPromptDialog.svelte';
 
   let {
     api,
@@ -17,9 +22,13 @@
   } = $props();
 
   let accounts = $state<AccountsDTO | null>(null);
+  let banking = $state<BankingDTO | null>(null);
+  let prompt = $state<PromptDTO | null>(null);
   let loadFailed = $state(false);
 
   const language = $derived<Language>(languageFromCode(dto.language));
+  const pageErrorText = $derived(accounts?.errorText || banking?.errorText || '');
+  const pageMessageText = $derived(accounts?.messageText || banking?.messageText || '');
   const panelPreview = $derived(
     import.meta.env.MODE === 'mock' &&
       new URLSearchParams(window.location.search).get('scenario') === 'accounts-panel',
@@ -31,9 +40,19 @@
 
   onMount(() => {
     let disposed = false;
-    const stop = api.onAccountsChanged((next) => {
+    const stopAccounts = api.onAccountsChanged((next) => {
       if (!disposed) {
         accounts = next;
+      }
+    });
+    const stopBanking = api.onBankingChanged((next) => {
+      if (!disposed) {
+        banking = next;
+      }
+    });
+    const stopPrompt = api.onBankingPrompt((next) => {
+      if (!disposed) {
+        prompt = next;
       }
     });
 
@@ -50,9 +69,37 @@
         }
       });
 
+    void api
+      .bankingState()
+      .then((next) => {
+        if (!disposed) {
+          banking = next;
+        }
+      })
+      .catch(() => {
+        if (!disposed) {
+          loadFailed = true;
+        }
+      });
+
+    void api
+      .bankingPrompt()
+      .then((next) => {
+        if (!disposed) {
+          prompt = next;
+        }
+      })
+      .catch(() => {
+        if (!disposed) {
+          loadFailed = true;
+        }
+      });
+
     return () => {
       disposed = true;
-      stop();
+      stopAccounts();
+      stopBanking();
+      stopPrompt();
     };
   });
 
@@ -64,13 +111,63 @@
     }
   }
 
+  async function runBanking(action: () => Promise<BankingDTO>): Promise<void> {
+    try {
+      banking = await action();
+    } catch {
+      loadFailed = true;
+    }
+  }
+
+  async function answer(action: () => Promise<void>): Promise<void> {
+    try {
+      await action();
+    } catch {
+      loadFailed = true;
+    }
+  }
+
   function closeTopLayer(): void {
+    if (prompt !== null && prompt.kind !== '') {
+      cancelPrompt();
+      return;
+    }
     if (accounts?.dialog.kind !== '' && accounts !== null) {
       void run(() => api.accountsCloseDialog());
       return;
     }
     if (accounts?.detailOpen === true && accounts !== null) {
       void run(() => api.accountsCloseDetail());
+    }
+  }
+
+  function clearInfo(): void {
+    if (banking !== null) {
+      banking = { ...banking, infoText: '' };
+    }
+    void answer(() => api.bankingClearInfo());
+  }
+
+  function cancelPrompt(): void {
+    if (prompt === null) {
+      return;
+    }
+    const id = prompt.id;
+    switch (prompt.kind) {
+      case 'pin':
+        void answer(() => api.bankingCancelPin(id));
+        break;
+      case 'tan':
+        void answer(() => api.bankingCancelTan(id));
+        break;
+      case 'choice':
+        void answer(() => api.bankingCancelChoice(id));
+        break;
+      case 'decoupled':
+        void answer(() => api.bankingAnswerDecoupled(id, false));
+        break;
+      default:
+        break;
     }
   }
 
@@ -85,12 +182,24 @@
     void run(() => api.accountsToggleBank(bankID));
   }
 
-  function openAddAccount(bankID: number): void {
-    void run(() => api.accountsOpenAddAccount(bankID));
+  function openAddBank(): void {
+    void runBanking(() => api.bankingOpenAddBank());
   }
 
-  function openDeleteBank(bankID: number): void {
-    void run(() => api.accountsOpenDeleteBank(bankID));
+  function syncBank(bankID: number): void {
+    void runBanking(() => api.bankingStartSync(bankID));
+  }
+
+  function syncAll(): void {
+    void runBanking(() => api.bankingStartSyncAll());
+  }
+
+  function bankMenu(bankID: number, action: string): void {
+    void runBanking(() => api.bankingHandleBankMenu(bankID, action));
+  }
+
+  function openAddAccount(bankID: number): void {
+    void run(() => api.accountsOpenAddAccount(bankID));
   }
 
   function openDetail(accountID: number): void {
@@ -195,27 +304,51 @@
             </div>
           {/each}
         </div>
+
+        {#if banking !== null && banking.syncAllVisible && banking.syncControlsVisible}
+          <div class="sync-all">
+            {#if banking.syncAllText !== ''}
+              <span class="sync-status" role="status">
+                <span class="spinner" aria-hidden="true"></span>
+                <span>{banking.syncAllText}</span>
+              </span>
+            {:else}
+              <SecondaryButton
+                text={t('SyncAll')}
+                icon="refresh"
+                enabled={banking.syncAllEnabled}
+                tooltip={banking.onlineSyncNote}
+                onclick={syncAll}
+              />
+            {/if}
+          </div>
+        {/if}
+
         <PrimaryButton
           text={t('AddBank')}
           icon="add"
-          onclick={() => run(() => api.accountsOpenAddBank())}
+          enabled={banking === null || !banking.busy}
+          onclick={openAddBank}
         />
       </div>
     {/if}
 
-    {#if accounts.hasContent}
+    {#if banking !== null && banking.onlineSyncNote !== ''}
       <div class="note">
         <span class="note-icon"><Icon name="info" size={20} /></span>
-        <p>{t('OnlineSyncNotYetAvailable')}</p>
+        <p>{banking.onlineSyncNote}</p>
       </div>
     {/if}
 
-    {#if accounts.errorText !== '' || accounts.messageText !== ''}
+    {#if pageErrorText !== '' || pageMessageText !== ''}
       <MessageBanner
-        text={accounts.errorText !== '' ? accounts.errorText : accounts.messageText}
-        isError={accounts.errorText !== ''}
+        text={pageErrorText !== '' ? pageErrorText : pageMessageText}
+        isError={pageErrorText !== ''}
         dismissLabel={t('Dismiss')}
-        ondismiss={() => run(() => api.accountsDismissMessage())}
+        ondismiss={() => {
+          void run(() => api.accountsDismissMessage());
+          void runBanking(() => api.bankingClearMessages());
+        }}
       />
     {/if}
 
@@ -233,7 +366,8 @@
         <PrimaryButton
           text={t('AddBank')}
           icon="add"
-          onclick={() => run(() => api.accountsOpenAddBank())}
+          enabled={banking === null || !banking.busy}
+          onclick={openAddBank}
         />
       </div>
     {:else}
@@ -242,15 +376,17 @@
           <AccountsBankCard
             {card}
             {t}
+            syncControlsVisible={banking?.syncControlsVisible ?? false}
             onToggle={toggleBank}
+            onSync={syncBank}
             onAddAccount={openAddAccount}
-            onOpenDeleteBank={openDeleteBank}
             onOpenDetail={openDetail}
             onOpenTransactions={openTransactions}
             onOpenRename={openRename}
             onOpenBalance={openBalance}
             onForgetDeleted={forgetDeleted}
             onOpenDeleteAccount={openDeleteAccount}
+            onBankMenu={bankMenu}
           />
         {/each}
       </div>
@@ -258,30 +394,58 @@
 
     {#if accounts.dialog.kind !== ''}
       {#key `${accounts.dialog.kind}:${accounts.dialog.bankId}:${accounts.dialog.accountId}`}
-        <AccountsDialog
-          dialog={accounts.dialog}
-          typeChoices={accounts.typeChoices}
-          currencyCodes={accounts.currencyCodes}
-          {t}
-          onClose={() => run(() => api.accountsCloseDialog())}
-          onAddBank={(name) => run(() => api.accountsSubmitAddBank(name))}
-          onAddAccount={(bankID, name, identifier, accountType, currency, balance) =>
-            run(() =>
-              api.accountsSubmitAddAccount(
-                bankID,
-                name,
-                identifier,
-                accountType,
-                currency,
-                balance,
-              ),
-            )}
-          onBalance={(accountID, balance, accountType) =>
-            run(() => api.accountsSubmitBalance(accountID, balance, accountType))}
-          onRename={(accountID, name) => run(() => api.accountsSubmitRename(accountID, name))}
-          onDeleteAccount={(accountID) => run(() => api.accountsConfirmDeleteAccount(accountID))}
-          onDeleteBank={(bankID) => run(() => api.accountsConfirmDeleteBank(bankID))}
-        />
+        {#if accounts.dialog.kind === 'add-bank'}
+          <AccountsAddBankDialog
+            dialog={accounts.dialog}
+            {t}
+            onClose={() => run(() => api.accountsCloseDialog())}
+            onSubmitOffline={(name) => run(() => api.accountsSubmitAddBank(name))}
+            onSubmitOnline={(name, blz, bic, userID, serverURL) =>
+              runBanking(() => api.bankingSubmitAddOnlineBank(name, blz, bic, userID, serverURL))}
+          />
+        {:else if accounts.dialog.kind === 'connection'}
+          <BankingConnectionDialog
+            dialog={accounts.dialog}
+            {t}
+            onClose={() => run(() => api.accountsCloseDialog())}
+            onForgetPin={(bankID) => runBanking(() => api.bankingForgetPin(bankID))}
+            onSave={(bankID, name, blz, userID, serverURL) =>
+              runBanking(() => api.bankingSubmitConnection(bankID, name, blz, userID, serverURL))}
+          />
+        {:else if accounts.dialog.kind === 'history'}
+          <BankingHistoryDialog
+            dialog={accounts.dialog}
+            {t}
+            onClose={() => run(() => api.accountsCloseDialog())}
+            onClear={(bankID) => runBanking(() => api.bankingClearHistory(bankID))}
+            onFetch={(bankID, date) => runBanking(() => api.bankingSubmitHistory(bankID, date))}
+          />
+        {:else}
+          <AccountsDialog
+            dialog={accounts.dialog}
+            typeChoices={accounts.typeChoices}
+            currencyCodes={accounts.currencyCodes}
+            {t}
+            onClose={() => run(() => api.accountsCloseDialog())}
+            onAddBank={(name) => run(() => api.accountsSubmitAddBank(name))}
+            onAddAccount={(bankID, name, identifier, accountType, currency, balance) =>
+              run(() =>
+                api.accountsSubmitAddAccount(
+                  bankID,
+                  name,
+                  identifier,
+                  accountType,
+                  currency,
+                  balance,
+                ),
+              )}
+            onBalance={(accountID, balance, accountType) =>
+              run(() => api.accountsSubmitBalance(accountID, balance, accountType))}
+            onRename={(accountID, name) => run(() => api.accountsSubmitRename(accountID, name))}
+            onDeleteAccount={(accountID) => run(() => api.accountsConfirmDeleteAccount(accountID))}
+            onDeleteBank={(bankID) => run(() => api.accountsConfirmDeleteBank(bankID))}
+          />
+        {/if}
       {/key}
     {/if}
 
@@ -295,6 +459,27 @@
         onClose={() => run(() => api.accountsCloseDetail())}
         onRename={openRename}
       />
+    {/if}
+
+    {#if prompt !== null && prompt.kind !== ''}
+      {#key prompt.id}
+        <BankingPromptDialog
+          {prompt}
+          {t}
+          onAnswerPin={(id, pin, remember) => answer(() => api.bankingAnswerPin(id, pin, remember))}
+          onCancelPin={(id) => answer(() => api.bankingCancelPin(id))}
+          onAnswerTan={(id, tan) => answer(() => api.bankingAnswerTan(id, tan))}
+          onCancelTan={(id) => answer(() => api.bankingCancelTan(id))}
+          onAnswerChoice={(id, choice) => answer(() => api.bankingAnswerChoice(id, choice))}
+          onCancelChoice={(id) => answer(() => api.bankingCancelChoice(id))}
+          onAnswerDecoupled={(id, confirmed) =>
+            answer(() => api.bankingAnswerDecoupled(id, confirmed))}
+        />
+      {/key}
+    {/if}
+
+    {#if banking !== null && banking.infoText !== ''}
+      <BankingInfoBanner text={banking.infoText} {t} onClose={clearInfo} />
     {/if}
   {/if}
 </div>
@@ -330,6 +515,28 @@
     min-width: 0;
     align-items: flex-start;
     gap: 32px;
+  }
+
+  .sync-all {
+    display: flex;
+    flex: none;
+    align-items: center;
+  }
+
+  .sync-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-muted-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    white-space: nowrap;
+  }
+
+  .sync-status .spinner {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
   }
 
   .figure {

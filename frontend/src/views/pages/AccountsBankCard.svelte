@@ -3,38 +3,51 @@
     AccountsBankCardDTO,
     BankAccountRowDTO,
   } from '../../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
-  import { BankBadge, CountBadge, Icon, IconButton, TextButton } from '../../lib/components';
+  import {
+    BankBadge,
+    CountBadge,
+    Icon,
+    IconButton,
+    SecondaryButton,
+    TextButton,
+  } from '../../lib/components';
+  import type { IconName } from '../../lib/icons';
 
   let {
     card,
     t,
+    syncControlsVisible = false,
     onToggle,
+    onSync,
     onAddAccount,
-    onOpenDeleteBank,
     onOpenDetail,
     onOpenTransactions,
     onOpenRename,
     onOpenBalance,
     onForgetDeleted,
     onOpenDeleteAccount,
+    onBankMenu,
   }: {
     card: AccountsBankCardDTO;
     t: (key: string) => string;
+    syncControlsVisible?: boolean;
     onToggle: (bankID: number) => void;
+    onSync: (bankID: number) => void;
     onAddAccount: (bankID: number) => void;
-    onOpenDeleteBank: (bankID: number) => void;
     onOpenDetail: (accountID: number) => void;
     onOpenTransactions: (accountID: number) => void;
     onOpenRename: (accountID: number) => void;
     onOpenBalance: (accountID: number) => void;
     onForgetDeleted: (accountID: number) => void;
     onOpenDeleteAccount: (accountID: number) => void;
+    onBankMenu: (bankID: number, action: string) => void;
   } = $props();
 
   let bankMenuOpen = $state(false);
   let accountMenu = $state(-1);
 
   const hasBank = $derived(card.bankId >= 0);
+  const showSync = $derived(hasBank && !card.offline && !card.syncing && syncControlsVisible);
 
   function toneClass(tone: string): string {
     if (tone === 'negative') {
@@ -60,13 +73,9 @@
     accountMenu = accountMenu === accountID ? -1 : accountID;
   }
 
-  function chooseBankAction(action: 'add' | 'remove'): void {
+  function chooseBankAction(action: string): void {
     bankMenuOpen = false;
-    if (action === 'add') {
-      onAddAccount(card.bankId);
-    } else {
-      onOpenDeleteBank(card.bankId);
-    }
+    onBankMenu(card.bankId, action);
   }
 
   function chooseAccount(accountID: number, action: () => void): void {
@@ -128,6 +137,21 @@
     </div>
 
     <div class="bank-actions">
+      {#if card.syncing}
+        <span class="sync-status" data-testid={`bank-sync-${card.bankId}`}>
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="sync-step">{card.syncStep}</span>
+        </span>
+      {:else if showSync}
+        <SecondaryButton
+          text={t('Sync')}
+          icon="refresh"
+          enabled={card.syncEnabled}
+          tooltip={card.syncTooltip}
+          onclick={() => onSync(card.bankId)}
+        />
+      {/if}
+
       {#if hasBank}
         <TextButton
           text={t('AddAccountShort')}
@@ -141,26 +165,24 @@
           <IconButton icon="more_vert" label={t('More')} filled onclick={toggleBankMenu} />
           {#if bankMenuOpen}
             <div class="bank-menu" role="menu" aria-label={t('More')}>
-              <button
-                type="button"
-                role="menuitem"
-                class="menu-entry"
-                onclick={() => chooseBankAction('add')}
-              >
-                <span class="menu-icon"><Icon name="add" size={24} /></span>
-                <span class="menu-label">{t('AddAccountShort')}</span>
-              </button>
-              {#if card.offline}
+              {#each card.menu as item (item.action)}
                 <button
                   type="button"
-                  role="menuitem"
-                  class="menu-entry danger"
-                  onclick={() => chooseBankAction('remove')}
+                  role={item.action === 'include' ? 'menuitemcheckbox' : 'menuitem'}
+                  class="menu-entry"
+                  class:danger={item.danger}
+                  disabled={!item.enabled}
+                  aria-checked={item.action === 'include' ? item.checked : undefined}
+                  onclick={() => chooseBankAction(item.action)}
                 >
-                  <span class="menu-icon"><Icon name="delete" size={24} /></span>
-                  <span class="menu-label">{t('RemoveBank')}</span>
+                  <span class="menu-icon">
+                    {#if item.icon !== '' && (item.icon !== 'check' || item.checked)}
+                      <Icon name={item.icon as IconName} size={24} />
+                    {/if}
+                  </span>
+                  <span class="menu-label">{item.label}</span>
                 </button>
-              {/if}
+              {/each}
             </div>
           {/if}
         </div>
@@ -396,6 +418,37 @@
     gap: 8px;
   }
 
+  .sync-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px;
+    color: var(--color-muted-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    white-space: nowrap;
+  }
+
+  .sync-step {
+    display: inline-block;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-divider);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 900ms linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .menu-anchor {
     position: relative;
     display: inline-flex;
@@ -405,7 +458,7 @@
     position: absolute;
     z-index: 12;
     right: 0;
-    bottom: calc(100% + 4px);
+    top: 0;
     width: 300px;
     padding: 8px 0;
     border: 1px solid var(--color-divider);
@@ -431,11 +484,20 @@
     cursor: pointer;
   }
 
-  .menu-entry:hover {
+  .menu-entry:hover:not(:disabled) {
     background: var(--color-background);
   }
 
-  .menu-entry.danger {
+  .menu-entry:disabled {
+    color: var(--color-muted-text);
+    cursor: default;
+  }
+
+  .menu-entry:disabled .menu-icon {
+    opacity: 0.38;
+  }
+
+  .menu-entry.danger:not(:disabled) {
     color: var(--color-error);
   }
 

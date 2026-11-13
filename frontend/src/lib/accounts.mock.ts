@@ -9,6 +9,7 @@ import type {
   AccountsDTO,
   AccountsDialogDTO,
   AccountsFigureDTO,
+  BankingBankDTO,
   BankAccountRowDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
 import { balancePathGeometry, type BalancePoint } from './accountsPath';
@@ -79,6 +80,18 @@ interface MockDialog {
   connectionSyncing: boolean;
   historyDate: string;
   historyHasStart: boolean;
+}
+
+/** The dialog fields the banking fake opens through the accounts state. */
+export type MockBankingDialogFields = Partial<MockDialog> & { kind: string };
+
+/** One bank as the banking fake needs it to build its menus. */
+export interface MockBankSnapshot {
+  id: number;
+  name: string;
+  offline: boolean;
+  blz: string;
+  bic: string;
 }
 
 const accountTypes: AccountType[] = ['checking', 'savings', 'credit_card', 'loan', 'depot'];
@@ -541,6 +554,9 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
   let nextBankId = 3;
   let nextAccountId = 8;
   let nextGroupId = 2;
+  // The banking fake fills the online fields of the bank cards, as the Go
+  // AccountsDTO's applyBankingCard does.
+  let bankingSource: ((bankId: number) => BankingBankDTO | undefined) | null = null;
 
   const listeners = new Set<(dto: AccountsDTO) => void>();
 
@@ -659,6 +675,7 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
 
   function bankCard(bank: MockBank): AccountsBankCardDTO {
     const rows = bankRows(bank);
+    const online = bankingSource?.(bank.id);
     return {
       bankId: bank.id,
       name: bank.name,
@@ -671,12 +688,12 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
       accountCountText: translate(language, 'AccountCount', rows.length),
       totals: currencyTotals(rows, language),
       accounts: rows.map(accountRow),
-      syncing: false,
-      syncStep: '',
-      syncEnabled: false,
-      syncTooltip: '',
-      pinText: '',
-      menu: [],
+      syncing: online?.syncing ?? false,
+      syncStep: online?.syncStep ?? '',
+      syncEnabled: online?.syncEnabled ?? false,
+      syncTooltip: online?.syncTooltip ?? '',
+      pinText: online?.pinText ?? '',
+      menu: online?.menu ?? [],
       logo: bank.badge.logo,
       logoLetters: bank.badge.letters,
       logoColour: bank.badge.colour,
@@ -992,6 +1009,77 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
 
   function closeDialog(): void {
     dialog = emptyDialog();
+  }
+
+  /** Opens a banking-owned dialog (connection, history or add-bank). */
+  function openBankingDialog(fields: MockBankingDialogFields): AccountsDTO {
+    clearMessages();
+    dialog = { ...emptyDialog(), ...fields };
+    return publish();
+  }
+
+  /** Shows a validation error inside the open dialog, as the session does. */
+  function setDialogError(text: string): AccountsDTO {
+    if (dialog.kind === '') {
+      return state();
+    }
+    dialog.errorText = text;
+    return publish();
+  }
+
+  /** Adds an online bank the banking fake stored. */
+  function addOnlineBank(id: number, name: string, blz: string, bic: string): AccountsDTO {
+    if (bankById(id) !== undefined) {
+      return state();
+    }
+    banks = [
+      ...banks,
+      {
+        id,
+        name,
+        offline: false,
+        blz,
+        bic,
+        collapsed: false,
+        badge: { logo: '', letters: name.slice(0, 2).toUpperCase(), colour: 0 },
+      },
+    ];
+    if (id >= nextBankId) {
+      nextBankId = id + 1;
+    }
+    return publish();
+  }
+
+  /** Removes a bank the banking fake deleted, with its accounts. */
+  function removeBankById(id: number): AccountsDTO {
+    banks = banks.filter((bank) => bank.id !== id);
+    accounts = accounts.filter((account) => account.bankId !== id);
+    if (detailAccountId !== null && accountById(detailAccountId) === undefined) {
+      detailAccountId = null;
+    }
+    if (selection.kind === 'account' && accountById(selection.id) === undefined) {
+      selection = { kind: 'all' };
+    }
+    return publish();
+  }
+
+  function setBankingSource(source: (bankId: number) => BankingBankDTO | undefined): void {
+    bankingSource = source;
+  }
+
+  function listBanks(): MockBankSnapshot[] {
+    return banks.map((bank) => ({
+      id: bank.id,
+      name: bank.name,
+      offline: bank.offline,
+      blz: bank.blz,
+      bic: bank.bic,
+    }));
+  }
+
+  /** Re-renders the cards after the banking state changed. */
+  function republish(): AccountsDTO {
+    return publish();
   }
 
   function openAddBank(): AccountsDTO {
@@ -1427,6 +1515,12 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
   } else if (scenario === 'accounts-detail-flat-de') {
     openDetail(3);
     listeners.clear();
+  } else if (scenario.startsWith('accounts-add-online-bank')) {
+    openAddBank();
+    if (scenario === 'accounts-add-online-bank') {
+      dialog.errorText = translate(language, 'BlzMustBe8Digits');
+    }
+    listeners.clear();
   }
 
   return {
@@ -1465,6 +1559,13 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
     moveGroup,
     moveAccount,
     setLanguage,
+    setBankingSource,
+    listBanks,
+    republish,
+    openBankingDialog,
+    setDialogError,
+    addOnlineBank,
+    removeBankById,
     subscribe: (callback: (dto: AccountsDTO) => void): (() => void) => {
       listeners.add(callback);
       return () => listeners.delete(callback);

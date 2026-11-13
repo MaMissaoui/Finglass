@@ -1,5 +1,15 @@
-import type { Api, AppInfoDTO, AccountsDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
+import type {
+  Api,
+  AppInfoDTO,
+  AccountsDTO,
+  BankingDTO,
+  DashboardDTO,
+  PromptDTO,
+  ShellDTO,
+  TickPayload,
+} from './api';
 import { createMockAccounts } from './accounts.mock';
+import { createMockBanking } from './banking.mock';
 import { languageFromCode, translate, type Language } from './i18n';
 import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
 
@@ -222,19 +232,44 @@ function initialState(scenario: string): MockState {
     case 'accounts-de-light':
     case 'accounts-de-dark':
     case 'accounts-detail-flat-de':
+    case 'accounts-add-online-bank':
+    case 'accounts-add-online-bank-search':
+    case 'accounts-add-online-bank-central-note':
+    case 'accounts-add-online-bank-no-match-de-dark':
+    case 'accounts-bank-menu-en-light':
+    case 'accounts-bank-menu-de-dark':
+    case 'accounts-connection':
+    case 'accounts-history':
+    case 'accounts-sync-all':
+    case 'accounts-syncing':
+    case 'accounts-pin':
+    case 'accounts-pin-remember':
+    case 'accounts-tan-method':
+    case 'accounts-tan-medium':
+    case 'accounts-tan-photo':
+    case 'accounts-tan-text':
+    case 'accounts-decoupled':
+    case 'banking-walkthrough':
       openShell(state);
       state.theme =
-        scenario === 'shell-de-dark' || scenario === 'accounts-de-dark' ? 'dark' : 'light';
+        scenario === 'shell-de-dark' ||
+        scenario === 'accounts-de-dark' ||
+        scenario === 'accounts-bank-menu-de-dark' ||
+        scenario === 'accounts-add-online-bank-no-match-de-dark'
+          ? 'dark'
+          : 'light';
       state.language =
         scenario === 'shell-de-dark' ||
         scenario === 'shell-profiles-de' ||
         scenario === 'accounts-de-light' ||
         scenario === 'accounts-de-dark' ||
-        scenario === 'accounts-detail-flat-de'
+        scenario === 'accounts-detail-flat-de' ||
+        scenario === 'accounts-add-online-bank-no-match-de-dark' ||
+        scenario === 'accounts-bank-menu-de-dark'
           ? 'de'
           : 'en';
       state.sidebarCollapsed = scenario === 'shell-collapsed' || scenario === 'shell-de-dark';
-      if (scenario.startsWith('accounts')) {
+      if (scenario.startsWith('accounts') || scenario === 'banking-walkthrough') {
         state.screen = 'accounts';
       }
       if (scenario === 'shell-profiles' || scenario === 'shell-profiles-de') {
@@ -298,8 +333,69 @@ export function createMockApi(scenario = scenarioName()): Api {
   const shellListeners = new Set<(dto: ShellDTO) => void>();
   const menuListeners = new Set<(action: string) => void>();
   const dashboardListeners = new Set<(dto: DashboardDTO) => void>();
-  const accounts = createMockAccounts(scenarioName(), state.language);
-  const debug = { accountsStateCalls: 0 };
+  const accounts = createMockAccounts(scenario, state.language);
+  const banking = createMockBanking(scenario, state.language, {
+    openAddBank: () => {
+      accounts.openAddBank();
+    },
+    setDialogError: (text: string) => {
+      accounts.setDialogError(text);
+    },
+    closeDialog: () => {
+      accounts.closeDialog();
+    },
+    addOnlineBank: (bankId, name, blz, bic) => {
+      accounts.addOnlineBank(bankId, name, blz, bic);
+    },
+    removeBank: (bankId) => {
+      accounts.removeBankById(bankId);
+    },
+    openConnectionDialog: (dialog) => {
+      accounts.openBankingDialog({
+        kind: 'connection',
+        title: dialog.title,
+        bankId: dialog.bankId,
+        offline: dialog.offline,
+        accountName: dialog.name,
+        connectionName: dialog.name,
+        connectionBlz: dialog.blz,
+        connectionUserId: dialog.userId,
+        connectionServerUrl: dialog.serverUrl,
+        connectionHasPin: dialog.hasPin,
+        connectionPinText: dialog.pinText,
+        connectionSyncing: dialog.syncing,
+      });
+    },
+    openHistoryDialog: (dialog) => {
+      accounts.openBankingDialog({
+        kind: 'history',
+        title: dialog.title,
+        bankId: dialog.bankId,
+        historyDate: dialog.date,
+        historyHasStart: dialog.hasStart,
+      });
+    },
+    openDeleteBank: (bankId) => {
+      accounts.openDeleteBank(bankId);
+    },
+    listBanks: () => accounts.listBanks(),
+    republishAccounts: () => {
+      accounts.republish();
+    },
+  });
+  accounts.setBankingSource((bankId) => banking.bankForCard(bankId));
+  banking.init();
+  const debug = {
+    accountsStateCalls: 0,
+    bankingStateCalls: 0,
+    bankingPromptCalls: 0,
+    bankingPromptId: () => banking.prompt().id,
+    bankingAnswerPin: (id: number, pin: string) => banking.answerPin(id, pin, false),
+    bankingAnswerTan: (id: number, tan: string) => banking.answerTan(id, tan),
+    bankingAnswerChoice: (id: number, choice: string) => banking.answerChoice(id, choice),
+    bankingAnswerDecoupled: (id: number, confirmed: boolean) =>
+      banking.answerDecoupled(id, confirmed),
+  };
   if (typeof window !== 'undefined') {
     (window as unknown as { __finglassMock?: typeof debug }).__finglassMock = debug;
   }
@@ -510,6 +606,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       state.language = languageFromCode(code);
       dashboard.setLanguage(state.language);
       accounts.setLanguage(state.language);
+      banking.setLanguage(state.language);
       const next = publish();
       publishDashboard();
       return next;
@@ -732,6 +829,11 @@ export function createMockApi(scenario = scenarioName()): Api {
       return Promise.resolve(accounts.openDeleteBank(bankID));
     },
     accountsConfirmDeleteBank(bankID: number) {
+      const bank = accounts.listBanks().find((entry) => entry.id === bankID);
+      if (bank !== undefined && !bank.offline) {
+        banking.deleteBank(bankID);
+        return Promise.resolve(accounts.state());
+      }
       return Promise.resolve(accounts.confirmDeleteBank(bankID));
     },
     accountsOpenDetail(accountID: number) {
@@ -789,12 +891,120 @@ export function createMockApi(scenario = scenarioName()): Api {
       return Promise.resolve(result);
     },
 
+    bankingState() {
+      debug.bankingStateCalls += 1;
+      return Promise.resolve(banking.state());
+    },
+    bankingPrompt() {
+      debug.bankingPromptCalls += 1;
+      return Promise.resolve(banking.prompt());
+    },
+    bankingLoad() {
+      return Promise.resolve(banking.state());
+    },
+    bankingRefresh() {
+      return Promise.resolve(banking.state());
+    },
+    bankingOpenAddBank() {
+      accounts.openAddBank();
+      return Promise.resolve(banking.state());
+    },
+    bankingSubmitAddOnlineBank(
+      name: string,
+      blz: string,
+      bic: string,
+      userID: string,
+      serverURL: string,
+    ) {
+      return Promise.resolve(banking.addOnlineBank(name, blz, bic, userID, serverURL));
+    },
+    bankingSubmitConnection(
+      bankID: number,
+      name: string,
+      blz: string,
+      userID: string,
+      serverURL: string,
+    ) {
+      return Promise.resolve(banking.submitConnection(bankID, name, blz, userID, serverURL));
+    },
+    bankingForgetPin(bankID: number) {
+      return Promise.resolve(banking.forgetPin(bankID));
+    },
+    bankingSetIncludeInSyncAll(bankID: number) {
+      return Promise.resolve(banking.setIncludeInSyncAll(bankID));
+    },
+    bankingClearHistory(bankID: number) {
+      return Promise.resolve(banking.clearHistory(bankID));
+    },
+    bankingSubmitHistory(bankID: number, date: string) {
+      return Promise.resolve(banking.submitHistory(bankID, date));
+    },
+    bankingStartSync(bankID: number) {
+      return Promise.resolve(banking.startSync(bankID));
+    },
+    bankingStartSyncAll() {
+      return Promise.resolve(banking.startSyncAll());
+    },
+    bankingDeleteBank(bankID: number) {
+      return Promise.resolve(banking.deleteBank(bankID));
+    },
+    bankingOpenConnectionDialog(bankID: number) {
+      return Promise.resolve(banking.openConnectionDialog(bankID));
+    },
+    bankingOpenHistoryDialog(bankID: number) {
+      return Promise.resolve(banking.openHistoryDialog(bankID));
+    },
+    bankingHandleBankMenu(bankID: number, action: string) {
+      return Promise.resolve(banking.handleBankMenu(bankID, action));
+    },
+    bankingClearMessages() {
+      return Promise.resolve(banking.clearMessages());
+    },
+    bankingClearInfo() {
+      banking.clearInfo();
+      return Promise.resolve();
+    },
+    bankingAnswerPin(id: number, pin: string, remember: boolean) {
+      banking.answerPin(id, pin, remember);
+      return Promise.resolve();
+    },
+    bankingCancelPin(id: number) {
+      banking.cancelPin(id);
+      return Promise.resolve();
+    },
+    bankingAnswerTan(id: number, tan: string) {
+      banking.answerTan(id, tan);
+      return Promise.resolve();
+    },
+    bankingCancelTan(id: number) {
+      banking.cancelTan(id);
+      return Promise.resolve();
+    },
+    bankingAnswerChoice(id: number, choice: string) {
+      banking.answerChoice(id, choice);
+      return Promise.resolve();
+    },
+    bankingCancelChoice(id: number) {
+      banking.cancelChoice(id);
+      return Promise.resolve();
+    },
+    bankingAnswerDecoupled(id: number, confirmed: boolean) {
+      banking.answerDecoupled(id, confirmed);
+      return Promise.resolve();
+    },
+
     onShellChanged(callback: (next: ShellDTO) => void) {
       shellListeners.add(callback);
       return () => shellListeners.delete(callback);
     },
     onAccountsChanged(callback: (next: AccountsDTO) => void) {
       return accounts.subscribe(callback);
+    },
+    onBankingChanged(callback: (next: BankingDTO) => void) {
+      return banking.subscribe(callback);
+    },
+    onBankingPrompt(callback: (next: PromptDTO) => void) {
+      return banking.subscribePrompt(callback);
     },
     onMenuAction(callback: (action: string) => void) {
       menuListeners.add(callback);
