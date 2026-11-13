@@ -123,6 +123,17 @@ func SummaryLine(summary AccountSummary) string {
 	)
 }
 
+// SkippedAccountLine formats one account line for an account the probe cannot
+// use for a balance or statement. An empty IBAN prints as "-", so the line
+// never reveals an account number.
+func SkippedAccountLine(iban string) string {
+	masked := MaskIBAN(iban)
+	if masked == "" {
+		masked = "-"
+	}
+	return fmt.Sprintf("IBAN %s | skipped (no balance/statement access)", masked)
+}
+
 // NoGoKind is the category of a NO-GO reason.
 type NoGoKind uint8
 
