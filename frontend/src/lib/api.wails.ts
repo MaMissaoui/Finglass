@@ -2,17 +2,29 @@ import { Events } from '@wailsio/runtime';
 import {
   Accounts,
   AppInfo,
+  Banking,
   Dashboard,
   Shell,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index.js';
 import {
   AccountsChanged,
   AppinfoTick,
+  BankingChanged,
+  BankingPrompt,
   DashboardChanged,
   MenuAction,
   ShellChanged,
 } from '../../bindings/events/index.js';
-import type { Api, AppInfoDTO, AccountsDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
+import type {
+  Api,
+  AppInfoDTO,
+  AccountsDTO,
+  BankingDTO,
+  DashboardDTO,
+  PromptDTO,
+  ShellDTO,
+  TickPayload,
+} from './api';
 
 export function createWailsApi(): Api {
   return {
@@ -251,6 +263,97 @@ export function createWailsApi(): Api {
       return Accounts.OpenTransactions(accountID);
     },
 
+    bankingState() {
+      return Banking.State();
+    },
+    bankingPrompt() {
+      return Banking.Prompt();
+    },
+    bankingLoad() {
+      return Banking.Load();
+    },
+    bankingRefresh() {
+      return Banking.Refresh();
+    },
+    bankingOpenAddBank() {
+      return Banking.OpenAddBank();
+    },
+    bankingSubmitAddOnlineBank(
+      name: string,
+      blz: string,
+      bic: string,
+      userID: string,
+      serverURL: string,
+    ) {
+      return Banking.SubmitAddOnlineBank(name, blz, bic, userID, serverURL);
+    },
+    bankingSubmitConnection(
+      bankID: number,
+      name: string,
+      blz: string,
+      userID: string,
+      serverURL: string,
+    ) {
+      return Banking.SubmitConnection(bankID, name, blz, userID, serverURL);
+    },
+    bankingForgetPin(bankID: number) {
+      return Banking.ForgetPin(bankID);
+    },
+    bankingSetIncludeInSyncAll(bankID: number) {
+      return Banking.SetIncludeInSyncAll(bankID);
+    },
+    bankingClearHistory(bankID: number) {
+      return Banking.ClearHistory(bankID);
+    },
+    bankingSubmitHistory(bankID: number, date: string) {
+      return Banking.SubmitHistory(bankID, date);
+    },
+    bankingStartSync(bankID: number) {
+      return Banking.StartSync(bankID);
+    },
+    bankingStartSyncAll() {
+      return Banking.StartSyncAll();
+    },
+    bankingDeleteBank(bankID: number) {
+      return Banking.DeleteBank(bankID);
+    },
+    bankingOpenConnectionDialog(bankID: number) {
+      return Banking.OpenConnectionDialog(bankID);
+    },
+    bankingOpenHistoryDialog(bankID: number) {
+      return Banking.OpenHistoryDialog(bankID);
+    },
+    bankingHandleBankMenu(bankID: number, action: string) {
+      return Banking.HandleBankMenu(bankID, action);
+    },
+    bankingClearMessages() {
+      return Banking.ClearMessages();
+    },
+    bankingClearInfo() {
+      return Banking.ClearInfo();
+    },
+    bankingAnswerPin(id: number, pin: string, remember: boolean) {
+      return Banking.AnswerPin(id, pin, remember);
+    },
+    bankingCancelPin(id: number) {
+      return Banking.CancelPin(id);
+    },
+    bankingAnswerTan(id: number, tan: string) {
+      return Banking.AnswerTan(id, tan);
+    },
+    bankingCancelTan(id: number) {
+      return Banking.CancelTan(id);
+    },
+    bankingAnswerChoice(id: number, choice: string) {
+      return Banking.AnswerChoice(id, choice);
+    },
+    bankingCancelChoice(id: number) {
+      return Banking.CancelChoice(id);
+    },
+    bankingAnswerDecoupled(id: number, confirmed: boolean) {
+      return Banking.AnswerDecoupled(id, confirmed);
+    },
+
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {
         callback(event.data);
@@ -258,6 +361,16 @@ export function createWailsApi(): Api {
     },
     onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void {
       return Events.On(AccountsChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onBankingChanged(callback: (dto: BankingDTO) => void): () => void {
+      return Events.On(BankingChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onBankingPrompt(callback: (dto: PromptDTO) => void): () => void {
+      return Events.On(BankingPrompt, (event) => {
         callback(event.data);
       });
     },

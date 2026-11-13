@@ -21,11 +21,20 @@ export type {
   ProfileDTO,
   ShellDTO,
   AccountsDTO,
+  AccountsBankCardDTO,
+  AccountsDialogDTO,
+  BankMenuItemDTO,
+  BankingBankDTO,
+  BankingDTO,
+  BankingPromptChoiceDTO,
+  PromptDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 import type {
   DashboardDTO,
   AccountsDTO,
+  BankingDTO,
+  PromptDTO,
   ShellDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
@@ -140,8 +149,49 @@ export interface Api {
   accountsMoveAccount(accountID: number, groupID: number): Promise<AccountsDTO>;
   accountsOpenTransactions(accountID: number): Promise<AccountsDTO>;
 
+  bankingState(): Promise<BankingDTO>;
+  bankingPrompt(): Promise<PromptDTO>;
+  bankingLoad(): Promise<BankingDTO>;
+  bankingRefresh(): Promise<BankingDTO>;
+  bankingOpenAddBank(): Promise<BankingDTO>;
+  bankingSubmitAddOnlineBank(
+    name: string,
+    blz: string,
+    bic: string,
+    userID: string,
+    serverURL: string,
+  ): Promise<BankingDTO>;
+  bankingSubmitConnection(
+    bankID: number,
+    name: string,
+    blz: string,
+    userID: string,
+    serverURL: string,
+  ): Promise<BankingDTO>;
+  bankingForgetPin(bankID: number): Promise<BankingDTO>;
+  bankingSetIncludeInSyncAll(bankID: number): Promise<BankingDTO>;
+  bankingClearHistory(bankID: number): Promise<BankingDTO>;
+  bankingSubmitHistory(bankID: number, date: string): Promise<BankingDTO>;
+  bankingStartSync(bankID: number): Promise<BankingDTO>;
+  bankingStartSyncAll(): Promise<BankingDTO>;
+  bankingDeleteBank(bankID: number): Promise<BankingDTO>;
+  bankingOpenConnectionDialog(bankID: number): Promise<BankingDTO>;
+  bankingOpenHistoryDialog(bankID: number): Promise<BankingDTO>;
+  bankingHandleBankMenu(bankID: number, action: string): Promise<BankingDTO>;
+  bankingClearMessages(): Promise<BankingDTO>;
+  bankingClearInfo(): Promise<void>;
+  bankingAnswerPin(id: number, pin: string, remember: boolean): Promise<void>;
+  bankingCancelPin(id: number): Promise<void>;
+  bankingAnswerTan(id: number, tan: string): Promise<void>;
+  bankingCancelTan(id: number): Promise<void>;
+  bankingAnswerChoice(id: number, choice: string): Promise<void>;
+  bankingCancelChoice(id: number): Promise<void>;
+  bankingAnswerDecoupled(id: number, confirmed: boolean): Promise<void>;
+
   onShellChanged(callback: (dto: ShellDTO) => void): () => void;
   onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void;
+  onBankingChanged(callback: (dto: BankingDTO) => void): () => void;
+  onBankingPrompt(callback: (dto: PromptDTO) => void): () => void;
   onMenuAction(callback: (action: string) => void): () => void;
   onDashboardChanged(callback: (dto: DashboardDTO) => void): () => void;
 }
