@@ -47,6 +47,9 @@ export type {
   SettingsCategoryRowDTO,
   SettingsColourSwatchDTO,
   SettingsRuleRowDTO,
+  DocumentsDTO,
+  DocumentRowDTO,
+  DocumentLinkRowDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 import type {
@@ -60,6 +63,7 @@ import type {
   TransactionsDTO,
   ReportsDTO,
   SettingsDTO,
+  DocumentsDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 export interface Api {
@@ -365,6 +369,19 @@ export interface Api {
   settingsImportRules(): Promise<SettingsDTO>;
   settingsConfirmRuleImport(categorize: boolean): Promise<SettingsDTO>;
   settingsCancelRuleImport(): Promise<SettingsDTO>;
+  documentsState(): Promise<DocumentsDTO>;
+  documentsSetTab(tab: string): Promise<DocumentsDTO>;
+  documentsSearch(query: string): Promise<DocumentsDTO>;
+  documentsSelect(id: number): Promise<DocumentsDTO>;
+  documentsCloseDetail(): Promise<DocumentsDTO>;
+  documentsCandidateQueryChanged(query: string): Promise<DocumentsDTO>;
+  documentsLink(transactionID: number): Promise<DocumentsDTO>;
+  documentsUnlink(): Promise<DocumentsDTO>;
+  documentsReprocess(): Promise<DocumentsDTO>;
+  documentsConfirmDelete(): Promise<DocumentsDTO>;
+  documentsDismiss(): Promise<DocumentsDTO>;
+  documentsUpload(): Promise<DocumentsDTO>;
+  documentsOpen(): Promise<DocumentsDTO>;
 
   onShellChanged(callback: (dto: ShellDTO) => void): () => void;
   onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void;
@@ -375,6 +392,7 @@ export interface Api {
   onTransactionsChanged(callback: (dto: TransactionsDTO) => void): () => void;
   onReportsChanged(callback: (dto: ReportsDTO) => void): () => void;
   onSettingsChanged(callback: (dto: SettingsDTO) => void): () => void;
+  onDocumentsChanged(callback: (dto: DocumentsDTO) => void): () => void;
 }
 
 let loaded: Promise<Api> | undefined;

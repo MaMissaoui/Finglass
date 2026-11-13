@@ -5,6 +5,7 @@ import {
   Banking,
   Dashboard,
   Settings,
+  Documents,
   Shell,
   Transactions,
   Reports,
@@ -15,6 +16,7 @@ import {
   BankingChanged,
   BankingPrompt,
   DashboardChanged,
+  DocumentsChanged,
   MenuAction,
   SettingsChanged,
   ShellChanged,
@@ -27,6 +29,7 @@ import type {
   AccountsDTO,
   BankingDTO,
   DashboardDTO,
+  DocumentsDTO,
   PromptDTO,
   ShellDTO,
   TickPayload,
@@ -764,6 +767,45 @@ export function createWailsApi(): Api {
     settingsCancelRuleImport(): Promise<SettingsDTO> {
       return Settings.CancelRuleImport();
     },
+    documentsState(): Promise<DocumentsDTO> {
+      return Documents.State();
+    },
+    documentsSetTab(tab: string): Promise<DocumentsDTO> {
+      return Documents.SetTab(tab);
+    },
+    documentsSearch(query: string): Promise<DocumentsDTO> {
+      return Documents.Search(query);
+    },
+    documentsSelect(id: number): Promise<DocumentsDTO> {
+      return Documents.Select(id);
+    },
+    documentsCloseDetail(): Promise<DocumentsDTO> {
+      return Documents.CloseDetail();
+    },
+    documentsCandidateQueryChanged(query: string): Promise<DocumentsDTO> {
+      return Documents.CandidateQueryChanged(query);
+    },
+    documentsLink(transactionID: number): Promise<DocumentsDTO> {
+      return Documents.Link(transactionID);
+    },
+    documentsUnlink(): Promise<DocumentsDTO> {
+      return Documents.Unlink();
+    },
+    documentsReprocess(): Promise<DocumentsDTO> {
+      return Documents.Reprocess();
+    },
+    documentsConfirmDelete(): Promise<DocumentsDTO> {
+      return Documents.ConfirmDelete();
+    },
+    documentsDismiss(): Promise<DocumentsDTO> {
+      return Documents.Dismiss();
+    },
+    documentsUpload(): Promise<DocumentsDTO> {
+      return Documents.Upload();
+    },
+    documentsOpen(): Promise<DocumentsDTO> {
+      return Documents.Open();
+    },
 
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {
@@ -807,6 +849,11 @@ export function createWailsApi(): Api {
     },
     onSettingsChanged(callback: (dto: SettingsDTO) => void): () => void {
       return Events.On(SettingsChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onDocumentsChanged(callback: (dto: DocumentsDTO) => void): () => void {
+      return Events.On(DocumentsChanged, (event) => {
         callback(event.data);
       });
     },
