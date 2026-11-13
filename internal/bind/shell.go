@@ -515,6 +515,11 @@ func (s *Shell) ServiceShutdown() error {
 	return s.session.Shutdown()
 }
 
+// publishPage emits the current shell state; the router calls it for "shell".
+func (s *Shell) publishPage() {
+	s.publish()
+}
+
 // publish builds the new DTO and sends it to every listener.
 func (s *Shell) publish() ShellDTO {
 	dto := s.snapshot()

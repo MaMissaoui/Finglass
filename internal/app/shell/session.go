@@ -136,18 +136,19 @@ type Session struct {
 	language i18n.Language
 	theme    prefs.ThemePref
 
-	db           *db.Database
-	dashboard    *dashboardview.DashboardState
-	reports      *reportsview.ReportsState
-	settings     *settingsview.SettingsState
-	findesk      *findesk.FindeskImportState
-	accounts     *accountsview.AccountsState
-	banking      *banking.BankingState
-	bridge       *banking.PromptBridge
-	profileBusy  accountsview.Busy
-	accountsWork accountsview.Busy
-	documents    *documentsview.DocumentsState
-	transactions *transactionsview.TransactionsView
+	db             *db.Database
+	dashboard      *dashboardview.DashboardState
+	reports        *reportsview.ReportsState
+	settings       *settingsview.SettingsState
+	findesk        *findesk.FindeskImportState
+	accounts       *accountsview.AccountsState
+	accountsDialog AccountsDialogState
+	banking        *banking.BankingState
+	bridge         *banking.PromptBridge
+	profileBusy    accountsview.Busy
+	accountsWork   accountsview.Busy
+	documents      *documentsview.DocumentsState
+	transactions   *transactionsview.TransactionsView
 
 	nav      NavState
 	slug     *string
@@ -811,6 +812,7 @@ func (s *Session) finishOpen(
 	s.settings = settings
 	s.findesk = findesk.NewFindeskImportState(loadedPrefs.Language)
 	s.accounts = newAccountsState(loadedPrefs.Language, busy)
+	s.resetAccountsDialogLocked()
 	s.banking = banking.New(loadedPrefs.Language)
 	s.dashboard = dashboardview.New(loadedPrefs.Language, s.today())
 	s.reports = reportsview.New(loadedPrefs.Language, s.today())
@@ -988,6 +990,7 @@ func (s *Session) teardownLocked(prepared startup.Startup, oldGeneration uint64)
 	s.settings = newSettingsState(s.language, busy)
 	s.findesk = findesk.NewFindeskImportState(s.language)
 	s.accounts = newAccountsState(s.language, busy)
+	s.resetAccountsDialogLocked()
 	s.banking = banking.New(s.language)
 	s.nav.Reset()
 	s.reports = reportsview.New(s.language, s.today())
@@ -1058,6 +1061,7 @@ func (s *Session) ReloadAfterFindeskImport() (i18n.Language, bool) {
 	s.settings.AuditLog = rows
 	s.dashboard = dashboardview.New(loadedPrefs.Language, s.today())
 	s.accounts = newAccountsState(loadedPrefs.Language, s.profileBusy)
+	s.resetAccountsDialogLocked()
 	s.banking = banking.New(loadedPrefs.Language)
 	s.nav.Reset()
 	s.reports = reportsview.New(loadedPrefs.Language, s.today())
@@ -1179,6 +1183,8 @@ func (s *Session) openPageLocked(screen string, args PageArgs) *pageJob {
 			return s.beginDashboardLoadLocked(*args.DashboardMonth)
 		}
 		return s.beginDashboardOpenLocked()
+	case "accounts":
+		return s.beginAccountsLoadLocked()
 	default:
 		return nil
 	}

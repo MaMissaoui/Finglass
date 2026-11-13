@@ -4,9 +4,7 @@
 /**
  * Dashboard is the Dashboard page's Wails service.
  * 
- * One session listener fans a change out to the matching event: the Dashboard
- * page is published as dashboard:changed, navigation as shell:changed through
- * the Shell service.
+ * The router calls publishPage after the session reports a Dashboard change.
  * @module
  */
 
