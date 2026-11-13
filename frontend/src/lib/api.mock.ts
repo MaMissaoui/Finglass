@@ -7,11 +7,13 @@ import type {
   PromptDTO,
   ShellDTO,
   TickPayload,
+  TransactionsDTO,
 } from './api';
 import { createMockAccounts } from './accounts.mock';
 import { createMockBanking } from './banking.mock';
 import { languageFromCode, translate, type Language } from './i18n';
 import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
+import { createMockTransactions } from './transactions.mock';
 
 const info: AppInfoDTO = {
   name: 'Finglass',
@@ -74,6 +76,33 @@ type DashboardScenario = {
   language: Language;
   theme: string;
   variant: MockDashboardVariant;
+};
+
+// The Transactions reference states. The page's own interactions (a row hover,
+// the open More menu) are driven by the browser test; those scenarios only
+// choose the same state the reference shows.
+type TransactionsScenario = {
+  language: Language;
+  theme: string;
+};
+
+const transactionsScenarios: Record<string, TransactionsScenario> = {
+  transactions: { language: 'en', theme: 'light' },
+  'transactions-en-light': { language: 'en', theme: 'light' },
+  'transactions-de-light': { language: 'de', theme: 'light' },
+  'transactions-de-dark': { language: 'de', theme: 'dark' },
+  'transactions-month-de-light': { language: 'de', theme: 'light' },
+  'transactions-narrow-en': { language: 'en', theme: 'light' },
+  'transactions-chart-en': { language: 'en', theme: 'light' },
+  'transactions-chart-collapsed-en': { language: 'en', theme: 'light' },
+  'transactions-panel-collapsed-en-dark': { language: 'en', theme: 'dark' },
+  'transactions-panel-expanded-en-dark': { language: 'en', theme: 'dark' },
+  'transactions-row-hover-en-light': { language: 'en', theme: 'light' },
+  'transactions-selection-en': { language: 'en', theme: 'light' },
+  'transactions-detail-en': { language: 'en', theme: 'light' },
+  'transactions-more-menu-en': { language: 'en', theme: 'light' },
+  'transactions-custom-range-en': { language: 'en', theme: 'light' },
+  'transactions-from-dashboard-category-en-light': { language: 'en', theme: 'light' },
 };
 
 // The dashboard reference states. The page's own interactions (the month menu
@@ -181,6 +210,19 @@ function initialState(scenario: string): MockState {
     openShell(state);
     state.language = dashboard.language;
     state.theme = dashboard.theme;
+    return state;
+  }
+
+  const transactions = transactionsScenarios[scenario];
+  if (transactions !== undefined) {
+    openShell(state);
+    state.language = transactions.language;
+    state.theme = transactions.theme;
+    state.screen = 'transactions';
+    if (scenario === 'transactions-from-dashboard-category-en-light') {
+      state.backTitle = translate(state.language, 'Back');
+      state.backScreen = 'dashboard';
+    }
     return state;
   }
 
@@ -334,6 +376,7 @@ export function createMockApi(scenario = scenarioName()): Api {
   const menuListeners = new Set<(action: string) => void>();
   const dashboardListeners = new Set<(dto: DashboardDTO) => void>();
   const accounts = createMockAccounts(scenario, state.language);
+  const transactions = createMockTransactions(scenario, state.language);
   const banking = createMockBanking(scenario, state.language, {
     openAddBank: () => {
       accounts.openAddBank();
@@ -395,6 +438,8 @@ export function createMockApi(scenario = scenarioName()): Api {
     bankingAnswerChoice: (id: number, choice: string) => banking.answerChoice(id, choice),
     bankingAnswerDecoupled: (id: number, confirmed: boolean) =>
       banking.answerDecoupled(id, confirmed),
+    transactionsStateCalls: 0,
+    transactionsSearchCalls: [] as string[],
   };
   if (typeof window !== 'undefined') {
     (window as unknown as { __finglassMock?: typeof debug }).__finglassMock = debug;
@@ -464,6 +509,16 @@ export function createMockApi(scenario = scenarioName()): Api {
     state.screen = screen;
     state.backTitle = '';
     state.backScreen = '';
+    publish();
+    return dashboard.dto();
+  }
+
+  function openTransactionsScreen(): DashboardDTO {
+    state.screen = 'transactions';
+    // The Back key, not "Back to Dashboard": the sidebar has a Dashboard
+    // button and two controls with that name would be ambiguous.
+    state.backTitle = translate(state.language, 'Back');
+    state.backScreen = 'dashboard';
     publish();
     return dashboard.dto();
   }
@@ -607,6 +662,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       dashboard.setLanguage(state.language);
       accounts.setLanguage(state.language);
       banking.setLanguage(state.language);
+      transactions.setLanguage(state.language);
       const next = publish();
       publishDashboard();
       return next;
@@ -755,17 +811,21 @@ export function createMockApi(scenario = scenarioName()): Api {
     async dashboardDismissError() {
       return publishDashboardWith(() => dashboard.dismissError());
     },
-    async dashboardOpenCategory() {
-      return openScreen('transactions');
+    async dashboardOpenCategory(categoryID: number) {
+      transactions.openCategory(categoryID);
+      return openTransactionsScreen();
     },
     async dashboardOpenUncategorized() {
-      return openScreen('transactions');
+      transactions.openUncategorized();
+      return openTransactionsScreen();
     },
     async dashboardOpenAll() {
-      return openScreen('transactions');
+      transactions.openAll();
+      return openTransactionsScreen();
     },
-    async dashboardOpenPartner() {
-      return openScreen('transactions');
+    async dashboardOpenPartner(partner: string) {
+      transactions.openPartner(partner);
+      return openTransactionsScreen();
     },
     async dashboardOpenAccounts() {
       return openScreen('accounts');
@@ -882,10 +942,10 @@ export function createMockApi(scenario = scenarioName()): Api {
       return Promise.resolve(accounts.moveAccount(accountID, groupID));
     },
     accountsOpenTransactions(accountID: number) {
-      void accountID;
+      transactions.selectAccountID(accountID);
       const result = accounts.state();
       state.screen = 'transactions';
-      state.backTitle = translate(state.language, 'NavAccounts');
+      state.backTitle = translate(state.language, 'Back');
       state.backScreen = 'accounts';
       publish();
       return Promise.resolve(result);
@@ -992,6 +1052,209 @@ export function createMockApi(scenario = scenarioName()): Api {
       banking.answerDecoupled(id, confirmed);
       return Promise.resolve();
     },
+    transactionsState() {
+      debug.transactionsStateCalls += 1;
+      return Promise.resolve(transactions.state());
+    },
+    transactionsLoad() {
+      return Promise.resolve(transactions.load());
+    },
+    transactionsOpenWithAdd() {
+      return Promise.resolve(transactions.openWithAdd());
+    },
+    transactionsSearch(query: string) {
+      debug.transactionsSearchCalls.push(query);
+      return Promise.resolve(transactions.search(query));
+    },
+    transactionsPeriodChanged(index: number) {
+      return Promise.resolve(transactions.periodChanged(index));
+    },
+    transactionsOpenRange() {
+      return Promise.resolve(transactions.openRange());
+    },
+    transactionsApplyRange(from: string, to: string) {
+      return Promise.resolve(transactions.applyRange(from, to));
+    },
+    transactionsCloseRange() {
+      return Promise.resolve(transactions.closeRange());
+    },
+    transactionsCategoryChanged(index: number) {
+      return Promise.resolve(transactions.categoryChanged(index));
+    },
+    transactionsDirectionChanged(index: number) {
+      return Promise.resolve(transactions.directionChanged(index));
+    },
+    transactionsAccountChanged(index: number) {
+      return Promise.resolve(transactions.accountChanged(index));
+    },
+    transactionsOpenAmount() {
+      return Promise.resolve(transactions.openAmount());
+    },
+    transactionsApplyAmount(minimum: string, maximum: string) {
+      return Promise.resolve(transactions.applyAmount(minimum, maximum));
+    },
+    transactionsResetAmount() {
+      return Promise.resolve(transactions.resetAmount());
+    },
+    transactionsCloseAmount() {
+      return Promise.resolve(transactions.closeAmount());
+    },
+    transactionsToggleChart() {
+      return Promise.resolve(transactions.toggleChart());
+    },
+    transactionsAutoCategorize() {
+      return Promise.resolve(transactions.autoCategorize());
+    },
+    transactionsReapplyRules() {
+      return Promise.resolve(transactions.reapplyRules());
+    },
+    transactionsToggleReapplyGroup() {
+      return Promise.resolve(transactions.state());
+    },
+    transactionsConfirmReapplyRules() {
+      return Promise.resolve(transactions.state());
+    },
+    transactionsCancelReapplyRules() {
+      return Promise.resolve(transactions.state());
+    },
+    transactionsUndoReapply() {
+      return Promise.resolve(transactions.undoReapply());
+    },
+    transactionsOpenRule() {
+      return Promise.resolve(transactions.openRule());
+    },
+    transactionsCloseRule() {
+      return Promise.resolve(transactions.closeRule());
+    },
+    transactionsSaveRule(pattern: string, categoryIndex: number) {
+      return Promise.resolve(transactions.saveRule(pattern, categoryIndex));
+    },
+    transactionsBack() {
+      return Promise.resolve(transactions.back());
+    },
+    transactionsOpenDetail(id: number) {
+      return Promise.resolve(transactions.openDetail(id));
+    },
+    transactionsToggleSelect(id: number) {
+      return Promise.resolve(transactions.toggleSelect(id));
+    },
+    transactionsSelectRange(id: number) {
+      return Promise.resolve(transactions.selectRange(id));
+    },
+    transactionsSelectAll() {
+      return Promise.resolve(transactions.selectAll());
+    },
+    transactionsClearSelection() {
+      return Promise.resolve(transactions.clearSelection());
+    },
+    transactionsShowPartner(partner: string) {
+      return Promise.resolve(transactions.showPartner(partner));
+    },
+    transactionsOpenDelete(id: number) {
+      return Promise.resolve(transactions.openDelete(id));
+    },
+    transactionsConfirmDelete(id: number) {
+      return Promise.resolve(transactions.confirmDelete(id));
+    },
+    transactionsCancelDelete() {
+      return Promise.resolve(transactions.cancelDelete());
+    },
+    transactionsOpenMultiDelete() {
+      return Promise.resolve(transactions.openMultiDelete());
+    },
+    transactionsConfirmMultiDelete() {
+      return Promise.resolve(transactions.confirmMultiDelete());
+    },
+    transactionsCancelMultiDelete() {
+      return Promise.resolve(transactions.cancelMultiDelete());
+    },
+    transactionsBatchCategory(index: number) {
+      return Promise.resolve(transactions.batchCategory(index));
+    },
+    transactionsBatchTax(index: number) {
+      return Promise.resolve(transactions.batchTax(index));
+    },
+    transactionsOpenAdd() {
+      return Promise.resolve(transactions.openAdd());
+    },
+    transactionsAddSubmit(
+      accountIndex: number,
+      expense: boolean,
+      date: string,
+      amount: string,
+      partner: string,
+      purpose: string,
+      categoryIndex: number,
+    ) {
+      return Promise.resolve(
+        transactions.addSubmit(
+          accountIndex,
+          expense,
+          date,
+          amount,
+          partner,
+          purpose,
+          categoryIndex,
+        ),
+      );
+    },
+    transactionsCloseAdd() {
+      return Promise.resolve(transactions.closeAdd());
+    },
+    transactionsConfirmDuplicate() {
+      return Promise.resolve(transactions.confirmDuplicate());
+    },
+    transactionsDismissDuplicate() {
+      return Promise.resolve(transactions.dismissDuplicate());
+    },
+    transactionsCloseDetail() {
+      return Promise.resolve(transactions.closeDetail());
+    },
+    transactionsDetailClose() {
+      return Promise.resolve(transactions.closeDetail());
+    },
+    transactionsDetailCreateRule() {
+      return Promise.resolve(transactions.detailCreateRule());
+    },
+    transactionsDetailCategory(index: number) {
+      return Promise.resolve(transactions.detailCategory(index));
+    },
+    transactionsDetailTax(index: number) {
+      return Promise.resolve(transactions.detailTax(index));
+    },
+    transactionsDetailShowPartner(partner: string) {
+      return Promise.resolve(transactions.detailShowPartner(partner));
+    },
+    transactionsDismissMessage() {
+      return Promise.resolve(transactions.dismissMessage());
+    },
+    transactionsPanelSelect(kind: string, groupKind: string, id: number, accountType: string) {
+      return Promise.resolve(transactions.panelSelect(kind, groupKind, id, accountType));
+    },
+    transactionsPanelToggle(kind: string, groupKind: string, id: number, accountType: string) {
+      return Promise.resolve(transactions.panelToggle(kind, groupKind, id, accountType));
+    },
+    transactionsPanelMarkRead(kind: string, groupKind: string, id: number, accountType: string) {
+      return Promise.resolve(transactions.panelMarkRead(kind, groupKind, id, accountType));
+    },
+    transactionsPanelNewGroup(name: string) {
+      return Promise.resolve(transactions.panelNewGroup(name));
+    },
+    transactionsPanelRenameGroup(id: number, name: string) {
+      return Promise.resolve(transactions.panelRenameGroup(id, name));
+    },
+    transactionsPanelDeleteGroup(id: number) {
+      return Promise.resolve(transactions.panelDeleteGroup(id));
+    },
+    transactionsPanelMoveGroup(id: number, up: boolean) {
+      return Promise.resolve(transactions.panelMoveGroup(id, up));
+    },
+    transactionsPanelMoveAccount(accountID: number, groupID: number) {
+      return Promise.resolve(transactions.panelMoveAccount(accountID, groupID));
+    },
+    transactionsPanelFilterChanged(text: string) {
+      return Promise.resolve(transactions.panelFilterChanged(text));
+    },
 
     onShellChanged(callback: (next: ShellDTO) => void) {
       shellListeners.add(callback);
@@ -1013,6 +1276,9 @@ export function createMockApi(scenario = scenarioName()): Api {
     onDashboardChanged(callback: (next: DashboardDTO) => void) {
       dashboardListeners.add(callback);
       return () => dashboardListeners.delete(callback);
+    },
+    onTransactionsChanged(callback: (next: TransactionsDTO) => void) {
+      return transactions.subscribe(callback);
     },
   };
 

@@ -6,6 +6,7 @@
   import { languageFromCode, translate, type FormatArg, type Language } from '../lib/i18n';
   import DashboardPage from './pages/DashboardPage.svelte';
   import AccountsPage from './pages/AccountsPage.svelte';
+  import TransactionsPage from './pages/TransactionsPage.svelte';
   import LanguageFlag from './LanguageFlag.svelte';
 
   let {
@@ -226,6 +227,8 @@
         <DashboardPage {api} {language} />
       {:else if dto.screen === 'accounts'}
         <AccountsPage {api} {dto} />
+      {:else if dto.screen === 'transactions'}
+        <TransactionsPage {api} {dto} />
       {/if}
     </section>
 

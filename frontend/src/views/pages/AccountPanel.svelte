@@ -19,6 +19,7 @@
     filterText,
     shownText,
     t,
+    pageSearch = true,
     onFilter,
     onSelect,
     onToggle,
@@ -34,6 +35,7 @@
     filterText: string;
     shownText: string;
     t: (key: string) => string;
+    pageSearch?: boolean;
     onFilter: (text: string) => void;
     onSelect: (kind: string, groupKind: string, id: number, accountType: string) => void;
     onToggle: (kind: string, groupKind: string, id: number, accountType: string) => void;
@@ -131,7 +133,7 @@
 </script>
 
 <aside class="panel" data-testid="account-panel">
-  <div data-page-search>
+  <div data-page-search={pageSearch ? '' : undefined}>
     <SearchField
       value={filterText}
       placeholder={t('FilterAccounts')}

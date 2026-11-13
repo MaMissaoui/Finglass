@@ -5,6 +5,7 @@ import {
   Banking,
   Dashboard,
   Shell,
+  Transactions,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index.js';
 import {
   AccountsChanged,
@@ -14,6 +15,7 @@ import {
   DashboardChanged,
   MenuAction,
   ShellChanged,
+  TransactionsChanged,
 } from '../../bindings/events/index.js';
 import type {
   Api,
@@ -24,6 +26,7 @@ import type {
   PromptDTO,
   ShellDTO,
   TickPayload,
+  TransactionsDTO,
 } from './api';
 
 export function createWailsApi(): Api {
@@ -353,6 +356,220 @@ export function createWailsApi(): Api {
     bankingAnswerDecoupled(id: number, confirmed: boolean) {
       return Banking.AnswerDecoupled(id, confirmed);
     },
+    transactionsState(): Promise<TransactionsDTO> {
+      return Transactions.State();
+    },
+    transactionsLoad(): Promise<TransactionsDTO> {
+      return Transactions.Load();
+    },
+    transactionsOpenWithAdd(): Promise<TransactionsDTO> {
+      return Transactions.OpenWithAdd();
+    },
+    transactionsSearch(query: string): Promise<TransactionsDTO> {
+      return Transactions.Search(query);
+    },
+    transactionsPeriodChanged(index: number): Promise<TransactionsDTO> {
+      return Transactions.PeriodChanged(index);
+    },
+    transactionsOpenRange(): Promise<TransactionsDTO> {
+      return Transactions.OpenRange();
+    },
+    transactionsApplyRange(from: string, to: string): Promise<TransactionsDTO> {
+      return Transactions.ApplyRange(from, to);
+    },
+    transactionsCloseRange(): Promise<TransactionsDTO> {
+      return Transactions.CloseRange();
+    },
+    transactionsCategoryChanged(index: number): Promise<TransactionsDTO> {
+      return Transactions.CategoryChanged(index);
+    },
+    transactionsDirectionChanged(index: number): Promise<TransactionsDTO> {
+      return Transactions.DirectionChanged(index);
+    },
+    transactionsAccountChanged(index: number): Promise<TransactionsDTO> {
+      return Transactions.AccountChanged(index);
+    },
+    transactionsOpenAmount(): Promise<TransactionsDTO> {
+      return Transactions.OpenAmount();
+    },
+    transactionsApplyAmount(minimum: string, maximum: string): Promise<TransactionsDTO> {
+      return Transactions.ApplyAmount(minimum, maximum);
+    },
+    transactionsResetAmount(): Promise<TransactionsDTO> {
+      return Transactions.ResetAmount();
+    },
+    transactionsCloseAmount(): Promise<TransactionsDTO> {
+      return Transactions.CloseAmount();
+    },
+    transactionsToggleChart(): Promise<TransactionsDTO> {
+      return Transactions.ToggleChart();
+    },
+    transactionsAutoCategorize(): Promise<TransactionsDTO> {
+      return Transactions.AutoCategorize();
+    },
+    transactionsReapplyRules(): Promise<TransactionsDTO> {
+      return Transactions.ReapplyRules();
+    },
+    transactionsToggleReapplyGroup(from: number, to: number): Promise<TransactionsDTO> {
+      return Transactions.ToggleReapplyGroup(from, to);
+    },
+    transactionsConfirmReapplyRules(): Promise<TransactionsDTO> {
+      return Transactions.ConfirmReapplyRules();
+    },
+    transactionsCancelReapplyRules(): Promise<TransactionsDTO> {
+      return Transactions.CancelReapplyRules();
+    },
+    transactionsUndoReapply(): Promise<TransactionsDTO> {
+      return Transactions.UndoReapply();
+    },
+    transactionsOpenRule(): Promise<TransactionsDTO> {
+      return Transactions.OpenRule();
+    },
+    transactionsCloseRule(): Promise<TransactionsDTO> {
+      return Transactions.CloseRule();
+    },
+    transactionsSaveRule(pattern: string, categoryIndex: number): Promise<TransactionsDTO> {
+      return Transactions.SaveRule(pattern, categoryIndex);
+    },
+    transactionsBack(): Promise<TransactionsDTO> {
+      return Transactions.Back();
+    },
+    transactionsOpenDetail(id: number): Promise<TransactionsDTO> {
+      return Transactions.OpenDetail(id);
+    },
+    transactionsToggleSelect(id: number): Promise<TransactionsDTO> {
+      return Transactions.ToggleSelect(id);
+    },
+    transactionsSelectRange(id: number): Promise<TransactionsDTO> {
+      return Transactions.SelectRange(id);
+    },
+    transactionsSelectAll(): Promise<TransactionsDTO> {
+      return Transactions.SelectAll();
+    },
+    transactionsClearSelection(): Promise<TransactionsDTO> {
+      return Transactions.ClearSelection();
+    },
+    transactionsShowPartner(partner: string): Promise<TransactionsDTO> {
+      return Transactions.ShowPartner(partner);
+    },
+    transactionsOpenDelete(id: number): Promise<TransactionsDTO> {
+      return Transactions.OpenDelete(id);
+    },
+    transactionsConfirmDelete(id: number): Promise<TransactionsDTO> {
+      return Transactions.ConfirmDelete(id);
+    },
+    transactionsCancelDelete(): Promise<TransactionsDTO> {
+      return Transactions.CancelDelete();
+    },
+    transactionsOpenMultiDelete(): Promise<TransactionsDTO> {
+      return Transactions.OpenMultiDelete();
+    },
+    transactionsConfirmMultiDelete(): Promise<TransactionsDTO> {
+      return Transactions.ConfirmMultiDelete();
+    },
+    transactionsCancelMultiDelete(): Promise<TransactionsDTO> {
+      return Transactions.CancelMultiDelete();
+    },
+    transactionsBatchCategory(index: number): Promise<TransactionsDTO> {
+      return Transactions.BatchCategory(index);
+    },
+    transactionsBatchTax(index: number): Promise<TransactionsDTO> {
+      return Transactions.BatchTax(index);
+    },
+    transactionsOpenAdd(): Promise<TransactionsDTO> {
+      return Transactions.OpenAdd();
+    },
+    transactionsAddSubmit(
+      accountIndex: number,
+      expense: boolean,
+      date: string,
+      amount: string,
+      partner: string,
+      purpose: string,
+      categoryIndex: number,
+    ): Promise<TransactionsDTO> {
+      return Transactions.AddSubmit(
+        accountIndex,
+        expense,
+        date,
+        amount,
+        partner,
+        purpose,
+        categoryIndex,
+      );
+    },
+    transactionsCloseAdd(): Promise<TransactionsDTO> {
+      return Transactions.CloseAdd();
+    },
+    transactionsConfirmDuplicate(): Promise<TransactionsDTO> {
+      return Transactions.ConfirmDuplicate();
+    },
+    transactionsDismissDuplicate(): Promise<TransactionsDTO> {
+      return Transactions.DismissDuplicate();
+    },
+    transactionsCloseDetail(): Promise<TransactionsDTO> {
+      return Transactions.CloseDetail();
+    },
+    transactionsDetailClose(): Promise<TransactionsDTO> {
+      return Transactions.DetailClose();
+    },
+    transactionsDetailCreateRule(): Promise<TransactionsDTO> {
+      return Transactions.DetailCreateRule();
+    },
+    transactionsDetailCategory(index: number): Promise<TransactionsDTO> {
+      return Transactions.DetailCategory(index);
+    },
+    transactionsDetailTax(index: number): Promise<TransactionsDTO> {
+      return Transactions.DetailTax(index);
+    },
+    transactionsDetailShowPartner(partner: string): Promise<TransactionsDTO> {
+      return Transactions.DetailShowPartner(partner);
+    },
+    transactionsDismissMessage(): Promise<TransactionsDTO> {
+      return Transactions.DismissMessage();
+    },
+    transactionsPanelSelect(
+      kind: string,
+      groupKind: string,
+      id: number,
+      accountType: string,
+    ): Promise<TransactionsDTO> {
+      return Transactions.PanelSelect(kind, groupKind, id, accountType);
+    },
+    transactionsPanelToggle(
+      kind: string,
+      groupKind: string,
+      id: number,
+      accountType: string,
+    ): Promise<TransactionsDTO> {
+      return Transactions.PanelToggle(kind, groupKind, id, accountType);
+    },
+    transactionsPanelMarkRead(
+      kind: string,
+      groupKind: string,
+      id: number,
+      accountType: string,
+    ): Promise<TransactionsDTO> {
+      return Transactions.PanelMarkRead(kind, groupKind, id, accountType);
+    },
+    transactionsPanelNewGroup(name: string): Promise<TransactionsDTO> {
+      return Transactions.PanelNewGroup(name);
+    },
+    transactionsPanelRenameGroup(id: number, name: string): Promise<TransactionsDTO> {
+      return Transactions.PanelRenameGroup(id, name);
+    },
+    transactionsPanelDeleteGroup(id: number): Promise<TransactionsDTO> {
+      return Transactions.PanelDeleteGroup(id);
+    },
+    transactionsPanelMoveGroup(id: number, up: boolean): Promise<TransactionsDTO> {
+      return Transactions.PanelMoveGroup(id, up);
+    },
+    transactionsPanelMoveAccount(accountID: number, groupID: number): Promise<TransactionsDTO> {
+      return Transactions.PanelMoveAccount(accountID, groupID);
+    },
+    transactionsPanelFilterChanged(text: string): Promise<TransactionsDTO> {
+      return Transactions.PanelFilterChanged(text);
+    },
 
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {
@@ -381,6 +598,11 @@ export function createWailsApi(): Api {
     },
     onDashboardChanged(callback: (dto: DashboardDTO) => void): () => void {
       return Events.On(DashboardChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onTransactionsChanged(callback: (dto: TransactionsDTO) => void): () => void {
+      return Events.On(TransactionsChanged, (event) => {
         callback(event.data);
       });
     },
