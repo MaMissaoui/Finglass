@@ -2,10 +2,12 @@ package bind
 
 import (
 	"errors"
+	"path/filepath"
 	"strings"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
+	"github.com/MaMissaoui/Finglass/internal/app/findesk"
 	"github.com/MaMissaoui/Finglass/internal/app/settingsview"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/core/format"
@@ -14,6 +16,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/repo/categories"
 	"github.com/MaMissaoui/Finglass/internal/core/ruleimport"
 	"github.com/MaMissaoui/Finglass/internal/core/rules"
+	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
 // SettingsEvent is the name of the event emitted after every Settings change.
@@ -64,11 +67,32 @@ type SettingsRuleRowDTO struct {
 // RuleRowDTO is the row type's short name, matching Rust's RuleRow.
 type RuleRowDTO = SettingsRuleRowDTO
 
+// SettingsProfileRowDTO is one row of the profile list, as Rust's
+// profile_model builds it.
+type SettingsProfileRowDTO struct {
+	// Index is the row SwitchProfile takes.
+	Index int `json:"index"`
+	// Name is the profile's display name.
+	Name string `json:"name"`
+	// Open says whether this profile is the one running now.
+	Open bool `json:"open"`
+	// NextStart says whether this profile opens at the next start.
+	NextStart bool `json:"nextStart"`
+	// CanSwitch says whether the row may be switched to.
+	CanSwitch bool `json:"canSwitch"`
+	// CanDelete says whether the row may be deleted.
+	CanDelete bool `json:"canDelete"`
+}
+
+// ProfileRowDTO is the profile row's short name, matching Rust's ProfileRow.
+type ProfileRowDTO = SettingsProfileRowDTO
+
 // SettingsDTO is everything the Settings page shows.
 //
-// It carries only the parts G8f-1 ports: appearance, the primary currency,
-// categories, rules, tax keywords and the rule import/export dialog. The
-// profiles, backup/restore and FinDesk import parts are G8f-2.
+// It carries appearance, the primary currency, categories, rules, tax keywords
+// and the rule import/export dialog (G8f-1), plus the profile list and dialogs,
+// backup/restore and the FinDesk import (G8f-2). A backup appears only by its
+// file name.
 type SettingsDTO struct {
 	Loading     bool   `json:"loading"`
 	Section     int    `json:"section"`
@@ -137,8 +161,39 @@ type SettingsDTO struct {
 	RuleImportCategorizeText string `json:"ruleImportCategorizeText"`
 	RuleImportConfirmEnabled bool   `json:"ruleImportConfirmEnabled"`
 
-	// Busy is the backup/restore busy flag, which G8f-2 fills.
-	Busy bool `json:"busy"`
+	ProfileRows []SettingsProfileRowDTO `json:"profileRows"`
+
+	ProfileDialogOpen  bool   `json:"profileDialogOpen"`
+	ProfileDialogIndex int    `json:"profileDialogIndex"`
+	ProfileDialogTitle string `json:"profileDialogTitle"`
+	ProfileDialogName  string `json:"profileDialogName"`
+	ProfileDialogError string `json:"profileDialogError"`
+
+	ProfileDeleteOpen  bool   `json:"profileDeleteOpen"`
+	ProfileDeleteIndex int    `json:"profileDeleteIndex"`
+	ProfileDeleteTitle string `json:"profileDeleteTitle"`
+	ProfileDeleteText  string `json:"profileDeleteText"`
+
+	// Busy is the backup/restore busy flag.
+	Busy               bool   `json:"busy"`
+	HasPendingRestore  bool   `json:"hasPendingRestore"`
+	BackupRestoredText string `json:"backupRestoredText"`
+
+	RestoreOpen            bool   `json:"restoreOpen"`
+	RestoreTitle           string `json:"restoreTitle"`
+	RestoreText            string `json:"restoreText"`
+	RestorePassphraseOpen  bool   `json:"restorePassphraseOpen"`
+	RestorePassphraseFile  string `json:"restorePassphraseFile"`
+	RestorePassphraseWrong bool   `json:"restorePassphraseWrong"`
+
+	FindeskBusy            bool   `json:"findeskBusy"`
+	FindeskFolder          string `json:"findeskFolder"`
+	FindeskPassphraseOpen  bool   `json:"findeskPassphraseOpen"`
+	FindeskPassphraseWrong bool   `json:"findeskPassphraseWrong"`
+	FindeskReportOpen      bool   `json:"findeskReportOpen"`
+	FindeskReportTitle     string `json:"findeskReportTitle"`
+	FindeskReportText      string `json:"findeskReportText"`
+	FindeskReportError     bool   `json:"findeskReportError"`
 }
 
 // SettingsOptions is the process wiring the caller supplies.
@@ -151,6 +206,10 @@ type SettingsOptions struct {
 type Settings struct {
 	session *shell.Session
 	emit    func(SettingsDTO)
+	// observeSecret is nil in production. Tests set it to retain each secret
+	// the service creates (a []byte for a restore passphrase, a
+	// *secret.Passphrase for FinDesk's) and assert it is wiped after the job.
+	observeSecret func(any)
 }
 
 // NewSettings builds the Settings service. session may be nil only for the
@@ -347,6 +406,131 @@ func (s *Settings) CancelRuleImport() (SettingsDTO, error) {
 	return s.action(func() { s.session.SettingsCancelRuleImport() })
 }
 
+// CreateBackup asks for a target and writes a backup of the open profile.
+func (s *Settings) CreateBackup() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCreateBackup() })
+}
+
+// RestoreBackup asks for a backup file and prepares its confirmation dialog.
+func (s *Settings) RestoreBackup() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsRestoreBackup() })
+}
+
+// ConfirmRestore confirms the restore candidate in the confirmation dialog.
+func (s *Settings) ConfirmRestore() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsConfirmRestore() })
+}
+
+// CancelRestoreChoice drops the restore confirmation without changing
+// anything.
+func (s *Settings) CancelRestoreChoice() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCancelRestoreChoice() })
+}
+
+// ConfirmRestorePassphrase confirms a backup made with another passphrase.
+//
+// The input is converted once, handed to the session, which owns and wipes it
+// on every path. No path, error or DTO keeps it.
+func (s *Settings) ConfirmRestorePassphrase(passphrase string) (SettingsDTO, error) {
+	if s.session == nil {
+		return SettingsDTO{}, errSettingsNotStarted
+	}
+	input := []byte(passphrase)
+	if s.observeSecret != nil {
+		s.observeSecret(input)
+	}
+	s.session.SettingsConfirmRestorePassphrase(input)
+	return s.snapshot(), nil
+}
+
+// CancelRestorePassphrase drops the passphrase request for a backup made under
+// another passphrase.
+func (s *Settings) CancelRestorePassphrase() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCancelRestorePassphrase() })
+}
+
+// CancelPendingRestore removes a staged restore that waits for the next start.
+func (s *Settings) CancelPendingRestore() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCancelPendingRestore() })
+}
+
+// ImportFindesk asks for a FinDesk folder and opens the passphrase dialog for a
+// valid one.
+func (s *Settings) ImportFindesk() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsImportFindesk() })
+}
+
+// SubmitFindeskPassphrase runs the chosen FinDesk import.
+//
+// The input is converted once into a secret.Passphrase and every intermediate
+// slice is wiped before this method returns. The session owns the passphrase and
+// wipes it on every path; no DTO, event, error or log keeps it.
+func (s *Settings) SubmitFindeskPassphrase(passphrase string) (SettingsDTO, error) {
+	if s.session == nil {
+		return SettingsDTO{}, errSettingsNotStarted
+	}
+	input := []byte(passphrase)
+	if s.observeSecret != nil {
+		s.observeSecret(input)
+	}
+	built, err := secret.NewPassphrase(input, secret.Unlock)
+	wipe(input)
+	if err != nil {
+		built = nil
+	}
+	if built != nil && s.observeSecret != nil {
+		s.observeSecret(built)
+	}
+	s.session.SettingsSubmitFindeskPassphrase(built)
+	return s.snapshot(), nil
+}
+
+// CancelFindeskPassphrase closes the passphrase dialog and forgets the chosen
+// folder.
+func (s *Settings) CancelFindeskPassphrase() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCancelFindeskPassphrase() })
+}
+
+// CloseFindeskReport closes the success report or failure dialog.
+func (s *Settings) CloseFindeskReport() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCloseFindeskReport() })
+}
+
+// NewProfile opens the name dialog for a new profile.
+func (s *Settings) NewProfile() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsOpenNewProfile() })
+}
+
+// RenameProfile opens the name dialog for the profile at index.
+func (s *Settings) RenameProfile(index int) (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsOpenRenameProfile(index) })
+}
+
+// CloseProfileDialog closes the name dialog without changing anything.
+func (s *Settings) CloseProfileDialog() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCloseProfileDialog() })
+}
+
+// SaveProfile creates or renames the profile the name dialog shows.
+func (s *Settings) SaveProfile(name string) (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsSaveProfile(name) })
+}
+
+// DeleteProfile opens the confirmation for deleting the profile at index.
+func (s *Settings) DeleteProfile(index int) (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsRequestDeleteProfile(index) })
+}
+
+// CancelDeleteProfile closes the delete confirmation without moving anything.
+func (s *Settings) CancelDeleteProfile() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsCancelDeleteProfile() })
+}
+
+// ConfirmDeleteProfile moves the confirmed profile's folder aside.
+func (s *Settings) ConfirmDeleteProfile() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsConfirmDeleteProfile() })
+}
+
 func (s *Settings) action(run func()) (SettingsDTO, error) {
 	if s.session == nil {
 		return SettingsDTO{}, errSettingsNotStarted
@@ -371,6 +555,8 @@ func (s *Settings) snapshot() SettingsDTO {
 		s.session.SettingsState(),
 		s.session.SettingsDialog(),
 		s.session.SettingsSection(),
+		s.session.RestoredFrom(),
+		s.session.FindeskState(),
 	)
 }
 
@@ -378,6 +564,8 @@ func settingsDTO(
 	state settingsview.SettingsState,
 	dialog shell.SettingsDialogState,
 	section int,
+	restoredFrom *string,
+	findeskState findesk.FindeskImportState,
 ) SettingsDTO {
 	dto := SettingsDTO{
 		Loading:                    state.IsLoading,
@@ -422,7 +610,18 @@ func settingsDTO(
 		RuleDeleteID:               dialog.RuleDeleteID,
 		RuleDeleteTitle:            dialog.RuleDeleteTitle,
 		RuleDeleteText:             dialog.RuleDeleteText,
+		ProfileDialogOpen:          dialog.ProfileOpen,
+		ProfileDialogIndex:         dialog.ProfileIndex,
+		ProfileDialogTitle:         dialog.ProfileTitle,
+		ProfileDialogName:          dialog.ProfileName,
+		ProfileDialogError:         dialog.ProfileError,
+		ProfileDeleteOpen:          dialog.ProfileDeleteOpen,
+		ProfileDeleteIndex:         dialog.ProfileDeleteIndex,
+		ProfileDeleteTitle:         dialog.ProfileDeleteTitle,
+		ProfileDeleteText:          dialog.ProfileDeleteText,
 		Busy:                       state.IsBusy,
+		HasPendingRestore:          state.HasPendingRestore,
+		FindeskPassphraseOpen:      dialog.FindeskPassphraseOpen,
 	}
 	if state.Error != nil {
 		dto.ErrorText = *state.Error
@@ -431,7 +630,118 @@ func settingsDTO(
 		dto.MessageText = *state.Message
 	}
 	applyRuleImport(&dto, state, dialog)
+	applyProfiles(&dto, state)
+	applyBackup(&dto, state, restoredFrom)
+	applyFindesk(&dto, findeskState, dialog)
 	return dto
+}
+
+// applyProfiles maps the profile list, as Rust's apply_profiles and
+// profile_model do.
+func applyProfiles(dto *SettingsDTO, state settingsview.SettingsState) {
+	open := ""
+	if state.OpenProfile != nil {
+		open = *state.OpenProfile
+	}
+	next := ""
+	if state.NextProfile != nil {
+		next = *state.NextProfile
+	}
+	rows := make([]SettingsProfileRowDTO, 0, len(state.Profiles))
+	for index, profile := range state.Profiles {
+		isOpen := profile.Slug == open
+		rows = append(rows, SettingsProfileRowDTO{
+			Index:     index,
+			Name:      profile.Name,
+			Open:      isOpen,
+			NextStart: !isOpen && profile.Slug == next,
+			CanSwitch: !isOpen,
+			CanDelete: !profile.IsDefault() && !isOpen,
+		})
+	}
+	dto.ProfileRows = rows
+}
+
+// applyBackup maps the backup and restore state, including the two restore
+// dialogs, as Rust's apply_backup does.
+func applyBackup(
+	dto *SettingsDTO,
+	state settingsview.SettingsState,
+	restoredFrom *string,
+) {
+	if restoredFrom != nil {
+		dto.BackupRestoredText = i18n.Format(
+			state.Language,
+			i18n.BackupRestoredAt,
+			i18n.Str(*restoredFrom),
+		)
+	}
+
+	if candidate := state.RestoreCandidate; candidate != nil {
+		name := fileName(candidate.Backup)
+		dto.RestoreTitle = i18n.Format(
+			state.Language,
+			i18n.RestoreFileTitle,
+			i18n.Str(name),
+		)
+		created := i18n.Format(
+			state.Language,
+			i18n.RestoreCreated,
+			i18n.Str(candidate.Info.Created),
+			i18n.Int(candidate.Info.Transactions),
+			i18n.Int(int64(candidate.Info.Documents)),
+		)
+		explanation := i18n.Text(state.Language, i18n.RestoreExplanation)
+		dto.RestoreText = created + "\n\n" + explanation
+		dto.RestoreOpen = true
+	}
+
+	dto.RestorePassphraseWrong = state.RestorePassphraseWrong
+	if forBackup := state.RestorePassphraseFor; forBackup != nil {
+		dto.RestorePassphraseFile = fileName(*forBackup)
+		dto.RestorePassphraseOpen = true
+	}
+}
+
+// applyFindesk maps the FinDesk import state to its folder, passphrase and
+// result dialogs, as Rust's apply_findesk does.
+func applyFindesk(
+	dto *SettingsDTO,
+	state findesk.FindeskImportState,
+	dialog shell.SettingsDialogState,
+) {
+	dto.FindeskBusy = state.IsImporting
+	if state.SourceDir != nil {
+		dto.FindeskFolder = *state.SourceDir
+	}
+	dto.FindeskPassphraseWrong = state.PassphraseWrong
+	dto.FindeskPassphraseOpen = dialog.FindeskPassphraseOpen
+
+	switch {
+	case state.Report != nil:
+		dto.FindeskReportTitle = i18n.Text(state.Language, i18n.FinDeskImportReportTitle)
+		dto.FindeskReportText = findesk.ReportText(state.Report, state.Language)
+		dto.FindeskReportError = false
+		dto.FindeskReportOpen = true
+	case state.Error != nil:
+		dto.FindeskReportTitle = i18n.Text(state.Language, i18n.FinDeskImportFailedTitle)
+		dto.FindeskReportText = *state.Error
+		dto.FindeskReportError = true
+		dto.FindeskReportOpen = true
+	}
+}
+
+// fileName is Rust's file_name: the last path element, or the whole text when
+// there is none. The DTO never shows a backup's full path.
+func fileName(path string) string {
+	if path == "" {
+		return ""
+	}
+	base := filepath.Base(path)
+	if base == "." || base == ".." || base == string(filepath.Separator) {
+		return path
+	}
+	return base
 }
 
 func categoryRows(state settingsview.SettingsState) []SettingsCategoryRowDTO {

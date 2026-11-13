@@ -62,14 +62,21 @@ func main() {
 		log.Fatalf("resolve data paths: %v", err)
 	}
 
+	// The FinDesk start folder is resolved here, in production only. The shell
+	// only forwards it to the picker seam.
+	findeskStart := findesk.DefaultFindeskStartDir()
+
 	session, offer, _ := shell.Start(
 		appPaths,
 		banksync.SystemCredentialStore(),
-		findesk.DefaultFindeskStartDir(),
+		findeskStart,
 		time.Now,
 		func() civil.Date { return civil.FromTime(time.Now()) },
 		os.LookupEnv,
 	)
+	if findeskStart != nil {
+		session.SetFindeskStartDir(*findeskStart)
+	}
 
 	var app *application.App
 	var window *application.WebviewWindow

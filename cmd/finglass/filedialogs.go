@@ -6,9 +6,14 @@ import (
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
+	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	documentsservice "github.com/MaMissaoui/Finglass/internal/core/documents/service"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 )
+
+// wailsFileDialogs is the production implementation of the shell's dialog
+// seam.
+var _ shell.FileDialogs = (*wailsFileDialogs)(nil)
 
 // statementExtensions is Rust's STATEMENT_EXTENSIONS as one Wails filter
 // pattern.
@@ -126,6 +131,62 @@ func exportFilterPattern(defaultName string) string {
 		return ""
 	}
 	return "*" + extension
+}
+
+// SaveBackup asks where to write a backup.
+func (d *wailsFileDialogs) SaveBackup(title string, defaultName string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	path, err := d.app.Dialog.SaveFile().
+		SetFilename(defaultName).
+		AddFilter(title, "*.zip").
+		AttachToWindow(d.window).
+		PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
+}
+
+// PickBackup asks for one backup file.
+func (d *wailsFileDialogs) PickBackup(title string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	path, err := d.app.Dialog.OpenFile().
+		CanChooseFiles(true).
+		AddFilter(title, "*.zip").
+		AttachToWindow(d.window).
+		PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
+}
+
+// PickFindeskFolder asks for the FinDesk folder, starting in startDir when it
+// is not empty. The start folder comes from cmd/finglass, not the shell.
+func (d *wailsFileDialogs) PickFindeskFolder(title string, startDir string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	options := &application.OpenFileDialogOptions{
+		Title:                title,
+		CanChooseDirectories: true,
+		CanChooseFiles:       false,
+		CanCreateDirectories: false,
+		ShowHiddenFiles:      true,
+		Window:               d.window,
+	}
+	if strings.TrimSpace(startDir) != "" {
+		options.Directory = startDir
+	}
+	path, err := d.app.Dialog.OpenFileWithOptions(options).PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
 }
 
 // PickRuleFile asks for one rule file.

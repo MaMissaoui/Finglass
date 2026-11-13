@@ -9,9 +9,10 @@ import "github.com/MaMissaoui/Finglass/internal/core/i18n"
 // it inside a job, without the session mutex, exactly as Rust calls rfd inside
 // spawn. A nil seam means every dialog is cancelled.
 //
-// No method takes a path, a directory or file contents: the dialog is the only
-// source of a path, and nothing returns one to JavaScript. SaveFile's default
-// name is only the dialog's suggestion and is never used as a destination.
+// No method takes a destination, a file's contents or a folder to read: the
+// dialog is the only source of a path, and nothing returns one to JavaScript.
+// SaveFile's default name and PickFindeskFolder's start folder are only the
+// dialog's suggestions and are never used as a destination.
 type FileDialogs interface {
 	// PickStatements asks for one or more statement files. The boolean is false
 	// when the user cancelled.
@@ -32,6 +33,15 @@ type FileDialogs interface {
 	// PickRuleFile asks for one rule file. The boolean is false when the user
 	// cancelled.
 	PickRuleFile(title string) (string, bool)
+	// SaveBackup asks where to write a backup. defaultName is the suggested
+	// name; the boolean is false when the user cancelled.
+	SaveBackup(title string, defaultName string) (string, bool)
+	// PickBackup asks for one backup file, with the zip filter. The boolean is
+	// false when the user cancelled.
+	PickBackup(title string) (string, bool)
+	// PickFindeskFolder asks for a FinDesk folder. startDir is the folder the
+	// picker starts in; it may be empty and is never resolved by the shell.
+	PickFindeskFolder(title string, startDir string) (string, bool)
 }
 
 // SetFileDialogs installs the native file-dialog seam. Production sets it once,

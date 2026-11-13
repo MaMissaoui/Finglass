@@ -67,6 +67,7 @@ export {
     SettingsCategoryRowDTO,
     SettingsColourSwatchDTO,
     SettingsDTO,
+    SettingsProfileRowDTO,
     SettingsRuleRowDTO,
     ShellDTO,
     TickPayload,

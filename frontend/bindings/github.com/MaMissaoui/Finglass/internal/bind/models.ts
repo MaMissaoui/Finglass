@@ -2772,9 +2772,10 @@ export class SettingsColourSwatchDTO {
 /**
  * SettingsDTO is everything the Settings page shows.
  * 
- * It carries only the parts G8f-1 ports: appearance, the primary currency,
- * categories, rules, tax keywords and the rule import/export dialog. The
- * profiles, backup/restore and FinDesk import parts are G8f-2.
+ * It carries appearance, the primary currency, categories, rules, tax keywords
+ * and the rule import/export dialog (G8f-1), plus the profile list and dialogs,
+ * backup/restore and the FinDesk import (G8f-2). A backup appears only by its
+ * file name.
  */
 export class SettingsDTO {
     "loading": boolean;
@@ -2835,11 +2836,37 @@ export class SettingsDTO {
     "ruleImportShowCategorize": boolean;
     "ruleImportCategorizeText": string;
     "ruleImportConfirmEnabled": boolean;
+    "profileRows": SettingsProfileRowDTO[];
+    "profileDialogOpen": boolean;
+    "profileDialogIndex": number;
+    "profileDialogTitle": string;
+    "profileDialogName": string;
+    "profileDialogError": string;
+    "profileDeleteOpen": boolean;
+    "profileDeleteIndex": number;
+    "profileDeleteTitle": string;
+    "profileDeleteText": string;
 
     /**
-     * Busy is the backup/restore busy flag, which G8f-2 fills.
+     * Busy is the backup/restore busy flag.
      */
     "busy": boolean;
+    "hasPendingRestore": boolean;
+    "backupRestoredText": string;
+    "restoreOpen": boolean;
+    "restoreTitle": string;
+    "restoreText": string;
+    "restorePassphraseOpen": boolean;
+    "restorePassphraseFile": string;
+    "restorePassphraseWrong": boolean;
+    "findeskBusy": boolean;
+    "findeskFolder": string;
+    "findeskPassphraseOpen": boolean;
+    "findeskPassphraseWrong": boolean;
+    "findeskReportOpen": boolean;
+    "findeskReportTitle": string;
+    "findeskReportText": string;
+    "findeskReportError": boolean;
 
     /** Creates a new SettingsDTO instance. */
     constructor($$source: Partial<SettingsDTO> = {}) {
@@ -3017,8 +3044,86 @@ export class SettingsDTO {
         if (!("ruleImportConfirmEnabled" in $$source)) {
             this["ruleImportConfirmEnabled"] = false;
         }
+        if (!("profileRows" in $$source)) {
+            this["profileRows"] = [];
+        }
+        if (!("profileDialogOpen" in $$source)) {
+            this["profileDialogOpen"] = false;
+        }
+        if (!("profileDialogIndex" in $$source)) {
+            this["profileDialogIndex"] = 0;
+        }
+        if (!("profileDialogTitle" in $$source)) {
+            this["profileDialogTitle"] = "";
+        }
+        if (!("profileDialogName" in $$source)) {
+            this["profileDialogName"] = "";
+        }
+        if (!("profileDialogError" in $$source)) {
+            this["profileDialogError"] = "";
+        }
+        if (!("profileDeleteOpen" in $$source)) {
+            this["profileDeleteOpen"] = false;
+        }
+        if (!("profileDeleteIndex" in $$source)) {
+            this["profileDeleteIndex"] = 0;
+        }
+        if (!("profileDeleteTitle" in $$source)) {
+            this["profileDeleteTitle"] = "";
+        }
+        if (!("profileDeleteText" in $$source)) {
+            this["profileDeleteText"] = "";
+        }
         if (!("busy" in $$source)) {
             this["busy"] = false;
+        }
+        if (!("hasPendingRestore" in $$source)) {
+            this["hasPendingRestore"] = false;
+        }
+        if (!("backupRestoredText" in $$source)) {
+            this["backupRestoredText"] = "";
+        }
+        if (!("restoreOpen" in $$source)) {
+            this["restoreOpen"] = false;
+        }
+        if (!("restoreTitle" in $$source)) {
+            this["restoreTitle"] = "";
+        }
+        if (!("restoreText" in $$source)) {
+            this["restoreText"] = "";
+        }
+        if (!("restorePassphraseOpen" in $$source)) {
+            this["restorePassphraseOpen"] = false;
+        }
+        if (!("restorePassphraseFile" in $$source)) {
+            this["restorePassphraseFile"] = "";
+        }
+        if (!("restorePassphraseWrong" in $$source)) {
+            this["restorePassphraseWrong"] = false;
+        }
+        if (!("findeskBusy" in $$source)) {
+            this["findeskBusy"] = false;
+        }
+        if (!("findeskFolder" in $$source)) {
+            this["findeskFolder"] = "";
+        }
+        if (!("findeskPassphraseOpen" in $$source)) {
+            this["findeskPassphraseOpen"] = false;
+        }
+        if (!("findeskPassphraseWrong" in $$source)) {
+            this["findeskPassphraseWrong"] = false;
+        }
+        if (!("findeskReportOpen" in $$source)) {
+            this["findeskReportOpen"] = false;
+        }
+        if (!("findeskReportTitle" in $$source)) {
+            this["findeskReportTitle"] = "";
+        }
+        if (!("findeskReportText" in $$source)) {
+            this["findeskReportText"] = "";
+        }
+        if (!("findeskReportError" in $$source)) {
+            this["findeskReportError"] = false;
         }
 
         Object.assign(this, $$source);
@@ -3036,6 +3141,7 @@ export class SettingsDTO {
         const $$createField15_0 = $$createType16;
         const $$createField16_0 = $$createType16;
         const $$createField17_0 = $$createType16;
+        const $$createField58_0 = $$createType63;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("currencyOptions" in $$parsedSource) {
             $$parsedSource["currencyOptions"] = $$createField6_0($$parsedSource["currencyOptions"]);
@@ -3061,7 +3167,78 @@ export class SettingsDTO {
         if ("ruleDialogTaxOptions" in $$parsedSource) {
             $$parsedSource["ruleDialogTaxOptions"] = $$createField17_0($$parsedSource["ruleDialogTaxOptions"]);
         }
+        if ("profileRows" in $$parsedSource) {
+            $$parsedSource["profileRows"] = $$createField58_0($$parsedSource["profileRows"]);
+        }
         return new SettingsDTO($$parsedSource as Partial<SettingsDTO>);
+    }
+}
+
+/**
+ * SettingsProfileRowDTO is one row of the profile list, as Rust's
+ * profile_model builds it.
+ */
+export class SettingsProfileRowDTO {
+    /**
+     * Index is the row SwitchProfile takes.
+     */
+    "index": number;
+
+    /**
+     * Name is the profile's display name.
+     */
+    "name": string;
+
+    /**
+     * Open says whether this profile is the one running now.
+     */
+    "open": boolean;
+
+    /**
+     * NextStart says whether this profile opens at the next start.
+     */
+    "nextStart": boolean;
+
+    /**
+     * CanSwitch says whether the row may be switched to.
+     */
+    "canSwitch": boolean;
+
+    /**
+     * CanDelete says whether the row may be deleted.
+     */
+    "canDelete": boolean;
+
+    /** Creates a new SettingsProfileRowDTO instance. */
+    constructor($$source: Partial<SettingsProfileRowDTO> = {}) {
+        if (!("index" in $$source)) {
+            this["index"] = 0;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("open" in $$source)) {
+            this["open"] = false;
+        }
+        if (!("nextStart" in $$source)) {
+            this["nextStart"] = false;
+        }
+        if (!("canSwitch" in $$source)) {
+            this["canSwitch"] = false;
+        }
+        if (!("canDelete" in $$source)) {
+            this["canDelete"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SettingsProfileRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SettingsProfileRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SettingsProfileRowDTO($$parsedSource as Partial<SettingsProfileRowDTO>);
     }
 }
 
@@ -3255,7 +3432,7 @@ export class ShellDTO {
      */
     static createFrom($$source: any = {}): ShellDTO {
         const $$createField9_0 = $$createType16;
-        const $$createField18_0 = $$createType63;
+        const $$createField18_0 = $$createType65;
         const $$createField23_0 = $$createType16;
         const $$createField29_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
@@ -3916,16 +4093,16 @@ export class TransactionsDTO {
         const $$createField19_0 = $$createType16;
         const $$createField21_0 = $$createType11;
         const $$createField22_0 = $$createType13;
-        const $$createField26_0 = $$createType65;
+        const $$createField26_0 = $$createType67;
         const $$createField29_0 = $$createType16;
         const $$createField32_0 = $$createType16;
         const $$createField52_0 = $$createType16;
         const $$createField53_0 = $$createType16;
-        const $$createField78_0 = $$createType67;
+        const $$createField78_0 = $$createType69;
         const $$createField95_0 = $$createType16;
         const $$createField106_0 = $$createType16;
-        const $$createField111_0 = $$createType69;
-        const $$createField112_0 = $$createType71;
+        const $$createField111_0 = $$createType71;
+        const $$createField112_0 = $$createType73;
         const $$createField114_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("incomeAmounts" in $$parsedSource) {
@@ -4052,13 +4229,15 @@ const $$createType58 = SettingsRuleRowDTO.createFrom;
 const $$createType59 = $Create.Array($$createType58);
 const $$createType60 = SettingsColourSwatchDTO.createFrom;
 const $$createType61 = $Create.Array($$createType60);
-const $$createType62 = ProfileDTO.createFrom;
+const $$createType62 = SettingsProfileRowDTO.createFrom;
 const $$createType63 = $Create.Array($$createType62);
-const $$createType64 = TransactionRowDTO.createFrom;
+const $$createType64 = ProfileDTO.createFrom;
 const $$createType65 = $Create.Array($$createType64);
-const $$createType66 = ReapplyGroupRowDTO.createFrom;
+const $$createType66 = TransactionRowDTO.createFrom;
 const $$createType67 = $Create.Array($$createType66);
-const $$createType68 = ImportFileRowDTO.createFrom;
+const $$createType68 = ReapplyGroupRowDTO.createFrom;
 const $$createType69 = $Create.Array($$createType68);
-const $$createType70 = ImportCSVFieldDTO.createFrom;
+const $$createType70 = ImportFileRowDTO.createFrom;
 const $$createType71 = $Create.Array($$createType70);
+const $$createType72 = ImportCSVFieldDTO.createFrom;
+const $$createType73 = $Create.Array($$createType72);
