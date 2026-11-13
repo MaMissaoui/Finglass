@@ -2,6 +2,7 @@ import type {
   SettingsCategoryRowDTO,
   SettingsColourSwatchDTO,
   SettingsDTO,
+  SettingsProfileRowDTO,
   SettingsRuleRowDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
 import { translate, type Language } from './i18n';
@@ -68,6 +69,22 @@ const defaultTaxKeywords = [
 /** The reference page's saved custom keywords. */
 const referenceTaxKeywords = ['arzt', 'apotheke', 'handwerker'];
 
+/** The reference profiles, the default one first. */
+const referenceProfiles = ['Personal', 'Business'];
+
+/** The reference backup's file name and manifest data. */
+export const mockBackupFile = 'finglass-backup-2026-10-15.zip';
+const mockBackupCreated = '2026-10-15T12:34:56Z';
+const mockBackupTransactions = 42;
+const mockBackupDocuments = 3;
+
+/** The invented backup passphrase the restore dialog checks once. */
+export const mockBackupPassphrase = 'backup-right-6f2b91d4';
+
+/** The folder and passphrase the FinDesk import fake uses. */
+export const mockFindeskFolder = '/Users/example/.findesk';
+export const mockFindeskPassphrase = 'findesk-right-8a3e5c70';
+
 type Field = 0 | 1 | 2;
 type Direction = 0 | 1 | 2;
 
@@ -116,6 +133,26 @@ export interface MockSettingsOptions {
   ruleImportPreview?: boolean;
   /** The rule dialog's unsaved priority, as the reference screenshot shows. */
   ruleDialogPriority?: string;
+  /** Opens the delete confirmation for the reference Business profile. */
+  profileDelete?: boolean;
+  /** Shows a restore that waits for the next start. */
+  pendingRestore?: boolean;
+  /** Opens the restore confirmation for the reference backup. */
+  restoreDialog?: boolean;
+  /** Opens the passphrase dialog for a backup made with another passphrase. */
+  restorePassphrase?: boolean;
+  /** Opens the FinDesk passphrase dialog for the reference folder. */
+  findeskPassphrase?: boolean;
+  /** Opens the successful FinDesk import report. */
+  findeskReport?: boolean;
+  /** Opens the failed FinDesk import report for a non-empty target. */
+  findeskTargetNotEmpty?: boolean;
+  /** The chosen folder is not a FinDesk folder, so the section shows the error. */
+  findeskNotAFolder?: boolean;
+  /** Keeps the FinDesk passphrase dialog open while it is importing. */
+  findeskBusy?: boolean;
+  /** Shows the note that a backup was restored at this start. */
+  backupRestored?: boolean;
 }
 
 /** The stateful settings fake the mock API uses. */
@@ -165,6 +202,24 @@ export interface MockSettings {
   importRules(): SettingsDTO;
   confirmRuleImport(categorize: boolean): SettingsDTO;
   cancelRuleImport(): SettingsDTO;
+  createBackup(): SettingsDTO;
+  restoreBackup(): SettingsDTO;
+  confirmRestore(): SettingsDTO;
+  cancelRestore(): SettingsDTO;
+  confirmRestorePassphrase(passphrase: string): SettingsDTO;
+  cancelRestorePassphrase(): SettingsDTO;
+  cancelPendingRestore(): SettingsDTO;
+  importFindesk(): SettingsDTO;
+  submitFindeskPassphrase(passphrase: string): SettingsDTO;
+  cancelFindeskPassphrase(): SettingsDTO;
+  closeFindeskReport(): SettingsDTO;
+  newProfile(): SettingsDTO;
+  renameProfile(index: number): SettingsDTO;
+  closeProfileDialog(): SettingsDTO;
+  saveProfile(name: string): SettingsDTO;
+  deleteProfile(index: number): SettingsDTO;
+  cancelDeleteProfile(): SettingsDTO;
+  confirmDeleteProfile(): SettingsDTO;
 }
 
 const currencyOptions = [
@@ -479,6 +534,40 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
   let ruleImport: MockRuleImport | null = null;
   let ruleImportCategorize = true;
 
+  let profiles = [...referenceProfiles];
+  const openProfile = referenceProfiles[0] ?? 'Personal';
+
+  let profileDialogOpen = false;
+  let profileDialogIndex = -1;
+  let profileDialogTitle = '';
+  let profileDialogName = '';
+  let profileDialogError = '';
+
+  let profileDeleteOpen = false;
+  let profileDeleteIndex = -1;
+  let profileDeleteTitle = '';
+  let profileDeleteText = '';
+
+  let busy = false;
+  let hasPendingRestore = false;
+  let backupRestoredText = '';
+  let restoreTitle = '';
+  let restoreText = '';
+  let restoreOpen = false;
+  let restorePassphraseOpen = false;
+  let restorePassphraseWrong = false;
+
+  let findeskBusy = false;
+  let findeskFolder = '';
+  let findeskPassphraseOpen = false;
+  let findeskPassphraseWrong = false;
+  let findeskReportOpen = false;
+  let findeskReportTitle = '';
+  let findeskReportText = '';
+  let findeskReportError = false;
+  const findeskNotAFolder = options.findeskNotAFolder ?? false;
+  const restoreNeedsPassphrase = options.restorePassphrase ?? false;
+
   function nextCategoryID(): number {
     return Math.max(0, ...categories.map((category) => category.id)) + 1;
   }
@@ -570,6 +659,58 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
 
   function sortedRules(): MockRule[] {
     return [...rules].sort((left, right) => right.priority - left.priority || left.id - right.id);
+  }
+
+  function profileRow(name: string, index: number): SettingsProfileRowDTO {
+    const open = name === openProfile;
+    return {
+      index,
+      name,
+      open,
+      nextStart: false,
+      canSwitch: !open,
+      canDelete: !open && index !== 0,
+    };
+  }
+
+  function restoreDialogText(): string {
+    const created = translate(
+      language,
+      'RestoreCreated',
+      mockBackupCreated,
+      mockBackupTransactions,
+      mockBackupDocuments,
+    );
+    return `${created}\n\n${translate(language, 'RestoreExplanation')}`;
+  }
+
+  function findeskReport(): string {
+    const summary = translate(
+      language,
+      'FinDeskImportSummary',
+      1,
+      2,
+      3,
+      4,
+      5,
+      42,
+      0,
+      0,
+      2,
+      0,
+      8,
+      8,
+      2,
+      1,
+      1,
+    );
+    return `${summary}\n${translate(language, 'FinDeskImportSkipped', 1, 1, 1, 2)}`;
+  }
+
+  function openFindeskPassphrase(): void {
+    findeskFolder = mockFindeskFolder;
+    findeskPassphraseOpen = true;
+    findeskPassphraseWrong = false;
   }
 
   function validateCategory(name: string, colour: string, excludeID: number): string {
@@ -732,7 +873,35 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
       data.ruleImportConfirmEnabled = true;
     }
 
-    data.busy = false;
+    data.profileRows = profiles.map(profileRow);
+    data.profileDialogOpen = profileDialogOpen;
+    data.profileDialogIndex = profileDialogIndex;
+    data.profileDialogTitle = profileDialogTitle;
+    data.profileDialogName = profileDialogName;
+    data.profileDialogError = profileDialogError;
+    data.profileDeleteOpen = profileDeleteOpen;
+    data.profileDeleteIndex = profileDeleteIndex;
+    data.profileDeleteTitle = profileDeleteTitle;
+    data.profileDeleteText = profileDeleteText;
+
+    data.busy = busy;
+    data.hasPendingRestore = hasPendingRestore;
+    data.backupRestoredText = backupRestoredText;
+    data.restoreOpen = restoreOpen;
+    data.restoreTitle = restoreTitle;
+    data.restoreText = restoreText;
+    data.restorePassphraseOpen = restorePassphraseOpen;
+    data.restorePassphraseFile = restorePassphraseOpen ? mockBackupFile : '';
+    data.restorePassphraseWrong = restorePassphraseWrong;
+
+    data.findeskBusy = findeskBusy;
+    data.findeskFolder = findeskFolder;
+    data.findeskPassphraseOpen = findeskPassphraseOpen;
+    data.findeskPassphraseWrong = findeskPassphraseWrong;
+    data.findeskReportOpen = findeskReportOpen;
+    data.findeskReportTitle = findeskReportTitle;
+    data.findeskReportText = findeskReportText;
+    data.findeskReportError = findeskReportError;
     return data;
   }
 
@@ -1090,6 +1259,181 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
       ruleImport = null;
       return publish();
     },
+    createBackup() {
+      busy = false;
+      errorText = '';
+      messageText = translate(
+        language,
+        'MessageBackupSaved',
+        mockBackupFile,
+        mockBackupTransactions,
+        mockBackupDocuments,
+      );
+      return publish();
+    },
+    restoreBackup() {
+      restoreTitle = translate(language, 'RestoreFileTitle', mockBackupFile);
+      restoreText = restoreDialogText();
+      restoreOpen = true;
+      restorePassphraseOpen = false;
+      restorePassphraseWrong = false;
+      errorText = '';
+      messageText = '';
+      return publish();
+    },
+    confirmRestore() {
+      restoreOpen = false;
+      if (restoreNeedsPassphrase) {
+        restorePassphraseOpen = true;
+        restorePassphraseWrong = false;
+        return publish();
+      }
+      hasPendingRestore = true;
+      messageText = translate(language, 'MessageRestorePrepared');
+      errorText = '';
+      return publish();
+    },
+    cancelRestore() {
+      restoreOpen = false;
+      return publish();
+    },
+    confirmRestorePassphrase(passphrase) {
+      // The input is compared once and never stored or echoed.
+      if (passphrase !== mockBackupPassphrase) {
+        restorePassphraseWrong = true;
+        return publish();
+      }
+      restorePassphraseOpen = false;
+      restorePassphraseWrong = false;
+      hasPendingRestore = true;
+      messageText = translate(language, 'MessageRestorePrepared');
+      errorText = '';
+      return publish();
+    },
+    cancelRestorePassphrase() {
+      restorePassphraseOpen = false;
+      restorePassphraseWrong = false;
+      return publish();
+    },
+    cancelPendingRestore() {
+      hasPendingRestore = false;
+      messageText = translate(language, 'MessageRestoreCancelled');
+      errorText = '';
+      return publish();
+    },
+    importFindesk() {
+      if (findeskNotAFolder) {
+        errorText = translate(language, 'ErrorFinDeskNotAFolder');
+        messageText = '';
+        return publish();
+      }
+      errorText = '';
+      messageText = '';
+      openFindeskPassphrase();
+      return publish();
+    },
+    submitFindeskPassphrase(passphrase) {
+      // The input is compared once and never stored or echoed.
+      if (passphrase !== mockFindeskPassphrase) {
+        findeskPassphraseWrong = true;
+        findeskBusy = false;
+        return publish();
+      }
+      findeskPassphraseOpen = false;
+      findeskPassphraseWrong = false;
+      findeskBusy = false;
+      findeskReportOpen = true;
+      findeskReportTitle = translate(language, 'FinDeskImportReportTitle');
+      findeskReportText = findeskReport();
+      findeskReportError = false;
+      errorText = '';
+      messageText = '';
+      return publish();
+    },
+    cancelFindeskPassphrase() {
+      findeskPassphraseOpen = false;
+      findeskPassphraseWrong = false;
+      findeskFolder = '';
+      findeskBusy = false;
+      return publish();
+    },
+    closeFindeskReport() {
+      findeskReportOpen = false;
+      findeskReportTitle = '';
+      findeskReportText = '';
+      findeskReportError = false;
+      return publish();
+    },
+    newProfile() {
+      profileDialogOpen = true;
+      profileDialogIndex = -1;
+      profileDialogTitle = translate(language, 'NewProfile');
+      profileDialogName = '';
+      profileDialogError = '';
+      return publish();
+    },
+    renameProfile(index) {
+      const name = profiles[index];
+      if (name === undefined) {
+        return dto();
+      }
+      profileDialogOpen = true;
+      profileDialogIndex = index;
+      profileDialogTitle = translate(language, 'RenameProfile', name);
+      profileDialogName = name;
+      profileDialogError = '';
+      return publish();
+    },
+    closeProfileDialog() {
+      profileDialogOpen = false;
+      profileDialogError = '';
+      return publish();
+    },
+    saveProfile(name) {
+      profileDialogName = name;
+      if (name.trim() === '') {
+        profileDialogError = translate(language, 'ErrorNameRequired');
+        return publish();
+      }
+      if (profileDialogIndex >= 0 && profileDialogIndex < profiles.length) {
+        profiles = profiles.map((profile, index) =>
+          index === profileDialogIndex ? name.trim() : profile,
+        );
+      } else {
+        profiles = [...profiles, name.trim()];
+      }
+      profileDialogOpen = false;
+      profileDialogError = '';
+      errorText = '';
+      messageText = '';
+      return publish();
+    },
+    deleteProfile(index) {
+      const name = profiles[index];
+      if (name === undefined) {
+        return dto();
+      }
+      profileDeleteOpen = true;
+      profileDeleteIndex = index;
+      profileDeleteTitle = translate(language, 'DeleteProfile', name);
+      profileDeleteText = translate(language, 'DeleteProfileText', name);
+      return publish();
+    },
+    cancelDeleteProfile() {
+      profileDeleteOpen = false;
+      return publish();
+    },
+    confirmDeleteProfile() {
+      if (
+        profileDeleteIndex >= 0 &&
+        profileDeleteIndex < profiles.length &&
+        profiles[profileDeleteIndex] !== openProfile
+      ) {
+        profiles = profiles.filter((_, index) => index !== profileDeleteIndex);
+      }
+      profileDeleteOpen = false;
+      return publish();
+    },
   };
 
   // The reference states seed what the screenshots show.
@@ -1117,6 +1461,42 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
   if (options.ruleImportPreview) {
     settings.importRules();
     messageText = '';
+  }
+  if (options.profileDelete) {
+    settings.deleteProfile(Math.min(1, profiles.length - 1));
+  }
+  if (options.pendingRestore) {
+    hasPendingRestore = true;
+  }
+  if (options.backupRestored) {
+    backupRestoredText = translate(language, 'BackupRestoredAt', 'pre-restore-20261015-123456');
+  }
+  if (options.restoreDialog) {
+    settings.restoreBackup();
+    messageText = '';
+  }
+  if (options.restorePassphrase) {
+    restorePassphraseOpen = true;
+    restorePassphraseWrong = false;
+  }
+  if (options.findeskPassphrase) {
+    openFindeskPassphrase();
+  }
+  if (options.findeskBusy) {
+    openFindeskPassphrase();
+    findeskBusy = true;
+  }
+  if (options.findeskReport) {
+    findeskReportOpen = true;
+    findeskReportTitle = translate(language, 'FinDeskImportReportTitle');
+    findeskReportText = findeskReport();
+    findeskReportError = false;
+  }
+  if (options.findeskTargetNotEmpty) {
+    findeskReportOpen = true;
+    findeskReportTitle = translate(language, 'FinDeskImportFailedTitle');
+    findeskReportText = translate(language, 'ErrorFinDeskTargetNotEmpty');
+    findeskReportError = true;
   }
 
   return settings;

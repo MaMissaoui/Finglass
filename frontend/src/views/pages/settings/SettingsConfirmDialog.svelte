@@ -7,6 +7,7 @@
     confirmText,
     cancelText,
     testId,
+    busy = false,
     onconfirm,
     oncancel,
   }: {
@@ -15,6 +16,7 @@
     confirmText: string;
     cancelText: string;
     testId: string;
+    busy?: boolean;
     onconfirm: () => void;
     oncancel: () => void;
   } = $props();
@@ -25,8 +27,11 @@
     <h2>{title}</h2>
     <p class="body-text">{text}</p>
     <div class="actions">
-      <TextButton text={cancelText} onclick={oncancel} />
-      <PrimaryButton text={confirmText} destructive onclick={onconfirm} />
+      <TextButton text={cancelText} enabled={!busy} onclick={oncancel} />
+      <PrimaryButton text={confirmText} enabled={!busy} destructive onclick={onconfirm} />
+      {#if busy}
+        <span class="spinner" aria-hidden="true"></span>
+      {/if}
     </div>
   </div>
 </div>
@@ -71,6 +76,7 @@
     font-size: var(--type-body-size);
     font-weight: var(--type-body-weight);
     line-height: 1.4;
+    white-space: pre-line;
   }
 
   .actions {
@@ -78,5 +84,20 @@
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-divider);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 900ms linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>

@@ -806,6 +806,60 @@ export function createWailsApi(): Api {
     documentsOpen(): Promise<DocumentsDTO> {
       return Documents.Open();
     },
+    settingsCreateBackup(): Promise<SettingsDTO> {
+      return Settings.CreateBackup();
+    },
+    settingsRestoreBackup(): Promise<SettingsDTO> {
+      return Settings.RestoreBackup();
+    },
+    settingsConfirmRestore(): Promise<SettingsDTO> {
+      return Settings.ConfirmRestore();
+    },
+    settingsCancelRestore(): Promise<SettingsDTO> {
+      return Settings.CancelRestoreChoice();
+    },
+    settingsConfirmRestorePassphrase(passphrase: string): Promise<SettingsDTO> {
+      return Settings.ConfirmRestorePassphrase(passphrase);
+    },
+    settingsCancelRestorePassphrase(): Promise<SettingsDTO> {
+      return Settings.CancelRestorePassphrase();
+    },
+    settingsCancelPendingRestore(): Promise<SettingsDTO> {
+      return Settings.CancelPendingRestore();
+    },
+    settingsImportFindesk(): Promise<SettingsDTO> {
+      return Settings.ImportFindesk();
+    },
+    settingsSubmitFindeskPassphrase(passphrase: string): Promise<SettingsDTO> {
+      return Settings.SubmitFindeskPassphrase(passphrase);
+    },
+    settingsCancelFindeskPassphrase(): Promise<SettingsDTO> {
+      return Settings.CancelFindeskPassphrase();
+    },
+    settingsCloseFindeskReport(): Promise<SettingsDTO> {
+      return Settings.CloseFindeskReport();
+    },
+    settingsNewProfile(): Promise<SettingsDTO> {
+      return Settings.NewProfile();
+    },
+    settingsRenameProfile(index: number): Promise<SettingsDTO> {
+      return Settings.RenameProfile(index);
+    },
+    settingsCloseProfileDialog(): Promise<SettingsDTO> {
+      return Settings.CloseProfileDialog();
+    },
+    settingsSaveProfile(name: string): Promise<SettingsDTO> {
+      return Settings.SaveProfile(name);
+    },
+    settingsDeleteProfile(index: number): Promise<SettingsDTO> {
+      return Settings.DeleteProfile(index);
+    },
+    settingsCancelDeleteProfile(): Promise<SettingsDTO> {
+      return Settings.CancelDeleteProfile();
+    },
+    settingsConfirmDeleteProfile(): Promise<SettingsDTO> {
+      return Settings.ConfirmDeleteProfile();
+    },
 
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {

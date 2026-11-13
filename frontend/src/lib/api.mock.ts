@@ -150,6 +150,16 @@ type SettingsScenario = {
   categoryDialogFood?: boolean;
   ruleDialogFood?: boolean;
   ruleImportPreview?: boolean;
+  profileDelete?: boolean;
+  pendingRestore?: boolean;
+  restoreDialog?: boolean;
+  restorePassphrase?: boolean;
+  findeskPassphrase?: boolean;
+  findeskReport?: boolean;
+  findeskTargetNotEmpty?: boolean;
+  findeskNotAFolder?: boolean;
+  findeskBusy?: boolean;
+  backupRestored?: boolean;
 };
 
 const settingsScenarios: Record<string, SettingsScenario> = {
@@ -190,6 +200,72 @@ const settingsScenarios: Record<string, SettingsScenario> = {
   'settings-section-menu-en-light': { language: 'en', theme: 'light', section: 0 },
   'settings-narrow-en-light': { language: 'en', theme: 'light', section: 0 },
   'settings-fr-light': { language: 'fr', theme: 'light', section: 0 },
+  'settings-profiles-en-light': { language: 'en', theme: 'light', section: 1 },
+  'settings-profiles-de-dark': { language: 'de', theme: 'dark', section: 1 },
+  'settings-profile-delete-en': {
+    language: 'en',
+    theme: 'light',
+    section: 1,
+    profileDelete: true,
+  },
+  'settings-backup-en-light': { language: 'en', theme: 'light', section: 5 },
+  'settings-backup-de-dark': { language: 'de', theme: 'dark', section: 5 },
+  'settings-backup-pending-en': {
+    language: 'en',
+    theme: 'light',
+    section: 5,
+    pendingRestore: true,
+  },
+  'settings-backup-restored-en': {
+    language: 'en',
+    theme: 'light',
+    section: 5,
+    backupRestored: true,
+  },
+  'settings-restore-dialog-en': {
+    language: 'en',
+    theme: 'light',
+    section: 5,
+    restoreDialog: true,
+  },
+  'settings-restore-passphrase-en': {
+    language: 'en',
+    theme: 'light',
+    section: 5,
+    restorePassphrase: true,
+  },
+  'settings-findesk-import-en-light': { language: 'en', theme: 'light', section: 6 },
+  'settings-findesk-import-de-dark': { language: 'de', theme: 'dark', section: 6 },
+  'settings-findesk-passphrase-en': {
+    language: 'en',
+    theme: 'light',
+    section: 6,
+    findeskPassphrase: true,
+  },
+  'settings-findesk-importing-en': {
+    language: 'en',
+    theme: 'light',
+    section: 6,
+    findeskBusy: true,
+  },
+  'settings-findesk-report-en': {
+    language: 'en',
+    theme: 'light',
+    section: 6,
+    findeskReport: true,
+  },
+  'settings-findesk-target-not-empty-en': {
+    language: 'en',
+    theme: 'light',
+    section: 6,
+    findeskTargetNotEmpty: true,
+  },
+  'settings-findesk-not-a-folder-en': {
+    language: 'en',
+    theme: 'light',
+    section: 6,
+    findeskNotAFolder: true,
+  },
 };
 
 // The Documents reference states. The page's own interactions (a selected row,
@@ -532,6 +608,16 @@ export function createMockApi(scenario = scenarioName()): Api {
     ruleDialogFood: settingsScenario?.ruleDialogFood ?? false,
     ruleDialogPriority: scenario === 'settings-rule-dialog-en' ? '5' : undefined,
     ruleImportPreview: settingsScenario?.ruleImportPreview ?? false,
+    profileDelete: settingsScenario?.profileDelete ?? false,
+    pendingRestore: settingsScenario?.pendingRestore ?? false,
+    restoreDialog: settingsScenario?.restoreDialog ?? false,
+    restorePassphrase: settingsScenario?.restorePassphrase ?? false,
+    findeskPassphrase: settingsScenario?.findeskPassphrase ?? false,
+    findeskReport: settingsScenario?.findeskReport ?? false,
+    findeskTargetNotEmpty: settingsScenario?.findeskTargetNotEmpty ?? false,
+    findeskNotAFolder: settingsScenario?.findeskNotAFolder ?? false,
+    findeskBusy: settingsScenario?.findeskBusy ?? false,
+    backupRestored: settingsScenario?.backupRestored ?? false,
   });
   const documents = createMockDocuments(scenario, state.language);
   const banking = createMockBanking(scenario, state.language, {
@@ -607,6 +693,8 @@ export function createMockApi(scenario = scenarioName()): Api {
     documentsLinkCalls: [] as number[],
     documentsUploadCalls: 0,
     documentsOpenCalls: 0,
+    settingsConfirmRestorePassphraseCalls: 0,
+    settingsSubmitFindeskPassphraseCalls: 0,
   };
   if (typeof window !== 'undefined') {
     (window as unknown as { __finglassMock?: typeof debug }).__finglassMock = debug;
@@ -1678,6 +1766,64 @@ export function createMockApi(scenario = scenarioName()): Api {
     documentsOpen() {
       debug.documentsOpenCalls += 1;
       return Promise.resolve(documents.open());
+    },
+    settingsCreateBackup() {
+      return Promise.resolve(settings.createBackup());
+    },
+    settingsRestoreBackup() {
+      return Promise.resolve(settings.restoreBackup());
+    },
+    settingsConfirmRestore() {
+      return Promise.resolve(settings.confirmRestore());
+    },
+    settingsCancelRestore() {
+      return Promise.resolve(settings.cancelRestore());
+    },
+    settingsConfirmRestorePassphrase(passphrase: string) {
+      // Only the call count is recorded, never the passphrase.
+      debug.settingsConfirmRestorePassphraseCalls += 1;
+      return Promise.resolve(settings.confirmRestorePassphrase(passphrase));
+    },
+    settingsCancelRestorePassphrase() {
+      return Promise.resolve(settings.cancelRestorePassphrase());
+    },
+    settingsCancelPendingRestore() {
+      return Promise.resolve(settings.cancelPendingRestore());
+    },
+    settingsImportFindesk() {
+      return Promise.resolve(settings.importFindesk());
+    },
+    settingsSubmitFindeskPassphrase(passphrase: string) {
+      // Only the call count is recorded, never the passphrase.
+      debug.settingsSubmitFindeskPassphraseCalls += 1;
+      return Promise.resolve(settings.submitFindeskPassphrase(passphrase));
+    },
+    settingsCancelFindeskPassphrase() {
+      return Promise.resolve(settings.cancelFindeskPassphrase());
+    },
+    settingsCloseFindeskReport() {
+      return Promise.resolve(settings.closeFindeskReport());
+    },
+    settingsNewProfile() {
+      return Promise.resolve(settings.newProfile());
+    },
+    settingsRenameProfile(index: number) {
+      return Promise.resolve(settings.renameProfile(index));
+    },
+    settingsCloseProfileDialog() {
+      return Promise.resolve(settings.closeProfileDialog());
+    },
+    settingsSaveProfile(name: string) {
+      return Promise.resolve(settings.saveProfile(name));
+    },
+    settingsDeleteProfile(index: number) {
+      return Promise.resolve(settings.deleteProfile(index));
+    },
+    settingsCancelDeleteProfile() {
+      return Promise.resolve(settings.cancelDeleteProfile());
+    },
+    settingsConfirmDeleteProfile() {
+      return Promise.resolve(settings.confirmDeleteProfile());
     },
 
     onShellChanged(callback: (next: ShellDTO) => void) {

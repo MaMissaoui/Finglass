@@ -11,6 +11,7 @@ function fresh(): Api {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 describe('api.mock', () => {
@@ -95,6 +96,24 @@ describe('api.mock', () => {
     expect(JSON.stringify(created)).not.toContain(passphrase);
     const wrong = await api.unlock('another secret value');
     expect(JSON.stringify(wrong)).not.toContain('another secret value');
+  });
+
+  it('records only the passphrase call counts, never the values', async () => {
+    const fakeWindow = { addEventListener: () => undefined };
+    vi.stubGlobal('window', fakeWindow);
+    const api = createMockApi('settings-restore-passphrase-en');
+
+    const secret = 'unit-restore-secret-4c9a';
+    await api.settingsConfirmRestorePassphrase(secret);
+    const findeskSecret = 'unit-findesk-secret-8b3d';
+    await api.settingsSubmitFindeskPassphrase(findeskSecret);
+
+    const debug = (fakeWindow as unknown as { __finglassMock?: Record<string, unknown> })
+      .__finglassMock;
+    expect(debug?.settingsConfirmRestorePassphraseCalls).toBe(1);
+    expect(debug?.settingsSubmitFindeskPassphraseCalls).toBe(1);
+    expect(JSON.stringify(debug)).not.toContain(secret);
+    expect(JSON.stringify(debug)).not.toContain(findeskSecret);
   });
 
   it('publishes every change to the shell listeners', async () => {
