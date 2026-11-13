@@ -290,6 +290,15 @@ export function createWailsApi(): Api {
     ) {
       return Banking.SubmitAddOnlineBank(name, blz, bic, userID, serverURL);
     },
+    bankingSearchBanks(query: string) {
+      return Banking.SearchBanks(query);
+    },
+    bankingPickBankSuggestion(name: string, blz: string, bic: string) {
+      return Banking.PickBankSuggestion(name, blz, bic);
+    },
+    bankingBankBlzChanged(name: string, blz: string, bic: string) {
+      return Banking.BankBLZChanged(name, blz, bic);
+    },
     bankingSubmitConnection(
       bankID: number,
       name: string,

@@ -23,7 +23,9 @@ export type {
   AccountsDTO,
   AccountsBankCardDTO,
   AccountsDialogDTO,
+  AddBankFieldsDTO,
   BankMenuItemDTO,
+  BankSuggestionDTO,
   BankingBankDTO,
   BankingDTO,
   BankingPromptChoiceDTO,
@@ -34,6 +36,8 @@ export type {
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 import type {
+  AddBankFieldsDTO,
+  BankSuggestionDTO,
   DashboardDTO,
   AccountsDTO,
   BankingDTO,
@@ -165,6 +169,9 @@ export interface Api {
     userID: string,
     serverURL: string,
   ): Promise<BankingDTO>;
+  bankingSearchBanks(query: string): Promise<BankSuggestionDTO[]>;
+  bankingPickBankSuggestion(name: string, blz: string, bic: string): Promise<AddBankFieldsDTO>;
+  bankingBankBlzChanged(name: string, blz: string, bic: string): Promise<AddBankFieldsDTO>;
   bankingSubmitConnection(
     bankID: number,
     name: string,

@@ -22,6 +22,7 @@ import (
 	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
+	"github.com/MaMissaoui/Finglass/internal/core/bankdirectory"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/credentials"
@@ -816,4 +817,197 @@ func typeMentionsGateway(expression ast.Expr) bool {
 		return !found
 	})
 	return found
+}
+
+func bindBankEntry(blz string, name string, city string, bic string) bankdirectory.BankEntry {
+	return bankdirectory.BankEntry{
+		BLZ:        blz,
+		Name:       name,
+		PostalCode: "80331",
+		City:       city,
+		BIC:        bic,
+	}
+}
+
+func bindHypoDirectory() *bankdirectory.BankDirectory {
+	return bankdirectory.FromEntries([]bankdirectory.BankEntry{
+		bindBankEntry("10020890", "UniCredit Bank - HypoVereinsbank", "Berlin", "HYVEDEMM488"),
+		bindBankEntry("10010010", "Postbank", "Berlin", "PBNKDEFFXXX"),
+	})
+}
+
+func TestPickingASuggestionMapsTheBLZAndKeepsTheNameAndBIC(t *testing.T) {
+	directory := bindHypoDirectory()
+	fields := pickedBankFields(
+		directory,
+		" UniCredit Bank - HypoVereinsbank ",
+		"10020890",
+		" HYVEDEMM488 ",
+	)
+	if fields.Name != "UniCredit Bank - HypoVereinsbank" {
+		t.Fatalf("name = %q", fields.Name)
+	}
+	if fields.BLZ != "70020270" {
+		t.Fatalf("blz = %q", fields.BLZ)
+	}
+	if fields.BIC != "HYVEDEMM488" {
+		t.Fatalf("bic = %q", fields.BIC)
+	}
+	if fields.OriginalBLZ == nil || *fields.OriginalBLZ != "10020890" {
+		t.Fatalf("original blz = %v", fields.OriginalBLZ)
+	}
+	if note := centralNote(i18n.En, fields); note != i18n.Format(
+		i18n.En,
+		i18n.CentralBlzNote,
+		i18n.Str("70020270"),
+		i18n.Str("10020890"),
+	) {
+		t.Fatalf("central note = %q", note)
+	}
+}
+
+func TestPickingACentralBLZLeavesItUnchangedWithoutANote(t *testing.T) {
+	directory := bankdirectory.FromEntries([]bankdirectory.BankEntry{
+		bindBankEntry("70020270", "UniCredit Bank - HypoVereinsbank", "München", "HYVEDEMMXXX"),
+	})
+	fields := pickedBankFields(directory, " UniCredit Bank ", " 70020270 ", " HYVEDEMMXXX ")
+	if fields.BLZ != "70020270" || fields.OriginalBLZ != nil {
+		t.Fatalf("central pick = %+v", fields)
+	}
+	if note := centralNote(i18n.En, fields); note != "" {
+		t.Fatalf("central pick note = %q", note)
+	}
+}
+
+func TestTypingAnEightDigitBLZFillsOnlyEmptyFields(t *testing.T) {
+	directory := bindHypoDirectory()
+	empty := typedBankBLZ(directory, "", "10020890", "")
+	if empty.Name != "UniCredit Bank - HypoVereinsbank" {
+		t.Fatalf("empty name = %q", empty.Name)
+	}
+	if empty.BLZ != "70020270" {
+		t.Fatalf("empty blz = %q", empty.BLZ)
+	}
+	if empty.BIC != "HYVEDEMM488" {
+		t.Fatalf("empty bic = %q", empty.BIC)
+	}
+	if empty.OriginalBLZ == nil || *empty.OriginalBLZ != "10020890" {
+		t.Fatalf("empty original blz = %v", empty.OriginalBLZ)
+	}
+
+	filled := typedBankBLZ(directory, "My bank", "10020890", "MYBIC")
+	if filled.Name != "My bank" || filled.BIC != "MYBIC" || filled.BLZ != "70020270" {
+		t.Fatalf("filled fields = %+v", filled)
+	}
+
+	other := typedBankBLZ(directory, "", "10010010", "")
+	if other.BLZ != "10010010" || other.Name != "Postbank" || other.BIC != "PBNKDEFFXXX" {
+		t.Fatalf("other bank = %+v", other)
+	}
+	if other.OriginalBLZ != nil {
+		t.Fatalf("other original blz = %v", other.OriginalBLZ)
+	}
+
+	partial := typedBankBLZ(directory, "", "1002", "")
+	if partial.BLZ != "1002" || partial.Name != "" || partial.OriginalBLZ != nil {
+		t.Fatalf("partial blz = %+v", partial)
+	}
+
+	unknown := typedBankBLZ(directory, "", "99999999", "")
+	if unknown.BLZ != "99999999" || unknown.Name != "" || unknown.BIC != "" || unknown.OriginalBLZ != nil {
+		t.Fatalf("unknown blz = %+v", unknown)
+	}
+}
+
+func TestSearchBanksReturnsTheBundledRankingCappedAtFifteenAndTheDetailFormat(t *testing.T) {
+	service := NewBanking(nil, BankingOptions{})
+	rows, err := service.SearchBanks("bank")
+	if err != nil {
+		t.Fatalf("SearchBanks: %v", err)
+	}
+	entries := bankdirectory.Bundled().Search("bank", 15)
+	if len(rows) != len(entries) || len(rows) > 15 {
+		t.Fatalf("SearchBanks returned %d rows for %d entries", len(rows), len(entries))
+	}
+	for index, row := range rows {
+		if row.BLZ != entries[index].BLZ {
+			t.Fatalf("row %d blz = %q, want %q", index, row.BLZ, entries[index].BLZ)
+		}
+		if row.Name != entries[index].Name {
+			t.Fatalf("row %d name = %q, want %q", index, row.Name, entries[index].Name)
+		}
+	}
+	if len(rows) > 0 {
+		entry := entries[0]
+		want := strings.Join([]string{entry.BLZ, entry.City, entry.BIC}, " · ")
+		if rows[0].Detail != want {
+			t.Fatalf("detail = %q, want %q", rows[0].Detail, want)
+		}
+	}
+
+	empty, err := service.SearchBanks("   ")
+	if err != nil {
+		t.Fatalf("SearchBanks empty: %v", err)
+	}
+	if len(empty) != 0 {
+		t.Fatalf("empty query returned %d rows", len(empty))
+	}
+}
+
+func TestPickAndTypedBanksUseTheBundledDirectoryAndTheCentralNote(t *testing.T) {
+	service := NewBanking(nil, BankingOptions{})
+	picked, err := service.PickBankSuggestion("UniCredit Bank - HypoVereinsbank", "10020890", "HYVEDEMM488")
+	if err != nil {
+		t.Fatalf("PickBankSuggestion: %v", err)
+	}
+	if picked.BLZ != "70020270" || picked.BIC != "HYVEDEMM488" {
+		t.Fatalf("picked fields = %+v", picked)
+	}
+	if picked.CentralNote == "" || !strings.Contains(picked.CentralNote, "10020890") {
+		t.Fatalf("picked note = %q", picked.CentralNote)
+	}
+
+	central, err := service.PickBankSuggestion("UniCredit Bank - HypoVereinsbank", "70020270", "HYVEDEMMXXX")
+	if err != nil {
+		t.Fatalf("PickBankSuggestion central: %v", err)
+	}
+	if central.BLZ != "70020270" || central.CentralNote != "" {
+		t.Fatalf("central fields = %+v", central)
+	}
+
+	typed, err := service.BankBLZChanged("", "10020890", "")
+	if err != nil {
+		t.Fatalf("BankBLZChanged: %v", err)
+	}
+	if typed.Name != "UniCredit Bank - HypoVereinsbank" || typed.BLZ != "70020270" ||
+		typed.BIC != "HYVEDEMM488" || typed.CentralNote == "" {
+		t.Fatalf("typed fields = %+v", typed)
+	}
+
+	untouched, err := service.BankBLZChanged("My bank", "1002", "MYBIC")
+	if err != nil {
+		t.Fatalf("BankBLZChanged partial: %v", err)
+	}
+	if untouched.Name != "My bank" || untouched.BLZ != "1002" || untouched.BIC != "MYBIC" ||
+		untouched.CentralNote != "" {
+		t.Fatalf("partial fields = %+v", untouched)
+	}
+}
+
+func TestCentralNoteIsLocalized(t *testing.T) {
+	fields := addBankFields{
+		BLZ:         "70020270",
+		OriginalBLZ: stringPointerForTest("10020890"),
+	}
+	for _, language := range []i18n.Language{i18n.En, i18n.De, i18n.Fr} {
+		want := i18n.Format(
+			language,
+			i18n.CentralBlzNote,
+			i18n.Str("70020270"),
+			i18n.Str("10020890"),
+		)
+		if got := centralNote(language, fields); got != want {
+			t.Fatalf("central note (%v) = %q, want %q", language, got, want)
+		}
+	}
 }

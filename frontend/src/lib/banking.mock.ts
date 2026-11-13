@@ -1,9 +1,12 @@
 import type {
+  AddBankFieldsDTO,
   BankingBankDTO,
   BankingDTO,
   BankMenuItemDTO,
+  BankSuggestionDTO,
   PromptDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
+import { mockBankDirectory, searchBanks } from './bankDirectory';
 import { translate, type Language } from './i18n';
 import { mockTanChallengeImage } from './mock/tanChallenge';
 
@@ -239,6 +242,71 @@ export function createMockBanking(
 
   function t(key: string, ...args: (string | number)[]): string {
     return translate(language, key, ...args);
+  }
+
+  function centralNote(mapped: string, original: string): string {
+    return t('CentralBlzNote', mapped, original);
+  }
+
+  /**
+   * The mock directory's branch mapping. Its invented branch entry keeps the
+   * central BLZ it is shown with and names the branch code it replaces, so both
+   * a picked row and a typed branch code map to the central one.
+   */
+  function mockFintsBlz(blz: string): string {
+    const trimmed = blz.trim();
+    const branch = mockBankDirectory.find((entry) => entry.branchBlz === trimmed);
+    return branch === undefined ? trimmed : branch.blz;
+  }
+
+  function searchBankSuggestions(query: string): BankSuggestionDTO[] {
+    return searchBanks(mockBankDirectory, query, 15).map((entry) => ({
+      name: entry.name,
+      detail: entry.detail,
+      blz: entry.blz,
+      bic: entry.bic,
+    }));
+  }
+
+  function pickBankSuggestion(name: string, blz: string, bic: string): AddBankFieldsDTO {
+    const original = blz.trim();
+    const mapped = mockFintsBlz(original);
+    let note = '';
+    if (mapped !== original) {
+      note = centralNote(mapped, original);
+    } else {
+      const exact = mockBankDirectory.find((entry) => entry.blz === original);
+      if (exact !== undefined && exact.branchBlz !== undefined) {
+        note = centralNote(mapped, exact.branchBlz);
+      }
+    }
+    return { name: name.trim(), blz: mapped, bic: bic.trim(), centralNote: note };
+  }
+
+  function bankBlzChanged(name: string, blz: string, bic: string): AddBankFieldsDTO {
+    const trimmed = blz.trim();
+    if (!isEightDigits(trimmed)) {
+      return { name, blz, bic, centralNote: '' };
+    }
+    const branch = mockBankDirectory.find((entry) => entry.branchBlz === trimmed);
+    if (branch !== undefined && branch.branchBlz !== undefined) {
+      return {
+        name: name.trim() === '' ? branch.name : name,
+        blz: branch.blz,
+        bic: bic.trim() === '' ? branch.bic : bic,
+        centralNote: centralNote(branch.blz, branch.branchBlz),
+      };
+    }
+    const exact = mockBankDirectory.find((entry) => entry.blz === trimmed);
+    if (exact === undefined) {
+      return { name, blz, bic, centralNote: '' };
+    }
+    return {
+      name: name.trim() === '' ? exact.name : name,
+      blz: exact.blz,
+      bic: bic.trim() === '' ? exact.bic : bic,
+      centralNote: exact.branchBlz === undefined ? '' : centralNote(exact.blz, exact.branchBlz),
+    };
   }
 
   function bankById(id: number): MockBankingBank | undefined {
@@ -973,6 +1041,9 @@ export function createMockBanking(
     cancelTan,
     cancelChoice,
     addOnlineBank,
+    searchBanks: searchBankSuggestions,
+    pickBankSuggestion,
+    bankBlzChanged,
     submitConnection,
     forgetPin,
     setIncludeInSyncAll,
