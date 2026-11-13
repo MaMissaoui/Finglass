@@ -116,9 +116,9 @@ func (b *fakeBank) assertSegmentTypes(t *testing.T, expected ...[]string) {
 	if len(b.records) != len(expected) {
 		t.Fatalf("exchanges = %d, want %d", len(b.records), len(expected))
 	}
-	for index, record := range b.records {
-		got := strings.Join(record.types, ",")
-		want := strings.Join(expected[index], ",")
+	for index, shape := range expected {
+		got := strings.Join(b.records[index].types, ",")
+		want := strings.Join(shape, ",")
 		if got != want {
 			t.Fatalf("exchange %d segments = %s, want %s", index, got, want)
 		}
