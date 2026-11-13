@@ -35,6 +35,14 @@ export type {
   ReapplyGroupRowDTO,
   ImportCSVFieldDTO,
   ImportFileRowDTO,
+  ReportsDTO,
+  ReportAmountRowDTO,
+  ReportCategoryRowDTO,
+  ReportMonthlyRowDTO,
+  ReportRecurringRowDTO,
+  ReportSuggestionRowDTO,
+  ReportTaxRowDTO,
+  ReportVendorRowDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 import type {
@@ -46,6 +54,7 @@ import type {
   PromptDTO,
   ShellDTO,
   TransactionsDTO,
+  ReportsDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 export interface Api {
@@ -293,6 +302,23 @@ export interface Api {
   transactionsPanelMoveAccount(accountID: number, groupID: number): Promise<TransactionsDTO>;
   transactionsPanelFilterChanged(text: string): Promise<TransactionsDTO>;
 
+  reportsState(): Promise<ReportsDTO>;
+  reportsChangeYear(delta: number): Promise<ReportsDTO>;
+  reportsSetCustom(custom: boolean): Promise<ReportsDTO>;
+  reportsApplyRange(from: string, to: string): Promise<ReportsDTO>;
+  reportsSetMissingOnly(only: boolean): Promise<ReportsDTO>;
+  reportsDismiss(): Promise<ReportsDTO>;
+  reportsAcceptSuggestion(id: number): Promise<ReportsDTO>;
+  reportsDismissSuggestion(id: number): Promise<ReportsDTO>;
+  reportsMarkNotTaxRelevant(id: number): Promise<ReportsDTO>;
+  reportsResetTaxAutomatic(id: number): Promise<ReportsDTO>;
+  reportsExportReportPDF(): Promise<ReportsDTO>;
+  reportsExportCSV(): Promise<ReportsDTO>;
+  reportsExportTaxXLSX(): Promise<ReportsDTO>;
+  reportsExportTaxPDF(): Promise<ReportsDTO>;
+  reportsPrintTax(): Promise<ReportsDTO>;
+  reportsOpenCategory(categoryID: number): Promise<ReportsDTO>;
+
   onShellChanged(callback: (dto: ShellDTO) => void): () => void;
   onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void;
   onBankingChanged(callback: (dto: BankingDTO) => void): () => void;
@@ -300,6 +326,7 @@ export interface Api {
   onMenuAction(callback: (action: string) => void): () => void;
   onDashboardChanged(callback: (dto: DashboardDTO) => void): () => void;
   onTransactionsChanged(callback: (dto: TransactionsDTO) => void): () => void;
+  onReportsChanged(callback: (dto: ReportsDTO) => void): () => void;
 }
 
 let loaded: Promise<Api> | undefined;

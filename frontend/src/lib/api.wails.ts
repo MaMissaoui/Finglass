@@ -6,6 +6,7 @@ import {
   Dashboard,
   Shell,
   Transactions,
+  Reports,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index.js';
 import {
   AccountsChanged,
@@ -16,6 +17,7 @@ import {
   MenuAction,
   ShellChanged,
   TransactionsChanged,
+  ReportsChanged,
 } from '../../bindings/events/index.js';
 import type {
   Api,
@@ -27,6 +29,7 @@ import type {
   ShellDTO,
   TickPayload,
   TransactionsDTO,
+  ReportsDTO,
 } from './api';
 
 export function createWailsApi(): Api {
@@ -604,6 +607,55 @@ export function createWailsApi(): Api {
       return Transactions.PanelFilterChanged(text);
     },
 
+    reportsState(): Promise<ReportsDTO> {
+      return Reports.State();
+    },
+    reportsChangeYear(delta: number): Promise<ReportsDTO> {
+      return Reports.ChangeYear(delta);
+    },
+    reportsSetCustom(custom: boolean): Promise<ReportsDTO> {
+      return Reports.SetCustom(custom);
+    },
+    reportsApplyRange(from: string, to: string): Promise<ReportsDTO> {
+      return Reports.ApplyRange(from, to);
+    },
+    reportsSetMissingOnly(only: boolean): Promise<ReportsDTO> {
+      return Reports.SetMissingOnly(only);
+    },
+    reportsDismiss(): Promise<ReportsDTO> {
+      return Reports.Dismiss();
+    },
+    reportsAcceptSuggestion(id: number): Promise<ReportsDTO> {
+      return Reports.AcceptSuggestion(id);
+    },
+    reportsDismissSuggestion(id: number): Promise<ReportsDTO> {
+      return Reports.DismissSuggestion(id);
+    },
+    reportsMarkNotTaxRelevant(id: number): Promise<ReportsDTO> {
+      return Reports.MarkNotTaxRelevant(id);
+    },
+    reportsResetTaxAutomatic(id: number): Promise<ReportsDTO> {
+      return Reports.ResetTaxAutomatic(id);
+    },
+    reportsExportReportPDF(): Promise<ReportsDTO> {
+      return Reports.ExportReportPDF();
+    },
+    reportsExportCSV(): Promise<ReportsDTO> {
+      return Reports.ExportCSV();
+    },
+    reportsExportTaxXLSX(): Promise<ReportsDTO> {
+      return Reports.ExportTaxXLSX();
+    },
+    reportsExportTaxPDF(): Promise<ReportsDTO> {
+      return Reports.ExportTaxPDF();
+    },
+    reportsPrintTax(): Promise<ReportsDTO> {
+      return Reports.PrintTax();
+    },
+    reportsOpenCategory(categoryID: number): Promise<ReportsDTO> {
+      return Reports.OpenCategory(categoryID);
+    },
+
     onShellChanged(callback: (dto: ShellDTO) => void): () => void {
       return Events.On(ShellChanged, (event) => {
         callback(event.data);
@@ -636,6 +688,11 @@ export function createWailsApi(): Api {
     },
     onTransactionsChanged(callback: (dto: TransactionsDTO) => void): () => void {
       return Events.On(TransactionsChanged, (event) => {
+        callback(event.data);
+      });
+    },
+    onReportsChanged(callback: (dto: ReportsDTO) => void): () => void {
+      return Events.On(ReportsChanged, (event) => {
         callback(event.data);
       });
     },

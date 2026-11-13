@@ -8,11 +8,13 @@ import type {
   ShellDTO,
   TickPayload,
   TransactionsDTO,
+  ReportsDTO,
 } from './api';
 import { createMockAccounts } from './accounts.mock';
 import { createMockBanking } from './banking.mock';
 import { languageFromCode, translate, type Language } from './i18n';
 import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
+import { MockReports } from './reports.mock';
 import { createMockTransactions } from './transactions.mock';
 
 const info: AppInfoDTO = {
@@ -113,6 +115,24 @@ const transactionsScenarios: Record<string, TransactionsScenario> = {
   'transactions-import-de-dark': { language: 'de', theme: 'dark' },
   'transactions-import-mt940-en': { language: 'en', theme: 'light' },
   'transactions-import-warnings-en': { language: 'en', theme: 'light' },
+};
+
+// The Reports reference states. A scenario also chooses the tab the page
+// opens on, as a dashboard tax link does for the tax tab.
+const reportsScenarios: Record<string, { language: Language; theme: string }> = {
+  'reports-summary-en-light': { language: 'en', theme: 'light' },
+  'reports-summary-de-light': { language: 'de', theme: 'light' },
+  'reports-summary-de-dark': { language: 'de', theme: 'dark' },
+  'reports-category-en-light': { language: 'en', theme: 'light' },
+  'reports-monthly-en-light': { language: 'en', theme: 'light' },
+  'reports-monthly-de-dark': { language: 'de', theme: 'dark' },
+  'reports-recurring-en-light': { language: 'en', theme: 'light' },
+  'reports-recurring-de-light': { language: 'de', theme: 'light' },
+  'reports-tax-en-light': { language: 'en', theme: 'light' },
+  'reports-tax-de-dark': { language: 'de', theme: 'dark' },
+  'reports-tax-missing-en-light': { language: 'en', theme: 'light' },
+  'reports-tax-narrow-en-light': { language: 'en', theme: 'light' },
+  'reports-export-menu-en-light': { language: 'en', theme: 'light' },
 };
 
 // The dashboard reference states. The page's own interactions (the month menu
@@ -233,6 +253,15 @@ function initialState(scenario: string): MockState {
       state.backTitle = translate(state.language, 'Back');
       state.backScreen = 'dashboard';
     }
+    return state;
+  }
+
+  const reports = reportsScenarios[scenario];
+  if (reports !== undefined) {
+    openShell(state);
+    state.language = reports.language;
+    state.theme = reports.theme;
+    state.screen = 'reports';
     return state;
   }
 
@@ -387,6 +416,7 @@ export function createMockApi(scenario = scenarioName()): Api {
   const dashboardListeners = new Set<(dto: DashboardDTO) => void>();
   const accounts = createMockAccounts(scenario, state.language);
   const transactions = createMockTransactions(scenario, state.language);
+  const reports = new MockReports(scenario, state.language);
   const banking = createMockBanking(scenario, state.language, {
     openAddBank: () => {
       accounts.openAddBank();
@@ -450,6 +480,9 @@ export function createMockApi(scenario = scenarioName()): Api {
       banking.answerDecoupled(id, confirmed),
     transactionsStateCalls: 0,
     transactionsSearchCalls: [] as string[],
+    reportsStateCalls: 0,
+    reportsCalls: [] as string[],
+    reportsExportCalls: [] as string[],
   };
   if (typeof window !== 'undefined') {
     (window as unknown as { __finglassMock?: typeof debug }).__finglassMock = debug;
@@ -673,8 +706,10 @@ export function createMockApi(scenario = scenarioName()): Api {
       accounts.setLanguage(state.language);
       banking.setLanguage(state.language);
       transactions.setLanguage(state.language);
+      reports.setLanguage(state.language);
       const next = publish();
       publishDashboard();
+      reports.refresh();
       return next;
     },
     async setTheme(code: string) {
@@ -844,6 +879,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       return openScreen('settings');
     },
     async dashboardOpenTax() {
+      reports.openTax(2026);
       return openScreen('reports');
     },
     accountsState() {
@@ -1299,6 +1335,76 @@ export function createMockApi(scenario = scenarioName()): Api {
       return Promise.resolve(transactions.panelFilterChanged(text));
     },
 
+    reportsState() {
+      debug.reportsStateCalls += 1;
+      return Promise.resolve(reports.state());
+    },
+    reportsChangeYear(delta: number) {
+      debug.reportsCalls.push(`changeYear:${delta}`);
+      return Promise.resolve(reports.changeYear(delta));
+    },
+    reportsSetCustom(custom: boolean) {
+      debug.reportsCalls.push(`setCustom:${String(custom)}`);
+      return Promise.resolve(reports.setCustom(custom));
+    },
+    reportsApplyRange(from: string, to: string) {
+      debug.reportsCalls.push(`applyRange:${from}:${to}`);
+      return Promise.resolve(reports.applyRange(from, to));
+    },
+    reportsSetMissingOnly(only: boolean) {
+      debug.reportsCalls.push(`setMissingOnly:${String(only)}`);
+      return Promise.resolve(reports.setMissingOnly(only));
+    },
+    reportsDismiss() {
+      debug.reportsCalls.push('dismiss');
+      return Promise.resolve(reports.dismiss());
+    },
+    reportsAcceptSuggestion(id: number) {
+      debug.reportsCalls.push(`acceptSuggestion:${id}`);
+      return Promise.resolve(reports.acceptSuggestion(id));
+    },
+    reportsDismissSuggestion(id: number) {
+      debug.reportsCalls.push(`dismissSuggestion:${id}`);
+      return Promise.resolve(reports.dismissSuggestion(id));
+    },
+    reportsMarkNotTaxRelevant(id: number) {
+      debug.reportsCalls.push(`markNotTaxRelevant:${id}`);
+      return Promise.resolve(reports.markNotTaxRelevant(id));
+    },
+    reportsResetTaxAutomatic(id: number) {
+      debug.reportsCalls.push(`resetTaxAutomatic:${id}`);
+      return Promise.resolve(reports.resetTaxAutomatic(id));
+    },
+    reportsExportReportPDF() {
+      debug.reportsExportCalls.push('reportPDF');
+      return Promise.resolve(reports.exportReportPDF());
+    },
+    reportsExportCSV() {
+      debug.reportsExportCalls.push('csv');
+      return Promise.resolve(reports.exportCSV());
+    },
+    reportsExportTaxXLSX() {
+      debug.reportsExportCalls.push('taxXLSX');
+      return Promise.resolve(reports.exportTaxXLSX());
+    },
+    reportsExportTaxPDF() {
+      debug.reportsExportCalls.push('taxPDF');
+      return Promise.resolve(reports.exportTaxPDF());
+    },
+    reportsPrintTax() {
+      debug.reportsExportCalls.push('print');
+      return Promise.resolve(reports.printTax());
+    },
+    reportsOpenCategory(categoryID: number) {
+      debug.reportsCalls.push(`openCategory:${categoryID}`);
+      transactions.openCategory(categoryID);
+      state.screen = 'transactions';
+      state.backTitle = translate(state.language, 'Back');
+      state.backScreen = 'reports';
+      publish();
+      return Promise.resolve(reports.state());
+    },
+
     onShellChanged(callback: (next: ShellDTO) => void) {
       shellListeners.add(callback);
       return () => shellListeners.delete(callback);
@@ -1322,6 +1428,9 @@ export function createMockApi(scenario = scenarioName()): Api {
     },
     onTransactionsChanged(callback: (next: TransactionsDTO) => void) {
       return transactions.subscribe(callback);
+    },
+    onReportsChanged(callback: (next: ReportsDTO) => void) {
+      return reports.subscribe(callback);
     },
   };
 
