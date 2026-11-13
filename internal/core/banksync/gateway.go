@@ -29,25 +29,33 @@ type FinTsConnection struct {
 	ProductID string
 }
 
-// String returns a representation that never contains the bank user id or the
-// customer id.
+// String returns a representation that never contains the bank user id, the
+// customer id or the product id.
 func (c FinTsConnection) String() string {
 	return fmt.Sprintf(
 		"FinTsConnection{BankName:%q BLZ:%q UserID:%q CustomerID:%q ServerURL:%q TanMethod:%v ProductID:%q}",
-		c.BankName, c.BLZ, "***", "***", c.ServerURL, c.TanMethod, c.ProductID,
+		c.BankName, c.BLZ, "***", "***", c.ServerURL, c.TanMethod, maskedProductID(c.ProductID),
 	)
 }
 
-// GoString returns a representation that never contains the bank user id or
-// the customer id.
+// GoString returns a representation that never contains the bank user id, the
+// customer id or the product id.
 func (c FinTsConnection) GoString() string {
 	return c.String()
 }
 
-// Format returns a representation that never contains the bank user id or the
-// customer id, for every fmt verb.
+// Format returns a representation that never contains the bank user id, the
+// customer id or the product id, for every fmt verb.
 func (c FinTsConnection) Format(f fmt.State, _ rune) {
 	_, _ = f.Write([]byte(c.String()))
+}
+
+// maskedProductID hides a non-empty product id and keeps an absent one empty.
+func maskedProductID(productID string) string {
+	if productID == "" {
+		return ""
+	}
+	return "***"
 }
 
 // FinTsAccount is a bank account as the bank reports it.

@@ -11,6 +11,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/fintsproduct"
 	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -18,12 +19,10 @@ import (
 
 // OnlineSyncAvailable says whether the real FinTS gateway is wired in. It is
 // Rust's ONLINE_SYNC_AVAILABLE: false while banksync.UnavailableGateway stands
-// in for the M5b adapter. The sync controls follow it.
+// in for the M5b adapter. The sync controls follow it. The adapter slice will
+// also require fintsproduct.Present(), so a build without the product id keeps
+// online sync off even then.
 const OnlineSyncAvailable = false
-
-// bankingProductID is Rust's placeholder FinTS product registration id. The
-// real adapter owns registration; UnavailableGateway ignores it.
-const bankingProductID = "Finglass"
 
 // bankingJob is one blocking banking call prepared under the session mutex and
 // run after it, as Rust's spawn_action and start_sync do.
@@ -49,8 +48,8 @@ type bankingJob struct {
 
 // bankingServiceLocked builds the service exactly as Rust's
 // ServiceInputs::service: UnavailableGateway in production, the session's one
-// credential store, the profile folder and the placeholder product id. The
-// caller holds the session mutex.
+// credential store, the profile folder and the product id linked into the
+// build (empty when absent). The caller holds the session mutex.
 func (s *Session) bankingServiceLocked(language i18n.Language) (*banksync.BankingService, bool) {
 	dir, err := s.paths.ProfileDir(startup.SlugKey(s.slug))
 	if err != nil {
@@ -60,7 +59,8 @@ func (s *Session) bankingServiceLocked(language i18n.Language) (*banksync.Bankin
 	if s.gatewayFactory != nil {
 		gateway = s.gatewayFactory(language)
 	}
-	client := banksync.NewFinTsClient(gateway, dir, bankingProductID, s.credentials).WithLanguage(language)
+	productID, _ := fintsproduct.ID()
+	client := banksync.NewFinTsClient(gateway, dir, productID, s.credentials).WithLanguage(language)
 	return banksync.NewBankingService(client), true
 }
 
