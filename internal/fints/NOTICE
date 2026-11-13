@@ -25,8 +25,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Parts of this package (the wire syntax, the message envelope, the read-only
-segment builders and the generic response parsing) are ported from fints-rs
-0.2.0 by Florian Minnecker. They were adapted, not copied verbatim: the port
-is read-only, drops the securities-depot request, adds the camt statement
-request, uses a closed type for the HKTAN reference and reports characters
-outside ISO-8859-1 as errors.
+segment builders, the generic response parsing and the typed BPD/UPD/TAN,
+balance and statement response parsers) are ported from fints-rs 0.2.0 by
+Florian Minnecker. They were adapted, not copied verbatim: the port is
+read-only, drops the securities-depot request and its parsers, adds the camt
+statement request and parameter/response values, uses a closed type for the
+HKTAN reference, keeps bank text unexported with masked formatting, uses the
+project's decimal type for money and reports characters outside ISO-8859-1 as
+errors.
