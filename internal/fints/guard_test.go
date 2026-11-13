@@ -230,3 +230,40 @@ func TestNoNetworkImportsOrPrinting(t *testing.T) {
 		})
 	}
 }
+
+// TestNoFloatingPointMoney enforces that money is never a float. It scans
+// every Go file in the package, tests included, for float32, float64 and
+// strconv.ParseFloat.
+func TestNoFloatingPointMoney(t *testing.T) {
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		t.Fatalf("read package directory: %v", err)
+	}
+	fileSet := token.NewFileSet()
+	for _, entry := range entries {
+		name := entry.Name()
+		if entry.IsDir() || !strings.HasSuffix(name, ".go") {
+			continue
+		}
+		// #nosec G304 -- name comes from the fixed package directory listing.
+		file, err := parser.ParseFile(fileSet, name, nil, 0)
+		if err != nil {
+			t.Fatalf("parse %s: %v", name, err)
+		}
+		ast.Inspect(file, func(node ast.Node) bool {
+			switch value := node.(type) {
+			case *ast.Ident:
+				if value.Name == "float32" || value.Name == "float64" {
+					position := fileSet.Position(value.Pos())
+					t.Errorf("%s: forbidden floating-point type %q", position, value.Name)
+				}
+			case *ast.SelectorExpr:
+				if value.Sel.Name == "ParseFloat" {
+					position := fileSet.Position(value.Pos())
+					t.Errorf("%s: forbidden call to %s", position, value.Sel.Name)
+				}
+			}
+			return true
+		})
+	}
+}

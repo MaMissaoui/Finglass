@@ -168,6 +168,17 @@ func FuzzParse(f *testing.F) {
 		[]byte("TEST:1:1+@999999999999999999@'"),
 		[]byte("TEST:1:1+@12'"),
 		{0x00, 0xff, '?'},
+		[]byte("HITANS:1:7:4+1+1+1+N:N:0:942:2:TECH-PUSH:DKID-PUSH:1.0:pushTAN:6:1:SMS:3:1:J:1:0:N:0:2:N:2:00:1:60:5:2:J:J:962:2:TECH-CHIP:DKID-CHIP:1.0:chipTAN:6:1:Challenge:3:1:J:1:0:N:0:2:N:1:00:1'"),
+		[]byte("HIPINS:6:1:4+1+1+0+HKSAL:N+HKKAZ:N+HKSPA:J+HKTAN:N'"),
+		[]byte("HICAZS:2:1:4+1+1+1+urn?:iso?:std?:iso?:20022?:tech?:xsd?:camt.052.001.02'"),
+		[]byte("HIUPD:7:6:4+1::280:99999999+DE00999999990000000001+test-customer+G+EUR+Erika Musterfrau++Girokonto+HKSAL:1+HKKAZ:1'"),
+		[]byte("HISPA:2:4:4+J:DE00999999990000000001:TESTDEFFXXX:00000001::280:99999999'"),
+		[]byte("HITAN:3:6:2+4+task-ref-1+order-hash+challenge-text+@3@ABC+20260315'"),
+		[]byte("HITAB:6:6:4+A:1:My Phone+1:1:Second Phone'"),
+		[]byte("HISAL:5:7:4+1::280:99999999+Girokonto+EUR+C:1234,56:EUR:20260315+D:25,50:EUR:20260314+5000,00+900,00'"),
+		[]byte("HIKAZ:1:7:4+@3@AAA+@3@BBB'"),
+		[]byte("HICAZ:1:7:4+@3@AAA+@3@BBB'"),
+		[]byte("HICAZ:1:1:3+DE00999999990000000001:TESTDEFFXXX+urn?:iso?:std?:iso?:20022?:tech?:xsd?:camt.052.001.02+@3@AAA:@3@BBB+@3@CCC'"),
 	}
 	for _, seed := range seeds {
 		f.Add(seed)
