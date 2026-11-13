@@ -39,6 +39,11 @@ export const DashboardChanged = "dashboard:changed";
 export const MenuAction = "menu:action";
 
 /**
+ * Name of the custom event "reports:changed".
+ */
+export const ReportsChanged = "reports:changed";
+
+/**
  * Name of the custom event "shell:changed".
  */
 export const ShellChanged = "shell:changed";

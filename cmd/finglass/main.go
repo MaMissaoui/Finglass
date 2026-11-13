@@ -39,6 +39,9 @@ var bankingService = bind.NewBanking(nil, bind.BankingOptions{})
 // transactionsService is set from main once the shell service exists.
 var transactionsService = bind.NewTransactions(nil, bind.TransactionsOptions{})
 
+// reportsService is set from main once the shell service exists.
+var reportsService = bind.NewReports(nil, bind.ReportsOptions{})
+
 func main() {
 	// Finder may add its own arguments, so look for the flag instead of
 	// handing all of os.Args to flag.Parse.
@@ -96,6 +99,7 @@ func main() {
 	accountsService = bind.NewAccounts(session, bind.AccountsOptions{})
 	bankingService = bind.NewBanking(session, bind.BankingOptions{})
 	transactionsService = bind.NewTransactions(session, bind.TransactionsOptions{})
+	reportsService = bind.NewReports(session, bind.ReportsOptions{})
 
 	router := bind.NewRouter(session)
 	router.Register("dashboard", dashboardService)
@@ -103,6 +107,7 @@ func main() {
 	router.Register("banking", bankingService)
 	router.RegisterPrompt("banking-prompt", bankingService)
 	router.Register("transactions", transactionsService)
+	router.Register("reports", reportsService)
 	router.RegisterShell(shellService)
 
 	dist, err := fs.Sub(frontend.Dist, "dist")
@@ -124,7 +129,8 @@ func main() {
 		DevToolsEnabled:  false,
 	})
 
-	session.SetFileDialogs(newWailsFileDialogs(app, window))
+	session.SetFileDialogs(newWailsFileDialogs(app, window, session.Language))
+	session.SetFileOpener(newWailsFileOpener(app))
 
 	if runtime.GOOS == "darwin" {
 		menu = &menuController{
@@ -159,6 +165,7 @@ func boundServices() []boundService {
 		{name: "Accounts", service: application.NewService(accountsService)},
 		{name: "Banking", service: application.NewService(bankingService)},
 		{name: "Transactions", service: application.NewService(transactionsService)},
+		{name: "Reports", service: application.NewService(reportsService)},
 	}
 }
 
@@ -303,6 +310,13 @@ var expectedServices = []expectedService{
 		name: "Transactions",
 		matches: func(instance any) bool {
 			_, ok := instance.(*bind.Transactions)
+			return ok
+		},
+	},
+	{
+		name: "Reports",
+		matches: func(instance any) bool {
+			_, ok := instance.(*bind.Reports)
 			return ok
 		},
 	},

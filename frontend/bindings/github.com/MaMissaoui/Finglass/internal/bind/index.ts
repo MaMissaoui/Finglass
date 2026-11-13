@@ -5,6 +5,7 @@ import * as Accounts from "./accounts.js";
 import * as AppInfo from "./appinfo.js";
 import * as Banking from "./banking.js";
 import * as Dashboard from "./dashboard.js";
+import * as Reports from "./reports.js";
 import * as Shell from "./shell.js";
 import * as Transactions from "./transactions.js";
 export {
@@ -12,6 +13,7 @@ export {
     AppInfo,
     Banking,
     Dashboard,
+    Reports,
     Shell,
     Transactions
 };
@@ -45,6 +47,14 @@ export {
     ProfileDTO,
     PromptDTO,
     ReapplyGroupRowDTO,
+    ReportAmountRowDTO,
+    ReportCategoryRowDTO,
+    ReportMonthlyRowDTO,
+    ReportRecurringRowDTO,
+    ReportSuggestionRowDTO,
+    ReportTaxRowDTO,
+    ReportVendorRowDTO,
+    ReportsDTO,
     ShellDTO,
     TickPayload,
     TransactionRowDTO,
