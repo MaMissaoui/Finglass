@@ -33,6 +33,8 @@ export type {
   TransactionsDTO,
   TransactionRowDTO,
   ReapplyGroupRowDTO,
+  ImportCSVFieldDTO,
+  ImportFileRowDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 import type {
@@ -220,6 +222,14 @@ export interface Api {
   transactionsConfirmReapplyRules(): Promise<TransactionsDTO>;
   transactionsCancelReapplyRules(): Promise<TransactionsDTO>;
   transactionsUndoReapply(): Promise<TransactionsDTO>;
+  transactionsOpenImport(): Promise<TransactionsDTO>;
+  transactionsOpenWithImport(): Promise<TransactionsDTO>;
+  transactionsImportAccountChanged(index: number): Promise<TransactionsDTO>;
+  transactionsImportCSVChanged(field: string, value: string): Promise<TransactionsDTO>;
+  transactionsConfirmImport(updateBalance: boolean): Promise<TransactionsDTO>;
+  transactionsCancelImport(): Promise<TransactionsDTO>;
+  transactionsExportCSV(): Promise<TransactionsDTO>;
+  transactionsAttachReceipt(): Promise<TransactionsDTO>;
   transactionsOpenRule(): Promise<TransactionsDTO>;
   transactionsCloseRule(): Promise<TransactionsDTO>;
   transactionsSaveRule(pattern: string, categoryIndex: number): Promise<TransactionsDTO>;

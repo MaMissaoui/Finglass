@@ -1,6 +1,8 @@
 import type {
   AccountAmountDTO,
   AccountPanelRowDTO,
+  ImportCSVFieldDTO,
+  ImportFileRowDTO,
   ReapplyGroupRowDTO,
   TransactionRowDTO,
   TransactionsDTO,
@@ -77,6 +79,57 @@ type MockPending = {
 type MockGroup = { id: number; name: string };
 
 type MockRange = { from: string; to: string };
+
+type MockDuplicate = { date: string; minor: number; currency: string };
+
+type MockImportWarning = { key: string; count: number };
+
+type MockImportEntry = {
+  file: string;
+  count: number;
+  from: string;
+  to: string;
+  warnings: MockImportWarning[];
+};
+
+type MockImportFailure = { file: string; messageKey: string; messageArg: string };
+
+type MockCsvMapping = {
+  date: number;
+  amount: number;
+  debit: number;
+  credit: number;
+  partner: number;
+  purpose: number;
+  balance: number;
+};
+
+type MockImportKind = 'csv' | 'mt940' | 'warnings';
+
+type MockImportPreview = {
+  kind: MockImportKind;
+  files: string[];
+  entries: MockImportEntry[];
+  failures: MockImportFailure[];
+  csvHeaders: string[];
+  csvMapping: MockCsvMapping;
+  accountId: number | null;
+  updateBalance: boolean;
+  balanceUpdateAllowed: boolean;
+  hasBalances: boolean;
+  bookingCount: number;
+};
+
+type MockReapplyGroup = {
+  fromId: number;
+  toId: number;
+  fromName: string;
+  toName: string;
+  count: number;
+  sum: number | null;
+  currency: string;
+  ticked: boolean;
+};
 
 const accountTypes: AccountType[] = ['checking', 'savings', 'credit_card', 'loan', 'depot'];
 const defaultCurrency = 'EUR';
@@ -465,6 +518,86 @@ function samplePending(): MockPending[] {
   ];
 }
 
+function sampleImportPreview(kind: MockImportKind, accountId: number): MockImportPreview {
+  if (kind === 'mt940') {
+    return {
+      kind,
+      files: ['kontoauszug.mt940'],
+      entries: [
+        {
+          file: 'kontoauszug.mt940',
+          count: 3,
+          from: isoDate(2026, 10, 1),
+          to: isoDate(2026, 10, 31),
+          warnings: [],
+        },
+      ],
+      failures: [],
+      csvHeaders: [],
+      csvMapping: { date: 0, amount: 0, debit: 0, credit: 0, partner: 0, purpose: 0, balance: 0 },
+      accountId,
+      updateBalance: true,
+      balanceUpdateAllowed: true,
+      hasBalances: true,
+      bookingCount: 3,
+    };
+  }
+  if (kind === 'warnings') {
+    return {
+      kind,
+      files: ['alt.csv', 'defekt.csv'],
+      entries: [
+        {
+          file: 'alt.csv',
+          count: 2,
+          from: isoDate(2026, 9, 1),
+          to: isoDate(2026, 9, 30),
+          warnings: [
+            { key: 'PendingLeftOut', count: 2 },
+            { key: 'UnreadableCount', count: 1 },
+          ],
+        },
+      ],
+      failures: [{ file: 'defekt.csv', messageKey: 'ErrorFileTooLarge', messageArg: '' }],
+      csvHeaders: [],
+      csvMapping: { date: 0, amount: 0, debit: 0, credit: 0, partner: 0, purpose: 0, balance: 0 },
+      accountId,
+      updateBalance: false,
+      balanceUpdateAllowed: false,
+      hasBalances: true,
+      bookingCount: 2,
+    };
+  }
+  return {
+    kind: 'csv',
+    files: ['oktober.csv', 'november.csv', 'missing.csv'],
+    entries: [
+      {
+        file: 'oktober.csv',
+        count: 2,
+        from: isoDate(2026, 8, 2),
+        to: isoDate(2026, 10, 21),
+        warnings: [],
+      },
+      {
+        file: 'november.csv',
+        count: 2,
+        from: isoDate(2026, 11, 5),
+        to: isoDate(2026, 11, 9),
+        warnings: [],
+      },
+    ],
+    failures: [{ file: 'missing.csv', messageKey: 'ErrorFileNotFound', messageArg: 'missing.csv' }],
+    csvHeaders: ['Buchung', 'Betrag', 'Auftraggeber/Empfänger', 'Verwendungszweck', 'Saldo'],
+    csvMapping: { date: 1, amount: 2, debit: 0, credit: 0, partner: 3, purpose: 4, balance: 5 },
+    accountId,
+    updateBalance: true,
+    balanceUpdateAllowed: true,
+    hasBalances: true,
+    bookingCount: 4,
+  };
+}
+
 function bookingsOf(transactions: MockTransaction[]): BalanceBooking[] {
   return transactions.map((transaction) => ({
     id: transaction.id,
@@ -528,12 +661,19 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
   let rulePattern = '';
   let ruleCategoryIndex = 0;
   let ruleError = '';
-  let duplicateOpen = false;
-  const duplicateTitle = '';
-  const duplicateText = '';
+  let pendingDuplicate: MockDuplicate | null = null;
+  let pendingAdd: Omit<MockTransaction, 'id'> | null = null;
   let multiDeleteOpen = false;
   let multiDeleteIDs = new Set<number>();
-  let addDate = today;
+  let addDate = mockDate(today);
+
+  let importPreview: MockImportPreview | null = null;
+  let importKind: MockImportKind = 'csv';
+
+  let reapplyOpen = false;
+  let reapplyGroups: MockReapplyGroup[] = [];
+  let reapplyShownCount = 0;
+  let lastReapply: { id: number; categoryId: number | null }[] = [];
 
   let nextGroupID = 2;
 
@@ -1114,6 +1254,25 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
     | 'duplicateText'
   >;
 
+  function duplicateFields(): Pick<
+    TransactionsDTO,
+    'duplicateOpen' | 'duplicateTitle' | 'duplicateText'
+  > {
+    if (pendingDuplicate === null) {
+      return { duplicateOpen: false, duplicateTitle: '', duplicateText: '' };
+    }
+    return {
+      duplicateOpen: true,
+      duplicateTitle: translate(language, 'DuplicateTransactionTitle'),
+      duplicateText: translate(
+        language,
+        'DuplicateTransactionText',
+        mockDate(pendingDuplicate.date),
+        mockMoney(pendingDuplicate.minor, pendingDuplicate.currency, language),
+      ),
+    };
+  }
+
   function detailFields(): DetailState {
     const transaction = detailID === null ? undefined : transactionById(detailID);
     if (transaction === undefined) {
@@ -1135,9 +1294,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
         detailHasMismatch: false,
         detailMismatch: '',
         detailPartnerLink: '',
-        duplicateOpen,
-        duplicateTitle,
-        duplicateText,
+        ...duplicateFields(),
       };
     }
     const account = accountById(transaction.accountId);
@@ -1183,9 +1340,254 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
         transaction.partner === ''
           ? ''
           : translate(language, 'ShowAllFromPartner', transaction.partner),
-      duplicateOpen,
-      duplicateTitle,
-      duplicateText,
+      ...duplicateFields(),
+    };
+  }
+
+  function importCsvOptions(preview: MockImportPreview): string[] {
+    return [translate(language, 'NoneDash'), ...preview.csvHeaders];
+  }
+
+  function importFileRows(preview: MockImportPreview): ImportFileRowDTO[] {
+    const rows: ImportFileRowDTO[] = [];
+    for (const entry of preview.entries) {
+      const warnings = entry.warnings.map((warning) =>
+        translate(language, warning.key, warning.count),
+      );
+      rows.push({
+        name: entry.file,
+        countText: translate(language, 'BookingCount', entry.count),
+        periodText:
+          entry.from === entry.to
+            ? mockDate(entry.from)
+            : `${mockDate(entry.from)}–${mockDate(entry.to)}`,
+        warningText: warnings.join(' · '),
+        failure: false,
+      });
+    }
+    for (const failure of preview.failures) {
+      rows.push({
+        name: failure.file,
+        countText: '',
+        periodText: '',
+        warningText:
+          failure.messageArg === ''
+            ? translate(language, failure.messageKey)
+            : translate(language, failure.messageKey, failure.messageArg),
+        failure: true,
+      });
+    }
+    return rows;
+  }
+
+  function importCsvFieldRows(preview: MockImportPreview): ImportCSVFieldDTO[] {
+    if (preview.csvHeaders.length === 0) {
+      return [];
+    }
+    const options = importCsvOptions(preview);
+    const mapping = preview.csvMapping;
+    const fields: { field: string; label: string; index: number }[] = [
+      { field: 'date', label: translate(language, 'ColDate'), index: mapping.date },
+      { field: 'amount', label: translate(language, 'ColAmount'), index: mapping.amount },
+      { field: 'debit', label: translate(language, 'ColDebit'), index: mapping.debit },
+      { field: 'credit', label: translate(language, 'ColCredit'), index: mapping.credit },
+      { field: 'partner', label: translate(language, 'ColPartner'), index: mapping.partner },
+      { field: 'purpose', label: translate(language, 'ColPurpose'), index: mapping.purpose },
+      { field: 'balance', label: translate(language, 'ColBalance'), index: mapping.balance },
+    ];
+    return fields.map((field) => ({
+      field: field.field,
+      label: field.label,
+      options: [...options],
+      index: field.index,
+    }));
+  }
+
+  function importCsvHint(preview: MockImportPreview): string {
+    if (preview.csvHeaders.length === 0 || preview.entries.length <= 1) {
+      return '';
+    }
+    return translate(language, 'ColumnsApplyToSame', preview.entries.length);
+  }
+
+  function importFields(): Pick<
+    TransactionsDTO,
+    | 'importOpen'
+    | 'importTitle'
+    | 'importSummary'
+    | 'importFiles'
+    | 'importCsvFields'
+    | 'importCsvHint'
+    | 'importAccountOptions'
+    | 'importAccountIndex'
+    | 'importBalanceAllowed'
+    | 'importUpdateBalance'
+    | 'importBalanceText'
+    | 'importNewerText'
+    | 'importing'
+    | 'importConfirmText'
+    | 'importConfirmEnabled'
+  > {
+    const preview = importPreview;
+    if (preview === null) {
+      return {
+        importOpen: false,
+        importTitle: '',
+        importSummary: '',
+        importFiles: [],
+        importCsvFields: [],
+        importCsvHint: '',
+        importAccountOptions: [],
+        importAccountIndex: 0,
+        importBalanceAllowed: false,
+        importUpdateBalance: false,
+        importBalanceText: '',
+        importNewerText: '',
+        importing: false,
+        importConfirmText: '',
+        importConfirmEnabled: false,
+      };
+    }
+    const index =
+      preview.accountId === null
+        ? 0
+        : Math.max(
+            0,
+            accounts.findIndex((account) => account.id === preview.accountId),
+          );
+    return {
+      importOpen: true,
+      importTitle:
+        preview.files.length <= 1
+          ? translate(language, 'ImportFile', preview.files[0] ?? '')
+          : translate(language, 'ImportFiles', preview.files.length),
+      importSummary:
+        preview.files.length > 1 ? translate(language, 'BookingCount', preview.bookingCount) : '',
+      importFiles: importFileRows(preview),
+      importCsvFields: importCsvFieldRows(preview),
+      importCsvHint: importCsvHint(preview),
+      importAccountOptions: accounts.map(accountLabel),
+      importAccountIndex: index,
+      importBalanceAllowed: preview.balanceUpdateAllowed,
+      importUpdateBalance: preview.updateBalance,
+      importBalanceText: translate(language, 'SetAccountBalance'),
+      importNewerText:
+        preview.hasBalances && !preview.balanceUpdateAllowed
+          ? translate(language, 'NewerBookingsUnchanged')
+          : '',
+      importing: false,
+      importConfirmText: translate(language, 'ImportCount', preview.bookingCount),
+      importConfirmEnabled: preview.accountId !== null && preview.bookingCount > 0,
+    };
+  }
+
+  function reapplyFields(): Pick<
+    TransactionsDTO,
+    | 'reapplyOpen'
+    | 'reapplySummary'
+    | 'reapplyWarning'
+    | 'reapplyGroups'
+    | 'reapplyConfirmText'
+    | 'reapplyConfirmEnabled'
+  > {
+    let totalCount = 0;
+    let tickedCount = 0;
+    const rows: ReapplyGroupRowDTO[] = [];
+    for (const group of reapplyGroups) {
+      totalCount += group.count;
+      if (group.ticked) {
+        tickedCount += group.count;
+      }
+      rows.push({
+        fromId: group.fromId,
+        toId: group.toId,
+        title: `${group.fromName} → ${group.toName}`,
+        detail:
+          group.sum === null
+            ? String(group.count)
+            : `${group.count} · ${mockMoney(group.sum, group.currency, language, true)}`,
+        ticked: group.ticked,
+      });
+    }
+    return {
+      reapplyOpen,
+      reapplySummary: translate(language, 'ReapplyRulesSummary', totalCount, reapplyShownCount),
+      reapplyWarning: translate(language, 'ReapplyRulesWarning'),
+      reapplyGroups: rows,
+      reapplyConfirmText: translate(language, 'ReapplyRulesConfirm', tickedCount),
+      reapplyConfirmEnabled: tickedCount > 0,
+    };
+  }
+
+  function multiDeleteFields(): Pick<
+    TransactionsDTO,
+    | 'multiDeleteOpen'
+    | 'multiDeleteTitle'
+    | 'multiDeleteRange'
+    | 'multiDeleteTotals'
+    | 'multiDeleteLines'
+    | 'multiDeleteMore'
+  > {
+    if (!multiDeleteOpen) {
+      return {
+        multiDeleteOpen: false,
+        multiDeleteTitle: '',
+        multiDeleteRange: '',
+        multiDeleteTotals: '',
+        multiDeleteLines: [],
+        multiDeleteMore: '',
+      };
+    }
+    const bookings = visibleTransactions().filter((transaction) =>
+      multiDeleteIDs.has(transaction.id),
+    );
+    if (bookings.length === 0) {
+      return {
+        multiDeleteOpen: false,
+        multiDeleteTitle: '',
+        multiDeleteRange: '',
+        multiDeleteTotals: '',
+        multiDeleteLines: [],
+        multiDeleteMore: '',
+      };
+    }
+    let from = bookings[0]?.date ?? today;
+    let to = from;
+    const totals = new Map<string, number>();
+    for (const booking of bookings) {
+      if (booking.date < from) {
+        from = booking.date;
+      }
+      if (booking.date > to) {
+        to = booking.date;
+      }
+      totals.set(booking.currency, (totals.get(booking.currency) ?? 0) + booking.minor);
+    }
+    const ordered = [...totals.entries()].sort((left, right) => {
+      if (left[0] === defaultCurrency) {
+        return -1;
+      }
+      if (right[0] === defaultCurrency) {
+        return 1;
+      }
+      return left[0].localeCompare(right[0]);
+    });
+    const lines = bookings
+      .slice(0, 5)
+      .map(
+        (booking) =>
+          `${mockDate(booking.date)} ${booking.partner !== '' ? booking.partner : booking.purpose} ${mockMoney(booking.minor, booking.currency, language)}`,
+      );
+    const extra = bookings.length - 5;
+    return {
+      multiDeleteOpen: true,
+      multiDeleteTitle: translate(language, 'DeleteTransactionsTitle', bookings.length),
+      multiDeleteRange: from === to ? mockDate(from) : `${mockDate(from)}–${mockDate(to)}`,
+      multiDeleteTotals: ordered
+        .map(([currency, minor]) => mockMoney(minor, currency, language, true))
+        .join(' · '),
+      multiDeleteLines: lines,
+      multiDeleteMore: extra > 0 ? translate(language, 'AndMore', extra) : '',
     };
   }
 
@@ -1290,22 +1692,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
     ];
 
     return {
-      // G8c-4 drives the import dialog; until then it stays closed.
-      importOpen: false,
-      importTitle: '',
-      importSummary: '',
-      importFiles: [],
-      importCsvFields: [],
-      importCsvHint: '',
-      importAccountOptions: [],
-      importAccountIndex: 0,
-      importBalanceAllowed: false,
-      importUpdateBalance: false,
-      importBalanceText: '',
-      importNewerText: '',
-      importing: false,
-      importConfirmText: '',
-      importConfirmEnabled: false,
+      ...importFields(),
       loading: false,
       hasAccounts: accounts.length > 0,
       errorText,
@@ -1368,7 +1755,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
       ],
       addDate,
       addAmountLabel: translate(language, 'AmountIn', currencySymbol(defaultCurrency, language)),
-      addAccountOptions: accounts.map(accountLabel),
+      addAccountOptions: accounts.map((entry) => `${accountLabel(entry)} · ${entry.currency}`),
       addAccountIndex:
         account === undefined
           ? 0
@@ -1398,12 +1785,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
       taxOptions: taxChoices,
       ...detailFields(),
       canUndoReapply,
-      reapplyOpen: false,
-      reapplySummary: '',
-      reapplyWarning: '',
-      reapplyGroups: [] as ReapplyGroupRowDTO[],
-      reapplyConfirmText: '',
-      reapplyConfirmEnabled: false,
+      ...reapplyFields(),
       rangeOpen,
       rangeFrom,
       rangeTo,
@@ -1425,12 +1807,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
       deleteId: deleteID,
       deleteTitle,
       deleteText,
-      multiDeleteOpen,
-      multiDeleteTitle: '',
-      multiDeleteRange: '',
-      multiDeleteTotals: '',
-      multiDeleteLines: [],
-      multiDeleteMore: '',
+      ...multiDeleteFields(),
     };
   }
 
@@ -1875,13 +2252,95 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
   }
 
   function reapplyRules(): TransactionsDTO {
-    messageText = translate(language, 'MessageReapplyNothing');
+    const shown = visibleTransactions();
+    reapplyShownCount = shown.length;
+    const food = categories.find((category) => category.name === 'Food');
+    const health = categories.find((category) => category.name === 'Health');
+    reapplyGroups = [];
+    if (shown.length === 0 || food === undefined || health === undefined) {
+      messageText = translate(language, 'MessageReapplyNothing');
+      reapplyOpen = false;
+      return publish();
+    }
+    const members = shown.filter((transaction) => transaction.categoryId === food.id);
+    if (members.length === 0) {
+      messageText = translate(language, 'MessageReapplyNothing');
+      reapplyOpen = false;
+      return publish();
+    }
+    const currency = members[0]?.currency ?? defaultCurrency;
+    const sum = members.reduce((total, transaction) => total + transaction.minor, 0);
+    reapplyGroups = [
+      {
+        fromId: food.id,
+        toId: health.id,
+        fromName: food.name,
+        toName: health.name,
+        count: members.length,
+        sum,
+        currency,
+        ticked: true,
+      },
+    ];
+    reapplyOpen = true;
+    return publish();
+  }
+
+  function toggleReapplyGroup(from: number, to: number): TransactionsDTO {
+    reapplyGroups = reapplyGroups.map((group) =>
+      group.fromId === from && group.toId === to ? { ...group, ticked: !group.ticked } : group,
+    );
+    return publish();
+  }
+
+  function confirmReapplyRules(): TransactionsDTO {
+    const snapshot: { id: number; categoryId: number | null }[] = [];
+    let changed = 0;
+    for (const group of reapplyGroups) {
+      if (!group.ticked) {
+        continue;
+      }
+      for (const transaction of visibleTransactions()) {
+        const matchesFrom =
+          group.fromId < 0
+            ? transaction.categoryId === null
+            : transaction.categoryId === group.fromId;
+        if (!matchesFrom) {
+          continue;
+        }
+        snapshot.push({ id: transaction.id, categoryId: transaction.categoryId });
+        transaction.categoryId = group.toId;
+        changed += 1;
+      }
+    }
+    lastReapply = snapshot;
+    canUndoReapply = changed > 0;
+    reapplyOpen = false;
+    reapplyGroups = [];
+    messageText =
+      changed > 0
+        ? translate(language, 'MessageReapplied', changed)
+        : translate(language, 'MessageReapplyNothing');
+    return publish();
+  }
+
+  function cancelReapplyRules(): TransactionsDTO {
+    reapplyOpen = false;
+    reapplyGroups = [];
     return publish();
   }
 
   function undoReapply(): TransactionsDTO {
+    const count = lastReapply.length;
+    for (const entry of lastReapply) {
+      const transaction = transactionById(entry.id);
+      if (transaction !== undefined) {
+        transaction.categoryId = entry.categoryId;
+      }
+    }
+    lastReapply = [];
     canUndoReapply = false;
-    messageText = translate(language, 'MessageReapplyUndone', 0);
+    messageText = translate(language, 'MessageReapplyUndone', count);
     return publish();
   }
 
@@ -1889,7 +2348,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
     clearMessages();
     addOpen = true;
     addError = '';
-    addDate = today;
+    addDate = mockDate(today);
     return publish();
   }
 
@@ -1925,14 +2384,23 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
     }
     const category =
       categoryIndexValue <= 0 ? null : (categories[categoryIndexValue - 1]?.id ?? null);
-    const id = Math.max(...transactions.map((transaction) => transaction.id), 0) + 1;
-    transactions.push({
-      id,
+    const cleanPartner = partner.trim();
+    const cleanPurpose = purpose.trim();
+    const minor = expense ? -parsedAmount : parsedAmount;
+    const existing = transactions.find(
+      (transaction) =>
+        transaction.accountId === account.id &&
+        transaction.date === parsedDate &&
+        transaction.minor === minor &&
+        transaction.partner === cleanPartner &&
+        transaction.purpose === cleanPurpose,
+    );
+    const entry: Omit<MockTransaction, 'id'> = {
       date: parsedDate,
-      partner: partner.trim(),
-      purpose: purpose.trim(),
+      partner: cleanPartner,
+      purpose: cleanPurpose,
       categoryId: category,
-      minor: expense ? -parsedAmount : parsedAmount,
+      minor,
       currency: account.currency,
       accountId: account.id,
       isNew: true,
@@ -1941,11 +2409,44 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
       taxSource: '',
       taxRulePattern: '',
       balanceAfter: null,
-    });
+    };
     addOpen = false;
     addError = '';
+    if (existing !== undefined) {
+      pendingAdd = entry;
+      pendingDuplicate = {
+        date: existing.date,
+        minor: existing.minor,
+        currency: existing.currency,
+      };
+      return publish();
+    }
+    const id = Math.max(...transactions.map((transaction) => transaction.id), 0) + 1;
+    transactions.push({ id, ...entry });
     messageText = translate(language, 'MessageTransactionAdded');
     return publish();
+  }
+
+  function confirmDuplicate(): TransactionsDTO {
+    if (pendingAdd !== null) {
+      const id = Math.max(...transactions.map((transaction) => transaction.id), 0) + 1;
+      transactions.push({ id, ...pendingAdd });
+      messageText = translate(language, 'MessageTransactionAdded');
+    }
+    pendingAdd = null;
+    pendingDuplicate = null;
+    return publish();
+  }
+
+  function dismissDuplicate(): TransactionsDTO {
+    pendingAdd = null;
+    pendingDuplicate = null;
+    return publish();
+  }
+
+  function showDuplicate(date: string, minor: number, currency: string): void {
+    pendingAdd = null;
+    pendingDuplicate = { date, minor, currency };
   }
 
   function openRule(): TransactionsDTO {
@@ -1989,6 +2490,148 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
 
   function dismissMessage(): TransactionsDTO {
     clearMessages();
+    return publish();
+  }
+
+  function openImport(): TransactionsDTO {
+    clearMessages();
+    importKind = scenario.includes('mt940')
+      ? 'mt940'
+      : scenario.includes('warnings')
+        ? 'warnings'
+        : 'csv';
+    importPreview = sampleImportPreview(importKind, accounts[0]?.id ?? 1);
+    return publish();
+  }
+
+  function importAccountChanged(index: number): TransactionsDTO {
+    if (importPreview === null) {
+      return state();
+    }
+    const account = accounts[index];
+    if (account === undefined) {
+      return state();
+    }
+    importPreview.accountId = account.id;
+    return publish();
+  }
+
+  function importCsvChanged(field: string, value: string): TransactionsDTO {
+    if (importPreview === null || importPreview.csvHeaders.length === 0) {
+      return state();
+    }
+    const options = importCsvOptions(importPreview);
+    const index = options.indexOf(value);
+    if (index < 0) {
+      return state();
+    }
+    const mapping = importPreview.csvMapping;
+    switch (field) {
+      case 'date':
+        mapping.date = index;
+        break;
+      case 'amount':
+        mapping.amount = index;
+        if (index > 0) {
+          mapping.debit = 0;
+          mapping.credit = 0;
+        }
+        break;
+      case 'debit':
+        mapping.debit = index;
+        if (index > 0) {
+          mapping.amount = 0;
+        }
+        break;
+      case 'credit':
+        mapping.credit = index;
+        if (index > 0) {
+          mapping.amount = 0;
+        }
+        break;
+      case 'partner':
+        mapping.partner = index;
+        break;
+      case 'purpose':
+        mapping.purpose = index;
+        break;
+      case 'balance':
+        mapping.balance = index;
+        break;
+      default:
+        return state();
+    }
+    return publish();
+  }
+
+  function confirmImport(updateBalance: boolean): TransactionsDTO {
+    const preview = importPreview;
+    if (
+      preview === null ||
+      preview.accountId === null ||
+      preview.bookingCount === 0 ||
+      accounts.every((account) => account.id !== preview.accountId)
+    ) {
+      return state();
+    }
+    const account = accountById(preview.accountId);
+    if (account === undefined) {
+      return state();
+    }
+    preview.updateBalance = updateBalance;
+    let nextID = Math.max(...transactions.map((transaction) => transaction.id), 0) + 1;
+    const imported: MockTransaction[] = [];
+    for (const entry of preview.entries) {
+      for (let index = 0; index < entry.count; index += 1) {
+        imported.push({
+          id: nextID,
+          date: index === 0 ? entry.from : index === 1 ? entry.to : entry.from,
+          partner: entry.file,
+          purpose: '',
+          categoryId: null,
+          minor: index % 2 === 0 ? -1_500 : 1_500,
+          currency: account.currency,
+          accountId: account.id,
+          isNew: true,
+          documents: 0,
+          taxOverride: null,
+          taxSource: '',
+          taxRulePattern: '',
+          balanceAfter: null,
+        });
+        nextID += 1;
+      }
+    }
+    transactions = [...transactions, ...imported];
+    if (updateBalance && preview.balanceUpdateAllowed) {
+      account.minor += imported.reduce((total, entry) => total + entry.minor, 0);
+    }
+    importPreview = null;
+    messageText =
+      preview.files.length > 1
+        ? translate(language, 'ImportSummaryFiles', preview.bookingCount, preview.files.length)
+        : translate(language, 'ImportSummary', preview.bookingCount);
+    return publish();
+  }
+
+  function cancelImport(): TransactionsDTO {
+    importPreview = null;
+    return publish();
+  }
+
+  function exportCsv(): TransactionsDTO {
+    const name = `transactions-${today}.csv`;
+    messageText = translate(language, 'MessageExportedCount', visibleTransactions().length, name);
+    return publish();
+  }
+
+  function attachReceipt(): TransactionsDTO {
+    const transaction = detailID === null ? undefined : transactionById(detailID);
+    if (transaction === undefined) {
+      return state();
+    }
+    transaction.documents += 1;
+    messageText = translate(language, 'MessageDocumentLinked');
     return publish();
   }
 
@@ -2162,6 +2805,34 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
       setPeriod('this-month');
       setCategoryFilter({ kind: 'only', id: 11 });
       break;
+    case 'transactions-add-en':
+      openAdd();
+      break;
+    case 'transactions-duplicate-en':
+      showDuplicate(isoDate(2026, 10, 15), -1_200, 'EUR');
+      break;
+    case 'transactions-multi-delete-en':
+      selectFirst(3);
+      openMultiDelete();
+      break;
+    case 'transactions-reapply-en':
+      setPeriod('this-month');
+      reapplyRules();
+      break;
+    case 'transactions-rule-dialog-en':
+      selectAccountID(1);
+      openSpotifyDetail();
+      openRule();
+      rulePattern = 'Example Market';
+      ruleCategoryIndex = 0;
+      break;
+    case 'transactions-import-csv-en':
+    case 'transactions-import-en-light':
+    case 'transactions-import-de-dark':
+    case 'transactions-import-mt940-en':
+    case 'transactions-import-warnings-en':
+      openImport();
+      break;
     default:
       break;
   }
@@ -2194,7 +2865,17 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
     toggleChart,
     autoCategorize,
     reapplyRules,
+    toggleReapplyGroup,
+    confirmReapplyRules,
+    cancelReapplyRules,
     undoReapply,
+    openImport,
+    importAccountChanged,
+    importCsvChanged,
+    confirmImport,
+    cancelImport,
+    exportCsv,
+    attachReceipt,
     openRule,
     closeRule,
     saveRule,
@@ -2216,14 +2897,8 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
     openAdd,
     addSubmit,
     closeAdd,
-    confirmDuplicate: (): TransactionsDTO => {
-      duplicateOpen = false;
-      return publish();
-    },
-    dismissDuplicate: (): TransactionsDTO => {
-      duplicateOpen = false;
-      return publish();
-    },
+    confirmDuplicate,
+    dismissDuplicate,
     closeDetail,
     detailCreateRule: () => openRule(),
     detailCategory,
