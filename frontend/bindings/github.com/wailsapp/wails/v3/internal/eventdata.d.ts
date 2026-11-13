@@ -17,6 +17,7 @@ declare module "@wailsio/runtime" {
             "banking:changed": bind$0.BankingDTO;
             "banking:prompt": bind$0.PromptDTO;
             "dashboard:changed": bind$0.DashboardDTO;
+            "documents:changed": bind$0.DocumentsDTO;
             "menu:action": string;
             "reports:changed": bind$0.ReportsDTO;
             "settings:changed": bind$0.SettingsDTO;

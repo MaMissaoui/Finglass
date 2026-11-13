@@ -1592,6 +1592,226 @@ export class DashboardUpcomingRowDTO {
 }
 
 /**
+ * DocumentLinkRowDTO is one suggestion or link-candidate row.
+ */
+export class DocumentLinkRowDTO {
+    "id": number;
+    "title": string;
+    "meta": string;
+    "badge": string;
+
+    /** Creates a new DocumentLinkRowDTO instance. */
+    constructor($$source: Partial<DocumentLinkRowDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("meta" in $$source)) {
+            this["meta"] = "";
+        }
+        if (!("badge" in $$source)) {
+            this["badge"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DocumentLinkRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DocumentLinkRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DocumentLinkRowDTO($$parsedSource as Partial<DocumentLinkRowDTO>);
+    }
+}
+
+/**
+ * DocumentRowDTO is one row of the document list.
+ */
+export class DocumentRowDTO {
+    "id": number;
+    "name": string;
+    "meta": string;
+    "isLinked": boolean;
+    "hasOcr": boolean;
+    "isPdf": boolean;
+    "selected": boolean;
+
+    /** Creates a new DocumentRowDTO instance. */
+    constructor($$source: Partial<DocumentRowDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("meta" in $$source)) {
+            this["meta"] = "";
+        }
+        if (!("isLinked" in $$source)) {
+            this["isLinked"] = false;
+        }
+        if (!("hasOcr" in $$source)) {
+            this["hasOcr"] = false;
+        }
+        if (!("isPdf" in $$source)) {
+            this["isPdf"] = false;
+        }
+        if (!("selected" in $$source)) {
+            this["selected"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DocumentRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DocumentRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DocumentRowDTO($$parsedSource as Partial<DocumentRowDTO>);
+    }
+}
+
+/**
+ * DocumentsDTO is everything the Documents page shows.
+ * 
+ * Every value Rust's apply sets has a field here. The preview image travels as a
+ * data URL, as the page's own CSP allows for images; no other file route is
+ * added. Money and dates are already formatted by the page.
+ */
+export class DocumentsDTO {
+    "rows": DocumentRowDTO[];
+    "tab": string;
+    "tabAllLabel": string;
+    "tabUnlinkedLabel": string;
+    "tabLinkedLabel": string;
+    "searchQuery": string;
+    "ocrAvailable": boolean;
+    "ocrHint": string;
+    "uploading": boolean;
+    "progressText": string;
+    "loading": boolean;
+    "errorText": string;
+    "messageText": string;
+    "hasSelection": boolean;
+    "selectedName": string;
+    "selectedLinked": boolean;
+    "selectedLinkLabel": string;
+    "selectedOcrHeading": string;
+    "selectedOcrText": string;
+    "previewKind": string;
+    "previewDataUrl": string;
+    "suggestions": DocumentLinkRowDTO[];
+    "candidates": DocumentLinkRowDTO[];
+    "candidateQuery": string;
+    "deleteText": string;
+
+    /** Creates a new DocumentsDTO instance. */
+    constructor($$source: Partial<DocumentsDTO> = {}) {
+        if (!("rows" in $$source)) {
+            this["rows"] = [];
+        }
+        if (!("tab" in $$source)) {
+            this["tab"] = "";
+        }
+        if (!("tabAllLabel" in $$source)) {
+            this["tabAllLabel"] = "";
+        }
+        if (!("tabUnlinkedLabel" in $$source)) {
+            this["tabUnlinkedLabel"] = "";
+        }
+        if (!("tabLinkedLabel" in $$source)) {
+            this["tabLinkedLabel"] = "";
+        }
+        if (!("searchQuery" in $$source)) {
+            this["searchQuery"] = "";
+        }
+        if (!("ocrAvailable" in $$source)) {
+            this["ocrAvailable"] = false;
+        }
+        if (!("ocrHint" in $$source)) {
+            this["ocrHint"] = "";
+        }
+        if (!("uploading" in $$source)) {
+            this["uploading"] = false;
+        }
+        if (!("progressText" in $$source)) {
+            this["progressText"] = "";
+        }
+        if (!("loading" in $$source)) {
+            this["loading"] = false;
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("messageText" in $$source)) {
+            this["messageText"] = "";
+        }
+        if (!("hasSelection" in $$source)) {
+            this["hasSelection"] = false;
+        }
+        if (!("selectedName" in $$source)) {
+            this["selectedName"] = "";
+        }
+        if (!("selectedLinked" in $$source)) {
+            this["selectedLinked"] = false;
+        }
+        if (!("selectedLinkLabel" in $$source)) {
+            this["selectedLinkLabel"] = "";
+        }
+        if (!("selectedOcrHeading" in $$source)) {
+            this["selectedOcrHeading"] = "";
+        }
+        if (!("selectedOcrText" in $$source)) {
+            this["selectedOcrText"] = "";
+        }
+        if (!("previewKind" in $$source)) {
+            this["previewKind"] = "";
+        }
+        if (!("previewDataUrl" in $$source)) {
+            this["previewDataUrl"] = "";
+        }
+        if (!("suggestions" in $$source)) {
+            this["suggestions"] = [];
+        }
+        if (!("candidates" in $$source)) {
+            this["candidates"] = [];
+        }
+        if (!("candidateQuery" in $$source)) {
+            this["candidateQuery"] = "";
+        }
+        if (!("deleteText" in $$source)) {
+            this["deleteText"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DocumentsDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DocumentsDTO {
+        const $$createField0_0 = $$createType37;
+        const $$createField21_0 = $$createType39;
+        const $$createField22_0 = $$createType39;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("rows" in $$parsedSource) {
+            $$parsedSource["rows"] = $$createField0_0($$parsedSource["rows"]);
+        }
+        if ("suggestions" in $$parsedSource) {
+            $$parsedSource["suggestions"] = $$createField21_0($$parsedSource["suggestions"]);
+        }
+        if ("candidates" in $$parsedSource) {
+            $$parsedSource["candidates"] = $$createField22_0($$parsedSource["candidates"]);
+        }
+        return new DocumentsDTO($$parsedSource as Partial<DocumentsDTO>);
+    }
+}
+
+/**
  * ImportCSVFieldDTO is one row of the CSV mapping editor.
  */
 export class ImportCSVFieldDTO {
@@ -1783,7 +2003,7 @@ export class PromptDTO {
      * Creates a new PromptDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): PromptDTO {
-        const $$createField8_0 = $$createType37;
+        const $$createField8_0 = $$createType41;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("choices" in $$parsedSource) {
             $$parsedSource["choices"] = $$createField8_0($$parsedSource["choices"]);
@@ -2440,13 +2660,13 @@ export class ReportsDTO {
      * Creates a new ReportsDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ReportsDTO {
-        const $$createField25_0 = $$createType39;
-        const $$createField32_0 = $$createType41;
-        const $$createField40_0 = $$createType43;
-        const $$createField42_0 = $$createType45;
-        const $$createField47_0 = $$createType47;
-        const $$createField63_0 = $$createType49;
-        const $$createField64_0 = $$createType51;
+        const $$createField25_0 = $$createType43;
+        const $$createField32_0 = $$createType45;
+        const $$createField40_0 = $$createType47;
+        const $$createField42_0 = $$createType49;
+        const $$createField47_0 = $$createType51;
+        const $$createField63_0 = $$createType53;
+        const $$createField64_0 = $$createType55;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("taxRelevantRows" in $$parsedSource) {
             $$parsedSource["taxRelevantRows"] = $$createField25_0($$parsedSource["taxRelevantRows"]);
@@ -2809,9 +3029,9 @@ export class SettingsDTO {
      */
     static createFrom($$source: any = {}): SettingsDTO {
         const $$createField6_0 = $$createType16;
-        const $$createField9_0 = $$createType53;
-        const $$createField10_0 = $$createType55;
-        const $$createField13_0 = $$createType57;
+        const $$createField9_0 = $$createType57;
+        const $$createField10_0 = $$createType59;
+        const $$createField13_0 = $$createType61;
         const $$createField14_0 = $$createType16;
         const $$createField15_0 = $$createType16;
         const $$createField16_0 = $$createType16;
@@ -3035,7 +3255,7 @@ export class ShellDTO {
      */
     static createFrom($$source: any = {}): ShellDTO {
         const $$createField9_0 = $$createType16;
-        const $$createField18_0 = $$createType59;
+        const $$createField18_0 = $$createType63;
         const $$createField23_0 = $$createType16;
         const $$createField29_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
@@ -3696,16 +3916,16 @@ export class TransactionsDTO {
         const $$createField19_0 = $$createType16;
         const $$createField21_0 = $$createType11;
         const $$createField22_0 = $$createType13;
-        const $$createField26_0 = $$createType61;
+        const $$createField26_0 = $$createType65;
         const $$createField29_0 = $$createType16;
         const $$createField32_0 = $$createType16;
         const $$createField52_0 = $$createType16;
         const $$createField53_0 = $$createType16;
-        const $$createField78_0 = $$createType63;
+        const $$createField78_0 = $$createType67;
         const $$createField95_0 = $$createType16;
         const $$createField106_0 = $$createType16;
-        const $$createField111_0 = $$createType65;
-        const $$createField112_0 = $$createType67;
+        const $$createField111_0 = $$createType69;
+        const $$createField112_0 = $$createType71;
         const $$createField114_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("incomeAmounts" in $$parsedSource) {
@@ -3806,35 +4026,39 @@ const $$createType32 = DashboardUpcomingRowDTO.createFrom;
 const $$createType33 = $Create.Array($$createType32);
 const $$createType34 = DashboardTransactionRowDTO.createFrom;
 const $$createType35 = $Create.Array($$createType34);
-const $$createType36 = BankingPromptChoiceDTO.createFrom;
+const $$createType36 = DocumentRowDTO.createFrom;
 const $$createType37 = $Create.Array($$createType36);
-const $$createType38 = ReportAmountRowDTO.createFrom;
+const $$createType38 = DocumentLinkRowDTO.createFrom;
 const $$createType39 = $Create.Array($$createType38);
-const $$createType40 = ReportMonthlyRowDTO.createFrom;
+const $$createType40 = BankingPromptChoiceDTO.createFrom;
 const $$createType41 = $Create.Array($$createType40);
-const $$createType42 = ReportCategoryRowDTO.createFrom;
+const $$createType42 = ReportAmountRowDTO.createFrom;
 const $$createType43 = $Create.Array($$createType42);
-const $$createType44 = ReportVendorRowDTO.createFrom;
+const $$createType44 = ReportMonthlyRowDTO.createFrom;
 const $$createType45 = $Create.Array($$createType44);
-const $$createType46 = ReportRecurringRowDTO.createFrom;
+const $$createType46 = ReportCategoryRowDTO.createFrom;
 const $$createType47 = $Create.Array($$createType46);
-const $$createType48 = ReportSuggestionRowDTO.createFrom;
+const $$createType48 = ReportVendorRowDTO.createFrom;
 const $$createType49 = $Create.Array($$createType48);
-const $$createType50 = ReportTaxRowDTO.createFrom;
+const $$createType50 = ReportRecurringRowDTO.createFrom;
 const $$createType51 = $Create.Array($$createType50);
-const $$createType52 = SettingsCategoryRowDTO.createFrom;
+const $$createType52 = ReportSuggestionRowDTO.createFrom;
 const $$createType53 = $Create.Array($$createType52);
-const $$createType54 = SettingsRuleRowDTO.createFrom;
+const $$createType54 = ReportTaxRowDTO.createFrom;
 const $$createType55 = $Create.Array($$createType54);
-const $$createType56 = SettingsColourSwatchDTO.createFrom;
+const $$createType56 = SettingsCategoryRowDTO.createFrom;
 const $$createType57 = $Create.Array($$createType56);
-const $$createType58 = ProfileDTO.createFrom;
+const $$createType58 = SettingsRuleRowDTO.createFrom;
 const $$createType59 = $Create.Array($$createType58);
-const $$createType60 = TransactionRowDTO.createFrom;
+const $$createType60 = SettingsColourSwatchDTO.createFrom;
 const $$createType61 = $Create.Array($$createType60);
-const $$createType62 = ReapplyGroupRowDTO.createFrom;
+const $$createType62 = ProfileDTO.createFrom;
 const $$createType63 = $Create.Array($$createType62);
-const $$createType64 = ImportFileRowDTO.createFrom;
+const $$createType64 = TransactionRowDTO.createFrom;
 const $$createType65 = $Create.Array($$createType64);
-const $$createType66 = ImportCSVFieldDTO.createFrom;
+const $$createType66 = ReapplyGroupRowDTO.createFrom;
 const $$createType67 = $Create.Array($$createType66);
+const $$createType68 = ImportFileRowDTO.createFrom;
+const $$createType69 = $Create.Array($$createType68);
+const $$createType70 = ImportCSVFieldDTO.createFrom;
+const $$createType71 = $Create.Array($$createType70);
