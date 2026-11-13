@@ -1,9 +1,8 @@
 /**
- * The mock build's bank directory for the add-online-bank search. The Go
- * banking service has no bank-directory DTO yet (the directory's data licence
- * is still being cleared), so the real build searches an empty directory and
- * asks for the details by hand. The entries below are invented, as the mock
- * must not present real bank records.
+ * The mock build's invented bank entries for the add-online-bank search. The
+ * mock banking service implements SearchBanks, PickBankSuggestion and
+ * BankBLZChanged over them, through the same API methods as the Go build. The
+ * entries are invented, as the mock must not present real bank records.
  */
 export interface BankSuggestion {
   name: string;
@@ -64,7 +63,7 @@ export function bankDirectory(mock: boolean): BankSuggestion[] {
 export function searchBanks(
   directory: BankSuggestion[],
   query: string,
-  limit = 6,
+  limit = 15,
 ): BankSuggestion[] {
   const needle = query.trim().toLowerCase();
   if (needle === '' || limit <= 0) {

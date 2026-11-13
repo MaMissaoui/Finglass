@@ -978,6 +978,15 @@ export function createMockApi(scenario = scenarioName()): Api {
     ) {
       return Promise.resolve(banking.addOnlineBank(name, blz, bic, userID, serverURL));
     },
+    bankingSearchBanks(query: string) {
+      return Promise.resolve(banking.searchBanks(query));
+    },
+    bankingPickBankSuggestion(name: string, blz: string, bic: string) {
+      return Promise.resolve(banking.pickBankSuggestion(name, blz, bic));
+    },
+    bankingBankBlzChanged(name: string, blz: string, bic: string) {
+      return Promise.resolve(banking.bankBlzChanged(name, blz, bic));
+    },
     bankingSubmitConnection(
       bankID: number,
       name: string,

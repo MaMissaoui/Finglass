@@ -396,6 +396,7 @@
       {#key `${accounts.dialog.kind}:${accounts.dialog.bankId}:${accounts.dialog.accountId}`}
         {#if accounts.dialog.kind === 'add-bank'}
           <AccountsAddBankDialog
+            {api}
             dialog={accounts.dialog}
             {t}
             onClose={() => run(() => api.accountsCloseDialog())}
