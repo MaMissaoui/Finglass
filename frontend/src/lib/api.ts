@@ -28,6 +28,9 @@ export type {
   BankingDTO,
   BankingPromptChoiceDTO,
   PromptDTO,
+  TransactionsDTO,
+  TransactionRowDTO,
+  ReapplyGroupRowDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 import type {
@@ -36,6 +39,7 @@ import type {
   BankingDTO,
   PromptDTO,
   ShellDTO,
+  TransactionsDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 export interface Api {
@@ -187,6 +191,90 @@ export interface Api {
   bankingAnswerChoice(id: number, choice: string): Promise<void>;
   bankingCancelChoice(id: number): Promise<void>;
   bankingAnswerDecoupled(id: number, confirmed: boolean): Promise<void>;
+  transactionsState(): Promise<TransactionsDTO>;
+  transactionsLoad(): Promise<TransactionsDTO>;
+  transactionsOpenWithAdd(): Promise<TransactionsDTO>;
+  transactionsSearch(query: string): Promise<TransactionsDTO>;
+  transactionsPeriodChanged(index: number): Promise<TransactionsDTO>;
+  transactionsOpenRange(): Promise<TransactionsDTO>;
+  transactionsApplyRange(from: string, to: string): Promise<TransactionsDTO>;
+  transactionsCloseRange(): Promise<TransactionsDTO>;
+  transactionsCategoryChanged(index: number): Promise<TransactionsDTO>;
+  transactionsDirectionChanged(index: number): Promise<TransactionsDTO>;
+  transactionsAccountChanged(index: number): Promise<TransactionsDTO>;
+  transactionsOpenAmount(): Promise<TransactionsDTO>;
+  transactionsApplyAmount(minimum: string, maximum: string): Promise<TransactionsDTO>;
+  transactionsResetAmount(): Promise<TransactionsDTO>;
+  transactionsCloseAmount(): Promise<TransactionsDTO>;
+  transactionsToggleChart(): Promise<TransactionsDTO>;
+  transactionsAutoCategorize(): Promise<TransactionsDTO>;
+  transactionsReapplyRules(): Promise<TransactionsDTO>;
+  transactionsToggleReapplyGroup(from: number, to: number): Promise<TransactionsDTO>;
+  transactionsConfirmReapplyRules(): Promise<TransactionsDTO>;
+  transactionsCancelReapplyRules(): Promise<TransactionsDTO>;
+  transactionsUndoReapply(): Promise<TransactionsDTO>;
+  transactionsOpenRule(): Promise<TransactionsDTO>;
+  transactionsCloseRule(): Promise<TransactionsDTO>;
+  transactionsSaveRule(pattern: string, categoryIndex: number): Promise<TransactionsDTO>;
+  transactionsBack(): Promise<TransactionsDTO>;
+  transactionsOpenDetail(id: number): Promise<TransactionsDTO>;
+  transactionsToggleSelect(id: number): Promise<TransactionsDTO>;
+  transactionsSelectRange(id: number): Promise<TransactionsDTO>;
+  transactionsSelectAll(): Promise<TransactionsDTO>;
+  transactionsClearSelection(): Promise<TransactionsDTO>;
+  transactionsShowPartner(partner: string): Promise<TransactionsDTO>;
+  transactionsOpenDelete(id: number): Promise<TransactionsDTO>;
+  transactionsConfirmDelete(id: number): Promise<TransactionsDTO>;
+  transactionsCancelDelete(): Promise<TransactionsDTO>;
+  transactionsOpenMultiDelete(): Promise<TransactionsDTO>;
+  transactionsConfirmMultiDelete(): Promise<TransactionsDTO>;
+  transactionsCancelMultiDelete(): Promise<TransactionsDTO>;
+  transactionsBatchCategory(index: number): Promise<TransactionsDTO>;
+  transactionsBatchTax(index: number): Promise<TransactionsDTO>;
+  transactionsOpenAdd(): Promise<TransactionsDTO>;
+  transactionsAddSubmit(
+    accountIndex: number,
+    expense: boolean,
+    date: string,
+    amount: string,
+    partner: string,
+    purpose: string,
+    categoryIndex: number,
+  ): Promise<TransactionsDTO>;
+  transactionsCloseAdd(): Promise<TransactionsDTO>;
+  transactionsConfirmDuplicate(): Promise<TransactionsDTO>;
+  transactionsDismissDuplicate(): Promise<TransactionsDTO>;
+  transactionsCloseDetail(): Promise<TransactionsDTO>;
+  transactionsDetailClose(): Promise<TransactionsDTO>;
+  transactionsDetailCreateRule(): Promise<TransactionsDTO>;
+  transactionsDetailCategory(index: number): Promise<TransactionsDTO>;
+  transactionsDetailTax(index: number): Promise<TransactionsDTO>;
+  transactionsDetailShowPartner(partner: string): Promise<TransactionsDTO>;
+  transactionsDismissMessage(): Promise<TransactionsDTO>;
+  transactionsPanelSelect(
+    kind: string,
+    groupKind: string,
+    id: number,
+    accountType: string,
+  ): Promise<TransactionsDTO>;
+  transactionsPanelToggle(
+    kind: string,
+    groupKind: string,
+    id: number,
+    accountType: string,
+  ): Promise<TransactionsDTO>;
+  transactionsPanelMarkRead(
+    kind: string,
+    groupKind: string,
+    id: number,
+    accountType: string,
+  ): Promise<TransactionsDTO>;
+  transactionsPanelNewGroup(name: string): Promise<TransactionsDTO>;
+  transactionsPanelRenameGroup(id: number, name: string): Promise<TransactionsDTO>;
+  transactionsPanelDeleteGroup(id: number): Promise<TransactionsDTO>;
+  transactionsPanelMoveGroup(id: number, up: boolean): Promise<TransactionsDTO>;
+  transactionsPanelMoveAccount(accountID: number, groupID: number): Promise<TransactionsDTO>;
+  transactionsPanelFilterChanged(text: string): Promise<TransactionsDTO>;
 
   onShellChanged(callback: (dto: ShellDTO) => void): () => void;
   onAccountsChanged(callback: (dto: AccountsDTO) => void): () => void;
@@ -194,6 +282,7 @@ export interface Api {
   onBankingPrompt(callback: (dto: PromptDTO) => void): () => void;
   onMenuAction(callback: (action: string) => void): () => void;
   onDashboardChanged(callback: (dto: DashboardDTO) => void): () => void;
+  onTransactionsChanged(callback: (dto: TransactionsDTO) => void): () => void;
 }
 
 let loaded: Promise<Api> | undefined;
