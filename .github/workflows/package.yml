@@ -1,0 +1,216 @@
+name: Package
+
+# The Go app and its universal DMG are built on every push to main, on packaging-relevant pull
+# requests and on demand. A pushed v* tag runs the same checks and then publishes the DMG as a
+# GitHub pre-release.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    # A docs-only merge to main builds no DMG. Path filters don't apply to tag pushes, so a release tag
+    # always packages.
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "packaging/**"
+      - "assets/icons/**"
+      - "cmd/**"
+      - "frontend/**"
+      - ".github/workflows/package.yml"
+
+concurrency:
+  group: package-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Package (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26"
+      - name: Determine the version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+              echo "::error::tag $GITHUB_REF_NAME is not a valid v<major>.<minor>.<patch>[-suffix] tag"
+              exit 1
+            fi
+          else
+            version=0.4.0-dev
+          fi
+
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+      - name: Download the Go modules
+        run: go mod download
+      - name: Build app and DMG
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          log="$RUNNER_TEMP/package.log"
+          bash scripts/go-package-macos.sh "$VERSION" 2>&1 | tee "$log"
+          if ! grep -qx "OK: $VERSION" "$log"; then
+            echo "::error::--self-check did not print OK: $VERSION"
+            exit 1
+          fi
+      - name: Launch the packaged app once
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          dmg="build/go/Finglass_${VERSION}_universal.dmg"
+          if [ ! -f "$dmg" ]; then
+            echo "::error::no DMG at $dmg"
+            exit 1
+          fi
+
+          mount_point=$(mktemp -d)
+          copy_dir=$(mktemp -d)
+          home=$(mktemp -d)
+          cleanup() {
+            hdiutil detach "$mount_point" >/dev/null 2>&1 || true
+            rm -rf "$mount_point" "$copy_dir" "$home"
+          }
+          trap cleanup EXIT
+
+          hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$mount_point" "$dmg" >/dev/null
+          echo "Mounted $dmg at $mount_point"
+
+          ditto "$mount_point/Finglass.app" "$copy_dir/Finglass.app"
+
+          log="$RUNNER_TEMP/finglass-launch.log"
+          FINGLASS_HOME="$home" "$copy_dir/Finglass.app/Contents/MacOS/Finglass" >"$log" 2>&1 &
+          pid=$!
+
+          sleep 10
+          if ! kill -0 "$pid" 2>/dev/null; then
+            echo "::error::the app exited within 10 seconds"
+            cat "$log" 2>/dev/null || true
+            wait "$pid" || true
+            exit 1
+          fi
+          echo "The app is still running after 10 seconds; stopping it."
+          kill "$pid"
+          wait "$pid" || true
+
+          if [ ! -d "$home" ]; then
+            echo "::error::FINGLASS_HOME was not created"
+            exit 1
+          fi
+          # Until the user creates or unlocks a profile, the unlock window only reads this folder;
+          # the instance lock creates finglass.lock and nothing else.
+          entries=$(ls -A "$home")
+          if [ "$entries" != "finglass.lock" ]; then
+            echo "::error::expected only finglass.lock in FINGLASS_HOME:"
+            ls -la "$home"
+            exit 1
+          fi
+          echo "Launch check passed; FINGLASS_HOME holds only the instance lock."
+      - name: Install into a scratch folder twice
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          apps="$RUNNER_TEMP/apps"
+          trash="$RUNNER_TEMP/trash"
+          rm -rf "$apps" "$trash"
+          mkdir -p "$apps" "$trash"
+
+          for run in 1 2; do
+            echo "Install run $run into $apps"
+            FINGLASS_INSTALL_TRASH="$trash" ./scripts/install-mac.sh \
+              --install-dir "$apps" --from-source --force
+            if [ ! -d "$apps/Finglass.app" ]; then
+              echo "::error::no Finglass.app in $apps after install run $run"
+              exit 1
+            fi
+            codesign --verify --deep --strict "$apps/Finglass.app"
+          done
+
+          shopt -s nullglob
+          replaced=("$trash"/Finglass\ *\ \(replaced\ *\).app)
+          echo "Replaced bundles in the scratch trash: ${#replaced[@]}"
+          for bundle in "${replaced[@]}"; do
+            echo "  $bundle"
+          done
+          if [ "${#replaced[@]}" -ne 1 ]; then
+            echo "::error::expected exactly one replaced Finglass bundle in $trash, found ${#replaced[@]}"
+            exit 1
+          fi
+      - name: Upload DMG
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: finglass-macos-dmg
+          path: build/go/*.dmg
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Release (macOS)
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download the checked DMG
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: finglass-macos-dmg
+          path: dist
+      - name: Publish the pre-release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          version="${TAG#v}"
+
+          notes="docs/releases/$TAG.md"
+          if [ ! -f "$notes" ]; then
+            echo "::error::no release notes at $notes"
+            exit 1
+          fi
+
+          shopt -s nullglob
+          dmgs=(dist/Finglass_*.dmg)
+          if [ "${#dmgs[@]}" -ne 1 ]; then
+            echo "::error::expected exactly one DMG, found ${#dmgs[@]}"
+            exit 1
+          fi
+          expected="Finglass_${version}_universal.dmg"
+          if [ "$(basename "${dmgs[0]}")" != "$expected" ]; then
+            echo "::error::expected the DMG to be named $expected, found $(basename "${dmgs[0]}")"
+            exit 1
+          fi
+
+          (cd dist && shasum -a 256 "$(basename "${dmgs[0]}")" > SHA256SUMS.txt)
+          cat dist/SHA256SUMS.txt
+
+          gh release create "$TAG" "${dmgs[0]}" dist/SHA256SUMS.txt \
+            --prerelease --verify-tag --title "Finglass $version (alpha)" --notes-file "$notes"

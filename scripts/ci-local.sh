@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Runs CI locally, as far as this machine can.
 #
-# - The macOS jobs (Go, Lint, Test) run natively, through the same scripts/ci/*.sh files ci.yml runs.
+# - The macOS jobs (Go, Installer, Lint, Test) run natively, through the same scripts/ci/*.sh files ci.yml runs.
 #   GitHub's runner can't be emulated: Docker can't run macOS, and act's host mode would install rustup
 #   and toolchains outside the repo, so this script runs the job scripts directly instead.
 # - With Docker running, the Go checks also run in a Linux container. CI is macOS-only until FinDesk parity
 #   (docs/PLAN.md), so this is an extra portability check, not a copy of a CI job.
 #
-# Usage: scripts/ci-local.sh [go] [frontend] [package] [lint] [test] [linux]   (no arguments: all of them)
+# Usage: scripts/ci-local.sh [go] [frontend] [package] [install] [lint] [test] [linux]   (no arguments: all of them)
 # Logs: build/ci-local/<job>.log. Exit status is non-zero if any job failed.
 set -euo pipefail
 
@@ -20,7 +20,7 @@ linux_image="finglass-ci-linux:local"
 
 jobs=("$@")
 if [ ${#jobs[@]} -eq 0 ]; then
-  jobs=(go frontend package lint test linux)
+  jobs=(go frontend package install lint test linux)
 fi
 
 log_dir="$repo_root/build/ci-local"
@@ -48,6 +48,7 @@ skip_job() {
   results+=("$(printf '%-8s SKIP  %s' "$1" "$2")")
 }
 
+# shellcheck disable=SC2329 # passed to run_job, which invokes it.
 linux_go() {
   # A copy of the working tree (tracked and new files, without ignored ones), so the container checks
   # uncommitted changes too and never writes into the checkout.
@@ -91,6 +92,13 @@ for job in "${jobs[@]}"; do
         skip_job package "macOS only"
       fi
       ;;
+    install)
+      if [ "$(uname -s)" = Darwin ]; then
+        run_job install bash scripts/ci/install-mac.sh
+      else
+        skip_job install "macOS only"
+      fi
+      ;;
     lint) run_job lint bash scripts/ci/rust-lint.sh ;;
     test) run_job test bash scripts/ci/rust-test.sh ;;
     linux)
@@ -101,7 +109,7 @@ for job in "${jobs[@]}"; do
       fi
       ;;
     *)
-      echo "unknown job: $job (expected go, frontend, package, lint, test or linux)" >&2
+      echo "unknown job: $job (expected go, frontend, package, install, lint, test or linux)" >&2
       exit 2
       ;;
   esac
