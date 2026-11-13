@@ -17,6 +17,7 @@ currency conversion.
 | Live sync | Our own read-only **Go FinTS 3.0 client**, as a separate milestone after the port. |
 | Approach | **Replace in place** in the Finglass repo. 0.3.4 (Rust) stays the installed app until the Go build reaches parity. |
 | Secrets | **Best effort, accepted.** Secrets are `[]byte` in Go, zeroed after use. The UI clears its fields and keeps no copies. Secrets are never logged and never appear in errors. Copies made by the Go GC and the webview (JS strings, JSON) cannot be wiped, and that is accepted. |
+| Release 0.4.0 | **Held until G10 is done** (your decision, 2026-11-13). 0.4.0 is the first Go release and ships with read-only online sync. |
 
 Unchanged: no payment code, never a real bank, `FINGLASS_HOME`, macOS-first CI, EN/DE/FR, OpenCode implements and
 Claude specs and reviews, PRs only after your OK.
@@ -264,7 +265,8 @@ In order, each one compared with the G1 reference screenshots:
   version.
 - [x] `install-mac.command` / `scripts/install-mac.sh` and its test, the release workflow (tag → pre-release with DMG
   and checksums). The workflow publishes only when `docs/releases/<tag>.md` exists.
-- [ ] **Release 0.4.0 (Go)** after your test with real data. From then on, new migrations are allowed again.
+- [ ] **Release 0.4.0 (Go)** after G10 is done and your test with real data and real banks (held, your decision
+  2026-11-13). From then on, new migrations are allowed again.
 
 ### G10 — Go FinTS client, read-only (L, needs you)
 
@@ -289,7 +291,7 @@ In order, each one compared with the G1 reference screenshots:
 
 ## Carried over from the Rust plan (your actions)
 
-- [ ] DK FinTS product registration under the name Finglass: form sent 2026-11-08, number expected ~2026-11-20..27.
+- [ ] DK FinTS product registration under the name Finglass: form sent 2026-11-08, number received 2026-11-13.
       Keep it in your password manager; never paste it into a chat, issue, commit or file. Store it with
       `gh secret set FINGLASS_FINTS_PRODUCT_ID -R MaMissaoui/Finglass` (asked without echo).
 - [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
