@@ -56,6 +56,27 @@ func TestSelfCheckFailsWhenTheDashboardServiceIsMissing(t *testing.T) {
 	}
 }
 
+func TestSelfCheckFailsWhenTheAccountsServiceIsMissing(t *testing.T) {
+	original := expectedServices
+	t.Cleanup(func() { expectedServices = original })
+
+	filtered := make([]expectedService, 0, len(original))
+	for _, expected := range original {
+		if expected.name != "Accounts" {
+			filtered = append(filtered, expected)
+		}
+	}
+	expectedServices = filtered
+
+	err := checkServices()
+	if err == nil {
+		t.Fatal("checkServices accepted a registry without the Accounts service")
+	}
+	if !strings.Contains(err.Error(), "Accounts") {
+		t.Fatalf("checkServices error = %q, want it to name Accounts", err)
+	}
+}
+
 // Wails logs bound-call arguments, passphrases included, at Debug.
 func TestTheWailsLoggerNeverLogsDebug(t *testing.T) {
 	options := applicationOptions(fstest.MapFS{})

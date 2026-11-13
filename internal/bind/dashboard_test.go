@@ -28,6 +28,7 @@ type dashboardFixture struct {
 	session   *shell.Session
 	shell     *Shell
 	dashboard *Dashboard
+	router    *Router
 	wantView  *dashboardview.DashboardView
 
 	mu          sync.Mutex
@@ -74,12 +75,15 @@ func newDashboardFixture(t *testing.T) *dashboardFixture {
 		},
 	})
 	fixture.dashboard = NewDashboard(session, DashboardOptions{
-		Shell: fixture.shell,
 		Emit: func(dto DashboardDTO) {
 			fixture.dashEvents <- dto
 		},
 	})
+	fixture.router = NewRouter(session)
+	fixture.router.Register("dashboard", fixture.dashboard)
+	fixture.router.RegisterShell(fixture.shell)
 	t.Cleanup(func() {
+		_ = fixture.router.Shutdown()
 		_ = fixture.dashboard.ServiceShutdown()
 		_ = fixture.shell.ServiceShutdown()
 	})

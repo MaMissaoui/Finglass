@@ -6,6 +6,619 @@
 import { Create as $Create } from "@wailsio/runtime";
 
 /**
+ * AccountAmountDTO is one amount line in the header or the panel.
+ */
+export class AccountAmountDTO {
+    "text": string;
+    "tone": string;
+
+    /** Creates a new AccountAmountDTO instance. */
+    constructor($$source: Partial<AccountAmountDTO> = {}) {
+        if (!("text" in $$source)) {
+            this["text"] = "";
+        }
+        if (!("tone" in $$source)) {
+            this["tone"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountAmountDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountAmountDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AccountAmountDTO($$parsedSource as Partial<AccountAmountDTO>);
+    }
+}
+
+/**
+ * AccountDaysChoiceDTO is one balance-history window.
+ */
+export class AccountDaysChoiceDTO {
+    "days": number;
+    "label": string;
+
+    /** Creates a new AccountDaysChoiceDTO instance. */
+    constructor($$source: Partial<AccountDaysChoiceDTO> = {}) {
+        if (!("days" in $$source)) {
+            this["days"] = 0;
+        }
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountDaysChoiceDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountDaysChoiceDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AccountDaysChoiceDTO($$parsedSource as Partial<AccountDaysChoiceDTO>);
+    }
+}
+
+/**
+ * AccountDetailRowDTO is one recent booking in the detail view.
+ */
+export class AccountDetailRowDTO {
+    "dateText": string;
+    "title": string;
+    "amountText": string;
+    "expense": boolean;
+
+    /** Creates a new AccountDetailRowDTO instance. */
+    constructor($$source: Partial<AccountDetailRowDTO> = {}) {
+        if (!("dateText" in $$source)) {
+            this["dateText"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("amountText" in $$source)) {
+            this["amountText"] = "";
+        }
+        if (!("expense" in $$source)) {
+            this["expense"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountDetailRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountDetailRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AccountDetailRowDTO($$parsedSource as Partial<AccountDetailRowDTO>);
+    }
+}
+
+/**
+ * AccountGroupChoiceDTO is one custom group a booking can move into.
+ */
+export class AccountGroupChoiceDTO {
+    "id": number;
+    "name": string;
+
+    /** Creates a new AccountGroupChoiceDTO instance. */
+    constructor($$source: Partial<AccountGroupChoiceDTO> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountGroupChoiceDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountGroupChoiceDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AccountGroupChoiceDTO($$parsedSource as Partial<AccountGroupChoiceDTO>);
+    }
+}
+
+/**
+ * AccountPanelRowDTO is one row of the shared account panel.
+ */
+export class AccountPanelRowDTO {
+    "kind": string;
+    "groupKind": string;
+    "accountType": string;
+    "id": number;
+    "label": string;
+    "secondary": string;
+    "detail": string;
+    "name": string;
+    "deleteText": string;
+    "selected": boolean;
+    "collapsed": boolean;
+    "newCount": number;
+    "totals": AccountAmountDTO[];
+    "indent": boolean;
+    "logo": string;
+    "logoLetters": string;
+    "logoColour": number;
+
+    /** Creates a new AccountPanelRowDTO instance. */
+    constructor($$source: Partial<AccountPanelRowDTO> = {}) {
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+        if (!("groupKind" in $$source)) {
+            this["groupKind"] = "";
+        }
+        if (!("accountType" in $$source)) {
+            this["accountType"] = "";
+        }
+        if (!("id" in $$source)) {
+            this["id"] = 0;
+        }
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("secondary" in $$source)) {
+            this["secondary"] = "";
+        }
+        if (!("detail" in $$source)) {
+            this["detail"] = "";
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("deleteText" in $$source)) {
+            this["deleteText"] = "";
+        }
+        if (!("selected" in $$source)) {
+            this["selected"] = false;
+        }
+        if (!("collapsed" in $$source)) {
+            this["collapsed"] = false;
+        }
+        if (!("newCount" in $$source)) {
+            this["newCount"] = 0;
+        }
+        if (!("totals" in $$source)) {
+            this["totals"] = [];
+        }
+        if (!("indent" in $$source)) {
+            this["indent"] = false;
+        }
+        if (!("logo" in $$source)) {
+            this["logo"] = "";
+        }
+        if (!("logoLetters" in $$source)) {
+            this["logoLetters"] = "";
+        }
+        if (!("logoColour" in $$source)) {
+            this["logoColour"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountPanelRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountPanelRowDTO {
+        const $$createField12_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("totals" in $$parsedSource) {
+            $$parsedSource["totals"] = $$createField12_0($$parsedSource["totals"]);
+        }
+        return new AccountPanelRowDTO($$parsedSource as Partial<AccountPanelRowDTO>);
+    }
+}
+
+/**
+ * AccountTypeChoiceDTO is one account type in the account forms.
+ */
+export class AccountTypeChoiceDTO {
+    "code": string;
+    "label": string;
+
+    /** Creates a new AccountTypeChoiceDTO instance. */
+    constructor($$source: Partial<AccountTypeChoiceDTO> = {}) {
+        if (!("code" in $$source)) {
+            this["code"] = "";
+        }
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountTypeChoiceDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountTypeChoiceDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AccountTypeChoiceDTO($$parsedSource as Partial<AccountTypeChoiceDTO>);
+    }
+}
+
+/**
+ * AccountsBankCardDTO is one bank card. G8b-2 adds the online-banking fields
+ * (sync state, menu, PIN) to this struct.
+ */
+export class AccountsBankCardDTO {
+    "bankId": number;
+    "name": string;
+    "subtitle": string;
+    "centralBlzHint": string;
+    "offline": boolean;
+    "collapsed": boolean;
+    "accountCountText": string;
+    "totals": AccountAmountDTO[];
+    "accounts": BankAccountRowDTO[];
+    "logo": string;
+    "logoLetters": string;
+    "logoColour": number;
+
+    /** Creates a new AccountsBankCardDTO instance. */
+    constructor($$source: Partial<AccountsBankCardDTO> = {}) {
+        if (!("bankId" in $$source)) {
+            this["bankId"] = 0;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("subtitle" in $$source)) {
+            this["subtitle"] = "";
+        }
+        if (!("centralBlzHint" in $$source)) {
+            this["centralBlzHint"] = "";
+        }
+        if (!("offline" in $$source)) {
+            this["offline"] = false;
+        }
+        if (!("collapsed" in $$source)) {
+            this["collapsed"] = false;
+        }
+        if (!("accountCountText" in $$source)) {
+            this["accountCountText"] = "";
+        }
+        if (!("totals" in $$source)) {
+            this["totals"] = [];
+        }
+        if (!("accounts" in $$source)) {
+            this["accounts"] = [];
+        }
+        if (!("logo" in $$source)) {
+            this["logo"] = "";
+        }
+        if (!("logoLetters" in $$source)) {
+            this["logoLetters"] = "";
+        }
+        if (!("logoColour" in $$source)) {
+            this["logoColour"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountsBankCardDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountsBankCardDTO {
+        const $$createField7_0 = $$createType1;
+        const $$createField8_0 = $$createType3;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("totals" in $$parsedSource) {
+            $$parsedSource["totals"] = $$createField7_0($$parsedSource["totals"]);
+        }
+        if ("accounts" in $$parsedSource) {
+            $$parsedSource["accounts"] = $$createField8_0($$parsedSource["accounts"]);
+        }
+        return new AccountsBankCardDTO($$parsedSource as Partial<AccountsBankCardDTO>);
+    }
+}
+
+/**
+ * AccountsDTO is everything the Accounts page shows.
+ */
+export class AccountsDTO {
+    "loading": boolean;
+    "showContent": boolean;
+    "hasContent": boolean;
+    "errorText": string;
+    "messageText": string;
+    "figures": AccountsFigureDTO[];
+    "bankCards": AccountsBankCardDTO[];
+    "panelRows": AccountPanelRowDTO[];
+    "groupChoices": AccountGroupChoiceDTO[];
+    "filterText": string;
+    "shownText": string;
+    "typeChoices": AccountTypeChoiceDTO[];
+    "currencyCodes": string[];
+    "daysChoices": AccountDaysChoiceDTO[];
+    "dayLabels": string[];
+    "dialog": AccountsDialogDTO;
+    "detailOpen": boolean;
+    "detailTitle": string;
+    "detailLogo": string;
+    "detailLetters": string;
+    "detailColour": number;
+    "detailSubtitle": string;
+    "detailBalance": string;
+    "detailTone": string;
+    "detailAccountId": number;
+    "detailDays": number;
+    "detailSummary": string;
+    "detailPath": string;
+    "detailAxisTop": string;
+    "detailAxisBottom": string;
+    "detailEndX": number;
+    "detailEndY": number;
+    "detailEndLabel": string;
+    "detailRows": AccountDetailRowDTO[];
+
+    /** Creates a new AccountsDTO instance. */
+    constructor($$source: Partial<AccountsDTO> = {}) {
+        if (!("loading" in $$source)) {
+            this["loading"] = false;
+        }
+        if (!("showContent" in $$source)) {
+            this["showContent"] = false;
+        }
+        if (!("hasContent" in $$source)) {
+            this["hasContent"] = false;
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("messageText" in $$source)) {
+            this["messageText"] = "";
+        }
+        if (!("figures" in $$source)) {
+            this["figures"] = [];
+        }
+        if (!("bankCards" in $$source)) {
+            this["bankCards"] = [];
+        }
+        if (!("panelRows" in $$source)) {
+            this["panelRows"] = [];
+        }
+        if (!("groupChoices" in $$source)) {
+            this["groupChoices"] = [];
+        }
+        if (!("filterText" in $$source)) {
+            this["filterText"] = "";
+        }
+        if (!("shownText" in $$source)) {
+            this["shownText"] = "";
+        }
+        if (!("typeChoices" in $$source)) {
+            this["typeChoices"] = [];
+        }
+        if (!("currencyCodes" in $$source)) {
+            this["currencyCodes"] = [];
+        }
+        if (!("daysChoices" in $$source)) {
+            this["daysChoices"] = [];
+        }
+        if (!("dayLabels" in $$source)) {
+            this["dayLabels"] = [];
+        }
+        if (!("dialog" in $$source)) {
+            this["dialog"] = (new AccountsDialogDTO());
+        }
+        if (!("detailOpen" in $$source)) {
+            this["detailOpen"] = false;
+        }
+        if (!("detailTitle" in $$source)) {
+            this["detailTitle"] = "";
+        }
+        if (!("detailLogo" in $$source)) {
+            this["detailLogo"] = "";
+        }
+        if (!("detailLetters" in $$source)) {
+            this["detailLetters"] = "";
+        }
+        if (!("detailColour" in $$source)) {
+            this["detailColour"] = 0;
+        }
+        if (!("detailSubtitle" in $$source)) {
+            this["detailSubtitle"] = "";
+        }
+        if (!("detailBalance" in $$source)) {
+            this["detailBalance"] = "";
+        }
+        if (!("detailTone" in $$source)) {
+            this["detailTone"] = "";
+        }
+        if (!("detailAccountId" in $$source)) {
+            this["detailAccountId"] = 0;
+        }
+        if (!("detailDays" in $$source)) {
+            this["detailDays"] = 0;
+        }
+        if (!("detailSummary" in $$source)) {
+            this["detailSummary"] = "";
+        }
+        if (!("detailPath" in $$source)) {
+            this["detailPath"] = "";
+        }
+        if (!("detailAxisTop" in $$source)) {
+            this["detailAxisTop"] = "";
+        }
+        if (!("detailAxisBottom" in $$source)) {
+            this["detailAxisBottom"] = "";
+        }
+        if (!("detailEndX" in $$source)) {
+            this["detailEndX"] = 0;
+        }
+        if (!("detailEndY" in $$source)) {
+            this["detailEndY"] = 0;
+        }
+        if (!("detailEndLabel" in $$source)) {
+            this["detailEndLabel"] = "";
+        }
+        if (!("detailRows" in $$source)) {
+            this["detailRows"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountsDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountsDTO {
+        const $$createField5_0 = $$createType5;
+        const $$createField6_0 = $$createType7;
+        const $$createField7_0 = $$createType9;
+        const $$createField8_0 = $$createType11;
+        const $$createField11_0 = $$createType13;
+        const $$createField12_0 = $$createType14;
+        const $$createField13_0 = $$createType16;
+        const $$createField14_0 = $$createType14;
+        const $$createField15_0 = $$createType17;
+        const $$createField33_0 = $$createType19;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("figures" in $$parsedSource) {
+            $$parsedSource["figures"] = $$createField5_0($$parsedSource["figures"]);
+        }
+        if ("bankCards" in $$parsedSource) {
+            $$parsedSource["bankCards"] = $$createField6_0($$parsedSource["bankCards"]);
+        }
+        if ("panelRows" in $$parsedSource) {
+            $$parsedSource["panelRows"] = $$createField7_0($$parsedSource["panelRows"]);
+        }
+        if ("groupChoices" in $$parsedSource) {
+            $$parsedSource["groupChoices"] = $$createField8_0($$parsedSource["groupChoices"]);
+        }
+        if ("typeChoices" in $$parsedSource) {
+            $$parsedSource["typeChoices"] = $$createField11_0($$parsedSource["typeChoices"]);
+        }
+        if ("currencyCodes" in $$parsedSource) {
+            $$parsedSource["currencyCodes"] = $$createField12_0($$parsedSource["currencyCodes"]);
+        }
+        if ("daysChoices" in $$parsedSource) {
+            $$parsedSource["daysChoices"] = $$createField13_0($$parsedSource["daysChoices"]);
+        }
+        if ("dayLabels" in $$parsedSource) {
+            $$parsedSource["dayLabels"] = $$createField14_0($$parsedSource["dayLabels"]);
+        }
+        if ("dialog" in $$parsedSource) {
+            $$parsedSource["dialog"] = $$createField15_0($$parsedSource["dialog"]);
+        }
+        if ("detailRows" in $$parsedSource) {
+            $$parsedSource["detailRows"] = $$createField33_0($$parsedSource["detailRows"]);
+        }
+        return new AccountsDTO($$parsedSource as Partial<AccountsDTO>);
+    }
+}
+
+/**
+ * AccountsDialogDTO is the Accounts page's dialog state.
+ */
+export class AccountsDialogDTO {
+    "kind": string;
+    "title": string;
+    "text": string;
+    "errorText": string;
+    "accountLabel": string;
+    "accountName": string;
+    "balance": string;
+    "accountType": string;
+    "offline": boolean;
+    "bankId": number;
+    "accountId": number;
+
+    /** Creates a new AccountsDialogDTO instance. */
+    constructor($$source: Partial<AccountsDialogDTO> = {}) {
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+        if (!("title" in $$source)) {
+            this["title"] = "";
+        }
+        if (!("text" in $$source)) {
+            this["text"] = "";
+        }
+        if (!("errorText" in $$source)) {
+            this["errorText"] = "";
+        }
+        if (!("accountLabel" in $$source)) {
+            this["accountLabel"] = "";
+        }
+        if (!("accountName" in $$source)) {
+            this["accountName"] = "";
+        }
+        if (!("balance" in $$source)) {
+            this["balance"] = "";
+        }
+        if (!("accountType" in $$source)) {
+            this["accountType"] = "";
+        }
+        if (!("offline" in $$source)) {
+            this["offline"] = false;
+        }
+        if (!("bankId" in $$source)) {
+            this["bankId"] = 0;
+        }
+        if (!("accountId" in $$source)) {
+            this["accountId"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountsDialogDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountsDialogDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AccountsDialogDTO($$parsedSource as Partial<AccountsDialogDTO>);
+    }
+}
+
+/**
+ * AccountsFigureDTO is a labelled group of figures.
+ */
+export class AccountsFigureDTO {
+    "label": string;
+    "values": AccountAmountDTO[];
+    "secondary": boolean;
+
+    /** Creates a new AccountsFigureDTO instance. */
+    constructor($$source: Partial<AccountsFigureDTO> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("values" in $$source)) {
+            this["values"] = [];
+        }
+        if (!("secondary" in $$source)) {
+            this["secondary"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccountsFigureDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccountsFigureDTO {
+        const $$createField1_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("values" in $$parsedSource) {
+            $$parsedSource["values"] = $$createField1_0($$parsedSource["values"]);
+        }
+        return new AccountsFigureDTO($$parsedSource as Partial<AccountsFigureDTO>);
+    }
+}
+
+/**
  * AppInfoDTO is the information shown in the window.
  */
 export class AppInfoDTO {
@@ -42,6 +655,62 @@ export class AppInfoDTO {
     static createFrom($$source: any = {}): AppInfoDTO {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new AppInfoDTO($$parsedSource as Partial<AppInfoDTO>);
+    }
+}
+
+/**
+ * BankAccountRowDTO is one account row inside a bank card.
+ */
+export class BankAccountRowDTO {
+    "accountId": number;
+    "name": string;
+    "subtitle": string;
+    "balanceText": string;
+    "tone": string;
+    "newCount": number;
+    "logo": string;
+    "logoLetters": string;
+    "logoColour": number;
+
+    /** Creates a new BankAccountRowDTO instance. */
+    constructor($$source: Partial<BankAccountRowDTO> = {}) {
+        if (!("accountId" in $$source)) {
+            this["accountId"] = 0;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("subtitle" in $$source)) {
+            this["subtitle"] = "";
+        }
+        if (!("balanceText" in $$source)) {
+            this["balanceText"] = "";
+        }
+        if (!("tone" in $$source)) {
+            this["tone"] = "";
+        }
+        if (!("newCount" in $$source)) {
+            this["newCount"] = 0;
+        }
+        if (!("logo" in $$source)) {
+            this["logo"] = "";
+        }
+        if (!("logoLetters" in $$source)) {
+            this["logoLetters"] = "";
+        }
+        if (!("logoColour" in $$source)) {
+            this["logoColour"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BankAccountRowDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BankAccountRowDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BankAccountRowDTO($$parsedSource as Partial<BankAccountRowDTO>);
     }
 }
 
@@ -369,15 +1038,15 @@ export class DashboardDTO {
      * Creates a new DashboardDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): DashboardDTO {
-        const $$createField4_0 = $$createType0;
-        const $$createField14_0 = $$createType2;
-        const $$createField22_0 = $$createType0;
-        const $$createField26_0 = $$createType4;
-        const $$createField33_0 = $$createType6;
-        const $$createField38_0 = $$createType8;
-        const $$createField44_0 = $$createType4;
-        const $$createField46_0 = $$createType10;
-        const $$createField50_0 = $$createType12;
+        const $$createField4_0 = $$createType14;
+        const $$createField14_0 = $$createType21;
+        const $$createField22_0 = $$createType14;
+        const $$createField26_0 = $$createType23;
+        const $$createField33_0 = $$createType25;
+        const $$createField38_0 = $$createType27;
+        const $$createField44_0 = $$createType23;
+        const $$createField46_0 = $$createType29;
+        const $$createField50_0 = $$createType31;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("monthOptions" in $$parsedSource) {
             $$parsedSource["monthOptions"] = $$createField4_0($$parsedSource["monthOptions"]);
@@ -763,10 +1432,10 @@ export class ShellDTO {
      * Creates a new ShellDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ShellDTO {
-        const $$createField9_0 = $$createType0;
-        const $$createField18_0 = $$createType14;
-        const $$createField23_0 = $$createType0;
-        const $$createField29_0 = $$createType0;
+        const $$createField9_0 = $$createType14;
+        const $$createField18_0 = $$createType33;
+        const $$createField23_0 = $$createType14;
+        const $$createField29_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("leftoverLines" in $$parsedSource) {
             $$parsedSource["leftoverLines"] = $$createField9_0($$parsedSource["leftoverLines"]);
@@ -809,18 +1478,37 @@ export class TickPayload {
 }
 
 // Private type creation functions
-const $$createType0 = $Create.Array($Create.Any);
-const $$createType1 = DashboardStatementLineDTO.createFrom;
-const $$createType2 = $Create.Array($$createType1);
-const $$createType3 = DashboardCategoryRowDTO.createFrom;
-const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = DashboardMonthBarDTO.createFrom;
-const $$createType6 = $Create.Array($$createType5);
-const $$createType7 = DashboardBudgetRowDTO.createFrom;
-const $$createType8 = $Create.Array($$createType7);
-const $$createType9 = DashboardUpcomingRowDTO.createFrom;
-const $$createType10 = $Create.Array($$createType9);
-const $$createType11 = DashboardTransactionRowDTO.createFrom;
-const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = ProfileDTO.createFrom;
-const $$createType14 = $Create.Array($$createType13);
+const $$createType0 = AccountAmountDTO.createFrom;
+const $$createType1 = $Create.Array($$createType0);
+const $$createType2 = BankAccountRowDTO.createFrom;
+const $$createType3 = $Create.Array($$createType2);
+const $$createType4 = AccountsFigureDTO.createFrom;
+const $$createType5 = $Create.Array($$createType4);
+const $$createType6 = AccountsBankCardDTO.createFrom;
+const $$createType7 = $Create.Array($$createType6);
+const $$createType8 = AccountPanelRowDTO.createFrom;
+const $$createType9 = $Create.Array($$createType8);
+const $$createType10 = AccountGroupChoiceDTO.createFrom;
+const $$createType11 = $Create.Array($$createType10);
+const $$createType12 = AccountTypeChoiceDTO.createFrom;
+const $$createType13 = $Create.Array($$createType12);
+const $$createType14 = $Create.Array($Create.Any);
+const $$createType15 = AccountDaysChoiceDTO.createFrom;
+const $$createType16 = $Create.Array($$createType15);
+const $$createType17 = AccountsDialogDTO.createFrom;
+const $$createType18 = AccountDetailRowDTO.createFrom;
+const $$createType19 = $Create.Array($$createType18);
+const $$createType20 = DashboardStatementLineDTO.createFrom;
+const $$createType21 = $Create.Array($$createType20);
+const $$createType22 = DashboardCategoryRowDTO.createFrom;
+const $$createType23 = $Create.Array($$createType22);
+const $$createType24 = DashboardMonthBarDTO.createFrom;
+const $$createType25 = $Create.Array($$createType24);
+const $$createType26 = DashboardBudgetRowDTO.createFrom;
+const $$createType27 = $Create.Array($$createType26);
+const $$createType28 = DashboardUpcomingRowDTO.createFrom;
+const $$createType29 = $Create.Array($$createType28);
+const $$createType30 = DashboardTransactionRowDTO.createFrom;
+const $$createType31 = $Create.Array($$createType30);
+const $$createType32 = ProfileDTO.createFrom;
+const $$createType33 = $Create.Array($$createType32);

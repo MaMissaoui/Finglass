@@ -311,12 +311,16 @@ func TestFormattingTheSessionNeverContainsAPassphrase(t *testing.T) {
 // from it through pointers, structs, slices, arrays, maps and interfaces.
 func requireNoSecretIn(t *testing.T, session *Session, secretText, after string) {
 	t.Helper()
+	// Formatting and reflection read the session's mutex internals, which a
+	// running page job also touches. Let the jobs settle and take the session
+	// lock so the secret check stays race-free without weakening it.
+	waitForJobs(t, session)
+	session.mu.Lock()
+	defer session.mu.Unlock()
 	formatted := fmt.Sprintf("%v %+v %#v", session, session, session)
 	if strings.Contains(formatted, secretText) {
 		t.Fatalf("%s left the passphrase in the session's format", after)
 	}
-	session.mu.Lock()
-	defer session.mu.Unlock()
 	if path, found := findText(reflect.ValueOf(session), secretText, "session", map[uintptr]bool{}); found {
 		t.Fatalf("%s left the passphrase reachable at %s", after, path)
 	}

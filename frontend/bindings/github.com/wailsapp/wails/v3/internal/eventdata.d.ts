@@ -12,6 +12,7 @@ import type * as bind$0 from "../../../../MaMissaoui/Finglass/internal/bind/mode
 declare module "@wailsio/runtime" {
     namespace Events {
         interface CustomEvents {
+            "accounts:changed": bind$0.AccountsDTO;
             "appinfo:tick": bind$0.TickPayload;
             "dashboard:changed": bind$0.DashboardDTO;
             "menu:action": string;

@@ -9,6 +9,11 @@ import type {} from "../github.com/wailsapp/wails/v3/internal/eventdata.js";
 import "../github.com/wailsapp/wails/v3/internal/eventcreate.js";
 
 /**
+ * Name of the custom event "accounts:changed".
+ */
+export const AccountsChanged = "accounts:changed";
+
+/**
  * Name of the custom event "appinfo:tick".
  */
 export const AppinfoTick = "appinfo:tick";

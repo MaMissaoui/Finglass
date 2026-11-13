@@ -154,37 +154,25 @@ type DashboardDTO struct {
 
 // DashboardOptions is the process wiring the caller supplies.
 type DashboardOptions struct {
-	// Shell publishes shell:changed for a navigation change a job made.
-	Shell *Shell
 	// Emit publishes dashboard:changed; nil uses the running Wails application.
 	Emit func(DashboardDTO)
 }
 
 // Dashboard is the Dashboard page's Wails service.
 //
-// One session listener fans a change out to the matching event: the Dashboard
-// page is published as dashboard:changed, navigation as shell:changed through
-// the Shell service.
+// The router calls publishPage after the session reports a Dashboard change.
 type Dashboard struct {
 	session *shell.Session
-	shell   *Shell
 	emit    func(DashboardDTO)
-	remove  func()
 }
 
-// NewDashboard builds the Dashboard service and registers its one listener.
-// session may be nil only for the self-check, which inspects the registry
-// without calling the service.
+// NewDashboard builds the Dashboard service. session may be nil only for the
+// self-check, which inspects the registry without calling the service.
 func NewDashboard(session *shell.Session, options DashboardOptions) *Dashboard {
-	service := &Dashboard{
+	return &Dashboard{
 		session: session,
-		shell:   options.Shell,
 		emit:    options.Emit,
 	}
-	if session != nil {
-		service.remove = session.AddListener(service.route)
-	}
-	return service
 }
 
 // ServiceName implements application.ServiceName.
@@ -192,24 +180,14 @@ func (d *Dashboard) ServiceName() string {
 	return "Dashboard"
 }
 
-// ServiceShutdown removes the session listener.
+// ServiceShutdown is a no-op: the router owns the one session listener.
 func (d *Dashboard) ServiceShutdown() error {
-	if d.remove != nil {
-		d.remove()
-		d.remove = nil
-	}
 	return nil
 }
 
-func (d *Dashboard) route(change shell.Change) {
-	switch change.Page {
-	case "dashboard":
-		d.emitDTO(d.snapshot())
-	case "shell":
-		if d.shell != nil {
-			d.shell.publish()
-		}
-	}
+// publishPage emits the current Dashboard state.
+func (d *Dashboard) publishPage() {
+	d.emitDTO(d.snapshot())
 }
 
 // State returns the current Dashboard state without changing anything.
