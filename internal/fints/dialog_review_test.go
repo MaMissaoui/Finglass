@@ -161,7 +161,8 @@ func TestValueFormattingIsMasked(t *testing.T) {
 }
 
 // The five PIN codes mean a rejected PIN anywhere, also after the dialog is
-// open (where another 9xxx code is only a bank error).
+// open (where another 9xxx code is only a bank error), and no further message
+// signed with that PIN goes out.
 func TestDialogPinRejectedCodesAfterOpen(t *testing.T) {
 	for _, code := range []string{"9340", "9910", "9930", "9931", "9942"} {
 		t.Run(code, func(t *testing.T) {
@@ -171,11 +172,9 @@ func TestDialogPinRejectedCodesAfterOpen(t *testing.T) {
 			bank.expect(
 				requestShape("HKIDN", "HKVVB", "HKTAN"),
 				requestShape("HKSAL"),
-				requestShape("HKEND"),
 			)
 			bank.reply(executedResponse("dialog-init"))
 			bank.reply(codeResponse("dialog-init", code))
-			bank.reply(successResponse("dialog-init"))
 
 			if _, err := dialog.Init(context.Background()); err != nil {
 				t.Fatalf("Init: %v", err)
@@ -188,10 +187,11 @@ func TestDialogPinRejectedCodesAfterOpen(t *testing.T) {
 			if dialog.State() != DialogEnded {
 				t.Fatalf("state = %s, want ended", dialog.State())
 			}
+			// No HKEND: it would be one more message signed with the
+			// rejected PIN.
 			bank.assertSegmentTypes(t,
 				requestShape("HKIDN", "HKVVB", "HKTAN"),
 				requestShape("HKSAL"),
-				requestShape("HKEND"),
 			)
 			bank.assertRequestsWiped(t)
 		})
@@ -351,5 +351,32 @@ func TestDialogTransportErrorKeepsHTTPStatusOnly(t *testing.T) {
 	if !strings.Contains(dialogError.Error(), "503") {
 		t.Fatalf("Error() = %q, want the status", dialogError.Error())
 	}
+	bank.assertRequestsWiped(t)
+}
+
+// When the bank already aborted the dialog (9800), no HKEND follows.
+func TestDialogNoHKENDAfterDialogAborted(t *testing.T) {
+	bank := newFakeBank(t)
+	dialog := newSyncedDialog(t, bank, syncResponse(hipins("HKSAL:N"), hisals(7)))
+
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSAL"),
+	)
+	bank.reply(executedResponse("dialog-init"))
+	bank.reply(responseMessage("dialog-init", "HIRMG:2:2+9010::Fehler+9800::Dialog abgebrochen'"))
+
+	if _, err := dialog.Init(context.Background()); err != nil {
+		t.Fatalf("Init: %v", err)
+	}
+	_, err := dialog.Send(context.Background(), NewHKSAL(7, testIBAN, testBIC, nil))
+	_ = assertDialogErrorKind(t, err, ErrorKindBankError)
+	if dialog.State() != DialogEnded {
+		t.Fatalf("state = %s, want ended", dialog.State())
+	}
+	bank.assertSegmentTypes(t,
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSAL"),
+	)
 	bank.assertRequestsWiped(t)
 }

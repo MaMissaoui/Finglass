@@ -272,10 +272,8 @@ func TestDialogPinRejectedCodes(t *testing.T) {
 
 			bank.expect(
 				requestShape("HKIDN", "HKVVB", "HKTAN"),
-				requestShape("HKEND"),
 			)
 			bank.reply(codeResponse("dialog-init", code))
-			bank.reply(successResponse("dialog-init"))
 
 			_, err := dialog.Init(context.Background())
 			dialogError := assertDialogErrorKind(t, err, ErrorKindPinRejected)
@@ -285,6 +283,8 @@ func TestDialogPinRejectedCodes(t *testing.T) {
 			if dialog.State() != DialogEnded {
 				t.Fatalf("state = %s, want ended", dialog.State())
 			}
+			// No HKEND after a PIN rejection.
+			bank.assertSegmentTypes(t, requestShape("HKIDN", "HKVVB", "HKTAN"))
 			bank.assertRequestsWiped(t)
 		})
 	}
@@ -296,16 +296,15 @@ func TestDialogAccountLocked(t *testing.T) {
 
 	bank.expect(
 		requestShape("HKIDN", "HKVVB", "HKTAN"),
-		requestShape("HKEND"),
 	)
 	bank.reply(codeResponse("dialog-init", "3938"))
-	bank.reply(successResponse("dialog-init"))
 
 	_, err := dialog.Init(context.Background())
 	dialogError := assertDialogErrorKind(t, err, ErrorKindAccountLocked)
 	if len(dialogError.Codes) != 1 || dialogError.Codes[0] != "3938" {
 		t.Fatalf("codes = %v, want [3938]", dialogError.Codes)
 	}
+	bank.assertSegmentTypes(t, requestShape("HKIDN", "HKVVB", "HKTAN"))
 	bank.assertRequestsWiped(t)
 }
 
@@ -536,6 +535,12 @@ func TestDialogBankErrorCarriesOnlyCodes(t *testing.T) {
 	if len(dialogError.Codes) != 1 || dialogError.Codes[0] != "9010" {
 		t.Fatalf("codes = %v, want [9010]", dialogError.Codes)
 	}
+	// Another bank error still closes the dialog with HKEND.
+	bank.assertSegmentTypes(t,
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSAL"),
+		requestShape("HKEND"),
+	)
 	bank.assertRequestsWiped(t)
 }
 

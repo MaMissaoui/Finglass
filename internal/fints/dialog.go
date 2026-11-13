@@ -371,7 +371,7 @@ func (d *Dialog) Sync(ctx context.Context) error {
 	d.applyResponse(response)
 	d.params.SelectSecurityFunction()
 	if dialogError := checkResponse(response); dialogError != nil {
-		d.endBestEffort(ctx)
+		d.endAfterBankError(ctx, response, dialogError)
 		return dialogError
 	}
 
@@ -409,7 +409,7 @@ func (d *Dialog) Init(ctx context.Context) (InitResult, error) {
 	d.applyResponse(response)
 	d.params.SelectSecurityFunction()
 	if dialogError := checkInitResponse(response); dialogError != nil {
-		d.endBestEffort(ctx)
+		d.endAfterBankError(ctx, response, dialogError)
 		return InitResult{}, dialogError
 	}
 
@@ -471,7 +471,7 @@ func (d *Dialog) send(ctx context.Context, segment Segment, withTAN bool) (SendR
 
 	d.applyResponse(response)
 	if dialogError := checkResponse(response); dialogError != nil {
-		d.endBestEffort(ctx)
+		d.endAfterBankError(ctx, response, dialogError)
 		return SendResult{}, dialogError
 	}
 
@@ -524,7 +524,7 @@ func (d *Dialog) SubmitTAN(ctx context.Context, tan *secret.Text) (*Response, er
 
 	d.applyResponse(response)
 	if dialogError := checkResponse(response); dialogError != nil {
-		d.endBestEffort(ctx)
+		d.endAfterBankError(ctx, response, dialogError)
 		return nil, dialogError
 	}
 	if responseNeedsTAN(response) {
@@ -577,7 +577,7 @@ func (d *Dialog) Poll(ctx context.Context) (PollResult, error) {
 		}
 		d.applyResponse(response)
 		if dialogError := checkResponse(response); dialogError != nil {
-			d.endBestEffort(ctx)
+			d.endAfterBankError(ctx, response, dialogError)
 			return PollResult{}, dialogError
 		}
 		if response.HasKind(ReturnCodeKindDecoupledPending) ||
@@ -668,6 +668,7 @@ func (d *Dialog) exchange(
 }
 
 // endBestEffort sends HKEND when a dialog id exists, ignoring any error. The
+// one exception is [Dialog.endAfterBankError]. The
 // end message is built and wiped like every other message. A cancelled ctx does
 // not suppress it.
 func (d *Dialog) endBestEffort(ctx context.Context) {
@@ -683,6 +684,27 @@ func (d *Dialog) endBestEffort(ctx context.Context) {
 	d.challenge = TanChallenge{}
 	d.decoupled = false
 	d.state = DialogEnded
+}
+
+// endAfterBankError ends the dialog after the bank rejected a message. HKEND
+// is signed with the PIN, so after a PIN rejection or a locked account it is
+// not sent: a second signed message could count against the bank's PIN
+// failure limit. It is skipped too when the bank already aborted the dialog
+// (9800). Otherwise HKEND goes out best effort, as on every error path.
+func (d *Dialog) endAfterBankError(ctx context.Context, response *Response, dialogError *DialogError) {
+	skip := dialogError != nil &&
+		(dialogError.Kind == ErrorKindPinRejected || dialogError.Kind == ErrorKindAccountLocked)
+	if response != nil && response.HasKind(ReturnCodeKindDialogAborted) {
+		skip = true
+	}
+	if skip {
+		d.dialogID = ""
+		d.challenge = TanChallenge{}
+		d.decoupled = false
+		d.state = DialogEnded
+		return
+	}
+	d.endBestEffort(ctx)
 }
 
 func (d *Dialog) applyResponse(response *Response) {
