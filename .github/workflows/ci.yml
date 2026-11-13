@@ -39,10 +39,23 @@ jobs:
         with:
           toolchain: stable
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      # The same script scripts/ci-local.sh runs: cargo test (only crates/finglass-probe is left), then the Mac
-      # installer test on macOS.
+      # The same script scripts/ci-local.sh runs: cargo test (only crates/finglass-probe is left).
       - name: Test
         run: bash scripts/ci/rust-test.sh
+
+  # The Mac installer test. It used to run at the end of scripts/ci/rust-test.sh; it moved to a Go-era
+  # script so it keeps running once the Rust test script is gone.
+  install:
+    name: Installer (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Mac installer test
+        run: bash scripts/ci/install-mac.sh
 
   # Lint runs as its own job, next to the tests rather than before them.
   lint:

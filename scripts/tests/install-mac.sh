@@ -122,19 +122,81 @@ make_release() {
   fi
 }
 
+# make_universal_release <tag> <app version> [ok|missing-sum|bad-checksum]
+make_universal_release() {
+  local tag=$1 app_version_value=$2 mode=${3:-ok}
+  local version=${tag#v}
+  local dir="$fixtures/$tag"
+  local src="$dir/src"
+  local dmg="$dir/Finglass_${version}_universal.dmg"
+  rm -rf "$dir"
+  mkdir -p "$src"
+  make_app "$src/Finglass.app" "$app_version_value"
+  make_dmg "$src" "$dmg"
+  case "$mode" in
+    missing-sum)
+      printf '%s  %s\n' \
+        '0000000000000000000000000000000000000000000000000000000000000000' \
+        "Finglass_${version}_${host_arch}.dmg" >"$dir/SHA256SUMS.txt"
+      ;;
+    bad-checksum)
+      printf '%s  %s\n' \
+        '0000000000000000000000000000000000000000000000000000000000000000' \
+        "Finglass_${version}_universal.dmg" >"$dir/SHA256SUMS.txt"
+      ;;
+    *)
+      (cd "$dir" && shasum -a 256 "Finglass_${version}_universal.dmg" >SHA256SUMS.txt)
+      ;;
+  esac
+}
+
+# make_both_release <tag> <arch app version> <universal app version>
+make_both_release() {
+  local tag=$1 arch_version=$2 universal_version=$3
+  local version=${tag#v}
+  local dir="$fixtures/$tag"
+  local arch_dmg="$dir/Finglass_${version}_${host_arch}.dmg"
+  local universal_dmg="$dir/Finglass_${version}_universal.dmg"
+  rm -rf "$dir"
+  mkdir -p "$dir/arch-src" "$dir/universal-src"
+  make_app "$dir/arch-src/Finglass.app" "$arch_version"
+  make_app "$dir/universal-src/Finglass.app" "$universal_version"
+  make_dmg "$dir/arch-src" "$arch_dmg"
+  make_dmg "$dir/universal-src" "$universal_dmg"
+  (cd "$dir" && shasum -a 256 \
+    "Finglass_${version}_${host_arch}.dmg" \
+    "Finglass_${version}_universal.dmg" >SHA256SUMS.txt)
+}
+
 make_release v0.1.0 "$other_arch" 0.1.0
 make_release v0.1.1 "$host_arch" 0.1.1 bad-checksum
 make_release v0.1.2 "$host_arch" 9.9.9
+make_universal_release v0.1.3 0.1.3
+# The universal app deliberately carries the wrong version, so picking it instead of the arch DMG fails.
+make_both_release v0.1.4 0.1.4 9.9.8
+make_universal_release v0.1.5 0.1.5 missing-sum
+make_universal_release v0.1.6 0.1.6 bad-checksum
 make_release v0.2.1 "$host_arch" 0.2.1
 make_release v0.2.2 "$host_arch" 0.2.2
 
 releases_json="$tmp/releases.json"
 
 emit_release() {
-  local tag=$1 arch=$2 version=${1#v}
+  local tag=$1
+  shift
+  local first=1 asset
   printf '{"tag_name":"%s","draft":false,"prerelease":true,"assets":[' "$tag"
-  printf '{"name":"Finglass_%s_%s.dmg","browser_download_url":"file://%s/%s/Finglass_%s_%s.dmg"},' \
-    "$version" "$arch" "$fixtures" "$tag" "$version" "$arch"
+  for asset in "$@"; do
+    if [ "$first" -eq 0 ]; then
+      printf ','
+    fi
+    first=0
+    printf '{"name":"%s","browser_download_url":"file://%s/%s/%s"}' \
+      "$asset" "$fixtures" "$tag" "$asset"
+  done
+  if [ "$first" -eq 0 ]; then
+    printf ','
+  fi
   printf '{"name":"SHA256SUMS.txt","browser_download_url":"file://%s/%s/SHA256SUMS.txt"}' \
     "$fixtures" "$tag"
   printf ']}'
@@ -143,15 +205,25 @@ emit_release() {
 {
   # A draft with a higher tag must be ignored; the releases are deliberately not in tag order.
   printf '[{"tag_name":"v9.9.9","draft":true,"prerelease":true,"assets":[]},'
-  emit_release v0.2.2 "$host_arch"
+  emit_release v0.2.2 "Finglass_0.2.2_${host_arch}.dmg"
   printf ','
-  emit_release v0.1.0 "$other_arch"
+  emit_release v0.1.0 "Finglass_0.1.0_${other_arch}.dmg"
   printf ','
-  emit_release v0.2.1 "$host_arch"
+  emit_release v0.2.1 "Finglass_0.2.1_${host_arch}.dmg"
   printf ','
-  emit_release v0.1.1 "$host_arch"
+  emit_release v0.1.1 "Finglass_0.1.1_${host_arch}.dmg"
   printf ','
-  emit_release v0.1.2 "$host_arch"
+  emit_release v0.1.2 "Finglass_0.1.2_${host_arch}.dmg"
+  printf ','
+  emit_release v0.1.3 "Finglass_0.1.3_universal.dmg"
+  printf ','
+  emit_release v0.1.4 \
+    "Finglass_0.1.4_${host_arch}.dmg" \
+    "Finglass_0.1.4_universal.dmg"
+  printf ','
+  emit_release v0.1.5 "Finglass_0.1.5_universal.dmg"
+  printf ','
+  emit_release v0.1.6 "Finglass_0.1.6_universal.dmg"
   printf ']\n'
 } >"$releases_json"
 
@@ -267,6 +339,44 @@ assert_grep 'nothing was changed' "$log" "missing-arch change message"
 assert_no_app "$apps"
 pass "missing architecture asset exits 1"
 
+new_case universal
+if ! run_install "$log" "$trash" --install-dir "$apps" --version v0.1.3; then
+  fail "a release with only a universal DMG failed to install"
+fi
+assert_eq "$(app_version "$apps/Finglass.app")" "0.1.3" "universal release version"
+assert_grep 'Installed Finglass 0.1.3 to' "$log" "universal release message"
+assert_trash_empty "$trash"
+pass "a release with only a universal DMG installs"
+
+new_case prefer-arch
+if ! run_install "$log" "$trash" --install-dir "$apps" --version v0.1.4; then
+  fail "a release with an arch and a universal DMG failed to install"
+fi
+assert_eq "$(app_version "$apps/Finglass.app")" "0.1.4" "preferred arch release version"
+assert_grep 'Installed Finglass 0.1.4 to' "$log" "preferred arch release message"
+assert_trash_empty "$trash"
+pass "a release with both an arch and a universal DMG picks the arch DMG"
+
+new_case universal-not-in-sums
+if run_install "$log" "$trash" --install-dir "$apps" --version v0.1.5; then
+  fail "a universal DMG missing from SHA256SUMS.txt unexpectedly installed"
+fi
+assert_grep 'not listed in SHA256SUMS.txt' "$log" "universal missing-sum message"
+assert_grep 'nothing was changed' "$log" "universal missing-sum change message"
+assert_no_app "$apps"
+assert_trash_empty "$trash"
+pass "a universal DMG missing from SHA256SUMS.txt exits 1"
+
+new_case universal-bad-checksum
+if run_install "$log" "$trash" --install-dir "$apps" --version v0.1.6; then
+  fail "a universal DMG with a checksum mismatch unexpectedly installed"
+fi
+assert_grep 'checksum mismatch' "$log" "universal checksum mismatch message"
+assert_grep 'nothing was changed' "$log" "universal checksum mismatch change message"
+assert_no_app "$apps"
+assert_trash_empty "$trash"
+pass "a universal DMG with a checksum mismatch exits 1"
+
 new_case wrong-version
 if run_install "$log" "$trash" --install-dir "$apps" --version v0.1.2; then
   fail "a DMG with the wrong app version unexpectedly installed"
@@ -288,6 +398,16 @@ assert_no_app "$apps"
 assert_trash_empty "$trash"
 pass "--check-only verifies everything and installs nothing"
 
+new_case check-only-universal
+if ! run_install "$log" "$trash" --install-dir "$apps" --version v0.1.3 --check-only; then
+  fail "--check-only failed for a universal release"
+fi
+assert_grep 'Check passed: Finglass 0.1.3' "$log" "universal check-only message"
+assert_grep 'nothing was installed' "$log" "universal check-only change message"
+assert_no_app "$apps"
+assert_trash_empty "$trash"
+pass "--check-only verifies a universal release and installs nothing"
+
 # --- source checks ----------------------------------------------------------
 
 source_root="$tmp/source"
@@ -307,7 +427,7 @@ setup_source_repo() {
   "${git_env[@]}" git -C "$seed" config user.email "installer@example.invalid"
   mkdir -p "$seed/scripts"
   cp "$install_script" "$seed/scripts/install-mac.sh"
-  cp "$repo_root/scripts/package-macos.sh" "$seed/scripts/package-macos.sh"
+  cp "$repo_root/scripts/go-package-macos.sh" "$seed/scripts/go-package-macos.sh"
   printf 'initial\n' >"$seed/README.txt"
   "${git_env[@]}" git -C "$seed" add .
   "${git_env[@]}" git -C "$seed" commit -q -m initial

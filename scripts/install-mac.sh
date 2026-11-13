@@ -2,7 +2,7 @@
 # Installs Finglass.app into an Applications folder.
 #
 # By default it downloads the newest published release (pre-releases included) from GitHub,
-# verifies its checksum and signature, and installs it. No Rust is needed for that.
+# verifies its checksum and signature, and installs it.
 # With --from-source it builds this checkout instead.
 #
 # Usage: scripts/install-mac.sh [options]
@@ -25,7 +25,7 @@
 #   FINGLASS_RELEASES_API   Release-list URL (default: the GitHub API). Meant for tests.
 #
 # macOS only. Release installs write only under --install-dir and a temporary folder; source
-# builds also write under target/.
+# builds also write under build/ and frontend/dist/.
 
 set -euo pipefail
 
@@ -33,14 +33,14 @@ usage() {
   cat <<'EOF'
 Usage: scripts/install-mac.sh [options]
 
-Installs the newest published Finglass release into /Applications. Pre-releases count, and no
-Rust is needed. --from-source builds this checkout instead.
+Installs the newest published Finglass release into /Applications. Pre-releases count.
+--from-source builds this checkout instead.
 
   --install-dir <folder>  Where Finglass.app goes (default: /Applications).
   --version <tag>         Release to install, e.g. v0.2.2 or 0.2.2 (default: newest).
   --reinstall             Install even when the same version is already installed.
-  --from-source           Build this checkout instead of downloading a release.
-                          Needs Rust 1.92+ and cargo-packager 0.11.8.
+  --from-source           Build this checkout instead of downloading a release, with
+                          scripts/go-package-macos.sh (needs Go and Node.js).
   --force                 Source builds only: install a dirty checkout or a HEAD that is
                           neither a v* release tag nor origin/main.
   --no-update             Source builds only: do not fast-forward a clean main from origin.
@@ -207,7 +207,7 @@ bundle_version() {
 # Build inputs whose untracked files matter (tracked changes anywhere count, like FinDesk).
 is_build_input() {
   case "$1" in
-    crates/* | assets/* | scripts/* | Cargo.toml | Cargo.lock | rust-toolchain*) return 0 ;;
+    cmd/* | internal/* | frontend/* | assets/* | scripts/* | packaging/* | go.mod | go.sum) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -278,7 +278,7 @@ check_source() {
       R* | C*) IFS= read -r -d '' _ || true ;;
     esac
     # Untracked files only count inside the build inputs: a stray download in the repository
-    # folder is never packaged, but a new file under crates/ or scripts/ would be.
+    # folder is never packaged, but a new file under cmd/ or scripts/ would be.
     if [ "$code" = "??" ] && ! is_build_input "$path"; then
       continue
     fi
@@ -361,8 +361,8 @@ release_arch() {
   esac
 }
 
-# Fetch the release list and pick the release and assets. Sets release_tag, release_version,
-# dmg_url and sums_url. The JSON is parsed with JavaScript for Automation, which ships with macOS.
+# Fetch the release list and pick the release and assets. Sets release_version, dmg_name, dmg_url
+# and sums_url. The JSON is parsed with JavaScript for Automation, which ships with macOS.
 resolve_release() {
   local api=$1 wanted=$2 arch=$3 machine=$4
   local releases_file="$tmp_dir/releases.json" script="$tmp_dir/resolve-release.js" line
@@ -444,22 +444,26 @@ function run(argv) {
 
   var tag = release.tag_name;
   var version = tag.slice(1);
-  var assetName = 'Finglass_' + version + '_' + arch + '.dmg';
+  var archName = 'Finglass_' + version + '_' + arch + '.dmg';
+  var universalName = 'Finglass_' + version + '_universal.dmg';
   var assets = Array.isArray(release.assets) ? release.assets : [];
-  var dmg = assets.find(function (asset) {
-    return asset && asset.name === assetName && asset.browser_download_url;
-  });
-  if (!dmg) {
-    return fail('release ' + tag + ' has no ' + assetName + ' asset for ' + machine + ' Macs');
+  function findAsset(name) {
+    return assets.find(function (asset) {
+      return asset && asset.name === name && asset.browser_download_url;
+    });
   }
-  var sums = assets.find(function (asset) {
-    return asset && asset.name === 'SHA256SUMS.txt' && asset.browser_download_url;
-  });
+  // Older releases only ship an arch-specific DMG; newer ones also ship a universal one.
+  // Prefer the arch-specific asset when a release has both.
+  var dmg = findAsset(archName) || findAsset(universalName);
+  if (!dmg) {
+    return fail('release ' + tag + ' has no ' + archName + ' or ' + universalName + ' asset for ' + machine + ' Macs');
+  }
+  var sums = findAsset('SHA256SUMS.txt');
   if (!sums) {
     return fail('release ' + tag + ' has no SHA256SUMS.txt asset');
   }
 
-  return [tag, version, dmg.browser_download_url, sums.browser_download_url].join('\t');
+  return [version, dmg.name, dmg.browser_download_url, sums.browser_download_url].join('\t');
 }
 JAVASCRIPT
 
@@ -479,7 +483,7 @@ JAVASCRIPT
       ;;
   esac
 
-  IFS=$'\t' read -r release_tag release_version dmg_url sums_url <<<"$line"
+  IFS=$'\t' read -r release_version dmg_name dmg_url sums_url <<<"$line"
 }
 
 # Copy the app into a staging bundle, verify it, and swap it into place atomically. The old app
@@ -560,12 +564,12 @@ if [ "$from_source" -eq 1 ]; then
 
   echo "Installing Finglass from $source_description"
   echo "Building Finglass; the first build takes a few minutes."
-  if ! "$repo_root/scripts/package-macos.sh"; then
+  if ! "$repo_root/scripts/go-package-macos.sh"; then
     echo "error: building Finglass failed; nothing was installed." >&2
     exit 1
   fi
 
-  built="$repo_root/target/packager/Finglass.app"
+  built="$repo_root/build/go/Finglass.app"
   if [ ! -d "$built" ]; then
     echo "error: expected $built after packaging; nothing was installed." >&2
     exit 1
@@ -594,8 +598,8 @@ if [ -n "$version_arg" ]; then
 fi
 
 releases_api=${FINGLASS_RELEASES_API:-"https://api.github.com/repos/MaMissaoui/Finglass/releases?per_page=20"}
-release_tag=""
 release_version=""
+dmg_name=""
 dmg_url=""
 sums_url=""
 resolve_release "$releases_api" "$wanted_tag" "$arch" "$machine"
@@ -613,7 +617,6 @@ if [ "$reinstall" -eq 0 ] && [ "$check_only" -eq 0 ] && [ -d "$target" ]; then
   fi
 fi
 
-dmg_name="Finglass_${release_version}_${arch}.dmg"
 dmg_path="$tmp_dir/$dmg_name"
 sums_path="$tmp_dir/SHA256SUMS.txt"
 
