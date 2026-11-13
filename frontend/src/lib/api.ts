@@ -11,11 +11,21 @@ export interface TickPayload {
 }
 
 export type {
+  DashboardBudgetRowDTO,
+  DashboardCategoryRowDTO,
+  DashboardDTO,
+  DashboardMonthBarDTO,
+  DashboardStatementLineDTO,
+  DashboardTransactionRowDTO,
+  DashboardUpcomingRowDTO,
   ProfileDTO,
   ShellDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
-import type { ShellDTO } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
+import type {
+  DashboardDTO,
+  ShellDTO,
+} from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 
 export interface Api {
   info(): Promise<AppInfoDTO>;
@@ -56,8 +66,23 @@ export interface Api {
   openGitHub(): Promise<ShellDTO>;
   reportProblem(): Promise<ShellDTO>;
 
+  dashboardState(): Promise<DashboardDTO>;
+  dashboardPreviousMonth(): Promise<DashboardDTO>;
+  dashboardNextMonth(): Promise<DashboardDTO>;
+  dashboardCurrentMonth(): Promise<DashboardDTO>;
+  dashboardSelectMonth(index: number): Promise<DashboardDTO>;
+  dashboardDismissError(): Promise<DashboardDTO>;
+  dashboardOpenCategory(categoryID: number): Promise<DashboardDTO>;
+  dashboardOpenUncategorized(): Promise<DashboardDTO>;
+  dashboardOpenAll(): Promise<DashboardDTO>;
+  dashboardOpenPartner(partner: string): Promise<DashboardDTO>;
+  dashboardOpenAccounts(): Promise<DashboardDTO>;
+  dashboardOpenSettings(): Promise<DashboardDTO>;
+  dashboardOpenTax(): Promise<DashboardDTO>;
+
   onShellChanged(callback: (dto: ShellDTO) => void): () => void;
   onMenuAction(callback: (action: string) => void): () => void;
+  onDashboardChanged(callback: (dto: DashboardDTO) => void): () => void;
 }
 
 let loaded: Promise<Api> | undefined;

@@ -1,5 +1,6 @@
-import type { Api, AppInfoDTO, ShellDTO, TickPayload } from './api';
+import type { Api, AppInfoDTO, DashboardDTO, ShellDTO, TickPayload } from './api';
 import { languageFromCode, translate, type Language } from './i18n';
+import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
 
 const info: AppInfoDTO = {
   name: 'Finglass',
@@ -56,6 +57,28 @@ const titleKeys: Record<string, string> = {
   documents: 'NavDocuments',
   reports: 'NavReports',
   settings: 'NavSettings',
+};
+
+type DashboardScenario = {
+  language: Language;
+  theme: string;
+  variant: MockDashboardVariant;
+};
+
+// The dashboard reference states. The page's own interactions (the month menu
+// and a chart hover) are driven by the browser test, so those scenarios only
+// choose the same figures as the plain one.
+const dashboardScenarios: Record<string, DashboardScenario> = {
+  'dashboard-en-light': { language: 'en', theme: 'light', variant: 'normal' },
+  'dashboard-de-light': { language: 'de', theme: 'light', variant: 'normal' },
+  'dashboard-de-dark': { language: 'de', theme: 'dark', variant: 'normal' },
+  'dashboard-full-de-light': { language: 'de', theme: 'light', variant: 'normal' },
+  'dashboard-first-run-en': { language: 'en', theme: 'light', variant: 'first-run' },
+  'dashboard-no-carry-en-light': { language: 'en', theme: 'light', variant: 'no-carry' },
+  'dashboard-month-menu-en-light': { language: 'en', theme: 'light', variant: 'normal' },
+  'dashboard-chart-hover-en-light': { language: 'en', theme: 'light', variant: 'normal' },
+  'dashboard-error-en-light': { language: 'en', theme: 'light', variant: 'error' },
+  'dashboard-loading-en-light': { language: 'en', theme: 'light', variant: 'loading' },
 };
 
 // A migration report is runtime data the Go wizard puts into the DTO, not a
@@ -139,9 +162,16 @@ function openShell(state: MockState): void {
   state.profileName = state.profiles.find((profile) => profile.open)?.name ?? state.profileName;
 }
 
-function initialState(): MockState {
+function initialState(scenario: string): MockState {
   const state = baseState();
-  const scenario = scenarioName();
+
+  const dashboard = dashboardScenarios[scenario];
+  if (dashboard !== undefined) {
+    openShell(state);
+    state.language = dashboard.language;
+    state.theme = dashboard.theme;
+    return state;
+  }
 
   switch (scenario) {
     case 'leftovers':
@@ -240,10 +270,15 @@ function initialState(): MockState {
   return state;
 }
 
-export function createMockApi(): Api {
-  const state = initialState();
+export function createMockApi(scenario = scenarioName()): Api {
+  const state = initialState(scenario);
+  const dashboard = new MockDashboard(
+    dashboardScenarios[scenario]?.variant ?? 'normal',
+    state.language,
+  );
   const shellListeners = new Set<(dto: ShellDTO) => void>();
   const menuListeners = new Set<(action: string) => void>();
+  const dashboardListeners = new Set<(dto: DashboardDTO) => void>();
 
   function dto(): ShellDTO {
     const language = state.language;
@@ -291,6 +326,26 @@ export function createMockApi(): Api {
       listener(next);
     }
     return next;
+  }
+
+  function publishDashboardWith(change: () => DashboardDTO): DashboardDTO {
+    const next = change();
+    for (const listener of dashboardListeners) {
+      listener(next);
+    }
+    return next;
+  }
+
+  function publishDashboard(): DashboardDTO {
+    return publishDashboardWith(() => dashboard.dto());
+  }
+
+  function openScreen(screen: string): DashboardDTO {
+    state.screen = screen;
+    state.backTitle = '';
+    state.backScreen = '';
+    publish();
+    return dashboard.dto();
   }
 
   function validateNew(passphrase: string, repeat: string, acknowledged: boolean): string {
@@ -429,7 +484,10 @@ export function createMockApi(): Api {
     },
     async setLanguage(code: string) {
       state.language = languageFromCode(code);
-      return publish();
+      dashboard.setLanguage(state.language);
+      const next = publish();
+      publishDashboard();
+      return next;
     },
     async setTheme(code: string) {
       if (code === 'light' || code === 'dark' || code === 'system') {
@@ -557,6 +615,46 @@ export function createMockApi(): Api {
       return dto();
     },
 
+    async dashboardState() {
+      return dashboard.dto();
+    },
+    async dashboardPreviousMonth() {
+      return publishDashboardWith(() => dashboard.previous());
+    },
+    async dashboardNextMonth() {
+      return publishDashboardWith(() => dashboard.next());
+    },
+    async dashboardCurrentMonth() {
+      return publishDashboardWith(() => dashboard.current());
+    },
+    async dashboardSelectMonth(index: number) {
+      return publishDashboardWith(() => dashboard.select(index));
+    },
+    async dashboardDismissError() {
+      return publishDashboardWith(() => dashboard.dismissError());
+    },
+    async dashboardOpenCategory() {
+      return openScreen('transactions');
+    },
+    async dashboardOpenUncategorized() {
+      return openScreen('transactions');
+    },
+    async dashboardOpenAll() {
+      return openScreen('transactions');
+    },
+    async dashboardOpenPartner() {
+      return openScreen('transactions');
+    },
+    async dashboardOpenAccounts() {
+      return openScreen('accounts');
+    },
+    async dashboardOpenSettings() {
+      return openScreen('settings');
+    },
+    async dashboardOpenTax() {
+      return openScreen('reports');
+    },
+
     onShellChanged(callback: (next: ShellDTO) => void) {
       shellListeners.add(callback);
       return () => shellListeners.delete(callback);
@@ -564,6 +662,10 @@ export function createMockApi(): Api {
     onMenuAction(callback: (action: string) => void) {
       menuListeners.add(callback);
       return () => menuListeners.delete(callback);
+    },
+    onDashboardChanged(callback: (next: DashboardDTO) => void) {
+      dashboardListeners.add(callback);
+      return () => dashboardListeners.delete(callback);
     },
   };
 
