@@ -431,6 +431,30 @@ export function createWailsApi(): Api {
     transactionsUndoReapply(): Promise<TransactionsDTO> {
       return Transactions.UndoReapply();
     },
+    transactionsOpenImport(): Promise<TransactionsDTO> {
+      return Transactions.OpenImport();
+    },
+    transactionsOpenWithImport(): Promise<TransactionsDTO> {
+      return Transactions.OpenWithImport();
+    },
+    transactionsImportAccountChanged(index: number): Promise<TransactionsDTO> {
+      return Transactions.ImportAccountChanged(index);
+    },
+    transactionsImportCSVChanged(field: string, value: string): Promise<TransactionsDTO> {
+      return Transactions.ImportCSVChanged(field, value);
+    },
+    transactionsConfirmImport(updateBalance: boolean): Promise<TransactionsDTO> {
+      return Transactions.ConfirmImport(updateBalance);
+    },
+    transactionsCancelImport(): Promise<TransactionsDTO> {
+      return Transactions.CancelImport();
+    },
+    transactionsExportCSV(): Promise<TransactionsDTO> {
+      return Transactions.ExportCSV();
+    },
+    transactionsAttachReceipt(): Promise<TransactionsDTO> {
+      return Transactions.AttachReceipt();
+    },
     transactionsOpenRule(): Promise<TransactionsDTO> {
       return Transactions.OpenRule();
     },

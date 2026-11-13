@@ -10,11 +10,17 @@
   } from '../../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../../lib/i18n';
   import AccountPanel from './AccountPanel.svelte';
+  import AddTransactionDialog from './transactions/AddTransactionDialog.svelte';
   import BalanceChartCard from './transactions/BalanceChartCard.svelte';
   import AmountFilterDialog from './transactions/AmountFilterDialog.svelte';
   import CustomRangeDialog from './transactions/CustomRangeDialog.svelte';
   import DeleteTransactionDialog from './transactions/DeleteTransactionDialog.svelte';
+  import DuplicateTransactionDialog from './transactions/DuplicateTransactionDialog.svelte';
   import FilterPill from './transactions/FilterPill.svelte';
+  import ImportDialog from './transactions/ImportDialog.svelte';
+  import MultiDeleteDialog from './transactions/MultiDeleteDialog.svelte';
+  import ReapplyRulesDialog from './transactions/ReapplyRulesDialog.svelte';
+  import RuleDialog from './transactions/RuleDialog.svelte';
   import TransactionDetail from './transactions/TransactionDetail.svelte';
   import TransactionList from './transactions/TransactionList.svelte';
 
@@ -63,6 +69,30 @@
 
   function closeTopLayer(): void {
     if (dto === null) {
+      return;
+    }
+    if (dto.ruleOpen) {
+      void run(() => api.transactionsCloseRule());
+      return;
+    }
+    if (dto.duplicateOpen) {
+      void run(() => api.transactionsDismissDuplicate());
+      return;
+    }
+    if (dto.addOpen) {
+      void run(() => api.transactionsCloseAdd());
+      return;
+    }
+    if (dto.multiDeleteOpen) {
+      void run(() => api.transactionsCancelMultiDelete());
+      return;
+    }
+    if (dto.reapplyOpen) {
+      void run(() => api.transactionsCancelReapplyRules());
+      return;
+    }
+    if (dto.importOpen) {
+      void run(() => api.transactionsCancelImport());
       return;
     }
     if (dto.rangeOpen) {
@@ -334,6 +364,7 @@
         onCategory={(index) => run(() => api.transactionsDetailCategory(index))}
         onTax={(index) => run(() => api.transactionsDetailTax(index))}
         onShowPartner={(partner) => run(() => api.transactionsDetailShowPartner(partner))}
+        onAttachReceipt={() => run(() => api.transactionsAttachReceipt())}
         onCreateRule={() => run(() => api.transactionsDetailCreateRule())}
       />
     {/if}
@@ -367,6 +398,105 @@
       {/key}
     {/if}
 
+    {#if dto.addOpen}
+      <AddTransactionDialog
+        initialDate={dto.addDate}
+        initialAccountIndex={dto.addAccountIndex}
+        accounts={dto.addAccountOptions}
+        categoryNames={dto.addCategoryNames}
+        amountLabel={dto.addAmountLabel}
+        error={dto.addError}
+        {t}
+        onClose={() => run(() => api.transactionsCloseAdd())}
+        onSubmit={(accountIndex, expense, date, amount, partner, purpose, categoryIndex) =>
+          run(() =>
+            api.transactionsAddSubmit(
+              accountIndex,
+              expense,
+              date,
+              amount,
+              partner,
+              purpose,
+              categoryIndex,
+            ),
+          )}
+      />
+    {/if}
+
+    {#if dto.duplicateOpen}
+      <DuplicateTransactionDialog
+        title={dto.duplicateTitle}
+        text={dto.duplicateText}
+        {t}
+        onConfirm={() => run(() => api.transactionsConfirmDuplicate())}
+        onDismiss={() => run(() => api.transactionsDismissDuplicate())}
+      />
+    {/if}
+
+    {#if dto.multiDeleteOpen}
+      <MultiDeleteDialog
+        title={dto.multiDeleteTitle}
+        range={dto.multiDeleteRange}
+        totals={dto.multiDeleteTotals}
+        lines={dto.multiDeleteLines}
+        more={dto.multiDeleteMore}
+        {t}
+        onConfirm={() => run(() => api.transactionsConfirmMultiDelete())}
+        onCancel={() => run(() => api.transactionsCancelMultiDelete())}
+      />
+    {/if}
+
+    {#if dto.ruleOpen}
+      <RuleDialog
+        pattern={dto.rulePattern}
+        categories={dto.ruleCategories}
+        categoryIndex={dto.ruleCategoryIndex}
+        error={dto.ruleError}
+        {t}
+        onSave={(pattern, categoryIndex) =>
+          run(() => api.transactionsSaveRule(pattern, categoryIndex))}
+        onClose={() => run(() => api.transactionsCloseRule())}
+      />
+    {/if}
+
+    {#if dto.reapplyOpen}
+      <ReapplyRulesDialog
+        summary={dto.reapplySummary}
+        warning={dto.reapplyWarning}
+        groups={dto.reapplyGroups}
+        confirmText={dto.reapplyConfirmText}
+        confirmEnabled={dto.reapplyConfirmEnabled}
+        {t}
+        onToggle={(from, to) => run(() => api.transactionsToggleReapplyGroup(from, to))}
+        onConfirm={() => run(() => api.transactionsConfirmReapplyRules())}
+        onCancel={() => run(() => api.transactionsCancelReapplyRules())}
+      />
+    {/if}
+
+    {#if dto.importOpen}
+      <ImportDialog
+        title={dto.importTitle}
+        summary={dto.importSummary}
+        files={dto.importFiles}
+        csvFields={dto.importCsvFields}
+        csvHint={dto.importCsvHint}
+        accountOptions={dto.importAccountOptions}
+        accountIndex={dto.importAccountIndex}
+        balanceAllowed={dto.importBalanceAllowed}
+        updateBalance={dto.importUpdateBalance}
+        balanceText={dto.importBalanceText}
+        newerText={dto.importNewerText}
+        importing={dto.importing}
+        confirmText={dto.importConfirmText}
+        confirmEnabled={dto.importConfirmEnabled}
+        {t}
+        onAccount={(index) => run(() => api.transactionsImportAccountChanged(index))}
+        onCsvChanged={(field, value) => run(() => api.transactionsImportCSVChanged(field, value))}
+        onConfirm={(updateBalance) => run(() => api.transactionsConfirmImport(updateBalance))}
+        onCancel={() => run(() => api.transactionsCancelImport())}
+      />
+    {/if}
+
     {#if dto.deleteOpen}
       {#key dto.deleteId}
         <DeleteTransactionDialog
@@ -395,6 +525,18 @@
           aria-label={t('More')}
           data-testid="transactions-more-menu"
         >
+          <button
+            type="button"
+            role="menuitem"
+            class="more-item"
+            disabled={!dto.hasAccounts}
+            onclick={() => {
+              moreMenuOpen = false;
+              void run(() => api.transactionsOpenImport());
+            }}
+          >
+            {t('Import')}
+          </button>
           <button
             type="button"
             role="menuitem"
@@ -431,6 +573,18 @@
               {t('UndoReapplyRules')}
             </button>
           {/if}
+          <button
+            type="button"
+            role="menuitem"
+            class="more-item"
+            disabled={!dto.hasTransactions}
+            onclick={() => {
+              moreMenuOpen = false;
+              void run(() => api.transactionsExportCSV());
+            }}
+          >
+            {t('ExportCsv')}
+          </button>
         </div>
       </div>
     {/if}

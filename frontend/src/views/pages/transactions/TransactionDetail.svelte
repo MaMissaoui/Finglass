@@ -9,6 +9,7 @@
     onCategory,
     onTax,
     onShowPartner,
+    onAttachReceipt,
     onCreateRule,
   }: {
     dto: TransactionsDTO;
@@ -17,6 +18,7 @@
     onCategory: (index: number) => void;
     onTax: (index: number) => void;
     onShowPartner: (partner: string) => void;
+    onAttachReceipt: () => void;
     onCreateRule: () => void;
   } = $props();
 
@@ -98,6 +100,7 @@
       <div class="rule" role="none"></div>
 
       <div class="footer">
+        <TextButton text={t('AttachReceiptEllipsis')} onclick={onAttachReceipt} />
         {#if dto.detailCanCreateRule}
           <TextButton text={t('CreateRule')} onclick={onCreateRule} />
         {/if}

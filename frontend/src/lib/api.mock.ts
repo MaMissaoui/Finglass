@@ -103,6 +103,16 @@ const transactionsScenarios: Record<string, TransactionsScenario> = {
   'transactions-more-menu-en': { language: 'en', theme: 'light' },
   'transactions-custom-range-en': { language: 'en', theme: 'light' },
   'transactions-from-dashboard-category-en-light': { language: 'en', theme: 'light' },
+  'transactions-add-en': { language: 'en', theme: 'light' },
+  'transactions-duplicate-en': { language: 'en', theme: 'light' },
+  'transactions-multi-delete-en': { language: 'en', theme: 'light' },
+  'transactions-reapply-en': { language: 'en', theme: 'light' },
+  'transactions-rule-dialog-en': { language: 'en', theme: 'light' },
+  'transactions-import-csv-en': { language: 'en', theme: 'light' },
+  'transactions-import-en-light': { language: 'en', theme: 'light' },
+  'transactions-import-de-dark': { language: 'de', theme: 'dark' },
+  'transactions-import-mt940-en': { language: 'en', theme: 'light' },
+  'transactions-import-warnings-en': { language: 'en', theme: 'light' },
 };
 
 // The dashboard reference states. The page's own interactions (the month menu
@@ -1117,17 +1127,41 @@ export function createMockApi(scenario = scenarioName()): Api {
     transactionsReapplyRules() {
       return Promise.resolve(transactions.reapplyRules());
     },
-    transactionsToggleReapplyGroup() {
-      return Promise.resolve(transactions.state());
+    transactionsToggleReapplyGroup(from: number, to: number) {
+      return Promise.resolve(transactions.toggleReapplyGroup(from, to));
     },
     transactionsConfirmReapplyRules() {
-      return Promise.resolve(transactions.state());
+      return Promise.resolve(transactions.confirmReapplyRules());
     },
     transactionsCancelReapplyRules() {
-      return Promise.resolve(transactions.state());
+      return Promise.resolve(transactions.cancelReapplyRules());
     },
     transactionsUndoReapply() {
       return Promise.resolve(transactions.undoReapply());
+    },
+    transactionsOpenImport() {
+      return Promise.resolve(transactions.openImport());
+    },
+    transactionsOpenWithImport() {
+      return Promise.resolve(transactions.openImport());
+    },
+    transactionsImportAccountChanged(index: number) {
+      return Promise.resolve(transactions.importAccountChanged(index));
+    },
+    transactionsImportCSVChanged(field: string, value: string) {
+      return Promise.resolve(transactions.importCsvChanged(field, value));
+    },
+    transactionsConfirmImport(updateBalance: boolean) {
+      return Promise.resolve(transactions.confirmImport(updateBalance));
+    },
+    transactionsCancelImport() {
+      return Promise.resolve(transactions.cancelImport());
+    },
+    transactionsExportCSV() {
+      return Promise.resolve(transactions.exportCsv());
+    },
+    transactionsAttachReceipt() {
+      return Promise.resolve(transactions.attachReceipt());
     },
     transactionsOpenRule() {
       return Promise.resolve(transactions.openRule());
