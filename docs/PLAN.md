@@ -280,14 +280,19 @@ In order, each one compared with the G1 reference screenshots:
   checks that no order segment (`HKCCS`, `HKCSE`, `HKCDE`, …) can be built.
   Progress: done are the wire codec, envelope and request builders (G10-1), typed responses (G10-2), the dialog,
   bank parameters and TAN flow (G10-3: decoupled polling bounded, no HKEND after a PIN rejection) and the HTTPS
-  transport (`internal/fints/httptransport`, G10-4a: https only, no redirects, bounded response). The Go probe
-  (G10-5) is next, then the adapter (G10-4b).
+  transport (`internal/fints/httptransport`, G10-4a: https only, no redirects, bounded response) and the Go probe
+  (G10-5: HKSPA for the BIC, depots and cards skipped, account form per segment version: national for HKSAL/HKKAZ
+  v5/v6, IBAN:BIC from v7 and for HKCAZ). The adapter (G10-4b) is next.
 - [ ] Tests on synthetic and recorded fixtures only.
 - [x] Product id from a CI secret via `-ldflags -X`, never in the tree. A CI check confirms its value never appears.
   Without it, sync stays off.
-- [ ] Go `finglass-probe`. **You** run it per bank (Volksbank, DKB, HVB) and report only the `RESULT` line.
+- [x] Go `finglass-probe` (`cmd/finglass-probe`, see `internal/core/fintsprobe/README.md`).
+- [ ] **You** run the probe per bank (Volksbank, DKB, HVB) and report only the `RESULT` lines (with codes on NO-GO).
+  `OnlineSyncAvailable` stays `false` until at least one bank reports GO.
 - [ ] Adapter behind the gateway port, plus the M5b prerequisites (one dialog per login, the trace switch with
   masking).
+- [ ] Before 0.4.0: your real-data test includes two syncs in a row per bank (the second one reuses the stored system
+  id and TAN method).
 
 ### G11 — Windows and Linux (M, after parity)
 
