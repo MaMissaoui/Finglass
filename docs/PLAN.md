@@ -278,8 +278,10 @@ In order, each one compared with the G1 reference screenshots:
 - [ ] `internal/fints`: message codec, dialog init/end (HKIDN, HKVVB, HKSYN, HKEND), BPD/UPD caching, HKTAN (process
   4, decoupled app TAN and push), HKTAB, HKSPA, HKSAL, HKKAZ/HKCAZ (camt). Segment types exist only for these. A test
   checks that no order segment (`HKCCS`, `HKCSE`, `HKCDE`, …) can be built.
+  Progress: the wire codec, envelope and request builders (G10-1) are done; typed responses (G10-2), the dialog
+  and the TAN flow are next.
 - [ ] Tests on synthetic and recorded fixtures only.
-- [ ] Product id from a CI secret via `-ldflags -X`, never in the tree. A CI check confirms its value never appears.
+- [x] Product id from a CI secret via `-ldflags -X`, never in the tree. A CI check confirms its value never appears.
   Without it, sync stays off.
 - [ ] Go `finglass-probe`. **You** run it per bank (Volksbank, DKB, HVB) and report only the `RESULT` line.
 - [ ] Adapter behind the gateway port, plus the M5b prerequisites (one dialog per login, the trace switch with
@@ -291,7 +293,8 @@ In order, each one compared with the G1 reference screenshots:
 
 ## Carried over from the Rust plan (your actions)
 
-- [ ] DK FinTS product registration under the name Finglass: form sent 2026-11-08, number received 2026-11-13.
+- [x] DK FinTS product registration under the name Finglass: form sent 2026-11-08, number received 2026-11-13,
+      stored as the `FINGLASS_FINTS_PRODUCT_ID` secret the same day.
       Keep it in your password manager; never paste it into a chat, issue, commit or file. Store it with
       `gh secret set FINGLASS_FINTS_PRODUCT_ID -R MaMissaoui/Finglass` (asked without echo).
 - [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
