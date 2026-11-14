@@ -899,6 +899,8 @@ export const keys = [
   'ProductIDPromptTitle',
   'ProductIDPromptText',
   'ProductIDPromptLabel',
+  'FinDeskImportServerURLsFilled',
+  'FinDeskImportServerURLsMissing',
 ] as const;
 
 export type Key = (typeof keys)[number];

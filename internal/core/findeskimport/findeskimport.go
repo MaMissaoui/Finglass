@@ -85,6 +85,9 @@ type SettingsImportCounts struct {
 	Skipped int
 }
 
+// ServerURLLookup returns the FinTS server URL for a bank code (BLZ).
+type ServerURLLookup func(blz string) (string, bool)
+
 // FinDeskImportReport is what one FinDesk import did, as counts only.
 type FinDeskImportReport struct {
 	// AccountGroups counts account groups.
@@ -115,6 +118,12 @@ type FinDeskImportReport struct {
 	// PaymentOrdersLeftBehind counts FinDesk payment orders that were
 	// deliberately left behind.
 	PaymentOrdersLeftBehind int
+	// ServerURLsFilled counts imported bank connections whose empty server URL
+	// was filled from FinDesk's bank list.
+	ServerURLsFilled int
+	// BankConnectionsWithoutServerURL counts imported, online bank connections
+	// that still have no server URL.
+	BankConnectionsWithoutServerURL int
 }
 
 // TotalSkipped returns rows skipped across all imported tables, documents and
@@ -135,7 +144,7 @@ func (r FinDeskImportReport) TotalSkipped() int {
 
 // Summary returns a one-line, user-visible summary in language.
 func (r FinDeskImportReport) Summary(language i18n.Language) string {
-	return i18n.Format(
+	text := i18n.Format(
 		language,
 		i18n.FinDeskImportSummary,
 		i18n.Int(int64(r.AccountGroups.Imported)),
@@ -154,6 +163,21 @@ func (r FinDeskImportReport) Summary(language i18n.Language) string {
 		i18n.Int(int64(r.Documents.Refused)),
 		i18n.Int(int64(r.PaymentOrdersLeftBehind)),
 	)
+	if r.ServerURLsFilled > 0 {
+		text += " " + i18n.Format(
+			language,
+			i18n.FinDeskImportServerURLsFilled,
+			i18n.Int(int64(r.ServerURLsFilled)),
+		)
+	}
+	if r.BankConnectionsWithoutServerURL > 0 {
+		text += " " + i18n.Format(
+			language,
+			i18n.FinDeskImportServerURLsMissing,
+			i18n.Int(int64(r.BankConnectionsWithoutServerURL)),
+		)
+	}
+	return text
 }
 
 // ErrorKind identifies a FinDesk import failure.
@@ -298,9 +322,10 @@ func Import(
 	findeskDataDir string,
 	passphrase *secret.Passphrase,
 	offset *time.Location,
+	lookup ServerURLLookup,
 ) (*FinDeskImportReport, error) {
 	if offset == nil {
 		offset = time.UTC
 	}
-	return run(target, targetDocumentsDir, findeskDataDir, passphrase, offset)
+	return run(target, targetDocumentsDir, findeskDataDir, passphrase, offset, lookup)
 }

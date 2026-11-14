@@ -1,8 +1,12 @@
 package findesk
 
 import (
+	"archive/zip"
+	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -330,6 +334,122 @@ func TestReportTextBreaksDownEverySkippedRowOnce(t *testing.T) {
 // errorIs is a tiny alias so the assertions above read like the original tests.
 func errorIs(err, target error) bool {
 	return errors.Is(err, target)
+}
+
+func blankFirstBankServerURL(t *testing.T, sourceDir string) {
+	t.Helper()
+	database, err := db.OpenUnmigrated(
+		filepath.Join(sourceDir, "findesk.db"),
+		fixturePass(t),
+	)
+	if err != nil {
+		t.Fatalf("open fixture: %v", err)
+	}
+	defer func() {
+		_ = database.Close()
+	}()
+	if err := database.WithConn(context.Background(), func(ctx context.Context, conn *sql.Conn) error {
+		_, err := conn.ExecContext(ctx, "UPDATE bank_access SET blz = '11112222', server_url = NULL WHERE id = 1")
+		return err
+	}); err != nil {
+		t.Fatalf("blank server URL: %v", err)
+	}
+}
+
+func syntheticFindDeskApp(t *testing.T, blz, serverURL string) string {
+	t.Helper()
+	app := filepath.Join(t.TempDir(), "FinDesk.app")
+	appDir := filepath.Join(app, "Contents", "app")
+	if err := os.MkdirAll(appDir, 0o700); err != nil {
+		t.Fatalf("create app folder: %v", err)
+	}
+	jar, err := os.Create(filepath.Join(appDir, "hbci4j-core-test.jar")) // #nosec G304 -- test temporary directory.
+	if err != nil {
+		t.Fatalf("create jar: %v", err)
+	}
+	writer := zip.NewWriter(jar)
+	entry, err := writer.Create("blz.properties")
+	if err != nil {
+		t.Fatalf("create entry: %v", err)
+	}
+	line := fmt.Sprintf("%s=Fixture Bank|Town|Bank|X|Extra|%s\n", blz, serverURL)
+	if _, err := io.WriteString(entry, "# invented\n"+line); err != nil {
+		t.Fatalf("write entry: %v", err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatalf("close jar writer: %v", err)
+	}
+	if err := jar.Close(); err != nil {
+		t.Fatalf("close jar: %v", err)
+	}
+	return app
+}
+
+func storedServerURL(t *testing.T, database *db.Database) *string {
+	t.Helper()
+	var value *string
+	if err := database.WithConn(context.Background(), func(ctx context.Context, conn *sql.Conn) error {
+		return conn.QueryRowContext(ctx, "SELECT server_url FROM bank_connections WHERE id = 1").Scan(&value)
+	}); err != nil {
+		t.Fatalf("read server URL: %v", err)
+	}
+	return value
+}
+
+func TestTheImportFillsAServerURLFromTheInstalledFinDeskApp(t *testing.T) {
+	sourceDir := fixtureCopy(t)
+	blankFirstBankServerURL(t, sourceDir)
+
+	app := syntheticFindDeskApp(t, "11112222", "https://fints.example.test/from-findesk")
+	previous := findeskAppPaths
+	findeskAppPaths = func() []string { return []string{app} }
+	t.Cleanup(func() { findeskAppPaths = previous })
+
+	appPaths, opened := freshProfile(t)
+	state := NewFindeskImportState(i18n.En)
+	if got := state.Choose(sourceDir); got == nil || *got != sourceDir {
+		t.Fatalf("choose = %v, want %q", got, sourceDir)
+	}
+	report, err := state.ImportInProfile(opened, appPaths, nil, fixturePass(t))
+	if err != nil {
+		t.Fatalf("import: %v", err)
+	}
+	if report.ServerURLsFilled != 1 {
+		t.Errorf("filled = %d, want 1", report.ServerURLsFilled)
+	}
+	if got := storedServerURL(t, opened); got == nil || *got != "https://fints.example.test/from-findesk" {
+		t.Errorf("stored URL = %v", got)
+	}
+	text := state.ReportText()
+	if text == nil || !strings.Contains(*text, "taken from FinDesk's bank list.") {
+		t.Errorf("report text = %v", text)
+	}
+}
+
+func TestTheImportReportNamesBanksWithoutAServerURL(t *testing.T) {
+	sourceDir := fixtureCopy(t)
+	blankFirstBankServerURL(t, sourceDir)
+
+	previous := findeskAppPaths
+	findeskAppPaths = func() []string { return nil }
+	t.Cleanup(func() { findeskAppPaths = previous })
+
+	appPaths, opened := freshProfile(t)
+	state := NewFindeskImportState(i18n.En)
+	state.Choose(sourceDir)
+	report, err := state.ImportInProfile(opened, appPaths, nil, fixturePass(t))
+	if err != nil {
+		t.Fatalf("import: %v", err)
+	}
+	if report.BankConnectionsWithoutServerURL != 1 {
+		t.Errorf("missing = %d, want 1", report.BankConnectionsWithoutServerURL)
+	}
+	text := state.ReportText()
+	if text == nil ||
+		!strings.Contains(*text, "1 bank has no FinTS server address.") ||
+		!strings.Contains(*text, "“Connection settings”") {
+		t.Errorf("report text = %v", text)
+	}
 }
 
 func TestPassphrasesNeverFormatted(t *testing.T) {

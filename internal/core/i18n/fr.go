@@ -900,4 +900,6 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	ProductIDPromptTitle:                "Identifiant de produit FinTS",
 	ProductIDPromptText:                 "Saisissez l'identifiant d'enregistrement du produit FinTS. Il sert uniquement à ce test et n'est pas stocké.",
 	ProductIDPromptLabel:                "Identifiant de produit",
+	FinDeskImportServerURLsFilled:       "%d {1:adresse de serveur FinTS reprise|adresses de serveur FinTS reprises} de la liste des banques de FinDesk.",
+	FinDeskImportServerURLsMissing:      "%d {1:banque n'a|banques n'ont} pas d'adresse de serveur FinTS. Ajoutez-la dans le menu de la banque sous « Paramètres de connexion ».",
 }

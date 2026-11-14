@@ -74,6 +74,8 @@ testdata/golden/             reference outputs of Finglass 0.3.4 that the Go cod
 - [ ] **You:** push the tag (`v0.4.0`). The release workflow publishes only when `docs/releases/<tag>.md` exists.
 - [ ] **You:** after installing, rename `~/.finglass` (keep it, don't delete it) and start Finglass; it offers the
   FinDesk migration.
+- [x] The FinDesk migration fills missing FinTS server URLs from the installed FinDesk.app's bank list (read-only;
+  nothing is shipped), like FinDesk does at runtime.
 
 ## FinTS: banks and online sync
 
@@ -110,7 +112,8 @@ the newest supported HKTAN version, and names kept out of traces.
 - [ ] **You:** after the flip, two syncs in a row per bank (the second reuses the stored system id and TAN method).
   The trace slot keeps only the last bank of a "Sync all"; to save a failing bank's trace, sync that bank on its own.
 - [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
-  list you received, or it ships with the app only if the terms allow it).
+  list you received, or it ships with the app only if the terms allow it). Until then, the FinDesk import reads
+  FinDesk.app's local copy and ships nothing.
 
 The product id is the GitHub secret `FINGLASS_FINTS_PRODUCT_ID`, built into tag builds only; keep it in your password
 manager and never paste it into a chat, issue, commit or file. A CI check confirms it never appears in the

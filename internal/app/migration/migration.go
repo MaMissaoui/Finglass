@@ -424,7 +424,14 @@ func migrateInStaging(
 		return nil, &MigrationError{Kind: MigrationDatabase, Err: err}
 	}
 
-	report, importErr := findeskimport.Import(database, stagingDocuments, profile.DataDir, findesk, offset)
+	report, importErr := findeskimport.Import(
+		database,
+		stagingDocuments,
+		profile.DataDir,
+		findesk,
+		offset,
+		bankDirectoryLookup(),
+	)
 	_ = database.Close()
 	if importErr != nil {
 		return nil, &MigrationError{Kind: MigrationFinDesk, Err: importErr}
