@@ -128,8 +128,8 @@ the newest supported HKTAN version, and names kept out of traces.
   twice, while a stale-system-id error such as 9010 still retries once with Sync.
 - [ ] **You:** retry DKB once the registration has propagated.
 - [ ] Check HKTAN v5's layout against a bank (none of yours uses v5).
-- [ ] **You:** Volksbank and HVB: Sync now twice in a row each, with "Save redacted trace…" after each; then Sync
-  all.
+- [x] Real-bank sync with 0.4.3 (2026-11-14): Sync now works for Volksbank and HVB.
+- [ ] **You:** Sync all with both banks included; a second sync per bank (no new device at HVB).
 - [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
   list you received, or it ships with the app only if the terms allow it). Until then, the FinDesk import reads
   FinDesk.app's local copy and ships nothing.
