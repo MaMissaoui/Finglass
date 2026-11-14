@@ -497,7 +497,9 @@ test('a refused login shows the NO-GO panel with the bank return code', async ({
   const panel = connectionPanel(page);
   await expect(panel.locator('.verdict-chip')).toHaveText('NO-GO');
   await expect(panel).toContainText('The login data is invalid.');
-  await expect(panel).toContainText('Runs a read-only check against your bank.');
+  await expect(panel).toContainText(
+    'Check the bank code, user id and PIN in Connection settings, then test again.',
+  );
   await expect(panel.locator('.test-codes .code-chip')).toHaveText(['9942']);
   await expect(panel.getByText('Messages from the bank', { exact: true })).toBeVisible();
   const bankMessage = panel.locator('.test-bank-message').filter({ hasText: '9210' });

@@ -111,6 +111,7 @@ Results of your Test connection runs (2026-11-14):
   - [x] Re-test with 0.4.3: Volksbank stays GO, HVB GO.
 - **DKB (12030000): NO-GO.** 9078 with 3079 and 9800: most likely the product registration from 2026-11-13 has not
   reached DKB yet. Retry in a few days.
+  - [x] Test connection names every NO-GO in a sentence (DKB showed 'BankError'); 9078 says the registration hasn't reached the bank yet.
 
 Fixed along the way: the first message's envelope (dialog id 0, sender role, `PIN:2`), the BIC taken from HISPA only,
 the newest supported HKTAN version, and names kept out of traces.

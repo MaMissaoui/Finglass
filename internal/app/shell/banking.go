@@ -950,6 +950,8 @@ func (s *Session) BankingTestConnection(bankID int) {
 						Other:     connectiontest.OtherCancelled,
 						Cancelled: true,
 					}),
+					Kind:  connectionTestKindName(fintsprobe.NoGoOther),
+					Other: connectiontest.OtherCancelled,
 				}
 				state.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
 				job.setLastTrace = true
@@ -1014,6 +1016,8 @@ func (s *Session) BankingTestConnection(bankID int) {
 			BankID:               id,
 			Go:                   outcome.Go,
 			Reason:               connectionTestReason(state.Language, outcome),
+			Kind:                 connectionTestKindName(outcome.Kind),
+			Other:                outcome.Other,
 			Codes:                append([]string(nil), outcome.Codes...),
 			Messages:             connectionTestMessages(outcome.Messages),
 			Probed:               outcome.Probed,
@@ -1189,6 +1193,40 @@ func connectionTestReason(language i18n.Language, outcome connectiontest.Outcome
 	if outcome.Go {
 		return i18n.Text(language, i18n.TestConnectionGo)
 	}
+	// A 9078 after the login says the bank has not received the product
+	// registration yet. Say so instead of showing the generic bank-error line.
+	if outcome.Kind == fintsprobe.NoGoOther && outcome.Other == "BankError" &&
+		connectionTestHasCode(outcome.Codes, "9078") {
+		return i18n.Text(language, i18n.TestConnectionRegistrationMissing)
+	}
+	// The probe reduces a locked account and a rejected PIN to the same kind,
+	// so the lock code is what tells them apart here.
+	if outcome.Other == "AccountLocked" ||
+		(outcome.Kind == fintsprobe.NoGoLoginRejected && connectionTestHasCode(outcome.Codes, "3938")) {
+		return i18n.Text(language, i18n.TestConnectionAccountLocked)
+	}
+	switch outcome.Other {
+	case "PinRejected":
+		return i18n.Text(language, i18n.TestConnectionLoginRejected)
+	case "TanRejected":
+		return i18n.Text(language, i18n.TestConnectionTanRejected)
+	case "BankError":
+		return i18n.Text(language, i18n.TestConnectionBankError)
+	case "Protocol":
+		return i18n.Text(language, i18n.TestConnectionProtocol)
+	case "NoAccounts":
+		return i18n.Text(language, i18n.TestConnectionNoAccounts)
+	case "BalanceAbsent":
+		return i18n.Text(language, i18n.TestConnectionBalanceAbsent)
+	case "Transport":
+		return i18n.Text(language, i18n.TestConnectionTransport)
+	case "PollLimit", "TouchdownLimit":
+		return i18n.Text(language, i18n.TestConnectionApprovalTimedOut)
+	case connectiontest.OtherInvalidLogin:
+		return i18n.Text(language, i18n.TestConnectionInvalidLogin)
+	case connectiontest.OtherProductIDMissing, connectiontest.OtherProductIDInvalid:
+		return i18n.Text(language, i18n.TestConnectionProductID)
+	}
 	switch outcome.Kind {
 	case fintsprobe.NoGoLoginRejected:
 		return i18n.Text(language, i18n.TestConnectionLoginRejected)
@@ -1199,17 +1237,33 @@ func connectionTestReason(language i18n.Language, outcome connectiontest.Outcome
 	case fintsprobe.NoGoStatementsUnavailable:
 		return i18n.Text(language, i18n.TestConnectionStatementsUnavailable)
 	}
-	switch outcome.Other {
-	case connectiontest.OtherInvalidLogin:
-		return i18n.Text(language, i18n.TestConnectionInvalidLogin)
-	case connectiontest.OtherProductIDMissing, connectiontest.OtherProductIDInvalid:
-		return i18n.Text(language, i18n.TestConnectionProductID)
+	return i18n.Text(language, i18n.TestConnectionUnexpected)
+}
+
+// connectionTestKindName is the stable result name for a NO-GO kind.
+func connectionTestKindName(kind fintsprobe.NoGoKind) string {
+	switch kind {
+	case fintsprobe.NoGoLoginRejected:
+		return banking.ConnectionTestKindLoginRejected
+	case fintsprobe.NoGoTanMethodUnsupported:
+		return banking.ConnectionTestKindTanMethodUnsupported
+	case fintsprobe.NoGoTanTimeout:
+		return banking.ConnectionTestKindTanTimeout
+	case fintsprobe.NoGoStatementsUnavailable:
+		return banking.ConnectionTestKindStatementsUnavailable
+	default:
+		return banking.ConnectionTestKindOther
 	}
-	other := outcome.Other
-	if other == "" {
-		other = "Unknown"
+}
+
+// connectionTestHasCode reports whether codes contains code.
+func connectionTestHasCode(codes []string, code string) bool {
+	for _, candidate := range codes {
+		if candidate == code {
+			return true
+		}
 	}
-	return i18n.Format(language, i18n.TestConnectionOther, i18n.Str(other))
+	return false
 }
 
 // connectionTraceFileName builds the dialog's default name.

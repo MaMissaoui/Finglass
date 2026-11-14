@@ -1,6 +1,10 @@
 package connectiontest
 
-import "github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
+import (
+	"sort"
+
+	"github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
+)
 
 // SyncUnlockAction is what a completed connection test does to a bank's sync
 // unlock.
@@ -78,4 +82,16 @@ func syncUnlockActionForReason(reason fintsprobe.NoGoReason) SyncUnlockAction {
 	default:
 		return SyncUnlockUnchanged
 	}
+}
+
+// OtherReasonNames returns every NoGoOther reason name with a sync-unlock
+// decision, sorted. The shell test uses it to check that each one has a plain
+// sentence in every language.
+func OtherReasonNames() []string {
+	names := make([]string, 0, len(otherReasonActions))
+	for name := range otherReasonActions {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }

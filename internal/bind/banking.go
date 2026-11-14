@@ -11,6 +11,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
+	"github.com/MaMissaoui/Finglass/internal/app/connectiontest"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/core/bankdirectory"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
@@ -605,11 +606,18 @@ func connectionTestVerdict(result *bankingcore.ConnectionTestResult) string {
 }
 
 // connectionTestNextStep is the one sentence that says what happens next.
-// A GO through the strong sync keeps its existing explanation; a NO-GO gets
-// the existing help text.
+// A GO through the strong sync keeps its existing explanation; a NO-GO points
+// at the reason's own next step. The general help stays under the running state.
 func connectionTestNextStep(state *bankingcore.BankingState, language i18n.Language) string {
 	result := state.ConnectionTest
-	if result == nil || result.Running {
+	if result == nil {
+		return ""
+	}
+	if result.Running {
+		return i18n.Text(language, i18n.TestConnectionHelp)
+	}
+	if result.Other == connectiontest.OtherCancelled {
+		// A cancel is the user's choice: nothing to fix, nothing to send.
 		return ""
 	}
 	if result.Go {
@@ -622,7 +630,40 @@ func connectionTestNextStep(state *bankingcore.BankingState, language i18n.Langu
 		}
 		return i18n.Text(language, i18n.TestConnectionSyncNow)
 	}
-	return i18n.Text(language, i18n.TestConnectionHelp)
+	if connectionTestHasCode(result.Codes, "9078") &&
+		result.Kind == bankingcore.ConnectionTestKindOther && result.Other == "BankError" {
+		return i18n.Text(language, i18n.TestConnectionNextStepRegistration)
+	}
+	if result.Other == "AccountLocked" ||
+		(result.Kind == bankingcore.ConnectionTestKindLoginRejected &&
+			connectionTestHasCode(result.Codes, "3938")) {
+		return i18n.Text(language, i18n.TestConnectionNextStepUnlock)
+	}
+	switch {
+	case result.Other == "PinRejected",
+		result.Other == connectiontest.OtherInvalidLogin,
+		result.Kind == bankingcore.ConnectionTestKindLoginRejected:
+		return i18n.Text(language, i18n.TestConnectionNextStepCheckLogin)
+	case result.Other == "Transport":
+		return i18n.Text(language, i18n.TestConnectionNextStepTransport)
+	case result.Other == "TanRejected",
+		result.Other == "PollLimit",
+		result.Other == "TouchdownLimit",
+		result.Kind == bankingcore.ConnectionTestKindTanTimeout:
+		return i18n.Text(language, i18n.TestConnectionNextStepApprove)
+	default:
+		return i18n.Text(language, i18n.TestConnectionNextStepTrace)
+	}
+}
+
+// connectionTestHasCode reports whether codes contains code.
+func connectionTestHasCode(codes []string, code string) bool {
+	for _, candidate := range codes {
+		if candidate == code {
+			return true
+		}
+	}
+	return false
 }
 
 func bankingBanks(state *bankingcore.BankingState, language i18n.Language) []BankingBankDTO {

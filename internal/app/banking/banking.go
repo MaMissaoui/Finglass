@@ -96,6 +96,16 @@ type BankItem struct {
 	CanTestConnection bool
 }
 
+// The NO-GO categories a connection test result carries. They are stable names
+// without bank text, so the UI layer can choose the next step.
+const (
+	ConnectionTestKindLoginRejected         = "LoginRejected"
+	ConnectionTestKindTanMethodUnsupported  = "TanMethodUnsupported"
+	ConnectionTestKindTanTimeout            = "TanTimeout"
+	ConnectionTestKindStatementsUnavailable = "StatementsUnavailable"
+	ConnectionTestKindOther                 = "Other"
+)
+
 // ConnectionTestResult is the latest read-only connection test, as the Banking
 // page shows it. It never carries trace bytes. Its bank messages are the bank's
 // own warning/error texts: show them on screen only and never log, store, audit
@@ -109,6 +119,12 @@ type ConnectionTestResult struct {
 	Go bool
 	// Reason is the localized reason.
 	Reason string
+	// Kind is the NO-GO category: one of the ConnectionTestKind values, or ""
+	// when the result carries none. It contains no bank text.
+	Kind string
+	// Other is the specific NO-GO reason for Kind == ConnectionTestKindOther,
+	// for example "BankError". It contains no bank text.
+	Other string
 	// Codes are the bank's four-digit return codes.
 	Codes []string
 	// Messages are the bank's warning and error texts for on-screen display.
