@@ -109,6 +109,32 @@ func TestRedactMessageMasksEveryRule(t *testing.T) {
 			present: []string{"<redacted len=7>"},
 		},
 		{
+			name: "HISAL v7 with a full KTI keeps only BIC, 280 and BLZ",
+			message: "HISAL:5:7:4+DE00999999990000000001:TESTDEFFXXX:ACCTMARK7777:SUBMARK8888:280:99999999" +
+				"+PRODUCTNAME000+EUR+C:1,00:EUR:20260315'",
+			absent:  []string{"ACCTMARK7777", "SUBMARK8888", "DE00999999990000000001"},
+			present: []string{"…0001:TESTDEFFXXX:…7777:…8888:280:99999999"},
+		},
+		{
+			name: "HICAZ with a full KTI keeps only BIC, 280 and BLZ",
+			message: "HICAZ:5:1:4+DE00999999990000000001:TESTDEFFXXX:ACCTMARK7777:SUBMARK8888:280:99999999" +
+				"+urn?:iso?:std?:iso?:20022?:tech?:xsd?:camt.052.001.02'",
+			absent:  []string{"ACCTMARK7777", "SUBMARK8888", "DE00999999990000000001"},
+			present: []string{"…0001:TESTDEFFXXX:…7777:…8888:280:99999999"},
+		},
+		{
+			name:    "an 8-digit account number before 280 is masked",
+			message: "HISAL:5:6:4+12345678::280:99999999+PRODUCTNAME000+EUR+C:1,00:EUR:20260315'",
+			absent:  []string{"12345678"},
+			present: []string{"…5678::280:99999999"},
+		},
+		{
+			name:    "HITAB keeps only medium class and status",
+			message: "HITAB:5:4:4+0+M:1:::::::ERIKA:123456'",
+			absent:  []string{"ERIKA", "123456"},
+			present: []string{"M:1:"},
+		},
+		{
 			name: "HISAL amount",
 			message: "HISAL:5:7:4+1::280:99999999+PRODUCTNAME000+EUR+" +
 				"C:" + amount + ":EUR:20260315+D:25,50:EUR:20260314+5000,00+900,00'",
