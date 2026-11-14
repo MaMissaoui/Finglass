@@ -7,11 +7,8 @@ See every account, booking, receipt and report in one place. Nothing in Finglass
 
 ---
 
-> **Status: alpha, macOS only.** Finglass is being migrated from Rust + Slint to Go + Wails v3
-> ([`docs/PLAN.md`](docs/PLAN.md)). The Rust code is gone from `main`, and until the Go UI is finished, `main` builds
-> no usable app. **0.3.4 is the release to use:** download its DMG from
-> [Releases](https://github.com/MaMissaoui/Finglass/releases) or run `install-mac.command` (below). The last Rust
-> source is the `v0.3.4` tag.
+> **Status: alpha, macOS only.** Download the DMG from [Releases](https://github.com/MaMissaoui/Finglass/releases)
+> or run `install-mac.command` (below). The work queue is [`docs/PLAN.md`](docs/PLAN.md).
 
 ## What Finglass is
 
@@ -19,9 +16,9 @@ See every account, booking, receipt and report in one place. Nothing in Finglass
   scheduled transfers or standing orders, and contains no code that could send them.
 - **Local-first.** Your data stays on your computer in an encrypted database (SQLCipher). No account, no cloud, no
   telemetry.
-- **Built in Go** with a [Wails v3](https://v3.wails.io) + Svelte UI (in progress; 0.3.4 is the Rust + Slint app).
-- **German banking via FinTS** (in progress: the bank screens are in, the connection itself is not yet): balances and
-  statements with pushTAN, chipTAN and photoTAN. Bank file imports (CSV, MT940, camt, OFX, QIF, XLSX) work without any
+- **Built in Go** with a [Wails v3](https://v3.wails.io) + Svelte UI.
+- **German banking via FinTS** (in progress: each bank's read-only Test connection works; online sync is switched on
+  once every tested bank passes): balances and statements with pushTAN, chipTAN and photoTAN. Bank file imports (CSV, MT940, camt, OFX, QIF, XLSX) work without any
   bank connection.
 
 Finglass is a sister project of [FinDesk](https://github.com/MaMissaoui/FinDesk) (Kotlin), rebuilt without the payment
@@ -46,7 +43,7 @@ The icons in `assets/icons` are generated from the SVGs in `assets/brand` by `sc
 ## Install on this Mac
 
 Double-click `install-mac.command` in Finder. It downloads and installs the newest published Finglass
-release from GitHub — pre-releases included — so it needs no Rust and no checkout. From a terminal the same
+release from GitHub — pre-releases included — so it needs no checkout and no build tools. From a terminal the same
 install is:
 
 ```sh
@@ -69,14 +66,15 @@ To build and install this checkout instead, use `--from-source`:
 scripts/install-mac.sh --from-source [--force] [--no-update]
 ```
 
-That builds the Rust app, so it works only on a checkout of `v0.3.4` or older until the Go app is packaged
-(PLAN G9). On `main` it fast-forwards a clean checkout from
+That builds the app with `scripts/go-package-macos.sh` (needs Go and Node.js). On `main` it fast-forwards a clean checkout from
 `origin/main` first; `--no-update` skips that. `--force` installs a checkout with uncommitted changes or a
 HEAD that is neither a `v*` release tag nor the fetched `origin/main`.
 
 ## Releasing
 
-There is no release workflow until the Go app is packaged (PLAN G9). 0.4.0 will be the first Go release.
+Pushing a `v*` tag runs the release workflow: it builds the universal DMG with the FinTS product id from the
+`FINGLASS_FINTS_PRODUCT_ID` secret and publishes a pre-release with the DMG and `SHA256SUMS.txt`, but only when
+`docs/releases/<tag>.md` exists; that file is the release text.
 
 ## Third-party assets
 
@@ -87,5 +85,5 @@ There is no release workflow until the Go app is packaged (PLAN G9). 0.4.0 will 
 
 ## License
 
-[MIT](LICENSE). Release 0.3.4 and older use [Slint](https://slint.dev) under its royalty-free license, which is why
-their About screen shows the Slint badge.
+[MIT](LICENSE). The FinTS client in `internal/fints` is based on fints-rs (MIT, © 2025 Florian Minnecker); see
+[`internal/fints/NOTICE`](internal/fints/NOTICE).
