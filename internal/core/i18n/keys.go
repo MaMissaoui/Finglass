@@ -911,10 +911,13 @@ const (
 	ProductIDPromptLabel
 	FinDeskImportServerURLsFilled
 	FinDeskImportServerURLsMissing
+	SyncLockedHint
+	SyncAllSkippedLocked
+	SyncAllNothingReady
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 904
+const NumKeys = 907
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1822,6 +1825,9 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	ProductIDPromptLabel:                "ProductIDPromptLabel",
 	FinDeskImportServerURLsFilled:       "FinDeskImportServerURLsFilled",
 	FinDeskImportServerURLsMissing:      "FinDeskImportServerURLsMissing",
+	SyncLockedHint:                      "SyncLockedHint",
+	SyncAllSkippedLocked:                "SyncAllSkippedLocked",
+	SyncAllNothingReady:                 "SyncAllNothingReady",
 }
 
 // keysByName is built from keyNames, so the two cannot drift apart.

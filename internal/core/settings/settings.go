@@ -32,6 +32,16 @@ func Get(ctx context.Context, d *db.Database, key string) (value string, ok bool
 	return value, ok, nil
 }
 
+// Delete removes a setting. Deleting a missing key is not an error.
+func Delete(ctx context.Context, d *db.Database, key string) error {
+	return d.WithConn(ctx, func(ctx context.Context, conn *sql.Conn) error {
+		if _, err := conn.ExecContext(ctx, "DELETE FROM settings WHERE key = ?1", key); err != nil {
+			return fmt.Errorf("delete setting: %w", err)
+		}
+		return nil
+	})
+}
+
 // Set writes a setting, replacing an existing value.
 func Set(ctx context.Context, d *db.Database, key, value string) error {
 	err := d.WithConn(ctx, func(ctx context.Context, conn *sql.Conn) error {

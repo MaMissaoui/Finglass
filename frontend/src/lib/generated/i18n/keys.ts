@@ -905,6 +905,9 @@ export const keys = [
   'ProductIDPromptLabel',
   'FinDeskImportServerURLsFilled',
   'FinDeskImportServerURLsMissing',
+  'SyncLockedHint',
+  'SyncAllSkippedLocked',
+  'SyncAllNothingReady',
 ] as const;
 
 export type Key = (typeof keys)[number];

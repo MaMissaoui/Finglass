@@ -3,6 +3,7 @@ package shell
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"os"
@@ -13,10 +14,14 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/app/banking"
 	"github.com/MaMissaoui/Finglass/internal/app/startup"
+	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
+	"github.com/MaMissaoui/Finglass/internal/core/model"
+	"github.com/MaMissaoui/Finglass/internal/core/repo/bankconnections"
+	"github.com/MaMissaoui/Finglass/internal/core/settings"
 	"github.com/MaMissaoui/Finglass/internal/fints"
 )
 
@@ -295,6 +300,9 @@ func TestConnectionTestRunsThroughTheBridgeAndChangesNothing(t *testing.T) {
 	store := banksync.NewMemoryCredentialStore()
 	session, bankID, _ := newBankingSession(t, store, nil)
 	database := sessionDatabase(t, session)
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil {
+		t.Fatalf("clear unlock: %v", err)
+	}
 	before := bankingFingerprint(t, database)
 
 	session.connectionTestFactory = func(string) (fints.Transport, error) {
@@ -323,11 +331,7 @@ func TestConnectionTestRunsThroughTheBridgeAndChangesNothing(t *testing.T) {
 		t.Fatalf("credential store has %d entries after a test", store.Len())
 	}
 	after := bankingFingerprint(t, database)
-	for table, want := range before {
-		if after[table] != want {
-			t.Fatalf("%s changed: %s -> %s", table, want, after[table])
-		}
-	}
+	assertOnlyTheSyncUnlockChanged(t, before, after, database, bankID)
 }
 
 func retryConnectionBank(t *testing.T) *connectionTestTransport {
@@ -366,6 +370,9 @@ func TestConnectionTestRetriesAfterApprovalAndChangesNothing(t *testing.T) {
 	store := banksync.NewMemoryCredentialStore()
 	session, bankID, _ := newBankingSession(t, store, nil)
 	database := sessionDatabase(t, session)
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil {
+		t.Fatalf("clear unlock: %v", err)
+	}
 	before := bankingFingerprint(t, database)
 
 	session.connectionTestFactory = func(string) (fints.Transport, error) {
@@ -390,10 +397,38 @@ func TestConnectionTestRetriesAfterApprovalAndChangesNothing(t *testing.T) {
 		t.Fatalf("credential store has %d entries after a test", store.Len())
 	}
 	after := bankingFingerprint(t, database)
-	for table, want := range before {
-		if after[table] != want {
-			t.Fatalf("%s changed: %s -> %s", table, want, after[table])
+	assertOnlyTheSyncUnlockChanged(t, before, after, database, bankID)
+}
+
+func assertOnlyTheSyncUnlockChanged(
+	t *testing.T,
+	before,
+	after map[string]string,
+	database *db.Database,
+	bankID model.BankConnectionID,
+) {
+	t.Helper()
+	for _, table := range []string{"bank_connections", "accounts", "transactions"} {
+		if after[table] != before[table] {
+			t.Fatalf("%s changed: %s -> %s", table, before[table], after[table])
 		}
+	}
+	if _, ok, err := settings.Get(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil || !ok {
+		t.Fatalf("the GO test did not store an unlock: ok=%t err=%v", ok, err)
+	}
+	entries, err := audit.Recent(context.Background(), database, 1000)
+	if err != nil {
+		t.Fatalf("audit: %v", err)
+	}
+	found := false
+	for _, entry := range entries {
+		if entry.Action == banksync.CodeSyncUnlocked {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("the GO test wrote no unlock audit entry")
 	}
 }
 
@@ -625,8 +660,28 @@ func TestBankMessagesReachTheScreenButAreNeverStored(t *testing.T) {
 		t.Fatal("the saved trace contains the bank text")
 	}
 
-	// Starting a sync clears the slot's messages.
-	session.BankingStartSync(int(testBankID(t, session)))
+	// Starting a sync clears the slot's messages. The NO-GO test locked the
+	// bank, so mark it unlocked again first.
+	bankID := model.BankConnectionID(testBankID(t, session))
+	bank, ok, err := bankconnections.GetItem(context.Background(), database, bankID)
+	if err != nil || !ok {
+		t.Fatalf("get bank: ok=%t err=%v", ok, err)
+	}
+	serverURL := ""
+	if bank.ServerURL != nil {
+		serverURL = *bank.ServerURL
+	}
+	if err := settings.Set(
+		context.Background(),
+		database,
+		banksync.SyncUnlockKey(bankID),
+		banksync.SyncFingerprint(bank.BLZ, bank.UserID, serverURL),
+	); err != nil {
+		t.Fatalf("unlock bank: %v", err)
+	}
+	session.BankingLoad()
+	waitForJobs(t, session)
+	session.BankingStartSync(int(bankID))
 	state := session.BankingState()
 	if state.ConnectionTest == nil || len(state.ConnectionTest.Messages) != 0 {
 		t.Fatalf("messages survived the sync start: %+v", state.ConnectionTest)
@@ -640,4 +695,85 @@ func enableApprovalRetry(t *testing.T) {
 	previous := fintsprobe.ApprovalRetryEnabled
 	fintsprobe.ApprovalRetryEnabled = true
 	t.Cleanup(func() { fintsprobe.ApprovalRetryEnabled = previous })
+}
+
+func TestAConnectionTestSetsOrKeepsTheSyncUnlock(t *testing.T) {
+	t.Run("GO unlocks", func(t *testing.T) {
+		session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
+		database := sessionDatabase(t, session)
+		if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil {
+			t.Fatalf("clear unlock: %v", err)
+		}
+		session.BankingLoad()
+		waitForJobs(t, session)
+		session.connectionTestFactory = func(string) (fints.Transport, error) {
+			return typedTANConnectionBank(t), nil
+		}
+		session.BankingTestConnection(int(bankID))
+		answerProductID(t, session, []byte(connectionTestID))
+		answerBankingPin(t, session, connectionTestPIN, false)
+		answerBankingTan(t, session, connectionTestTAN)
+		result := waitConnectionTestDone(t, session)
+		if !result.Go {
+			t.Fatalf("result = %+v", result)
+		}
+		if _, ok, err := settings.Get(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil || !ok {
+			t.Fatalf("GO did not unlock the bank: ok=%t err=%v", ok, err)
+		}
+		if state := session.BankingState(); len(state.Banks) != 1 || !state.Banks[0].SyncUnlocked {
+			t.Fatalf("state unlock = %+v", state.Banks)
+		}
+	})
+
+	t.Run("NO-GO locks", func(t *testing.T) {
+		session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
+		database := sessionDatabase(t, session)
+		session.connectionTestFactory = func(string) (fints.Transport, error) {
+			return markerConnectionBank(t, connectionTestBankMarker), nil
+		}
+		session.BankingTestConnection(int(bankID))
+		answerProductID(t, session, []byte(connectionTestID))
+		answerBankingPin(t, session, connectionTestPIN, false)
+		result := waitConnectionTestDone(t, session)
+		if result.Go {
+			t.Fatalf("result = %+v", result)
+		}
+		if _, ok, err := settings.Get(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil || ok {
+			t.Fatalf("NO-GO kept the unlock: ok=%t err=%v", ok, err)
+		}
+		if state := session.BankingState(); len(state.Banks) != 1 || state.Banks[0].SyncUnlocked {
+			t.Fatalf("state unlock = %+v", state.Banks)
+		}
+	})
+
+	t.Run("cancel keeps it", func(t *testing.T) {
+		session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
+		database := sessionDatabase(t, session)
+		session.connectionTestFactory = func(string) (fints.Transport, error) {
+			return typedTANConnectionBank(t), nil
+		}
+		session.BankingTestConnection(int(bankID))
+		answerProductID(t, session, []byte(connectionTestID))
+		prompt := waitForBankingPrompt(t, session, banking.Pin)
+		session.Bridge().AnswerPin(prompt.ID, nil, false)
+		waitConnectionTestDone(t, session)
+		if _, ok, err := settings.Get(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil || !ok {
+			t.Fatalf("a cancel changed the unlock: ok=%t err=%v", ok, err)
+		}
+	})
+
+	t.Run("transport keeps it", func(t *testing.T) {
+		session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
+		database := sessionDatabase(t, session)
+		session.connectionTestFactory = func(string) (fints.Transport, error) {
+			return nil, errors.New("invented transport failure")
+		}
+		session.BankingTestConnection(int(bankID))
+		answerProductID(t, session, []byte(connectionTestID))
+		answerBankingPin(t, session, connectionTestPIN, false)
+		waitConnectionTestDone(t, session)
+		if _, ok, err := settings.Get(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil || !ok {
+			t.Fatalf("a transport failure changed the unlock: ok=%t err=%v", ok, err)
+		}
+	})
 }

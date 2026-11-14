@@ -906,4 +906,7 @@ var deTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	ProductIDPromptLabel:                "Produkt-ID",
 	FinDeskImportServerURLsFilled:       "%d {1:FinTS-Serveradresse|FinTS-Serveradressen} aus der Bankliste von FinDesk übernommen.",
 	FinDeskImportServerURLsMissing:      "%d {1:Bank hat|Banken haben} keine FinTS-Serveradresse. Tragen Sie sie im Menü der Bank unter „Verbindungseinstellungen“ ein.",
+	SyncLockedHint:                      "Synchronisieren ist gesperrt, bis der Verbindungstest GO liefert.",
+	SyncAllSkippedLocked:                "%d {1:Bank wurde|Banken wurden} übersprungen, weil der letzte Verbindungstest nicht GO war: %s. Führen Sie zuerst den Verbindungstest aus.",
+	SyncAllNothingReady:                 "Keine Bank in „Alle synchronisieren“ ist bereit. Führen Sie zuerst den Verbindungstest aus.",
 }

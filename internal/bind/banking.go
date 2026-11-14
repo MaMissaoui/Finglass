@@ -532,7 +532,7 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 		SyncAllText:         syncAllText(&state),
 		SyncAllVisible:      syncAllVisible(&state),
 		SyncAllEnabled:      syncAllEnabled(&state),
-		SyncControlsVisible: syncControlsVisible(shell.OnlineSyncAvailable, &state),
+		SyncControlsVisible: syncControlsVisible(&state),
 		OnlineSyncAvailable: shell.OnlineSyncAvailable,
 		CanRememberPin:      state.CanRememberPin,
 		OnlineSyncNote:      onlineSyncNote(&state),
@@ -589,8 +589,8 @@ func bankingBanks(state *bankingcore.BankingState, language i18n.Language) []Ban
 			BankID:            int(bank.ID),
 			Syncing:           state.SyncingBank != nil && *state.SyncingBank == bank.ID,
 			SyncStep:          bankSyncStep(state, language),
-			SyncEnabled:       shell.OnlineSyncAvailable && !state.IsSyncing(),
-			SyncTooltip:       bankSyncTooltip(language),
+			SyncEnabled:       bankSyncEnabled(&bank, state),
+			SyncTooltip:       bankSyncTooltip(&bank, language),
 			PinText:           bankPinText(&bank, state, language),
 			CanTestConnection: bank.CanTestConnection,
 			Menu:              bankMenu(&bank, state, false, language),
@@ -828,25 +828,20 @@ func syncAllVisible(state *bankingcore.BankingState) bool {
 }
 
 // syncControlsVisible reports whether the page shows any Sync control.
-func syncControlsVisible(available bool, state *bankingcore.BankingState) bool {
-	if !available {
+func syncControlsVisible(state *bankingcore.BankingState) bool {
+	if !shell.OnlineSyncReady() {
 		return false
 	}
-	for _, bank := range state.Banks {
-		if !bank.Offline {
-			return true
-		}
-	}
-	return false
+	return hasOnlineBank(state)
 }
 
 // syncAllEnabled reports whether "Sync all" may start now.
 func syncAllEnabled(state *bankingcore.BankingState) bool {
-	return shell.OnlineSyncAvailable && syncAllReady(state)
+	return shell.OnlineSyncReady() && syncAllReady(state)
 }
 
 func syncAllReady(state *bankingcore.BankingState) bool {
-	if state.IsSyncing() {
+	if state.IsSyncing() || state.IsTesting() {
 		return false
 	}
 	for _, bank := range state.Banks {
@@ -858,12 +853,21 @@ func syncAllReady(state *bankingcore.BankingState) bool {
 }
 
 // onlineSyncNote is the note shown while online sync is unavailable, or empty
-// when every bank is offline.
+// when every bank is offline or online sync is ready.
 func onlineSyncNote(state *bankingcore.BankingState) string {
-	if shell.OnlineSyncAvailable || !syncAllVisible(state) {
+	if shell.OnlineSyncReady() || !hasOnlineBank(state) {
 		return ""
 	}
 	return i18n.Text(state.Language, i18n.OnlineSyncNotYetAvailable)
+}
+
+func hasOnlineBank(state *bankingcore.BankingState) bool {
+	for _, bank := range state.Banks {
+		if !bank.Offline {
+			return true
+		}
+	}
+	return false
 }
 
 func bankSyncStep(state *bankingcore.BankingState, language i18n.Language) string {
@@ -873,11 +877,25 @@ func bankSyncStep(state *bankingcore.BankingState, language i18n.Language) strin
 	return i18n.Text(language, i18n.Syncing)
 }
 
-func bankSyncTooltip(language i18n.Language) string {
-	if shell.OnlineSyncAvailable {
-		return ""
+// bankSyncEnabled is the rule shared by the card's button, "Sync now" and the
+// history action: online sync is ready, this bank is unlocked and nothing runs.
+func bankSyncEnabled(bank *bankingcore.BankItem, state *bankingcore.BankingState) bool {
+	return shell.OnlineSyncReady() &&
+		bank != nil &&
+		!bank.Offline &&
+		bank.SyncUnlocked &&
+		!state.IsSyncing() &&
+		!state.IsTesting()
+}
+
+func bankSyncTooltip(bank *bankingcore.BankItem, language i18n.Language) string {
+	if !shell.OnlineSyncReady() {
+		return i18n.Text(language, i18n.OnlineSyncNotYetAvailable)
 	}
-	return i18n.Text(language, i18n.OnlineSyncNotYetAvailable)
+	if bank != nil && !bank.Offline && !bank.SyncUnlocked {
+		return i18n.Text(language, i18n.SyncLockedHint)
+	}
+	return ""
 }
 
 func bankPinText(bank *bankingcore.BankItem, state *bankingcore.BankingState, language i18n.Language) string {
@@ -894,8 +912,9 @@ func bankPinText(bank *bankingcore.BankItem, state *bankingcore.BankingState, la
 }
 
 // bankMenu builds the bank menu, in FinDesk's order. Offline banks only rename
-// or delete; online banks get the sync actions. History and "include in Sync
-// all" stay disabled until the FinTS gateway replaces UnavailableGateway.
+// or delete; online banks get the sync actions. "Sync now" and history need the
+// bank's GO unlock, while "Include in Sync all" stays editable for every online
+// bank whenever nothing is syncing.
 func bankMenu(
 	bank *bankingcore.BankItem,
 	state *bankingcore.BankingState,
@@ -907,8 +926,8 @@ func bankMenu(
 	}
 	enabled := !state.IsSyncing()
 	testEnabled := enabled && !state.IsTesting()
-	syncEnabled := shell.OnlineSyncAvailable && enabled
-	items := make([]BankMenuItemDTO, 0, 8)
+	syncEnabled := bankSyncEnabled(bank, state)
+	items := make([]BankMenuItemDTO, 0, 9)
 	if !bank.Offline {
 		if bank.CanTestConnection {
 			items = append(items, BankMenuItemDTO{
@@ -920,6 +939,12 @@ func bankMenu(
 		}
 		items = append(items,
 			BankMenuItemDTO{
+				Action:  "sync",
+				Label:   i18n.Text(language, i18n.SyncNow),
+				Enabled: syncEnabled,
+				Icon:    "sync",
+			},
+			BankMenuItemDTO{
 				Action:  "history",
 				Label:   i18n.Text(language, i18n.FetchHistory),
 				Enabled: syncEnabled,
@@ -929,7 +954,7 @@ func bankMenu(
 				Action:  "include",
 				Label:   i18n.Text(language, i18n.IncludeInSyncAll),
 				Checked: bank.IncludeInSyncAll,
-				Enabled: syncEnabled,
+				Enabled: enabled,
 				Icon:    "check",
 			},
 			BankMenuItemDTO{

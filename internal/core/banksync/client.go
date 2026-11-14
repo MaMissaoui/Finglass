@@ -422,6 +422,10 @@ func (c *FinTsClient) ResetLogin(
 	// The remembered system id belongs to the old login; it goes even when the
 	// clear failed. It is not a secret, so no audit entry is written for it.
 	_ = deleteSetting(ctx, database, systemIDKey(bankID))
+	// A sync unlock belongs to the login the GO test used, so a login change or
+	// a removal locks the bank again. This is not a secret either; the GO/NO-GO
+	// audit entries already say when the unlock changed.
+	_ = deleteSetting(ctx, database, SyncUnlockKey(bankID))
 	// The PIN goes even when the clear failed: a removed or changed login must
 	// never keep a usable secret.
 	if forgetPin {

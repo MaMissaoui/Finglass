@@ -3844,10 +3844,20 @@
     "de": "Keine Verbindung ist in „Alle synchronisieren“ einbezogen",
     "fr": "Aucune connexion n'est incluse dans « Tout synchroniser »"
   },
+  "SyncAllNothingReady": {
+    "en": "No bank in Sync all is ready yet. Run Test connection first.",
+    "de": "Keine Bank in „Alle synchronisieren“ ist bereit. Führen Sie zuerst den Verbindungstest aus.",
+    "fr": "Aucune banque de « Tout synchroniser » n'est prête. Lancez d'abord le test de connexion."
+  },
   "SyncAllProgress": {
     "en": "%d/%d · %s",
     "de": "%d/%d · %s",
     "fr": "%d/%d · %s"
+  },
+  "SyncAllSkippedLocked": {
+    "en": "%d {1:bank was|banks were} skipped because {1:its|their} last Test connection was not GO: %s. Run Test connection first.",
+    "de": "%d {1:Bank wurde|Banken wurden} übersprungen, weil der letzte Verbindungstest nicht GO war: %s. Führen Sie zuerst den Verbindungstest aus.",
+    "fr": "%d {1:banque a été ignorée|banques ont été ignorées} car le dernier test de connexion n'était pas GO : %s. Lancez d'abord le test de connexion."
   },
   "SyncAllStopped": {
     "en": "Sync all stopped: %s was cancelled.",
@@ -3873,6 +3883,11 @@
     "en": "Bookings from %s to %s were not fetched: Finglass fetches at most the last %d days. Use “Fetch history from…” to get them (the bank may ask for a TAN).",
     "de": "Buchungen vom %s bis %s wurden nicht abgerufen: Finglass ruft höchstens die letzten %d Tage ab. Mit „Verlauf ab Datum abrufen…“ holen Sie sie nach (die Bank fragt eventuell nach einer TAN).",
     "fr": "Les opérations du %s au %s n’ont pas été récupérées : Finglass récupère au plus les %d derniers jours. Utilisez « Récupérer l'historique depuis… » pour les obtenir (la banque peut demander un TAN)."
+  },
+  "SyncLockedHint": {
+    "en": "Sync is locked until Test connection returns GO.",
+    "de": "Synchronisieren ist gesperrt, bis der Verbindungstest GO liefert.",
+    "fr": "La synchronisation est bloquée jusqu'à ce que le test de connexion renvoie GO."
   },
   "SyncNow": {
     "en": "Sync now",

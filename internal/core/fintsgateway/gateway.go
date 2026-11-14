@@ -352,8 +352,10 @@ func (g *Gateway) runDialog(
 }
 
 // retryableInitError reports whether Init failed with a bank error a sync may
-// fix. PIN rejections and a locked account never retry: a second signed message
-// could count against the bank's PIN failure limit.
+// fix. Any answer that [fints.BlocksPINRepeat] names never retries: a second
+// signed message could count against the bank's PIN failure limit, whatever
+// code the bank used for the wrong PIN. A locked account does not retry for the
+// same reason.
 func retryableInitError(err error) bool {
 	var dialogError *fints.DialogError
 	if !errors.As(err, &dialogError) {
@@ -361,11 +363,11 @@ func retryableInitError(err error) bool {
 	}
 	switch dialogError.Kind {
 	case fints.ErrorKindBankError:
-		return !includesPinRejection(dialogError.Codes)
+		return !fints.BlocksPINRepeat(dialogError.Codes)
 	case fints.ErrorKindPinRejected:
 		// checkInitResponse maps a general bank error during Init to this kind
-		// unless the response carried a PIN code.
-		return !includesPinRejection(dialogError.Codes)
+		// unless the response carried a named PIN code.
+		return !fints.BlocksPINRepeat(dialogError.Codes)
 	default:
 		return false
 	}
@@ -561,6 +563,10 @@ func mapError(err error) banksync.GatewayError {
 	return banksync.NewGatewayOtherError(kindDialogue)
 }
 
+// pinRejectionCodes is the map the gateway still uses in mapError to tell a
+// PIN rejection from a general bank error. The retry decision uses
+// fints.BlocksPINRepeat instead, so a bank's own PIN code (93xx/99xx) also
+// stops a second signed message.
 var pinRejectionCodes = map[string]struct{}{
 	"9340": {},
 	"9910": {},

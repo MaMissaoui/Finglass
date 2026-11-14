@@ -22,6 +22,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/bankconnections"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
+	"github.com/MaMissaoui/Finglass/internal/core/settings"
 )
 
 func testDatabase(t *testing.T) *db.Database {
@@ -90,6 +91,15 @@ func onlineBank(t *testing.T, database *db.Database, name, userID string) model.
 		model.BankConnectionUpdate{ServerURL: &serverURL},
 	); err != nil {
 		t.Fatalf("update online bank: %v", err)
+	}
+	// The fixture stands in for a bank whose last connection test was GO.
+	if err := settings.Set(
+		context.Background(),
+		database,
+		banksync.SyncUnlockKey(created.ID),
+		banksync.SyncFingerprint("37040044", userID, serverURL),
+	); err != nil {
+		t.Fatalf("unlock online bank: %v", err)
 	}
 	return created.ID
 }
@@ -327,6 +337,21 @@ func stringValue(value *string) string {
 		return ""
 	}
 	return *value
+}
+
+func auditEntriesWithAction(t *testing.T, database *db.Database, action string) []audit.Entry {
+	t.Helper()
+	entries, err := audit.Recent(context.Background(), database, 1000)
+	if err != nil {
+		t.Fatalf("audit: %v", err)
+	}
+	found := make([]audit.Entry, 0)
+	for _, entry := range entries {
+		if entry.Action == action {
+			found = append(found, entry)
+		}
+	}
+	return found
 }
 
 func TestAddBankAccessValidatesNameBlzAndAnHTTPSURL(t *testing.T) {
@@ -708,6 +733,151 @@ func TestSyncAllWithNothingIncludedReportsTheErrorAndClearsTheProgress(t *testin
 	}
 }
 
+func TestSyncAllSkipsIncludedLockedBanksAndNamesThem(t *testing.T) {
+	database := testDatabase(t)
+	a := onlineBank(t, database, "A Bank", "a")
+	b := onlineBank(t, database, "B Bank", "b")
+	c := onlineBank(t, database, "C Bank", "c")
+	if _, err := bankconnections.SetIncludeInSyncAll(context.Background(), database, c, false); err != nil {
+		t.Fatalf("exclude C: %v", err)
+	}
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(b)); err != nil {
+		t.Fatalf("lock B: %v", err)
+	}
+	gateway := newTestGateway()
+	service, _ := serviceFor(t, gateway)
+	bridge := bridgeForTest(5 * time.Second)
+	busy := accountsview.NewBusy()
+	state := New(i18n.En)
+	if err := state.Load(context.Background(), database, service); err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if state.Banks[0].SyncUnlocked == false || state.Banks[1].SyncUnlocked {
+		t.Fatalf("unlock state = %+v", state.Banks)
+	}
+
+	if !state.BeginSyncAll() {
+		t.Fatal("begin sync all refused")
+	}
+	state.RunSyncAll(
+		context.Background(),
+		database,
+		service,
+		bridge,
+		&busy,
+		mustDate(t, 2026, time.November, 7),
+		func(*BankingState) {},
+	)
+
+	if got := gateway.namesList(); len(got) != 1 || got[0] != "A Bank" {
+		t.Fatalf("gateway names = %v, want only the unlocked included bank", got)
+	}
+	skipped := i18n.Format(i18n.En, i18n.SyncAllSkippedLocked, i18n.Int(1), i18n.Str("B Bank"))
+	message := stringValue(state.Message)
+	if !strings.Contains(message, "A Bank:") || !strings.Contains(message, skipped) {
+		t.Fatalf("message = %q, want the A summary and %q", message, skipped)
+	}
+	if state.Error != nil {
+		t.Fatalf("error = %q", stringValue(state.Error))
+	}
+	if a == b || b == c || a == c {
+		t.Fatal("the fixture reused a bank id")
+	}
+}
+
+func TestSyncAllWithOnlyLockedIncludedBanksReportsNothingReady(t *testing.T) {
+	database := testDatabase(t)
+	bank := onlineBank(t, database, "A Bank", "a")
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(bank)); err != nil {
+		t.Fatalf("lock bank: %v", err)
+	}
+	gateway := newTestGateway()
+	service, _ := serviceFor(t, gateway)
+	bridge := bridgeForTest(5 * time.Second)
+	busy := accountsview.NewBusy()
+	state := New(i18n.En)
+	if err := state.Load(context.Background(), database, service); err != nil {
+		t.Fatalf("load: %v", err)
+	}
+
+	if !state.BeginSyncAll() {
+		t.Fatal("begin sync all refused")
+	}
+	state.RunSyncAll(
+		context.Background(),
+		database,
+		service,
+		bridge,
+		&busy,
+		mustDate(t, 2026, time.November, 7),
+		func(*BankingState) {},
+	)
+
+	if got := stringValue(state.Error); got != i18n.Text(i18n.En, i18n.SyncAllNothingReady) {
+		t.Fatalf("error = %q", got)
+	}
+	skipped := i18n.Format(i18n.En, i18n.SyncAllSkippedLocked, i18n.Int(1), i18n.Str("A Bank"))
+	if state.Message == nil || !strings.Contains(stringValue(state.Message), skipped) {
+		t.Fatalf("message = %q, want %q", stringValue(state.Message), skipped)
+	}
+	if names := gateway.namesList(); len(names) != 0 {
+		t.Fatalf("gateway names = %v", names)
+	}
+}
+
+func TestALockedBankIsRefusedBeforeTheGatewayRuns(t *testing.T) {
+	database := testDatabase(t)
+	bank := onlineBank(t, database, "A Bank", "a")
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(bank)); err != nil {
+		t.Fatalf("lock bank: %v", err)
+	}
+	gateway := newTestGateway()
+	service, _ := serviceFor(t, gateway)
+	state := New(i18n.En)
+	if err := state.Load(context.Background(), database, service); err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if state.BeginSync(bank) {
+		t.Fatal("begin sync accepted a locked bank")
+	}
+	if got := stringValue(state.Error); got != i18n.Text(i18n.En, i18n.SyncLockedHint) {
+		t.Fatalf("error = %q", got)
+	}
+	if len(gateway.namesList()) != 0 {
+		t.Fatalf("the gateway ran for a locked bank: %v", gateway.namesList())
+	}
+}
+
+func TestIncludeInSyncAllWritesAnAuditEntry(t *testing.T) {
+	database := testDatabase(t)
+	bank := onlineBank(t, database, "A Bank", "a")
+	gateway := newTestGateway()
+	service, _ := serviceFor(t, gateway)
+	state := New(i18n.En)
+	if err := state.Load(context.Background(), database, service); err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if err := state.SetIncludeInSyncAll(context.Background(), database, service, bank, false); err != nil {
+		t.Fatalf("exclude: %v", err)
+	}
+	entries := auditEntriesWithAction(t, database, banksync.CodeIncludeInSyncAll)
+	if len(entries) != 1 || !strings.Contains(entries[0].Details, "excluded from Sync all") {
+		t.Fatalf("exclude audit = %+v", entries)
+	}
+	if err := state.SetIncludeInSyncAll(context.Background(), database, service, bank, true); err != nil {
+		t.Fatalf("include: %v", err)
+	}
+	entries = auditEntriesWithAction(t, database, banksync.CodeIncludeInSyncAll)
+	if len(entries) != 2 || !strings.Contains(entries[0].Details, "included in Sync all") {
+		t.Fatalf("include audit = %+v", entries)
+	}
+	for _, entry := range entries {
+		if strings.Contains(entry.Details, "A Bank") || strings.Contains(entry.Details, "a@example") {
+			t.Fatalf("audit leaked bank data: %q", entry.Details)
+		}
+	}
+}
+
 func TestIncludeInSyncAllIsRefusedWhileASyncRuns(t *testing.T) {
 	database := testDatabase(t)
 	bank := onlineBank(t, database, "A Bank", "a")
@@ -857,6 +1027,7 @@ func TestAHistorySyncIsClaimedBeforeItRuns(t *testing.T) {
 		ServerURL:        stringPointer("https://bank.example"),
 		Offline:          false,
 		IncludeInSyncAll: true,
+		SyncUnlocked:     true,
 	})
 
 	if state.BeginHistoryFrom(model.BankConnectionID(7), today.AddDays(1), today) {

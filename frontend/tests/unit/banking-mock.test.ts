@@ -204,13 +204,16 @@ describe('banking.mock', () => {
     const online = plain.banks.find((bank) => bank.bankId === 2);
     expect(online?.menu.map((item) => item.label)).toEqual([
       translate('en', 'TestConnection'),
+      translate('en', 'SyncNow'),
       translate('en', 'FetchHistory'),
       translate('en', 'IncludeInSyncAll'),
       translate('en', 'RenameConnection'),
       translate('en', 'ConnectionSettings'),
       translate('en', 'RemoveBank'),
     ]);
+    expect(online?.menu.find((item) => item.action === 'sync')?.enabled).toBe(false);
     expect(online?.menu.find((item) => item.action === 'history')?.enabled).toBe(false);
+    expect(online?.menu.find((item) => item.action === 'include')?.enabled).toBe(true);
     expect(online?.menu.find((item) => item.action === 'include')?.checked).toBe(true);
 
     const offline = plain.banks.find((bank) => bank.bankId === 1);
@@ -225,6 +228,37 @@ describe('banking.mock', () => {
         .find((bank) => bank.bankId === 2)
         ?.menu.find((item) => item.action === 'history')?.enabled,
     ).toBe(true);
+  });
+
+  it('shows a locked included bank and an unlocked excluded bank', () => {
+    const state = fake('accounts-sync-per-bank').banking.state();
+    expect(state.onlineSyncAvailable).toBe(true);
+    expect(state.syncControlsVisible).toBe(true);
+    expect(state.messageText).toContain(
+      translate('en', 'SyncAllSkippedLocked', 1, 'Nordlicht Bank'),
+    );
+
+    const sparkasse = state.banks.find((bank) => bank.bankId === 2);
+    expect(sparkasse?.syncEnabled).toBe(true);
+    expect(sparkasse?.menu.find((item) => item.action === 'sync')?.enabled).toBe(true);
+
+    const locked = state.banks.find((bank) => bank.bankId === 3);
+    expect(locked?.syncEnabled).toBe(false);
+    expect(locked?.syncTooltip).toBe(translate('en', 'SyncLockedHint'));
+    expect(locked?.menu.find((item) => item.action === 'sync')?.enabled).toBe(false);
+    expect(locked?.menu.find((item) => item.action === 'history')?.enabled).toBe(false);
+    expect(locked?.menu.find((item) => item.action === 'include')?.enabled).toBe(true);
+
+    const excluded = state.banks.find((bank) => bank.bankId === 4);
+    expect(excluded?.syncEnabled).toBe(true);
+    expect(excluded?.menu.find((item) => item.action === 'include')?.checked).toBe(false);
+  });
+
+  it('refuses Sync now for a locked bank and explains why', () => {
+    const { banking } = fake('accounts-sync-per-bank');
+    const state = banking.startSync(3);
+    expect(state.syncing).toBe(false);
+    expect(state.errorText).toBe(translate('en', 'SyncLockedHint'));
   });
 
   it('opens the reference prompts from their scenarios', () => {

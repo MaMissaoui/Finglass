@@ -1055,6 +1055,40 @@ func TestStaleRememberedStateNeverRetriesAfterAPinCode(t *testing.T) {
 	}
 }
 
+func TestAWrongPINWithASecurityOrBankCodeIsSentOnce(t *testing.T) {
+	for _, code := range []string{"9931", "9399", "9999"} {
+		t.Run(code, func(t *testing.T) {
+			bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+				if request.has("HKEND") {
+					return okResponse("dialog-1"), nil
+				}
+				return bankErrorResponse("dialog-1", code), nil
+			})
+			gateway := newTestGateway(t, bank)
+			connection := testConnection()
+			connection.SystemID = testSystemID
+			tanMethod := "942"
+			connection.TanMethod = &tanMethod
+			connection.HKTANVersion = 7
+
+			_, err := gateway.FetchAll(
+				context.Background(), connection, newTestInteraction(testPIN),
+				func(string) *civil.Date { return nil },
+				date(2026, time.November, 14),
+			)
+			if err == nil {
+				t.Fatal("the wrong PIN was accepted")
+			}
+			if bank.countSegments("HKSYN") != 0 {
+				t.Fatal("a wrong PIN retried with a sync")
+			}
+			if signed := bank.countSegments("HNSHK"); signed != 1 {
+				t.Fatalf("signed messages = %d, want exactly one", signed)
+			}
+		})
+	}
+}
+
 func TestStaleRememberedStateNeverRetriesALockedAccount(t *testing.T) {
 	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
 		if request.has("HKEND") {

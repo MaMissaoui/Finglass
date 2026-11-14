@@ -10,7 +10,6 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/fintsgateway"
-	"github.com/MaMissaoui/Finglass/internal/core/fintsproduct"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/fints"
 )
@@ -56,16 +55,40 @@ func TestSelectGatewayOnlyBuildsTheRealGatewayWhenBothHold(t *testing.T) {
 	}
 }
 
-func TestTheProductionSelectionPassesOnlineSyncAvailable(t *testing.T) {
-	if OnlineSyncAvailable {
-		t.Fatal("OnlineSyncAvailable must stay false")
+func TestTheProductionSelectionHidesSyncWithoutAProductID(t *testing.T) {
+	if !OnlineSyncAvailable {
+		t.Fatal("OnlineSyncAvailable must be true: it is the kill switch, not the per-bank gate")
 	}
-	gateway := selectGateway(OnlineSyncAvailable, fintsproduct.Present(), i18n.En, func() banksync.FinTsGateway {
-		t.Fatal("the real gateway was built while OnlineSyncAvailable is false")
-		return nil
+	calls := 0
+	gateway := selectGateway(OnlineSyncAvailable, false, i18n.En, func() banksync.FinTsGateway {
+		calls++
+		return newBankingTestGateway()
 	})
 	if _, ok := gateway.(banksync.UnavailableGateway); !ok {
-		t.Fatalf("gateway = %T, want UnavailableGateway", gateway)
+		t.Fatalf("gateway = %T, want UnavailableGateway without a product id", gateway)
+	}
+	if calls != 0 {
+		t.Fatalf("the real constructor ran %d times without a product id", calls)
+	}
+	if OnlineSyncReady() {
+		t.Fatal("OnlineSyncReady = true without a product id")
+	}
+}
+
+func TestTheProductionSelectionBuildsTheRealGatewayWithAProductID(t *testing.T) {
+	restore := SetOnlineSyncProductPresentForTest(true)
+	t.Cleanup(restore)
+	if !OnlineSyncReady() {
+		t.Fatal("OnlineSyncReady = false with the switch on and a product id")
+	}
+	real := newBankingTestGateway()
+	calls := 0
+	gateway := selectGateway(OnlineSyncAvailable, onlineSyncProductPresent(), i18n.En, func() banksync.FinTsGateway {
+		calls++
+		return real
+	})
+	if gateway != real || calls != 1 {
+		t.Fatalf("gateway = %T calls = %d, want the real one", gateway, calls)
 	}
 }
 

@@ -40,6 +40,13 @@ const (
 	CodeResetFintsLogin = "RESET_FINTS_LOGIN"
 	// CodeSyncBank is the audit action for syncing a bank.
 	CodeSyncBank = "SYNC_BANK"
+	// CodeSyncUnlocked is the audit action for unlocking a bank for sync.
+	CodeSyncUnlocked = "SYNC_UNLOCKED"
+	// CodeSyncLocked is the audit action for locking a bank for sync.
+	CodeSyncLocked = "SYNC_LOCKED"
+	// CodeIncludeInSyncAll is the audit action for changing a bank's Sync all
+	// membership.
+	CodeIncludeInSyncAll = "INCLUDE_IN_SYNC_ALL"
 )
 
 // GatewayErrorKind names the kind of gateway failure.
