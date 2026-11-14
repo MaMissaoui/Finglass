@@ -92,7 +92,7 @@ func TestRedactMessageMasksEveryRule(t *testing.T) {
 			message: "HIUPD:5:6+" + acct + ":" + sub + ":280:99999999+" + iban +
 				"+CUSTMARK0002+1+EUR+" + owner + "++" + prodName + "+1234,56+HKKAZ'",
 			absent:  []string{owner, prodName, acct, sub, iban},
-			present: []string{"…0009:…0010:280:99999999", "…0001", "HKKAZ"},
+			present: []string{"<redacted len=16>:<redacted len=13>:280:99999999", "…0001", "HKKAZ"},
 		},
 		{
 			name: "HIUPD limit amount in an allowed transaction",
@@ -113,14 +113,14 @@ func TestRedactMessageMasksEveryRule(t *testing.T) {
 			message: "HISAL:5:7:4+DE00999999990000000001:TESTDEFFXXX:ACCTMARK7777:SUBMARK8888:280:99999999" +
 				"+PRODUCTNAME000+EUR+C:1,00:EUR:20260315'",
 			absent:  []string{"ACCTMARK7777", "SUBMARK8888", "DE00999999990000000001"},
-			present: []string{"…0001:TESTDEFFXXX:…7777:…8888:280:99999999"},
+			present: []string{"…0001:TESTDEFFXXX:<redacted len=12>:<redacted len=11>:280:99999999"},
 		},
 		{
 			name: "HICAZ with a full KTI keeps only BIC, 280 and BLZ",
 			message: "HICAZ:5:1:4+DE00999999990000000001:TESTDEFFXXX:ACCTMARK7777:SUBMARK8888:280:99999999" +
 				"+urn?:iso?:std?:iso?:20022?:tech?:xsd?:camt.052.001.02'",
 			absent:  []string{"ACCTMARK7777", "SUBMARK8888", "DE00999999990000000001"},
-			present: []string{"…0001:TESTDEFFXXX:…7777:…8888:280:99999999"},
+			present: []string{"…0001:TESTDEFFXXX:<redacted len=12>:<redacted len=11>:280:99999999"},
 		},
 		{
 			name:    "an 8-digit account number before 280 is masked",
@@ -164,7 +164,19 @@ func TestRedactMessageMasksEveryRule(t *testing.T) {
 			message: "HISPA:2:6+J:" + iban + ":TESTDEFFXXX:" + acct + ":" + sub +
 				":280:99999999'",
 			absent:  []string{iban, acct, sub},
-			present: []string{"J:…0001:TESTDEFFXXX:…0009:…0010:280:99999999"},
+			present: []string{"J:…0001:TESTDEFFXXX:<redacted len=16>:<redacted len=13>:280:99999999"},
+		},
+		{
+			name:    "a numeric account number keeps its last 4",
+			message: "HISPA:2:6+J:" + iban + ":TESTDEFFXXX:1234567890::280:99999999'",
+			absent:  []string{"1234567890", iban},
+			present: []string{"J:…0001:TESTDEFFXXX:…7890::280:99999999"},
+		},
+		{
+			name:    "a name in the BIC slot is removed, not cut to its last 4",
+			message: "HKSAL:3:7+" + iban + ":Mustermn+N'",
+			absent:  []string{"Mustermn", "…ermn", iban},
+			present: []string{"…0001:<redacted len=8>"},
 		},
 		{
 			name: "parameter segment text",

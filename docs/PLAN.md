@@ -305,6 +305,11 @@ In order, each one compared with the G1 reference screenshots:
   (message contains errors), DKB HTTP 400, Volksbank (Atruvia) an empty answer. Cause: an empty HNHBK dialog id and
   the customer named as message receiver in HNVSK/HNSHK; fixed, plus HNVSK `PIN:2` in two-step dialogs. Still to
   check against a bank: HKTAN v5's layout (no bank of yours uses v5).
+  Second round (same day): Volksbank passed sync, login (3076: no strong authentication needed) and HKSPA, then
+  HKSAL v7 failed (9050/9110/9010) because HIUPD parsing took an 8-letter owner name as the BIC; fixed (HIUPD has no
+  BIC; HISPA supplies it). HVB passed sync, then the login failed (9075/9050) because HKTAN went out as v1 (the oldest
+  HITANS listing); fixed (newest supported version). DKB refused the product: 9078 with 3079 and 9800, most likely
+  because the registration from 2026-11-13 has not reached DKB yet; retry DKB in a few days.
 - [ ] Before 0.4.0: your real-data test includes two syncs in a row per bank (the second one reuses the stored system
   id and TAN method). The trace slot keeps only the last bank of a "Sync all"; to save a failing bank's trace, sync
   that bank on its own.

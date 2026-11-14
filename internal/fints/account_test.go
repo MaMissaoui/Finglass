@@ -32,22 +32,6 @@ func TestLooksLikeIBAN(t *testing.T) {
 	}
 }
 
-func TestLooksLikeBIC(t *testing.T) {
-	valid := []string{"TESTDEFF", "TESTDEFFXXX", "TESTDEFF001"}
-	for _, value := range valid {
-		if !looksLikeBIC(value) {
-			t.Errorf("looksLikeBIC(%q) = false, want true", value)
-		}
-	}
-
-	invalid := []string{"", "TESTDE", "TESTDEFF1", "12STDEFFXXX"}
-	for _, value := range invalid {
-		if looksLikeBIC(value) {
-			t.Errorf("looksLikeBIC(%q) = true, want false", value)
-		}
-	}
-}
-
 func TestParseHISPA(t *testing.T) {
 	cases := []struct {
 		name  string
@@ -94,7 +78,9 @@ func TestParseHISPARequiresIBAN(t *testing.T) {
 }
 
 func TestParseHIUPD(t *testing.T) {
-	input := "HIUPD:7:6:4+1::280:99999999+DE00999999990000000001+test-customer+G+EUR+Erika Musterfrau++Girokonto+HKSAL:1+HKKAZ:1+TESTDEFFXXX'"
+	// HIUPD has no BIC field. An 8-letter owner name ("Mustermn") and a
+	// BIC-shaped value elsewhere are never taken as the BIC.
+	input := "HIUPD:7:6:4+1::280:99999999+DE00999999990000000001+test-customer+G+EUR+Mustermn++Girokonto+HKSAL:1+HKKAZ:1+TESTDEFFXXX'"
 	account, ok := ParseHIUPD(parseOne(t, input))
 	if !ok {
 		t.Fatal("ParseHIUPD reported no account")
@@ -102,8 +88,8 @@ func TestParseHIUPD(t *testing.T) {
 	if account.IBAN != testIBAN {
 		t.Fatalf("IBAN = %q", account.IBAN)
 	}
-	if account.BIC != testBIC {
-		t.Fatalf("BIC = %q", account.BIC)
+	if account.BIC != "" {
+		t.Fatalf("BIC = %q, want none from HIUPD", account.BIC)
 	}
 	if account.AccountNumber != "1" {
 		t.Fatalf("AccountNumber = %q", account.AccountNumber)
@@ -120,7 +106,7 @@ func TestParseHIUPD(t *testing.T) {
 	if account.AccountType != "G" {
 		t.Fatalf("AccountType = %q", account.AccountType)
 	}
-	if account.Owner() != "Erika Musterfrau" {
+	if account.Owner() != "Mustermn" {
 		t.Fatalf("Owner = %q", account.Owner())
 	}
 	if account.ProductName() != "Girokonto" {
@@ -168,5 +154,27 @@ func TestResponseAccounts(t *testing.T) {
 	}
 	if accounts[0].IBAN != testIBAN || accounts[1].IBAN != testIBAN2 {
 		t.Fatalf("Accounts = %#v", accounts)
+	}
+}
+
+// TestHISPASuppliesTheBICForAnHIUPDAccount is the Volksbank case: the UPD
+// account gets its BIC from HISPA, so HKSAL v7 sends IBAN:BIC.
+func TestHISPASuppliesTheBICForAnHIUPDAccount(t *testing.T) {
+	params := NewBankParams()
+	params.IngestResponse(&Response{Segments: []ParsedSegment{
+		parseOne(t, "HIUPD:7:6:4+1::280:99999999+DE00999999990000000001+test-customer+1+EUR+Mustermn++Girokonto++HKSAL:1'"),
+	}})
+	params.IngestResponse(&Response{Segments: []ParsedSegment{
+		parseOne(t, "HISPA:5:1:3+J:DE00999999990000000001:TESTDEFFXXX:1::280:99999999'"),
+	}})
+	if len(params.Accounts) != 1 {
+		t.Fatalf("accounts = %d, want 1", len(params.Accounts))
+	}
+	if got := params.Accounts[0].BIC; got != testBIC {
+		t.Fatalf("BIC = %q, want %q", got, testBIC)
+	}
+	segment := NewHKSAL(7, params.Accounts[0], nil)
+	if segment.err != nil {
+		t.Fatalf("HKSAL: %v", segment.err)
 	}
 }
