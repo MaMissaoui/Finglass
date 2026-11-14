@@ -214,6 +214,35 @@ func hicazMessage(marker string) string {
 		fmt.Sprint(len(body)) + "@" + body + "+@0@'"
 }
 
+func TestRedactMessageStrongSync(t *testing.T) {
+	request := "HNHBK:1:3+000000000123+300+DIALOGMARK+1'" +
+		"HNSHK:2:4+PIN:1+904+REFMARK+1+1+1::SYSTEMMARK+1+1:20260329:123456+1:999:1+6:10:16+280:99999999:USERMARK:S:0:0'" +
+		"HKIDN:3:2+280:99999999+CUSTMARK+0+1'" +
+		"HKVVB:4:3+0+0+1+PRODUCTMARK+1.0'" +
+		"HKTAN:5:7+4+HKIDN++++++MEDIUMMARK'" +
+		"HKSYN:6:3+0'" +
+		"HNSHA:7:2+123456'" +
+		"HNHBS:8:1+1'"
+	got := redacted(request)
+	assertContains(t, got,
+		"HKTAN:5:7 | 4 | HKIDN",
+		"HKSYN:6:3 | 0",
+		"HKIDN:3:2 | 280:99999999 | <customer id> | <system id>",
+	)
+	assertAbsent(t, got,
+		"CUSTMARK", "SYSTEMMARK", "PRODUCTMARK", "MEDIUMMARK", "REFMARK", "USERMARK",
+	)
+
+	response := "HNHBK:1:3+000000000123+300+DIALOGMARK+1'" +
+		"HISYN:2:4:1+SYSTEMMARK'" +
+		"HIRMS:3:2:4+0030::TAN erforderlich'" +
+		"HITAN:4:7:3+4+task-hash+TASKREFMARK+CHALLENGEMARK+@0@'" +
+		"HNHBS:99:1+1'"
+	got = redacted(response)
+	assertContains(t, got, "HISYN:2:4:1 | <system id>", "0030", "<challenge len=")
+	assertAbsent(t, got, "SYSTEMMARK", "TASKREFMARK", "CHALLENGEMARK")
+}
+
 func TestRedactMessageKeepsCodesAndVersions(t *testing.T) {
 	message := "HIRMG:2:2+0010::OK+3920::Allowed:942:962'"
 	got := redacted(message)

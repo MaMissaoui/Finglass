@@ -86,14 +86,16 @@ type BankingBankDTO struct {
 // trace bytes or the product id; it carries the bank's warning/error texts for
 // display only.
 type ConnectionTestDTO struct {
-	BankID   int              `json:"bankId"`
-	Running  bool             `json:"running"`
-	Go       bool             `json:"go"`
-	Reason   string           `json:"reason"`
-	Codes    []string         `json:"codes"`
-	Messages []BankMessageDTO `json:"messages"`
-	Probed   int              `json:"probed"`
-	Skipped  int              `json:"skipped"`
+	BankID        int              `json:"bankId"`
+	Running       bool             `json:"running"`
+	Go            bool             `json:"go"`
+	Reason        string           `json:"reason"`
+	Codes         []string         `json:"codes"`
+	Messages      []BankMessageDTO `json:"messages"`
+	Probed        int              `json:"probed"`
+	Skipped       int              `json:"skipped"`
+	StrongSync    bool             `json:"strongSync"`
+	StrongSyncTAN string           `json:"strongSyncTAN"`
 }
 
 // BankMessageDTO is one warning or error the bank returned during the test.
@@ -558,14 +560,16 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 			})
 		}
 		dto.ConnectionTest = &ConnectionTestDTO{
-			BankID:   int(state.ConnectionTest.BankID),
-			Running:  state.ConnectionTest.Running,
-			Go:       state.ConnectionTest.Go,
-			Reason:   state.ConnectionTest.Reason,
-			Codes:    append([]string(nil), state.ConnectionTest.Codes...),
-			Messages: messages,
-			Probed:   state.ConnectionTest.Probed,
-			Skipped:  state.ConnectionTest.Skipped,
+			BankID:        int(state.ConnectionTest.BankID),
+			Running:       state.ConnectionTest.Running,
+			Go:            state.ConnectionTest.Go,
+			Reason:        state.ConnectionTest.Reason,
+			Codes:         append([]string(nil), state.ConnectionTest.Codes...),
+			Messages:      messages,
+			Probed:        state.ConnectionTest.Probed,
+			Skipped:       state.ConnectionTest.Skipped,
+			StrongSync:    state.ConnectionTest.StrongSync,
+			StrongSyncTAN: state.ConnectionTest.StrongSyncTAN,
 		}
 	}
 	if state.LastTrace != nil {

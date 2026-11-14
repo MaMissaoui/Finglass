@@ -179,3 +179,28 @@ func TestConnectionTestDTOSerializesAnEmptyMessageList(t *testing.T) {
 		t.Fatalf("JSON does not carry an empty message list: %s", data)
 	}
 }
+
+func TestConnectionTestDTOCarriesTheStrongSyncPath(t *testing.T) {
+	state := bankingcore.BankingState{
+		Language: i18n.En,
+		ConnectionTest: &bankingcore.ConnectionTestResult{
+			BankID:        7,
+			Go:            true,
+			StrongSync:    true,
+			StrongSyncTAN: "typed",
+		},
+	}
+	dto := bankingDTO(state, i18n.En)
+	if dto.ConnectionTest == nil || !dto.ConnectionTest.StrongSync ||
+		dto.ConnectionTest.StrongSyncTAN != "typed" {
+		t.Fatalf("connection test DTO = %+v", dto.ConnectionTest)
+	}
+	data, err := json.Marshal(dto)
+	if err != nil {
+		t.Fatalf("marshal banking DTO: %v", err)
+	}
+	if !strings.Contains(string(data), `"strongSync":true`) ||
+		!strings.Contains(string(data), `"strongSyncTAN":"typed"`) {
+		t.Fatalf("JSON does not carry the strong-sync path: %s", data)
+	}
+}

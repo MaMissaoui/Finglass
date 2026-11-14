@@ -842,6 +842,8 @@ export function createMockBanking(
       messages: [],
       probed: 0,
       skipped: 0,
+      strongSync: false,
+      strongSyncTAN: '',
     };
     lastTrace = { kind: 'test', bankId, hasTrace: false };
     errorText = '';
@@ -865,6 +867,8 @@ export function createMockBanking(
         messages: [],
         probed: 0,
         skipped: 0,
+        strongSync: false,
+        strongSyncTAN: '',
       };
       lastTrace = { kind: 'test', bankId, hasTrace: false };
     } else if (noGoBankId === bankId) {
@@ -880,6 +884,8 @@ export function createMockBanking(
         ],
         probed: 0,
         skipped: 0,
+        strongSync: true,
+        strongSyncTAN: 'typed',
       };
       lastTrace = { kind: 'test', bankId, hasTrace: true };
     } else {
@@ -892,6 +898,8 @@ export function createMockBanking(
         messages: [],
         probed: 1,
         skipped: 1,
+        strongSync: false,
+        strongSyncTAN: '',
       };
       lastTrace = { kind: 'test', bankId, hasTrace: true };
     }

@@ -108,6 +108,11 @@ type ConnectionTestResult struct {
 	Probed int
 	// Skipped is the number of accounts the probe skipped.
 	Skipped int
+	// StrongSync reports that the probe used the strong-sync fallback.
+	StrongSync bool
+	// StrongSyncTAN is how the bank asked for the TAN in the strong sync:
+	// "", "typed" or "decoupled".
+	StrongSyncTAN string
 }
 
 // BankMessage is one warning or error the bank returned during the test.

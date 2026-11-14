@@ -99,6 +99,11 @@ type Outcome struct {
 	Skipped int
 	// Cancelled reports a user cancellation.
 	Cancelled bool
+	// StrongSync reports that the probe used the strong-sync fallback.
+	StrongSync bool
+	// StrongSyncTAN is how the bank asked for the TAN in the strong sync:
+	// "", "typed" or "decoupled".
+	StrongSyncTAN string
 	// Trace is the redacted trace of the exchanges, in memory only.
 	Trace []byte
 }
@@ -208,15 +213,17 @@ func Run(ctx context.Context, input Input) Outcome {
 	_, _ = recorder.WriteTo(&traceBytes)
 
 	outcome := Outcome{
-		Go:        result.Decision.Go,
-		Kind:      result.Decision.Reason.Kind,
-		Other:     result.Decision.Reason.Other,
-		Codes:     append([]string(nil), result.Decision.Reason.Codes...),
-		Messages:  collector.snapshot(),
-		Probed:    result.Probed,
-		Skipped:   result.Skipped,
-		Cancelled: adapter.wasCancelled(),
-		Trace:     traceBytes.Bytes(),
+		Go:            result.Decision.Go,
+		Kind:          result.Decision.Reason.Kind,
+		Other:         result.Decision.Reason.Other,
+		Codes:         append([]string(nil), result.Decision.Reason.Codes...),
+		Messages:      collector.snapshot(),
+		Probed:        result.Probed,
+		Skipped:       result.Skipped,
+		Cancelled:     adapter.wasCancelled(),
+		StrongSync:    result.Path == fintsprobe.ProbePathStrongSync,
+		StrongSyncTAN: result.StrongSyncTAN,
+		Trace:         traceBytes.Bytes(),
 	}
 	if !outcome.Go {
 		if outcome.Cancelled || (outcome.Kind == fintsprobe.NoGoOther && outcome.Other == OtherCancelled) {
@@ -325,10 +332,12 @@ func (p *probeInteraction) ConfirmRetry(ctx context.Context) bool {
 
 // Notice shows the probe's fixed notices as localized app text.
 func (p *probeInteraction) Notice(notice fintsprobe.Notice) {
-	if notice != fintsprobe.NoticeTanMethodUnsupported {
-		return
+	switch notice {
+	case fintsprobe.NoticeTanMethodUnsupported:
+		p.interaction.Info(i18n.Text(p.language, i18n.TestConnectionTanMethodUnsupported))
+	case fintsprobe.NoticeStrongSync:
+		p.interaction.Info(i18n.Text(p.language, i18n.TestConnectionStrongSyncNotice))
 	}
-	p.interaction.Info(i18n.Text(p.language, i18n.TestConnectionTanMethodUnsupported))
 }
 
 // finish marks the probe done, dismisses a still-open confirmation and waits

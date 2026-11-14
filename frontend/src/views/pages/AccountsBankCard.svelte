@@ -221,6 +221,17 @@
           {/if}
         </div>
 
+        {#if connectionTest.strongSync}
+          <p class="test-path" data-testid={`connection-test-path-${card.bankId}`}>
+            {t('TestConnectionPathStrongSync')}
+            {#if connectionTest.strongSyncTAN === 'typed'}
+              {t('TestConnectionStrongSyncTyped')}
+            {:else if connectionTest.strongSyncTAN === 'decoupled'}
+              {t('TestConnectionStrongSyncDecoupled')}
+            {/if}
+          </p>
+        {/if}
+
         {#if connectionTest.codes.length > 0}
           <div class="test-codes">
             {#each connectionTest.codes as code (code)}
@@ -625,6 +636,15 @@
 
   .test-spacer {
     flex: 1;
+  }
+
+  .test-path {
+    margin: 0;
+    color: var(--color-muted-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
   }
 
   .test-codes {

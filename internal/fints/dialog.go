@@ -138,6 +138,34 @@ func (r InitResult) Format(f fmt.State, _ rune) {
 	_, _ = f.Write([]byte(r.String()))
 }
 
+// SyncResult is the response-driven result of [Dialog.StrongSync].
+type SyncResult struct {
+	// Challenge is the TAN challenge when Done is false.
+	Challenge TanChallenge
+	// Decoupled reports that the challenge is confirmed in the bank's app.
+	Decoupled bool
+	// Done reports that the strong sync finished and the dialog is synced.
+	Done bool
+}
+
+// String returns only the outcome and challenge lengths.
+func (r SyncResult) String() string {
+	if r.Done {
+		return "fints.SyncResult{done:true}"
+	}
+	return fmt.Sprintf("fints.SyncResult{done:false challenge:%s decoupled:%t}", r.Challenge, r.Decoupled)
+}
+
+// GoString returns only the outcome and challenge lengths.
+func (r SyncResult) GoString() string {
+	return r.String()
+}
+
+// Format writes only the outcome and challenge lengths, for every fmt verb.
+func (r SyncResult) Format(f fmt.State, _ rune) {
+	_, _ = f.Write([]byte(r.String()))
+}
+
 // SendKind is the closed outcome of [Dialog.Send].
 type SendKind uint8
 
@@ -251,6 +279,12 @@ type Dialog struct {
 	state                  DialogState
 	challenge              TanChallenge
 	decoupled              bool
+	// strongSyncPending says a strong sync is waiting for its TAN. Its
+	// success path finishes the strong sync instead of opening the dialog.
+	strongSyncPending bool
+	// strongSyncSystemID is the system id from a HISYN in this strong sync's
+	// own responses, never one carried over from an earlier dialog.
+	strongSyncSystemID string
 }
 
 // NewDialog builds a dialog in [DialogNew] state.
@@ -383,6 +417,144 @@ func (d *Dialog) Sync(ctx context.Context) error {
 	d.messageNum = 1
 	d.challenge = TanChallenge{}
 	d.decoupled = false
+	d.state = DialogSynced
+	return nil
+}
+
+// StrongSync runs the synchronisation dialog with the selected two-step TAN
+// method, as python-fints does in interactive mode: HKIDN (system id "0") +
+// HKVVB + HKTAN process 4 referencing HKIDN + HKSYN. It is allowed in
+// [DialogNew] and [DialogSynced] only, and only when a two-step security
+// function is selected.
+//
+// Any system id carried over from an earlier dialog is cleared before the
+// message is built. The system id the strong sync adopts must come from a HISYN
+// in its own responses; without one the dialog fails with a protocol error
+// instead of reusing an old id.
+//
+// When the bank asks for a TAN, SubmitTAN or Poll finishes the strong sync and
+// leaves the dialog in [DialogSynced], ready for Init.
+func (d *Dialog) StrongSync(ctx context.Context) (SyncResult, error) {
+	if d.state != DialogNew && d.state != DialogSynced {
+		return SyncResult{}, newInvalidStateError()
+	}
+	if !d.strongSyncSecurityFunctionTwoStep() {
+		return SyncResult{}, newInvalidStateError()
+	}
+
+	// A Params value passed from an earlier dialog carries that dialog's
+	// system id. The strong sync must issue a new one.
+	d.systemID = ""
+	d.params.SystemID = ""
+	d.strongSyncSystemID = ""
+	d.strongSyncPending = false
+
+	segments := []Segment{
+		NewHKIDN(d.blz, d.customerID, "0"),
+		NewHKVVB(d.params.BPDVersion, d.params.UPDVersion, d.productID, d.productVersion),
+		NewHKTANProcess4(d.params.HKTANVersion(), TanRefHKIDN, d.tanMedium()),
+		NewHKSYN(),
+	}
+	response, err := d.exchange(ctx, d.params.SelectedSecurityFunction, nil, segments...)
+	if err != nil {
+		d.state = DialogEnded
+		return SyncResult{}, err
+	}
+
+	d.applyResponse(response)
+	d.rememberStrongSyncSystemID(response)
+	if dialogError := checkInitResponse(response); dialogError != nil {
+		// checkInitResponse treats every 9xxx before login as a PIN
+		// rejection. Only the actual PIN and lock codes must suppress HKEND;
+		// HVB's 9210 is a rejected order, not a rejected PIN.
+		if strongSyncEndsWithoutHKEND(response, dialogError) {
+			d.endAfterBankError(ctx, response, dialogError)
+		} else {
+			d.endBestEffort(ctx)
+		}
+		return SyncResult{}, dialogError
+	}
+
+	if responseNeedsTAN(response) {
+		challenge, ok := response.TANChallenge()
+		if !ok {
+			d.endBestEffort(ctx)
+			return SyncResult{}, newProtocolError()
+		}
+		d.challenge = challenge
+		d.decoupled = responseDecoupled(response)
+		d.strongSyncPending = true
+		d.state = DialogTANPending
+		return SyncResult{Challenge: challenge, Decoupled: d.decoupled}, nil
+	}
+
+	if err := d.finishStrongSync(ctx); err != nil {
+		return SyncResult{}, err
+	}
+	return SyncResult{Done: true}, nil
+}
+
+// strongSyncSecurityFunctionTwoStep reports whether the selected security
+// function is a two-step TAN method.
+func (d *Dialog) strongSyncSecurityFunctionTwoStep() bool {
+	securityFunction := d.params.SelectedSecurityFunction
+	if securityFunction == "" || securityFunction == SecurityFunctionPINOnly {
+		return false
+	}
+	if method, ok := d.params.SelectedMethod(); ok {
+		return method.TanProcess == TanProcessTwoStep
+	}
+	return true
+}
+
+// strongSyncEndsWithoutHKEND reports whether a strong-sync bank error must not
+// be followed by HKEND: a real PIN or lock code, or an aborted dialog.
+func strongSyncEndsWithoutHKEND(response *Response, dialogError *DialogError) bool {
+	if response != nil && response.HasKind(ReturnCodeKindDialogAborted) {
+		return true
+	}
+	if dialogError == nil {
+		return false
+	}
+	for _, code := range dialogError.Codes {
+		if pinRejectedCodes[code] || code == "3938" {
+			return true
+		}
+	}
+	return false
+}
+
+// rememberStrongSyncSystemID tracks the first HISYN system id in this strong
+// sync's responses.
+func (d *Dialog) rememberStrongSyncSystemID(response *Response) {
+	if response == nil {
+		return
+	}
+	if systemID := response.SystemID(); systemID != "" {
+		d.strongSyncSystemID = systemID
+	}
+}
+
+// finishStrongSync closes a completed strong sync and leaves the dialog synced,
+// exactly as Sync does. It requires a system id from this strong sync's own
+// HISYN.
+func (d *Dialog) finishStrongSync(ctx context.Context) error {
+	systemID := d.strongSyncSystemID
+	if systemID == "" {
+		d.endBestEffort(ctx)
+		return newProtocolError()
+	}
+
+	d.systemID = systemID
+	d.endBestEffort(ctx)
+
+	// Init starts a fresh dialog with its own id and message numbering.
+	d.dialogID = ""
+	d.messageNum = 1
+	d.challenge = TanChallenge{}
+	d.decoupled = false
+	d.strongSyncSystemID = ""
+	d.strongSyncPending = false
 	d.state = DialogSynced
 	return nil
 }
@@ -523,6 +695,9 @@ func (d *Dialog) SubmitTAN(ctx context.Context, tan *secret.Text) (*Response, er
 	}
 
 	d.applyResponse(response)
+	if d.strongSyncPending {
+		d.rememberStrongSyncSystemID(response)
+	}
 	if dialogError := checkResponse(response); dialogError != nil {
 		d.endAfterBankError(ctx, response, dialogError)
 		return nil, dialogError
@@ -530,6 +705,13 @@ func (d *Dialog) SubmitTAN(ctx context.Context, tan *secret.Text) (*Response, er
 	if responseNeedsTAN(response) {
 		d.endBestEffort(ctx)
 		return nil, &DialogError{Kind: ErrorKindTanRejected}
+	}
+
+	if d.strongSyncPending {
+		if err := d.finishStrongSync(ctx); err != nil {
+			return nil, err
+		}
+		return response, nil
 	}
 
 	d.challenge = TanChallenge{}
@@ -576,6 +758,9 @@ func (d *Dialog) Poll(ctx context.Context) (PollResult, error) {
 			return PollResult{}, err
 		}
 		d.applyResponse(response)
+		if d.strongSyncPending {
+			d.rememberStrongSyncSystemID(response)
+		}
 		if dialogError := checkResponse(response); dialogError != nil {
 			d.endAfterBankError(ctx, response, dialogError)
 			return PollResult{}, dialogError
@@ -583,6 +768,13 @@ func (d *Dialog) Poll(ctx context.Context) (PollResult, error) {
 		if response.HasKind(ReturnCodeKindDecoupledPending) ||
 			response.HasKind(ReturnCodeKindDecoupledInitiated) {
 			continue
+		}
+
+		if d.strongSyncPending {
+			if err := d.finishStrongSync(ctx); err != nil {
+				return PollResult{}, err
+			}
+			return PollResult{Confirmed: true, Response: response}, nil
 		}
 
 		d.challenge = TanChallenge{}
@@ -683,6 +875,8 @@ func (d *Dialog) endBestEffort(ctx context.Context) {
 	d.dialogID = ""
 	d.challenge = TanChallenge{}
 	d.decoupled = false
+	d.strongSyncPending = false
+	d.strongSyncSystemID = ""
 	d.state = DialogEnded
 }
 
@@ -701,6 +895,8 @@ func (d *Dialog) endAfterBankError(ctx context.Context, response *Response, dial
 		d.dialogID = ""
 		d.challenge = TanChallenge{}
 		d.decoupled = false
+		d.strongSyncPending = false
+		d.strongSyncSystemID = ""
 		d.state = DialogEnded
 		return
 	}

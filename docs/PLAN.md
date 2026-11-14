@@ -100,15 +100,17 @@ Results of your Test connection runs (2026-11-14):
   - Round 4 (2026-11-14, with that retry): after your approval Finglass logged in again with the same system id and
     no new sync; HVB answered the same 9050 + 9210 "Auftrag abgelehnt. Kein eingereichter Auftrag gefunden" on HKTAN.
     The approval does not make the system id known.
-  - [ ] Next experiment (0.4.x): run the sync dialog with the TAN method (904) and HKTAN process 4 instead of
-    single-step 999, as hbci4java does, so the strong authentication happens while the new system id is issued.
+  - [x] Test connection: after HVB's 9210, one strong sync — HKIDN + HKVVB + HKTAN process 4 + HKSYN with the TAN
+    method, as python-fints does; the result shows the path and whether the bank asked for a typed TAN or an app
+    approval.
+  - [ ] **You:** run Test connection for HVB with a build that has the product id; send the panel text and the trace.
+    Note: every attempt registers another HBCI device at HVB.
 - **DKB (12030000): NO-GO.** 9078 with 3079 and 9800: most likely the product registration from 2026-11-13 has not
   reached DKB yet. Retry in a few days.
 
 Fixed along the way: the first message's envelope (dialog id 0, sender role, `PIN:2`), the BIC taken from HISPA only,
 the newest supported HKTAN version, and names kept out of traces.
 
-- [ ] **You:** run Test connection for HVB again and send the 9210 text shown in the panel.
 - [ ] HVB login: fix based on the bank's message. Note that a real sync also syncs a new system id on every attempt
   until one login succeeds (the TAN method is stored only after a success), so HVB sees a new device each time.
 - [ ] Sync: the gateway's retry with Sync (`retryableInitError`) gets a new system id from HVB each time, so every

@@ -932,13 +932,15 @@ func (s *Session) BankingTestConnection(bankID int) {
 			HasTrace: len(outcome.Trace) > 0,
 		}
 		state.ConnectionTest = &banking.ConnectionTestResult{
-			BankID:   id,
-			Go:       outcome.Go,
-			Reason:   connectionTestReason(state.Language, outcome),
-			Codes:    append([]string(nil), outcome.Codes...),
-			Messages: connectionTestMessages(outcome.Messages),
-			Probed:   outcome.Probed,
-			Skipped:  outcome.Skipped,
+			BankID:        id,
+			Go:            outcome.Go,
+			Reason:        connectionTestReason(state.Language, outcome),
+			Codes:         append([]string(nil), outcome.Codes...),
+			Messages:      connectionTestMessages(outcome.Messages),
+			Probed:        outcome.Probed,
+			Skipped:       outcome.Skipped,
+			StrongSync:    outcome.StrongSync,
+			StrongSyncTAN: outcome.StrongSyncTAN,
 		}
 	})
 	if job == nil {
@@ -1021,6 +1023,8 @@ func (s *Session) clearLastTraceLocked(kind string, bankID model.BankConnectionI
 		s.banking.LastTrace = &banking.LastTrace{Kind: kind, BankID: bankID}
 		if s.banking.ConnectionTest != nil {
 			s.banking.ConnectionTest.Messages = nil
+			s.banking.ConnectionTest.StrongSync = false
+			s.banking.ConnectionTest.StrongSyncTAN = ""
 		}
 	}
 }

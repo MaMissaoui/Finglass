@@ -898,6 +898,10 @@ const (
 	TestConnectionInvalidLogin
 	TestConnectionProductID
 	TestConnectionApproveThenRetry
+	TestConnectionStrongSyncNotice
+	TestConnectionPathStrongSync
+	TestConnectionStrongSyncTyped
+	TestConnectionStrongSyncDecoupled
 	SaveConnectionTrace
 	MessageConnectionTraceSaved
 	ErrorConnectionTrace
@@ -910,7 +914,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 900
+const NumKeys = 904
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1805,6 +1809,10 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	TestConnectionInvalidLogin:          "TestConnectionInvalidLogin",
 	TestConnectionProductID:             "TestConnectionProductID",
 	TestConnectionApproveThenRetry:      "TestConnectionApproveThenRetry",
+	TestConnectionStrongSyncNotice:      "TestConnectionStrongSyncNotice",
+	TestConnectionPathStrongSync:        "TestConnectionPathStrongSync",
+	TestConnectionStrongSyncTyped:       "TestConnectionStrongSyncTyped",
+	TestConnectionStrongSyncDecoupled:   "TestConnectionStrongSyncDecoupled",
 	SaveConnectionTrace:                 "SaveConnectionTrace",
 	MessageConnectionTraceSaved:         "MessageConnectionTraceSaved",
 	ErrorConnectionTrace:                "ErrorConnectionTrace",
