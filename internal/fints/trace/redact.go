@@ -34,6 +34,16 @@ var (
 	// only in their exact shapes, so a name in an older layout is never kept.
 	accountTypeCode = regexp.MustCompile(`^[0-9]{1,2}$`)
 	currencyCode    = regexp.MustCompile(`^[A-Z]{3}$`)
+	// bicPattern and blzPattern are public bank identifiers kept in account
+	// groups.
+	bicPattern = regexp.MustCompile(`^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$`)
+	blzPattern = regexp.MustCompile(`^[0-9]{8}$`)
+	// ibanPattern recognises the IBAN a BIC follows in a KTI; a BIC-shaped
+	// value anywhere else is masked.
+	ibanPattern = regexp.MustCompile(`^[A-Z]{2}[0-9]{2}[A-Z0-9]{10,30}$`)
+	// mediumClass and mediumStatus are a HITAB medium's class and status.
+	mediumClass  = regexp.MustCompile(`^[A-Z]$`)
+	mediumStatus = regexp.MustCompile(`^[0-9]$`)
 )
 
 // RedactMessage returns one redacted line per segment of message.
@@ -464,7 +474,7 @@ func redactHNSHK(segment fints.ParsedSegment, body int) []string {
 }
 
 func isParameterSegmentType(segmentType string) bool {
-	return strings.HasPrefix(segmentType, "HI") && strings.HasSuffix(segmentType, "S")
+	return len(segmentType) == 6 && strings.HasPrefix(segmentType, "HI") && strings.HasSuffix(segmentType, "S")
 }
 
 // ---- element and group helpers ----
@@ -631,19 +641,48 @@ func bankIdentifierGroup(group fints.DEG) string {
 	return "280:" + blz
 }
 
-// accountGroup renders a KTV national account or a KTI IBAN:BIC group.
+// accountGroup renders a KTV (acct:sub:280:BLZ), a KTI (IBAN:BIC) or a full
+// KTI (IBAN:BIC:acct:sub:280:BLZ) group. Elements are kept by shape, never by
+// position: a BIC right after an IBAN, the country code 280 and an 8-digit BLZ
+// right after 280 stay;
+// everything else is masked to its last 4 characters.
 func accountGroup(group fints.DEG) string {
+	return accountElements(group, false)
+}
+
+// accountElements renders an account group element by element. withFlag keeps
+// a leading J/N flag (HISPA).
+func accountElements(group fints.DEG, withFlag bool) string {
 	if group.Len() == 0 {
 		return ""
 	}
-	if group.Len() == 2 {
-		return maskValue(group.Text(0)) + ":" + group.Text(1)
+	elements := make([]string, group.Len())
+	previous := ""
+	for index := 0; index < group.Len(); index++ {
+		element := group.At(index)
+		if element.IsBinary() {
+			elements[index] = redactedBinary(element.Binary())
+			previous = ""
+			continue
+		}
+		value := element.Text()
+		switch {
+		case value == "":
+			elements[index] = ""
+		case withFlag && index == 0 && booleanPattern.MatchString(value):
+			elements[index] = value
+		case ibanPattern.MatchString(previous) && bicPattern.MatchString(value):
+			elements[index] = value
+		case value == "280":
+			elements[index] = value
+		case previous == "280" && blzPattern.MatchString(value):
+			elements[index] = value
+		default:
+			elements[index] = maskValue(value)
+		}
+		previous = value
 	}
-	if group.Len() == 1 {
-		return maskValue(group.Text(0))
-	}
-	return maskValue(group.Text(0)) + ":" +
-		maskValue(group.Text(1)) + ":280:" + group.Text(3)
+	return strings.Join(elements, ":")
 }
 
 func returnCodeGroup(group fints.DEG) string {
@@ -794,6 +833,9 @@ func challengeGroup(group fints.DEG) string {
 	return "<challenge len=" + strconv.Itoa(length) + ">"
 }
 
+// mediaGroup renders one HITAB TAN medium. Only the medium class and its
+// status are kept; card numbers, accounts, dates and the user-chosen medium
+// name are redacted.
 func mediaGroup(group fints.DEG) string {
 	if group.Len() == 0 {
 		return ""
@@ -806,59 +848,20 @@ func mediaGroup(group fints.DEG) string {
 			elements[index] = redactedBinary(element.Binary())
 		case element.IsEmpty():
 			elements[index] = ""
-		case index == 2:
-			elements[index] = redactedText(element.Text())
+		case index == 0 && mediumClass.MatchString(element.Text()):
+			elements[index] = element.Text()
+		case index == 1 && mediumStatus.MatchString(element.Text()):
+			elements[index] = element.Text()
 		default:
-			elements[index] = codeValue(element.Text())
+			elements[index] = redactedText(element.Text())
 		}
 	}
 	return strings.Join(elements, ":")
 }
 
+// hispaGroup renders one HISPA account: J/N, then a full KTI, by shape.
 func hispaGroup(group fints.DEG) string {
-	if group.Len() == 0 {
-		return ""
-	}
-
-	hasFlag := group.Text(0) == "J" || group.Text(0) == "N"
-
-	elements := make([]string, group.Len())
-	for index := 0; index < group.Len(); index++ {
-		element := group.At(index)
-		if element.IsBinary() {
-			elements[index] = redactedBinary(element.Binary())
-			continue
-		}
-		value := element.Text()
-		if value == "" {
-			elements[index] = ""
-			continue
-		}
-
-		position := index
-		if hasFlag {
-			position = index - 1
-		}
-		switch {
-		case hasFlag && index == 0:
-			elements[index] = codeValue(value)
-		case position == 0:
-			elements[index] = maskValue(value)
-		case position == 1:
-			elements[index] = value
-		case position == 2:
-			elements[index] = maskValue(value)
-		case position == 3:
-			elements[index] = maskValue(value)
-		case position == 4:
-			elements[index] = value
-		case position == 5:
-			elements[index] = value
-		default:
-			elements[index] = redactedText(value)
-		}
-	}
-	return strings.Join(elements, ":")
+	return accountElements(group, true)
 }
 
 // ---- note redaction ----
