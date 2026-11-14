@@ -780,13 +780,20 @@ func accountElements(group fints.DEG, withFlag bool) string {
 			elements[index] = value
 		case previous == "280" && blzPattern.MatchString(value):
 			elements[index] = value
-		default:
+		case ibanPattern.MatchString(value) || accountNumberPattern.MatchString(value):
+			// IBANs and account numbers keep their last 4 characters.
 			elements[index] = maskValue(value)
+		default:
+			// Anything else (a name in a wrong slot, a customer id) is removed.
+			elements[index] = redactedText(value)
 		}
 		previous = value
 	}
 	return strings.Join(elements, ":")
 }
+
+// accountNumberPattern matches a national account or sub-account number.
+var accountNumberPattern = regexp.MustCompile(`^[0-9]{1,30}$`)
 
 func returnCodeGroup(group fints.DEG) string {
 	if group.Len() == 0 {

@@ -315,14 +315,27 @@ func (p *BankParams) selectedMethod() (TanMethod, bool) {
 	return p.methodForSecurityFunction(p.SelectedSecurityFunction)
 }
 
+// methodForSecurityFunction returns the method from the highest HITANS
+// version this client supports. A bank lists a method once per HITANS version
+// (HVB sends v1, v4, v5 and v6); the first, oldest one made HKTAN go out as v1
+// (HVB 9075/9050).
 func (p *BankParams) methodForSecurityFunction(securityFunction string) (TanMethod, bool) {
+	best := TanMethod{}
+	found := false
 	for _, method := range p.TANMethods {
-		if method.SecurityFunction == securityFunction {
-			return method, true
+		if method.SecurityFunction != securityFunction || method.HKTANVersion > maxHKTANVersion {
+			continue
+		}
+		if !found || method.HKTANVersion > best.HKTANVersion {
+			best = method
+			found = true
 		}
 	}
-	return TanMethod{}, false
+	return best, found
 }
+
+// maxHKTANVersion is the highest HKTAN version this client builds.
+const maxHKTANVersion = 7
 
 func containsString(values []string, wanted string) bool {
 	for _, value := range values {
