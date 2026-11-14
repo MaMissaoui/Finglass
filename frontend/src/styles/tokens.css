@@ -247,5 +247,8 @@
     --color-shadow: var(--dark-color-shadow);
     --color-warning-pale: var(--dark-color-warning-pale);
     --color-warning-strong: var(--dark-color-warning-strong);
+    --color-ready-wash: var(--dark-color-ready-wash);
+    --color-attention-wash: var(--dark-color-attention-wash);
+    --color-off-wash: var(--dark-color-off-wash);
   }
 }
