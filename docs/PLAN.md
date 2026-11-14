@@ -91,7 +91,9 @@ Results of your Test connection runs (2026-11-14):
 
 - **Volksbank Mittelhessen (51390000): GO.** Sync, login (3076: no strong authentication needed), HKSPA, balances
   and statements work.
-- **HVB (70020270): NO-GO.** The sync dialog works. The login answers 9050 with 9210 on HKTAN v6 and sends an approval
+- **HVB (70020270): GO with 0.4.3** (2026-11-14). Normal path: the first sync, the login with the TAN method
+  (HKTAN process 4, your app approval), HKSPA, balances and camt statements; 3076 "no strong authentication needed".
+  The fix was the signature header below. History of the NO-GO: the sync dialog works. The login answers 9050 with 9210 on HKTAN v6 and sends an approval
   push to the HVB app; after approval the app shows a 6-digit TAN, but the bank's response carried no HITAN, so
   Finglass could not ask for it. FinDesk, with a known system id, gets 3076. The bank's message text (now on screen)
   is the next clue.
@@ -106,9 +108,7 @@ Results of your Test connection runs (2026-11-14):
     approval.
   - [x] Signature header: PIN:2 for two-step methods (PIN:1 only with 999), and never an empty system id in the
     security headers — found by comparing the HVB trace with a working client.
-  - [ ] **You:** after the next build — Test connection for Volksbank first (must stay GO; if not, stop and send its
-    trace), then HVB; send the panel text and the trace.
-    Note: every attempt registers another HBCI device at HVB.
+  - [x] Re-test with 0.4.3: Volksbank stays GO, HVB GO.
 - **DKB (12030000): NO-GO.** 9078 with 3079 and 9800: most likely the product registration from 2026-11-13 has not
   reached DKB yet. Retry in a few days.
 
@@ -120,7 +120,7 @@ the newest supported HKTAN version, and names kept out of traces.
 - [x] Test connection uses a saved PIN (never stores one); one removal rule for sync and test: an explicit
   wrong-PIN code removes it at once, other rejections after the per-bank option (1st or 2nd, your choice
   2026-11-14); network errors and cancels keep it.
-- [ ] HVB login: fix based on the bank's message. Note that a real sync also syncs a new system id on every attempt
+- [x] HVB login: fixed by the signature header (0.4.3). Note that a real sync also syncs a new system id on every attempt
   until one login succeeds (the TAN method is stored only after a success), so HVB sees a new device each time.
 - [x] Sync: the gateway's retry with Sync (`retryableInitError`) gets a new system id from HVB each time, so every
   attempt triggers a fresh approval; fix once Test connection shows which mechanism works. The retry now uses
@@ -128,8 +128,8 @@ the newest supported HKTAN version, and names kept out of traces.
   twice, while a stale-system-id error such as 9010 still retries once with Sync.
 - [ ] **You:** retry DKB once the registration has propagated.
 - [ ] Check HKTAN v5's layout against a bank (none of yours uses v5).
-- [ ] **You:** Volksbank: Sync now twice in a row with "Save redacted trace…" after each; then Sync all with HVB
-  excluded.
+- [ ] **You:** Volksbank and HVB: Sync now twice in a row each, with "Save redacted trace…" after each; then Sync
+  all.
 - [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
   list you received, or it ships with the app only if the terms allow it). Until then, the FinDesk import reads
   FinDesk.app's local copy and ships nothing.
