@@ -79,8 +79,8 @@ testdata/golden/             reference outputs of Finglass 0.3.4 that the Go cod
 - [x] Push the tag (`v0.4.0`). Done 2026-11-14 at `c5b292f` (your OK: "after the CI PR"); the pre-release
   [Finglass 0.4.0 (alpha)](https://github.com/MaMissaoui/Finglass/releases/tag/v0.4.0) has the DMG and `SHA256SUMS.txt`,
   and the tag build's self-check reported the FinTS product id as present.
-- [ ] **You:** after installing, rename `~/.finglass` (keep it, don't delete it) and start Finglass; it offers the
-  FinDesk migration.
+- [x] After installing, rename `~/.finglass` and let the FinDesk migration run. Done 2026-11-14 with 0.4.0 (your
+  confirmation; the old folder is kept as `~/.finglass_rust`).
 - [x] The FinDesk migration fills missing FinTS server URLs from the installed FinDesk.app's bank list (read-only;
   nothing is shipped), like FinDesk does at runtime.
 
