@@ -2,6 +2,7 @@
   import type {
     AccountsBankCardDTO,
     BankAccountRowDTO,
+    ConnectionTestDTO,
   } from '../../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
   import {
     BankBadge,
@@ -16,6 +17,7 @@
   let {
     card,
     t,
+    connectionTest = null,
     syncControlsVisible = false,
     onToggle,
     onSync,
@@ -27,9 +29,11 @@
     onForgetDeleted,
     onOpenDeleteAccount,
     onBankMenu,
+    onSaveTrace,
   }: {
     card: AccountsBankCardDTO;
-    t: (key: string) => string;
+    t: (key: string, ...args: (string | number)[]) => string;
+    connectionTest?: ConnectionTestDTO | null;
     syncControlsVisible?: boolean;
     onToggle: (bankID: number) => void;
     onSync: (bankID: number) => void;
@@ -41,6 +45,7 @@
     onForgetDeleted: (accountID: number) => void;
     onOpenDeleteAccount: (accountID: number) => void;
     onBankMenu: (bankID: number, action: string) => void;
+    onSaveTrace: () => void;
   } = $props();
 
   let bankMenuOpen = $state(false);
@@ -189,6 +194,47 @@
       {/if}
     </div>
   </header>
+
+  {#if connectionTest !== null && connectionTest.bankId === card.bankId}
+    <div class="connection-test" data-testid={`connection-test-${card.bankId}`} aria-live="polite">
+      {#if connectionTest.running}
+        <div class="test-line">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="test-reason">{t('TestConnectionRunning')}</span>
+        </div>
+      {:else}
+        <div class="test-line" class:warning={!connectionTest.go}>
+          <span class="test-icon">
+            <Icon name={connectionTest.go ? 'check_circle' : 'warning'} size={20} />
+          </span>
+          <span class="test-reason">{connectionTest.reason}</span>
+          <span class="test-spacer"></span>
+          {#if connectionTest.hasTrace}
+            <SecondaryButton
+              text={t('SaveConnectionTrace')}
+              icon="file_download"
+              onclick={onSaveTrace}
+            />
+          {/if}
+        </div>
+
+        {#if connectionTest.codes.length > 0}
+          <div class="test-codes">
+            {#each connectionTest.codes as code (code)}
+              <span class="code-chip">{code}</span>
+            {/each}
+          </div>
+        {/if}
+
+        <div class="test-meta">
+          <span>{t('TestConnectionProbed', connectionTest.probed)}</span>
+          <span>{t('TestConnectionSkipped', connectionTest.skipped)}</span>
+        </div>
+
+        <p class="test-help">{t('TestConnectionHelp')}</p>
+      {/if}
+    </div>
+  {/if}
 
   {#if !card.collapsed}
     <div class="rule" role="none"></div>
@@ -512,6 +558,83 @@
 
   .menu-label {
     flex: 1;
+  }
+
+  .connection-test {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 16px 12px;
+    padding: 12px;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-panel);
+    background: var(--color-background);
+  }
+
+  .test-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 24px;
+    color: var(--color-success);
+  }
+
+  .test-line.warning {
+    color: var(--color-warning-strong);
+  }
+
+  .test-icon {
+    display: inline-flex;
+    flex: none;
+  }
+
+  .test-reason {
+    min-width: 0;
+    font-size: var(--type-body-size);
+    font-weight: var(--type-body-weight);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .test-spacer {
+    flex: 1;
+  }
+
+  .test-codes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .code-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: var(--radius-tag);
+    background: var(--color-control-fill);
+    color: var(--color-text);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: var(--type-label-small-size);
+    font-weight: var(--type-label-small-weight);
+    white-space: nowrap;
+  }
+
+  .test-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: var(--color-muted-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+  }
+
+  .test-help {
+    margin: 0;
+    color: var(--color-muted-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    line-height: 1.35;
   }
 
   .rule {

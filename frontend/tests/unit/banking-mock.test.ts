@@ -203,6 +203,7 @@ describe('banking.mock', () => {
     const plain = fake().banking.state();
     const online = plain.banks.find((bank) => bank.bankId === 2);
     expect(online?.menu.map((item) => item.label)).toEqual([
+      translate('en', 'TestConnection'),
       translate('en', 'FetchHistory'),
       translate('en', 'IncludeInSyncAll'),
       translate('en', 'RenameConnection'),
@@ -354,5 +355,108 @@ describe('banking.mock', () => {
     const all = fake('accounts-sync-all').banking.state();
     expect(all.busy).toBe(true);
     expect(all.syncAllText).toBe('');
+  });
+
+  it('runs a connection test through the product id and PIN prompts', () => {
+    const { banking } = fake('banking-walkthrough');
+    const running = banking.testConnection(2);
+    expect(running.connectionTest).toMatchObject({
+      bankId: 2,
+      running: true,
+      go: false,
+      probed: 0,
+      skipped: 0,
+      hasTrace: false,
+    });
+
+    const productID = banking.prompt();
+    expect(productID.kind).toBe('product-id');
+    expect(productID.title).toBe(translate('en', 'ProductIDPromptTitle'));
+    expect(productID.text).toBe(translate('en', 'ProductIDPromptText'));
+    expect(productID.label).toBe(translate('en', 'ProductIDPromptLabel'));
+
+    banking.answerProductID(productID.id, 'invented-product-id');
+    const pin = banking.prompt();
+    expect(pin.kind).toBe('pin');
+    expect(pin.title).toBe(translate('en', 'PinFor', 'Sparkasse'));
+    expect(pin.rememberVisible).toBe(false);
+
+    banking.answerPin(pin.id, 'S3cret-PIN-9931', false);
+    expect(banking.prompt().kind).toBe('');
+    const done = banking.state();
+    expect(done.connectionTest).toMatchObject({
+      bankId: 2,
+      running: false,
+      go: true,
+      reason: translate('en', 'TestConnectionGo'),
+      codes: [],
+      probed: 1,
+      skipped: 1,
+      hasTrace: true,
+    });
+    const published = JSON.stringify(done) + JSON.stringify(banking.prompt());
+    expect(published).not.toContain('invented-product-id');
+    expect(published).not.toContain('S3cret-PIN-9931');
+  });
+
+  it('cancels a connection test at the product id prompt with the cancelled reason', () => {
+    const { banking } = fake('banking-walkthrough');
+    banking.testConnection(2);
+    const productID = banking.prompt();
+    expect(productID.kind).toBe('product-id');
+
+    banking.answerProductID(productID.id, '');
+    expect(banking.prompt().kind).toBe('');
+    const done = banking.state();
+    expect(done.connectionTest).toMatchObject({
+      bankId: 2,
+      running: false,
+      go: false,
+      reason: translate('en', 'TestConnectionCancelled'),
+      codes: [],
+      probed: 0,
+      skipped: 0,
+      hasTrace: false,
+    });
+  });
+
+  it('reports the NO-GO login with the bank return code', () => {
+    const { banking } = fake('accounts-test-connection-nogo-en-light');
+    banking.testConnection(2);
+    banking.answerProductID(banking.prompt().id, 'invented-product-id');
+    banking.answerPin(banking.prompt().id, '1234', false);
+
+    const done = banking.state();
+    expect(done.connectionTest).toMatchObject({
+      bankId: 2,
+      running: false,
+      go: false,
+      reason: translate('en', 'TestConnectionInvalidLogin'),
+      codes: ['9942'],
+      probed: 0,
+      skipped: 0,
+      hasTrace: true,
+    });
+  });
+
+  it('skips the product id prompt when the build has a linked id', () => {
+    const { banking } = fake('accounts-test-connection-linked');
+    banking.testConnection(2);
+    const prompt = banking.prompt();
+    expect(prompt.kind).toBe('pin');
+    expect(prompt.rememberVisible).toBe(false);
+  });
+
+  it('saves the redacted trace only after a test produced one', () => {
+    const { banking } = fake('banking-walkthrough');
+    const absent = banking.saveConnectionTrace();
+    expect(absent.errorText).toBe(translate('en', 'ErrorNoConnectionTrace'));
+
+    banking.testConnection(2);
+    banking.answerProductID(banking.prompt().id, 'invented-product-id');
+    banking.answerPin(banking.prompt().id, '1234', false);
+    const saved = banking.saveConnectionTrace();
+    expect(saved.errorText).toBe('');
+    expect(saved.messageText).toBe(translate('en', 'MessageConnectionTraceSaved'));
   });
 });

@@ -887,6 +887,8 @@ const (
 	TestConnectionGo
 	TestConnectionLoginRejected
 	TestConnectionTanMethodUnsupported
+	TestConnectionProbed
+	TestConnectionSkipped
 	TestConnectionTanTimeout
 	TestConnectionStatementsUnavailable
 	TestConnectionOther
@@ -903,7 +905,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 893
+const NumKeys = 895
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1787,6 +1789,8 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	TestConnectionGo:                    "TestConnectionGo",
 	TestConnectionLoginRejected:         "TestConnectionLoginRejected",
 	TestConnectionTanMethodUnsupported:  "TestConnectionTanMethodUnsupported",
+	TestConnectionProbed:                "TestConnectionProbed",
+	TestConnectionSkipped:               "TestConnectionSkipped",
 	TestConnectionTanTimeout:            "TestConnectionTanTimeout",
 	TestConnectionStatementsUnavailable: "TestConnectionStatementsUnavailable",
 	TestConnectionOther:                 "TestConnectionOther",
