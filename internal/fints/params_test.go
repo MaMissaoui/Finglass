@@ -200,3 +200,28 @@ func TestBankParamsFormattingMasksBankText(t *testing.T) {
 		}
 	}
 }
+
+// TestTheNewestSupportedHITANSVersionWins is the HVB case: the bank lists the
+// same method in HITANS v1 and v6, the v1 one first. HKTAN must go out as v6.
+func TestTheNewestSupportedHITANSVersionWins(t *testing.T) {
+	params := NewBankParams()
+	params.IngestResponse(&Response{Segments: []ParsedSegment{
+		parseOne(t, "HITANS:1:1:4+1+1+1+N:N:0:1:942:2:TECH-OLD:mobileTAN:6:1:SMS:3:1:J:1'"),
+		parseOne(t, "HITANS:2:6:4+1+1+1+N:N:0:942:2:TECH-PUSH:DKID-PUSH:1.0:pushTAN:6:1:SMS:3:1:J:1:0:N:0:2:N:2:00:1'"),
+	}})
+	params.SelectedSecurityFunction = "942"
+	if got := params.HKTANVersion(); got != 6 {
+		t.Fatalf("HKTANVersion = %d, want 6", got)
+	}
+
+	// A version above what this client builds is never chosen.
+	params = NewBankParams()
+	params.IngestResponse(&Response{Segments: []ParsedSegment{
+		parseOne(t, "HITANS:2:6:4+1+1+1+N:N:0:942:2:TECH-PUSH:DKID-PUSH:1.0:pushTAN:6:1:SMS:3:1:J:1:0:N:0:2:N:2:00:1'"),
+		parseOne(t, "HITANS:3:8:4+1+1+1+N:N:0:942:2:TECH-PUSH:DKID-PUSH:1.0:pushTAN:6:1:SMS:3:1:J:1:0:N:0:2:N:2:00:1'"),
+	}})
+	params.SelectedSecurityFunction = "942"
+	if got := params.HKTANVersion(); got != 6 {
+		t.Fatalf("HKTANVersion with a v8 offer = %d, want 6", got)
+	}
+}

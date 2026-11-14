@@ -98,26 +98,6 @@ func looksLikeIBAN(value string) bool {
 	return true
 }
 
-// looksLikeBIC ports fints-rs's looks_like_bic heuristic: 8 or 11 characters,
-// six letters and then alphanumerics.
-func looksLikeBIC(value string) bool {
-	if len(value) != 8 && len(value) != 11 {
-		return false
-	}
-	bytes := []byte(value)
-	for _, character := range bytes[:6] {
-		if !isASCIIAlpha(character) {
-			return false
-		}
-	}
-	for _, character := range bytes[6:] {
-		if !isASCIIAlphanumeric(character) {
-			return false
-		}
-	}
-	return true
-}
-
 func isASCIIUpper(character byte) bool {
 	return character >= 'A' && character <= 'Z'
 }
@@ -192,10 +172,11 @@ func ParseHIUPD(segment ParsedSegment) (Account, bool) {
 
 	for index := 1; index < segment.DEGCount(); index++ {
 		value := segment.DEG(index).Text(0)
+		// HIUPD has no BIC field: a guessed one took an 8-letter account
+		// holder name as the BIC (Volksbank 9050/9110 on HKSAL). HISPA
+		// supplies the BIC.
 		if account.IBAN == "" && looksLikeIBAN(value) {
 			account.IBAN = value
-		} else if account.BIC == "" && index > 1 && looksLikeBIC(value) {
-			account.BIC = value
 		}
 	}
 
