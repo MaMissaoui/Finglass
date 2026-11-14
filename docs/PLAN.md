@@ -112,7 +112,7 @@ Done on a branch. The Rust code is untouched.
   - `regexp2` against all rule patterns in the fixtures: 68 patterns × 57 inputs match fancy-regex. The one
     documented difference is `a{2,1}`, which Rust accepts and regexp2 treats as a substring;
   - Keychain round trip on a test service name (`keybase/go-keychain`), run by hand.
-- [ ] **Exit:** if SQLCipher or Wails fails, stop and come back to you (the fallbacks would be Wails v2, or cgo
+- [x] **Exit:** if SQLCipher or Wails fails, stop and come back to you (not needed: both passed G0) (the fallbacks would be Wails v2, or cgo
   `sqlite3` built with SQLCipher).
 
 ### G1 — Golden outputs from Rust (M)
@@ -275,22 +275,29 @@ In order, each one compared with the G1 reference screenshots:
   MT940. The LGPL/GPL clients (python-fints, libfintx, hbci4java, lib-fints) are behavioural references only; no
   code is copied. Before porting: clear the source and licence of fints-rs's bundled bank list, and leave out its
   raw wire dumps.
-- [ ] `internal/fints`: message codec, dialog init/end (HKIDN, HKVVB, HKSYN, HKEND), BPD/UPD caching, HKTAN (process
+- [x] `internal/fints`: message codec, dialog init/end (HKIDN, HKVVB, HKSYN, HKEND), BPD/UPD caching, HKTAN (process
   4, decoupled app TAN and push), HKTAB, HKSPA, HKSAL, HKKAZ/HKCAZ (camt). Segment types exist only for these. A test
   checks that no order segment (`HKCCS`, `HKCSE`, `HKCDE`, …) can be built.
   Progress: done are the wire codec, envelope and request builders (G10-1), typed responses (G10-2), the dialog,
   bank parameters and TAN flow (G10-3: decoupled polling bounded, no HKEND after a PIN rejection) and the HTTPS
   transport (`internal/fints/httptransport`, G10-4a: https only, no redirects, bounded response) and the Go probe
   (G10-5: HKSPA for the BIC, depots and cards skipped, account form per segment version: national for HKSAL/HKKAZ
-  v5/v6, IBAN:BIC from v7 and for HKCAZ). The adapter (G10-4b) is next.
-- [ ] Tests on synthetic and recorded fixtures only.
+  v5/v6, IBAN:BIC from v7 and for HKCAZ). fints-rs's bundled bank list was not ported (no server URLs ship; URLs
+  come from your logins or the FinDesk import).
+- [x] Tests on synthetic and recorded fixtures only.
 - [x] Product id from a CI secret via `-ldflags -X`, never in the tree. A CI check confirms its value never appears.
   Without it, sync stays off.
 - [x] Go `finglass-probe` (`cmd/finglass-probe`, see `internal/core/fintsprobe/README.md`).
 - [ ] **You** run the probe per bank (Volksbank, DKB, HVB) and report only the `RESULT` lines (with codes on NO-GO).
   `OnlineSyncAvailable` stays `false` until at least one bank reports GO.
 - [ ] Adapter behind the gateway port, plus the M5b prerequisites (one dialog per login, the trace switch with
-  masking).
+  masking). Progress: the adapter (`internal/core/fintsgateway`, G10-4b-1: one dialog per sync, system id
+  remembered per login) and the redacted trace (`internal/fints/trace`, G10-T1) are done; wiring behind
+  `OnlineSyncAvailable` and the sync trace (G10-4b-2) are next.
+- [ ] **Test connection** in the app (your request, 2026-11-14): per bank on the Banking page, read-only, asks only
+  for the PIN, TAN and (in builds without it) the product id, imports nothing, and offers "Save redacted trace…".
+  It runs the probe's checks (`fintsprobe.Probe`, G10-P-B done); the app wiring (G10-P-C) and the Banking page UI
+  (G10-P-D) are next. For your test, run the local build with a separate `FINGLASS_HOME` and import FinDesk there.
 - [ ] Before 0.4.0: your real-data test includes two syncs in a row per bank (the second one reuses the stored system
   id and TAN method).
 
@@ -309,10 +316,9 @@ In order, each one compared with the G1 reference screenshots:
 
 ## Open questions for later
 
-1. **M0 probe:** the Rust probe tests `fints-rs`, which the Go app won't use. I propose to keep the DK registration
-   (still needed), skip the Rust probe run and run the Go probe in G10 instead. Then `crates/finglass-probe` is deleted
-   in G6. Your call when the product id arrives.
-2. **Version number:** 0.4.0 for the first Go release, or 1.0?
+1. ~~**M0 probe**~~ — resolved: the Go probe replaced the Rust one, and `crates/finglass-probe` and the Rust CI
+   are deleted (#181). `main` has no Rust code.
+2. ~~**Version number**~~ — resolved: 0.4.0 (decisions table).
 
 ## Risks
 
