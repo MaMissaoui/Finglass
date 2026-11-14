@@ -256,6 +256,7 @@ export const keys = [
   'EncryptPassphraseHeading',
   'EncryptPassphraseText',
   'PassphraseHint',
+  'PassphraseLengthCount',
   'DocumentsNotEncrypted',
   'PassphraseNoRecovery',
   'EncryptAndOpen',

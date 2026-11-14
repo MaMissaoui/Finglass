@@ -449,15 +449,16 @@ func TestEveryPassphraseSliceIsWiped(t *testing.T) {
 		t.Fatalf("MigrationPassphraseChanged: %v", err)
 	}
 
-	// A FinDesk profile in an empty temp folder: the migration itself fails,
-	// but the three slices are created and must still be wiped.
+	// A FinDesk profile in an empty temp folder. The submit is refused without
+	// the acknowledgement before any migration runs; the three slices are
+	// created and must still be wiped.
 	findeskRoot := t.TempDir()
 	fixture.service.wizard = shell.NewMigrationSession(coremigration.FinDeskInstall{
 		Root:     findeskRoot,
 		Profiles: []coremigration.FinDeskProfile{{Name: "Personal", DataDir: findeskRoot}},
 	}, startup.Startup{})
 	before := len(fixture.observed)
-	if _, err := fixture.service.MigrationSubmit(testPassphrase, "another good passphrase", "another good passphrase", false); err != nil {
+	if _, err := fixture.service.MigrationSubmit(testPassphrase, "another good passphrase", "another good passphrase", false, false); err != nil {
 		t.Fatalf("MigrationSubmit: %v", err)
 	}
 	if got := len(fixture.observed) - before; got != 3 {
@@ -595,17 +596,14 @@ func TestMigrationWizardStateFollowsTheSession(t *testing.T) {
 	if !state.MigrationSamePassphrase || state.MigrationNewPassphraseRequired {
 		t.Fatalf("passphrase flags = same %v, new required %v", state.MigrationSamePassphrase, state.MigrationNewPassphraseRequired)
 	}
-
-	unacknowledged, err := fixture.service.MigrationMigrate(false)
-	if err != nil {
-		t.Fatalf("MigrationMigrate(false): %v", err)
+	if state.MigrationAcknowledged {
+		t.Fatal("the welcome step starts acknowledged")
 	}
-	if unacknowledged.MigrationStep != "welcome" {
-		t.Fatalf("step = %q without the acknowledgement, want welcome", unacknowledged.MigrationStep)
+	if state.PassphraseMinLength != shell.MinPassphraseLength {
+		t.Fatalf("passphrase minimum = %d, want %d", state.PassphraseMinLength, shell.MinPassphraseLength)
 	}
-	requireEvent(t, fixture, unacknowledged)
 
-	migrating, err := fixture.service.MigrationMigrate(true)
+	migrating, err := fixture.service.MigrationMigrate()
 	if err != nil {
 		t.Fatalf("MigrationMigrate: %v", err)
 	}
@@ -623,6 +621,21 @@ func TestMigrationWizardStateFollowsTheSession(t *testing.T) {
 		t.Fatalf("heading = %q, want %q", migrating.MigrationProfileHeading, wantHeading)
 	}
 	requireEvent(t, fixture, migrating)
+
+	unacknowledged, err := fixture.service.MigrationSubmit(testPassphrase, "", "", true, false)
+	if err != nil {
+		t.Fatalf("MigrationSubmit without acknowledgement: %v", err)
+	}
+	if unacknowledged.MigrationStep != "profile" || len(unacknowledged.MigrationSummaryLines) != 0 {
+		t.Fatalf("step = %q, summary lines = %v after an unacknowledged submit", unacknowledged.MigrationStep, unacknowledged.MigrationSummaryLines)
+	}
+	if want := i18n.Text(i18n.En, i18n.PassphraseAcknowledge); unacknowledged.ErrorText != want {
+		t.Fatalf("error text = %q, want %q", unacknowledged.ErrorText, want)
+	}
+	if unacknowledged.MigrationAcknowledged {
+		t.Fatal("the unacknowledged submit marked the wizard acknowledged")
+	}
+	requireEvent(t, fixture, unacknowledged)
 
 	changed, err := fixture.service.MigrationPassphraseChanged("short")
 	if err != nil {
@@ -649,7 +662,7 @@ func TestMigrationWizardStateFollowsTheSession(t *testing.T) {
 func TestMigrationContinueShowsTheUnlockViewOfTheActiveProfile(t *testing.T) {
 	fixture := newOfferFixture(t)
 
-	if _, err := fixture.service.MigrationMigrate(true); err != nil {
+	if _, err := fixture.service.MigrationMigrate(); err != nil {
 		t.Fatalf("MigrationMigrate: %v", err)
 	}
 	if _, err := fixture.service.MigrationSkip(); err != nil {
@@ -684,13 +697,13 @@ func TestMigrationStartEmptyLeavesTheWizard(t *testing.T) {
 func TestMigrationWithoutAnOfferIsRefused(t *testing.T) {
 	fixture := newShellFixture(t)
 
-	if _, err := fixture.service.MigrationMigrate(true); !errors.Is(err, ErrNoMigration) {
+	if _, err := fixture.service.MigrationMigrate(); !errors.Is(err, ErrNoMigration) {
 		t.Fatalf("MigrationMigrate error = %v, want ErrNoMigration", err)
 	}
 	if _, err := fixture.service.MigrationStartEmpty(); !errors.Is(err, ErrNoMigration) {
 		t.Fatalf("MigrationStartEmpty error = %v, want ErrNoMigration", err)
 	}
-	if _, err := fixture.service.MigrationSubmit("a", "b", "b", true); !errors.Is(err, ErrNoMigration) {
+	if _, err := fixture.service.MigrationSubmit("a", "b", "b", true, false); !errors.Is(err, ErrNoMigration) {
 		t.Fatalf("MigrationSubmit error = %v, want ErrNoMigration", err)
 	}
 	if _, err := fixture.service.MigrationSkip(); !errors.Is(err, ErrNoMigration) {

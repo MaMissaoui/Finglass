@@ -262,6 +262,7 @@ const (
 	EncryptPassphraseHeading
 	EncryptPassphraseText
 	PassphraseHint
+	PassphraseLengthCount
 	DocumentsNotEncrypted
 	PassphraseNoRecovery
 	EncryptAndOpen
@@ -918,7 +919,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 908
+const NumKeys = 909
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1177,6 +1178,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	EncryptPassphraseHeading:            "EncryptPassphraseHeading",
 	EncryptPassphraseText:               "EncryptPassphraseText",
 	PassphraseHint:                      "PassphraseHint",
+	PassphraseLengthCount:               "PassphraseLengthCount",
 	DocumentsNotEncrypted:               "DocumentsNotEncrypted",
 	PassphraseNoRecovery:                "PassphraseNoRecovery",
 	EncryptAndOpen:                      "EncryptAndOpen",

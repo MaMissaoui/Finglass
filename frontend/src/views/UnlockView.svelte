@@ -4,6 +4,7 @@
   import type { Api, ShellDTO } from '../lib/api';
   import { Checkbox, Icon, OutlinedField, PrimaryButton, TextButton } from '../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../lib/i18n';
+  import { passphraseLength } from '../lib/passphrase';
   import MigrationWizard from './MigrationWizard.svelte';
 
   let {
@@ -32,6 +33,12 @@
   const busy = $derived(dto.busy || pending);
   const errorText = $derived(localError || dto.errorText);
   const showFields = $derived(!dto.startupError && dto.mode !== 'migrate');
+  const passphraseLengthCount = $derived(passphraseLength(passphrase));
+  const passphraseSupportingText = $derived(
+    passphrase !== '' && passphraseLengthCount < dto.passphraseMinLength
+      ? t('PassphraseLengthCount', passphraseLengthCount, dto.passphraseMinLength)
+      : dto.passphraseHint,
+  );
   const actionLabel = $derived(
     dto.mode === 'unlock'
       ? t('Unlock')
@@ -200,6 +207,7 @@
             enabled={!busy}
             secret={!showPassphrase}
             error={errorText !== ''}
+            supportingText={dto.mode !== 'unlock' ? passphraseSupportingText : ''}
             onaccepted={() => void submit()}
           />
 
@@ -215,10 +223,6 @@
           {/if}
 
           <Checkbox text={t('ShowPassphrase')} bind:checked={showPassphrase} enabled={!busy} />
-
-          {#if dto.mode !== 'unlock' && dto.passphraseHint !== ''}
-            <p class="small">{dto.passphraseHint}</p>
-          {/if}
 
           {#if dto.mode === 'create'}
             <p class="small">{t('DocumentsNotEncrypted')}</p>

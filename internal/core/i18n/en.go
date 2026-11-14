@@ -257,6 +257,7 @@ var enTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	EncryptPassphraseHeading:            "Encrypt your data",
 	EncryptPassphraseText:               "Your data isn't encrypted yet. Choose a passphrase: Finglass encrypts the database now and asks for the passphrase every time it starts.",
 	PassphraseHint:                      "At least %d characters. A few unrelated words are easy to remember and hard to guess.",
+	PassphraseLengthCount:               "%d of %d characters",
 	DocumentsNotEncrypted:               "Document files (receipts, invoices) are stored as files and are not encrypted. Turn on FileVault (macOS) or BitLocker (Windows) to protect them.",
 	PassphraseNoRecovery:                "I understand that nobody can recover my data if I forget this passphrase.",
 	EncryptAndOpen:                      "Encrypt and open",

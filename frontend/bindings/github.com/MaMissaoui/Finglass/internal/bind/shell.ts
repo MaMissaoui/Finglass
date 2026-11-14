@@ -64,10 +64,9 @@ export function MigrationContinue(): $CancellablePromise<$models.ShellDTO> {
 
 /**
  * MigrationMigrate writes the migrate marker and moves to the first profile.
- * Without the acknowledgement nothing happens.
  */
-export function MigrationMigrate(acknowledged: boolean): $CancellablePromise<$models.ShellDTO> {
-    return $Call.ByID(2654269937, acknowledged).then(($result: any) => {
+export function MigrationMigrate(): $CancellablePromise<$models.ShellDTO> {
+    return $Call.ByID(2654269937).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -102,10 +101,11 @@ export function MigrationStartEmpty(): $CancellablePromise<$models.ShellDTO> {
 
 /**
  * MigrationSubmit validates the current profile's passphrases and runs its
- * migration. samePassphrase is the wizard's "use the same passphrase" box.
+ * migration. samePassphrase is the wizard's "use the same passphrase" box and
+ * acknowledged is the recovery confirmation on the passphrase step.
  */
-export function MigrationSubmit(passphrase: string, newPassphrase: string, repeat: string, samePassphrase: boolean): $CancellablePromise<$models.ShellDTO> {
-    return $Call.ByID(3110148092, passphrase, newPassphrase, repeat, samePassphrase).then(($result: any) => {
+export function MigrationSubmit(passphrase: string, newPassphrase: string, repeat: string, samePassphrase: boolean, acknowledged: boolean): $CancellablePromise<$models.ShellDTO> {
+    return $Call.ByID(3110148092, passphrase, newPassphrase, repeat, samePassphrase, acknowledged).then(($result: any) => {
         return $$createType0($result);
     });
 }

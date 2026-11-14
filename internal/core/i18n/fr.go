@@ -257,6 +257,7 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	EncryptPassphraseHeading:            "Chiffrer vos données",
 	EncryptPassphraseText:               "Vos données ne sont pas encore chiffrées. Choisissez une phrase secrète : Finglass chiffre la base maintenant et la demande à chaque démarrage.",
 	PassphraseHint:                      "Au moins %d caractères. Quelques mots sans rapport sont faciles à retenir et difficiles à deviner.",
+	PassphraseLengthCount:               "%d caractères sur %d",
 	DocumentsNotEncrypted:               "Les justificatifs et factures sont enregistrés comme fichiers et ne sont pas chiffrés. Activez FileVault (macOS) ou BitLocker (Windows) pour les protéger.",
 	PassphraseNoRecovery:                "Je comprends que personne ne pourra récupérer mes données si j'oublie cette phrase secrète.",
 	EncryptAndOpen:                      "Chiffrer et ouvrir",

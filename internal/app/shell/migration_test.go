@@ -160,7 +160,7 @@ func TestTheWizardAdvancesThroughEveryProfile(t *testing.T) {
 		{Name: "Business"},
 	}}
 	wizard := NewMigrationSession(install, startup.Startup{})
-	if err := wizard.BeginMigration(i18n.En, testPaths(t), testNow, true); err != nil {
+	if err := wizard.BeginMigration(i18n.En, testPaths(t), testNow); err != nil {
 		t.Fatalf("begin migration: %v", err)
 	}
 	if wizard.Step() != MigrationProfile || wizard.Index() != 0 {
@@ -196,6 +196,72 @@ func TestTheWizardAdvancesThroughEveryProfile(t *testing.T) {
 	if wizard.Busy() {
 		t.Fatal("the wizard is still busy")
 	}
+}
+
+func TestTheWelcomeNeedsNoAcknowledgementAndSubmitRefusesOnce(t *testing.T) {
+	install := coremigration.FinDeskInstall{Profiles: []coremigration.FinDeskProfile{
+		{Name: "Personal"},
+		{Name: "Business"},
+	}}
+	wizard := NewMigrationSession(install, startup.Startup{})
+	if err := wizard.BeginMigration(i18n.En, testPaths(t), testNow); err != nil {
+		t.Fatalf("begin migration: %v", err)
+	}
+	if wizard.Step() != MigrationProfile {
+		t.Fatalf("step = %v, want profile without any acknowledgement", wizard.Step())
+	}
+	if wizard.Acknowledged() {
+		t.Fatal("the wizard starts acknowledged")
+	}
+
+	findesk := []byte(testPassphrase)
+	created := []byte(testPassphrase)
+	repeat := []byte(testPassphrase)
+	_, _, err := wizard.Submit(i18n.En, findesk, created, repeat, true, false)
+	if !errors.Is(err, unlock.ErrNotAcknowledged) {
+		t.Fatalf("submit without acknowledgement = %v, want ErrNotAcknowledged", err)
+	}
+	if wizard.Step() != MigrationProfile || len(wizard.Results()) != 0 {
+		t.Fatalf("step = %v, results = %d; the unacknowledged submit migrated something", wizard.Step(), len(wizard.Results()))
+	}
+	text := wizard.ErrorText()
+	if text == nil || *text != i18n.Text(i18n.En, i18n.PassphraseAcknowledge) {
+		t.Fatalf("error text = %v, want the acknowledgement text", text)
+	}
+	for index, value := range [][]byte{findesk, created, repeat} {
+		for _, b := range value {
+			if b != 0 {
+				t.Fatalf("passphrase slice %d was not wiped: %v", index, value)
+			}
+		}
+	}
+
+	findesk = []byte(testPassphrase)
+	created = []byte(testPassphrase)
+	repeat = []byte(testPassphrase)
+	findeskPassphrase, finglassPassphrase, err := wizard.Submit(i18n.En, findesk, created, repeat, true, true)
+	if err != nil {
+		t.Fatalf("submit with acknowledgement: %v", err)
+	}
+	findeskPassphrase.Wipe()
+	finglassPassphrase.Wipe()
+	if !wizard.Acknowledged() {
+		t.Fatal("the wizard did not remember the acknowledgement")
+	}
+	wizard.Complete(nil)
+	if wizard.Step() != MigrationProfile || wizard.Index() != 1 {
+		t.Fatalf("step = %v, index = %d; want the second profile", wizard.Step(), wizard.Index())
+	}
+
+	findesk = []byte(testPassphrase)
+	created = []byte(testPassphrase)
+	repeat = []byte(testPassphrase)
+	findeskPassphrase, finglassPassphrase, err = wizard.Submit(i18n.En, findesk, created, repeat, true, false)
+	if err != nil {
+		t.Fatalf("second profile without a new acknowledgement: %v", err)
+	}
+	findeskPassphrase.Wipe()
+	finglassPassphrase.Wipe()
 }
 
 func TestASecondInstanceDoesNotApplyAStagedRestore(t *testing.T) {

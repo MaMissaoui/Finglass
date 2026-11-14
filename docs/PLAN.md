@@ -144,8 +144,10 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 - [ ] **B — state in words** (after the HVB experiment PR): Accounts per-bank status lines and next action (with the
   per-bank sync PR), one main currency in the Accounts header; Test connection opens with the verdict; text for the "new" dots, the account badge and the
   "month so far" bar; the pending-tasks count announced.
-- [ ] **C — onboarding:** the migration welcome asks for the passphrase acknowledgement on the passphrase step and
-  shows "Quit FinDesk" only while it runs; passphrase rules under the field with a live count.
+- [x] **C — onboarding:** the migration asks for the passphrase acknowledgement on the passphrase step (once per
+  wizard; a click without the tick keeps the typed fields); passphrase rules under the field with a live count
+  ("4 of 10 characters", counted like Go). "Quit FinDesk first." is a neutral note now.
+- [ ] **C2:** show "Quit FinDesk" only while FinDesk runs (needs a portable running check; not started).
 - [ ] **D — checks:** automated accessibility check in the Playwright run (dev dependency only), failing on serious or
   critical findings; fix what it finds.
 
