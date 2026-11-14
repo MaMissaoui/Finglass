@@ -504,7 +504,11 @@ export function createMockBanking(
     if (connectionTest === null) {
       return null;
     }
-    return { ...connectionTest, codes: [...connectionTest.codes] };
+    return {
+      ...connectionTest,
+      codes: [...connectionTest.codes],
+      messages: connectionTest.messages.map((message) => ({ ...message })),
+    };
   }
 
   function state(): BankingDTO {
@@ -835,6 +839,7 @@ export function createMockBanking(
       go: false,
       reason: '',
       codes: [],
+      messages: [],
       probed: 0,
       skipped: 0,
     };
@@ -857,6 +862,7 @@ export function createMockBanking(
         go: false,
         reason: t('TestConnectionCancelled'),
         codes: [],
+        messages: [],
         probed: 0,
         skipped: 0,
       };
@@ -868,6 +874,10 @@ export function createMockBanking(
         go: false,
         reason: t('TestConnectionInvalidLogin'),
         codes: ['9942'],
+        messages: [
+          { code: '9050', segment: '', text: 'Die Nachricht enthält Fehler.' },
+          { code: '9210', segment: 'HKTAN', text: 'Invented test message for the mock bank.' },
+        ],
         probed: 0,
         skipped: 0,
       };
@@ -879,6 +889,7 @@ export function createMockBanking(
         go: true,
         reason: t('TestConnectionGo'),
         codes: [],
+        messages: [],
         probed: 1,
         skipped: 1,
       };

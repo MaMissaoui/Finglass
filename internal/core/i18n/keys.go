@@ -882,6 +882,8 @@ const (
 	ErrorFinDeskSourceChanged
 	ErrorMigrationTargetNotEmpty
 	TestConnection
+	TestConnectionBankMessages
+	TestConnectionBankMessagesNote
 	TestConnectionHelp
 	TestConnectionRunning
 	TestConnectionGo
@@ -905,7 +907,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 895
+const NumKeys = 897
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1784,6 +1786,8 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	ErrorFinDeskSourceChanged:           "ErrorFinDeskSourceChanged",
 	ErrorMigrationTargetNotEmpty:        "ErrorMigrationTargetNotEmpty",
 	TestConnection:                      "TestConnection",
+	TestConnectionBankMessages:          "TestConnectionBankMessages",
+	TestConnectionBankMessagesNote:      "TestConnectionBankMessagesNote",
 	TestConnectionHelp:                  "TestConnectionHelp",
 	TestConnectionRunning:               "TestConnectionRunning",
 	TestConnectionGo:                    "TestConnectionGo",

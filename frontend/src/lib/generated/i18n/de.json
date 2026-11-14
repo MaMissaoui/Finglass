@@ -874,6 +874,8 @@
   "ErrorFinDeskSourceChanged": "FinDesk scheint zu laufen. Beende FinDesk und versuche es erneut.",
   "ErrorMigrationTargetNotEmpty": "Das Finglass-Profil enthält bereits Daten. Es wurde nichts übernommen.",
   "TestConnection": "Verbindung testen",
+  "TestConnectionBankMessages": "Meldungen der Bank",
+  "TestConnectionBankMessagesNote": "Meldungen der Bank können Kontodaten enthalten. Sie werden nur hier angezeigt und nicht gespeichert, auch nicht im Trace.",
   "TestConnectionHelp": "Führt eine schreibgeschützte Prüfung bei Ihrer Bank aus. Es wird nichts importiert. Ihre Bank kann Sie bitten, ein neues Gerät zu bestätigen.",
   "TestConnectionRunning": "Verbindung wird getestet…",
   "TestConnectionGo": "Die Verbindung funktioniert.",

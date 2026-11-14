@@ -112,3 +112,70 @@ func TestAnswerProductIDWipesTheAnsweredBytes(t *testing.T) {
 		}
 	}
 }
+
+func TestConnectionTestDTOMapsBankMessages(t *testing.T) {
+	const bankText = "Bank message with an invented account DE00 0000 0000 0000 0000 01"
+	state := bankingcore.BankingState{
+		Language: i18n.En,
+		ConnectionTest: &bankingcore.ConnectionTestResult{
+			BankID: 7,
+			Codes:  []string{"9210"},
+			Messages: []bankingcore.BankMessage{
+				{Code: "9050", Segment: "", Text: bankText},
+				{Code: "9210", Segment: "HKTAN", Text: bankText},
+			},
+		},
+	}
+
+	dto := bankingDTO(state, i18n.En)
+	if dto.ConnectionTest == nil || len(dto.ConnectionTest.Messages) != 2 {
+		t.Fatalf("connection test messages = %+v", dto.ConnectionTest)
+	}
+	if dto.ConnectionTest.Messages[0].Code != "9050" ||
+		dto.ConnectionTest.Messages[0].Segment != "" ||
+		dto.ConnectionTest.Messages[0].Text != bankText {
+		t.Fatalf("first message = %+v", dto.ConnectionTest.Messages[0])
+	}
+	if dto.ConnectionTest.Messages[1].Code != "9210" ||
+		dto.ConnectionTest.Messages[1].Segment != "HKTAN" ||
+		dto.ConnectionTest.Messages[1].Text != bankText {
+		t.Fatalf("second message = %+v", dto.ConnectionTest.Messages[1])
+	}
+
+	data, err := json.Marshal(dto)
+	if err != nil {
+		t.Fatalf("marshal banking DTO: %v", err)
+	}
+	if !strings.Contains(string(data), `"messages":[{"code":"9050","segment":"","text":"`+bankText+`"}`) {
+		t.Fatalf("JSON messages are wrong: %s", data)
+	}
+	for _, rendered := range []string{
+		fmt.Sprintf("%v", dto),
+		fmt.Sprintf("%+v", dto),
+		fmt.Sprintf("%#v", dto),
+		fmt.Sprintf("%s", dto.ConnectionTest.Messages[0]),
+		fmt.Sprintf("%v %+v %#v", dto.ConnectionTest.Messages[0], dto.ConnectionTest.Messages[0], dto.ConnectionTest.Messages[0]),
+	} {
+		if strings.Contains(rendered, bankText) {
+			t.Fatalf("formatting leaked the bank text: %s", rendered)
+		}
+	}
+}
+
+func TestConnectionTestDTOSerializesAnEmptyMessageList(t *testing.T) {
+	state := bankingcore.BankingState{
+		Language:       i18n.En,
+		ConnectionTest: &bankingcore.ConnectionTestResult{BankID: 7, Codes: []string{}},
+	}
+	dto := bankingDTO(state, i18n.En)
+	if dto.ConnectionTest == nil || dto.ConnectionTest.Messages == nil {
+		t.Fatalf("empty messages are nil: %+v", dto.ConnectionTest)
+	}
+	data, err := json.Marshal(dto)
+	if err != nil {
+		t.Fatalf("marshal banking DTO: %v", err)
+	}
+	if !strings.Contains(string(data), `"messages":[]`) {
+		t.Fatalf("JSON does not carry an empty message list: %s", data)
+	}
+}

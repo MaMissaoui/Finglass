@@ -298,6 +298,7 @@ In order, each one compared with the G1 reference screenshots:
   asks only for the PIN, TAN and (in builds without it) the product id, imports nothing, and offers "Save redacted
   trace…" (G10-P-B, C, D). For your test, run the local build with a separate `FINGLASS_HOME` and import FinDesk
   there.
+  - [x] bank warnings and errors shown on screen only (code, segment, text; never saved, logged, audited or traced)
 - [ ] Before `OnlineSyncAvailable` flips: check the adapter's one retry with Sync against the return codes your probe
   runs show. It retries every Init error except the PIN codes (9340, 9910, 9930, 9931, 9942) and a locked account
   (3938); a bank that reports a wrong PIN with another code would see the PIN twice in one sync.

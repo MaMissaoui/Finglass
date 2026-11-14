@@ -88,7 +88,9 @@ type BankItem struct {
 }
 
 // ConnectionTestResult is the latest read-only connection test, as the Banking
-// page shows it. It never carries bank text or trace bytes.
+// page shows it. It never carries trace bytes. Its bank messages are the bank's
+// own warning/error texts: show them on screen only and never log, store, audit
+// or trace them.
 type ConnectionTestResult struct {
 	// BankID is the bank the test ran for.
 	BankID model.BankConnectionID
@@ -100,10 +102,36 @@ type ConnectionTestResult struct {
 	Reason string
 	// Codes are the bank's four-digit return codes.
 	Codes []string
+	// Messages are the bank's warning and error texts for on-screen display.
+	Messages []BankMessage
 	// Probed is the number of accounts the probe attempted.
 	Probed int
 	// Skipped is the number of accounts the probe skipped.
 	Skipped int
+}
+
+// BankMessage is one warning or error the bank returned during the test.
+// Text is the bank's own text. It can carry account data: show it on screen
+// only, never log, store, audit or trace it.
+type BankMessage struct {
+	Code    string
+	Segment string
+	Text    string
+}
+
+// String prints only the code and segment, never the bank's text.
+func (m BankMessage) String() string {
+	return fmt.Sprintf("banking.BankMessage{code:%s segment:%s}", m.Code, m.Segment)
+}
+
+// GoString prints only the code and segment, never the bank's text.
+func (m BankMessage) GoString() string {
+	return m.String()
+}
+
+// Format writes only the code and segment for every fmt verb.
+func (m BankMessage) Format(f fmt.State, _ rune) {
+	_, _ = f.Write([]byte(m.String()))
 }
 
 // LastTrace is the last sync's or connection test's redacted trace.
@@ -180,6 +208,7 @@ func (s *BankingState) Clone() *BankingState {
 	if s.ConnectionTest != nil {
 		value := *s.ConnectionTest
 		value.Codes = append([]string(nil), s.ConnectionTest.Codes...)
+		value.Messages = append([]BankMessage(nil), s.ConnectionTest.Messages...)
 		cloned.ConnectionTest = &value
 	}
 	if s.LastTrace != nil {

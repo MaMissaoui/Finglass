@@ -455,3 +455,112 @@ func TestSaveConnectionTraceWritesMode0600AndCancelWritesNothing(t *testing.T) {
 		t.Fatalf("cancel wrote %s", cancelPath)
 	}
 }
+
+const connectionTestBankMarker = "MARKER-TEXT-1234567890"
+
+func markerConnectionBank(t *testing.T, marker string) *connectionTestTransport {
+	t.Helper()
+	bank := &connectionTestTransport{t: t}
+	bank.reply(connectionSync(
+		connectionChipHitans("chipTAN manuell", 5, 2),
+		connectionAllowed(),
+		connectionHipins("HKSAL:N"),
+		connectionHiupd(connectionTestIBAN, "00000001", "EUR"),
+	))
+	bank.reply(connectionSuccess("dialog-sync"))
+	// The Init request numbers HKIDN 3, HKVVB 4 and HKTAN 5.
+	bank.reply(connectionResponse(
+		connectionTestDialog,
+		"HIRMG:2:2+3060::"+marker+"'",
+		"HIRMS:3:2:5+9210::"+marker+"'",
+		"HIRMS:4:2:5+0020::"+connectionTestText+"'",
+	))
+	return bank
+}
+
+func tableContents(t *testing.T, database *db.Database, table string) string {
+	t.Helper()
+	var builder strings.Builder
+	err := database.WithConn(context.Background(), func(ctx context.Context, conn *sql.Conn) error {
+		// #nosec G202 -- table is one of the fixed names in the test.
+		rows, err := conn.QueryContext(ctx, "SELECT * FROM "+table)
+		if err != nil {
+			return err
+		}
+		defer func() { _ = rows.Close() }()
+		columns, err := rows.Columns()
+		if err != nil {
+			return err
+		}
+		for rows.Next() {
+			values := make([]any, len(columns))
+			pointers := make([]any, len(columns))
+			for index := range values {
+				pointers[index] = &values[index]
+			}
+			if err := rows.Scan(pointers...); err != nil {
+				return err
+			}
+			_, _ = fmt.Fprint(&builder, values...)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		t.Fatalf("read %s: %v", table, err)
+	}
+	return builder.String()
+}
+
+func TestBankMessagesReachTheScreenButAreNeverStored(t *testing.T) {
+	session, _, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
+	database := sessionDatabase(t, session)
+
+	session.connectionTestFactory = func(string) (fints.Transport, error) {
+		return markerConnectionBank(t, connectionTestBankMarker), nil
+	}
+	session.BankingTestConnection(int(testBankID(t, session)))
+	answerProductID(t, session, []byte(connectionTestID))
+	answerBankingPin(t, session, connectionTestPIN, false)
+	result := waitConnectionTestDone(t, session)
+
+	if len(result.Messages) == 0 {
+		t.Fatalf("result has no bank messages: %+v", result)
+	}
+	found := false
+	for _, message := range result.Messages {
+		if message.Code == "9210" && message.Segment == "HKTAN" &&
+			strings.Contains(message.Text, connectionTestBankMarker) {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("9210/HKTAN message with the marker is missing: %+v", result.Messages)
+	}
+
+	for _, table := range []string{"audit_log", "settings"} {
+		if text := tableContents(t, database, table); strings.Contains(text, connectionTestBankMarker) {
+			t.Fatalf("%s contains the bank text", table)
+		}
+	}
+
+	path := filepath.Join(t.TempDir(), "trace.txt")
+	session.SetFileDialogs(&fakeFileDialogs{tracePath: path, traceResult: true})
+	session.BankingSaveConnectionTrace()
+	waitForJobs(t, session)
+	// #nosec G304 -- path is a test temporary file.
+	saved, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read saved trace: %v", err)
+	}
+	if strings.Contains(string(saved), connectionTestBankMarker) {
+		t.Fatal("the saved trace contains the bank text")
+	}
+
+	// Starting a sync clears the slot's messages.
+	session.BankingStartSync(int(testBankID(t, session)))
+	state := session.BankingState()
+	if state.ConnectionTest == nil || len(state.ConnectionTest.Messages) != 0 {
+		t.Fatalf("messages survived the sync start: %+v", state.ConnectionTest)
+	}
+	waitForBankingIdle(t, session)
+}

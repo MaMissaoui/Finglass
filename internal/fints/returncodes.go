@@ -166,6 +166,19 @@ func (r ReturnCode) AllowedSecurityFunctions() []string {
 	return functions
 }
 
+// ReturnCodesOf returns every return code carried by an HIRMG or HIRMS
+// segment, in wire order. Other segment types return none.
+//
+// The texts inside the codes can carry account data; see [ReturnCode.Text].
+func ReturnCodesOf(segment ParsedSegment) []ReturnCode {
+	switch segment.Type() {
+	case "HIRMG", "HIRMS":
+		return parseReturnCodes(segment)
+	default:
+		return nil
+	}
+}
+
 // Codes returns every return code, HIRMG (global) first and HIRMS (segment)
 // afterwards, each in wire order.
 func (r Response) Codes() []ReturnCode {

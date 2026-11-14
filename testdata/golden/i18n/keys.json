@@ -4159,6 +4159,16 @@
     "de": "Verbindung testen",
     "fr": "Tester la connexion"
   },
+  "TestConnectionBankMessages": {
+    "en": "Messages from the bank",
+    "de": "Meldungen der Bank",
+    "fr": "Messages de la banque"
+  },
+  "TestConnectionBankMessagesNote": {
+    "en": "Bank messages can contain account details. They are shown only here and are not saved, not even in the trace.",
+    "de": "Meldungen der Bank können Kontodaten enthalten. Sie werden nur hier angezeigt und nicht gespeichert, auch nicht im Trace.",
+    "fr": "Les messages de la banque peuvent contenir des données de compte. Ils ne sont affichés qu'ici et ne sont pas enregistrés, pas même dans la trace."
+  },
   "TestConnectionCancelled": {
     "en": "Connection test cancelled.",
     "de": "Verbindungstest abgebrochen.",

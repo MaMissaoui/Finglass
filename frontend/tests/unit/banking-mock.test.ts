@@ -390,6 +390,7 @@ describe('banking.mock', () => {
       go: true,
       reason: translate('en', 'TestConnectionGo'),
       codes: [],
+      messages: [],
       probed: 1,
       skipped: 1,
     });
@@ -433,6 +434,10 @@ describe('banking.mock', () => {
       go: false,
       reason: translate('en', 'TestConnectionInvalidLogin'),
       codes: ['9942'],
+      messages: [
+        { code: '9050', segment: '', text: 'Die Nachricht enthält Fehler.' },
+        { code: '9210', segment: 'HKTAN', text: 'Invented test message for the mock bank.' },
+      ],
       probed: 0,
       skipped: 0,
     });

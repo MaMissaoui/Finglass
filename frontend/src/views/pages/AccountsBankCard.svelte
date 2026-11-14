@@ -229,6 +229,24 @@
           </div>
         {/if}
 
+        {#if connectionTest.messages.length > 0}
+          <div class="test-bank-messages">
+            <p class="test-bank-messages-title">{t('TestConnectionBankMessages')}</p>
+            <ul class="test-bank-message-list">
+              {#each connectionTest.messages as message (message)}
+                <li class="test-bank-message">
+                  <span class="code-chip">{message.code}</span>
+                  {#if message.segment !== ''}
+                    <span class="test-bank-message-segment">{message.segment}</span>
+                  {/if}
+                  <span class="test-bank-message-text">{message.text}</span>
+                </li>
+              {/each}
+            </ul>
+            <p class="test-bank-messages-note">{t('TestConnectionBankMessagesNote')}</p>
+          </div>
+        {/if}
+
         <div class="test-meta">
           <span>{t('TestConnectionProbed', connectionTest.probed)}</span>
           <span>{t('TestConnectionSkipped', connectionTest.skipped)}</span>
@@ -636,6 +654,61 @@
     color: var(--color-muted-text);
     font-size: var(--type-body-small-size);
     font-weight: var(--type-body-small-weight);
+  }
+
+  .test-bank-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .test-bank-messages-title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-label-small-weight);
+    line-height: 1.35;
+  }
+
+  .test-bank-message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .test-bank-message {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .test-bank-message-segment {
+    color: var(--color-muted-text);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: var(--type-label-small-size);
+    font-weight: var(--type-body-small-weight);
+  }
+
+  .test-bank-message-text {
+    flex: 1 1 100%;
+    min-width: 0;
+    color: var(--color-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .test-bank-messages-note {
+    margin: 0;
+    color: var(--color-muted-text);
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    line-height: 1.35;
   }
 
   .test-help {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"image/png"
 	"strings"
 
@@ -82,15 +83,41 @@ type BankingBankDTO struct {
 }
 
 // ConnectionTestDTO is the latest read-only connection test. It never carries
-// trace bytes, the product id or bank text.
+// trace bytes or the product id; it carries the bank's warning/error texts for
+// display only.
 type ConnectionTestDTO struct {
-	BankID  int      `json:"bankId"`
-	Running bool     `json:"running"`
-	Go      bool     `json:"go"`
-	Reason  string   `json:"reason"`
-	Codes   []string `json:"codes"`
-	Probed  int      `json:"probed"`
-	Skipped int      `json:"skipped"`
+	BankID   int              `json:"bankId"`
+	Running  bool             `json:"running"`
+	Go       bool             `json:"go"`
+	Reason   string           `json:"reason"`
+	Codes    []string         `json:"codes"`
+	Messages []BankMessageDTO `json:"messages"`
+	Probed   int              `json:"probed"`
+	Skipped  int              `json:"skipped"`
+}
+
+// BankMessageDTO is one warning or error the bank returned during the test.
+// Text is the bank's own text. It can carry account data: show it on screen
+// only, never log, store, audit or trace it.
+type BankMessageDTO struct {
+	Code    string `json:"code"`
+	Segment string `json:"segment"`
+	Text    string `json:"text"`
+}
+
+// String prints only the code and segment, never the bank's text.
+func (m BankMessageDTO) String() string {
+	return fmt.Sprintf("bind.BankMessageDTO{code:%s segment:%s}", m.Code, m.Segment)
+}
+
+// GoString prints only the code and segment, never the bank's text.
+func (m BankMessageDTO) GoString() string {
+	return m.String()
+}
+
+// Format writes only the code and segment for every fmt verb.
+func (m BankMessageDTO) Format(f fmt.State, _ rune) {
+	_, _ = f.Write([]byte(m.String()))
 }
 
 // LastTraceDTO names the last sync or connection test whose redacted trace is
@@ -525,14 +552,23 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 		dto.SyncStep = *state.SyncStep
 	}
 	if state.ConnectionTest != nil {
+		messages := make([]BankMessageDTO, 0, len(state.ConnectionTest.Messages))
+		for _, message := range state.ConnectionTest.Messages {
+			messages = append(messages, BankMessageDTO{
+				Code:    message.Code,
+				Segment: message.Segment,
+				Text:    message.Text,
+			})
+		}
 		dto.ConnectionTest = &ConnectionTestDTO{
-			BankID:  int(state.ConnectionTest.BankID),
-			Running: state.ConnectionTest.Running,
-			Go:      state.ConnectionTest.Go,
-			Reason:  state.ConnectionTest.Reason,
-			Codes:   append([]string(nil), state.ConnectionTest.Codes...),
-			Probed:  state.ConnectionTest.Probed,
-			Skipped: state.ConnectionTest.Skipped,
+			BankID:   int(state.ConnectionTest.BankID),
+			Running:  state.ConnectionTest.Running,
+			Go:       state.ConnectionTest.Go,
+			Reason:   state.ConnectionTest.Reason,
+			Codes:    append([]string(nil), state.ConnectionTest.Codes...),
+			Messages: messages,
+			Probed:   state.ConnectionTest.Probed,
+			Skipped:  state.ConnectionTest.Skipped,
 		}
 	}
 	if state.LastTrace != nil {

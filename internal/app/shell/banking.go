@@ -934,12 +934,13 @@ func (s *Session) BankingTestConnection(bankID int) {
 			HasTrace: len(outcome.Trace) > 0,
 		}
 		state.ConnectionTest = &banking.ConnectionTestResult{
-			BankID:  id,
-			Go:      outcome.Go,
-			Reason:  connectionTestReason(state.Language, outcome),
-			Codes:   append([]string(nil), outcome.Codes...),
-			Probed:  outcome.Probed,
-			Skipped: outcome.Skipped,
+			BankID:   id,
+			Go:       outcome.Go,
+			Reason:   connectionTestReason(state.Language, outcome),
+			Codes:    append([]string(nil), outcome.Codes...),
+			Messages: connectionTestMessages(outcome.Messages),
+			Probed:   outcome.Probed,
+			Skipped:  outcome.Skipped,
 		}
 	})
 	if job == nil {
@@ -1020,7 +1021,27 @@ func (s *Session) clearLastTraceLocked(kind string, bankID model.BankConnectionI
 	s.lastTrace = lastTraceState{kind: kind, bankID: bankID}
 	if s.banking != nil {
 		s.banking.LastTrace = &banking.LastTrace{Kind: kind, BankID: bankID}
+		if s.banking.ConnectionTest != nil {
+			s.banking.ConnectionTest.Messages = nil
+		}
 	}
+}
+
+// connectionTestMessages copies the probe's bank messages into the banking
+// state. The copy shares no slice with the outcome.
+func connectionTestMessages(messages []connectiontest.BankMessage) []banking.BankMessage {
+	if len(messages) == 0 {
+		return nil
+	}
+	copied := make([]banking.BankMessage, len(messages))
+	for index, message := range messages {
+		copied[index] = banking.BankMessage{
+			Code:    message.Code,
+			Segment: message.Segment,
+			Text:    message.Text,
+		}
+	}
+	return copied
 }
 
 // setBankingErrorLocked publishes a localized banking error. The caller holds
