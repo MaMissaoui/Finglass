@@ -27,6 +27,10 @@ type PinFailureInput struct {
 	PINRejected bool
 	// AccountLocked is set for the bank's locked-account answer (3938).
 	AccountLocked bool
+	// TANRejected is set when the bank rejected the TAN. Without an explicit
+	// wrong-PIN code it keeps the stored PIN: a mistyped TAN says nothing about
+	// the PIN.
+	TANRejected bool
 }
 
 // PinFailureClass is what one bank answer means for a stored PIN.
@@ -63,16 +67,19 @@ func PinFailureFromGateway(failure GatewayError) PinFailureInput {
 		ExplicitRejection: failure.Kind() == GatewayErrorPinRejected,
 		PINRejected:       failure.PINRejectedKind(),
 		AccountLocked:     containsCode(codes, "3938"),
+		TANRejected:       failure.TANRejectedKind(),
 	}
 }
 
 // PinFailureFromCodes adapts a connection test's NO-GO answer: loginRejected
-// covers the probe's NoGoLoginRejected (a PIN rejection or a locked account).
-func PinFailureFromCodes(codes []string, loginRejected bool) PinFailureInput {
+// covers the probe's NoGoLoginRejected (a PIN rejection or a locked account),
+// tanRejected the probe's TanRejected reason.
+func PinFailureFromCodes(codes []string, loginRejected, tanRejected bool) PinFailureInput {
 	return PinFailureInput{
 		Codes:         append([]string(nil), codes...),
 		PINRejected:   loginRejected,
 		AccountLocked: containsCode(codes, "3938"),
+		TANRejected:   tanRejected,
 	}
 }
 
@@ -82,6 +89,9 @@ func ClassifyPinFailure(failure PinFailureInput) PinFailureClass {
 		failure.AccountLocked ||
 		fints.IsExplicitPINRejection(failure.Codes) {
 		return PinFailureRemoveNow
+	}
+	if failure.TANRejected && !failure.PINRejected {
+		return PinFailureKeep
 	}
 	if failure.PINRejected || fints.BlocksPINRepeat(failure.Codes) {
 		return PinFailureCount

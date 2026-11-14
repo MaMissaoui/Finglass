@@ -14,6 +14,7 @@ func TestPinFailureClassificationForBothAdapters(t *testing.T) {
 		gateway           GatewayError
 		testCodes         []string
 		testLoginRejected bool
+		testTANRejected   bool
 		want              PinFailureClass
 	}{
 		{
@@ -81,6 +82,20 @@ func TestPinFailureClassificationForBothAdapters(t *testing.T) {
 			want:      PinFailureCount,
 		},
 		{
+			name:            "a rejected TAN with a 99xx code keeps",
+			gateway:         NewGatewayTANRejectedBankError([]string{"9941"}),
+			testCodes:       []string{"9941"},
+			testTANRejected: true,
+			want:            PinFailureKeep,
+		},
+		{
+			name:            "a rejected TAN with an explicit wrong-PIN code removes",
+			gateway:         NewGatewayTANRejectedBankError([]string{"9941", "9931"}),
+			testCodes:       []string{"9941", "9931"},
+			testTANRejected: true,
+			want:            PinFailureRemoveNow,
+		},
+		{
 			name:              "pin kind without an explicit code counts",
 			gateway:           NewGatewayPINRejectedBankError([]string{"9010"}),
 			testCodes:         []string{"9010"},
@@ -93,7 +108,7 @@ func TestPinFailureClassificationForBothAdapters(t *testing.T) {
 			if got := ClassifyPinFailure(PinFailureFromGateway(test.gateway)); got != test.want {
 				t.Errorf("sync adapter class = %v, want %v", got, test.want)
 			}
-			if got := ClassifyPinFailure(PinFailureFromCodes(test.testCodes, test.testLoginRejected)); got != test.want {
+			if got := ClassifyPinFailure(PinFailureFromCodes(test.testCodes, test.testLoginRejected, test.testTANRejected)); got != test.want {
 				t.Errorf("test adapter class = %v, want %v", got, test.want)
 			}
 		})
@@ -111,19 +126,19 @@ func TestPinFailureApplicationForBothAdaptersAndBothOptions(t *testing.T) {
 		{
 			name:      "keep",
 			syncInput: PinFailureFromGateway(NewGatewayNetworkError()),
-			testInput: PinFailureFromCodes(nil, false),
+			testInput: PinFailureFromCodes(nil, false, false),
 			class:     PinFailureKeep,
 		},
 		{
 			name:      "explicit",
 			syncInput: PinFailureFromGateway(NewGatewayBankError([]string{"9931"})),
-			testInput: PinFailureFromCodes([]string{"9931"}, true),
+			testInput: PinFailureFromCodes([]string{"9931"}, true, false),
 			class:     PinFailureRemoveNow,
 		},
 		{
 			name:      "other",
 			syncInput: PinFailureFromGateway(NewGatewayBankError([]string{"9999"})),
-			testInput: PinFailureFromCodes([]string{"9999"}, false),
+			testInput: PinFailureFromCodes([]string{"9999"}, false, false),
 			class:     PinFailureCount,
 		},
 	}

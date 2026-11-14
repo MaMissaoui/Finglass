@@ -985,6 +985,7 @@ func (s *Session) BankingTestConnection(bankID int) {
 			failure := banksync.PinFailureFromCodes(
 				outcome.Codes,
 				outcome.Kind == fintsprobe.NoGoLoginRejected,
+				outcome.Kind == fintsprobe.NoGoOther && outcome.Other == "TanRejected",
 			)
 			result := banksync.PinFailureIgnored
 			job.busy.Run(func() {
