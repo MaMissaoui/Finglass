@@ -205,8 +205,18 @@ func newBankingSession(
 	gateway *bankingTestGateway,
 ) (*Session, model.BankConnectionID, paths.AppPaths) {
 	t.Helper()
+	return newBankingSessionWithUser(t, store, gateway, "user")
+}
+
+func newBankingSessionWithUser(
+	t *testing.T,
+	store credentials.Store,
+	gateway *bankingTestGateway,
+	userID string,
+) (*Session, model.BankConnectionID, paths.AppPaths) {
+	t.Helper()
 	appPaths := testPaths(t)
-	bankID := seedBankingDatabase(t, appPaths, "user")
+	bankID := seedBankingDatabase(t, appPaths, userID)
 	session := newSession(
 		appPaths,
 		store,

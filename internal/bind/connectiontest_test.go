@@ -22,14 +22,14 @@ func TestConnectionTestDTOsCarryNoTraceProductIDOrBankText(t *testing.T) {
 	state := bankingcore.BankingState{
 		Language: i18n.En,
 		ConnectionTest: &bankingcore.ConnectionTestResult{
-			BankID:   7,
-			Go:       false,
-			Reason:   i18n.Format(i18n.En, i18n.TestConnectionOther, i18n.Str("Transport")),
-			Codes:    []string{"9942"},
-			Probed:   1,
-			Skipped:  1,
-			HasTrace: true,
+			BankID:  7,
+			Go:      false,
+			Reason:  i18n.Format(i18n.En, i18n.TestConnectionOther, i18n.Str("Transport")),
+			Codes:   []string{"9942"},
+			Probed:  1,
+			Skipped: 1,
 		},
+		LastTrace: &bankingcore.LastTrace{Kind: "test", BankID: 7, HasTrace: true},
 		Banks: []bankingcore.BankItem{{
 			ID:                7,
 			BankName:          bankTextMarker,
@@ -66,8 +66,12 @@ func TestConnectionTestDTOsCarryNoTraceProductIDOrBankText(t *testing.T) {
 		}
 	}
 	if dto.ConnectionTest == nil || dto.ConnectionTest.BankID != 7 ||
-		len(dto.ConnectionTest.Codes) != 1 || !dto.ConnectionTest.HasTrace {
+		len(dto.ConnectionTest.Codes) != 1 {
 		t.Fatalf("connection test block = %+v", dto.ConnectionTest)
+	}
+	if dto.LastTrace == nil || dto.LastTrace.Kind != "test" ||
+		dto.LastTrace.BankID != 7 || !dto.LastTrace.HasTrace {
+		t.Fatalf("last trace block = %+v", dto.LastTrace)
 	}
 	if len(dto.Banks) != 1 || !dto.Banks[0].CanTestConnection {
 		t.Fatalf("bank DTO = %+v", dto.Banks)

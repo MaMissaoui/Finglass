@@ -1,9 +1,11 @@
 package shell
 
 import (
+	"bytes"
 	"context"
 	"os"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/app/accountsview"
@@ -13,12 +15,15 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/fintsgateway"
 	"github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
 	"github.com/MaMissaoui/Finglass/internal/core/fintsproduct"
 	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
+	"github.com/MaMissaoui/Finglass/internal/fints"
+	"github.com/MaMissaoui/Finglass/internal/fints/trace"
 )
 
 // OnlineSyncAvailable says whether the real FinTS gateway is wired in. It is
@@ -35,11 +40,59 @@ const connectionTestProductVersion = "0.4"
 // connectionTestTransportFactory is the shell's seam for the test transport.
 type connectionTestTransportFactory = connectiontest.TransportFactory
 
-// connectionTraceState is the last connection test's redacted trace, kept in
-// memory only.
-type connectionTraceState struct {
-	trace []byte
-	blz   string
+// Trace kinds of the one in-memory trace slot.
+const (
+	traceKindSync = "sync"
+	traceKindTest = "test"
+)
+
+// lastTraceState is the last sync's or connection test's redacted trace, kept
+// in memory only.
+type lastTraceState struct {
+	trace  []byte
+	blz    string
+	kind   string
+	bankID model.BankConnectionID
+}
+
+// syncTraceSink holds the recorder of the sync currently running. A new
+// recorder replaces the previous one, so only the last transport's trace is
+// kept.
+type syncTraceSink struct {
+	recorder atomic.Pointer[trace.Recorder]
+}
+
+// wrap records inner for one sync.
+func (s *syncTraceSink) wrap(inner fints.Transport) fints.Transport {
+	recorder := trace.NewRecorder(inner)
+	s.recorder.Store(recorder)
+	return recorder
+}
+
+// bytes writes the recorded trace, or returns nil when no exchange happened.
+func (s *syncTraceSink) bytes() []byte {
+	recorder := s.recorder.Load()
+	if recorder == nil || recorder.Len() == 0 {
+		return nil
+	}
+	var buffer bytes.Buffer
+	_, _ = recorder.WriteTo(&buffer)
+	return buffer.Bytes()
+}
+
+// selectGateway picks the real FinTS gateway only when the build enables online
+// sync and links a product id. newReal is called only in that case.
+func selectGateway(
+	available, productPresent bool,
+	language i18n.Language,
+	newReal func() banksync.FinTsGateway,
+) banksync.FinTsGateway {
+	if available && productPresent && newReal != nil {
+		if gateway := newReal(); gateway != nil {
+			return gateway
+		}
+	}
+	return banksync.NewUnavailableGateway(language)
 }
 
 // bankingJob is one blocking banking call prepared under the session mutex and
@@ -62,25 +115,47 @@ type bankingJob struct {
 	// mergeOnly keeps the live sync fields and merges only the freshly loaded
 	// bank list, as banking::load does.
 	mergeOnly bool
-	// setConnectionTrace replaces the session's in-memory trace with the job's
-	// trace, even when it is empty (a new test started).
-	setConnectionTrace bool
-	connectionTrace    []byte
-	connectionTraceBLZ string
+	// setLastTrace replaces the session's in-memory trace with the job's trace,
+	// even when it is empty (a new sync or test started).
+	setLastTrace bool
+	lastTrace    lastTraceState
+	// captureSyncTrace makes the job record its sync's trace into traceSink.
+	captureSyncTrace bool
+	traceSink        *syncTraceSink
+	traceKind        string
+	traceBankID      model.BankConnectionID
+	traceBLZ         string
 }
 
 // bankingServiceLocked builds the service exactly as Rust's
-// ServiceInputs::service: UnavailableGateway in production, the session's one
-// credential store, the profile folder and the product id linked into the
+// ServiceInputs::service: the gateway selected by selectGateway, the session's
+// one credential store, the profile folder and the product id linked into the
 // build (empty when absent). The caller holds the session mutex.
 func (s *Session) bankingServiceLocked(language i18n.Language) (*banksync.BankingService, bool) {
+	return s.bankingServiceWithTraceLocked(language, nil)
+}
+
+// bankingServiceWithTraceLocked is bankingServiceLocked with a trace sink for a
+// sync. The caller holds the session mutex.
+func (s *Session) bankingServiceWithTraceLocked(
+	language i18n.Language,
+	sink *syncTraceSink,
+) (*banksync.BankingService, bool) {
 	dir, err := s.paths.ProfileDir(startup.SlugKey(s.slug))
 	if err != nil {
 		return nil, false
 	}
-	gateway := banksync.FinTsGateway(banksync.NewUnavailableGateway(language))
+	gateway := selectGateway(OnlineSyncAvailable, fintsproduct.Present(), language, func() banksync.FinTsGateway {
+		options := make([]fintsgateway.Option, 0, 1)
+		if sink != nil {
+			options = append(options, fintsgateway.WithTransportWrapper(sink.wrap))
+		}
+		return fintsgateway.New(options...)
+	})
 	if s.gatewayFactory != nil {
 		gateway = s.gatewayFactory(language)
+	} else if s.syncGatewayFactory != nil && sink != nil {
+		gateway = s.syncGatewayFactory(language, sink)
 	}
 	productID, _ := fintsproduct.ID()
 	client := banksync.NewFinTsClient(gateway, dir, productID, s.credentials).WithLanguage(language)
@@ -193,6 +268,21 @@ func (s *Session) startBankingJob(job *bankingJob) {
 func (s *Session) runBankingJob(job *bankingJob) {
 	ctx := context.Background()
 	job.work(ctx, job.database, job.service, job.pending)
+	if job.captureSyncTrace {
+		raw := job.traceSink.bytes()
+		job.pending.LastTrace = &banking.LastTrace{
+			Kind:     job.traceKind,
+			BankID:   job.traceBankID,
+			HasTrace: len(raw) > 0,
+		}
+		job.lastTrace = lastTraceState{
+			trace:  append([]byte(nil), raw...),
+			blz:    job.traceBLZ,
+			kind:   job.traceKind,
+			bankID: job.traceBankID,
+		}
+		job.setLastTrace = true
+	}
 	if job.accounts != nil {
 		_ = job.accounts.LoadAccounts(ctx, job.database)
 	}
@@ -201,11 +291,8 @@ func (s *Session) runBankingJob(job *bankingJob) {
 	current := s.jobs.IsCurrent(job.generation)
 	var dashboardJob *pageJob
 	if current {
-		if job.setConnectionTrace {
-			s.connectionTrace = connectionTraceState{
-				trace: append([]byte(nil), job.connectionTrace...),
-				blz:   job.connectionTraceBLZ,
-			}
+		if job.setLastTrace {
+			s.lastTrace = job.lastTrace
 		}
 		if job.mergeOnly && s.banking != nil {
 			s.banking.Language = job.pending.Language
@@ -545,7 +632,13 @@ func (s *Session) BankingSubmitHistory(bankID int, input string) {
 		s.mu.Unlock()
 		return
 	}
-	service, serviceOK := s.bankingServiceLocked(s.language)
+	id := model.BankConnectionID(bankID)
+	traceBLZ := ""
+	if bank := s.bankingBankLocked(bankID); bank != nil {
+		traceBLZ = bank.BLZ
+	}
+	sink := &syncTraceSink{}
+	service, serviceOK := s.bankingServiceWithTraceLocked(s.language, sink)
 	generation, jobOK := s.beginJobLocked()
 	if !serviceOK || !jobOK {
 		if jobOK {
@@ -555,13 +648,13 @@ func (s *Session) BankingSubmitHistory(bankID int, input string) {
 		return
 	}
 	s.closeAccountsDialogLocked()
-	id := model.BankConnectionID(bankID)
 	if !s.banking.BeginHistoryFrom(id, date, today) {
 		s.jobs.EndGeneration(generation)
 		s.mu.Unlock()
 		s.notifyBanking()
 		return
 	}
+	s.clearLastTraceLocked(traceKindSync, id)
 	pending := s.banking.Clone()
 	accounts := s.accounts.Clone()
 	bridge := s.bridge
@@ -577,6 +670,11 @@ func (s *Session) BankingSubmitHistory(bankID int, input string) {
 		accounts:         &accounts,
 		keepLive:         false,
 		refreshDashboard: true,
+		captureSyncTrace: true,
+		traceSink:        sink,
+		traceKind:        traceKindSync,
+		traceBankID:      id,
+		traceBLZ:         traceBLZ,
 		work: func(
 			ctx context.Context,
 			database *db.Database,
@@ -599,7 +697,13 @@ func (s *Session) BankingStartSync(bankID int) {
 		s.mu.Unlock()
 		return
 	}
-	service, serviceOK := s.bankingServiceLocked(s.language)
+	id := model.BankConnectionID(bankID)
+	traceBLZ := ""
+	if bank := s.bankingBankLocked(bankID); bank != nil {
+		traceBLZ = bank.BLZ
+	}
+	sink := &syncTraceSink{}
+	service, serviceOK := s.bankingServiceWithTraceLocked(s.language, sink)
 	generation, jobOK := s.beginJobLocked()
 	if !serviceOK || !jobOK {
 		if jobOK {
@@ -608,13 +712,13 @@ func (s *Session) BankingStartSync(bankID int) {
 		s.mu.Unlock()
 		return
 	}
-	id := model.BankConnectionID(bankID)
 	if !s.banking.BeginSync(id) {
 		s.jobs.EndGeneration(generation)
 		s.mu.Unlock()
 		s.notifyBanking()
 		return
 	}
+	s.clearLastTraceLocked(traceKindSync, id)
 	pending := s.banking.Clone()
 	accounts := s.accounts.Clone()
 	bridge := s.bridge
@@ -630,6 +734,11 @@ func (s *Session) BankingStartSync(bankID int) {
 		pending:          pending,
 		accounts:         &accounts,
 		refreshDashboard: true,
+		captureSyncTrace: true,
+		traceSink:        sink,
+		traceKind:        traceKindSync,
+		traceBankID:      id,
+		traceBLZ:         traceBLZ,
 		work: func(
 			ctx context.Context,
 			database *db.Database,
@@ -652,7 +761,8 @@ func (s *Session) BankingStartSyncAll() {
 		s.mu.Unlock()
 		return
 	}
-	service, serviceOK := s.bankingServiceLocked(s.language)
+	sink := &syncTraceSink{}
+	service, serviceOK := s.bankingServiceWithTraceLocked(s.language, sink)
 	generation, jobOK := s.beginJobLocked()
 	if !serviceOK || !jobOK {
 		if jobOK {
@@ -667,13 +777,15 @@ func (s *Session) BankingStartSyncAll() {
 		s.notifyBanking()
 		return
 	}
+	s.clearLastTraceLocked(traceKindSync, 0)
 	pending := s.banking.Clone()
 	accounts := s.accounts.Clone()
 	bridge := s.bridge
 	busy := s.profileBusy
 	database := s.db
 	today := s.today()
-	job := &bankingJob{
+	var job *bankingJob
+	job = &bankingJob{
 		generation:       generation,
 		database:         database,
 		service:          service,
@@ -682,6 +794,9 @@ func (s *Session) BankingStartSyncAll() {
 		pending:          pending,
 		accounts:         &accounts,
 		refreshDashboard: true,
+		captureSyncTrace: true,
+		traceSink:        sink,
+		traceKind:        traceKindSync,
 		work: func(
 			ctx context.Context,
 			database *db.Database,
@@ -689,6 +804,15 @@ func (s *Session) BankingStartSyncAll() {
 			state *banking.BankingState,
 		) {
 			state.RunSyncAll(ctx, database, service, bridge, &busy, today, func(current *banking.BankingState) {
+				if current.SyncAll != nil {
+					for _, bank := range pending.Banks {
+						if bank.BankName == current.SyncAll.BankName {
+							job.traceBankID = bank.ID
+							job.traceBLZ = bank.BLZ
+							break
+						}
+					}
+				}
 				s.mu.Lock()
 				stillCurrent := s.jobs.IsCurrent(generation)
 				if stillCurrent && s.banking != nil {
@@ -778,7 +902,9 @@ func (s *Session) BankingTestConnection(bankID int) {
 						Cancelled: true,
 					}),
 				}
-				job.setConnectionTrace = true
+				state.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
+				job.setLastTrace = true
+				job.lastTrace = lastTraceState{kind: traceKindTest, bankID: id}
 				return
 			}
 		}
@@ -795,17 +921,25 @@ func (s *Session) BankingTestConnection(bankID int) {
 			ProductVersion: connectionTestProductVersion,
 			Language:       state.Language,
 		})
-		job.setConnectionTrace = true
-		job.connectionTrace = outcome.Trace
-		job.connectionTraceBLZ = blz
-		state.ConnectionTest = &banking.ConnectionTestResult{
+		job.setLastTrace = true
+		job.lastTrace = lastTraceState{
+			trace:  append([]byte(nil), outcome.Trace...),
+			blz:    blz,
+			kind:   traceKindTest,
+			bankID: id,
+		}
+		state.LastTrace = &banking.LastTrace{
+			Kind:     traceKindTest,
 			BankID:   id,
-			Go:       outcome.Go,
-			Reason:   connectionTestReason(state.Language, outcome),
-			Codes:    append([]string(nil), outcome.Codes...),
-			Probed:   outcome.Probed,
-			Skipped:  outcome.Skipped,
 			HasTrace: len(outcome.Trace) > 0,
+		}
+		state.ConnectionTest = &banking.ConnectionTestResult{
+			BankID:  id,
+			Go:      outcome.Go,
+			Reason:  connectionTestReason(state.Language, outcome),
+			Codes:   append([]string(nil), outcome.Codes...),
+			Probed:  outcome.Probed,
+			Skipped: outcome.Skipped,
 		}
 	})
 	if job == nil {
@@ -816,23 +950,26 @@ func (s *Session) BankingTestConnection(bankID int) {
 		return
 	}
 	job.pending.ConnectionTest = &banking.ConnectionTestResult{BankID: id, Running: true}
+	job.pending.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
 	s.banking.ConnectionTest = running
-	s.connectionTrace = connectionTraceState{}
+	s.banking.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
+	s.lastTrace = lastTraceState{kind: traceKindTest, bankID: id}
 	s.mu.Unlock()
 	s.notifyBanking()
 	s.startBankingJob(job)
 }
 
-// BankingSaveConnectionTrace asks where to save the last redacted connection
-// trace and writes it with mode 0600. The path never appears in an error.
+// BankingSaveConnectionTrace asks where to save the last redacted sync or
+// connection test trace and writes it with mode 0600. The path never appears in
+// an error.
 func (s *Session) BankingSaveConnectionTrace() {
 	s.mu.Lock()
 	if s.db == nil || s.banking == nil {
 		s.mu.Unlock()
 		return
 	}
-	trace := append([]byte(nil), s.connectionTrace.trace...)
-	blz := s.connectionTrace.blz
+	trace := append([]byte(nil), s.lastTrace.trace...)
+	blz := s.lastTrace.blz
 	if len(trace) == 0 {
 		s.setBankingErrorLocked(i18n.ErrorNoConnectionTrace)
 		s.mu.Unlock()
@@ -875,6 +1012,15 @@ func (s *Session) BankingSaveConnectionTrace() {
 	})
 	s.mu.Unlock()
 	s.startBankingJob(job)
+}
+
+// clearLastTraceLocked drops the previous trace when a new sync or test starts.
+// The caller holds the session mutex.
+func (s *Session) clearLastTraceLocked(kind string, bankID model.BankConnectionID) {
+	s.lastTrace = lastTraceState{kind: kind, bankID: bankID}
+	if s.banking != nil {
+		s.banking.LastTrace = &banking.LastTrace{Kind: kind, BankID: bankID}
+	}
 }
 
 // setBankingErrorLocked publishes a localized banking error. The caller holds

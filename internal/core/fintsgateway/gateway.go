@@ -6,10 +6,10 @@
 // and reports the chosen TAN method, the detected capabilities and the system
 // id in the outcome.
 //
-// Not part of this slice: TAN media selection (HKTAB/SelectTanMedium), pending
-// lines (camt pending and MT942 are not parsed), the trace switch, and wiring
-// into the shell. OnlineSyncAvailable stays false until the user's own probe
-// run.
+// Not part of this slice: TAN media selection (HKTAB/SelectTanMedium) and
+// pending lines (camt pending and MT942 are not parsed). The shell wires this
+// adapter behind OnlineSyncAvailable and uses WithTransportWrapper for the
+// redacted sync trace; the flag stays false until the user's own probe run.
 package fintsgateway
 
 import (
@@ -75,9 +75,20 @@ func WithClock(now func() time.Time) Option {
 	}
 }
 
+// WithTransportWrapper wraps every transport the gateway builds for a sync. The
+// shell uses it to record a fresh redacted trace for every sync.
+func WithTransportWrapper(wrapper func(fints.Transport) fints.Transport) Option {
+	return func(g *Gateway) {
+		if wrapper != nil {
+			g.transportWrapper = wrapper
+		}
+	}
+}
+
 // Gateway is the read-only FinTS adapter.
 type Gateway struct {
 	transportFactory func(serverURL string) (fints.Transport, error)
+	transportWrapper func(fints.Transport) fints.Transport
 	sleeper          fints.Sleeper
 	now              func() time.Time
 }
@@ -103,8 +114,8 @@ func New(options ...Option) *Gateway {
 // String returns only presence flags, never a server URL or bank data.
 func (g Gateway) String() string {
 	return fmt.Sprintf(
-		"fintsgateway.Gateway{transport:%t sleeper:%t clock:%t}",
-		g.transportFactory != nil, g.sleeper != nil, g.now != nil,
+		"fintsgateway.Gateway{transport:%t wrapper:%t sleeper:%t clock:%t}",
+		g.transportFactory != nil, g.transportWrapper != nil, g.sleeper != nil, g.now != nil,
 	)
 }
 
@@ -157,6 +168,12 @@ func (g *Gateway) FetchAll(
 	if transportErr != nil || transport == nil {
 		return outcome, banksync.NewGatewayOtherError(kindInvalidServerURL)
 	}
+	if g.transportWrapper != nil {
+		transport = g.transportWrapper(transport)
+		if transport == nil {
+			return outcome, banksync.NewGatewayOtherError(kindInvalidServerURL)
+		}
+	}
 
 	entry := interaction.Pin(connection.BankName, connection.UserID, true)
 	if entry == nil || entry.IsEmpty() || entry.Pin() == nil {
@@ -167,6 +184,36 @@ func (g *Gateway) FetchAll(
 	if connection.TanMethod != nil {
 		remembered = strings.TrimSpace(*connection.TanMethod)
 	}
+
+	needsSync := connection.SystemID == "" || remembered == ""
+	outcome, retryWithSync, err := g.runDialog(
+		ctx, connection, interaction, entry.Pin(), transport, remembered, since, to, needsSync, false,
+	)
+	if err != nil && retryWithSync && !needsSync {
+		// The remembered state was stale: run the same login once more with a
+		// sync, reusing the PIN entry already typed. At most one retry.
+		outcome, _, err = g.runDialog(
+			ctx, connection, interaction, entry.Pin(), transport, remembered, since, to, true, true,
+		)
+	}
+	return outcome, err
+}
+
+// runDialog opens one fresh dialog and reads the login. retryWithSync reports
+// that Init failed with a bank error that a sync may fix. The caller owns pin
+// and never wipes it here: a retry reuses the same PIN entry.
+func (g *Gateway) runDialog(
+	ctx context.Context,
+	connection banksync.FinTsConnection,
+	interaction banksync.BankingInteraction,
+	pin *secret.Text,
+	transport fints.Transport,
+	remembered string,
+	since func(accountNumber string) *civil.Date,
+	to civil.Date,
+	withSync bool,
+	retry bool,
+) (outcome banksync.FetchOutcome, retryWithSync bool, err error) {
 	params := paramsFor(connection, remembered)
 
 	customerID := strings.TrimSpace(connection.CustomerID)
@@ -180,7 +227,7 @@ func (g *Gateway) FetchAll(
 		SystemID:       connection.SystemID,
 		ProductID:      connection.ProductID,
 		ProductVersion: productVersion,
-		PIN:            entry.Pin(),
+		PIN:            pin,
 		Transport:      transport,
 		Sleeper:        g.sleeper,
 		Source:         fints.Source{Now: g.now},
@@ -192,7 +239,7 @@ func (g *Gateway) FetchAll(
 
 	dialog, dialogErr := fints.NewDialog(config)
 	if dialogErr != nil {
-		return outcome, mapError(dialogErr)
+		return outcome, false, mapError(dialogErr)
 	}
 	defer func() {
 		params := dialog.Params()
@@ -214,30 +261,36 @@ func (g *Gateway) FetchAll(
 		}
 	}()
 
-	needsSync := connection.SystemID == "" || remembered == ""
-	if needsSync {
+	if withSync {
 		if syncErr := dialog.Sync(ctx); syncErr != nil {
-			return outcome, mapError(syncErr)
+			return outcome, false, mapError(syncErr)
 		}
 		// The bank must resend its parameters on every Init, so the versions
 		// stay 0 even though the sync response carried HIBPA and HIUPA.
 		dialog.Params().BPDVersion = 0
 		dialog.Params().UPDVersion = 0
-		if remembered == "" {
+		selectMethod := remembered == ""
+		if retry && remembered != "" && !tanMethodUsable(dialog.Params(), remembered) {
+			// The remembered method is gone after the sync; ask as on a first
+			// sync instead of opening with a method the bank no longer allows.
+			selectMethod = true
+			dialog.Params().PreferredSecurityFunction = ""
+		}
+		if selectMethod {
 			if selectionErr := g.chooseTanMethod(interaction, dialog.Params()); selectionErr != nil {
 				_ = dialog.Cancel(ctx)
-				return outcome, selectionErr
+				return outcome, false, selectionErr
 			}
 		}
 	}
 
 	initResult, initErr := dialog.Init(ctx)
 	if initErr != nil {
-		return outcome, mapError(initErr)
+		return outcome, retryableInitError(initErr), mapError(initErr)
 	}
 	if !initResult.Opened {
 		if tanErr := g.completeInitialTAN(ctx, dialog, interaction, initResult); tanErr != nil {
-			return outcome, tanErr
+			return outcome, false, tanErr
 		}
 	}
 
@@ -245,9 +298,18 @@ func (g *Gateway) FetchAll(
 	prompter := &tanPrompter{interaction: interaction, dialog: dialog, cancel: cancel}
 	workflow := fints.NewWorkflow(dialog, prompter)
 	defer cancel()
+	// A declined decoupled confirmation cancels the child context. Poll already
+	// ends the dialog, but End with the parent context is the guarantee; it is
+	// a no-op when the dialog already ended.
+	endAfterChildCancel := func() {
+		if childCtx.Err() != nil {
+			_ = dialog.End(ctx)
+		}
+	}
 
 	if _, fetchErr := workflow.FetchSEPAAccounts(childCtx); fetchErr != nil {
-		return outcome, mapError(fetchErr)
+		endAfterChildCancel()
+		return outcome, false, mapError(fetchErr)
 	}
 
 	for _, account := range dialog.Params().Accounts {
@@ -259,7 +321,8 @@ func (g *Gateway) FetchAll(
 
 		balance, ok, balanceErr := workflow.FetchBalance(childCtx, account)
 		if balanceErr != nil {
-			return outcome, mapError(balanceErr)
+			endAfterChildCancel()
+			return outcome, false, mapError(balanceErr)
 		}
 		if ok {
 			snapshot.Balance = mapBalance(balance, mapped, g.now())
@@ -270,7 +333,8 @@ func (g *Gateway) FetchAll(
 				childCtx, account, toFinTSDate(*from), toFinTSDate(to),
 			)
 			if statementErr != nil {
-				return outcome, mapError(statementErr)
+				endAfterChildCancel()
+				return outcome, false, mapError(statementErr)
 			}
 			bookings, parseOK := mapBookings(statements, mapped)
 			if !parseOK {
@@ -284,7 +348,49 @@ func (g *Gateway) FetchAll(
 	}
 
 	_ = dialog.End(ctx)
-	return outcome, nil
+	return outcome, false, nil
+}
+
+// retryableInitError reports whether Init failed with a bank error a sync may
+// fix. PIN rejections and a locked account never retry: a second signed message
+// could count against the bank's PIN failure limit.
+func retryableInitError(err error) bool {
+	var dialogError *fints.DialogError
+	if !errors.As(err, &dialogError) {
+		return false
+	}
+	switch dialogError.Kind {
+	case fints.ErrorKindBankError:
+		return !includesPinRejection(dialogError.Codes)
+	case fints.ErrorKindPinRejected:
+		// checkInitResponse maps a general bank error during Init to this kind
+		// unless the response carried a PIN code.
+		return !includesPinRejection(dialogError.Codes)
+	default:
+		return false
+	}
+}
+
+// tanMethodUsable reports whether the bank still allows the remembered method
+// and still advertises it in HITANS.
+func tanMethodUsable(params *fints.BankParams, securityFunction string) bool {
+	if params == nil || securityFunction == "" {
+		return false
+	}
+	if allowed := params.AllowedSecurityFunctions; len(allowed) > 0 {
+		found := false
+		for _, value := range allowed {
+			if value == securityFunction {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	_, ok := methodForSecurityFunction(params.TANMethods, securityFunction)
+	return ok
 }
 
 // paramsFor builds the remembered parameters. Without a sync, the remembered
