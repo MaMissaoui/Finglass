@@ -1,6 +1,7 @@
 package banksync
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -27,25 +28,31 @@ type FinTsConnection struct {
 	TanMethod *string
 	// ProductID is the FinTS product registration id, supplied by the caller.
 	ProductID string
+	// SystemID is the remembered FinTS system id, or "" when none is known.
+	SystemID string
+	// HKTANVersion is the HITANS/HKTAN version of the remembered TAN method,
+	// or 0 when none is known.
+	HKTANVersion uint16
 }
 
 // String returns a representation that never contains the bank user id, the
-// customer id or the product id.
+// customer id, the product id or the system id.
 func (c FinTsConnection) String() string {
 	return fmt.Sprintf(
-		"FinTsConnection{BankName:%q BLZ:%q UserID:%q CustomerID:%q ServerURL:%q TanMethod:%v ProductID:%q}",
+		"FinTsConnection{BankName:%q BLZ:%q UserID:%q CustomerID:%q ServerURL:%q TanMethod:%v ProductID:%q SystemID:%t HKTANVersion:%d}",
 		c.BankName, c.BLZ, "***", "***", c.ServerURL, c.TanMethod, maskedProductID(c.ProductID),
+		c.SystemID != "", c.HKTANVersion,
 	)
 }
 
 // GoString returns a representation that never contains the bank user id, the
-// customer id or the product id.
+// customer id, the product id or the system id.
 func (c FinTsConnection) GoString() string {
 	return c.String()
 }
 
 // Format returns a representation that never contains the bank user id, the
-// customer id or the product id, for every fmt verb.
+// customer id, the product id or the system id, for every fmt verb.
 func (c FinTsConnection) Format(f fmt.State, _ rune) {
 	_, _ = f.Write([]byte(c.String()))
 }
@@ -162,10 +169,35 @@ type FetchOutcome struct {
 	// Capabilities are the login's supported business transactions, detected
 	// during the dialog.
 	Capabilities *BankCapabilities
+	// SystemID is the system id the dialog got from the bank, when it got one.
+	// It is remembered for the login and is never printed.
+	SystemID *string
+	// HKTANVersion is the HITANS/HKTAN version of the selected TAN method.
+	HKTANVersion uint16
+}
+
+// String returns counts and presence flags only, never an IBAN, a system id,
+// an account owner or any booking text.
+func (o FetchOutcome) String() string {
+	return fmt.Sprintf(
+		"FetchOutcome{snapshots:%d tanMethod:%t capabilities:%t systemID:%t hktanVersion:%d}",
+		len(o.Snapshots), o.TanMethod != nil, o.Capabilities != nil,
+		o.SystemID != nil, o.HKTANVersion,
+	)
+}
+
+// GoString returns counts and presence flags only.
+func (o FetchOutcome) GoString() string {
+	return o.String()
+}
+
+// Format writes counts and presence flags only, for every fmt verb.
+func (o FetchOutcome) Format(f fmt.State, _ rune) {
+	_, _ = f.Write([]byte(o.String()))
 }
 
 // FinTsGateway is the port to the bank. Tests use fakes; the real adapter is
-// M5b.
+// internal/core/fintsgateway.
 type FinTsGateway interface {
 	// FetchAll fetches all accounts of the login with balances and bookings from
 	// since (per IBAN; nil skips statements for that account) up to to, within a
@@ -173,8 +205,10 @@ type FinTsGateway interface {
 	//
 	// The chosen TAN method and the detected capabilities travel in the returned
 	// [FetchOutcome], so overlapping syncs never read another dialog's state off
-	// the gateway.
+	// the gateway. The outcome is returned together with an error, so a system id
+	// obtained before a later failure is not lost.
 	FetchAll(
+		ctx context.Context,
 		connection FinTsConnection,
 		interaction BankingInteraction,
 		since func(accountNumber string) *civil.Date,
@@ -207,6 +241,7 @@ func (g UnavailableGateway) Language() i18n.Language {
 
 // FetchAll always fails without touching the network.
 func (g UnavailableGateway) FetchAll(
+	_ context.Context,
 	_ FinTsConnection,
 	_ BankingInteraction,
 	_ func(accountNumber string) *civil.Date,

@@ -41,13 +41,16 @@ func testDatabase(t *testing.T) *db.Database {
 }
 
 type fakeGateway struct {
-	mu            sync.Mutex
-	snapshots     []AccountSnapshot
-	failWith      *GatewayError
-	pinCalls      atomic.Int64
-	sinceRequests map[string]*civil.Date
-	capabilities  *BankCapabilities
-	requestTan    bool
+	mu             sync.Mutex
+	snapshots      []AccountSnapshot
+	failWith       *GatewayError
+	pinCalls       atomic.Int64
+	sinceRequests  map[string]*civil.Date
+	capabilities   *BankCapabilities
+	requestTan     bool
+	systemID       *string
+	hktanVersion   uint16
+	lastConnection FinTsConnection
 }
 
 func newFakeGateway() *fakeGateway {
@@ -92,6 +95,20 @@ func (f *fakeGateway) setRequestTan(enabled bool) {
 	f.requestTan = enabled
 }
 
+func (f *fakeGateway) setSystemID(systemID string, version uint16) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	value := systemID
+	f.systemID = &value
+	f.hktanVersion = version
+}
+
+func (f *fakeGateway) connectionSeen() FinTsConnection {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.lastConnection
+}
+
 func (f *fakeGateway) since(iban string) *civil.Date {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -105,11 +122,15 @@ func (f *fakeGateway) sinceRequestCount() int {
 }
 
 func (f *fakeGateway) FetchAll(
+	_ context.Context,
 	connection FinTsConnection,
 	interaction BankingInteraction,
 	since func(accountNumber string) *civil.Date,
 	_ civil.Date,
 ) (FetchOutcome, error) {
+	f.mu.Lock()
+	f.lastConnection = connection
+	f.mu.Unlock()
 	calls := f.pinCalls.Load()
 	if calls < 1 {
 		calls = 1
@@ -131,11 +152,10 @@ func (f *fakeGateway) FetchAll(
 	failure := f.failWith
 	snapshots := append([]AccountSnapshot(nil), f.snapshots...)
 	capabilities := f.capabilities
+	systemID := f.systemID
+	hktanVersion := f.hktanVersion
 	f.mu.Unlock()
 
-	if failure != nil {
-		return FetchOutcome{}, *failure
-	}
 	for _, snapshot := range snapshots {
 		value := since(snapshot.Account.IBAN)
 		f.mu.Lock()
@@ -143,11 +163,17 @@ func (f *fakeGateway) FetchAll(
 		f.mu.Unlock()
 	}
 	tanMethod := "921"
-	return FetchOutcome{
+	outcome := FetchOutcome{
 		Snapshots:    snapshots,
 		TanMethod:    &tanMethod,
 		Capabilities: capabilities,
-	}, nil
+		SystemID:     systemID,
+		HKTANVersion: hktanVersion,
+	}
+	if failure != nil {
+		return outcome, *failure
+	}
+	return outcome, nil
 }
 
 type scriptedInteraction struct {

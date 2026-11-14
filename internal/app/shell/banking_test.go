@@ -65,6 +65,7 @@ func (g *bankingTestGateway) setPinPrompts(count int) {
 }
 
 func (g *bankingTestGateway) FetchAll(
+	_ context.Context,
 	connection banksync.FinTsConnection,
 	interaction banksync.BankingInteraction,
 	_ func(string) *civil.Date,

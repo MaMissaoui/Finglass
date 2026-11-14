@@ -183,7 +183,11 @@ func (c *FinTsClient) FetchAll(
 	if err != nil {
 		return nil, err
 	}
-	outcome, gatewayErr := c.gateway.FetchAll(connection, remembering, since, to)
+	connection.SystemID, connection.HKTANVersion = c.storedSystemID(ctx, database, bank.ID, connection)
+	outcome, gatewayErr := c.gateway.FetchAll(ctx, connection, remembering, since, to)
+	// A system id the dialog got is valid even when a later step failed, so it
+	// is stored before an error returns.
+	c.rememberSystemID(cleanupCtx, database, bank.ID, connection, outcome)
 
 	var mapped *BankingError
 	if gatewayErr != nil {
@@ -402,7 +406,8 @@ func (c *FinTsClient) DeleteStoredCredentials(ctx context.Context, database *db.
 //
 // The server state lives in the connection rows (TAN method, capabilities,
 // server-state columns), so clearing it through the repository also clears
-// whatever M5b stores there; there is no side file to remove.
+// that part. The remembered FinTS system id lives in the settings table and is
+// deleted here too.
 //
 // A failed clear is an error: saving new login fields over the old server
 // state would make the edit silently ineffective. Forgetting the PIN stays
@@ -414,6 +419,9 @@ func (c *FinTsClient) ResetLogin(
 	forgetPin bool,
 ) error {
 	_, cleared := bankconnections.ClearLoginState(ctx, database, bankID)
+	// The remembered system id belongs to the old login; it goes even when the
+	// clear failed. It is not a secret, so no audit entry is written for it.
+	_ = deleteSetting(ctx, database, systemIDKey(bankID))
 	// The PIN goes even when the clear failed: a removed or changed login must
 	// never keep a usable secret.
 	if forgetPin {
@@ -423,6 +431,70 @@ func (c *FinTsClient) ResetLogin(
 		return internalError(cleared)
 	}
 	return nil
+}
+
+// systemIDKey is the settings key of a bank access's remembered system id.
+func systemIDKey(bankID model.BankConnectionID) string {
+	return "fints.systemID." + strconv.FormatInt(int64(bankID), 10)
+}
+
+// systemIDPrefix is the login part of the stored system id value. A stored
+// system id is only used while it belongs to the current BLZ, user id and
+// server URL.
+func systemIDPrefix(connection FinTsConnection) string {
+	return connection.BLZ + "|" + connection.UserID + "|" + connection.ServerURL + "|"
+}
+
+// storedSystemID reads the remembered system id for the current login. A value
+// with another login prefix is stale and is deleted.
+func (c *FinTsClient) storedSystemID(
+	ctx context.Context,
+	database *db.Database,
+	bankID model.BankConnectionID,
+	connection FinTsConnection,
+) (string, uint16) {
+	value, ok, err := settings.Get(ctx, database, systemIDKey(bankID))
+	if err != nil || !ok {
+		return "", 0
+	}
+	prefix := systemIDPrefix(connection)
+	if !strings.HasPrefix(value, prefix) {
+		_ = deleteSetting(ctx, database, systemIDKey(bankID))
+		return "", 0
+	}
+	remainder := value[len(prefix):]
+	version := uint16(0)
+	systemID := remainder
+	if index := strings.LastIndexByte(remainder, '|'); index >= 0 {
+		systemID = remainder[:index]
+		if parsed, parseErr := strconv.ParseUint(remainder[index+1:], 10, 16); parseErr == nil {
+			version = uint16(parsed)
+		}
+	}
+	return systemID, version
+}
+
+// rememberSystemID stores the system id a dialog reported, with the HKTAN
+// version of the selected method, when it changed. Failures are ignored: the
+// next dialog simply synchronises again.
+func (c *FinTsClient) rememberSystemID(
+	ctx context.Context,
+	database *db.Database,
+	bankID model.BankConnectionID,
+	connection FinTsConnection,
+	outcome FetchOutcome,
+) {
+	if outcome.SystemID == nil || *outcome.SystemID == "" {
+		return
+	}
+	key := systemIDKey(bankID)
+	value := systemIDPrefix(connection) + *outcome.SystemID + "|" +
+		strconv.FormatUint(uint64(outcome.HKTANVersion), 10)
+	current, ok, err := settings.Get(ctx, database, key)
+	if err == nil && ok && current == value {
+		return
+	}
+	_ = settings.Set(ctx, database, key, value)
 }
 
 func (c *FinTsClient) mapGatewayError(gatewayError GatewayError) BankingError {
