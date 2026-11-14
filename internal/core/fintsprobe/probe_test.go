@@ -1,6 +1,7 @@
 package fintsprobe
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -17,8 +18,10 @@ type probeInteraction struct {
 	tans          []string
 	confirmations []string
 	notices       []Notice
+	retries       int
 	tan           func(ctx context.Context, challenge string) (*secret.Text, error)
 	confirm       func(ctx context.Context, challenge string)
+	confirmRetry  func(ctx context.Context) bool
 }
 
 func (i *probeInteraction) TAN(ctx context.Context, challenge string) (*secret.Text, error) {
@@ -34,6 +37,14 @@ func (i *probeInteraction) ConfirmInApp(ctx context.Context, challenge string) {
 	if i.confirm != nil {
 		i.confirm(ctx, challenge)
 	}
+}
+
+func (i *probeInteraction) ConfirmRetry(ctx context.Context) bool {
+	i.retries++
+	if i.confirmRetry != nil {
+		return i.confirmRetry(ctx)
+	}
+	return true
 }
 
 func (i *probeInteraction) Notice(notice Notice) {
@@ -128,6 +139,361 @@ func typedTANGoBank(t *testing.T) *fakeTransport {
 	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
 	bank.reply(successResponse(testDialogID))
 	return bank
+}
+
+// approvalRequiredResponse is the HVB answer to a new system id's login.
+func approvalRequiredResponse(dialogID string) string {
+	return responseMessage(
+		dialogID,
+		"HIRMG:2:2+9050::"+testMessage+"'",
+		"HIRMS:3:2:4+9210::"+testMessage+"'",
+	)
+}
+
+// exemptedInitResponse opens the dialog without strong authentication.
+func exemptedInitResponse(dialogID string) string {
+	return responseMessage(
+		dialogID,
+		"HIRMG:2:2+0020::"+testMessage+"'",
+		"HIRMS:3:2:4+3076::"+testMessage+"'",
+	)
+}
+
+// approvalRetryGoBank scripts a login that needs the approval retry and then
+// completes the GO scenario.
+func approvalRetryGoBank(t *testing.T) *fakeTransport {
+	t.Helper()
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKSAL"),
+		requestShape("HKKAZ"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		decoupledHitans(60, 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
+		hikazs(6),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(approvalRequiredResponse(testDialogID))
+	bank.reply(exemptedInitResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
+	bank.reply(executedResponse(testDialogID, hisalPayload()))
+	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
+	bank.reply(successResponse(testDialogID))
+	return bank
+}
+
+func TestProbeRetriesLoginOnceAfterApproval(t *testing.T) {
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	initRequests := make([][]fints.ParsedSegment, 0, 2)
+	capture := &captureTransport{
+		fakeTransport: approvalRetryGoBank(t),
+		onExchange: func(call int, request []byte) {
+			if call != 2 && call != 3 {
+				return
+			}
+			segments, err := flattenRequest(request)
+			if err != nil {
+				t.Fatalf("inspect Init request %d: %v", call, err)
+			}
+			initRequests = append(initRequests, segments)
+		},
+	}
+
+	result := Probe(context.Background(), newProbeEnv(t, capture, interaction, pin))
+	if !result.Decision.Go {
+		t.Fatalf("decision = %q, want GO", result.Decision.Reason.String())
+	}
+	if interaction.retries != 1 {
+		t.Fatalf("ConfirmRetry calls = %d, want 1", interaction.retries)
+	}
+	if len(initRequests) != 2 {
+		t.Fatalf("Init requests = %d, want 2", len(initRequests))
+	}
+
+	second := initRequests[1]
+	hasHKIDN := false
+	for _, segment := range second {
+		if segment.Type() == "HKSYN" {
+			t.Fatal("the retried Init sent HKSYN")
+		}
+		if segment.Type() != "HKIDN" {
+			continue
+		}
+		hasHKIDN = true
+		if got := segment.DEG(3).Text(0); got != testSystemID {
+			t.Fatalf("retried HKIDN system id = %q, want %q", got, testSystemID)
+		}
+	}
+	if !hasHKIDN {
+		t.Fatal("the retried Init sent no HKIDN")
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeApprovalCancelStopsWithoutRetry(t *testing.T) {
+	bank := approvalRetryGoBank(t)
+	interaction := &probeInteraction{
+		confirmRetry: func(context.Context) bool { return false },
+	}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, bank, interaction, pin))
+
+	if result.Decision.Go {
+		t.Fatal("a cancelled approval retry must not be a GO")
+	}
+	if got := result.Decision.Reason.String(); got != "other: Cancelled" {
+		t.Fatalf("reason = %q, want other: Cancelled", got)
+	}
+	if interaction.retries != 1 {
+		t.Fatalf("ConfirmRetry calls = %d, want 1", interaction.retries)
+	}
+	if len(bank.records) != 3 {
+		t.Fatalf("exchanges = %d, want 3 with no request after the failed Init", len(bank.records))
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeDoesNotRetryOnPinCodeWithApprovalCode(t *testing.T) {
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+	)
+	bank.reply(syncResponse(hipins("HKSAL:N")))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(responseMessage(
+		testDialogID,
+		"HIRMG:2:2+9210::"+testMessage+"'",
+		"HIRMS:3:2:4+9942::"+testMessage+"'",
+	))
+
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, bank, interaction, pin))
+
+	if result.Decision.Go {
+		t.Fatal("a rejected PIN must not be a GO")
+	}
+	if interaction.retries != 0 {
+		t.Fatalf("ConfirmRetry calls = %d, want 0", interaction.retries)
+	}
+	if got := result.Decision.Reason.String(); got != "login rejected: 9942" {
+		t.Fatalf("reason = %q, want login rejected: 9942", got)
+	}
+	if len(bank.records) != 3 {
+		t.Fatalf("exchanges = %d, want 3", len(bank.records))
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeRetriesOnlyOnce(t *testing.T) {
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+	)
+	bank.reply(syncResponse(hipins("HKSAL:N")))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(approvalRequiredResponse(testDialogID))
+	bank.reply(approvalRequiredResponse(testDialogID))
+
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, bank, interaction, pin))
+
+	if result.Decision.Go {
+		t.Fatal("a second rejected Init must not be a GO")
+	}
+	if interaction.retries != 1 {
+		t.Fatalf("ConfirmRetry calls = %d, want exactly 1", interaction.retries)
+	}
+	if len(bank.records) != 4 {
+		t.Fatalf("exchanges = %d, want 4 with no further retry", len(bank.records))
+	}
+	if reason := result.Decision.Reason.String(); !strings.Contains(reason, "9210") {
+		t.Fatalf("reason = %q, want code 9210", reason)
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeDoesNotRetryOnNineThousandWithoutApprovalCode(t *testing.T) {
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+	)
+	bank.reply(syncResponse(hipins("HKSAL:N")))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(codeResponse(testDialogID, "9050"))
+
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, bank, interaction, pin))
+
+	if result.Decision.Go {
+		t.Fatal("9050 without 9210 must not be a GO")
+	}
+	if interaction.retries != 0 {
+		t.Fatalf("ConfirmRetry calls = %d, want 0", interaction.retries)
+	}
+	if got := result.Decision.Reason.String(); got != "login rejected: 9050" {
+		t.Fatalf("reason = %q, want login rejected: 9050", got)
+	}
+	if len(bank.records) != 3 {
+		t.Fatalf("exchanges = %d, want 3", len(bank.records))
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeRetrySendsAndWipesThePIN(t *testing.T) {
+	inits := 0
+	capture := &captureTransport{
+		fakeTransport: approvalRetryGoBank(t),
+		onExchange: func(call int, request []byte) {
+			if call != 2 && call != 3 {
+				return
+			}
+			if !bytes.Contains(request, []byte(testPIN)) {
+				t.Fatalf("Init request %d did not carry the PIN", call)
+			}
+			inits++
+		},
+	}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, capture, &probeInteraction{}, pin))
+
+	if !result.Decision.Go {
+		t.Fatalf("decision = %q, want GO", result.Decision.Reason.String())
+	}
+	if inits != 2 {
+		t.Fatalf("Init requests with the PIN = %d, want 2", inits)
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestShouldRetryAfterApproval(t *testing.T) {
+	type retryCase struct {
+		name     string
+		err      error
+		systemID string
+		want     bool
+	}
+	cases := []retryCase{
+		{
+			name:     "approval code",
+			err:      &fints.DialogError{Kind: fints.ErrorKindPinRejected, Codes: []string{"9050", "9210"}},
+			systemID: testSystemID,
+			want:     true,
+		},
+		{
+			name:     "empty system id",
+			err:      &fints.DialogError{Codes: []string{"9210"}},
+			systemID: "",
+			want:     false,
+		},
+		{
+			name:     "zero system id",
+			err:      &fints.DialogError{Codes: []string{"9210"}},
+			systemID: "0",
+			want:     false,
+		},
+		{
+			name:     "no approval code",
+			err:      &fints.DialogError{Kind: fints.ErrorKindPinRejected, Codes: []string{"9050"}},
+			systemID: testSystemID,
+			want:     false,
+		},
+		{
+			name:     "plain error",
+			err:      errors.New("invented failure"),
+			systemID: testSystemID,
+			want:     false,
+		},
+		{
+			name:     "nil error",
+			err:      nil,
+			systemID: testSystemID,
+			want:     false,
+		},
+	}
+	for _, blocked := range []string{"9340", "9910", "9930", "9931", "9942", "3938"} {
+		cases = append(cases, retryCase{
+			name:     "blocked " + blocked,
+			err:      &fints.DialogError{Codes: []string{"9210", blocked}},
+			systemID: testSystemID,
+			want:     false,
+		})
+	}
+
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			if got := shouldRetryAfterApproval(test.err, test.systemID); got != test.want {
+				t.Fatalf("shouldRetryAfterApproval() = %t, want %t", got, test.want)
+			}
+		})
+	}
+}
+
+func TestTerminalConfirmRetryReadsOneLine(t *testing.T) {
+	cases := []struct {
+		name   string
+		answer []byte
+		err    error
+		want   bool
+	}{
+		{name: "enter", answer: nil, want: true},
+		{name: "empty", answer: []byte{}, want: true},
+		{name: "n", answer: []byte("n"), want: false},
+		{name: "anything", answer: []byte("yes"), want: false},
+		{name: "read error", err: errors.New("invented failure"), want: false},
+	}
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			answer := test.answer
+			terminal := &fakeTerminal{
+				next: func(string) ([]byte, error) { return answer, test.err },
+			}
+			interaction := terminalInteraction{terminal: terminal}
+			if got := interaction.ConfirmRetry(context.Background()); got != test.want {
+				t.Fatalf("ConfirmRetry() = %t, want %t", got, test.want)
+			}
+			if len(terminal.prompts) != 1 || terminal.prompts[0] != "" {
+				t.Fatalf("prompts = %v, want one empty prompt", terminal.prompts)
+			}
+			if len(terminal.lines) != 1 || terminal.lines[0] != confirmRetryMessage {
+				t.Fatalf("lines = %v, want [%q]", terminal.lines, confirmRetryMessage)
+			}
+			assertAllZero(t, answer)
+		})
+	}
 }
 
 func TestProbeGoLinesMatchRunOutput(t *testing.T) {

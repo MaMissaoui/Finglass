@@ -13,6 +13,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
+	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 	"github.com/MaMissaoui/Finglass/internal/fints"
 )
@@ -437,6 +438,58 @@ func typedTANGoBank(t *testing.T) *fakeTransport {
 	return bank
 }
 
+// approvalRequiredResponse is the HVB answer to a new system id's login.
+func approvalRequiredResponse(dialogID, text string) string {
+	return responseMessage(
+		dialogID,
+		"HIRMG:2:2+9050::"+text+"'",
+		"HIRMS:3:2:4+9210::"+text+"'",
+	)
+}
+
+// exemptedInitResponse opens the dialog without strong authentication.
+func exemptedInitResponse(dialogID, text string) string {
+	return responseMessage(
+		dialogID,
+		"HIRMG:2:2+0020::"+text+"'",
+		"HIRMS:3:2:4+3076::"+text+"'",
+	)
+}
+
+// approvalRetryGoBank scripts a login that needs the approval retry and then
+// completes the GO scenario.
+func approvalRetryGoBank(t *testing.T, firstText, secondText string) *fakeTransport {
+	t.Helper()
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKSAL"),
+		requestShape("HKKAZ"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		decoupledHitans(60, 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
+		hikazs(6),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(approvalRequiredResponse(testDialogID, firstText))
+	bank.reply(exemptedInitResponse(testDialogID, secondText))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
+	bank.reply(executedResponse(testDialogID, hisalPayload()))
+	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
+	bank.reply(successResponse(testDialogID))
+	return bank
+}
+
 func newInput(t *testing.T, interaction *fakeInteraction, factory TransportFactory) Input {
 	t.Helper()
 	return Input{
@@ -604,6 +657,92 @@ func TestRunDecoupledCancelledByTheUserPollsNoFurther(t *testing.T) {
 	}
 	if fmt.Sprint(bank.records[3]) != fmt.Sprint(requestShape("HKEND")) {
 		t.Fatalf("last exchange = %v, want HKEND", bank.records[3])
+	}
+}
+
+func TestRunRetriesLoginAfterApproval(t *testing.T) {
+	const firstText = "Invented first login attempt message"
+	const secondText = "Invented second login attempt message"
+
+	interaction := &fakeInteraction{pin: testPIN}
+	prompts := make([]string, 0, 1)
+	interaction.confirm = func(message string) bool {
+		prompts = append(prompts, message)
+		return true
+	}
+	input := newInput(t, interaction, factoryFor(approvalRetryGoBank(t, firstText, secondText)))
+	input.Language = i18n.De
+
+	outcome := Run(context.Background(), input)
+	if !outcome.Go {
+		t.Fatalf("outcome = %s, want GO", outcome)
+	}
+	wantPrompt := i18n.Text(i18n.De, i18n.TestConnectionApproveThenRetry)
+	if len(prompts) != 1 || prompts[0] != wantPrompt {
+		t.Fatalf("ConfirmDecoupled prompts = %q, want [%q]", prompts, wantPrompt)
+	}
+
+	first, ok := findMessage(outcome.Messages, "9210")
+	if !ok || first.Text != firstText {
+		t.Fatalf("first attempt message = %#v, want 9210 with %q", first, firstText)
+	}
+	second, ok := findMessage(outcome.Messages, "3076")
+	if !ok || second.Text != secondText {
+		t.Fatalf("second attempt message = %#v, want 3076 with %q", second, secondText)
+	}
+
+	traceText := string(outcome.Trace)
+	if !strings.Contains(traceText, "# exchange 3") || !strings.Contains(traceText, "# exchange 4") {
+		t.Fatalf("trace has no second login attempt:\n%s", traceText)
+	}
+	if got := strings.Count(traceText, "HKIDN:3:2"); got != 3 {
+		t.Fatalf("trace HKIDN requests = %d, want 3 (sync and both Inits)", got)
+	}
+}
+
+func TestRunRetryCancelIsCancelled(t *testing.T) {
+	interaction := &fakeInteraction{pin: testPIN}
+	prompts := make([]string, 0, 1)
+	interaction.confirm = func(message string) bool {
+		prompts = append(prompts, message)
+		return false
+	}
+	bank := approvalRetryGoBank(t, "Invented first attempt", "Invented second attempt")
+	input := newInput(t, interaction, factoryFor(bank))
+	input.Language = i18n.Fr
+
+	outcome := Run(context.Background(), input)
+	if outcome.Go || !outcome.Cancelled {
+		t.Fatalf("outcome = %s, want cancelled", outcome)
+	}
+	if outcome.Kind != fintsprobe.NoGoOther || outcome.Other != OtherCancelled {
+		t.Fatalf("kind/other = %d/%q, want %d/%q", outcome.Kind, outcome.Other, fintsprobe.NoGoOther, OtherCancelled)
+	}
+	wantPrompt := i18n.Text(i18n.Fr, i18n.TestConnectionApproveThenRetry)
+	if len(prompts) != 1 || prompts[0] != wantPrompt {
+		t.Fatalf("ConfirmDecoupled prompts = %q, want [%q]", prompts, wantPrompt)
+	}
+	if len(bank.records) != 3 {
+		t.Fatalf("exchanges = %d, want 3 with no request after the failed Init", len(bank.records))
+	}
+}
+
+func TestProbeInteractionConfirmRetryWithDoneContextShowsNothing(t *testing.T) {
+	calls := 0
+	interaction := &fakeInteraction{pin: testPIN}
+	interaction.confirm = func(string) bool {
+		calls++
+		return true
+	}
+	adapter := newProbeInteraction(interaction, i18n.En, nil)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	if adapter.ConfirmRetry(ctx) {
+		t.Fatal("ConfirmRetry returned true with a done context")
+	}
+	if calls != 0 {
+		t.Fatalf("ConfirmDecoupled calls = %d, want 0", calls)
 	}
 }
 
@@ -899,10 +1038,12 @@ func TestRunCollectsTheBanksWarningsAndErrors(t *testing.T) {
 	))
 	bank.reply(successResponse("dialog-sync"))
 	// Init numbers HKIDN 3, HKVVB 4 and HKTAN 5 inside HNVSD.
+	// 9942 is a PIN code, so the approval retry does not run: this test is
+	// about collecting the warning and error texts, not the retry path.
 	bank.reply(responseMessage(
 		testDialogID,
 		"HIRMG:2:2+3060::"+bankMessageMarker+"'",
-		"HIRMS:3:2:5+9210::"+bankMessageMarker+"'",
+		"HIRMS:3:2:5+9210::"+bankMessageMarker+"+9942::"+testMessage+"'",
 		"HIRMS:4:2:5+0020::"+testMessage+"'",
 	))
 

@@ -897,6 +897,7 @@ const (
 	TestConnectionCancelled
 	TestConnectionInvalidLogin
 	TestConnectionProductID
+	TestConnectionApproveThenRetry
 	SaveConnectionTrace
 	MessageConnectionTraceSaved
 	ErrorConnectionTrace
@@ -907,7 +908,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 897
+const NumKeys = 898
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1801,6 +1802,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	TestConnectionCancelled:             "TestConnectionCancelled",
 	TestConnectionInvalidLogin:          "TestConnectionInvalidLogin",
 	TestConnectionProductID:             "TestConnectionProductID",
+	TestConnectionApproveThenRetry:      "TestConnectionApproveThenRetry",
 	SaveConnectionTrace:                 "SaveConnectionTrace",
 	MessageConnectionTraceSaved:         "MessageConnectionTraceSaved",
 	ErrorConnectionTrace:                "ErrorConnectionTrace",

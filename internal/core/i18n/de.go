@@ -892,6 +892,7 @@ var deTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionCancelled:             "Verbindungstest abgebrochen.",
 	TestConnectionInvalidLogin:          "Die Anmeldedaten sind ungültig.",
 	TestConnectionProductID:             "Die FinTS-Produkt-ID fehlt oder ist ungültig.",
+	TestConnectionApproveThenRetry:      "Ihre Bank hat Ihnen eventuell eine Freigabeanfrage in ihre App geschickt. Bestätigen Sie sie dort und wählen Sie dann „Ich habe bestätigt“, um die Anmeldung erneut zu versuchen.",
 	SaveConnectionTrace:                 "Verschleierten Verlauf speichern…",
 	MessageConnectionTraceSaved:         "Der verschleierte Verlauf wurde gespeichert.",
 	ErrorConnectionTrace:                "Der verschleierte Verlauf konnte nicht gespeichert werden.",

@@ -311,6 +311,18 @@ func (p *probeInteraction) ConfirmInApp(_ context.Context, challenge string) {
 	}()
 }
 
+// ConfirmRetry shows the retry confirmation synchronously. It blocks until the
+// person answers; a cancelled context shows nothing and answers false. It does
+// not set cancelled itself: the probe turns a false answer into "Cancelled".
+func (p *probeInteraction) ConfirmRetry(ctx context.Context) bool {
+	if ctx.Err() != nil {
+		return false
+	}
+	return p.interaction.ConfirmDecoupled(
+		i18n.Text(p.language, i18n.TestConnectionApproveThenRetry),
+	)
+}
+
 // Notice shows the probe's fixed notices as localized app text.
 func (p *probeInteraction) Notice(notice fintsprobe.Notice) {
 	if notice != fintsprobe.NoticeTanMethodUnsupported {

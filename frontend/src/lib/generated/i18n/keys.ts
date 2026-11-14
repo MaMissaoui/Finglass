@@ -891,6 +891,7 @@ export const keys = [
   'TestConnectionCancelled',
   'TestConnectionInvalidLogin',
   'TestConnectionProductID',
+  'TestConnectionApproveThenRetry',
   'SaveConnectionTrace',
   'MessageConnectionTraceSaved',
   'ErrorConnectionTrace',
