@@ -909,4 +909,5 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	SyncLockedHint:                      "La synchronisation est bloquée jusqu'à ce que le test de connexion renvoie GO.",
 	SyncAllSkippedLocked:                "%d {1:banque a été ignorée|banques ont été ignorées} car le dernier test de connexion n'était pas GO : %s. Lancez d'abord le test de connexion.",
 	SyncAllNothingReady:                 "Aucune banque de « Tout synchroniser » n'est prête. Lancez d'abord le test de connexion.",
+	TestConnectionStrongSyncNoUnlock:    "La synchronisation reste verrouillée pour l'instant : elle ne peut pas encore se réenregistrer avec une TAN.",
 }

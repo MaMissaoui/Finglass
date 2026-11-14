@@ -16,11 +16,17 @@ const (
 )
 
 // SyncUnlockActionFor maps a completed test outcome to the unlock change. A GO
-// unlocks. A NO-GO in which the bank answered locks. A cancel, TAN timeout,
+// unlocks unless it needed the strong-sync fallback. A NO-GO in which the bank answered locks. A cancel, TAN timeout,
 // prompt failure, transport/network failure, invalid input or missing product
 // id leaves the unlock unchanged.
 func SyncUnlockActionFor(outcome Outcome) SyncUnlockAction {
 	if outcome.Cancelled || outcome.Other == OtherCancelled {
+		return SyncUnlockUnchanged
+	}
+	if outcome.Go && outcome.StrongSync {
+		// The GO needed a fresh registration with a TAN, which the sync
+		// gateway does not do yet: unlocking would let every Sync now repeat
+		// the bank's rejection. The result line says why it stays locked.
 		return SyncUnlockUnchanged
 	}
 	if outcome.Go {

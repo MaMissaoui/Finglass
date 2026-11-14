@@ -4264,6 +4264,11 @@
     "de": "Die Bank hat eine Freigabe in ihrer App verlangt.",
     "fr": "La banque a demandé une approbation dans son application."
   },
+  "TestConnectionStrongSyncNoUnlock": {
+    "en": "Sync stays locked for now: it can't register again with a TAN yet.",
+    "de": "Die Synchronisierung bleibt vorerst gesperrt: Sie kann sich noch nicht erneut mit TAN anmelden.",
+    "fr": "La synchronisation reste verrouillée pour l'instant : elle ne peut pas encore se réenregistrer avec une TAN."
+  },
   "TestConnectionStrongSyncNotice": {
     "en": "Your bank rejected the login. Finglass now registers this device again with your TAN method. If your bank app shows a new approval request, approve the newest one and type the TAN it shows. Ignore an older request.",
     "de": "Ihre Bank hat die Anmeldung abgelehnt. Finglass meldet dieses Gerät jetzt erneut mit Ihrem TAN-Verfahren an. Wenn Ihre Bank-App eine neue Freigabeanfrage zeigt, bestätigen Sie die neueste und geben Sie die angezeigte TAN ein. Eine ältere Anfrage ignorieren Sie.",

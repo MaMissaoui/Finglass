@@ -914,10 +914,11 @@ const (
 	SyncLockedHint
 	SyncAllSkippedLocked
 	SyncAllNothingReady
+	TestConnectionStrongSyncNoUnlock
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 907
+const NumKeys = 908
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1828,6 +1829,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	SyncLockedHint:                      "SyncLockedHint",
 	SyncAllSkippedLocked:                "SyncAllSkippedLocked",
 	SyncAllNothingReady:                 "SyncAllNothingReady",
+	TestConnectionStrongSyncNoUnlock:    "TestConnectionStrongSyncNoUnlock",
 }
 
 // keysByName is built from keyNames, so the two cannot drift apart.

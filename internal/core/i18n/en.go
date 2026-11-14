@@ -909,4 +909,5 @@ var enTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	SyncLockedHint:                      "Sync is locked until Test connection returns GO.",
 	SyncAllSkippedLocked:                "%d {1:bank was|banks were} skipped because {1:its|their} last Test connection was not GO: %s. Run Test connection first.",
 	SyncAllNothingReady:                 "No bank in Sync all is ready yet. Run Test connection first.",
+	TestConnectionStrongSyncNoUnlock:    "Sync stays locked for now: it can't register again with a TAN yet.",
 }

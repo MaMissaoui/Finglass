@@ -40,12 +40,15 @@ func OnlineSyncReady() bool {
 	return OnlineSyncAvailable && onlineSyncProductPresent()
 }
 
-// onlineSyncProductPresent is the product-id seam. Production reads
-// fintsproduct.Present; tests may override it.
+// onlineSyncProductPresent is the product-id seam for the sync controls only.
+// Production reads fintsproduct.Present; tests may override it. The gateway
+// selection never reads it: the real gateway is built only when the build
+// really links a product id, so the seam cannot make a test dial a bank.
 var onlineSyncProductPresent = fintsproduct.Present
 
 // SetOnlineSyncProductPresentForTest overrides the product-id presence check
-// and returns a restore function. Tests only.
+// of OnlineSyncReady (the sync controls) and returns a restore function. Tests
+// only; it never changes which gateway is built.
 func SetOnlineSyncProductPresentForTest(present bool) func() {
 	previous := onlineSyncProductPresent
 	onlineSyncProductPresent = func() bool { return present }
@@ -163,7 +166,7 @@ func (s *Session) bankingServiceWithTraceLocked(
 	if err != nil {
 		return nil, false
 	}
-	gateway := selectGateway(OnlineSyncAvailable, onlineSyncProductPresent(), language, func() banksync.FinTsGateway {
+	gateway := selectGateway(OnlineSyncAvailable, fintsproduct.Present(), language, func() banksync.FinTsGateway {
 		options := make([]fintsgateway.Option, 0, 1)
 		if sink != nil {
 			options = append(options, fintsgateway.WithTransportWrapper(sink.wrap))
