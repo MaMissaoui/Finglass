@@ -139,8 +139,8 @@ Same palette, type, surfaces and signature. v2 changes how state, edges and figu
   `aria-describedby`; counters update while typing.
 - **Motion.** Menus, hover and the sidebar move in 120–200 ms; with "Reduce motion" on, nothing animates.
 - **Narrow windows.** Below 960 px the sidebar collapses on its own (the collapsed state already exists).
-- **Checks.** The Playwright run includes an automated accessibility check on every screenshot state and fails on
-  serious or critical findings.
+- Accessibility check: Playwright runs axe (WCAG 2.1 A/AA) on the main states in light and dark and fails on serious
+  or critical findings.
 
 ## Phases
 

@@ -2,16 +2,18 @@
   let {
     count,
     selected = false,
+    label = '',
   }: {
     count: number;
     selected?: boolean;
+    label?: string;
   } = $props();
 
-  const label = $derived(count > 99 ? '99+' : String(count));
+  const labelText = $derived(count > 99 ? '99+' : String(count));
 </script>
 
 {#if count > 0}
-  <span class="count" class:selected>{label}</span>
+  <span class="count" class:selected aria-label={label || undefined}>{labelText}</span>
 {/if}
 
 <style>

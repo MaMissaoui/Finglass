@@ -82,9 +82,7 @@ function pageRoot(page: Page) {
 }
 
 function listRows(page: Page) {
-  return page
-    .getByTestId('transactions-list')
-    .locator('.row[role="button"]:not([aria-disabled="true"])');
+  return page.getByTestId('transactions-list').locator('.row:not(.pending)');
 }
 
 function summaryCount(page: Page): Promise<string> {
