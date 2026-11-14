@@ -76,7 +76,9 @@ testdata/golden/             reference outputs of Finglass 0.3.4 that the Go cod
 - [x] **You:** check that the release build saves a redacted trace from a Test connection (and, once sync is on, from
   a sync).
   Done with today's candidate builds (Test connection traces saved for HVB, mode 0600); the sync half waits for sync.
-- [ ] **You:** push the tag (`v0.4.0`). The release workflow publishes only when `docs/releases/<tag>.md` exists.
+- [x] Push the tag (`v0.4.0`). Done 2026-11-14 at `c5b292f` (your OK: "after the CI PR"); the pre-release
+  [Finglass 0.4.0 (alpha)](https://github.com/MaMissaoui/Finglass/releases/tag/v0.4.0) has the DMG and `SHA256SUMS.txt`,
+  and the tag build's self-check reported the FinTS product id as present.
 - [ ] **You:** after installing, rename `~/.finglass` (keep it, don't delete it) and start Finglass; it offers the
   FinDesk migration.
 - [x] The FinDesk migration fills missing FinTS server URLs from the installed FinDesk.app's bank list (read-only;
