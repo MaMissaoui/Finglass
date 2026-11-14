@@ -669,9 +669,11 @@ export class MockReports {
       }))
       .filter((row) => row.amount > 0);
     const largest = amounts.reduce((max, row) => Math.max(max, row.amount), 0);
-    return amounts.map((row) => ({
+    const percentages = shares(amounts.map((row) => row.amount));
+    return amounts.map((row, index) => ({
       label: row.label,
       amountText: plainMoney(row.amount, this.language),
+      percentText: percentText(percentages[index] ?? 0, this.language),
       fraction: largest === 0 ? 0 : row.amount / largest,
     }));
   }

@@ -12,6 +12,7 @@
     SearchField,
     TextButton,
   } from '../../lib/components';
+  import { splitCurrencyAmounts } from '../../lib/currencyAmounts';
 
   let {
     rows,
@@ -148,6 +149,7 @@
 
   <div class="rows">
     {#each rows as row, index (rowKey(row))}
+      {@const split = splitCurrencyAmounts(row.totals)}
       <div class="row-block">
         {#if index > 1 && row.kind === 'group'}
           <div class="group-gap" aria-hidden="true"></div>
@@ -220,13 +222,21 @@
           </span>
 
           <div class="amounts">
-            {#each row.totals as amount (amount.text)}
+            {#if split.main}
               <span
                 class="amount"
-                class:muted={amountClass(row, amount.tone) === 'muted'}
-                class:negative={amountClass(row, amount.tone) === 'negative'}>{amount.text}</span
+                class:muted={amountClass(row, split.main.tone) === 'muted'}
+                class:negative={amountClass(row, split.main.tone) === 'negative'}
+                >{split.main.text}</span
               >
-            {/each}
+            {/if}
+            {#if split.further.length > 0}
+              <span class="amount-further">
+                {#each split.further as amount (amount.text)}
+                  <span>+ {amount.text}</span>
+                {/each}
+              </span>
+            {/if}
           </div>
 
           {#if row.newCount > 0 || row.kind === 'account' || (row.kind === 'group' && row.groupKind === 'custom')}
@@ -567,6 +577,18 @@
 
   .amount.negative {
     color: var(--color-error);
+  }
+
+  .amount-further {
+    color: var(--color-muted-text);
+    font-size: var(--type-label-small-size);
+    font-weight: var(--type-label-small-weight);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .amount-further span + span {
+    margin-left: var(--space-xs);
   }
 
   .row.selected .amount {

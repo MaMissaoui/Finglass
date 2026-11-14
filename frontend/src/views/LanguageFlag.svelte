@@ -48,6 +48,7 @@
     flex: 1;
   }
 
+  /* The flags keep their own colours; they are not theme tokens. */
   .de .black {
     background: #000000;
   }

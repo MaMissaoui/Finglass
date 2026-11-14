@@ -49,10 +49,25 @@
   let languageMenuOpen = $state(false);
   let profileMenuOpen = $state(false);
   let pending = $state(false);
+  let windowWidth = $state(typeof window === 'undefined' ? 1440 : window.innerWidth);
+  let manualCollapsed = $state<boolean | null>(null);
+  let lastNarrow = typeof window === 'undefined' ? false : window.innerWidth < 960;
 
   const language = $derived<Language>(languageFromCode(dto.language));
   const busy = $derived(dto.busy || pending);
   const effectiveDark = $derived(dto.theme === 'dark' || (dto.theme !== 'light' && systemDark));
+  const narrow = $derived(windowWidth < 960);
+  const sidebarCollapsed = $derived(manualCollapsed ?? (dto.sidebarCollapsed || narrow));
+
+  // Below 960 px the sidebar collapses on its own. A manual toggle wins until
+  // the window crosses that breakpoint again.
+  $effect(() => {
+    if (narrow === lastNarrow) {
+      return;
+    }
+    lastNarrow = narrow;
+    manualCollapsed = null;
+  });
   const languageLabel = $derived(`${t('ChangeLanguage')} · ${nativeName(language)}`);
   const openProfileName = $derived(dto.currentProfileName);
 
@@ -85,7 +100,9 @@
   }
 
   function toggleSidebar(): void {
-    void apply(() => api.setSidebarCollapsed(!dto.sidebarCollapsed));
+    const next = !sidebarCollapsed;
+    manualCollapsed = next;
+    void apply(() => api.setSidebarCollapsed(next));
   }
 
   function toggleTheme(): void {
@@ -132,11 +149,13 @@
   });
 </script>
 
+<svelte:window bind:innerWidth={windowWidth} />
+
 <div class="shell">
-  <aside class="sidebar" class:collapsed={dto.sidebarCollapsed} data-testid="sidebar">
+  <aside class="sidebar" class:collapsed={sidebarCollapsed} data-testid="sidebar">
     <div class="brand">
       <img src={icon} alt={t('AppLogo')} width="36" height="36" />
-      {#if !dto.sidebarCollapsed}
+      {#if !sidebarCollapsed}
         <!-- The product name: not a translated text. -->
         <span class="app-name">Finglass</span>
       {/if}
@@ -146,12 +165,12 @@
 
     <nav class="nav">
       {#each pages as page (page.screen)}
-        <div class="nav-row" title={dto.sidebarCollapsed ? t(page.key) : undefined}>
+        <div class="nav-row" title={sidebarCollapsed ? t(page.key) : undefined}>
           <SidebarItem
             label={t(page.key)}
             icon={page.icon}
             selected={dto.screen === page.screen}
-            collapsed={dto.sidebarCollapsed}
+            collapsed={sidebarCollapsed}
             onactivated={() => navigate(page.screen)}
           />
         </div>
@@ -160,7 +179,7 @@
 
     <div class="spacer"></div>
 
-    {#if !dto.sidebarCollapsed}
+    {#if !sidebarCollapsed}
       <p class="version">{dto.version}</p>
     {/if}
   </aside>
@@ -170,8 +189,8 @@
   <div class="main">
     <header class="topbar">
       <IconButton
-        icon={dto.sidebarCollapsed ? 'menu' : 'menu-open'}
-        label={dto.sidebarCollapsed ? t('ExpandSidebar') : t('CollapseSidebar')}
+        icon={sidebarCollapsed ? 'menu' : 'menu-open'}
+        label={sidebarCollapsed ? t('ExpandSidebar') : t('CollapseSidebar')}
         filled
         onclick={toggleSidebar}
       />

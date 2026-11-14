@@ -8,6 +8,7 @@
     PrimaryButton,
     SearchField,
   } from '../../lib/components';
+  import { splitCurrencyAmounts } from '../../lib/currencyAmounts';
   import { languageFromCode, translate, type FormatArg, type Language } from '../../lib/i18n';
   import AccountPanel from './AccountPanel.svelte';
   import AddTransactionDialog from './transactions/AddTransactionDialog.svelte';
@@ -42,6 +43,8 @@
   const language = $derived<Language>(languageFromCode(shell.language));
   const panelShown = $derived(windowWidth >= 1000);
   const panelWide = $derived(windowWidth >= 1280);
+  const incomeSplit = $derived(splitCurrencyAmounts(dto?.incomeAmounts ?? []));
+  const expenseSplit = $derived(splitCurrencyAmounts(dto?.expenseAmounts ?? []));
 
   function t(key: string, ...args: FormatArg[]): string {
     return translate(language, key, ...args);
@@ -219,15 +222,29 @@
           </div>
           <div class="figure">
             <span class="figure-label">{t('SummaryIn')}</span>
-            {#each dto.incomeAmounts as amount (amount.text)}
-              <span class="figure-amount in">{amount.text}</span>
-            {/each}
+            {#if incomeSplit.main}
+              <span class="figure-amount in">{incomeSplit.main.text}</span>
+            {/if}
+            {#if incomeSplit.further.length > 0}
+              <span class="figure-further" data-testid="transactions-income-further">
+                {#each incomeSplit.further as amount (amount.text)}
+                  <span>+ {amount.text}</span>
+                {/each}
+              </span>
+            {/if}
           </div>
           <div class="figure">
             <span class="figure-label">{t('SummaryOut')}</span>
-            {#each dto.expenseAmounts as amount (amount.text)}
-              <span class="figure-amount">{amount.text}</span>
-            {/each}
+            {#if expenseSplit.main}
+              <span class="figure-amount">{expenseSplit.main.text}</span>
+            {/if}
+            {#if expenseSplit.further.length > 0}
+              <span class="figure-further" data-testid="transactions-expense-further">
+                {#each expenseSplit.further as amount (amount.text)}
+                  <span>+ {amount.text}</span>
+                {/each}
+              </span>
+            {/if}
           </div>
           {#if dto.hasBalance}
             <div class="figure">
@@ -680,6 +697,20 @@
 
   .figure-amount.muted {
     color: var(--color-muted-text);
+  }
+
+  .figure-further {
+    overflow: hidden;
+    color: var(--color-muted-text);
+    font-size: var(--type-label-small-size);
+    font-weight: var(--type-label-small-weight);
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .figure-further span + span {
+    margin-left: var(--space-sm);
   }
 
   .summary-spacer {

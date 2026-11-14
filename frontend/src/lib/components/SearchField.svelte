@@ -73,7 +73,7 @@
     gap: var(--space-sm);
     height: var(--size-control-height);
     padding: 0 6px 0 14px;
-    border: 1px solid var(--color-divider);
+    border: 1px solid var(--color-control-border);
     border-radius: var(--radius-control);
     background: var(--color-surface);
     color: var(--color-muted-text);

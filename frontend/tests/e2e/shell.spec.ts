@@ -167,7 +167,8 @@ test('the reference screenshots', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Übersicht' })).toBeVisible();
   await shot(page, 'topbar-sidebar-collapsed-de-dark');
 
-  await goto(page, 'shell-collapsed', 900, 720);
+  await goto(page, 'shell', 900, 720);
+  await expect(page.getByTestId('sidebar')).toHaveClass(/collapsed/);
   await shot(page, 'topbar-sidebar-collapsed-narrow-en-light');
 
   await goto(page, 'shell');
@@ -353,6 +354,34 @@ test('unlock rejects a wrong passphrase and opens with the right one', async ({ 
   await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible();
   await page.getByRole('button', { name: 'Documents' }).click();
   await expect(page.getByRole('heading', { name: 'Documents' })).toBeVisible();
+
+  await expectClean(watcher);
+});
+
+test('the sidebar collapses below 960 px and a manual choice wins until the breakpoint', async ({
+  page,
+}) => {
+  const watcher = await watch(page);
+  await goto(page, 'shell', 1100, 720);
+  const sidebar = page.getByTestId('sidebar');
+  await expect(sidebar).not.toHaveClass(/collapsed/);
+
+  await page.setViewportSize({ width: 900, height: 720 });
+  await expect(sidebar).toHaveClass(/collapsed/);
+
+  // A manual expand wins while the window stays narrow.
+  await page.getByRole('button', { name: 'Expand sidebar' }).click();
+  await expect(sidebar).not.toHaveClass(/collapsed/);
+  await page.setViewportSize({ width: 940, height: 720 });
+  await expect(sidebar).not.toHaveClass(/collapsed/);
+
+  // Crossing the breakpoint again hands control back to the narrow rule.
+  await page.setViewportSize({ width: 1100, height: 720 });
+  await expect(sidebar).not.toHaveClass(/collapsed/);
+  // Let the crossing's effect run before crossing back.
+  await page.waitForTimeout(50);
+  await page.setViewportSize({ width: 900, height: 720 });
+  await expect(sidebar).toHaveClass(/collapsed/);
 
   await expectClean(watcher);
 });

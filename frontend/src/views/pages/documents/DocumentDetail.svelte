@@ -1,6 +1,12 @@
 <script lang="ts">
   import type { DocumentsDTO } from '../../../lib/api';
-  import { SecondaryButton, SearchField, TextButton } from '../../../lib/components';
+  import {
+    IconButton,
+    PrimaryButton,
+    SecondaryButton,
+    SearchField,
+    TextButton,
+  } from '../../../lib/components';
   import DocumentLinkRow from './DocumentLinkRow.svelte';
 
   let {
@@ -33,13 +39,10 @@
   </div>
 
   <div class="actions">
-    <div class="action-row">
-      <SecondaryButton text={t('Open')} onclick={onopen} />
-      <SecondaryButton text={t('ReExtractText')} enabled={!dto.uploading} onclick={onreprocess} />
-    </div>
-    <div class="action-row">
-      <SecondaryButton text={t('Delete')} onclick={ondelete} />
-    </div>
+    <PrimaryButton text={t('Open')} onclick={onopen} />
+    <SecondaryButton text={t('ReExtractText')} enabled={!dto.uploading} onclick={onreprocess} />
+    <span class="action-spacer"></span>
+    <IconButton icon="delete" label={t('Delete')} destructive onclick={ondelete} />
   </div>
 
   {#if dto.previewKind === 'image' && dto.previewDataUrl !== ''}
@@ -139,15 +142,12 @@
   .actions {
     display: flex;
     flex: none;
-    flex-direction: column;
     gap: 8px;
-    align-items: flex-start;
+    align-items: center;
   }
 
-  .action-row {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
+  .action-spacer {
+    flex: 1;
   }
 
   .preview-image {

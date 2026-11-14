@@ -103,7 +103,7 @@
   .field {
     position: relative;
     height: var(--size-field-height);
-    border: 1px solid var(--color-divider);
+    border: 1px solid var(--color-control-border);
     border-radius: var(--radius-field);
     background: var(--color-surface);
   }
