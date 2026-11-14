@@ -1,7 +1,7 @@
 // Package banktext is display-only cleanup of raw bank text for lists.
 //
-// It ports crates/finglass-core/src/bank_text.rs, itself ported from FinDesk's
-// `util/BankText.kt`. The stored `purpose` and `partner_name` never change:
+// It follows FinDesk's `util/BankText.kt`. The stored `purpose` and
+// `partner_name` never change:
 // rules, search and duplicate detection work on the raw text. These functions
 // only render the readable part of it.
 package banktext

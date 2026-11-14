@@ -395,7 +395,7 @@ func TestTheMarkerRecordsTheChoiceAsRFC3339(t *testing.T) {
 	}
 }
 
-func TestTheMarkerWritesRustsRFC3339Fractions(t *testing.T) {
+func TestTheMarkerWritesRFC3339Fractions(t *testing.T) {
 	target := testPaths(t)
 	base := time.Date(2026, time.October, 15, 12, 34, 56, 0, time.UTC)
 

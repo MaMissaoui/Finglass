@@ -55,8 +55,7 @@ export function AnswerTan(id: number, tan: string): $CancellablePromise<void> {
 }
 
 /**
- * BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ, as
- * Rust's update_bank_blz does.
+ * BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ.
  */
 export function BankBLZChanged(name: string, blz: string, bic: string): $CancellablePromise<$models.AddBankFieldsDTO> {
     return $Call.ByID(3863024602, name, blz, bic).then(($result: any) => {
@@ -174,8 +173,7 @@ export function OpenHistoryDialog(bankID: number): $CancellablePromise<$models.B
 }
 
 /**
- * PickBankSuggestion maps a picked search suggestion to the dialog fields, as
- * Rust's pick_bank_suggestion does.
+ * PickBankSuggestion maps a picked search suggestion to the dialog fields.
  */
 export function PickBankSuggestion(name: string, blz: string, bic: string): $CancellablePromise<$models.AddBankFieldsDTO> {
     return $Call.ByID(2551104547, name, blz, bic).then(($result: any) => {
@@ -212,8 +210,7 @@ export function SaveConnectionTrace(): $CancellablePromise<$models.BankingDTO> {
 }
 
 /**
- * SearchBanks re-runs the in-memory bank search for the dialog's current query,
- * as Rust's update_bank_search does.
+ * SearchBanks re-runs the in-memory bank search for the dialog's current query.
  */
 export function SearchBanks(query: string): $CancellablePromise<$models.BankSuggestionDTO[]> {
     return $Call.ByID(816010235, query).then(($result: any) => {

@@ -391,8 +391,8 @@ export function SaveProfile(name: string): $CancellablePromise<$models.SettingsD
 }
 
 /**
- * SaveRule saves the rule dialog's fields. The dropdown indices are resolved
- * exactly as Rust's field_at, direction_at and tax_at do.
+ * SaveRule saves the rule dialog's fields. The dropdown indices are resolved to
+ * the rule's field, direction and tax flag.
  * 
  * flow is the direction index; the name avoids "dir", which the bindings'
  * path-reflection check would mistake for a directory parameter.

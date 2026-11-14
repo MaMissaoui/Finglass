@@ -1,5 +1,5 @@
 // Reading and parsing a statement file, and converting imported decimals to
-// money. Ports the non-service parts of crates/finglass-core/src/import/mod.rs.
+// money.
 package imports
 
 import (
@@ -18,8 +18,8 @@ import (
 // MaxFileBytes is the largest statement file Finglass reads.
 const MaxFileBytes uint64 = 100 * 1024 * 1024
 
-// MAX_FILE_BYTES is the Rust spelling of MaxFileBytes, kept for callers that
-// mirror the crate's constant.
+// MAX_FILE_BYTES is the legacy spelling of MaxFileBytes, kept for callers that
+// use the constant name.
 const MAX_FILE_BYTES = MaxFileBytes
 
 var lowerText = cases.Lower(language.Und)
@@ -75,7 +75,7 @@ func Read(fileName string, data []byte, csvMapping *CsvMapping, today civil.Date
 	return statement, nil
 }
 
-// fileExtension mirrors Rust's Path::extension for Unix paths.
+// fileExtension returns the extension of a Unix path.
 func fileExtension(fileName string) string {
 	base := fileName
 	if index := strings.LastIndexByte(base, '/'); index >= 0 {

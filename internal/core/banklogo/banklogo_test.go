@@ -229,7 +229,7 @@ func TestMonogramColourIsStableAndInRange(t *testing.T) {
 }
 
 func TestMonogramColourUsesFullLowerCasing(t *testing.T) {
-	// Rust lower-cases İ (U+0130) to "i" + U+0307 (combining dot above).
+	// İ (U+0130) lower-cases to "i" + U+0307 (combining dot above).
 	// Those are UTF-8 bytes 0x69, 0xCC and 0x87:
 	// 105 + 204 + 135 = 444, and 444 % 8 = 4.
 	const want uint8 = 4

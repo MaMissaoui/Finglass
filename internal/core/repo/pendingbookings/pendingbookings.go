@@ -1,8 +1,7 @@
 // Package pendingbookings is the pending booking repository.
 //
 // The bank's pending lines are fetched apart from the real bookings. Nothing of
-// the booking pipeline reads them. It ports
-// `crates/finglass-core/src/repo/pending_bookings.rs`.
+// the booking pipeline reads them.
 package pendingbookings
 
 import (

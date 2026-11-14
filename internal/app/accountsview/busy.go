@@ -12,7 +12,7 @@ import "sync/atomic"
 // FinDesk's Busy is a global object. Here it is a cheap shared handle: the app
 // creates one per open profile and gives copies to every view and worker, so
 // tests (which run in parallel) each get their own. Busy values compare by
-// identity, as Rust's Arc::ptr_eq: use == on the handles.
+// identity: use == on the handles.
 type Busy struct {
 	state *busyState
 }

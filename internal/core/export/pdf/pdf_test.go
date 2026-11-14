@@ -10,13 +10,13 @@ import (
 	"testing"
 )
 
-func TestMinimalPDFMatchesRust(t *testing.T) {
+func TestMinimalPDFMatchesV034(t *testing.T) {
 	builder := NewBuilder()
 	builder.Text("Hello", Bold, 18.0)
 	assertPDF(t, "testdata/minimal.pdf", builder.Finish())
 }
 
-func TestFlowPDFMatchesRust(t *testing.T) {
+func TestFlowPDFMatchesV034(t *testing.T) {
 	builder := NewBuilder()
 	builder.Heading("Steuerrelevante Buchungen 2026 – Größe · € …")
 	builder.Text("Generated 15.10.2026 ✓ (tab\there, cr\rhere, nl\nhere) (parens) \\backslash", Regular, 9.0)
@@ -98,7 +98,7 @@ type metricsFile struct {
 	TextFromWinAnsi []uint32      `json:"text_from_winansi"`
 }
 
-func TestMetricsMatchRust(t *testing.T) {
+func TestMetricsMatchV034(t *testing.T) {
 	data, err := os.ReadFile("testdata/metrics.json") // #nosec G304 -- fixed repository fixture path.
 	if err != nil {
 		t.Fatalf("read metrics: %v", err)

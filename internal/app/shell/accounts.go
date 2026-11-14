@@ -17,7 +17,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 )
 
-// AccountsDialogState is the Accounts page's dialog state without Slint.
+// AccountsDialogState is the Accounts page's dialog state.
 //
 // Kind is "" when no dialog is open, otherwise one of "add-bank",
 // "add-account", "balance", "rename", "delete-account" or "delete-bank".
@@ -92,8 +92,8 @@ func (s *Session) beginAccountsLoadLocked() *pageJob {
 	if s.db == nil {
 		return nil
 	}
-	// Rust closes an open detail view before it begins the load, so a fresh
-	// page never shows a stale account.
+	// An open detail view is closed before the load begins, so a fresh page
+	// never shows a stale account.
 	s.accounts.CloseDetail()
 	return s.beginAccountsJobLocked(true, func(pending *accountsview.AccountsState, database *db.Database) {
 		_ = pending.LoadAccounts(context.Background(), database)
@@ -132,7 +132,7 @@ func (s *Session) beginAccountsJobLocked(
 		pending.IsLoading = true
 	}
 
-	// Rust refreshes the banking state in the same worker as an Accounts load,
+	// The banking state is refreshed in the same worker as an Accounts load,
 	// then merges only the fresh bank list into the live state so a sync that
 	// was claimed meanwhile keeps its spinner and progress.
 	var (
@@ -161,8 +161,7 @@ func (s *Session) beginAccountsJobLocked(
 		database:   database,
 		also:       "banking",
 		load: func(ctx context.Context, open *db.Database) {
-			// Rust's BusyGuard ends the busy section when the worker returns,
-			// before the event-loop publish.
+			// The busy section ends when the worker returns, before the publish.
 			defer busy.End()
 			work(&pending, open)
 			if bankingPending != nil {
@@ -171,9 +170,8 @@ func (s *Session) beginAccountsJobLocked(
 		},
 		publish: func() {
 			// The free-text filter is UI-only and actions never change it. A
-			// filter change may have happened while the worker ran, as the
-			// event loop would have serialized in Rust; the live text wins over
-			// the snapshot's.
+			// filter change may have happened while the worker ran; the live
+			// text wins over the snapshot's.
 			pending.AccountFilterText = s.accounts.AccountFilterText
 			s.accounts = &pending
 		},
@@ -720,8 +718,8 @@ func accountsSelectionFrom(
 	}
 }
 
-// accountsAccountIdentifier is Rust's account_identifier: the formatted IBAN,
-// or the account number when there is no IBAN.
+// accountsAccountIdentifier is the formatted IBAN, or the account number when
+// there is no IBAN.
 func accountsAccountIdentifier(account accountsview.AccountItem) string {
 	if trimmed := strings.TrimSpace(account.IBAN); trimmed != "" {
 		return accountids.Display(trimmed)

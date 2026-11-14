@@ -1,5 +1,5 @@
 // Reading bank CSV exports (Sparkasse, ING, DKB, Commerzbank, comdirect, N26,
-// … and generic ones). Ports crates/finglass-core/src/import/csv.rs.
+// … and generic ones).
 package imports
 
 import (

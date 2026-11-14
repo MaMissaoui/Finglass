@@ -97,7 +97,7 @@ func vectorPurpose(t *testing.T, purpose string) Purpose {
 	}
 }
 
-func TestVectorsMatchTheRustBuild(t *testing.T) {
+func TestVectorsMatchV034(t *testing.T) {
 	for _, vector := range loadVectors(t) {
 		name := fmt.Sprintf("%s/%s", vector.Purpose, vector.InputHex)
 		if vector.InputHex == "" {

@@ -1,5 +1,5 @@
-// Reading OFX bank statement files, both OFX 1.x SGML and OFX 2.x XML. Ports
-// crates/finglass-core/src/import/ofx.rs.
+// Reading OFX bank statement files, both OFX 1.x SGML and OFX 2.x XML.
+
 package imports
 
 import (

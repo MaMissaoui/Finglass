@@ -1,6 +1,4 @@
 // Package categories is the category repository.
-//
-// It ports `crates/finglass-core/src/repo/categories.rs`.
 package categories
 
 import (
@@ -111,7 +109,7 @@ func DefaultColourFor(name string, lang i18n.Language) *string {
 	return nil
 }
 
-// equalASCIIFold matches Rust's `eq_ignore_ascii_case`.
+// equalASCIIFold compares two strings ignoring ASCII case.
 func equalASCIIFold(left, right string) bool {
 	if len(left) != len(right) {
 		return false

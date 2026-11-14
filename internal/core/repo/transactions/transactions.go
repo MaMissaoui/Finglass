@@ -1,6 +1,4 @@
 // Package transactions is the transaction repository.
-//
-// It ports `crates/finglass-core/src/repo/transactions.rs`.
 package transactions
 
 import (
@@ -15,12 +13,12 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/debugquote"
 	"github.com/MaMissaoui/Finglass/internal/core/decimal"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 	"github.com/MaMissaoui/Finglass/internal/core/repo"
 	"github.com/MaMissaoui/Finglass/internal/core/rules"
-	"github.com/MaMissaoui/Finglass/internal/core/rustfmt"
 )
 
 // chunk is the batch chunk size: SQLite's bound-parameter limit is at least
@@ -562,13 +560,13 @@ func taxRules(ctx context.Context, conn *sql.Conn) ([]taxRuleSpec, error) {
 		matchField, ok := model.RuleFieldFromStored(matchFieldText)
 		if !ok {
 			return nil, repo.InvalidError{
-				Msg: "unknown rule match field " + rustfmt.Quote(matchFieldText),
+				Msg: "unknown rule match field " + debugquote.Quote(matchFieldText),
 			}
 		}
 		direction, ok := model.RuleDirectionFromStored(directionText)
 		if !ok {
 			return nil, repo.InvalidError{
-				Msg: "unknown rule direction " + rustfmt.Quote(directionText),
+				Msg: "unknown rule direction " + debugquote.Quote(directionText),
 			}
 		}
 		_ = priority
@@ -1378,7 +1376,7 @@ func HasBookings(ctx context.Context, d *db.Database, accountID model.AccountID)
 // CountNew returns new (unread) bookings per account; accounts with none are
 // absent from the map.
 //
-// The map is unordered. Rust callers only look entries up by account id.
+// The map is unordered. Callers only look entries up by account id.
 func CountNew(ctx context.Context, d *db.Database) (map[model.AccountID]int64, error) {
 	var counts map[model.AccountID]int64
 

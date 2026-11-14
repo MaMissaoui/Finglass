@@ -267,8 +267,8 @@ func TestAfterASwitchTheControllersAndUnlockUseTheTargetFolder(t *testing.T) {
 	requireClosed(t, old, "the old database")
 }
 
-// A review addition: Go's calls can interleave where Rust's UI thread cannot, so
-// no job and no unlock may start between the teardown and the end of a switch.
+// A review addition: Go's calls can interleave, so no job and no unlock may
+// start between the teardown and the end of a switch.
 func TestNothingStartsBetweenTheTeardownAndTheEndOfASwitch(t *testing.T) {
 	appPaths := testPaths(t)
 	old := createTestDatabase(t, appPaths, "default")

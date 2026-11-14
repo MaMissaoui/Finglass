@@ -269,7 +269,8 @@ func TestShopMatchExposesTheProviderViewForMarkerAndCardBookings(t *testing.T) {
 
 // TestShopOffsetsAreRuneSafe proves a regexp2 rune offset is never used as a
 // byte offset: non-ASCII text before the marker and before a PP id must still
-// yield the shop. The expected values come from the Rust code by hand.
+// yield the shop. The expected values were worked out by hand from the reference
+// behaviour.
 func TestShopOffsetsAreRuneSafe(t *testing.T) {
 	assertShop(
 		t,
@@ -284,9 +285,9 @@ func TestShopOffsetsAreRuneSafe(t *testing.T) {
 	)
 }
 
-// Rust's sanitize trims with char::is_alphanumeric and requires
-// char::is_alphabetic, which include letter numbers such as Ⅻ (U+216B, Nl).
-func TestShopSanitizeUsesRustAlphabetic(t *testing.T) {
+// The sanitizer trims with is_alphanumeric and requires is_alphabetic, which
+// include letter numbers such as Ⅻ (U+216B, Nl).
+func TestShopSanitizeUsesUnicodeAlphabetic(t *testing.T) {
 	purpose := "PAYPAL *Ⅻ Ⅻ"
 	got := ShopMatchOf(&purpose, nil)
 	if got == nil || got.Shop != "Ⅻ Ⅻ" {

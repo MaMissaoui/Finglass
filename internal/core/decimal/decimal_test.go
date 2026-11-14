@@ -14,7 +14,7 @@ func mustParse(t *testing.T, text string) Decimal {
 	return value
 }
 
-func TestParseMatchesRustDecimal(t *testing.T) {
+func TestParseMatchesV034Decimal(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
@@ -99,7 +99,7 @@ func TestParseRoundsExcessFractionDigits(t *testing.T) {
 	}
 }
 
-func TestParseMatchesMoreRustDecimalEdgeCases(t *testing.T) {
+func TestParseMatchesMoreV034DecimalEdgeCases(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
@@ -130,7 +130,7 @@ func TestParseMatchesMoreRustDecimalEdgeCases(t *testing.T) {
 	}
 }
 
-func TestParseScaleMatchesRust(t *testing.T) {
+func TestParseScaleMatchesV034(t *testing.T) {
 	tests := []struct {
 		input string
 		scale int32
@@ -149,7 +149,7 @@ func TestParseScaleMatchesRust(t *testing.T) {
 	}
 }
 
-func TestZeroSignMatchesRust(t *testing.T) {
+func TestZeroSignMatchesV034(t *testing.T) {
 	zero := mustParse(t, "0")
 	zeroPointZero := mustParse(t, "0.00")
 	tests := []struct {
@@ -186,7 +186,7 @@ func NegValue(value Decimal) Decimal {
 	return value.Neg()
 }
 
-func TestRescaleMatchesRust(t *testing.T) {
+func TestRescaleMatchesV034(t *testing.T) {
 	tests := []struct {
 		input string
 		scale int32
@@ -210,7 +210,7 @@ func TestRescaleMatchesRust(t *testing.T) {
 	}
 }
 
-func TestRoundDPMatchesRust(t *testing.T) {
+func TestRoundDPMatchesV034(t *testing.T) {
 	tests := []struct {
 		input string
 		dp    int32
@@ -230,7 +230,7 @@ func TestRoundDPMatchesRust(t *testing.T) {
 	}
 }
 
-func TestNormalizeMatchesRust(t *testing.T) {
+func TestNormalizeMatchesV034(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
@@ -247,7 +247,7 @@ func TestNormalizeMatchesRust(t *testing.T) {
 	}
 }
 
-func TestTruncMatchesRust(t *testing.T) {
+func TestTruncMatchesV034(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
@@ -262,7 +262,7 @@ func TestTruncMatchesRust(t *testing.T) {
 	}
 }
 
-func TestArithmeticMatchesRust(t *testing.T) {
+func TestArithmeticMatchesV034(t *testing.T) {
 	tests := []struct {
 		name string
 		got  string

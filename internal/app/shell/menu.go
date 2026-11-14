@@ -164,9 +164,8 @@ func SystemLanguage(getenv func(string) (string, bool)) i18n.Language {
 	return LanguageFromLocale(locale)
 }
 
-// Translate returns the text of a translation key by name, as the Slint
-// translation callback does. An unknown key falls back to its own name, so a
-// missing key stays obvious.
+// Translate returns the text of a translation key by name. An unknown key falls
+// back to its own name, so a missing key stays obvious.
 func Translate(keyName, languageCode string) string {
 	language, ok := i18n.LanguageFromCode(languageCode)
 	if !ok {
@@ -180,7 +179,7 @@ func Translate(keyName, languageCode string) string {
 }
 
 // LeftoverText returns one unlock window leftover line: the kind's translated
-// text and the folder, exactly as the Rust window shows it.
+// text and the folder, exactly as the unlock window shows it.
 func LeftoverText(language i18n.Language, leftover startup.Leftover) string {
 	var key i18n.Key
 	switch leftover.Kind {

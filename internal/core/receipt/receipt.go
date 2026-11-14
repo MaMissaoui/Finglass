@@ -1,10 +1,9 @@
 // Package receipt heuristically extracts the total amount and date from
 // receipt/invoice text (German and English).
 //
-// It ports crates/finglass-core/src/receipt.rs. The rules mirror the Kotlin
-// `ReceiptParser`: every line's amounts are collected, the last line carrying a
-// total keyword decides the total (otherwise the largest amount wins), and
-// dates are tried in a fixed order. Amounts are integer minor units in the
+// The rules mirror the Kotlin `ReceiptParser`: every line's amounts are
+// collected, the last line carrying a total keyword decides the total
+// (otherwise the largest amount wins), and dates are tried in a fixed order. Amounts are integer minor units in the
 // currency the caller passes in; nothing is rounded.
 package receipt
 
@@ -110,8 +109,7 @@ func Parse(text string, currency money.Currency, today civil.Date) Fields {
 	}
 }
 
-// splitLines splits on both newline characters like Rust's
-// `text.split(['\n', '\r'])`, keeping empty lines.
+// splitLines splits on both newline characters, keeping empty lines.
 func splitLines(text string) []string {
 	lines := make([]string, 0)
 	start := 0
@@ -201,8 +199,8 @@ func findDate(text string, today civil.Date) *civil.Date {
 		month, monthOK := parseDigits(groups[2])
 		yy, yyOK := parseDigits(groups[3])
 		if !dayOK || !monthOK || !yyOK || yy > 99 {
-			// Rust's `?` ends the whole search when a matched date cannot be
-			// parsed, even if a later pattern would have found a date.
+			// The search ends when a matched date cannot be parsed, even if a
+			// later pattern would have found a date.
 			return nil
 		}
 		year, err := imports.ResolveTwoDigitYear(uint8(yy), today) // #nosec G115 -- yy is checked to be 0..=99 above.
@@ -220,7 +218,7 @@ func findDate(text string, today civil.Date) *civil.Date {
 		second, secondOK := parseDigits(groups[2])
 		year, yearOK := parseDigits(groups[3])
 		if !firstOK || !secondOK || !yearOK {
-			// As above: Rust's `?` aborts the date search on a parse failure.
+			// As above: the date search aborts on a parse failure.
 			return nil
 		}
 		date, ok := slashDate(year, first, second)
@@ -301,8 +299,7 @@ func monthLength(year int, month time.Month) int {
 	}
 }
 
-// moneyGreater follows Rust's derived Ord for Money: minor units first, then
-// the currency code.
+// moneyGreater orders money: minor units first, then the currency code.
 func moneyGreater(left, right money.Money) bool {
 	if left.Minor != right.Minor {
 		return left.Minor > right.Minor

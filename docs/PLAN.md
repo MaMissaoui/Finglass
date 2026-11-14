@@ -60,7 +60,8 @@ testdata/golden/             reference outputs of Finglass 0.3.4 that the Go cod
   without it) the product id; "Save redacted trace…" (mode 0600).
 - [x] The bank's warnings and errors shown on screen only in the Test connection panel (code, segment, text; never
   saved, logged, audited or traced).
-- [ ] Remove the remaining Rust and Slint mentions from code, tests and scripts (the fints-rs credit stays).
+- [x] Remove the remaining Rust and Slint mentions from code, tests and scripts. Kept: the credits of the ported
+  libraries (fints-rs, pdf-extract, adobe-cmap-parser, rust_decimal) and the value stored in the 0.3.4 fixture database.
 - [ ] Release notes `docs/releases/v0.4.0.md`: Test connection and traces, fresh start from FinDesk, install steps.
 - [ ] **You:** rehearse the fresh start with the release candidate: launch it with `FINGLASS_HOME=<new folder>`, let
   it import FinDesk (it only reads `~/.findesk`), run Test connection for each bank, and save one trace.

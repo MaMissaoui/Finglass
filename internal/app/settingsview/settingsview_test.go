@@ -322,9 +322,9 @@ func TestTheDefaultCategoryListHolds24EntriesInPaletteOrder(t *testing.T) {
 	}
 }
 
-// TestSettingKeysAndStoredTextMatchRust pins the two settings keys this view
+// TestSettingKeysAndStoredTextMatchV034 pins the two settings keys this view
 // writes and the exact text each one stores.
-func TestSettingKeysAndStoredTextMatchRust(t *testing.T) {
+func TestSettingKeysAndStoredTextMatchV034(t *testing.T) {
 	if money.PrimaryCurrencyKey != "money.primary_currency" {
 		t.Errorf("primary currency key = %q, want %q", money.PrimaryCurrencyKey, "money.primary_currency")
 	}
@@ -955,7 +955,7 @@ func TestSettingsValidatesRulesAndDeletingACategoryUnassignsTransactions(t *test
 }
 
 // TestRenamingTheDefaultProfileUsesTheDefaultRegistryEntry covers the nil slug
-// path, which Rust passes as None to profiles::rename.
+// path.
 func TestRenamingTheDefaultProfileUsesTheDefaultRegistryEntry(t *testing.T) {
 	appPaths, database := fixture(t)
 	state := loaded(t, appPaths, database)

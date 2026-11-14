@@ -2,7 +2,7 @@
 // currency.
 //
 // Amounts are never stored or calculated as floating point, and totals never
-// mix or convert currencies. It ports crates/finglass-core/src/money.rs.
+// mix or convert currencies.
 package money
 
 import (
@@ -15,7 +15,7 @@ import (
 	"strings"
 
 	"github.com/MaMissaoui/Finglass/internal/core/db"
-	"github.com/MaMissaoui/Finglass/internal/core/rustfmt"
+	"github.com/MaMissaoui/Finglass/internal/core/debugquote"
 	"github.com/MaMissaoui/Finglass/internal/core/settings"
 )
 
@@ -30,7 +30,7 @@ type InvalidError struct {
 	Msg string
 }
 
-// Error implements error with Rust's MoneyError::Invalid display.
+// Error implements error with the InvalidError display.
 func (e InvalidError) Error() string {
 	return "invalid money value: " + e.Msg
 }
@@ -48,13 +48,13 @@ var EUR = Currency{code: [3]byte{'E', 'U', 'R'}}
 // upper-casing them.
 func NewCurrency(text string) (Currency, error) {
 	if len(text) != 3 {
-		return Currency{}, InvalidError{Msg: "invalid currency code " + rustfmt.Quote(text)}
+		return Currency{}, InvalidError{Msg: "invalid currency code " + debugquote.Quote(text)}
 	}
 	var code [3]byte
 	for index := 0; index < 3; index++ {
 		character := text[index]
 		if (character < 'a' || character > 'z') && (character < 'A' || character > 'Z') {
-			return Currency{}, InvalidError{Msg: "invalid currency code " + rustfmt.Quote(text)}
+			return Currency{}, InvalidError{Msg: "invalid currency code " + debugquote.Quote(text)}
 		}
 		if character >= 'a' && character <= 'z' {
 			character -= 'a' - 'A'
@@ -208,7 +208,7 @@ func SumByCurrency[T any](items []T, primary Currency, currency func(T) Currency
 func ParseDecimal(text string, currency Currency) (Money, error) {
 	trimmed := strings.TrimSpace(text)
 	invalid := func() error {
-		return InvalidError{Msg: "invalid amount " + rustfmt.Quote(text)}
+		return InvalidError{Msg: "invalid amount " + debugquote.Quote(text)}
 	}
 
 	if trimmed == "" {

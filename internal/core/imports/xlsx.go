@@ -1,5 +1,5 @@
 // Reading the first worksheet of an untrusted XLSX file as rows of cell
-// strings, in memory. Ports crates/finglass-core/src/import/xlsx.rs.
+// strings, in memory.
 package imports
 
 import (

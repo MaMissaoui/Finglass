@@ -16,8 +16,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/report"
 )
 
-// reportsExportFile is one of the four files the Reports page writes, Rust's
-// ExportFile.
+// reportsExportFile is one of the four files the Reports page writes.
 type reportsExportFile uint8
 
 const (
@@ -374,7 +373,7 @@ func (s *Session) ReportsOpenCategory(categoryID int) {
 }
 
 // startReportsAction prepares one action on a clone of the page state and
-// starts it. It is Rust's spawn_action.
+// starts it.
 func (s *Session) startReportsAction(
 	work func(context.Context, *reportsview.ReportsState, *db.Database),
 ) {
@@ -394,8 +393,8 @@ func (s *Session) startReportsAction(
 	s.startPageJob(job)
 }
 
-// startReportsExport prepares one export and starts it. It is Rust's
-// spawn_export: the dialog runs in the worker, without the session mutex.
+// startReportsExport prepares one export and starts it. The dialog runs in the
+// worker, without the session mutex.
 func (s *Session) startReportsExport(
 	title i18n.Key,
 	file reportsExportFile,
@@ -437,9 +436,9 @@ func (s *Session) startReportsExport(
 // mutex and starts the returned job after releasing it.
 //
 // allowBusy lets a page open supersede a running load; every action and export
-// refuses while the page is busy, as Rust's try_lock does. The returned work
-// receives a current function so a worker can drop its result after a dialog
-// or before touching the database, as Rust checks jobs.is_current.
+// refuses while the page is busy. The returned work receives a current function
+// so a worker can drop its result after a dialog or before touching the
+// database.
 func (s *Session) beginReportsJobLocked(
 	allowBusy bool,
 	prepare func(*reportsview.ReportsState),
@@ -504,14 +503,15 @@ func (s *Session) setReportsDefaultRangeLocked(today civil.Date) {
 	s.reportsRangeFrom, s.reportsRangeTo = reportsDefaultRange(today)
 }
 
-// reportsDefaultRange is Rust's set_default_range: the start of the month two
-// months back through today, formatted for the dialog.
+// reportsDefaultRange returns the start of the month two months back through
+// today, formatted for the dialog.
 func reportsDefaultRange(today civil.Date) (string, string) {
 	from := dashboard.YearMonthFromDate(today).MinusMonths(2).Start()
 	return format.Date(from), format.Date(today)
 }
 
-// reportsSaturatingAdd is Rust's i32::saturating_add for the selected year.
+// reportsSaturatingAdd adds delta to the selected year, clamping at the int
+// bounds.
 func reportsSaturatingAdd(year, delta int) int {
 	if delta > 0 && year > math.MaxInt-delta {
 		return math.MaxInt

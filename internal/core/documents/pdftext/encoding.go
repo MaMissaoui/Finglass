@@ -41,9 +41,8 @@ func utf16BEToString(s []byte) string {
 	return utf16UnitsToString(units)
 }
 
-// utf16UnitsToString mirrors String::from_utf16(...).unwrap(): unpaired
-// surrogates panic, which Extract turns into ok=false just as Rust's
-// catch_unwind does.
+// utf16UnitsToString decodes UTF-16 as pdf-extract does: unpaired surrogates
+// panic, which Extract turns into ok=false.
 func utf16UnitsToString(units []uint16) string {
 	runes := make([]rune, 0, len(units))
 	for i := 0; i < len(units); i++ {

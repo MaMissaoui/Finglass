@@ -827,7 +827,7 @@ func TestInfoIgnoresBlankTextAndClearInfoNotifies(t *testing.T) {
 	if changes.Load() != 1 {
 		t.Fatalf("onChange fired %d times, want 1", changes.Load())
 	}
-	// As in Rust, every non-blank Info fires onChange, even with the same text.
+	// Every non-blank Info fires onChange, even with the same text.
 	bridge.Info("Waiting for the bank")
 	if changes.Load() != 2 {
 		t.Fatalf("repeated info fired onChange %d times in all, want 2", changes.Load())

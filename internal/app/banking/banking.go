@@ -1,15 +1,15 @@
-// Package banking ports crates/finglass-core/src/app/banking/: the bank-login
-// part of the Accounts page and the bridge to the UI.
+// Package banking is the bank-login part of the Accounts page and the bridge
+// to the UI.
 //
 // This is core only: the state, the actions and the blocking prompt bridge.
 // Every action takes a *db.Database and the banksync.BankingService; no method
 // holds a lock while a gateway call runs, because a dialog may wait minutes for
 // a PIN or a TAN.
 //
-// The state types are single-caller, as Rust's `&mut self` implies. The Wails
-// layer serializes calls with one sync.Mutex per profile.
+// The state types are single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 //
-// Threading contract, as in Rust's UI:
+// Threading contract:
 //
 //   - The UI calls BeginSync, BeginSyncAll or BeginHistoryFrom on the UI thread
 //     under the banking lock.
@@ -181,7 +181,7 @@ func New(language i18n.Language) *BankingState {
 	}
 }
 
-// Default builds empty state in English, like Rust's BankingState::default.
+// Default builds empty state in English.
 func Default() *BankingState {
 	return New(i18n.En)
 }

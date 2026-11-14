@@ -16,8 +16,8 @@ import (
 
 // Clone returns a deep copy of the view.
 //
-// Rust's TransactionsView is moved into a worker and given back afterwards. Go
-// shares it unless it is copied, so the shell clones it before a background
+// The view is moved into a worker and given back afterwards. Go shares it
+// unless it is copied, so the shell clones it before a background
 // action exactly as it clones AccountsState. The busy handle stays the same
 // value: it is the profile's one counter and is never replaced by a clone.
 func (v *TransactionsView) Clone() *TransactionsView {

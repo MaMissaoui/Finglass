@@ -4,8 +4,7 @@ import "github.com/wailsapp/wails/v3/pkg/application"
 
 // wailsFileOpener opens written files with the platform's default viewer.
 //
-// Reports uses it for print_tax, as Rust calls open::that_detached on the
-// temporary Tax bookings PDF.
+// Reports uses it for print_tax on the temporary Tax bookings PDF.
 type wailsFileOpener struct {
 	app *application.App
 }

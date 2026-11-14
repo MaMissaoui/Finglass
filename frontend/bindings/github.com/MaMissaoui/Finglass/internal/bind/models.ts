@@ -247,7 +247,7 @@ export class AccountTypeChoiceDTO {
 
 /**
  * AccountsBankCardDTO is one bank card, including the online-banking fields
- * Rust's banking::bank_cards sets (sync state, menu, PIN).
+ * (sync state, menu, PIN).
  */
 export class AccountsBankCardDTO {
     "bankId": number;
@@ -1282,8 +1282,7 @@ export class DashboardCategoryRowDTO {
  * DashboardDTO is everything the Dashboard page shows.
  * 
  * Money is already formatted by dashboardview; the chart fractions and the
- * budget ratio stay numbers. Tones and statement kinds are the strings Rust's
- * tone_code and StatementLineKind mapping return.
+ * budget ratio stay numbers. Tones and statement kinds are fixed strings.
  */
 export class DashboardDTO {
     "loading": boolean;
@@ -1798,7 +1797,7 @@ export class DocumentRowDTO {
 /**
  * DocumentsDTO is everything the Documents page shows.
  * 
- * Every value Rust's apply sets has a field here. The preview image travels as a
+ * Every value the page applies has a field here. The preview image travels as a
  * data URL, as the page's own CSP allows for images; no other file route is
  * added. Money and dates are already formatted by the page.
  */
@@ -2091,8 +2090,8 @@ export class ProfileDTO {
 /**
  * PromptDTO is the UI model of one open banking prompt, without any answer.
  * 
- * It carries only what Rust's prompt_view shows (plus the bridge's sequence id,
- * a deliberate deviation from Rust): kind, titles, the PIN prompt's bank name
+ * It carries only what the prompt dialog shows (plus the bridge's sequence id,
+ * a deliberate addition): kind, titles, the PIN prompt's bank name
  * and user id, the choice list, the TAN challenge and flicker note, and the
  * decoded challenge image as a data: URL. No field ever holds a PIN or a TAN.
  */
@@ -2537,9 +2536,8 @@ export class ReportVendorRowDTO {
 /**
  * ReportsDTO is everything the Reports page shows.
  * 
- * Every value Rust's apply, apply_recurring and apply_tax_bookings set has a
- * field here. Money is already formatted by the page; chart and bar geometry
- * stay numbers.
+ * Every value the page applies has a field here. Money is already formatted by
+ * the page; chart and bar geometry stay numbers.
  */
 export class ReportsDTO {
     "tab": string;
@@ -3328,8 +3326,7 @@ export class SettingsDTO {
 }
 
 /**
- * SettingsProfileRowDTO is one row of the profile list, as Rust's
- * profile_model builds it.
+ * SettingsProfileRowDTO is one row of the profile list.
  */
 export class SettingsProfileRowDTO {
     /**
@@ -3466,7 +3463,7 @@ export class ShellDTO {
     "profiles": ProfileDTO[];
 
     /**
-     * Version is the bare version the sidebar shows, as Slint's version.
+     * Version is the bare version the sidebar shows.
      */
     "version": string;
 
@@ -3730,9 +3727,8 @@ export class TransactionRowDTO {
  * TransactionsDTO is everything the Transactions page shows.
  * 
  * Money is already formatted by the view; chart coordinates stay numbers.
- * Every value Rust's apply_with_excluded, apply_reapply, apply_chart,
- * apply_selection, apply_detail and apply_duplicate set has a field here. The
- * statement-import dialog is G8c-2 and has no fields yet.
+ * Every value the page applies has a field here. The statement-import dialog is
+ * G8c-2 and has no fields yet.
  */
 export class TransactionsDTO {
     "loading": boolean;

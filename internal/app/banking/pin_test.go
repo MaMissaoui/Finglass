@@ -48,8 +48,8 @@ func savePin(
 	}
 }
 
-// hasStoredPin mirrors Rust's has_pin: the bank row, the credential store entry
-// and the settings flag.
+// hasStoredPin checks the bank row, the credential store entry and the settings
+// flag.
 func hasStoredPin(
 	t *testing.T,
 	database *db.Database,
@@ -174,8 +174,8 @@ func TestDeletingAnOnlineBankForgetsItsPin(t *testing.T) {
 	}
 }
 
-// TestRemoveBankRemovesEveryPinArtifact adds the assertions Rust's test leaves
-// out: the settings flag and the marker file go as well.
+// TestRemoveBankRemovesEveryPinArtifact adds assertions for the settings flag
+// and the marker file.
 func TestRemoveBankRemovesEveryPinArtifact(t *testing.T) {
 	database := testDatabase(t)
 	dir := dataDir(t)
@@ -214,8 +214,8 @@ func TestRemoveBankRemovesEveryPinArtifact(t *testing.T) {
 	}
 }
 
-// TestALoginFieldChangeRemovesEveryPinArtifact checks each login field and the
-// flag and marker file Rust's test leaves out.
+// TestALoginFieldChangeRemovesEveryPinArtifact checks each login field, the
+// flag and the marker file.
 func TestALoginFieldChangeRemovesEveryPinArtifact(t *testing.T) {
 	cases := []struct {
 		name string

@@ -27,8 +27,7 @@ import (
 )
 
 // OnlineSyncAvailable says whether the real FinTS gateway is wired in. It is
-// Rust's ONLINE_SYNC_AVAILABLE: false while banksync.UnavailableGateway stands
-// in for the M5b adapter. The sync controls follow it. The adapter slice will
+// false while banksync.UnavailableGateway stands in for the M5b adapter. The sync controls follow it. The adapter slice will
 // also require fintsproduct.Present(), so a build without the product id keeps
 // online sync off even then.
 const OnlineSyncAvailable = false
@@ -96,7 +95,7 @@ func selectGateway(
 }
 
 // bankingJob is one blocking banking call prepared under the session mutex and
-// run after it, as Rust's spawn_action and start_sync do.
+// run after it.
 type bankingJob struct {
 	generation uint64
 	database   *db.Database
@@ -106,8 +105,7 @@ type bankingJob struct {
 	pending    *banking.BankingState
 	accounts   *accountsview.AccountsState
 	work       func(context.Context, *db.Database, *banksync.BankingService, *banking.BankingState)
-	// keepLive keeps a sync claimed after this action's snapshot was taken, as
-	// Rust's keep_live_sync_fields does for spawn_action.
+	// keepLive keeps a sync claimed after this action's snapshot was taken.
 	keepLive bool
 	// refreshDashboard starts a Dashboard load after the job. A sync changes
 	// balances and bookings, so the Dashboard reloads like the Accounts page.
@@ -127,8 +125,8 @@ type bankingJob struct {
 	traceBLZ         string
 }
 
-// bankingServiceLocked builds the service exactly as Rust's
-// ServiceInputs::service: the gateway selected by selectGateway, the session's
+// bankingServiceLocked builds the service: the gateway selected by
+// selectGateway, the session's
 // one credential store, the profile folder and the product id linked into the
 // build (empty when absent). The caller holds the session mutex.
 func (s *Session) bankingServiceLocked(language i18n.Language) (*banksync.BankingService, bool) {
@@ -163,8 +161,8 @@ func (s *Session) bankingServiceWithTraceLocked(
 }
 
 // newLiveBridge builds a bridge whose onChange notifies the listeners only
-// while it is the session's live bridge, as Rust's BridgeHandle token does: a
-// torn-down profile's bridge never reaches the next profile's dialogs. The
+// while it is the session's live bridge: a torn-down profile's bridge never
+// reaches the next profile's dialogs. The
 // identity check reads s.bridge under the mutex; s.bridge is only swapped in the
 // critical sections of newSession, Teardown and TeardownToUnlock. The caller
 // need not hold the mutex.
@@ -248,9 +246,9 @@ func (s *Session) beginBankingJobLocked(
 	}
 }
 
-// beginBankingActionLocked prepares Rust's spawn_action: the work runs on a
-// clone, the account rows reload afterwards and a sync claimed meanwhile keeps
-// its fields.
+// beginBankingActionLocked prepares a banking action: the work runs on a clone,
+// the account rows reload afterwards and a sync claimed meanwhile keeps its
+// fields.
 func (s *Session) beginBankingActionLocked(
 	work func(context.Context, *db.Database, *banksync.BankingService, *banking.BankingState),
 ) *bankingJob {
@@ -320,7 +318,7 @@ func (s *Session) runBankingJob(job *bankingJob) {
 	}
 }
 
-// refuseBankingIfSyncingLocked publishes Rust's refuse_if_syncing error. The
+// refuseBankingIfSyncingLocked publishes the refuse-while-syncing error. The
 // caller holds the session mutex and notifies after releasing it.
 func (s *Session) refuseBankingIfSyncingLocked() bool {
 	if s.banking == nil || !s.banking.IsSyncing() {
@@ -332,7 +330,7 @@ func (s *Session) refuseBankingIfSyncingLocked() bool {
 }
 
 // notifyBanking publishes a bank-login change. The Accounts page re-renders
-// too, because Rust's publish applies the banking fields to the page.
+// too, because the publish applies the banking fields to the page.
 func (s *Session) notifyBanking() {
 	s.notify(Change{Page: "banking"})
 	s.notify(Change{Page: "accounts"})
@@ -345,8 +343,8 @@ func (s *Session) notifyBankingAndAccounts() {
 	s.notifyBanking()
 }
 
-// keepLiveSyncFieldsLocked is Rust's keep_live_sync_fields. The caller holds the
-// session mutex.
+// keepLiveSyncFieldsLocked keeps the live sync fields across an action. The
+// caller holds the session mutex.
 func (s *Session) keepLiveSyncFieldsLocked(result *banking.BankingState) {
 	if result == nil || s.banking == nil {
 		return
@@ -356,8 +354,8 @@ func (s *Session) keepLiveSyncFieldsLocked(result *banking.BankingState) {
 	result.SyncAll = copySyncAll(s.banking.SyncAll)
 }
 
-// mergeBanksLocked is Rust's merge_banks: the bank list follows an Accounts
-// action that added or removed a bank. The caller holds the session mutex.
+// mergeBanksLocked merges the bank list after an Accounts action that added or
+// removed a bank. The caller holds the session mutex.
 func (s *Session) mergeBanksLocked(accounts *accountsview.AccountsState) {
 	if accounts == nil || s.banking == nil {
 		return

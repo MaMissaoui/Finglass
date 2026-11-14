@@ -9,9 +9,9 @@ import (
 
 // Clone returns a deep copy of the state.
 //
-// Rust's ReportsState is cloned into every Slint snapshot and moved into a
-// worker. Go shares it unless it is copied, so the shell clones it before a
-// background load or action exactly as it clones the Dashboard and Transactions
+// The state is moved into a worker. Go shares it unless it is copied, so the
+// shell clones it before a background load or action exactly as it clones the
+// Dashboard and Transactions
 // states. The language, range and every pointer are copied too.
 func (s *ReportsState) Clone() *ReportsState {
 	if s == nil {

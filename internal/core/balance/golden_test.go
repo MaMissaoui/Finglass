@@ -166,7 +166,7 @@ func itemsFromGoldenStatement(t *testing.T, statement *goldenStatement) []model.
 	return items
 }
 
-func TestBalanceChartsMatchTheRustGolden(t *testing.T) {
+func TestBalanceChartsMatchTheV034Golden(t *testing.T) {
 	var charts []goldenChart
 	decodeGoldenFile(t, balanceChartsGolden, &charts)
 	var imports []goldenImportFile

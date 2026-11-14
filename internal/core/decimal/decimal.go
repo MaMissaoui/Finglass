@@ -3,7 +3,7 @@
 // It stores a signed mantissa and a decimal scale. The mantissa is never
 // shared and never mutated after construction: every operation returns a new
 // value. Parse follows rust_decimal 1.43's grammar and limits (28 fraction
-// digits, a 96-bit mantissa), and String prints like Rust's Display, including
+// digits, a 96-bit mantissa), and String prints like rust_decimal's Display, including
 // a negative zero.
 package decimal
 
@@ -99,7 +99,7 @@ func parsePlain(s string) (Decimal, error) {
 			if point {
 				scale++
 				if scale >= maxScale && index < len(s) {
-					// Rust skips underscores at the rounding position and
+					// rust_decimal skips underscores at the rounding position and
 					// rounds on the next actual character.
 					next := index
 					for next < len(s) && s[next] == '_' {
@@ -216,7 +216,7 @@ func applyExponent(base Decimal, exponentPart string) (Decimal, error) {
 	}
 
 	// Applying a non-negative exponent shift keeps the value and, once the
-	// trailing zeros Rust's normalize would strip are gone, leaves scale 0.
+	// trailing zeros rust_decimal's normalize would strip are gone, leaves scale 0.
 	product := new(big.Int).Mul(mantissa, pow10(int64(exponent-base.scale)))
 	if new(big.Int).Abs(product).Cmp(maxMantissa) > 0 {
 		return Decimal{}, errors.New("invalid decimal: exceeds maximum possible value")
@@ -249,7 +249,7 @@ func (d Decimal) mantissaValue() *big.Int {
 	return new(big.Int).Set(d.mantissa)
 }
 
-// String formats the decimal like Rust's Display.
+// String formats the decimal like rust_decimal's Display.
 func (d Decimal) String() string {
 	absolute := d.mantissaValue()
 	absolute.Abs(absolute)
@@ -301,7 +301,7 @@ func (d Decimal) Cmp(other Decimal) int {
 	return left.Cmp(right)
 }
 
-// Neg returns the negation, preserving a zero's sign flag like Rust.
+// Neg returns the negation, preserving a zero's sign flag like rust_decimal.
 func (d Decimal) Neg() Decimal {
 	if d.IsZero() {
 		return Decimal{scale: d.scale, negZero: !d.negZero}
@@ -310,7 +310,7 @@ func (d Decimal) Neg() Decimal {
 }
 
 // Add adds two decimals. The result's scale is the larger of the two scales,
-// except that a zero operand is returned unchanged, as Rust does. It does not
+// except that a zero operand is returned unchanged, as rust_decimal does. It does not
 // check the 96-bit mantissa limit.
 func (d Decimal) Add(other Decimal) Decimal {
 	if d.IsZero() {
@@ -355,7 +355,7 @@ func (d Decimal) Sub(other Decimal) Decimal {
 }
 
 // Mul multiplies two decimals; the scale is the sum of both scales. It does not
-// check the mantissa limit. A zero product is the plain zero, like Rust.
+// check the mantissa limit. A zero product is the plain zero, like rust_decimal.
 func (d Decimal) Mul(other Decimal) Decimal {
 	if d.IsZero() || other.IsZero() {
 		return Zero
@@ -388,7 +388,7 @@ func (d Decimal) RoundDP(dp int32) Decimal {
 
 // Rescale returns the value at scale, padding with zeros or rounding halfway
 // away from zero when the scale is lowered. A zero keeps its sign flag, as
-// Rust's rescale does.
+// rust_decimal's rescale does.
 func (d Decimal) Rescale(scale int32) Decimal {
 	if scale == d.scale {
 		return d

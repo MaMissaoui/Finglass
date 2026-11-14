@@ -695,7 +695,7 @@ func TestAnOversizedImageIsStoredWithoutCallingTheOCREngine(t *testing.T) {
 	}
 }
 
-func TestDetectMIMETypeKeepsRustsCaseSensitiveExtension(t *testing.T) {
+func TestDetectMIMETypeKeepsTheCaseSensitiveExtension(t *testing.T) {
 	if got := service.DetectMIMEType("invoice.pdf"); got != "application/pdf" {
 		t.Errorf("lower-case pdf = %q", got)
 	}

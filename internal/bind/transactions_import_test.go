@@ -152,7 +152,7 @@ func TestImportCSVFieldsUseTheHeadersAndOneBasedIndices(t *testing.T) {
 	}
 }
 
-func TestApplyImportSetsEveryRustField(t *testing.T) {
+func TestApplyImportSetsEveryV034Field(t *testing.T) {
 	csv := &imports.CsvLayout{
 		Headers: []string{"Date", "Amount"},
 		Mapping: imports.CsvMapping{
@@ -244,7 +244,7 @@ func TestApplyImportSetsEveryRustField(t *testing.T) {
 }
 
 // allowedTransactionParameters lists every exported method that takes an
-// argument, with the exact parameter names Rust's callbacks pass. Any method
+// argument, with the exact parameter names the UI callbacks use. Any method
 // outside this list must take no arguments, so no path, file name, directory or
 // file contents can reach a dialog from JavaScript.
 var allowedTransactionParameters = map[string][]string{

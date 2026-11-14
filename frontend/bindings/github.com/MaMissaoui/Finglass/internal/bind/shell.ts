@@ -64,7 +64,7 @@ export function MigrationContinue(): $CancellablePromise<$models.ShellDTO> {
 
 /**
  * MigrationMigrate writes the migrate marker and moves to the first profile.
- * Without the acknowledgement nothing happens, as Rust's callback does.
+ * Without the acknowledgement nothing happens.
  */
 export function MigrationMigrate(acknowledged: boolean): $CancellablePromise<$models.ShellDTO> {
     return $Call.ByID(2654269937, acknowledged).then(($result: any) => {

@@ -121,8 +121,7 @@ func (s *Service) UploadDocument(
 	}
 	storedName := identifier + "_" + SanitizeFileName(fileName)
 	destination := filepath.Join(s.documentsDir, storedName)
-	// Rust leaves a partial copy behind when the copy fails. Removing it here
-	// is the one deliberate improvement over Rust.
+	// A failed copy leaves nothing behind; this is a deliberate improvement.
 	if err := copyFile(source, destination); err != nil {
 		_ = os.Remove(destination)
 		return nil, wrapDocumentError(err)
@@ -456,8 +455,7 @@ func (s *Service) DeleteDocument(ctx context.Context, documentID int64) (bool, D
 
 // DetectMIMEType returns the MIME type for a supported file extension.
 //
-// The extension is case-sensitive, as in Rust's service::extension_of: "X.PDF"
-// is not a PDF.
+// The extension is case-sensitive: "X.PDF" is not a PDF.
 func DetectMIMEType(file string) string {
 	switch extensionOf(file) {
 	case "pdf":

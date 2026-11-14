@@ -322,8 +322,8 @@ type parsedBooking struct {
 	purpose string
 }
 
-// parseBookings reads the golden CSV the way the Rust import produced it for
-// the four fields the matcher golden records.
+// parseBookings reads the golden CSV the way the import produced it for the
+// four fields the matcher golden records.
 func parseBookings(t *testing.T, data []byte) []parsedBooking {
 	t.Helper()
 

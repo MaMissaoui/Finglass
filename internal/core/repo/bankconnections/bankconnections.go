@@ -1,8 +1,7 @@
 // Package bankconnections is the bank connection repository.
 //
 // Finglass stores no HBCI version or bank passport file. An offline connection
-// never goes online; its statements are imported from files. It ports
-// `crates/finglass-core/src/repo/bank_connections.rs`.
+// never goes online; its statements are imported from files.
 package bankconnections
 
 import (

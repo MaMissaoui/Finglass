@@ -3,8 +3,7 @@
 //
 // Every mutating repository function runs in one transaction and writes exactly
 // one audit entry in that transaction. Audit details contain ids and names
-// only, never IBANs, account numbers, user ids or purpose text. It ports
-// `crates/finglass-core/src/repo/mod.rs`.
+// only, never IBANs, account numbers, user ids or purpose text.
 package repo
 
 import (
@@ -33,7 +32,7 @@ type InvalidError struct {
 	Msg string
 }
 
-// Error implements error with Rust's RepoError::Invalid display.
+// Error implements error with the InvalidError display.
 func (e InvalidError) Error() string {
 	return "invalid value: " + e.Msg
 }

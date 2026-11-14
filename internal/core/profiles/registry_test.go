@@ -9,9 +9,9 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
 )
 
-// TestRegistryBytesMatchRust locks the exact bytes the Rust registry writer
+// TestRegistryBytesMatchV034 locks the exact bytes the registry writer
 // produces.
-func TestRegistryBytesMatchRust(t *testing.T) {
+func TestRegistryBytesMatchV034(t *testing.T) {
 	root := t.TempDir()
 	p, err := paths.Resolve(root, "")
 	if err != nil {

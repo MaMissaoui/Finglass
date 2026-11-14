@@ -1,8 +1,8 @@
 // Bridges blocking banksync.BankingInteraction calls from a worker goroutine to
 // prompts the UI answers.
 //
-// This is the Go port of FinDesk's UiBankingInteraction and Rust's
-// banking::bridge, minus ConfirmPayee (Finglass has no payment code). The
+// This is the Go port of FinDesk's UiBankingInteraction, minus ConfirmPayee
+// (Finglass has no payment code). The
 // worker blocks inside PromptBridge.ask while the prompt is open; the UI reads a
 // copy through Prompt() and answers. No PIN or TAN ever lives in a published
 // prompt: secrets travel only through the answer methods, and the bridge's lock
@@ -18,7 +18,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
-// PromptKind names the Rust BankingPrompt variant a prompt carries.
+// PromptKind names the kind of banking prompt a prompt carries.
 type PromptKind int
 
 const (
@@ -45,11 +45,11 @@ const (
 //
 // ID is the bridge's sequence number for this prompt. Every answer must carry
 // it: an answer meant for an earlier prompt of the same kind can then never
-// answer the next one. Rust has no such token; this is a deliberate deviation.
+// answer the next one. The token is a deliberate addition.
 type BankingPrompt struct {
 	// ID is the bridge's prompt sequence number.
 	ID uint64
-	// Kind says which Rust variant this prompt is.
+	// Kind says which kind of prompt this is.
 	Kind PromptKind
 
 	// BankName is the bank's display name (Pin).
@@ -156,9 +156,8 @@ func (b *PromptBridge) Prompt() *BankingPrompt {
 
 // CurrentInfo returns the bank's current informational message, if any.
 //
-// Rust names this getter `info()`, but Go has no method overloading and the
-// BankingInteraction method Info(string) takes the same name; only the name
-// differs, the behaviour is Rust's.
+// The getter cannot be named Info because the BankingInteraction method
+// Info(string) takes that name; the behaviour is the same.
 func (b *PromptBridge) CurrentInfo() *string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -507,7 +506,7 @@ func (b *PromptBridge) ConfirmDecoupled(message string) bool {
 }
 
 // Info shows an informational message from the bank. Blank text is ignored;
-// any other text replaces the current info and calls onChange, as Rust does.
+// any other text replaces the current info and calls onChange.
 func (b *PromptBridge) Info(message string) {
 	if strings.TrimSpace(message) == "" {
 		return

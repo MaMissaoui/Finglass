@@ -14,9 +14,9 @@ import (
 // it looks for a signature.
 const imageHeaderBytes = 12
 
-// maxJPEGMarkers bounds the JPEG marker walk. The Rust crate loops forever on a
-// crafted marker length below two; this guard turns that hang into ok=false
-// without changing any valid or truncated image.
+// maxJPEGMarkers bounds the JPEG marker walk. A crafted marker length below two
+// would loop forever; this guard turns that hang into ok=false without changing
+// any valid or truncated image.
 const maxJPEGMarkers = 1 << 20
 
 // ImageDimensions reads width and height from an image file's header without
@@ -278,7 +278,7 @@ func bmpDimensions(file *os.File) (uint32, uint32, bool) {
 
 func webPDimensions(file *os.File) (uint32, uint32, bool) {
 	// image_type has already consumed the twelve-byte RIFF header, so the next
-	// four bytes are the first chunk's FourCC, exactly as in Rust.
+	// four bytes are the first chunk's FourCC.
 	var chunk [4]byte
 	if _, err := io.ReadFull(file, chunk[:]); err != nil {
 		return 0, 0, false

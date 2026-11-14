@@ -15,7 +15,7 @@ import (
 // seam.
 var _ shell.FileDialogs = (*wailsFileDialogs)(nil)
 
-// statementExtensions is Rust's STATEMENT_EXTENSIONS as one Wails filter
+// statementExtensions is the statement file extensions as one Wails filter
 // pattern.
 const statementExtensions = "*.csv;*.sta;*.mt940;*.xml;*.zip;*.ofx;*.qfx;*.qif;*.xlsx"
 

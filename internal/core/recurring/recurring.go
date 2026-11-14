@@ -1,9 +1,8 @@
 // Package recurring finds subscriptions, rent, salary and other bookings that
 // repeat on a regular schedule.
 //
-// It ports crates/finglass-core/src/recurring.rs, itself ported from FinDesk's
-// `document/RecurringDetector.kt`. Detection is read-only: nothing here
-// schedules, sends or stores a payment.
+// It follows FinDesk's `document/RecurringDetector.kt`. Detection is
+// read-only: nothing here schedules, sends or stores a payment.
 package recurring
 
 import (
@@ -21,8 +20,8 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/rules"
 )
 
-// Cadence is how often a recurring payment repeats. Its values are Rust's
-// `Debug` names.
+// Cadence is how often a recurring payment repeats. Its values are the cadence
+// names.
 type Cadence string
 
 // The cadences.
@@ -372,9 +371,8 @@ func normaliseName(text string) string {
 	return strings.Join(words, " ")
 }
 
-// isAlphabetic is Rust's char::is_alphabetic: the Unicode Alphabetic property
-// (letters, letter numbers and Other_Alphabetic marks), wider than
-// unicode.IsLetter.
+// isAlphabetic reports the Unicode Alphabetic property (letters, letter numbers
+// and Other_Alphabetic marks), wider than unicode.IsLetter.
 func isAlphabetic(character rune) bool {
 	return unicode.IsLetter(character) ||
 		unicode.Is(unicode.Nl, character) ||

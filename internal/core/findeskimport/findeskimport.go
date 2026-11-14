@@ -7,8 +7,7 @@
 // copied document files are removed again when the transaction fails.
 //
 // FinDesk's payment orders are never imported. The only access to that table is
-// a row count for the report. It ports
-// crates/finglass-core/src/findesk_import/.
+// a row count for the report.
 package findeskimport
 
 import (

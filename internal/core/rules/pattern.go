@@ -11,7 +11,7 @@ import (
 )
 
 // matchTimeout bounds one regular-expression match. A pattern that backtracks
-// longer is treated as a non-match, exactly like a Rust runtime error.
+// longer is treated as a non-match.
 const matchTimeout = 100 * time.Millisecond
 
 // Pattern is a compiled rule pattern: a case-insensitive regular expression
@@ -23,11 +23,11 @@ type Pattern struct {
 	substring string
 }
 
-// Compile compiles pattern the way Rust's rule matcher does. It never fails: a
-// pattern that does not parse becomes a case-insensitive substring test.
+// Compile compiles a rule pattern. It never fails: a pattern that does not
+// parse becomes a case-insensitive substring test.
 //
 // The regular expression is case-insensitive and uses Unicode classes, so
-// `\w`, `\d`, `\s` and `\b` keep the meaning they have in Rust's regex engine.
+// `\w`, `\d`, `\s` and `\b` keep their usual meaning.
 func Compile(pattern string) *Pattern {
 	regex, err := regexp2.Compile(translateNamedGroups(pattern), regexp2.IgnoreCase|regexp2.Unicode)
 	if err != nil {
@@ -38,8 +38,8 @@ func Compile(pattern string) *Pattern {
 }
 
 // translateNamedGroups rewrites Python-style named groups, `(?P<name>…)`, to
-// the .NET spelling regexp2 understands, `(?<name>…)`. Rust's engine accepts
-// both; without this the whole pattern would fall back to a substring test.
+// the .NET spelling regexp2 understands, `(?<name>…)`. Both spellings must be
+// accepted; without this the whole pattern would fall back to a substring test.
 // The rewrite skips escapes and character classes, where the same bytes are
 // literal text.
 func translateNamedGroups(pattern string) string {
@@ -96,8 +96,8 @@ func (p *Pattern) IsMatch(text string) bool {
 	return err == nil && matched
 }
 
-// lower is full Unicode lower-casing, like Rust's str::to_lowercase: `İ`
-// becomes `i` + U+0307 and a word-final `Σ` becomes `ς`. strings.ToLower only
+// lower is full Unicode lower-casing: `İ` becomes `i` + U+0307 and a
+// word-final `Σ` becomes `ς`. strings.ToLower only
 // does the simple one-rune mapping. A cases.Caser is not safe for concurrent
 // use, so each call makes its own.
 func lower(s string) string {

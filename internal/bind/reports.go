@@ -110,9 +110,8 @@ type ReportTaxRowDTO struct {
 
 // ReportsDTO is everything the Reports page shows.
 //
-// Every value Rust's apply, apply_recurring and apply_tax_bookings set has a
-// field here. Money is already formatted by the page; chart and bar geometry
-// stay numbers.
+// Every value the page applies has a field here. Money is already formatted by
+// the page; chart and bar geometry stay numbers.
 type ReportsDTO struct {
 	Tab       string `json:"tab"`
 	Year      int    `json:"year"`
@@ -1046,7 +1045,7 @@ func reportsID(value int64) int {
 }
 
 // reportsColour normalizes a category colour to "#RRGGBB"; an unknown value is
-// Rust's fallback grey.
+// the fallback grey.
 func reportsColour(hex string) string {
 	text := strings.TrimLeft(strings.TrimSpace(hex), "#")
 	if len(text) != 6 {

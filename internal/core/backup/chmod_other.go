@@ -3,7 +3,7 @@
 // Owner-only permissions outside Unix.
 package backup
 
-// chmod is a no-op where Rust's #[cfg(unix)] calls do nothing either.
+// chmod is a no-op on this platform.
 func chmod(string, uint32) error {
 	return nil
 }

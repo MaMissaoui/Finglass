@@ -52,10 +52,10 @@ func date(t *testing.T, year int, month time.Month, day int) civil.Date {
 	return value
 }
 
-// TestRowsWrittenByGoMatchRustEncoding creates one row of every domain table
+// TestRowsWrittenByGoMatchV034Encoding creates one row of every domain table
 // with every optional field set, then reads the raw columns back and checks the
 // stored text.
-func TestRowsWrittenByGoMatchRustEncoding(t *testing.T) {
+func TestRowsWrittenByGoMatchV034Encoding(t *testing.T) {
 	d := newDatabase(t)
 	ctx := context.Background()
 
@@ -416,7 +416,7 @@ func TestRowsWrittenByGoMatchRustEncoding(t *testing.T) {
 }
 
 // TestEveryRepositoryMutationWritesExactlyOneAuditEntryWithoutIBANs is the
-// in-scope part of repo/mod.rs's audit test. Transaction mutations belong to
+// in-scope part of the repository audit test. Transaction mutations belong to
 // the transactions repository and are covered by its later spec.
 func TestEveryRepositoryMutationWritesExactlyOneAuditEntryWithoutIBANs(t *testing.T) {
 	d := newDatabase(t)

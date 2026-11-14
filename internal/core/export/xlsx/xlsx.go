@@ -92,7 +92,7 @@ func WriteAtomically(target string, write func(tempPath string) error) error {
 	return nil
 }
 
-// tempParent mirrors Rust's target.parent(): a bare file name has the empty
+// tempParent returns the target's parent: a bare file name has the empty
 // parent, which becomes ".", while an empty target has no parent at all.
 func tempParent(target string) string {
 	if target == "" {
@@ -109,8 +109,8 @@ func createTempFile(parent string) (string, *os.File, error) {
 	for attempt := 0; attempt < 1_000; attempt++ {
 		number := tempCounter.Add(1) - 1
 		path := filepath.Join(parent, fmt.Sprintf("findesk-export-%d-%d.tmp", os.Getpid(), number))
-		// #nosec G302 G304 -- Rust creates the temp file with OpenOptions' default
-		// mode and narrows it to 0600 after writing; path is built here from parent.
+		// #nosec G302 G304 -- the temp file is created with the default mode and
+		// narrowed to 0600 after writing; path is built here from parent.
 		file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o666)
 		if err == nil {
 			return path, file, nil
@@ -226,7 +226,7 @@ type Sheet struct {
 }
 
 // Row appends one row; place Cell.Empty where a cell should be left blank. It
-// accepts either individual cells or one []Cell, mirroring Rust's Vec<Cell>.
+// accepts either individual cells or one []Cell.
 func (s *Sheet) Row(cells ...Cell) {
 	row := make([]cellValue, 0, len(cells))
 	for _, cell := range cells {
@@ -527,7 +527,7 @@ func takeUTF16Units(value string, limit int) string {
 }
 
 func sameName(left, right string) bool {
-	//nolint:staticcheck // same_name compares Rust's to_lowercase results, not EqualFold's folding.
+	//nolint:staticcheck // sameName compares ToLower results, not EqualFold's folding.
 	return strings.ToLower(left) == strings.ToLower(right)
 }
 

@@ -1,5 +1,4 @@
-// The tax report PDF, ported from FinDesk's document/PdfReportExporter.kt, via
-// crates/finglass-core/src/report/pdf_report.rs.
+// The tax report PDF, ported from FinDesk's document/PdfReportExporter.kt.
 package report
 
 import (
@@ -173,7 +172,7 @@ func (PdfReportExporter) Export(
 	})
 }
 
-// truncateRunes keeps at most limit characters, like Rust's chars().take(n).
+// truncateRunes keeps at most limit characters.
 func truncateRunes(text string, limit int) string {
 	if limit <= 0 {
 		return ""

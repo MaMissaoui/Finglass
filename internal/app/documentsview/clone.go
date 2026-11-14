@@ -7,9 +7,9 @@ import (
 
 // Clone returns a deep copy of the state.
 //
-// Rust's DocumentsState is moved into a worker and given back afterwards. Go
-// copies the state before every background action, so the published snapshot and
-// the worker's value never share a slice or a pointed-to field.
+// The state is moved into a worker and given back afterwards. Go copies the
+// state before every background action, so the published snapshot and the
+// worker's value never share a slice or a pointed-to field.
 func (s *DocumentsState) Clone() *DocumentsState {
 	if s == nil {
 		return nil

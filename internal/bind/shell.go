@@ -65,7 +65,7 @@ type ShellDTO struct {
 	BackTitle          string       `json:"backTitle"`
 	CurrentProfileName string       `json:"currentProfileName"`
 	Profiles           []ProfileDTO `json:"profiles"`
-	// Version is the bare version the sidebar shows, as Slint's version.
+	// Version is the bare version the sidebar shows.
 	Version string `json:"version"`
 	// AboutVersion is the localized "Version %s" text About shows.
 	AboutVersion string `json:"aboutVersion"`
@@ -322,7 +322,7 @@ func (s *Shell) ManageProfiles() (ShellDTO, error) {
 }
 
 // MigrationMigrate writes the migrate marker and moves to the first profile.
-// Without the acknowledgement nothing happens, as Rust's callback does.
+// Without the acknowledgement nothing happens.
 func (s *Shell) MigrationMigrate(acknowledged bool) (ShellDTO, error) {
 	s.migrationMu.Lock()
 	if s.wizard == nil {
@@ -596,8 +596,8 @@ func (s *Shell) snapshot() ShellDTO {
 }
 
 // profileList returns the menu's profiles, the open one marked. The rows come
-// from the loaded Settings list SwitchProfile indexes, as Rust's do; the list is
-// empty until a profile is open.
+// from the loaded Settings list SwitchProfile indexes; the list is empty until
+// a profile is open.
 func (s *Shell) profileList() []ProfileDTO {
 	open := s.session.IsOpen()
 	rows := s.session.ProfileRows()

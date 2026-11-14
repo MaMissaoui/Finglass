@@ -41,7 +41,7 @@ type SettingsCategoryRowDTO struct {
 	Transfer    bool   `json:"transfer"`
 }
 
-// CategoryRowDTO is the row type's short name, matching Rust's CategoryRow.
+// CategoryRowDTO is the row type's short name.
 type CategoryRowDTO = SettingsCategoryRowDTO
 
 // SettingsColourSwatchDTO is one palette choice of the category dialog.
@@ -50,8 +50,7 @@ type SettingsColourSwatchDTO struct {
 	Colour string `json:"colour"`
 }
 
-// ColourSwatchDTO is the swatch type's short name, matching Rust's
-// ColourSwatch.
+// ColourSwatchDTO is the swatch type's short name.
 type ColourSwatchDTO = SettingsColourSwatchDTO
 
 // SettingsRuleRowDTO is one row of the rule list.
@@ -64,11 +63,10 @@ type SettingsRuleRowDTO struct {
 	PrioText     string `json:"prioText"`
 }
 
-// RuleRowDTO is the row type's short name, matching Rust's RuleRow.
+// RuleRowDTO is the row type's short name.
 type RuleRowDTO = SettingsRuleRowDTO
 
-// SettingsProfileRowDTO is one row of the profile list, as Rust's
-// profile_model builds it.
+// SettingsProfileRowDTO is one row of the profile list.
 type SettingsProfileRowDTO struct {
 	// Index is the row SwitchProfile takes.
 	Index int `json:"index"`
@@ -84,7 +82,7 @@ type SettingsProfileRowDTO struct {
 	CanDelete bool `json:"canDelete"`
 }
 
-// ProfileRowDTO is the profile row's short name, matching Rust's ProfileRow.
+// ProfileRowDTO is the profile row's short name.
 type ProfileRowDTO = SettingsProfileRowDTO
 
 // SettingsDTO is everything the Settings page shows.
@@ -334,8 +332,8 @@ func (s *Settings) RuleChanged(pattern string, priority string) (SettingsDTO, er
 	return s.action(func() { s.session.SettingsRuleChanged(pattern, priority) })
 }
 
-// SaveRule saves the rule dialog's fields. The dropdown indices are resolved
-// exactly as Rust's field_at, direction_at and tax_at do.
+// SaveRule saves the rule dialog's fields. The dropdown indices are resolved to
+// the rule's field, direction and tax flag.
 //
 // flow is the direction index; the name avoids "dir", which the bindings'
 // path-reflection check would mistake for a directory parameter.
@@ -636,8 +634,7 @@ func settingsDTO(
 	return dto
 }
 
-// applyProfiles maps the profile list, as Rust's apply_profiles and
-// profile_model do.
+// applyProfiles maps the profile list.
 func applyProfiles(dto *SettingsDTO, state settingsview.SettingsState) {
 	open := ""
 	if state.OpenProfile != nil {
@@ -663,7 +660,7 @@ func applyProfiles(dto *SettingsDTO, state settingsview.SettingsState) {
 }
 
 // applyBackup maps the backup and restore state, including the two restore
-// dialogs, as Rust's apply_backup does.
+// dialogs.
 func applyBackup(
 	dto *SettingsDTO,
 	state settingsview.SettingsState,
@@ -704,7 +701,7 @@ func applyBackup(
 }
 
 // applyFindesk maps the FinDesk import state to its folder, passphrase and
-// result dialogs, as Rust's apply_findesk does.
+// result dialogs.
 func applyFindesk(
 	dto *SettingsDTO,
 	state findesk.FindeskImportState,
@@ -731,8 +728,8 @@ func applyFindesk(
 	}
 }
 
-// fileName is Rust's file_name: the last path element, or the whole text when
-// there is none. The DTO never shows a backup's full path.
+// fileName returns the last path element, or the whole text when there is none.
+// The DTO never shows a backup's full path.
 func fileName(path string) string {
 	if path == "" {
 		return ""

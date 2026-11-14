@@ -1,6 +1,4 @@
 // Package rules is the rule repository.
-//
-// It ports `crates/finglass-core/src/repo/rules.rs`.
 package rules
 
 import (
@@ -9,9 +7,9 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/debugquote"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/repo"
-	"github.com/MaMissaoui/Finglass/internal/core/rustfmt"
 )
 
 // scanner is satisfied by *sql.Row and *sql.Rows.
@@ -46,13 +44,13 @@ func fromRow(row scanner) (model.Rule, error) {
 	matchField, ok := model.RuleFieldFromStored(matchFieldText)
 	if !ok {
 		return model.Rule{}, repo.InvalidError{
-			Msg: "unknown rule match field " + rustfmt.Quote(matchFieldText),
+			Msg: "unknown rule match field " + debugquote.Quote(matchFieldText),
 		}
 	}
 	direction, ok := model.RuleDirectionFromStored(directionText)
 	if !ok {
 		return model.Rule{}, repo.InvalidError{
-			Msg: "unknown rule direction " + rustfmt.Quote(directionText),
+			Msg: "unknown rule direction " + debugquote.Quote(directionText),
 		}
 	}
 

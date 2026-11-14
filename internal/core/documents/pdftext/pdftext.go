@@ -2,8 +2,7 @@
 //
 // Text comes from the pure-Go github.com/ledongthuc/pdf reader. A malformed PDF
 // must never take the app down, so every call recovers from a panic and reports
-// ok=false instead. The Rust side does the same with catch_unwind, and a PDF
-// that cannot be parsed simply has no text layer.
+// ok=false instead. A PDF that cannot be parsed simply has no text layer.
 package pdftext
 
 import (
@@ -15,7 +14,7 @@ import (
 
 // maxFileBytes is the largest file this package reads. Documents are untrusted
 // input, so a crafted file must not be able to exhaust memory before parsing
-// starts. Rust's document limit is 100 MiB for uploads; extraction stops much
+// starts. The document limit is 100 MiB for uploads; extraction stops much
 // earlier because a PDF that large is already unusable for a receipt.
 const maxFileBytes = 50 * 1024 * 1024
 
@@ -84,7 +83,7 @@ func withinSizeLimit(path string) bool {
 }
 
 // pageSize returns the page's crop box, falling back to its media box and then
-// to inherited boxes. An unreadable size falls back to A4, as Rust does.
+// to inherited boxes. An unreadable size falls back to A4.
 func pageSize(page pdf.Page) (float64, float64) {
 	for _, key := range []string{"CropBox", "MediaBox"} {
 		box := inherited(page.V, key, 0)

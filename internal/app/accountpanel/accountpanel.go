@@ -1,9 +1,8 @@
-// Package accountpanel ports crates/finglass-core/src/app/account_panel.rs: the
-// account panel's stored state and group actions, shared by the Accounts and
-// Transactions views.
+// Package accountpanel is the account panel's stored state and group actions,
+// shared by the Accounts and Transactions views.
 //
-// The state types are single-caller, as Rust's `&mut self` implies. The Wails
-// layer serializes calls with one sync.Mutex per profile.
+// The state types are single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 package accountpanel
 
 import (
@@ -111,7 +110,7 @@ func DBError(err error) *AppError {
 	return &AppError{Kind: AppErrorDB, Err: err}
 }
 
-// Error implements error with Rust's AppError display.
+// Error implements error with the AppError display.
 func (e *AppError) Error() string {
 	if e == nil {
 		return "<nil>"

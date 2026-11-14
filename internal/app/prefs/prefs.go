@@ -1,5 +1,5 @@
 // Package prefs stores the user interface preferences in the encrypted
-// settings table. It ports crates/finglass-core/src/app/prefs.rs.
+// settings table.
 package prefs
 
 import (

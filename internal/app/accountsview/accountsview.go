@@ -1,13 +1,12 @@
-// Package accountsview ports crates/finglass-core/src/app/accounts/: the
-// Accounts view's state without any bank login.
+// Package accountsview is the Accounts view's state without any bank login.
 //
-// This ports the offline part of FinDesk's AccountsViewModel: accounts,
+// This is the offline part of FinDesk's AccountsViewModel: accounts,
 // bank-card groups, selection, collapsed banks and groups, group actions, the
 // account form's validation, balance and type changes, renames, deletes,
 // "allow deleted bookings again" and the account detail. Everything that needs
 // a bank connection is left out.
 //
-// The state types are single-caller, as Rust's `&mut self` implies. The Wails
+// The state types are single-caller. The Wails
 // layer serializes calls with one sync.Mutex per profile.
 package accountsview
 
@@ -113,8 +112,8 @@ type AccountDetail struct {
 
 // AccountsState is the Accounts page state.
 //
-// The state is single-caller, as Rust's `&mut self` implies. The Wails layer
-// serializes calls with one sync.Mutex per profile.
+// The state is single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 type AccountsState struct {
 	// Accounts holds every account, in repository id order.
 	Accounts []AccountItem
@@ -178,7 +177,7 @@ func New(language i18n.Language) *AccountsState {
 	}
 }
 
-// Default builds empty state in English, like Rust's AccountsState::default.
+// Default builds empty state in English.
 func Default() *AccountsState {
 	return New(i18n.En)
 }

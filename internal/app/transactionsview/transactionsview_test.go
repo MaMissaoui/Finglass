@@ -1,8 +1,7 @@
 // Ported Kotlin tests for FinDesk's TransactionsViewModel.
 //
 // The tests use temporary databases and folders only. Coroutine timing/race
-// tests from Kotlin are listed as skipped in the Rust file; every sequential
-// behaviour test lives here.
+// tests from Kotlin are skipped; every sequential behaviour test lives here.
 package transactionsview
 
 import (

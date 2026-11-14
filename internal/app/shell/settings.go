@@ -19,11 +19,11 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
-// SettingsDialogState is the Settings page's dialog state without Slint.
+// SettingsDialogState is the Settings page's dialog state.
 //
-// Rust keeps these fields on the window; the session keeps them here so a
-// callback that takes no argument (save, confirm, cancel) can read the dialog
-// it opened. The fields mirror settings_page.slint's dialog properties.
+// The session keeps these fields here so a callback that takes no argument
+// (save, confirm, cancel) can read the dialog it opened. The fields mirror the
+// page's dialog properties.
 type SettingsDialogState struct {
 	// CategoryOpen says whether the category dialog is open.
 	CategoryOpen bool
@@ -177,7 +177,7 @@ func (s *Session) beginSettingsLoadLocked() *pageJob {
 	// A running Settings action (a backup, a restore, a FinDesk import, …)
 	// publishes the whole page state when it ends. A load would take a newer page
 	// request and drop that publish, leaving the busy flags set and the import's
-	// result unseen; Rust's loads never supersede an action. The page shows the
+	// result unseen; loads never supersede an action. The page shows the
 	// current state meanwhile.
 	if s.settingsWork.Active() {
 		return nil
@@ -199,9 +199,9 @@ func (s *Session) beginSettingsLoadLocked() *pageJob {
 // beginSettingsJobLocked prepares one Settings job. The caller holds the
 // session mutex and starts the returned job after releasing it.
 //
-// guard is true for an action and false for a load: Rust's spawn_pending never
-// runs two Settings actions on the same UI, while spawn_load may be superseded
-// by a newer load (the page request drops the older result).
+// guard is true for an action and false for a load: two Settings actions never
+// run at once, while a load may be superseded by a newer load (the page request
+// drops the older result).
 func (s *Session) beginSettingsJobLocked(
 	guard bool,
 	prepare func(*settingsview.SettingsState),
@@ -264,8 +264,7 @@ func (s *Session) beginSettingsJobLocked(
 				return
 			}
 			// Categories, rules and the primary currency feed the other pages'
-			// formatting, so they hear about a Settings change as Rust
-			// refreshes them.
+			// formatting, so they hear about a Settings change.
 			for _, page := range []string{"dashboard", "transactions", "reports"} {
 				s.notify(Change{Page: page})
 			}
@@ -428,8 +427,7 @@ func (s *Session) SettingsRequestDeleteCategory(id model.CategoryID) {
 	s.notify(Change{Page: "settings"})
 }
 
-// SettingsValidateCategory re-runs validate_category for an explicit dialog
-// id, as Rust's validate_category does.
+// SettingsValidateCategory validates a category for an explicit dialog id.
 func (s *Session) SettingsValidateCategory(name string, colour string, id int) {
 	s.mu.Lock()
 	s.settingsValidateCategoryLocked(name, colour, id)
@@ -541,8 +539,7 @@ func (s *Session) SettingsCloseCategoryDialog() {
 	s.notify(Change{Page: "settings"})
 }
 
-// SettingsDeleteCategory deletes a category and reloads the state, as Rust's
-// delete_category does.
+// SettingsDeleteCategory deletes a category and reloads the state.
 func (s *Session) SettingsDeleteCategory(id model.CategoryID) {
 	s.mu.Lock()
 	if !s.settingsActionReadyLocked() {
@@ -781,8 +778,7 @@ func (s *Session) SettingsCloseRuleDialog() {
 	s.notify(Change{Page: "settings"})
 }
 
-// SettingsDeleteRule deletes a rule and reloads the state, as Rust's
-// delete_rule does.
+// SettingsDeleteRule deletes a rule and reloads the state.
 func (s *Session) SettingsDeleteRule(id model.RuleID) {
 	s.mu.Lock()
 	if !s.settingsActionReadyLocked() {
@@ -1167,8 +1163,7 @@ func (s *Session) SettingsCancelPendingRestore() {
 	s.startPageJob(job)
 }
 
-// settingsBeginBusy is Rust's begin_busy: the page shows the backup work as
-// busy while the action runs.
+// settingsBeginBusy marks the backup work as busy while the action runs.
 func settingsBeginBusy(pending *settingsview.SettingsState) {
 	pending.IsBusy = true
 }
@@ -1176,8 +1171,8 @@ func settingsBeginBusy(pending *settingsview.SettingsState) {
 // importWithProfileBusy runs the chosen import with FinDesk's passphrase while
 // the profile's busy flag is held, as import_with_profile_busy does.
 //
-// The Go bind builds the secret.Passphrase before the job, so Rust's
-// Passphrase::new branch becomes a nil passphrase and never reaches here.
+// The Go bind builds the secret.Passphrase before the job, so a nil passphrase
+// here means construction failed.
 func importWithProfileBusy(
 	pending *findesk.FindeskImportState,
 	database *db.Database,
@@ -1198,7 +1193,7 @@ func importWithProfileBusy(
 }
 
 // runWhileProfileBusy runs work as one profile-busy section, so the section
-// ends on every path. It is Rust's run_while_profile_busy.
+// ends on every path.
 func runWhileProfileBusy(busy accountsview.Busy, work func()) {
 	busy.Run(work)
 }
@@ -1278,8 +1273,8 @@ func (s *Session) SettingsSubmitFindeskPassphrase(passphrase *secret.Passphrase)
 		return
 	}
 	if passphrase == nil {
-		// Rust's import_with_profile_busy takes the Passphrase::new error as a
-		// wrong passphrase: no import runs, and the dialog stays open.
+		// A nil passphrase counts as a wrong passphrase: no import runs, and the
+		// dialog stays open.
 		pending.Report = nil
 		pending.Error = nil
 		pending.PassphraseWrong = true
@@ -1408,7 +1403,7 @@ func (s *Session) SettingsCloseProfileDialog() {
 // SettingsSaveProfile creates or renames the profile the name dialog shows, as
 // settings::save_profile does.
 //
-// name is the dialog's text field; Rust reads it from the window's property.
+// name is the dialog's text field.
 func (s *Session) SettingsSaveProfile(name string) {
 	s.mu.Lock()
 	if !s.settingsActionReadyLocked() {
@@ -1497,8 +1492,7 @@ func (s *Session) SettingsConfirmDeleteProfile() {
 	}
 	profile := s.settings.Profiles[index]
 	if profile.Slug == "" {
-		// Rust's `let Some(slug) = profile.slug else { return }` refuses the
-		// default profile here.
+		// The default profile has no slug, so it is refused here.
 		s.mu.Unlock()
 		return
 	}
@@ -1516,7 +1510,7 @@ func (s *Session) SettingsConfirmDeleteProfile() {
 		pending *settingsview.SettingsState,
 	) {
 		forget := func(string) {
-			// Rust forgets the PINs with the deleted profile's folder, before
+			// The PINs are forgotten with the deleted profile's folder, before
 			// the folder moves.
 			if dirErr == nil {
 				banksync.ForgetPinsForProfile(credentials, profileDir)
@@ -1537,9 +1531,9 @@ func (s *Session) SettingsConfirmDeleteProfile() {
 	s.startPageJob(job)
 }
 
-// beginSettingsProfileJobLocked is Rust's spawn_profile_action: a Settings
-// action that needs the data root and the open database, off the session
-// mutex. The caller holds the mutex and starts the returned job.
+// beginSettingsProfileJobLocked starts a Settings action that needs the data
+// root and the open database, off the session mutex. The caller holds the mutex
+// and starts the returned job.
 func (s *Session) beginSettingsProfileJobLocked(
 	prepare func(*settingsview.SettingsState),
 	work func(context.Context, *db.Database, *settingsview.SettingsState),
@@ -1571,7 +1565,7 @@ func settingsUnexpected(language i18n.Language) *string {
 }
 
 // budgetInput formats a budget for the category dialog, using the currency's
-// exponent exactly as Rust's budget_input does.
+// exponent.
 func budgetInput(budget *money.Money) string {
 	if budget == nil {
 		return ""
@@ -1592,9 +1586,9 @@ func budgetInput(budget *money.Money) string {
 	return fmt.Sprintf("%d.%0*d", whole, int(exponent), fraction)
 }
 
-// parseBudget parses the category dialog's budget field exactly as Rust's
-// parse_budget does: empty is no budget, surrounding euro signs are ignored,
-// and the core parser applies EUR's exponent.
+// parseBudget parses the category dialog's budget field: empty is no budget,
+// surrounding euro signs are ignored, and the core parser applies EUR's
+// exponent.
 func parseBudget(text string) (*money.Money, i18n.Key, bool) {
 	if strings.TrimSpace(text) == "" {
 		return nil, 0, true
@@ -1620,7 +1614,7 @@ func ruleError(state *settingsview.SettingsState, pattern string, priority strin
 	return ""
 }
 
-// fieldIndex is Rust's field_index.
+// fieldIndex returns the dialog index for field, or 0 for any field.
 func fieldIndex(field model.RuleField) int {
 	switch field {
 	case model.RuleFieldPartner:
@@ -1632,7 +1626,8 @@ func fieldIndex(field model.RuleField) int {
 	}
 }
 
-// directionIndex is Rust's direction_index.
+// directionIndex returns the dialog index for direction, or 0 for any
+// direction.
 func directionIndex(direction model.RuleDirection) int {
 	switch direction {
 	case model.RuleDirectionExpense:
@@ -1644,7 +1639,8 @@ func directionIndex(direction model.RuleDirection) int {
 	}
 }
 
-// taxIndex is Rust's tax_index.
+// taxIndex returns the dialog index for a tax flag: 0 for nil, 1 for true and 2
+// for false.
 func taxIndex(tax *bool) int {
 	if tax == nil {
 		return 0
@@ -1655,7 +1651,7 @@ func taxIndex(tax *bool) int {
 	return 2
 }
 
-// fieldAt is Rust's field_at.
+// fieldAt returns the field for a dialog index, defaulting to any field.
 func fieldAt(index int) model.RuleField {
 	switch index {
 	case 1:
@@ -1667,7 +1663,8 @@ func fieldAt(index int) model.RuleField {
 	}
 }
 
-// directionAt is Rust's direction_at.
+// directionAt returns the direction for a dialog index, defaulting to any
+// direction.
 func directionAt(index int) model.RuleDirection {
 	switch index {
 	case 1:
@@ -1679,7 +1676,8 @@ func directionAt(index int) model.RuleDirection {
 	}
 }
 
-// taxAt is Rust's tax_at.
+// taxAt returns the tax flag for a dialog index: nil for 0, true for 1 and
+// false for 2.
 func taxAt(index int) *bool {
 	switch index {
 	case 1:

@@ -1,6 +1,6 @@
-// Package shell ports the non-UI part of crates/finglass/src: the session state
-// behind the windows, its navigation model, the shell-wide job counter, the
-// menu helpers and the first-run migration wizard.
+// Package shell is the non-UI part of the app: the session state behind the
+// windows, its navigation model, the shell-wide job counter, the menu helpers
+// and the first-run migration wizard.
 //
 // Everything that reaches outside the process is injected: the data paths, the
 // credential store, the FinDesk root, the clock and today's date, and the
@@ -16,10 +16,10 @@ import (
 )
 
 // MaxBack is the depth of the back stack; when full, the oldest entry is
-// dropped. It is Rust's nav::MAX_BACK.
+// dropped.
 const MaxBack = 10
 
-// The Settings sections, in the order settings_page.slint lists them. Links
+// The Settings sections, in display order. Links
 // into Settings pass the section they are about; plain navigation opens
 // Appearance, as FinDesk does.
 const (
@@ -48,8 +48,7 @@ type PageArgs struct {
 }
 
 // DashboardPageArgs returns the arguments to reopen the Dashboard with: its
-// selected month unless that is the current one. It is Rust's
-// PageArgs::dashboard.
+// selected month unless that is the current one.
 func DashboardPageArgs(selected, current dashboard.YearMonth) PageArgs {
 	args := PageArgs{}
 	if selected != current {

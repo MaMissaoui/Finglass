@@ -597,7 +597,7 @@ func TestAListenerMayReadDocumentsWhileItRuns(t *testing.T) {
 }
 
 func TestDocumentsTabLabelsCarryTheServiceCountsInTheBindDTO(t *testing.T) {
-	// The ported Rust helper test lives in the bind package; this checks that
+	// The corresponding helper test lives in the bind package; this checks that
 	// the session loads the counts those labels use.
 	session, _, _ := newLoadedDocumentsSession(t)
 	page := session.DocumentsState()

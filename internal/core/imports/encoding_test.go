@@ -139,7 +139,7 @@ func TestUTF16ReplacesUnpairedSurrogatesAndAnOddTrailingByte(t *testing.T) {
 	}
 }
 
-func TestDecodeStatementReportsTheRustCharsetNames(t *testing.T) {
+func TestDecodeStatementReportsTheCharsetNames(t *testing.T) {
 	tests := []struct {
 		name  string
 		bytes []byte
@@ -159,7 +159,7 @@ func TestDecodeStatementReportsTheRustCharsetNames(t *testing.T) {
 	}
 }
 
-func TestIntegerParsingFollowsRust(t *testing.T) {
+func TestIntegerParsingFollowsV034(t *testing.T) {
 	if value, ok := parseUsize("+5"); !ok || value != 5 {
 		t.Errorf("parseUsize(+5) = %d, %v", value, ok)
 	}

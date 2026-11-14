@@ -11,8 +11,6 @@
 // and [Service.ApplyPendingRestore] moves the current data aside into
 // `pre-restore-<timestamp>/` and puts the staged data in place. The second phase
 // must run before the database is opened.
-//
-// It ports `crates/finglass-core/src/backup.rs`.
 package backup
 
 import (
@@ -64,7 +62,7 @@ var contentDirs = []string{"documents"}
 const bufferSize = 8 * 1024
 
 // stampLayout is the timestamp format used for `pre-restore-<timestamp>`
-// folders. It is Rust's `[year][month][day]-[hour][minute][second]`.
+// folders. It is `[year][month][day]-[hour][minute][second]`.
 const stampLayout = "20060102-150405"
 
 // Info is what a backup says about itself.
@@ -88,8 +86,8 @@ type Service struct {
 
 // NewService creates a service for the profile at profileDir.
 //
-// Rust writes `crate::VERSION` into the manifest. Go's core may not import
-// `internal/bind`, so the caller passes `bind.Version` as appVersion.
+// The manifest records the app version. The core may not import `internal/bind`,
+// so the caller passes `bind.Version` as appVersion.
 func NewService(profileDir, appVersion string) *Service {
 	return &Service{
 		profileDir:      profileDir,
@@ -236,7 +234,7 @@ func (s *Service) Inspect(backup string) (Info, error) {
 // StageRestore validates backup and unpacks it into the pending-restore folder.
 //
 // Nothing live is touched. When the staged database cannot be opened with the
-// live key, backupPassphrase is required: nil means Rust's `None` and returns
+// live key, backupPassphrase is required: nil means no passphrase and returns
 // [PassphraseRequiredError] with WrongPassphraseGiven false, a wrong one turns
 // it true. A failed stage removes the staging folder again.
 //
@@ -442,8 +440,7 @@ func (s *Service) contentFiles(excluded []string) ([]contentFile, error) {
 			}
 			return nil, err
 		}
-		// os.ReadDir sorts by file name, the same byte order as Rust's
-		// OsString sort.
+		// os.ReadDir sorts by file name (byte order).
 
 		for _, entry := range entries {
 			path := filepath.Join(dir, entry.Name())
@@ -482,7 +479,7 @@ type contentFile struct {
 	path string
 }
 
-// infoFromProperties reads a manifest the way Rust's `inspect` does.
+// infoFromProperties reads a backup manifest.
 func infoFromProperties(manifest string) Info {
 	properties := parseProperties(manifest)
 
@@ -517,8 +514,7 @@ func infoFromProperties(manifest string) Info {
 }
 
 // zipOpenReader opens a ZIP archive. Go's `zip.ErrInsecurePath` is not a failure
-// by itself: the reader it returns is still used, and safeTarget decides, as
-// Rust does.
+// by itself: the reader it returns is still used, and safeTarget decides.
 func zipOpenReader(path string) (*zip.ReadCloser, error) {
 	reader, err := zip.OpenReader(path)
 	if err != nil && !errors.Is(err, zip.ErrInsecurePath) {
@@ -542,8 +538,7 @@ func lastEntryNamed(reader *zip.ReadCloser, name string) *zip.File {
 	return found
 }
 
-// readEntryText reads an entry and requires valid UTF-8, as Rust's
-// `read_to_string` does.
+// readEntryText reads an entry and requires valid UTF-8.
 func readEntryText(entry *zip.File) (string, error) {
 	source, err := entry.Open()
 	if err != nil {
@@ -605,22 +600,19 @@ func secureFile(path string) {
 	_ = chmod(path, 0o600)
 }
 
-// pathExists reports whether path exists, following symlinks like Rust's
-// `Path::exists`.
+// pathExists reports whether path exists, following symlinks.
 func pathExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
 
-// isRegularFile reports whether path is a regular file, following symlinks like
-// Rust's `Path::is_file`.
+// isRegularFile reports whether path is a regular file, following symlinks.
 func isRegularFile(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.Mode().IsRegular()
 }
 
-// isDirEntry reports whether a ZIP entry name denotes a directory, as Rust's
-// `is_dir` does.
+// isDirEntry reports whether a ZIP entry name denotes a directory.
 func isDirEntry(name string) bool {
 	return strings.HasSuffix(name, "/") || strings.HasSuffix(name, "\\")
 }

@@ -1455,7 +1455,7 @@ func TestForgetDeletedBookingsNamesTheCountAndWritesNothingWhenNoneAreRemembered
 	}
 }
 
-func TestFindItemsMatchesRustSQL(t *testing.T) {
+func TestFindItemsMatchesV034SQL(t *testing.T) {
 	start := date(t, 2026, time.January, 2)
 	end := date(t, 2026, time.March, 4)
 	accountID := model.AccountID(7)
@@ -1559,7 +1559,7 @@ func TestFindItemsAddsTheLimitOnlyWithoutTheTaxFilter(t *testing.T) {
 	}
 }
 
-func TestTransactionRowsMatchRustEncoding(t *testing.T) {
+func TestTransactionRowsMatchV034Encoding(t *testing.T) {
 	d := database(t)
 	ctx := context.Background()
 	accountID := account(t, d)

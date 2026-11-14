@@ -8,7 +8,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 )
 
-// Stable error codes the UI can branch on. They are Rust's BankingError codes.
+// Stable error codes the UI can branch on.
 const (
 	// CodeOffline means the bank connection is in offline mode.
 	CodeOffline = "OFFLINE"
@@ -42,7 +42,7 @@ const (
 	CodeSyncBank = "SYNC_BANK"
 )
 
-// GatewayErrorKind names a Rust GatewayError variant.
+// GatewayErrorKind names the kind of gateway failure.
 type GatewayErrorKind int
 
 // The gateway failure kinds.
@@ -103,7 +103,7 @@ func NewGatewayOtherError(text string) GatewayError {
 	return GatewayError{kind: GatewayErrorOther, text: text}
 }
 
-// Kind returns the Rust variant this error represents.
+// Kind returns the kind of failure this error represents.
 func (e GatewayError) Kind() GatewayErrorKind {
 	return e.kind
 }
@@ -294,7 +294,7 @@ func cleanLine(text string) (string, bool) {
 	return truncateRunes(line, 300), true
 }
 
-// truncateRunes keeps at most limit runes, like Rust's chars().take(limit).
+// truncateRunes keeps at most limit runes.
 func truncateRunes(text string, limit int) string {
 	if utf8.RuneCountInString(text) <= limit {
 		return text

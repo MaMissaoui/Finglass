@@ -1,8 +1,6 @@
-// Package rustfmt formats values the way Rust's formatting traits do.
-//
-// It exists so error texts copied from the Rust build keep the exact shape of
-// Rust's `{:?}` output.
-package rustfmt
+// Package debugquote formats values in the quoted debug form used by
+// Finglass's error texts.
+package debugquote
 
 import (
 	"strconv"
@@ -10,7 +8,7 @@ import (
 	"unicode"
 )
 
-// Quote quotes text as Rust's Debug formatting does.
+// Quote quotes text in the quoted debug form used by Finglass's error texts.
 func Quote(text string) string {
 	var quoted strings.Builder
 	quoted.WriteByte('"')

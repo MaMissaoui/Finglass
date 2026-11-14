@@ -1,4 +1,4 @@
-package rustfmt
+package debugquote
 
 import (
 	"fmt"

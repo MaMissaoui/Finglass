@@ -1,5 +1,5 @@
 // Text decoding, IBAN checks, amounts and dates shared by the statement
-// parsers. Ports crates/finglass-core/src/import/util.rs.
+// parsers.
 package imports
 
 import (
@@ -39,7 +39,7 @@ type charset struct {
 	encoding encoding.Encoding
 }
 
-// windows1252High is encoding_rs's WHATWG windows-1252 table for 0x80..0xFF.
+// windows1252High is the WHATWG windows-1252 table for 0x80..0xFF.
 
 var windows1252High = [128]rune{
 	0x20AC, 0x0081, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0x02C6, 0x2030, 0x0160,
@@ -56,7 +56,7 @@ var windows1252High = [128]rune{
 	0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x00FE, 0x00FF,
 }
 
-// decodeWindows1252 decodes bytes with encoding_rs's windows-1252 table.
+// decodeWindows1252 decodes bytes with the WHATWG windows-1252 table.
 func decodeWindows1252(bytes []byte) string {
 	var out strings.Builder
 	for _, b := range bytes {
@@ -307,7 +307,7 @@ func encodingForLabel(label string) (charset, bool) {
 	default:
 		name := ""
 		if canonical, err := htmlindex.Name(enc); err == nil {
-			name = encodingRustName(canonical)
+			name = encodingName(canonical)
 		}
 		return charset{kind: charsetOther, name: name, encoding: enc}, true
 	}
@@ -323,8 +323,8 @@ func asciiLower(text string) string {
 	return string(bytes)
 }
 
-// encodingRustName maps x/text's canonical names to encoding_rs's name() values.
-func encodingRustName(canonical string) string {
+// encodingName maps x/text's canonical names to the encoding names.
+func encodingName(canonical string) string {
 	names := map[string]string{
 		"ibm866":         "IBM866",
 		"iso-8859-2":     "ISO-8859-2",
@@ -647,8 +647,8 @@ func isDecimalSyntax(text string) bool {
 
 // -- integer parsing ------------------------------------------------------------------------------
 
-// parseUnsigned follows Rust's str::parse::<uN>: an optional '+', then ASCII
-// digits, nothing else, failing on overflow.
+// parseUnsigned parses an unsigned integer: an optional '+', then ASCII digits,
+// nothing else, failing on overflow.
 func parseUnsigned(text string, bits int) (uint64, bool) {
 	if text == "" {
 		return 0, false
@@ -672,8 +672,8 @@ func parseUnsigned(text string, bits int) (uint64, bool) {
 	return value, true
 }
 
-// parseSigned follows Rust's str::parse::<iN>: an optional '+' or '-', then
-// ASCII digits, nothing else, failing on overflow.
+// parseSigned parses a signed integer: an optional '+' or '-', then ASCII
+// digits, nothing else, failing on overflow.
 func parseSigned(text string, bits int) (int64, bool) {
 	if text == "" {
 		return 0, false

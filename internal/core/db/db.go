@@ -10,8 +10,7 @@
 // built by a one-shot [driver.Connector]: it is kept only until the first
 // connection is opened and then forgotten, so nothing can key a reconnect. The
 // value is escaped for the driver (each `"` doubled, then URL-encoded), which
-// makes SQLite read back exactly the passphrase bytes Rust's `'…'` literal
-// sends.
+// makes SQLite read back exactly the intended passphrase bytes.
 //
 // Known limits (accepted, see docs/PLAN.md, "Secrets: best effort"): the
 // passphrase exists as a Go string in the DSN, in the driver's parsed
@@ -47,8 +46,7 @@ import (
 // by tests that open an unkeyed database directly.
 const driverName = "sqlite3"
 
-// synchronousMode is the SQLite synchronous level the connection needs to match
-// the Rust build. SQLite's default is FULL (2), the driver's default is NORMAL
+// synchronousMode is the SQLite synchronous level the connection needs. SQLite's default is FULL (2), the driver's default is NORMAL
 // (1), and the driver applies the pragma during Open, before the caller gets
 // the connection. It therefore has to travel in the DSN.
 const synchronousMode = "FULL"
@@ -181,8 +179,7 @@ func checkPassphrase(p *secret.Passphrase) error {
 // buildDSN builds `<path>?_pragma_key=<escaped>&_synchronous=FULL`.
 //
 // escaped is the passphrase with every `"` doubled and then URL-encoded. SQLite
-// reads the double-quoted token back to exactly the original bytes, the same
-// bytes Rust's single-quoted literal sends. The DSN buffer is zeroed after the
+// reads the double-quoted token back to exactly the original bytes. The DSN buffer is zeroed after the
 // Go string conversion (best effort).
 func buildDSN(path string, p *secret.Passphrase) (string, error) {
 	var dsn string
@@ -320,8 +317,8 @@ func (d *Database) ChangePassphrase(p *secret.Passphrase) error {
 }
 
 // rekey runs `PRAGMA rekey` with the passphrase as a SQL string literal,
-// doubling every quote exactly as rusqlite does. This is the one key statement
-// that cannot go through the DSN, because the connection is already open.
+// doubling every quote. This is the one key statement that cannot go through
+// the DSN, because the connection is already open.
 func rekey(ctx context.Context, conn *sql.Conn, p *secret.Passphrase) error {
 	return p.Use(func(b []byte) error {
 		statement := make([]byte, 0, len(b)+24)

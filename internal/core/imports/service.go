@@ -1,5 +1,5 @@
 // Importing a parsed statement into the database, ported from FinDesk's
-// StatementImportService and crates/finglass-core/src/import/service.rs.
+// StatementImportService.
 package imports
 
 import (
@@ -31,11 +31,11 @@ const TypedBalanceRecentDays = 45
 
 // ErrAccountNotFound reports that the account does not exist.
 //
-//nolint:staticcheck // "Account not found" is Rust's exact user-visible text.
+//nolint:staticcheck // "Account not found" is the exact user-visible text.
 var ErrAccountNotFound = errors.New("Account not found")
 
 // SeveralAccountsError reports a file that names several accounts and must be
-// split. Its message is Rust's exact text.
+// split. Its message is the exact user-visible text.
 type SeveralAccountsError struct {
 	// Message is the user-facing error text.
 	Message string
@@ -49,8 +49,8 @@ func (e *SeveralAccountsError) Error() string {
 // ImportServiceError is everything that can go wrong while importing a parsed
 // statement.
 //
-// It wraps the repository, money or database error transparently, like Rust's
-// ImportServiceError, so errors.Is and errors.As see the cause.
+// It wraps the repository, money or database error transparently, so errors.Is
+// and errors.As see the cause.
 type ImportServiceError struct {
 	// Err is the underlying repository, money or database error, or
 	// ErrAccountNotFound or a *SeveralAccountsError.

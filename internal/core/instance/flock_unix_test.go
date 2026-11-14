@@ -11,8 +11,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// TestTheLockIsFlock proves the lock is a flock(2) lock, which is what Rust's
-// File::try_lock uses, rather than an fcntl record lock.
+// TestTheLockIsFlock proves the lock is a flock(2) lock rather than an fcntl
+// record lock.
 func TestTheLockIsFlock(t *testing.T) {
 	p := testPaths(t)
 

@@ -18,11 +18,11 @@ import (
 )
 
 // DocumentsPageState is one Documents snapshot: the page state plus the values
-// that live on Rust's controller rather than in DocumentsState.
+// that live on the controller rather than in DocumentsState.
 type DocumentsPageState struct {
 	// State is a deep copy of the page's state.
 	State documentsview.DocumentsState
-	// PreviewKind is "none", "pdf" or "image", as Rust's Preview holds it.
+	// PreviewKind is "none", "pdf" or "image".
 	PreviewKind string
 	// PreviewDataURL is the image preview as a data URL; empty unless the kind
 	// is "image".
@@ -31,8 +31,8 @@ type DocumentsPageState struct {
 	CandidateQuery string
 }
 
-// documentsPreview is Rust's Preview: the kind and, for images, the bytes the
-// DTO carries as a data URL.
+// documentsPreview is the preview: the kind and, for images, the bytes the DTO
+// carries as a data URL.
 type documentsPreview struct {
 	// Kind is "none", "pdf" or "image".
 	Kind string
@@ -104,9 +104,8 @@ func (s *Session) DocumentsSearch(query string) {
 	s.startPageJob(job)
 }
 
-// DocumentsSelect selects the document with id and loads its detail, as
-// on_documents_select. An unknown id clears the selection, exactly as Rust's
-// lookup does.
+// DocumentsSelect selects the document with id and loads its detail. An unknown
+// id clears the selection.
 func (s *Session) DocumentsSelect(id int64) {
 	s.mu.Lock()
 	var document *model.DocumentItem
@@ -275,9 +274,9 @@ func (s *Session) DocumentsConfirmDelete() {
 	s.startPageJob(job)
 }
 
-// DocumentsDismiss clears the error and success banner, as on_documents_dismiss.
-// Rust's try_lock means a running worker keeps the messages until it publishes;
-// Go does the same through the documents busy flag.
+// DocumentsDismiss clears the error and success banner. A running worker keeps
+// the messages until it publishes; Go does the same through the documents busy
+// flag.
 func (s *Session) DocumentsDismiss() {
 	s.mu.Lock()
 	if s.documents == nil || s.documentsWork.Active() {
@@ -434,8 +433,7 @@ func (s *Session) documentsReload() {
 //
 // Every job takes the page's next request ticket, so a later load or action
 // always wins: an earlier result may never overwrite it, whatever order the
-// workers finish in. That is Rust's ActionOrder rule expressed with the G8a-1
-// page-request counter.
+// workers finish in. The G8a-1 page-request counter enforces that rule.
 func (s *Session) beginDocumentsJobLocked(loading bool, work documentsJobWork) (*pageJob, bool) {
 	if s.db == nil || s.documents == nil {
 		return nil, false
@@ -506,20 +504,20 @@ func (s *Session) beginDocumentsJobLocked(loading bool, work documentsJobWork) (
 	}, true
 }
 
-// resetDocumentsAuxLocked clears the controller-only values Rust's reset
+// resetDocumentsAuxLocked clears the controller-only values that a reset
 // clears. The caller holds the session mutex.
 func (s *Session) resetDocumentsAuxLocked() {
 	s.resetDocumentsPreviewLocked()
 	s.documentsCandidateQuery = ""
 }
 
-// resetDocumentsPreviewLocked clears the preview as Rust's attach and reset do.
+// resetDocumentsPreviewLocked clears the preview, as attach and reset do.
 func (s *Session) resetDocumentsPreviewLocked() {
 	s.documentsPreview = documentsPreview{Kind: "none"}
 }
 
 // documentPath resolves a stored document path, which may be relative to the
-// profile folder. It is Rust's document_path.
+// profile folder.
 func documentPath(appPaths paths.AppPaths, profile string, storedPath string) string {
 	path := filepath.FromSlash(storedPath)
 	if filepath.IsAbs(path) {

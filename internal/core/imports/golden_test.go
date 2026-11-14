@@ -126,7 +126,7 @@ func goldenToday(t *testing.T) civil.Date {
 	return date
 }
 
-func TestImportStatementsMatchTheRustGolden(t *testing.T) {
+func TestImportStatementsMatchTheV034Golden(t *testing.T) {
 	root := repoRoot(t)
 	data, err := os.ReadFile(filepath.Join(root, "testdata", "golden", "import", "statements.json")) // #nosec G304 -- fixed repository fixture path.
 	if err != nil {
@@ -308,7 +308,7 @@ func optionalDecimalText(value *decimal.Decimal) *string {
 	return &text
 }
 
-func TestImportHashesMatchTheRustGolden(t *testing.T) {
+func TestImportHashesMatchTheV034Golden(t *testing.T) {
 	root := repoRoot(t)
 	data, err := os.ReadFile(filepath.Join(root, "testdata", "golden", "hash", "hashes.json")) // #nosec G304 -- fixed repository fixture path.
 	if err != nil {

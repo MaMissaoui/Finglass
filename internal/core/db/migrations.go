@@ -23,9 +23,8 @@ type Migration struct {
 // Migrations are the schema steps this build knows about. Released steps must
 // never be edited: a released migration is history, so fixes go into a new one.
 //
-// This list is copied verbatim from
-// `crates/finglass-core/src/db/migrations.rs`; TestMigrationsMatchTheRustGolden
-// checks it against testdata/golden/migrations.json.
+// This list matches Finglass 0.3.4; TestMigrationsMatchTheV034Golden checks it
+// against testdata/golden/migrations.json.
 var Migrations = []Migration{
 	{
 		Version: 1,

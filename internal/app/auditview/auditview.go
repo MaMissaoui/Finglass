@@ -1,5 +1,4 @@
-// Package auditview ports crates/finglass-core/src/app/audit.rs: audit log
-// rows ready for the settings screen.
+// Package auditview is the audit log rows ready for the settings screen.
 package auditview
 
 import (

@@ -21,7 +21,7 @@ type formatCase struct {
 	Out      string `json:"out"`
 }
 
-func TestReportFormatMatchesRust(t *testing.T) {
+func TestReportFormatMatchesV034(t *testing.T) {
 	data, err := os.ReadFile(filepath.Join("testdata", "report_format.json"))
 	if err != nil {
 		t.Fatalf("read the reference cases: %v", err)

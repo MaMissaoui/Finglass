@@ -1,5 +1,4 @@
-// Package ruleimport imports and exports a reviewed rule set, ported from
-// `crates/finglass-core/src/rules/import.rs`.
+// Package ruleimport imports and exports a reviewed rule set.
 //
 // A preview is read-only. Applying a confirmed preview creates the missing
 // categories and the new rules and, optionally, categorizes uncategorized
@@ -17,6 +16,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/debugquote"
 	"github.com/MaMissaoui/Finglass/internal/core/decimal"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -26,7 +26,6 @@ import (
 	rulerepo "github.com/MaMissaoui/Finglass/internal/core/repo/rules"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/transactions"
 	rulefiles "github.com/MaMissaoui/Finglass/internal/core/rules"
-	"github.com/MaMissaoui/Finglass/internal/core/rustfmt"
 )
 
 // RuleImportConflict is the same pattern, text field and money flow as an
@@ -75,8 +74,8 @@ type RuleImportResult struct {
 
 // RuleImportError is everything that can go wrong in a rule import or export.
 //
-// It wraps the repository, database or I/O error transparently, like Rust's
-// `RuleImportError`, so errors.Is and errors.As see the cause.
+// It wraps the repository, database or I/O error transparently, so errors.Is
+// and errors.As see the cause.
 type RuleImportError struct {
 	// Err is the underlying repository, database or I/O error.
 	Err error
@@ -695,5 +694,5 @@ func loadMatcher(ctx context.Context, tx *sql.Tx) (*rulefiles.RuleMatcher, error
 }
 
 func invalidColumn(index int, name, value string) error {
-	return fmt.Errorf("unknown %s %s in column %d", name, rustfmt.Quote(value), index)
+	return fmt.Errorf("unknown %s %s in column %d", name, debugquote.Quote(value), index)
 }

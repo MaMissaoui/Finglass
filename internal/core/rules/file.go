@@ -121,11 +121,11 @@ func ValidateRulePattern(pattern string, lang i18n.Language) *string {
 	return nil
 }
 
-// fancyRegexError approximates how Rust's fancy-regex displays a parse error,
-// so rule-file error rows read like the Rust text. The position is always the
-// end of the pattern: that is what fancy-regex reports for an unclosed class
-// or group (the golden case), but other errors may point elsewhere in Rust.
-// Errors without a mapping keep regexp2's own text.
+// fancyRegexError approximates the reference engine's parse-error display, so
+// rule-file error rows read like the recorded text. The position is always the
+// end of the pattern: that is what the reference reports for an unclosed class
+// or group (the golden case), but other errors may point elsewhere. Errors
+// without a mapping keep regexp2's own text.
 func fancyRegexError(pattern string, err error) string {
 	position := len(pattern)
 	var syntaxError *syntax.Error

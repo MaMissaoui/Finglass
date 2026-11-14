@@ -10,10 +10,10 @@ export const BAR_GAP = 2;
 /** The widest a single month bar may get. */
 export const BAR_MAX_WIDTH = 24;
 
-/** The chart plot height, as in charts.slint. */
+/** The chart plot height. */
 export const PLOT_HEIGHT = 160;
 
-/** The tooltip width, as in charts.slint. */
+/** The tooltip width. */
 export const TOOLTIP_WIDTH = 176;
 
 /** Clamps a DTO fraction to the drawable range; non-finite values are zero. */
@@ -136,7 +136,7 @@ export type TooltipBox = { x: number; y: number; width: number; height: number }
 
 /**
  * The hover tooltip's box: 8 px from the plot's top, left-aligned in the first
- * half and right-aligned in the second, as in charts.slint.
+ * half and right-aligned in the second.
  */
 export function tooltipBox(
   plotWidth: number,

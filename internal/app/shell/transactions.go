@@ -22,7 +22,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 )
 
-// TransactionsDialogState is the Transactions page's dialog state without Slint.
+// TransactionsDialogState is the Transactions page's dialog state.
 //
 // Every dialog the page opens itself lives here: the custom range, the amount
 // filter, the add form, the rule form, the single delete confirmation and the
@@ -82,8 +82,8 @@ type TransactionsDialogState struct {
 	MultiDeleteMore string
 }
 
-// transactionsPendingOpenKind is Rust's PendingOpen: the dialog the menu asked
-// for, opened once its page load has finished.
+// transactionsPendingOpenKind is the dialog the menu asked for, opened once its
+// page load has finished.
 type transactionsPendingOpenKind uint8
 
 const (
@@ -92,8 +92,8 @@ const (
 	transactionsPendingImport
 )
 
-// pendingTransactionsSearch is Rust's PendingSearch: the newest query typed
-// while a job was running, kept until that job has finished.
+// pendingTransactionsSearch is the newest query typed while a job was running,
+// kept until that job has finished.
 type pendingTransactionsSearch struct {
 	query *string
 }
@@ -344,7 +344,7 @@ func (s *Session) TransactionsConfirmImport(updateBalance bool) {
 func (s *Session) TransactionsCancelImport() {
 	s.mu.Lock()
 	if s.transactionsWork.Active() || s.transactions == nil {
-		// Rust's update_view finds no view while a worker owns it.
+		// There is no view while a worker owns it.
 		s.mu.Unlock()
 		return
 	}
@@ -509,7 +509,7 @@ func (s *Session) beginTransactionsJobWithProfileBusyLocked(
 			s.runTransactionsPendingOpenLocked()
 		},
 		finish: func(published bool) {
-			// Rust's BusyGuard ends after the result is returned; the pending
+			// The busy section ends after the result is returned; the pending
 			// import dialog starts once the page's own busy section is over.
 			if holdProfileBusy {
 				profileBusy.End()
@@ -525,8 +525,8 @@ func (s *Session) beginTransactionsJobWithProfileBusyLocked(
 	}, true
 }
 
-// resetTransactionsAuxLocked clears the controller-only page state that Rust's
-// attach/reset clears.
+// resetTransactionsAuxLocked clears the controller-only page state that
+// attach/reset clear.
 func (s *Session) resetTransactionsAuxLocked() {
 	s.transactionsDialog = TransactionsDialogState{}
 	s.transactionsPendingOpen = transactionsPendingNone
@@ -1205,14 +1205,12 @@ func (s *Session) TransactionsCloseDetail() {
 	})
 }
 
-// TransactionsDetailClose is the Rust callback name for closing the detail
-// panel.
+// TransactionsDetailClose closes the detail panel.
 func (s *Session) TransactionsDetailClose() {
 	s.TransactionsCloseDetail()
 }
 
-// TransactionsDetailCreateRule is the Rust callback name for opening the rule
-// dialog from the detail panel.
+// TransactionsDetailCreateRule opens the rule dialog from the detail panel.
 func (s *Session) TransactionsDetailCreateRule() {
 	s.TransactionsOpenRule()
 }
@@ -1406,7 +1404,7 @@ func (s *Session) TransactionsBack() {
 }
 
 // startTransactionsAction prepares one action on a clone of the page state and
-// starts it. It is Rust's spawn.
+// starts it.
 func (s *Session) startTransactionsAction(
 	work func(context.Context, *transactionsview.TransactionsView, *db.Database, civil.Date),
 ) {
@@ -1582,7 +1580,7 @@ func ImportCSVOptions(csv *imports.CsvLayout, language i18n.Language) []string {
 }
 
 // RemapCSVMapping applies one CSV mapping field change from the dialog. A zero
-// or negative index means "none"; Rust's index is one-based.
+// or negative index means "none"; the dialog's index is one-based.
 func RemapCSVMapping(mapping imports.CsvMapping, field string, index int) imports.CsvMapping {
 	column := csvColumn(index)
 	switch field {

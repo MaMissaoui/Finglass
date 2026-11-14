@@ -1,6 +1,5 @@
-// Booking hashes, ported from FinDesk's transactionHash/importHash and
-// StatementImportService.hashes. Ports
-// crates/finglass-core/src/import/hash.rs.
+// Booking hashes, following FinDesk's transactionHash/importHash and
+// StatementImportService.hashes.
 package imports
 
 import (

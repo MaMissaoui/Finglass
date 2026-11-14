@@ -32,7 +32,7 @@ const (
 	MigrationSummary
 )
 
-// StepName returns the wizard page's value, as Rust's step_name does.
+// StepName returns the wizard page's value.
 func StepName(step MigrationStep) string {
 	switch step {
 	case MigrationWelcome:
@@ -80,9 +80,8 @@ type MigrationProfileResult struct {
 	Outcome MigrationOutcome
 }
 
-// MigrationSession is Rust's migration::Session without Slint: the wizard's
-// step, index, passphrase choices, busy flag, error and results. The UI drives
-// it with method calls.
+// MigrationSession is the wizard's step, index, passphrase choices, busy flag,
+// error and results. The UI drives it with method calls.
 //
 // No passphrase is stored. Submit returns the two validated secrets; the caller
 // runs the migration and must wipe them when it is done.
@@ -214,7 +213,7 @@ func WelcomeAction(appPaths paths.AppPaths, migrate bool, now time.Time) error {
 }
 
 // BeginMigration writes the "migrate" marker and moves to the first profile.
-// An unacknowledged click does nothing, as Rust's callback does.
+// An unacknowledged click does nothing.
 func (s *MigrationSession) BeginMigration(
 	language i18n.Language,
 	appPaths paths.AppPaths,
@@ -253,8 +252,8 @@ func (s *MigrationSession) BeginEmpty(language i18n.Language, appPaths paths.App
 // Submit validates the passphrases of the current profile, as
 // on_migration_submit does.
 //
-// The migration itself always treats the recovery warning as acknowledged, as
-// Rust's callback does. The returned passphrases are owned by the caller, which
+// The migration itself always treats the recovery warning as acknowledged. The
+// returned passphrases are owned by the caller, which
 // must wipe them after running the migration.
 func (s *MigrationSession) Submit(
 	language i18n.Language,

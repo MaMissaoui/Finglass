@@ -1,5 +1,5 @@
-// Package unlock ports crates/finglass-core/src/app/unlock.rs: unlocking,
-// creating and rekeying the encrypted database.
+// Package unlock handles unlocking, creating and rekeying the encrypted
+// database.
 //
 // Finglass has no plaintext databases, so there is no "encrypt plaintext" mode:
 // a profile is either new or already encrypted.

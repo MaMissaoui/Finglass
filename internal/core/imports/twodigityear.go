@@ -1,5 +1,5 @@
 // One rule for two-digit years in every import format (CSV, MT940, QIF).
-// Ports crates/finglass-core/src/import/two_digit_year.rs.
+
 package imports
 
 import (

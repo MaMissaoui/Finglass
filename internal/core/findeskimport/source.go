@@ -56,8 +56,8 @@ type sourceNumber struct {
 	text    string
 }
 
-// sourceNumberFromValue mirrors rusqlite's SourceNumber column_result:
-// INTEGER, REAL and TEXT are accepted; NULL and BLOB are not.
+// sourceNumberFromValue converts a stored numeric column: INTEGER, REAL and
+// TEXT are accepted; NULL and BLOB are not.
 func sourceNumberFromValue(value any) (sourceNumber, error) {
 	switch typed := value.(type) {
 	case int64:
@@ -77,8 +77,8 @@ func sourceNumberFromValue(value any) (sourceNumber, error) {
 	}
 }
 
-// lossyUTF8 decodes bytes like Rust's String::from_utf8_lossy: every invalid
-// sequence becomes one U+FFFD, and a truncated sequence at the end becomes one.
+// lossyUTF8 decodes bytes: every invalid sequence becomes one U+FFFD, and a
+// truncated sequence at the end becomes one.
 func lossyUTF8(bytes []byte) string {
 	if len(bytes) == 0 {
 		return ""
@@ -769,7 +769,7 @@ func (e rowScanError) Error() string {
 }
 
 // The helpers below convert the dynamic values database/sql hands back. They
-// mirror the FromSql behaviour of the Rust row types.
+// follow each row type's stored form.
 
 func mustInt64(value any) int64 {
 	converted, err := int64Value(value)

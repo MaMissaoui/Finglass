@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The Mac installer test, moved out of the Rust test job when the Go app became the packaged one.
+# The Mac installer test, moved out of the old test job when the Go app became the packaged one.
 # ci.yml and scripts/ci-local.sh both run this file.
 set -euo pipefail
 cd "$(dirname "$0")/../.."

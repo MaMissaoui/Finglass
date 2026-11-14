@@ -1,5 +1,4 @@
-// Reading SWIFT MT940 account statement files (.sta, .mt940, .txt). Ports
-// crates/finglass-core/src/import/mt940.rs.
+// Reading SWIFT MT940 account statement files (.sta, .mt940, .txt).
 package imports
 
 import (

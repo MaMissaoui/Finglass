@@ -73,8 +73,8 @@ func isContentName(normalized string) bool {
 
 // copyAtMost copies up to limit bytes and returns more than limit when the
 // input had more, so the caller can reject it.
-// readSome reads like Rust's Read::read: zero bytes means the end of the input.
-// A Go reader may return (0, nil) without being at the end, so that is retried.
+// readSome reads up to len(buffer): zero bytes means the end of the input. A Go
+// reader may return (0, nil) without being at the end, so that is retried.
 func readSome(input io.Reader, buffer []byte) (int, error) {
 	for {
 		read, err := input.Read(buffer)
@@ -183,7 +183,7 @@ func writeZip(tmpZip string, info Info, tmpDB string, content []contentFile) err
 
 // createZipEntry starts a Deflate entry with Unix mode 0600.
 func createZipEntry(writer *zip.Writer, name string) (io.Writer, error) {
-	// Rust's zip writer stamps each entry with the current time.
+	// The ZIP writer stamps each entry with the current time.
 	header := &zip.FileHeader{Name: name, Method: zip.Deflate, Modified: time.Now()}
 	header.SetMode(0o600)
 	return writer.CreateHeader(header)

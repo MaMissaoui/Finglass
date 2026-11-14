@@ -178,7 +178,7 @@ func categoryByName(t *testing.T, d *db.Database, name string) model.CategoryID 
 }
 
 // dashboardFixture builds the throwaway database the dashboard, report and
-// export goldens share, step for step as Rust does.
+// export goldens share, step for step as the goldens were produced.
 func dashboardFixture(t *testing.T) *db.Database {
 	t.Helper()
 	ctx := context.Background()
@@ -661,7 +661,7 @@ func showInt64(value *int64) string {
 	return fmt.Sprintf("%d", *value)
 }
 
-func TestDashboardMatchesTheRustGolden(t *testing.T) {
+func TestDashboardMatchesTheV034Golden(t *testing.T) {
 	root := repoRoot(t)
 	data, err := os.ReadFile(filepath.Join(root, "testdata", "golden", "dashboard", "months.json")) // #nosec G304 -- fixed repository fixture path.
 	if err != nil {

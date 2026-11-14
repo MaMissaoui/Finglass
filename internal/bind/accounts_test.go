@@ -388,7 +388,7 @@ func TestAccountsDetailMapsRowsTitleSummaryAndPath(t *testing.T) {
 	}
 }
 
-func TestAccountsBalancePathMatchesTheRustGeometry(t *testing.T) {
+func TestAccountsBalancePathMatchesTheV034Geometry(t *testing.T) {
 	eur := money.EUR
 	history := []balance.BalancePoint{
 		{Date: civil.FromTime(testNow), Balance: money.Money{Minor: 10_000, Currency: eur}},
@@ -613,7 +613,7 @@ func TestAccountsSynchronousActionsEmitTheReturnedDTO(t *testing.T) {
 	}
 }
 
-func TestAccountsPanelRowsNeverShowAFullIBANWhereRustShowsTheDigits(t *testing.T) {
+func TestAccountsPanelRowsNeverShowAFullIBANWhereV034ShowsTheDigits(t *testing.T) {
 	fixture := newAccountsFixture(t)
 	dto := fixture.load(t)
 

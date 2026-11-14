@@ -1,5 +1,5 @@
 // Package imports reads bank statement files: CSV, CAMT.052/053, MT940, OFX,
-// QIF and XLSX. It ports crates/finglass-core/src/import/.
+// QIF and XLSX.
 package imports
 
 import (
@@ -20,8 +20,8 @@ type ImportedBooking struct {
 	BankReference *string
 }
 
-// StatementFormat is the statement format Finglass can read. Its values are
-// Rust's Debug names.
+// StatementFormat is the statement format Finglass can read. Its values are the
+// format names.
 type StatementFormat string
 
 // The statement formats.
@@ -140,7 +140,7 @@ func (e fixedError) Error() string {
 	return string(e)
 }
 
-// Fixed import errors. Their texts are copied from Rust's ImportError.
+// Fixed import errors. Their texts match Finglass 0.3.4's import errors.
 var (
 	// ErrFileTooLarge reports a file above MAX_FILE_BYTES.
 	ErrFileTooLarge fixedError = "File is too large"

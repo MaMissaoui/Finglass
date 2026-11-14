@@ -6,8 +6,8 @@ import "github.com/MaMissaoui/Finglass/internal/core/i18n"
 //
 // Production implements it with Wails' dialogs in cmd/finglass; tests use a
 // fake that returns fixture or temporary paths. The session holds one and calls
-// it inside a job, without the session mutex, exactly as Rust calls rfd inside
-// spawn. A nil seam means every dialog is cancelled.
+// it inside a job, without the session mutex. A nil seam means every dialog is
+// cancelled.
 //
 // No method takes a destination, a file's contents or a folder to read: the
 // dialog is the only source of a path, and nothing returns one to JavaScript.
@@ -57,8 +57,8 @@ func (s *Session) SetFileDialogs(dialogs FileDialogs) {
 
 // FileOpener opens a written file with the system's default viewer.
 //
-// print_tax uses it for the temporary Tax bookings PDF, as Rust calls
-// open::that_detached. Tests record the path and never open anything.
+// print_tax uses it for the temporary Tax bookings PDF. Tests record the path
+// and never open anything.
 type FileOpener interface {
 	// OpenFile opens path with the platform's default application.
 	OpenFile(path string) error

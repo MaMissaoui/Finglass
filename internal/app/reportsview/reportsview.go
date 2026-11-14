@@ -1,13 +1,13 @@
-// Package reportsview ports crates/finglass-core/src/app/reports.rs: the
-// Reports page state without any UI or coroutine machinery.
+// Package reportsview is the Reports page state without any UI or coroutine
+// machinery.
 //
 // It keeps FinDesk's ReportsViewModel state: the selected year or custom range,
 // the tax report and tax bookings, keyword suggestions, recurring payments and
 // the PDF, CSV, XLSX and print actions. Every write goes through the existing
 // repositories, which write the audit log exactly once.
 //
-// The state types are single-caller, as Rust's `&mut self` implies. The Wails
-// layer serializes calls with one sync.Mutex per profile.
+// The state types are single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 package reportsview
 
 import (
@@ -29,7 +29,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/report"
 )
 
-// DateRange is an inclusive date range, Rust's `(Date, Date)` pair.
+// DateRange is an inclusive date range.
 type DateRange struct {
 	// From is the first day, inclusive.
 	From civil.Date
@@ -39,8 +39,8 @@ type DateRange struct {
 
 // ReportsState is the Reports page state.
 //
-// The state is single-caller, as Rust's `&mut self` implies. The Wails layer
-// serializes calls with one sync.Mutex per profile.
+// The state is single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 type ReportsState struct {
 	// SelectedYear is the selected calendar year.
 	SelectedYear int
@@ -572,18 +572,17 @@ func boolPointer(value bool) *bool {
 	return &value
 }
 
-// fileName is Rust's Path::file_name: the last normal component, or the whole
-// path when there is none.
+// fileName returns the last normal component, or the whole path when there is
+// none.
 func fileName(path string) string {
-	if name, ok := rustFileName(path); ok {
+	if name, ok := lastPathComponent(path); ok {
 		return name
 	}
 	return path
 }
 
-// rustFileName returns the last normal path component, like Rust's
-// Path::file_name.
-func rustFileName(path string) (string, bool) {
+// lastPathComponent returns the last normal path component.
+func lastPathComponent(path string) (string, bool) {
 	components := splitPathComponents(path)
 	if len(components) == 0 {
 		return "", false
@@ -596,7 +595,7 @@ func rustFileName(path string) (string, bool) {
 }
 
 // splitPathComponents keeps only the normal components, dropping roots,
-// separators and "." just like Rust's Path::components.
+// separators and ".".
 func splitPathComponents(path string) []string {
 	components := make([]string, 0)
 	for _, component := range splitRuns(path, byte(filepath.Separator)) {
@@ -622,8 +621,7 @@ func splitRuns(path string, separator byte) []string {
 	return parts
 }
 
-// writeTemporaryPDF writes bytes to a fresh temporary file and returns its
-// path, like Rust's NamedTempFile::keep.
+// writeTemporaryPDF writes bytes to a fresh temporary file and returns its path.
 func writeTemporaryPDF(bytes []byte) (string, error) {
 	file, err := os.CreateTemp("", "finglass-tax-*.pdf")
 	if err != nil {

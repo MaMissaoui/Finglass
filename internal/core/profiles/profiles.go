@@ -5,8 +5,8 @@
 // existed stays where it is. Other profiles live in profiles/<slug>/. The
 // registry is profiles.properties in the root and is written atomically.
 //
-// The on-disk format matches `crates/finglass-core/src/profiles.rs` byte for
-// byte, so the Go build and the Rust app share the same registry.
+// The on-disk format is fixed byte for byte, so every build shares the same
+// registry.
 package profiles
 
 import (

@@ -56,9 +56,9 @@ func Sanitize(text string) string {
 	result.Grow(len(text))
 
 	for _, character := range text {
-		// Rust iterates UTF-16 code units. A supplementary character is two
-		// surrogate units, and char::from_u32 rejects both, so it becomes two
-		// question marks.
+		// The encoder iterates UTF-16 code units. A supplementary character is
+		// two surrogate units, and each is rejected, so it becomes two question
+		// marks.
 		if character > 0xffff {
 			result.WriteString("??")
 			continue
@@ -239,7 +239,7 @@ func encodeWinAnsi(character rune) (byte, bool) {
 
 // WidthOf returns the drawn width of text in a Standard-14 font, in points.
 func WidthOf(text string, font Font, size float32) float32 {
-	// Rust's Sum for f32 starts at -0.0, which is what an empty string keeps.
+	// The sum starts at -0.0, which is what an empty string keeps.
 	sum := math.Float32frombits(0x80000000)
 	for _, character := range text {
 		term := float32(widthOfCharacter(character, font)) / 1000.0

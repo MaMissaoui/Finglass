@@ -37,7 +37,7 @@ func init() {
 
 var errAccountsNotStarted = errors.New("accounts is not started")
 
-// The currency codes the add-account dialog offers, as accounts.rs lists them.
+// The currency codes the add-account dialog offers.
 var accountsCurrencyCodes = []string{"EUR", "USD", "GBP", "CHF", "JPY", "CAD"}
 
 // The balance-history windows FinDesk offers.
@@ -76,7 +76,7 @@ type BankAccountRowDTO struct {
 }
 
 // AccountsBankCardDTO is one bank card, including the online-banking fields
-// Rust's banking::bank_cards sets (sync state, menu, PIN).
+// (sync state, menu, PIN).
 type AccountsBankCardDTO struct {
 	BankID            int                 `json:"bankId"`
 	Name              string              `json:"name"`
@@ -491,7 +491,7 @@ func accountsDTO(
 		dto.MessageText = *state.Message
 	}
 	// Banking errors and messages take the page's one banner; keep the accounts
-	// texts when the banking state is quiet (Rust's apply_props).
+	// texts when the banking state is quiet.
 	if bankingState.Error != nil {
 		dto.ErrorText = *bankingState.Error
 	}
@@ -646,8 +646,8 @@ func accountsBankCards(
 	return cards
 }
 
-// applyBankingCard fills the online fields Rust's banking::bank_cards sets. A
-// card without a banking bank keeps the accounts defaults and an empty menu.
+// applyBankingCard fills the card's online fields. A card without a banking
+// bank keeps the accounts defaults and an empty menu.
 func applyBankingCard(
 	card *AccountsBankCardDTO,
 	bankingState *bankingcore.BankingState,

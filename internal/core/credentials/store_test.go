@@ -34,7 +34,7 @@ type accountGolden struct {
 	Account    string `json:"account"`
 }
 
-func TestAccountForMatchesTheRustGolden(t *testing.T) {
+func TestAccountForMatchesTheV034Golden(t *testing.T) {
 	path := filepath.Join(repoRoot(t), "testdata", "golden", "keychain_accounts.json")
 	data, err := os.ReadFile(path) // #nosec G304 -- fixed path below the repository root
 	if err != nil {
@@ -56,7 +56,7 @@ func TestAccountForMatchesTheRustGolden(t *testing.T) {
 	}
 }
 
-func TestAccountForNormalisesLikeRust(t *testing.T) {
+func TestAccountForNormalisesLikeV034(t *testing.T) {
 	for _, test := range []struct {
 		profile string
 		bankID  int64

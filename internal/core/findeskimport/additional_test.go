@@ -285,7 +285,7 @@ func TestPassphraseNeverFormatted(t *testing.T) {
 	}
 }
 
-func TestThemeCodesMatchRust(t *testing.T) {
+func TestThemeCodesMatchV034(t *testing.T) {
 	if prefs.ThemeKey != "ui.theme" {
 		t.Errorf("ThemeKey = %q", prefs.ThemeKey)
 	}
