@@ -449,24 +449,27 @@ func TestEveryPassphraseSliceIsWiped(t *testing.T) {
 		t.Fatalf("MigrationPassphraseChanged: %v", err)
 	}
 
-	// A FinDesk profile in an empty temp folder. The submit is refused without
-	// the acknowledgement before any migration runs; the three slices are
-	// created and must still be wiped.
+	// A FinDesk profile in an empty temp folder. First the submit is refused
+	// without the acknowledgement before any migration runs; then, with it,
+	// the migration itself fails on the empty folder. Both times the three
+	// slices are created and must be wiped.
 	findeskRoot := t.TempDir()
 	fixture.service.wizard = shell.NewMigrationSession(coremigration.FinDeskInstall{
 		Root:     findeskRoot,
 		Profiles: []coremigration.FinDeskProfile{{Name: "Personal", DataDir: findeskRoot}},
 	}, startup.Startup{})
-	before := len(fixture.observed)
-	if _, err := fixture.service.MigrationSubmit(testPassphrase, "another good passphrase", "another good passphrase", false, false); err != nil {
-		t.Fatalf("MigrationSubmit: %v", err)
-	}
-	if got := len(fixture.observed) - before; got != 3 {
-		t.Fatalf("MigrationSubmit created %d observed slices, want 3", got)
+	for _, acknowledged := range []bool{false, true} {
+		before := len(fixture.observed)
+		if _, err := fixture.service.MigrationSubmit(testPassphrase, "another good passphrase", "another good passphrase", false, acknowledged); err != nil {
+			t.Fatalf("MigrationSubmit(acknowledged=%v): %v", acknowledged, err)
+		}
+		if got := len(fixture.observed) - before; got != 3 {
+			t.Fatalf("MigrationSubmit(acknowledged=%v) created %d observed slices, want 3", acknowledged, got)
+		}
 	}
 
-	if len(fixture.observed) < 9 {
-		t.Fatalf("observed %d passphrase slices, want at least 9", len(fixture.observed))
+	if len(fixture.observed) < 12 {
+		t.Fatalf("observed %d passphrase slices, want at least 12", len(fixture.observed))
 	}
 	for index, value := range fixture.observed {
 		for _, b := range value {
