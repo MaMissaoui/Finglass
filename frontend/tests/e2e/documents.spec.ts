@@ -104,6 +104,17 @@ test('the Documents reference screenshots', async ({ page }) => {
   await expect(pageRoot(page)).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Documents', exact: true })).toBeVisible();
   await expect(detail(page).getByRole('heading', { name: 'kassenbon.jpg' })).toBeVisible();
+  // One primary action, the re-extract stays quiet and Delete is the row's
+  // trailing slate icon.
+  await expect(detail(page).getByRole('button', { name: 'Open', exact: true })).toHaveClass(
+    /primary/,
+  );
+  await expect(
+    detail(page).getByRole('button', { name: 'Re-extract text', exact: true }),
+  ).toHaveClass(/secondary/);
+  await expect(detail(page).getByRole('button', { name: 'Delete', exact: true })).toHaveClass(
+    /icon-button/,
+  );
   await shot(page, 'documents-en-light');
 
   await goto(page, 'documents-de-dark', 1100, 720, 'dark');

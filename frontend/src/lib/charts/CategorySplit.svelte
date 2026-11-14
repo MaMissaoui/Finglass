@@ -1,7 +1,16 @@
 <script lang="ts">
   import Icon from '../components/Icon.svelte';
-  import type { DashboardCategoryRowDTO } from '../api';
   import { clampFraction, splitSegments } from './geometry';
+
+  type CategoryRow = {
+    label: string;
+    percentText: string;
+    amountText: string;
+    colour: string;
+    categoryId?: number;
+    isMore?: boolean;
+    fraction: number;
+  };
 
   let {
     rows,
@@ -9,7 +18,7 @@
     selectable = true,
     onselect,
   }: {
-    rows: DashboardCategoryRowDTO[];
+    rows: CategoryRow[];
     transfersNote?: string;
     selectable?: boolean;
     onselect?: (categoryID: number) => void;
@@ -36,25 +45,25 @@
     });
   });
 
-  function colourOf(row: DashboardCategoryRowDTO): string {
+  function colourOf(row: CategoryRow): string {
     if (row.isMore || row.colour === '') {
       return 'var(--color-divider)';
     }
     return row.colour;
   }
 
-  function clickable(row: DashboardCategoryRowDTO): boolean {
+  function clickable(row: CategoryRow): boolean {
     return selectable && !row.isMore;
   }
 
-  function select(row: DashboardCategoryRowDTO): void {
-    if (clickable(row)) {
+  function select(row: CategoryRow): void {
+    if (clickable(row) && row.categoryId !== undefined) {
       onselect?.(row.categoryId);
     }
   }
 </script>
 
-{#snippet rowContent(row: DashboardCategoryRowDTO)}
+{#snippet rowContent(row: CategoryRow)}
   <span class="dot" style:background={colourOf(row)}></span>
   <span class="label">{row.label}</span>
   <span class="percent">{row.percentText}</span>

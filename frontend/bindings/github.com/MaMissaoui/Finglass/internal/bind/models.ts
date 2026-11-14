@@ -2218,6 +2218,11 @@ export class ReapplyGroupRowDTO {
 export class ReportAmountRowDTO {
     "label": string;
     "amountText": string;
+
+    /**
+     * PercentText is the row's whole share of all rows (largest remainder).
+     */
+    "percentText": string;
     "fraction": number;
 
     /** Creates a new ReportAmountRowDTO instance. */
@@ -2227,6 +2232,9 @@ export class ReportAmountRowDTO {
         }
         if (!("amountText" in $$source)) {
             this["amountText"] = "";
+        }
+        if (!("percentText" in $$source)) {
+            this["percentText"] = "";
         }
         if (!("fraction" in $$source)) {
             this["fraction"] = 0;

@@ -354,6 +354,10 @@
     min-width: 0;
   }
 
+  .ratio-row {
+    align-items: flex-start;
+  }
+
   .ratio-left {
     display: flex;
     flex: 3 1 300px;

@@ -150,7 +150,7 @@ input {
   min-width: 180px;
   height: 36px;
   padding: 0 var(--space-sm);
-  border: 1px solid var(--color-rule);
+  border: 1px solid var(--color-control-border);
   border-radius: var(--radius-control);
   background: var(--color-paper);
   color: var(--color-ink);
@@ -203,4 +203,17 @@ input {
   gap: var(--space-xs);
   color: var(--color-slate);
   font-size: var(--type-body-small-size);
+}
+
+/* "Reduce motion" turns every animation and transition off; scroll jumps
+   instead of gliding. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

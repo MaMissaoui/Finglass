@@ -25,7 +25,7 @@
     class:logo={showLogo}
     style:--badge-size={`${size}px`}
     style:--badge-radius={`${radius}px`}
-    style:--badge-background={showLogo ? '#ffffff' : monogramColour(colourIndex)}
+    style:--badge-background={showLogo ? 'var(--color-on-badge)' : monogramColour(colourIndex)}
     aria-hidden="true"
   >
     {#if showLogo}
@@ -61,7 +61,7 @@
   }
 
   .letters {
-    color: #ffffff;
+    color: var(--color-on-badge);
     font-family: var(--font-sans);
     font-size: calc(var(--badge-size) * 0.42);
     font-weight: var(--type-title-medium-weight);

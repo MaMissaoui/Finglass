@@ -101,6 +101,8 @@ test('the Transactions reference screenshots', async ({ page }) => {
   await expect(pageRoot(page)).toBeVisible();
   await expect(page.locator('.selection-bar')).toHaveCount(0);
   await expect(page.locator('.figure-count')).toHaveText('34');
+  // The second currency sits on its own line below the figure, never in it.
+  await expect(page.getByTestId('transactions-expense-further')).toHaveText('+ $35.97');
   await shot(page, 'transactions-en-light');
 
   await goto(page, 'transactions-de-light', 1440, 900);

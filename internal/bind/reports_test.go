@@ -426,3 +426,19 @@ func TestAnEmptyReportsDTOSendsArraysNotNull(t *testing.T) {
 		t.Fatalf("the reports DTO carries a null list: %s", data)
 	}
 }
+
+func TestReportsAmountRowsCarryWholeShares(t *testing.T) {
+	rows := reportsAmountRows([]report.NamedAmount{
+		{Name: "Office", Amount: money.Money{Minor: 200, Currency: money.EUR}},
+		{Name: "Travel", Amount: money.Money{Minor: -100, Currency: money.EUR}},
+		{Name: "Books", Amount: money.Money{Minor: 100, Currency: money.EUR}},
+	}, i18n.De)
+	got := []string{rows[0].PercentText, rows[1].PercentText, rows[2].PercentText}
+	want := []string{"50 %", "25 %", "25 %"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("percent texts = %q, want %q", got, want)
+	}
+	if rows[0].Fraction != 1 || rows[1].Fraction != 0.5 {
+		t.Fatalf("fractions = %v, %v; want 1 and 0.5", rows[0].Fraction, rows[1].Fraction)
+	}
+}

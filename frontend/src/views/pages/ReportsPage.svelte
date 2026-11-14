@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { SvelteMap } from 'svelte/reactivity';
   import type { Api, ReportsDTO, ShellDTO } from '../../lib/api';
   import {
     Checkbox,
@@ -54,6 +55,23 @@
   const busy = $derived(dto?.loading === true || dto?.exporting === true || pending);
   const canExport = $derived(dto?.canExportReport === true && !busy);
   const exportReason = $derived(dto?.exportDisabledReason ?? '');
+
+  // The tax-relevant rows carry no colour in their DTO; the tax bookings'
+  // group rows and the category analysis rows do, under the same label.
+  const taxColours = $derived.by(() => {
+    const colours = new SvelteMap<string, string>();
+    for (const row of dto?.taxRows ?? []) {
+      if (row.kind === 'group' && row.colour !== '') {
+        colours.set(row.title, row.colour);
+      }
+    }
+    for (const row of dto?.categoryRows ?? []) {
+      if (!colours.has(row.label) && row.colour !== '') {
+        colours.set(row.label, row.colour);
+      }
+    }
+    return colours;
+  });
 
   function t(key: string, ...args: FormatArg[]): string {
     return translate(language, key, ...args);
@@ -290,6 +308,26 @@
       {#if dto.exporting}
         <span class="spinner-small" aria-hidden="true"></span>
       {/if}
+
+      <span class="export-wrap">
+        <PrimaryButton
+          text={t('Export')}
+          icon="file_download"
+          enabled={canExport}
+          tooltip={exportReason}
+          onclick={() => (exportOpen = !exportOpen)}
+        />
+        {#if exportOpen}
+          <ExportMenu
+            tab={activeTab}
+            canReport={dto.canExportReport}
+            canTax={dto.canExportTax}
+            {busy}
+            {t}
+            onpick={pickExport}
+          />
+        {/if}
+      </span>
     </div>
 
     {#if dto.rangeError !== ''}
@@ -318,26 +356,6 @@
           {t(tab.key)}
         </button>
       {/each}
-      <span class="tab-divider" role="none"></span>
-      <span class="export-wrap">
-        <PrimaryButton
-          text={t('Export')}
-          icon="file_download"
-          enabled={canExport}
-          tooltip={exportReason}
-          onclick={() => (exportOpen = !exportOpen)}
-        />
-        {#if exportOpen}
-          <ExportMenu
-            tab={activeTab}
-            canReport={dto.canExportReport}
-            canTax={dto.canExportTax}
-            {busy}
-            {t}
-            onpick={pickExport}
-          />
-        {/if}
-      </span>
     </div>
 
     {#if exportOpen}
@@ -416,7 +434,11 @@
         </div>
 
         <SectionCard title={t('TaxRelevantByCategory')}>
-          <TaxRelevantBars rows={dto.taxRelevantRows} emptyText={dto.taxRelevantEmpty} />
+          <TaxRelevantBars
+            rows={dto.taxRelevantRows}
+            emptyText={dto.taxRelevantEmpty}
+            colourFor={(label) => taxColours.get(label) ?? ''}
+          />
         </SectionCard>
 
         <div class="band">
@@ -667,7 +689,7 @@
     width: 128px;
     height: 34px;
     padding: 0 10px;
-    border: 1px solid var(--color-divider);
+    border: 1px solid var(--color-control-border);
     border-radius: var(--radius-small);
     background: var(--color-surface);
     color: var(--color-text);
@@ -755,7 +777,6 @@
     flex: none;
     height: 44px;
     align-items: stretch;
-    padding-right: 8px;
     overflow: visible;
     border: 1px solid var(--color-divider);
     border-radius: var(--radius-panel);
@@ -787,6 +808,11 @@
     border-bottom-left-radius: var(--radius-panel);
   }
 
+  .tab:last-child {
+    border-top-right-radius: var(--radius-panel);
+    border-bottom-right-radius: var(--radius-panel);
+  }
+
   .tab.selected {
     background: var(--color-selected);
     color: var(--color-on-selected);
@@ -807,21 +833,12 @@
     outline-offset: -2px;
   }
 
-  .tab-divider {
-    flex: none;
-    align-self: center;
-    width: 1px;
-    height: 24px;
-    background: var(--color-divider);
-  }
-
   .export-wrap {
     position: relative;
     display: flex;
     flex: none;
     align-items: center;
     height: 36px;
-    margin-left: 8px;
   }
 
   .backdrop {

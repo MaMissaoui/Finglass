@@ -1,101 +1,53 @@
 <script lang="ts">
   import type { ReportAmountRowDTO } from '../../../lib/api';
-  import {
-    meterWidth,
-    REPORT_METER_HEIGHT,
-    REPORT_METER_WIDTH,
-  } from '../../../lib/charts/reportGeometry';
+  import CategorySplit from '../../../lib/charts/CategorySplit.svelte';
 
   let {
     rows,
     emptyText,
+    colourFor,
   }: {
     rows: ReportAmountRowDTO[];
     emptyText: string;
+    colourFor: (label: string) => string;
   } = $props();
+
+  type TaxCategoryRow = {
+    label: string;
+    percentText: string;
+    amountText: string;
+    colour: string;
+    categoryId: number;
+    isMore: boolean;
+    fraction: number;
+  };
+
+  // Bar segments are each row's part of the whole; the DTO's fraction is
+  // relative to the largest row, so it is rescaled. The shares come from Go.
+  const splitRows = $derived.by<TaxCategoryRow[]>(() => {
+    const total = rows.reduce((sum, row) => sum + row.fraction, 0);
+    const fractions = rows.map((row) => (total > 0 ? row.fraction / total : 0));
+    return rows.map((row, index) => ({
+      label: row.label,
+      percentText: row.percentText,
+      amountText: row.amountText,
+      colour: colourFor(row.label),
+      categoryId: -1,
+      isMore: false,
+      fraction: fractions[index] ?? 0,
+    }));
+  });
 </script>
 
 {#if emptyText !== ''}
   <p class="empty">{emptyText}</p>
 {/if}
 
-{#if rows.length > 0}
-  <div class="rows">
-    {#each rows as row (row.label)}
-      <div class="row">
-        <span class="label">{row.label}</span>
-        <svg
-          class="meter"
-          width={REPORT_METER_WIDTH}
-          height={REPORT_METER_HEIGHT}
-          aria-hidden="true"
-        >
-          <rect
-            x="0"
-            y="0"
-            width={REPORT_METER_WIDTH}
-            height={REPORT_METER_HEIGHT}
-            rx={REPORT_METER_HEIGHT / 2}
-            fill="var(--color-divider)"
-          />
-          <rect
-            x="0"
-            y="0"
-            width={meterWidth(row.fraction)}
-            height={REPORT_METER_HEIGHT}
-            rx={REPORT_METER_HEIGHT / 2}
-            fill="var(--color-chart-out)"
-          />
-        </svg>
-        <span class="amount">{row.amountText}</span>
-      </div>
-    {/each}
-  </div>
+{#if splitRows.length > 0}
+  <CategorySplit rows={splitRows} selectable={false} />
 {/if}
 
 <style>
-  .rows {
-    display: flex;
-    max-width: 720px;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 28px;
-  }
-
-  .label {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    color: var(--color-text);
-    font-size: var(--type-body-size);
-    font-weight: var(--type-body-weight);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .meter {
-    display: block;
-    flex: none;
-  }
-
-  .amount {
-    flex: none;
-    width: 120px;
-    overflow: hidden;
-    color: var(--color-text);
-    font-size: var(--type-body-size);
-    font-weight: var(--type-title-small-weight);
-    text-align: right;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
   .empty {
     margin: 0;
     color: var(--color-muted-text);

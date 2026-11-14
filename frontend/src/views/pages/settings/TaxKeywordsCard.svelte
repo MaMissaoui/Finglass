@@ -79,7 +79,7 @@
   textarea {
     height: 150px;
     padding: 12px 14px;
-    border: 1px solid var(--color-divider);
+    border: 1px solid var(--color-control-border);
     border-radius: var(--radius-field);
     outline: none;
     resize: none;

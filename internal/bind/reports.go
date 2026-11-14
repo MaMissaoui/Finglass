@@ -34,9 +34,11 @@ var errReportsNotStarted = errors.New("reports is not started")
 
 // ReportAmountRowDTO is one row of the tax-relevant amount list.
 type ReportAmountRowDTO struct {
-	Label      string  `json:"label"`
-	AmountText string  `json:"amountText"`
-	Fraction   float64 `json:"fraction"`
+	Label      string `json:"label"`
+	AmountText string `json:"amountText"`
+	// PercentText is the row's whole share of all rows (largest remainder).
+	PercentText string  `json:"percentText"`
+	Fraction    float64 `json:"fraction"`
 }
 
 // ReportMonthlyRowDTO is one month of the monthly breakdown.
@@ -550,16 +552,26 @@ func reportsAmountRows(rows []report.NamedAmount, language i18n.Language) []Repo
 			largest = absolute
 		}
 	}
-	result := make([]ReportAmountRowDTO, 0, len(rows))
+	absolutes := make([]money.Money, 0, len(rows))
 	for _, entry := range rows {
+		absolute := entry.Amount
+		if absolute.Minor < 0 {
+			absolute.Minor = -absolute.Minor
+		}
+		absolutes = append(absolutes, absolute)
+	}
+	percentages := format.Shares(absolutes)
+	result := make([]ReportAmountRowDTO, 0, len(rows))
+	for index, entry := range rows {
 		fraction := 0.0
 		if largest != 0 {
 			fraction = float64(reportsUnsignedAbs(entry.Amount.Minor)) / float64(largest)
 		}
 		result = append(result, ReportAmountRowDTO{
-			Label:      entry.Name,
-			AmountText: format.Money(entry.Amount, language, false),
-			Fraction:   fraction,
+			Label:       entry.Name,
+			AmountText:  format.Money(entry.Amount, language, false),
+			PercentText: format.Percent(float64(reportsClampPercent(percentages[index]))/100.0, language),
+			Fraction:    fraction,
 		})
 	}
 	return result

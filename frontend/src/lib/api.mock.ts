@@ -125,6 +125,7 @@ const transactionsScenarios: Record<string, TransactionsScenario> = {
 // opens on, as a dashboard tax link does for the tax tab.
 const reportsScenarios: Record<string, { language: Language; theme: string }> = {
   'reports-summary-en-light': { language: 'en', theme: 'light' },
+  'reports-summary-en-dark': { language: 'en', theme: 'dark' },
   'reports-summary-de-light': { language: 'de', theme: 'light' },
   'reports-summary-de-dark': { language: 'de', theme: 'dark' },
   'reports-category-en-light': { language: 'en', theme: 'light' },

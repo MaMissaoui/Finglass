@@ -114,6 +114,10 @@ test('the Reports reference screenshots', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Berichte' })).toBeVisible();
   await shot(page, 'reports-summary-de-dark');
 
+  await goto(page, 'reports-summary-en-dark', 1100, 720, 'dark');
+  await expect(page.getByText('Tax-relevant expenses by category')).toBeVisible();
+  await shot(page, 'reports-tax-categories-en-dark');
+
   await goto(page, 'reports-category-en-light', 1100, 720);
   await expect(page.getByRole('tab', { name: 'Category analysis' })).toHaveAttribute(
     'aria-selected',
@@ -393,6 +397,7 @@ test('every reports state renders without a CSP or console error', async ({ page
   const watcher = await watch(page);
   const scenarios = [
     'reports-summary-en-light',
+    'reports-summary-en-dark',
     'reports-summary-de-light',
     'reports-summary-de-dark',
     'reports-category-en-light',

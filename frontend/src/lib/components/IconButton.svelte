@@ -103,6 +103,11 @@
     color: var(--color-error);
   }
 
+  .icon-button.destructive:focus-visible {
+    color: var(--color-error);
+    outline-color: var(--color-error);
+  }
+
   .icon-button:disabled {
     opacity: 0.45;
     cursor: default;

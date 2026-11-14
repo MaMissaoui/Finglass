@@ -44,10 +44,13 @@
   --color-selected-accent: #dce6ee;
   --color-control-fill: #e6eaee;
   --color-control-fill-hover: #e1e6ea;
+  --color-control-border: #8a96a3;
   --color-inflow: #1e7b4f;
   --color-alert: #b3261e;
   --color-caution: #9a5b00;
   --color-on-primary: #ffffff;
+  /* The bank logo plate and monogram stay white in both themes. */
+  --color-on-badge: #ffffff;
 
   --color-primary-hover: #0b5a5f;
   --color-alert-hover: #8c1d17;
@@ -68,6 +71,7 @@
   --dark-color-selected-accent: #1e3a44;
   --dark-color-control-fill: #26303a;
   --dark-color-control-fill-hover: #2f3a45;
+  --dark-color-control-border: #6b7886;
   --dark-color-inflow: #5cc28f;
   --dark-color-alert: #f2867e;
   --dark-color-caution: #e0a54a;
@@ -196,6 +200,7 @@
   --color-selected-accent: var(--dark-color-selected-accent);
   --color-control-fill: var(--dark-color-control-fill);
   --color-control-fill-hover: var(--dark-color-control-fill-hover);
+  --color-control-border: var(--dark-color-control-border);
   --color-inflow: var(--dark-color-inflow);
   --color-alert: var(--dark-color-alert);
   --color-caution: var(--dark-color-caution);
@@ -221,6 +226,7 @@
     --color-selected-accent: var(--dark-color-selected-accent);
     --color-control-fill: var(--dark-color-control-fill);
     --color-control-fill-hover: var(--dark-color-control-fill-hover);
+    --color-control-border: var(--dark-color-control-border);
     --color-inflow: var(--dark-color-inflow);
     --color-alert: var(--dark-color-alert);
     --color-caution: var(--dark-color-caution);
