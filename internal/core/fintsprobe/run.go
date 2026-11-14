@@ -23,6 +23,12 @@ const (
 	tanPrompt = "TAN: "
 )
 
+// ApprovalRetryEnabled switches the one login retry after a bank-app approval
+// on (see [Probe]). It is off: HVB, the bank it was built for, answers the
+// retried login with the same 9210, so the retry only cost the person a second
+// approval push. Tests switch it on to keep the retry path covered.
+var ApprovalRetryEnabled = false
+
 // tanTimeout bounds a decoupled login poll. It is a variable only so a test
 // can shorten it.
 var tanTimeout = 5 * time.Minute
@@ -234,7 +240,7 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 	}
 
 	initResult, err := dialog.Init(ctx)
-	if err != nil && shouldRetryAfterApproval(err, dialog.SystemID()) {
+	if err != nil && ApprovalRetryEnabled && shouldRetryAfterApproval(err, dialog.SystemID()) {
 		// The bank rejected a new system id but may have sent an approval
 		// request anyway. Retry exactly once in memory with that system id.
 		if !env.Interaction.ConfirmRetry(ctx) {
