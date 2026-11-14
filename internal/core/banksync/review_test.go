@@ -19,6 +19,7 @@ type scriptedErrorGateway struct {
 }
 
 func (g scriptedErrorGateway) FetchAll(
+	_ context.Context,
 	connection FinTsConnection,
 	interaction BankingInteraction,
 	_ func(accountNumber string) *civil.Date,

@@ -223,6 +223,7 @@ func (g *testGateway) since(iban string) *civil.Date {
 }
 
 func (g *testGateway) FetchAll(
+	_ context.Context,
 	connection banksync.FinTsConnection,
 	interaction banksync.BankingInteraction,
 	since func(string) *civil.Date,
