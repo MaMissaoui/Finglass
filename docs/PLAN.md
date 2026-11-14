@@ -66,7 +66,7 @@ testdata/golden/             reference outputs of Finglass 0.3.4 that the Go cod
   `internal/fints`).
 - [x] Ship third-party notices with the app: a `THIRD-PARTY-NOTICES.txt` in the bundle's `Resources` (and the DMG),
   covering the ported libraries and the Go and npm dependencies compiled in, with a CI check that it is current.
-- [ ] Release notes `docs/releases/v0.4.0.md`: Test connection and traces, fresh start from FinDesk, install steps.
+- [x] Release notes `docs/releases/v0.4.0.md`: Test connection and traces, fresh start from FinDesk, install steps.
 - [ ] **You:** rehearse the fresh start with the release candidate: launch it with `FINGLASS_HOME=<new folder>`, let
   it import FinDesk (it only reads `~/.findesk`), run Test connection for each bank, and save one trace.
 - [ ] **You:** check that the release build saves a redacted trace from a Test connection (and, once sync is on, from
