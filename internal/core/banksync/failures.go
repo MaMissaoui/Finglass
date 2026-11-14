@@ -81,6 +81,7 @@ type GatewayError struct {
 	codes       []string
 	text        string
 	pinRejected bool
+	tanRejected bool
 }
 
 // NewGatewayNetworkError builds the "server could not be reached" failure.
@@ -106,6 +107,18 @@ func NewGatewayPINRejectedBankError(codes []string) GatewayError {
 		kind:        GatewayErrorBank,
 		codes:       append([]string(nil), codes...),
 		pinRejected: true,
+	}
+}
+
+// NewGatewayTANRejectedBankError builds a bank-code failure that came from a
+// dialog's TAN-rejected answer. A wrong TAN says nothing about the PIN, so it
+// never counts against a stored PIN unless an explicit wrong-PIN code is
+// present too.
+func NewGatewayTANRejectedBankError(codes []string) GatewayError {
+	return GatewayError{
+		kind:        GatewayErrorBank,
+		codes:       append([]string(nil), codes...),
+		tanRejected: true,
 	}
 }
 
@@ -163,6 +176,12 @@ func (e GatewayError) Codes() []string {
 // fints's explicit list.
 func (e GatewayError) PINRejectedKind() bool {
 	return e.pinRejected
+}
+
+// TANRejectedKind reports whether the failure came from a dialog answer that
+// rejected the TAN.
+func (e GatewayError) TANRejectedKind() bool {
+	return e.tanRejected
 }
 
 // Describe returns a short message for a failed dialog, as FinDesk builds it.

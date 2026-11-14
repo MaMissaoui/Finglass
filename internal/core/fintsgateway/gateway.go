@@ -539,7 +539,9 @@ func mapError(err error) banksync.GatewayError {
 				return banksync.NewGatewayPinRejectedError()
 			}
 			return banksync.NewGatewayPINRejectedBankError(dialogError.Codes)
-		case fints.ErrorKindAccountLocked, fints.ErrorKindBankError, fints.ErrorKindTanRejected:
+		case fints.ErrorKindTanRejected:
+			return banksync.NewGatewayTANRejectedBankError(dialogError.Codes)
+		case fints.ErrorKindAccountLocked, fints.ErrorKindBankError:
 			return banksync.NewGatewayBankError(dialogError.Codes)
 		case fints.ErrorKindTransport:
 			if dialogError.HTTPStatus != 0 {
