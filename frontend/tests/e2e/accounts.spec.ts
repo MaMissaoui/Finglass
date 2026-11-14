@@ -181,6 +181,16 @@ test('the Accounts page renders every scenario without a CSP or console error', 
   await expectClean(watcher);
 });
 
+test('account rows leave the bank monogram to the bank header', async ({ page }) => {
+  await goto(page, 'accounts');
+  const card = page.getByTestId('bank-card-1');
+  await expect(card.locator('.bank-head .badge')).toHaveCount(1);
+  await expect(page.getByTestId('bank-status-1')).toHaveCount(0);
+  await expect(page.getByTestId('account-row-1').locator('.badge')).toHaveCount(0);
+  await expect(page.getByTestId('account-row-2').locator('.badge')).toHaveCount(0);
+  await expect(page.getByTestId('account-row-3').locator('.badge')).toHaveCount(0);
+});
+
 test('the page pulls its state on mount', async ({ page }) => {
   await goto(page, 'accounts');
   await expect(page.getByText('Net of 7 accounts')).toBeVisible();

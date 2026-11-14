@@ -79,6 +79,9 @@ type BankItem struct {
 	// SyncUnlocked says whether the last completed connection test was GO for
 	// this bank's current login. A locked bank is not synced.
 	SyncUnlocked bool
+	// SyncUnlockedOn is the local civil date on which the current unlock was
+	// set; nil when the bank is locked or an older unlock has no date.
+	SyncUnlockedOn *civil.Date
 	// SyncFrom is the start date of the next history window.
 	SyncFrom *civil.Date
 	// LastSync is the last successful sync.
@@ -238,6 +241,7 @@ func (s *BankingState) Clone() *BankingState {
 	for index, bank := range s.Banks {
 		copied := bank
 		copied.ServerURL = cloneString(bank.ServerURL)
+		copied.SyncUnlockedOn = cloneDate(bank.SyncUnlockedOn)
 		copied.SyncFrom = cloneDate(bank.SyncFrom)
 		copied.LastSync = cloneTime(bank.LastSync)
 		cloned.Banks[index] = copied
@@ -279,6 +283,12 @@ func (s *BankingState) Refresh(ctx context.Context, database *db.Database, servi
 	s.CanRememberPin = service.CanRememberPin()
 	items := make([]BankItem, 0, len(banks))
 	for _, bank := range banks {
+		connection := connectionForBankItem(bank.BLZ, bank.UserID, bank.ServerURL)
+		unlocked := !bank.Offline && service.SyncUnlocked(ctx, database, bank.ID, connection)
+		var unlockedOn *civil.Date
+		if unlocked {
+			unlockedOn = service.SyncUnlockedOn(ctx, database, bank.ID, connection)
+		}
 		items = append(items, BankItem{
 			ID:               bank.ID,
 			BankName:         bank.BankName,
@@ -287,16 +297,12 @@ func (s *BankingState) Refresh(ctx context.Context, database *db.Database, servi
 			ServerURL:        cloneString(bank.ServerURL),
 			Offline:          bank.Offline,
 			IncludeInSyncAll: bank.IncludeInSyncAll,
-			SyncUnlocked: !bank.Offline && service.SyncUnlocked(
-				ctx,
-				database,
-				bank.ID,
-				connectionForBankItem(bank.BLZ, bank.UserID, bank.ServerURL),
-			),
-			SyncFrom:       cloneDate(bank.SyncFrom),
-			LastSync:       cloneTime(bank.LastSync),
-			HasSavedPin:    !bank.Offline && service.HasSavedPin(ctx, database, bank.ID),
-			PinForgetAfter: service.PinForgetAfter(ctx, database, bank.ID),
+			SyncUnlocked:     unlocked,
+			SyncUnlockedOn:   unlockedOn,
+			SyncFrom:         cloneDate(bank.SyncFrom),
+			LastSync:         cloneTime(bank.LastSync),
+			HasSavedPin:      !bank.Offline && service.HasSavedPin(ctx, database, bank.ID),
+			PinForgetAfter:   service.PinForgetAfter(ctx, database, bank.ID),
 			CanTestConnection: bank.ServerURL != nil &&
 				strings.TrimSpace(*bank.ServerURL) != "",
 		})

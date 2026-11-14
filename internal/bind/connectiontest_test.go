@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
+	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 )
@@ -177,6 +178,70 @@ func TestConnectionTestDTOSerializesAnEmptyMessageList(t *testing.T) {
 	}
 	if !strings.Contains(string(data), `"messages":[]`) {
 		t.Fatalf("JSON does not carry an empty message list: %s", data)
+	}
+}
+
+func TestConnectionTestDTOCarriesTheVerdictAndNextStep(t *testing.T) {
+	tests := []struct {
+		name        string
+		result      bankingcore.ConnectionTestResult
+		wantGo      bool
+		wantStep    string
+		wantVerdict string
+		noProduct   bool
+	}{
+		{
+			name:        "GO on the normal path",
+			result:      bankingcore.ConnectionTestResult{Go: true},
+			wantGo:      true,
+			wantVerdict: "GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionSyncNow),
+		},
+		{
+			name:        "GO in a build without online sync promises no sync",
+			result:      bankingcore.ConnectionTestResult{Go: true},
+			wantGo:      true,
+			wantVerdict: "GO",
+			wantStep:    "",
+			noProduct:   true,
+		},
+		{
+			name:        "GO through the strong sync",
+			result:      bankingcore.ConnectionTestResult{Go: true, StrongSync: true},
+			wantGo:      true,
+			wantVerdict: "GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionStrongSyncNoUnlock),
+		},
+		{
+			name:        "NO-GO",
+			result:      bankingcore.ConnectionTestResult{Go: false},
+			wantGo:      false,
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionHelp),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			restore := shell.SetOnlineSyncProductPresentForTest(!test.noProduct)
+			defer restore()
+			state := bankingcore.BankingState{
+				Language:       i18n.En,
+				ConnectionTest: &test.result,
+			}
+			dto := bankingDTO(state, i18n.En)
+			if dto.ConnectionTest == nil {
+				t.Fatal("connection test DTO is missing")
+			}
+			if dto.ConnectionTest.VerdictText != test.wantVerdict {
+				t.Fatalf("verdict = %q, want %q", dto.ConnectionTest.VerdictText, test.wantVerdict)
+			}
+			if dto.ConnectionTest.NextStep != test.wantStep {
+				t.Fatalf("next step = %q, want %q", dto.ConnectionTest.NextStep, test.wantStep)
+			}
+			if dto.ConnectionTest.Go != test.wantGo {
+				t.Fatalf("go = %t, want %t", dto.ConnectionTest.Go, test.wantGo)
+			}
+		})
 	}
 }
 

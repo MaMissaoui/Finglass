@@ -41,6 +41,12 @@ func TestAGOTestUnlocksTheBankAndANoGoLocksItAgain(t *testing.T) {
 	if _, ok, err := settings.Get(context.Background(), h.db, SyncUnlockKey(h.bank)); err != nil || !ok {
 		t.Fatalf("unlock setting missing: ok=%t err=%v", ok, err)
 	}
+	if got, ok, err := settings.Get(context.Background(), h.db, SyncUnlockedOnKey(h.bank)); err != nil || !ok || got != h.today.String() {
+		t.Fatalf("unlock date = %q, ok=%t err=%v; want %q", got, ok, err, h.today)
+	}
+	if date := h.service.SyncUnlockedOn(context.Background(), h.db, h.bank, connection); date == nil || date.String() != h.today.String() {
+		t.Fatalf("SyncUnlockedOn = %v, want %s", date, h.today)
+	}
 	if got := auditCount(t, h.db, CodeSyncUnlocked); got != 1 {
 		t.Fatalf("unlock audit entries = %d, want 1", got)
 	}
@@ -60,6 +66,12 @@ func TestAGOTestUnlocksTheBankAndANoGoLocksItAgain(t *testing.T) {
 	}
 	if _, ok, err := settings.Get(context.Background(), h.db, SyncUnlockKey(h.bank)); err != nil || ok {
 		t.Fatalf("unlock setting still exists: ok=%t err=%v", ok, err)
+	}
+	if _, ok, err := settings.Get(context.Background(), h.db, SyncUnlockedOnKey(h.bank)); err != nil || ok {
+		t.Fatalf("unlock date still exists: ok=%t err=%v", ok, err)
+	}
+	if date := h.service.SyncUnlockedOn(context.Background(), h.db, h.bank, connection); date != nil {
+		t.Fatalf("SyncUnlockedOn after lock = %v, want nil", date)
 	}
 	if got := auditCount(t, h.db, CodeSyncLocked); got != 1 {
 		t.Fatalf("lock audit entries = %d, want 1", got)
@@ -111,6 +123,9 @@ func TestALoginChangeLocksTheBankAndRemovingItDeletesTheKey(t *testing.T) {
 	if _, ok, err := settings.Get(context.Background(), h.db, SyncUnlockKey(h.bank)); err != nil || ok {
 		t.Fatalf("a login change kept the unlock key: ok=%t err=%v", ok, err)
 	}
+	if _, ok, err := settings.Get(context.Background(), h.db, SyncUnlockedOnKey(h.bank)); err != nil || ok {
+		t.Fatalf("a login change kept the unlock date: ok=%t err=%v", ok, err)
+	}
 
 	markHarnessUnlocked(t, h)
 	if _, err := h.service.RemoveBank(context.Background(), h.db, h.bank); err != nil {
@@ -118,6 +133,24 @@ func TestALoginChangeLocksTheBankAndRemovingItDeletesTheKey(t *testing.T) {
 	}
 	if _, ok, err := settings.Get(context.Background(), h.db, SyncUnlockKey(h.bank)); err != nil || ok {
 		t.Fatalf("the removed bank kept its unlock key: ok=%t err=%v", ok, err)
+	}
+	if _, ok, err := settings.Get(context.Background(), h.db, SyncUnlockedOnKey(h.bank)); err != nil || ok {
+		t.Fatalf("the removed bank kept its unlock date: ok=%t err=%v", ok, err)
+	}
+}
+
+func TestAnUnlockWithoutDateStaysUnlockedButHasNoDate(t *testing.T) {
+	h := newHarness(t)
+	connection := connectionFromItem(loadBankItem(t, h.db, h.bank))
+	fingerprint := SyncFingerprint(connection.BLZ, connection.UserID, connection.ServerURL)
+	if err := settings.Set(context.Background(), h.db, SyncUnlockKey(h.bank), fingerprint); err != nil {
+		t.Fatalf("set old unlock: %v", err)
+	}
+	if !h.service.SyncUnlocked(context.Background(), h.db, h.bank, connection) {
+		t.Fatal("the old unlock is not accepted")
+	}
+	if date := h.service.SyncUnlockedOn(context.Background(), h.db, h.bank, connection); date != nil {
+		t.Fatalf("SyncUnlockedOn = %v, want nil for an older unlock", date)
 	}
 }
 

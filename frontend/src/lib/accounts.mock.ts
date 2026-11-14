@@ -9,9 +9,10 @@ import type {
   AccountsDTO,
   AccountsDialogDTO,
   AccountsFigureDTO,
-  BankingBankDTO,
   BankAccountRowDTO,
+  BankStatusDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
+import type { MockBankingCard } from './banking.mock';
 import { balancePathGeometry, type BalancePoint } from './accountsPath';
 import { translate, type Language } from './i18n';
 
@@ -102,6 +103,17 @@ const detailDayWindows = [30, 90, 365];
 const bnBadge: MockBadge = { logo: '', letters: 'BN', colour: 2 };
 const sparkasseBadge: MockBadge = { logo: 'sparkasse', letters: 'S', colour: 0 };
 const noBadge: MockBadge = { logo: '', letters: '', colour: 0 };
+
+function emptyBankStatus(): BankStatusDTO {
+  return {
+    tone: '',
+    icon: '',
+    text: '',
+    action: '',
+    actionText: '',
+    actionEnabled: false,
+  };
+}
 
 function emptyDialog(): MockDialog {
   return {
@@ -558,7 +570,7 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
   let nextGroupId = 2;
   // The banking fake fills the online fields of the bank cards, as the Go
   // AccountsDTO's applyBankingCard does.
-  let bankingSource: ((bankId: number) => BankingBankDTO | undefined) | null = null;
+  let bankingSource: ((bankId: number) => MockBankingCard | undefined) | null = null;
 
   const listeners = new Set<(dto: AccountsDTO) => void>();
 
@@ -678,20 +690,14 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
   function bankCard(bank: MockBank): AccountsBankCardDTO {
     const rows = bankRows(bank);
     const online = bankingSource?.(bank.id);
-    let subtitle = bank.offline
+    const subtitle = bank.offline
       ? translate(language, 'BankOfflineHint')
       : `${translate(language, 'BlzPrefix', bank.blz)} · ${translate(language, 'BicPrefix', bank.bic)}`;
-    if (scenario === 'accounts-sync-per-bank') {
-      if (bank.id === 3) {
-        subtitle = `${subtitle} · ${translate(language, 'SyncLockedHint')}`;
-      } else if (bank.id === 4) {
-        subtitle = `${subtitle} · ${translate(language, 'NotInSyncAll')}`;
-      }
-    }
     return {
       bankId: bank.id,
       name: bank.name,
       subtitle,
+      status: online?.status ?? emptyBankStatus(),
       centralBlzHint: '',
       offline: bank.offline,
       collapsed: bank.collapsed,
@@ -717,6 +723,7 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
       bankId: -1,
       name: translate(language, 'AccountsWithoutBank'),
       subtitle: '',
+      status: emptyBankStatus(),
       centralBlzHint: '',
       offline: false,
       collapsed: false,
@@ -1075,7 +1082,7 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
     return publish();
   }
 
-  function setBankingSource(source: (bankId: number) => BankingBankDTO | undefined): void {
+  function setBankingSource(source: (bankId: number) => MockBankingCard | undefined): void {
     bankingSource = source;
   }
 

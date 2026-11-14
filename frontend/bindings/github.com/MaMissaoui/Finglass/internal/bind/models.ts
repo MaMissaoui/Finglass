@@ -253,6 +253,7 @@ export class AccountsBankCardDTO {
     "bankId": number;
     "name": string;
     "subtitle": string;
+    "status": BankStatusDTO;
     "centralBlzHint": string;
     "offline": boolean;
     "collapsed": boolean;
@@ -280,6 +281,9 @@ export class AccountsBankCardDTO {
         }
         if (!("subtitle" in $$source)) {
             this["subtitle"] = "";
+        }
+        if (!("status" in $$source)) {
+            this["status"] = (new BankStatusDTO());
         }
         if (!("centralBlzHint" in $$source)) {
             this["centralBlzHint"] = "";
@@ -337,18 +341,22 @@ export class AccountsBankCardDTO {
      * Creates a new AccountsBankCardDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): AccountsBankCardDTO {
-        const $$createField7_0 = $$createType1;
-        const $$createField8_0 = $$createType3;
-        const $$createField15_0 = $$createType5;
+        const $$createField3_0 = $$createType2;
+        const $$createField8_0 = $$createType1;
+        const $$createField9_0 = $$createType4;
+        const $$createField16_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("status" in $$parsedSource) {
+            $$parsedSource["status"] = $$createField3_0($$parsedSource["status"]);
+        }
         if ("totals" in $$parsedSource) {
-            $$parsedSource["totals"] = $$createField7_0($$parsedSource["totals"]);
+            $$parsedSource["totals"] = $$createField8_0($$parsedSource["totals"]);
         }
         if ("accounts" in $$parsedSource) {
-            $$parsedSource["accounts"] = $$createField8_0($$parsedSource["accounts"]);
+            $$parsedSource["accounts"] = $$createField9_0($$parsedSource["accounts"]);
         }
         if ("menu" in $$parsedSource) {
-            $$parsedSource["menu"] = $$createField15_0($$parsedSource["menu"]);
+            $$parsedSource["menu"] = $$createField16_0($$parsedSource["menu"]);
         }
         return new AccountsBankCardDTO($$parsedSource as Partial<AccountsBankCardDTO>);
     }
@@ -505,16 +513,16 @@ export class AccountsDTO {
      * Creates a new AccountsDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): AccountsDTO {
-        const $$createField5_0 = $$createType7;
-        const $$createField6_0 = $$createType9;
-        const $$createField7_0 = $$createType11;
-        const $$createField8_0 = $$createType13;
-        const $$createField11_0 = $$createType15;
-        const $$createField12_0 = $$createType16;
-        const $$createField13_0 = $$createType18;
-        const $$createField14_0 = $$createType16;
-        const $$createField15_0 = $$createType19;
-        const $$createField33_0 = $$createType21;
+        const $$createField5_0 = $$createType8;
+        const $$createField6_0 = $$createType10;
+        const $$createField7_0 = $$createType12;
+        const $$createField8_0 = $$createType14;
+        const $$createField11_0 = $$createType16;
+        const $$createField12_0 = $$createType17;
+        const $$createField13_0 = $$createType19;
+        const $$createField14_0 = $$createType17;
+        const $$createField15_0 = $$createType20;
+        const $$createField33_0 = $$createType22;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("figures" in $$parsedSource) {
             $$parsedSource["figures"] = $$createField5_0($$parsedSource["figures"]);
@@ -902,6 +910,50 @@ export class BankMessageDTO {
 }
 
 /**
+ * BankStatusDTO is one bank card's state line and its next action.
+ */
+export class BankStatusDTO {
+    "tone": string;
+    "icon": string;
+    "text": string;
+    "action": string;
+    "actionText": string;
+    "actionEnabled": boolean;
+
+    /** Creates a new BankStatusDTO instance. */
+    constructor($$source: Partial<BankStatusDTO> = {}) {
+        if (!("tone" in $$source)) {
+            this["tone"] = "";
+        }
+        if (!("icon" in $$source)) {
+            this["icon"] = "";
+        }
+        if (!("text" in $$source)) {
+            this["text"] = "";
+        }
+        if (!("action" in $$source)) {
+            this["action"] = "";
+        }
+        if (!("actionText" in $$source)) {
+            this["actionText"] = "";
+        }
+        if (!("actionEnabled" in $$source)) {
+            this["actionEnabled"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BankStatusDTO instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BankStatusDTO {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BankStatusDTO($$parsedSource as Partial<BankStatusDTO>);
+    }
+}
+
+/**
  * BankSuggestionDTO is one row of the add-online-bank search.
  */
 export class BankSuggestionDTO {
@@ -985,7 +1037,7 @@ export class BankingBankDTO {
      * Creates a new BankingBankDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): BankingBankDTO {
-        const $$createField7_0 = $$createType5;
+        const $$createField7_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("menu" in $$parsedSource) {
             $$parsedSource["menu"] = $$createField7_0($$parsedSource["menu"]);
@@ -1078,9 +1130,9 @@ export class BankingDTO {
      * Creates a new BankingDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): BankingDTO {
-        const $$createField13_0 = $$createType23;
-        const $$createField14_0 = $$createType25;
-        const $$createField15_0 = $$createType27;
+        const $$createField13_0 = $$createType24;
+        const $$createField14_0 = $$createType26;
+        const $$createField15_0 = $$createType28;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("banks" in $$parsedSource) {
             $$parsedSource["banks"] = $$createField13_0($$parsedSource["banks"]);
@@ -1132,7 +1184,9 @@ export class ConnectionTestDTO {
     "bankId": number;
     "running": boolean;
     "go": boolean;
+    "verdictText": string;
     "reason": string;
+    "nextStep": string;
     "codes": string[];
     "messages": BankMessageDTO[];
     "probed": number;
@@ -1154,8 +1208,14 @@ export class ConnectionTestDTO {
         if (!("go" in $$source)) {
             this["go"] = false;
         }
+        if (!("verdictText" in $$source)) {
+            this["verdictText"] = "";
+        }
         if (!("reason" in $$source)) {
             this["reason"] = "";
+        }
+        if (!("nextStep" in $$source)) {
+            this["nextStep"] = "";
         }
         if (!("codes" in $$source)) {
             this["codes"] = [];
@@ -1192,14 +1252,14 @@ export class ConnectionTestDTO {
      * Creates a new ConnectionTestDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ConnectionTestDTO {
-        const $$createField4_0 = $$createType16;
-        const $$createField5_0 = $$createType29;
+        const $$createField6_0 = $$createType17;
+        const $$createField7_0 = $$createType30;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("codes" in $$parsedSource) {
-            $$parsedSource["codes"] = $$createField4_0($$parsedSource["codes"]);
+            $$parsedSource["codes"] = $$createField6_0($$parsedSource["codes"]);
         }
         if ("messages" in $$parsedSource) {
-            $$parsedSource["messages"] = $$createField5_0($$parsedSource["messages"]);
+            $$parsedSource["messages"] = $$createField7_0($$parsedSource["messages"]);
         }
         return new ConnectionTestDTO($$parsedSource as Partial<ConnectionTestDTO>);
     }
@@ -1528,15 +1588,15 @@ export class DashboardDTO {
      * Creates a new DashboardDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): DashboardDTO {
-        const $$createField4_0 = $$createType16;
-        const $$createField14_0 = $$createType31;
-        const $$createField22_0 = $$createType16;
-        const $$createField26_0 = $$createType33;
-        const $$createField33_0 = $$createType35;
-        const $$createField38_0 = $$createType37;
-        const $$createField44_0 = $$createType33;
-        const $$createField46_0 = $$createType39;
-        const $$createField50_0 = $$createType41;
+        const $$createField4_0 = $$createType17;
+        const $$createField14_0 = $$createType32;
+        const $$createField22_0 = $$createType17;
+        const $$createField26_0 = $$createType34;
+        const $$createField33_0 = $$createType36;
+        const $$createField38_0 = $$createType38;
+        const $$createField44_0 = $$createType34;
+        const $$createField46_0 = $$createType40;
+        const $$createField50_0 = $$createType42;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("monthOptions" in $$parsedSource) {
             $$parsedSource["monthOptions"] = $$createField4_0($$parsedSource["monthOptions"]);
@@ -1937,9 +1997,9 @@ export class DocumentsDTO {
      * Creates a new DocumentsDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): DocumentsDTO {
-        const $$createField0_0 = $$createType43;
-        const $$createField21_0 = $$createType45;
-        const $$createField22_0 = $$createType45;
+        const $$createField0_0 = $$createType44;
+        const $$createField21_0 = $$createType46;
+        const $$createField22_0 = $$createType46;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("rows" in $$parsedSource) {
             $$parsedSource["rows"] = $$createField0_0($$parsedSource["rows"]);
@@ -1985,7 +2045,7 @@ export class ImportCSVFieldDTO {
      * Creates a new ImportCSVFieldDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ImportCSVFieldDTO {
-        const $$createField2_0 = $$createType16;
+        const $$createField2_0 = $$createType17;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("options" in $$parsedSource) {
             $$parsedSource["options"] = $$createField2_0($$parsedSource["options"]);
@@ -2179,7 +2239,7 @@ export class PromptDTO {
      * Creates a new PromptDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): PromptDTO {
-        const $$createField8_0 = $$createType47;
+        const $$createField8_0 = $$createType48;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("choices" in $$parsedSource) {
             $$parsedSource["choices"] = $$createField8_0($$parsedSource["choices"]);
@@ -2843,13 +2903,13 @@ export class ReportsDTO {
      * Creates a new ReportsDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ReportsDTO {
-        const $$createField25_0 = $$createType49;
-        const $$createField32_0 = $$createType51;
-        const $$createField40_0 = $$createType53;
-        const $$createField42_0 = $$createType55;
-        const $$createField47_0 = $$createType57;
-        const $$createField63_0 = $$createType59;
-        const $$createField64_0 = $$createType61;
+        const $$createField25_0 = $$createType50;
+        const $$createField32_0 = $$createType52;
+        const $$createField40_0 = $$createType54;
+        const $$createField42_0 = $$createType56;
+        const $$createField47_0 = $$createType58;
+        const $$createField63_0 = $$createType60;
+        const $$createField64_0 = $$createType62;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("taxRelevantRows" in $$parsedSource) {
             $$parsedSource["taxRelevantRows"] = $$createField25_0($$parsedSource["taxRelevantRows"]);
@@ -3316,15 +3376,15 @@ export class SettingsDTO {
      * Creates a new SettingsDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): SettingsDTO {
-        const $$createField6_0 = $$createType16;
-        const $$createField9_0 = $$createType63;
-        const $$createField10_0 = $$createType65;
-        const $$createField13_0 = $$createType67;
-        const $$createField14_0 = $$createType16;
-        const $$createField15_0 = $$createType16;
-        const $$createField16_0 = $$createType16;
-        const $$createField17_0 = $$createType16;
-        const $$createField58_0 = $$createType69;
+        const $$createField6_0 = $$createType17;
+        const $$createField9_0 = $$createType64;
+        const $$createField10_0 = $$createType66;
+        const $$createField13_0 = $$createType68;
+        const $$createField14_0 = $$createType17;
+        const $$createField15_0 = $$createType17;
+        const $$createField16_0 = $$createType17;
+        const $$createField17_0 = $$createType17;
+        const $$createField58_0 = $$createType70;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("currencyOptions" in $$parsedSource) {
             $$parsedSource["currencyOptions"] = $$createField6_0($$parsedSource["currencyOptions"]);
@@ -3626,10 +3686,10 @@ export class ShellDTO {
      * Creates a new ShellDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ShellDTO {
-        const $$createField10_0 = $$createType16;
-        const $$createField19_0 = $$createType71;
-        const $$createField24_0 = $$createType16;
-        const $$createField31_0 = $$createType16;
+        const $$createField10_0 = $$createType17;
+        const $$createField19_0 = $$createType72;
+        const $$createField24_0 = $$createType17;
+        const $$createField31_0 = $$createType17;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("leftoverLines" in $$parsedSource) {
             $$parsedSource["leftoverLines"] = $$createField10_0($$parsedSource["leftoverLines"]);
@@ -4281,23 +4341,23 @@ export class TransactionsDTO {
     static createFrom($$source: any = {}): TransactionsDTO {
         const $$createField5_0 = $$createType1;
         const $$createField6_0 = $$createType1;
-        const $$createField11_0 = $$createType16;
-        const $$createField14_0 = $$createType16;
-        const $$createField16_0 = $$createType16;
-        const $$createField19_0 = $$createType16;
-        const $$createField21_0 = $$createType11;
-        const $$createField22_0 = $$createType13;
-        const $$createField26_0 = $$createType73;
-        const $$createField29_0 = $$createType16;
-        const $$createField32_0 = $$createType16;
-        const $$createField52_0 = $$createType16;
-        const $$createField53_0 = $$createType16;
-        const $$createField78_0 = $$createType75;
-        const $$createField95_0 = $$createType16;
-        const $$createField106_0 = $$createType16;
-        const $$createField111_0 = $$createType77;
-        const $$createField112_0 = $$createType79;
-        const $$createField114_0 = $$createType16;
+        const $$createField11_0 = $$createType17;
+        const $$createField14_0 = $$createType17;
+        const $$createField16_0 = $$createType17;
+        const $$createField19_0 = $$createType17;
+        const $$createField21_0 = $$createType12;
+        const $$createField22_0 = $$createType14;
+        const $$createField26_0 = $$createType74;
+        const $$createField29_0 = $$createType17;
+        const $$createField32_0 = $$createType17;
+        const $$createField52_0 = $$createType17;
+        const $$createField53_0 = $$createType17;
+        const $$createField78_0 = $$createType76;
+        const $$createField95_0 = $$createType17;
+        const $$createField106_0 = $$createType17;
+        const $$createField111_0 = $$createType78;
+        const $$createField112_0 = $$createType80;
+        const $$createField114_0 = $$createType17;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("incomeAmounts" in $$parsedSource) {
             $$parsedSource["incomeAmounts"] = $$createField5_0($$parsedSource["incomeAmounts"]);
@@ -4363,81 +4423,82 @@ export class TransactionsDTO {
 // Private type creation functions
 const $$createType0 = AccountAmountDTO.createFrom;
 const $$createType1 = $Create.Array($$createType0);
-const $$createType2 = BankAccountRowDTO.createFrom;
-const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = BankMenuItemDTO.createFrom;
-const $$createType5 = $Create.Array($$createType4);
-const $$createType6 = AccountsFigureDTO.createFrom;
-const $$createType7 = $Create.Array($$createType6);
-const $$createType8 = AccountsBankCardDTO.createFrom;
-const $$createType9 = $Create.Array($$createType8);
-const $$createType10 = AccountPanelRowDTO.createFrom;
-const $$createType11 = $Create.Array($$createType10);
-const $$createType12 = AccountGroupChoiceDTO.createFrom;
-const $$createType13 = $Create.Array($$createType12);
-const $$createType14 = AccountTypeChoiceDTO.createFrom;
-const $$createType15 = $Create.Array($$createType14);
-const $$createType16 = $Create.Array($Create.Any);
-const $$createType17 = AccountDaysChoiceDTO.createFrom;
-const $$createType18 = $Create.Array($$createType17);
-const $$createType19 = AccountsDialogDTO.createFrom;
-const $$createType20 = AccountDetailRowDTO.createFrom;
-const $$createType21 = $Create.Array($$createType20);
-const $$createType22 = BankingBankDTO.createFrom;
-const $$createType23 = $Create.Array($$createType22);
-const $$createType24 = ConnectionTestDTO.createFrom;
-const $$createType25 = $Create.Nullable($$createType24);
-const $$createType26 = LastTraceDTO.createFrom;
-const $$createType27 = $Create.Nullable($$createType26);
-const $$createType28 = BankMessageDTO.createFrom;
-const $$createType29 = $Create.Array($$createType28);
-const $$createType30 = DashboardStatementLineDTO.createFrom;
-const $$createType31 = $Create.Array($$createType30);
-const $$createType32 = DashboardCategoryRowDTO.createFrom;
-const $$createType33 = $Create.Array($$createType32);
-const $$createType34 = DashboardMonthBarDTO.createFrom;
-const $$createType35 = $Create.Array($$createType34);
-const $$createType36 = DashboardBudgetRowDTO.createFrom;
-const $$createType37 = $Create.Array($$createType36);
-const $$createType38 = DashboardUpcomingRowDTO.createFrom;
-const $$createType39 = $Create.Array($$createType38);
-const $$createType40 = DashboardTransactionRowDTO.createFrom;
-const $$createType41 = $Create.Array($$createType40);
-const $$createType42 = DocumentRowDTO.createFrom;
-const $$createType43 = $Create.Array($$createType42);
-const $$createType44 = DocumentLinkRowDTO.createFrom;
-const $$createType45 = $Create.Array($$createType44);
-const $$createType46 = BankingPromptChoiceDTO.createFrom;
-const $$createType47 = $Create.Array($$createType46);
-const $$createType48 = ReportAmountRowDTO.createFrom;
-const $$createType49 = $Create.Array($$createType48);
-const $$createType50 = ReportMonthlyRowDTO.createFrom;
-const $$createType51 = $Create.Array($$createType50);
-const $$createType52 = ReportCategoryRowDTO.createFrom;
-const $$createType53 = $Create.Array($$createType52);
-const $$createType54 = ReportVendorRowDTO.createFrom;
-const $$createType55 = $Create.Array($$createType54);
-const $$createType56 = ReportRecurringRowDTO.createFrom;
-const $$createType57 = $Create.Array($$createType56);
-const $$createType58 = ReportSuggestionRowDTO.createFrom;
-const $$createType59 = $Create.Array($$createType58);
-const $$createType60 = ReportTaxRowDTO.createFrom;
-const $$createType61 = $Create.Array($$createType60);
-const $$createType62 = SettingsCategoryRowDTO.createFrom;
-const $$createType63 = $Create.Array($$createType62);
-const $$createType64 = SettingsRuleRowDTO.createFrom;
-const $$createType65 = $Create.Array($$createType64);
-const $$createType66 = SettingsColourSwatchDTO.createFrom;
-const $$createType67 = $Create.Array($$createType66);
-const $$createType68 = SettingsProfileRowDTO.createFrom;
-const $$createType69 = $Create.Array($$createType68);
-const $$createType70 = ProfileDTO.createFrom;
-const $$createType71 = $Create.Array($$createType70);
-const $$createType72 = TransactionRowDTO.createFrom;
-const $$createType73 = $Create.Array($$createType72);
-const $$createType74 = ReapplyGroupRowDTO.createFrom;
-const $$createType75 = $Create.Array($$createType74);
-const $$createType76 = ImportFileRowDTO.createFrom;
-const $$createType77 = $Create.Array($$createType76);
-const $$createType78 = ImportCSVFieldDTO.createFrom;
-const $$createType79 = $Create.Array($$createType78);
+const $$createType2 = BankStatusDTO.createFrom;
+const $$createType3 = BankAccountRowDTO.createFrom;
+const $$createType4 = $Create.Array($$createType3);
+const $$createType5 = BankMenuItemDTO.createFrom;
+const $$createType6 = $Create.Array($$createType5);
+const $$createType7 = AccountsFigureDTO.createFrom;
+const $$createType8 = $Create.Array($$createType7);
+const $$createType9 = AccountsBankCardDTO.createFrom;
+const $$createType10 = $Create.Array($$createType9);
+const $$createType11 = AccountPanelRowDTO.createFrom;
+const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = AccountGroupChoiceDTO.createFrom;
+const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = AccountTypeChoiceDTO.createFrom;
+const $$createType16 = $Create.Array($$createType15);
+const $$createType17 = $Create.Array($Create.Any);
+const $$createType18 = AccountDaysChoiceDTO.createFrom;
+const $$createType19 = $Create.Array($$createType18);
+const $$createType20 = AccountsDialogDTO.createFrom;
+const $$createType21 = AccountDetailRowDTO.createFrom;
+const $$createType22 = $Create.Array($$createType21);
+const $$createType23 = BankingBankDTO.createFrom;
+const $$createType24 = $Create.Array($$createType23);
+const $$createType25 = ConnectionTestDTO.createFrom;
+const $$createType26 = $Create.Nullable($$createType25);
+const $$createType27 = LastTraceDTO.createFrom;
+const $$createType28 = $Create.Nullable($$createType27);
+const $$createType29 = BankMessageDTO.createFrom;
+const $$createType30 = $Create.Array($$createType29);
+const $$createType31 = DashboardStatementLineDTO.createFrom;
+const $$createType32 = $Create.Array($$createType31);
+const $$createType33 = DashboardCategoryRowDTO.createFrom;
+const $$createType34 = $Create.Array($$createType33);
+const $$createType35 = DashboardMonthBarDTO.createFrom;
+const $$createType36 = $Create.Array($$createType35);
+const $$createType37 = DashboardBudgetRowDTO.createFrom;
+const $$createType38 = $Create.Array($$createType37);
+const $$createType39 = DashboardUpcomingRowDTO.createFrom;
+const $$createType40 = $Create.Array($$createType39);
+const $$createType41 = DashboardTransactionRowDTO.createFrom;
+const $$createType42 = $Create.Array($$createType41);
+const $$createType43 = DocumentRowDTO.createFrom;
+const $$createType44 = $Create.Array($$createType43);
+const $$createType45 = DocumentLinkRowDTO.createFrom;
+const $$createType46 = $Create.Array($$createType45);
+const $$createType47 = BankingPromptChoiceDTO.createFrom;
+const $$createType48 = $Create.Array($$createType47);
+const $$createType49 = ReportAmountRowDTO.createFrom;
+const $$createType50 = $Create.Array($$createType49);
+const $$createType51 = ReportMonthlyRowDTO.createFrom;
+const $$createType52 = $Create.Array($$createType51);
+const $$createType53 = ReportCategoryRowDTO.createFrom;
+const $$createType54 = $Create.Array($$createType53);
+const $$createType55 = ReportVendorRowDTO.createFrom;
+const $$createType56 = $Create.Array($$createType55);
+const $$createType57 = ReportRecurringRowDTO.createFrom;
+const $$createType58 = $Create.Array($$createType57);
+const $$createType59 = ReportSuggestionRowDTO.createFrom;
+const $$createType60 = $Create.Array($$createType59);
+const $$createType61 = ReportTaxRowDTO.createFrom;
+const $$createType62 = $Create.Array($$createType61);
+const $$createType63 = SettingsCategoryRowDTO.createFrom;
+const $$createType64 = $Create.Array($$createType63);
+const $$createType65 = SettingsRuleRowDTO.createFrom;
+const $$createType66 = $Create.Array($$createType65);
+const $$createType67 = SettingsColourSwatchDTO.createFrom;
+const $$createType68 = $Create.Array($$createType67);
+const $$createType69 = SettingsProfileRowDTO.createFrom;
+const $$createType70 = $Create.Array($$createType69);
+const $$createType71 = ProfileDTO.createFrom;
+const $$createType72 = $Create.Array($$createType71);
+const $$createType73 = TransactionRowDTO.createFrom;
+const $$createType74 = $Create.Array($$createType73);
+const $$createType75 = ReapplyGroupRowDTO.createFrom;
+const $$createType76 = $Create.Array($$createType75);
+const $$createType77 = ImportFileRowDTO.createFrom;
+const $$createType78 = $Create.Array($$createType77);
+const $$createType79 = ImportCSVFieldDTO.createFrom;
+const $$createType80 = $Create.Array($$createType79);

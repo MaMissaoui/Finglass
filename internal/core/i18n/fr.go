@@ -918,4 +918,10 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionUsedSavedPin:          "Code PIN enregistré utilisé.",
 	TestConnectionSavedPinRejectedOnce:  "La banque a refusé le code PIN enregistré. Il est conservé pour un autre essai ; vérifiez-le dans les paramètres de connexion.",
 	TestConnectionSavedPinForgotten:     "La banque a refusé le code PIN enregistré ; il a été supprimé. Il vous sera demandé la prochaine fois.",
+	SyncStatusReady:                     "Prêt à synchroniser",
+	SyncStatusReadyTested:               "Prêt à synchroniser · testé le %s",
+	SyncStatusNotInAll:                  "Pas dans « Tout synchroniser »",
+	SyncStatusNotInAllTested:            "Pas dans « Tout synchroniser » · testé le %s",
+	SyncStatusRunTest:                   "Lancez d'abord « Tester la connexion »",
+	TestConnectionSyncNow:               "Cette banque peut maintenant synchroniser.",
 }

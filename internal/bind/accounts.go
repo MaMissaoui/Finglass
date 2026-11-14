@@ -75,12 +75,23 @@ type BankAccountRowDTO struct {
 	LogoColour  int    `json:"logoColour"`
 }
 
+// BankStatusDTO is one bank card's state line and its next action.
+type BankStatusDTO struct {
+	Tone          string `json:"tone"`
+	Icon          string `json:"icon"`
+	Text          string `json:"text"`
+	Action        string `json:"action"`
+	ActionText    string `json:"actionText"`
+	ActionEnabled bool   `json:"actionEnabled"`
+}
+
 // AccountsBankCardDTO is one bank card, including the online-banking fields
 // (sync state, menu, PIN).
 type AccountsBankCardDTO struct {
 	BankID            int                 `json:"bankId"`
 	Name              string              `json:"name"`
 	Subtitle          string              `json:"subtitle"`
+	Status            BankStatusDTO       `json:"status"`
 	CentralBLZHint    string              `json:"centralBlzHint"`
 	Offline           bool                `json:"offline"`
 	Collapsed         bool                `json:"collapsed"`
@@ -616,7 +627,7 @@ func accountsBankCards(
 			}
 		}
 		card := accountsBankCard(state, bank.ID, bank.BankName, bank.BLZ, bank.BIC,
-			accountsBankSubtitle(bank, bankingBankUnlocked(&bankingState, bank.ID), language),
+			accountsBankSubtitle(bank, language),
 			accountsCentralBLZHint(bank, language),
 			bank.Offline, accountsCollapsedBank(state, bank.ID), accounts, language)
 		applyBankingCard(&card, &bankingState, state.Busy.Active(), language)
@@ -668,7 +679,62 @@ func applyBankingCard(
 	card.SyncTooltip = bankSyncTooltip(bank, language)
 	card.PinText = bankPinText(bank, bankingState, language)
 	card.CanTestConnection = bank.CanTestConnection
+	card.Status = bankStatus(bank, bankingState, language)
 	card.Menu = bankMenu(bank, bankingState, accountsBusy, language)
+}
+
+// bankStatus builds the card's status line and next action. Offline banks, a
+// page without sync controls, and the bank that is syncing or testing have no
+// line.
+func bankStatus(
+	bank *bankingcore.BankItem,
+	state *bankingcore.BankingState,
+	language i18n.Language,
+) BankStatusDTO {
+	status := BankStatusDTO{}
+	if bank == nil || bank.Offline || !syncControlsVisible(state) {
+		return status
+	}
+	if state.SyncingBank != nil && *state.SyncingBank == bank.ID {
+		return status
+	}
+	if state.ConnectionTest != nil &&
+		state.ConnectionTest.Running &&
+		state.ConnectionTest.BankID == bank.ID {
+		return status
+	}
+	if !bank.SyncUnlocked {
+		status.Tone = "attention"
+		status.Icon = "warning"
+		status.Text = i18n.Text(language, i18n.SyncStatusRunTest)
+		if bank.CanTestConnection {
+			status.Action = "test-connection"
+			status.ActionText = i18n.Text(language, i18n.TestConnection)
+			status.ActionEnabled = !state.IsSyncing() && !state.IsTesting()
+		}
+		return status
+	}
+
+	status.Tone = "ready"
+	status.Icon = "check_circle"
+	statusText := i18n.Text(language, i18n.SyncStatusReady)
+	if !bank.IncludeInSyncAll {
+		status.Tone = "off"
+		status.Icon = "sync"
+		statusText = i18n.Text(language, i18n.SyncStatusNotInAll)
+	}
+	if bank.SyncUnlockedOn != nil {
+		key := i18n.SyncStatusReadyTested
+		if !bank.IncludeInSyncAll {
+			key = i18n.SyncStatusNotInAllTested
+		}
+		statusText = i18n.Format(language, key, i18n.Str(format.Date(*bank.SyncUnlockedOn)))
+	}
+	status.Text = statusText
+	status.Action = "sync"
+	status.ActionText = i18n.Text(language, i18n.SyncNow)
+	status.ActionEnabled = bankSyncEnabled(bank, state)
+	return status
 }
 
 func bankingBankForCard(state *bankingcore.BankingState, bankID int) *bankingcore.BankItem {
@@ -731,7 +797,7 @@ func accountsBankCard(
 	}
 }
 
-func accountsBankSubtitle(bank model.BankAccessItem, unlocked bool, language i18n.Language) string {
+func accountsBankSubtitle(bank model.BankAccessItem, language i18n.Language) string {
 	if bank.Offline {
 		return i18n.Text(language, i18n.BankOfflineHint)
 	}
@@ -746,24 +812,7 @@ func accountsBankSubtitle(bank model.BankAccessItem, unlocked bool, language i18
 	if bank.SyncFrom != nil {
 		parts = append(parts, i18n.Format(language, i18n.NextSyncFrom, i18n.Str(format.Date(*bank.SyncFrom))))
 	}
-	if !unlocked {
-		parts = append(parts, i18n.Text(language, i18n.SyncLockedHint))
-	} else if !bank.IncludeInSyncAll {
-		parts = append(parts, i18n.Text(language, i18n.NotInSyncAll))
-	}
 	return strings.Join(parts, " · ")
-}
-
-func bankingBankUnlocked(state *bankingcore.BankingState, bankID model.BankConnectionID) bool {
-	if state == nil {
-		return false
-	}
-	for _, bank := range state.Banks {
-		if bank.ID == bankID {
-			return bank.SyncUnlocked
-		}
-	}
-	return false
 }
 
 func accountsCentralBLZHint(bank model.BankAccessItem, language i18n.Language) string {

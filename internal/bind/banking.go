@@ -89,7 +89,9 @@ type ConnectionTestDTO struct {
 	BankID               int              `json:"bankId"`
 	Running              bool             `json:"running"`
 	Go                   bool             `json:"go"`
+	VerdictText          string           `json:"verdictText"`
 	Reason               string           `json:"reason"`
+	NextStep             string           `json:"nextStep"`
 	Codes                []string         `json:"codes"`
 	Messages             []BankMessageDTO `json:"messages"`
 	Probed               int              `json:"probed"`
@@ -566,7 +568,9 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 			BankID:               int(state.ConnectionTest.BankID),
 			Running:              state.ConnectionTest.Running,
 			Go:                   state.ConnectionTest.Go,
+			VerdictText:          connectionTestVerdict(state.ConnectionTest),
 			Reason:               state.ConnectionTest.Reason,
+			NextStep:             connectionTestNextStep(&state, language),
 			Codes:                append([]string(nil), state.ConnectionTest.Codes...),
 			Messages:             messages,
 			Probed:               state.ConnectionTest.Probed,
@@ -586,6 +590,39 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 		}
 	}
 	return dto
+}
+
+// connectionTestVerdict is GO for a GO result and NO-GO otherwise. A running
+// test has no verdict yet.
+func connectionTestVerdict(result *bankingcore.ConnectionTestResult) string {
+	if result == nil || result.Running {
+		return ""
+	}
+	if result.Go {
+		return "GO"
+	}
+	return "NO-GO"
+}
+
+// connectionTestNextStep is the one sentence that says what happens next.
+// A GO through the strong sync keeps its existing explanation; a NO-GO gets
+// the existing help text.
+func connectionTestNextStep(state *bankingcore.BankingState, language i18n.Language) string {
+	result := state.ConnectionTest
+	if result == nil || result.Running {
+		return ""
+	}
+	if result.Go {
+		if result.StrongSync {
+			return i18n.Text(language, i18n.TestConnectionStrongSyncNoUnlock)
+		}
+		if !shell.OnlineSyncReady() {
+			// A build without online sync must not promise a sync.
+			return ""
+		}
+		return i18n.Text(language, i18n.TestConnectionSyncNow)
+	}
+	return i18n.Text(language, i18n.TestConnectionHelp)
 }
 
 func bankingBanks(state *bankingcore.BankingState, language i18n.Language) []BankingBankDTO {

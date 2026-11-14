@@ -38,6 +38,7 @@ export {
     BankAccountRowDTO,
     BankMenuItemDTO,
     BankMessageDTO,
+    BankStatusDTO,
     BankSuggestionDTO,
     BankingBankDTO,
     BankingDTO,

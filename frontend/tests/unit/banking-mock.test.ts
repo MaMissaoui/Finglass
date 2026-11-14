@@ -254,6 +254,42 @@ describe('banking.mock', () => {
     expect(excluded?.menu.find((item) => item.action === 'include')?.checked).toBe(false);
   });
 
+  it('builds the card status line and its next action', () => {
+    const plain = fake().banking;
+    expect(plain.bankForCard(2)?.status.text).toBe('');
+
+    const perBank = fake('accounts-sync-per-bank').banking;
+    const ready = perBank.bankForCard(2)?.status;
+    expect(ready).toMatchObject({
+      tone: 'ready',
+      icon: 'check_circle',
+      text: translate('en', 'SyncStatusReadyTested', '14.11.2026'),
+      action: 'sync',
+      actionText: translate('en', 'SyncNow'),
+      actionEnabled: true,
+    });
+
+    const locked = perBank.bankForCard(3)?.status;
+    expect(locked).toMatchObject({
+      tone: 'attention',
+      icon: 'warning',
+      text: translate('en', 'SyncStatusRunTest'),
+      action: 'test-connection',
+      actionText: translate('en', 'TestConnection'),
+      actionEnabled: true,
+    });
+
+    const excluded = perBank.bankForCard(4)?.status;
+    expect(excluded).toMatchObject({
+      tone: 'off',
+      icon: 'sync',
+      text: translate('en', 'SyncStatusNotInAllTested', '14.11.2026'),
+      action: 'sync',
+      actionText: translate('en', 'SyncNow'),
+      actionEnabled: true,
+    });
+  });
+
   it('refuses Sync now for a locked bank and explains why', () => {
     const { banking } = fake('accounts-sync-per-bank');
     const state = banking.startSync(3);
