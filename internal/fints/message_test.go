@@ -471,12 +471,12 @@ func TestFirstMessageEnvelopeMatchesTheSpec(t *testing.T) {
 		t.Fatal("a security header names the customer as message receiver (2)")
 	}
 
-	// A two-step dialog (a TAN method such as 942) encrypts with PIN:2 and
-	// still signs with PIN:1.
+	// A two-step dialog (a TAN method such as 942) encrypts and signs with
+	// PIN:2.
 	twoStep := messageInput(testPIN, "")
 	twoStep.SecurityFunction = "942"
 	twoStepMessage := string(buildTestMessage(t, twoStep, NewHKSYN()))
-	for _, expected := range []string{"HNVSK:998:3+PIN:2+998+", "HNSHK:2:4+PIN:1+942+"} {
+	for _, expected := range []string{"HNVSK:998:3+PIN:2+998+", "HNSHK:2:4+PIN:2+942+"} {
 		if !strings.Contains(twoStepMessage, expected) {
 			t.Fatalf("two-step message does not contain %q", expected)
 		}

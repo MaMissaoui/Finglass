@@ -216,7 +216,7 @@ func hicazMessage(marker string) string {
 
 func TestRedactMessageStrongSync(t *testing.T) {
 	request := "HNHBK:1:3+000000000123+300+DIALOGMARK+1'" +
-		"HNSHK:2:4+PIN:1+904+REFMARK+1+1+1::SYSTEMMARK+1+1:20260329:123456+1:999:1+6:10:16+280:99999999:USERMARK:S:0:0'" +
+		"HNSHK:2:4+PIN:2+904+REFMARK+1+1+1::SYSTEMMARK+1+1:20260329:123456+1:999:1+6:10:16+280:99999999:USERMARK:S:0:0'" +
 		"HKIDN:3:2+280:99999999+CUSTMARK+0+1'" +
 		"HKVVB:4:3+0+0+1+PRODUCTMARK+1.0'" +
 		"HKTAN:5:7+4+HKIDN++++++MEDIUMMARK'" +
@@ -225,6 +225,7 @@ func TestRedactMessageStrongSync(t *testing.T) {
 		"HNHBS:8:1+1'"
 	got := redacted(request)
 	assertContains(t, got,
+		"HNSHK:2:4 | PIN:2 | 904",
 		"HKTAN:5:7 | 4 | HKIDN",
 		"HKSYN:6:3 | 0",
 		"HKIDN:3:2 | 280:99999999 | <customer id> | <system id>",
