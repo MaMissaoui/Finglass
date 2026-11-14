@@ -110,6 +110,7 @@ mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 
 install -m 0755 "$build/go/Finglass" "$app/Contents/MacOS/Finglass"
 install -m 0644 assets/icons/finglass.icns "$app/Contents/Resources/finglass.icns"
+install -m 0644 packaging/THIRD-PARTY-NOTICES.txt "$app/Contents/Resources/THIRD-PARTY-NOTICES.txt"
 sed "s/__VERSION__/$version/g" packaging/macos/Info.plist > "$app/Contents/Info.plist"
 
 # 5. Ad-hoc sign and verify.
@@ -182,6 +183,7 @@ dmg_stage="$(mktemp -d "$build/go/.dmg-stage.XXXXXX")"
 dmg_mount="$(mktemp -d "$build/go/.dmg-mount.XXXXXX")"
 
 ditto "$app" "$dmg_stage/Finglass.app"
+install -m 0644 packaging/THIRD-PARTY-NOTICES.txt "$dmg_stage/THIRD-PARTY-NOTICES.txt"
 ln -s /Applications "$dmg_stage/Applications"
 
 rm -f "$dmg"
@@ -204,6 +206,15 @@ codesign --verify --deep --strict "$mounted_app"
 mounted_version="$(plutil -extract CFBundleShortVersionString raw -o - "$mounted_app/Contents/Info.plist")"
 if [[ "$mounted_version" != "$version" ]]; then
   echo "$dmg contains Finglass $mounted_version, expected $version" >&2
+  exit 1
+fi
+
+if [[ ! -f "$mounted_app/Contents/Resources/THIRD-PARTY-NOTICES.txt" ]]; then
+  echo "$dmg's Finglass.app has no THIRD-PARTY-NOTICES.txt in Contents/Resources" >&2
+  exit 1
+fi
+if [[ ! -f "$dmg_mount/THIRD-PARTY-NOTICES.txt" ]]; then
+  echo "$dmg has no THIRD-PARTY-NOTICES.txt at its root" >&2
   exit 1
 fi
 

@@ -10,6 +10,9 @@ step() { printf '\n== %s\n' "$*"; }
 step "npm ci"
 npm ci --no-audit --no-fund
 
+step "third-party notices"
+bash ../scripts/third-party-notices.sh --check
+
 step "svelte-check"
 npm run check
 
