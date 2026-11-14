@@ -38,8 +38,8 @@ bash scripts/ci/go-package.sh      # universal, ad-hoc-signed Finglass.app with 
 scripts/ci-local.sh                # all of CI's jobs on this Mac
 ```
 
-`crates/finglass-probe` is a small Rust tool for checking a bank's FinTS access by hand; `cargo test --workspace`
-and `cargo clippy --workspace --all-targets` cover it.
+The read-only FinTS probe is `cmd/finglass-probe`; see
+[`internal/core/fintsprobe/README.md`](internal/core/fintsprobe/README.md).
 
 The icons in `assets/icons` are generated from the SVGs in `assets/brand` by `scripts/render-icons.sh`.
 

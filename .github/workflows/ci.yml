@@ -19,32 +19,8 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  CARGO_TERM_COLOR: always
-  RUSTFLAGS: -D warnings
-
 jobs:
-  test:
-    name: Test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # macOS only until Finglass reaches FinDesk's functionality (minus payments). Then add back
-        # ubuntu-latest and windows-latest.
-        os: [macos-latest]
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master, 2026-10-16
-        with:
-          toolchain: stable
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      # The same script scripts/ci-local.sh runs: cargo test (only crates/finglass-probe is left).
-      - name: Test
-        run: bash scripts/ci/rust-test.sh
-
-  # The Mac installer test. It used to run at the end of scripts/ci/rust-test.sh; it moved to a Go-era
-  # script so it keeps running once the Rust test script is gone.
+  # The Mac installer test. It has its own Go-era script.
   install:
     name: Installer (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -57,26 +33,7 @@ jobs:
       - name: Mac installer test
         run: bash scripts/ci/install-mac.sh
 
-  # Lint runs as its own job, next to the tests rather than before them.
-  lint:
-    name: Lint (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest]
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master, 2026-10-16
-        with:
-          toolchain: stable
-          components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      # The same script scripts/ci-local.sh runs: cargo fmt --check, then clippy.
-      - name: Format and Clippy
-        run: bash scripts/ci/rust-lint.sh
-
-  # The Go app (docs/PLAN.md). The Test and Lint jobs above cover only crates/finglass-probe and the installer.
+  # The Go app (docs/PLAN.md).
   go:
     name: Go (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
