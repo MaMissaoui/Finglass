@@ -190,11 +190,13 @@ func (c *FinTsClient) FetchAll(
 	c.rememberSystemID(cleanupCtx, database, bank.ID, connection, outcome)
 
 	var mapped *BankingError
+	var pinFailure PinFailureInput
 	if gatewayErr != nil {
 		var gatewayValue GatewayError
 		if errors.As(gatewayErr, &gatewayValue) {
 			value := c.mapGatewayError(gatewayValue)
 			mapped = &value
+			pinFailure = PinFailureFromGateway(gatewayValue)
 		} else {
 			// Any other error text may carry bank text; NewBankingError masks
 			// it.
@@ -203,7 +205,7 @@ func (c *FinTsClient) FetchAll(
 		}
 	}
 
-	c.finishFetchAll(cleanupCtx, database, bank.ID, remembering, mapped)
+	c.finishFetchAll(cleanupCtx, database, bank.ID, remembering, mapped, pinFailure)
 
 	if mapped != nil {
 		return nil, *mapped
@@ -223,21 +225,23 @@ func (c *FinTsClient) FetchAll(
 }
 
 // FinishFetchAll settles the PIN after a sync dialog: save an opted-in PIN
-// after success, drop a stored PIN the bank rejected. Cancellation keeps the
-// stored PIN (nothing changed at the bank), and a store failure never fails the
-// sync.
+// after success, apply the bank's rejection to a stored PIN after a failure.
+// Cancellation, network and local failures keep the stored PIN; a successful
+// dialog resets the rejection count. A store failure never fails the sync.
 func (c *FinTsClient) finishFetchAll(
 	ctx context.Context,
 	database *db.Database,
 	bankID model.BankConnectionID,
 	remembering *rememberingInteraction,
 	bankingError *BankingError,
+	pinFailure PinFailureInput,
 ) {
 	entered := remembering.takeLastEntry()
 	if entered != nil && entered.Pin() != nil {
 		defer entered.Pin().Wipe()
 	}
 	if bankingError == nil {
+		c.resetPinRejections(ctx, database, bankID)
 		if entered != nil && entered.Remember() && !entered.IsEmpty() {
 			if c.savePin(ctx, database, bankID, *entered) != nil {
 				c.pinNotSaved.Store(true)
@@ -245,8 +249,8 @@ func (c *FinTsClient) finishFetchAll(
 		}
 		return
 	}
-	if bankingError.Code != CodeCancelled && remembering.storedUsed() {
-		c.ForgetPin(ctx, database, bankID)
+	if remembering.storedUsed() {
+		_ = c.applyPinFailure(ctx, database, bankID, pinFailure)
 	}
 }
 
@@ -324,6 +328,8 @@ func (c *FinTsClient) savePin(
 	if err := settings.Set(ctx, database, PinFlagKey(bankID), LoginSignature(bank)); err != nil {
 		return internalError(err)
 	}
+	// A fresh PIN starts without an old rejection count.
+	c.resetPinRejections(ctx, database, bankID)
 	_ = audit.Log(
 		ctx,
 		database,
@@ -367,6 +373,8 @@ func (c *FinTsClient) ForgetPin(ctx context.Context, database *db.Database, bank
 		wasSaved = false
 	}
 	_ = deleteSetting(ctx, database, flagKey)
+	// A saved PIN that is gone has no rejection count either.
+	c.resetPinRejections(ctx, database, bankID)
 	// Also without a flag: an entry whose flag write failed must not linger in
 	// the store. The marker stays when the store delete fails, so a later
 	// attempt still knows the entry exists.
@@ -426,6 +434,8 @@ func (c *FinTsClient) ResetLogin(
 	// a removal locks the bank again. This is not a secret either; the GO/NO-GO
 	// audit entries already say when the unlock changed.
 	_ = deleteSetting(ctx, database, SyncUnlockKey(bankID))
+	// The per-bank removal option belongs to the login as well.
+	_ = deleteSetting(ctx, database, PinForgetAfterKey(bankID))
 	// The PIN goes even when the clear failed: a removed or changed login must
 	// never keep a usable secret.
 	if forgetPin {

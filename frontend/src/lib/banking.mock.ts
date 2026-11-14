@@ -32,6 +32,7 @@ export interface MockConnectionDialog {
   serverUrl: string;
   hasPin: boolean;
   pinText: string;
+  pinForgetAfter: string;
   syncing: boolean;
 }
 
@@ -76,6 +77,8 @@ interface MockBankingBank {
   hasSavedPin: boolean;
   /** Mock only: the user ticked "Remember PIN" in this run. No PIN is kept. */
   rememberedThisRun: boolean;
+  /** The bank's stored-PIN removal option: "1" or "2". */
+  pinForgetAfter: string;
 }
 
 interface MockSyncAll {
@@ -228,6 +231,10 @@ export function createMockBanking(
   const linkedProductID = scenario === 'accounts-test-connection-linked';
   /** Mock only: this bank's login is refused with FinTS code 9942. */
   const noGoBankId = scenario.includes('nogo') ? 2 : null;
+  /** Mock only: the test uses a PIN the user saved earlier. */
+  const savedPinTest = scenario === 'accounts-test-saved-pin';
+  /** Mock only: that saved PIN is rejected and removed. */
+  const savedPinRejectedTest = scenario === 'accounts-test-saved-pin-rejected-de';
 
   const banks: MockBankingBank[] = [
     {
@@ -243,6 +250,7 @@ export function createMockBanking(
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
+      pinForgetAfter: '1',
     },
     {
       id: 2,
@@ -257,6 +265,7 @@ export function createMockBanking(
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
+      pinForgetAfter: '1',
     },
   ];
 
@@ -367,6 +376,7 @@ export function createMockBanking(
         syncFrom: null,
         hasSavedPin: false,
         rememberedThisRun: false,
+        pinForgetAfter: '1',
       });
     }
   }
@@ -876,6 +886,46 @@ export function createMockBanking(
       errorText = t('ErrorNoFintsServer', bank.blz);
       return publish();
     }
+    if (savedPinTest || savedPinRejectedTest) {
+      bank.hasSavedPin = !savedPinRejectedTest;
+      connectionTest = savedPinRejectedTest
+        ? {
+            bankId,
+            running: false,
+            go: false,
+            reason: t('TestConnectionLoginRejected'),
+            codes: ['9931'],
+            messages: [],
+            probed: 0,
+            skipped: 0,
+            strongSync: false,
+            strongSyncTAN: '',
+            usedSavedPin: true,
+            savedPinForgotten: true,
+            savedPinRejectedOnce: false,
+          }
+        : {
+            bankId,
+            running: false,
+            go: true,
+            reason: t('TestConnectionGo'),
+            codes: [],
+            messages: [],
+            probed: 1,
+            skipped: 1,
+            strongSync: false,
+            strongSyncTAN: '',
+            usedSavedPin: true,
+            savedPinForgotten: false,
+            savedPinRejectedOnce: false,
+          };
+      lastTrace = { kind: 'test', bankId, hasTrace: true };
+      errorText = '';
+      messageText = '';
+      publish();
+      publishPrompt();
+      return state();
+    }
     testingBankId = bankId;
     testStage = '';
     connectionTest = {
@@ -889,6 +939,9 @@ export function createMockBanking(
       skipped: 0,
       strongSync: false,
       strongSyncTAN: '',
+      usedSavedPin: false,
+      savedPinForgotten: false,
+      savedPinRejectedOnce: false,
     };
     lastTrace = { kind: 'test', bankId, hasTrace: false };
     errorText = '';
@@ -914,6 +967,9 @@ export function createMockBanking(
         skipped: 0,
         strongSync: false,
         strongSyncTAN: '',
+        usedSavedPin: false,
+        savedPinForgotten: false,
+        savedPinRejectedOnce: false,
       };
       lastTrace = { kind: 'test', bankId, hasTrace: false };
     } else if (noGoBankId === bankId) {
@@ -931,6 +987,9 @@ export function createMockBanking(
         skipped: 0,
         strongSync: true,
         strongSyncTAN: 'typed',
+        usedSavedPin: false,
+        savedPinForgotten: false,
+        savedPinRejectedOnce: false,
       };
       lastTrace = { kind: 'test', bankId, hasTrace: true };
     } else {
@@ -945,6 +1004,9 @@ export function createMockBanking(
         skipped: 1,
         strongSync: false,
         strongSyncTAN: '',
+        usedSavedPin: false,
+        savedPinForgotten: false,
+        savedPinRejectedOnce: false,
       };
       lastTrace = { kind: 'test', bankId, hasTrace: true };
     }
@@ -1024,6 +1086,7 @@ export function createMockBanking(
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
+      pinForgetAfter: '1',
     });
     hooks.addOnlineBank(id, cleanName, blz.trim(), bic.trim().toUpperCase());
     hooks.closeDialog();
@@ -1038,6 +1101,7 @@ export function createMockBanking(
     blz: string,
     userId: string,
     serverUrl: string,
+    pinForgetAfter: string,
   ): BankingDTO {
     if (isSyncing()) {
       errorText = t('ErrorConnectionBusy');
@@ -1068,6 +1132,7 @@ export function createMockBanking(
       bank.blz = blz.trim();
       bank.userId = userId.trim();
       bank.serverUrl = serverUrl.trim();
+      bank.pinForgetAfter = pinForgetAfter === '2' ? '2' : '1';
     }
     bank.name = name.trim();
     hooks.closeDialog();
@@ -1172,6 +1237,7 @@ export function createMockBanking(
       serverUrl: bank.serverUrl,
       hasPin: bank.hasSavedPin,
       pinText: pinText(bank),
+      pinForgetAfter: bank.pinForgetAfter,
       syncing: syncingBankId === bank.id,
     });
     return state();

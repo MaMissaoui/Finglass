@@ -4543,5 +4543,40 @@
     "en": "Yes",
     "de": "Ja",
     "fr": "Oui"
+  },
+  "PinForgetAfterLabel": {
+    "en": "Remove the saved PIN after",
+    "de": "Gespeicherte PIN löschen nach",
+    "fr": "Supprimer le code PIN enregistré après"
+  },
+  "PinForgetAfterFirst": {
+    "en": "the first rejection",
+    "de": "der ersten Ablehnung",
+    "fr": "le premier refus"
+  },
+  "PinForgetAfterSecond": {
+    "en": "the second rejection",
+    "de": "der zweiten Ablehnung",
+    "fr": "le deuxième refus"
+  },
+  "PinForgetAfterHint": {
+    "en": "A wrong-PIN answer always removes it at once. Banks usually lock the login after three wrong PINs, so two leave you one try.",
+    "de": "Eine Antwort „PIN falsch“ löscht sie immer sofort. Banken sperren den Zugang meist nach drei falschen PINs; nach zwei bleibt Ihnen ein Versuch.",
+    "fr": "Une réponse « code PIN erroné » le supprime toujours immédiatement. Les banques bloquent généralement l'accès après trois codes PIN erronés ; après deux, il vous reste un essai."
+  },
+  "TestConnectionUsedSavedPin": {
+    "en": "Used the saved PIN.",
+    "de": "Gespeicherte PIN verwendet.",
+    "fr": "Code PIN enregistré utilisé."
+  },
+  "TestConnectionSavedPinRejectedOnce": {
+    "en": "The bank rejected the saved PIN. It is kept for one more try; check it in Connection settings.",
+    "de": "Die Bank hat die gespeicherte PIN abgelehnt. Sie bleibt für einen weiteren Versuch gespeichert; prüfen Sie sie in den Verbindungseinstellungen.",
+    "fr": "La banque a refusé le code PIN enregistré. Il est conservé pour un autre essai ; vérifiez-le dans les paramètres de connexion."
+  },
+  "TestConnectionSavedPinForgotten": {
+    "en": "The bank rejected the saved PIN, so it was removed. You'll be asked for it next time.",
+    "de": "Die Bank hat die gespeicherte PIN abgelehnt; sie wurde gelöscht. Beim nächsten Mal werden Sie danach gefragt.",
+    "fr": "La banque a refusé le code PIN enregistré ; il a été supprimé. Il vous sera demandé la prochaine fois."
   }
 }

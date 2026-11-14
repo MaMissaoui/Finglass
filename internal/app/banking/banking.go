@@ -85,6 +85,9 @@ type BankItem struct {
 	LastSync *time.Time
 	// HasSavedPin says whether a PIN is remembered for this login.
 	HasSavedPin bool
+	// PinForgetAfter is the stored-PIN removal option: "1" after the first
+	// rejection (default), "2" after the second.
+	PinForgetAfter string
 	// CanTestConnection says whether the bank has a server URL, so the
 	// read-only connection test can run.
 	CanTestConnection bool
@@ -116,6 +119,14 @@ type ConnectionTestResult struct {
 	// StrongSyncTAN is how the bank asked for the TAN in the strong sync:
 	// "", "typed" or "decoupled".
 	StrongSyncTAN string
+	// UsedSavedPin reports that the test used the PIN saved earlier.
+	UsedSavedPin bool
+	// SavedPinForgotten reports that the bank rejected the saved PIN and the
+	// test removed it.
+	SavedPinForgotten bool
+	// SavedPinRejectedOnce reports that the bank rejected the saved PIN once
+	// and it is kept for one more try (the bank's option is "2").
+	SavedPinRejectedOnce bool
 }
 
 // BankMessage is one warning or error the bank returned during the test.
@@ -282,9 +293,10 @@ func (s *BankingState) Refresh(ctx context.Context, database *db.Database, servi
 				bank.ID,
 				connectionForBankItem(bank.BLZ, bank.UserID, bank.ServerURL),
 			),
-			SyncFrom:    cloneDate(bank.SyncFrom),
-			LastSync:    cloneTime(bank.LastSync),
-			HasSavedPin: !bank.Offline && service.HasSavedPin(ctx, database, bank.ID),
+			SyncFrom:       cloneDate(bank.SyncFrom),
+			LastSync:       cloneTime(bank.LastSync),
+			HasSavedPin:    !bank.Offline && service.HasSavedPin(ctx, database, bank.ID),
+			PinForgetAfter: service.PinForgetAfter(ctx, database, bank.ID),
 			CanTestConnection: bank.ServerURL != nil &&
 				strings.TrimSpace(*bank.ServerURL) != "",
 		})

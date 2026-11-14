@@ -65,6 +65,10 @@ type Input struct {
 	ProductID *secret.Text
 	// Interaction asks the user for the PIN and TAN and shows notices.
 	Interaction banksync.BankingInteraction
+	// SavedPin returns the PIN the user saved for this bank, or nil. When it is
+	// set and returns a value, the PIN prompt is skipped. It is called only at
+	// the prompt, after every early check, and never stores anything.
+	SavedPin func() *secret.Text
 	// Factory builds the transport. Nil uses [DefaultTransportFactory].
 	Factory TransportFactory
 	// Sleeper waits between decoupled polls. Nil uses the dialog's default.
@@ -104,6 +108,9 @@ type Outcome struct {
 	// StrongSyncTAN is how the bank asked for the TAN in the strong sync:
 	// "", "typed" or "decoupled".
 	StrongSyncTAN string
+	// UsedSavedPin reports that the test used the PIN the user saved earlier
+	// instead of asking for it. The test still stored nothing.
+	UsedSavedPin bool
 	// Trace is the redacted trace of the exchanges, in memory only.
 	Trace []byte
 }
@@ -133,10 +140,11 @@ func (o Outcome) Format(f fmt.State, _ rune) {
 
 // Run performs one read-only probe against input's bank login.
 //
-// It validates the inputs through [fintsprobe.ParseInputs], asks for the PIN
-// with offerRemember false, builds the transport, records a redacted trace and
-// runs [fintsprobe.Probe]. It never stores a PIN, a TAN or the product id and
-// wipes the callers' secrets on every path.
+// It validates the inputs through [fintsprobe.ParseInputs], uses a PIN the user
+// saved earlier when input.SavedPin supplies one, else asks for it with
+// offerRemember false, builds the transport, records a redacted trace and runs
+// [fintsprobe.Probe]. It may use a PIN saved earlier, but still never stores a
+// PIN, a TAN or the product id, and wipes the callers' secrets on every path.
 func Run(ctx context.Context, input Input) Outcome {
 	defer input.ProductID.Wipe()
 
@@ -173,14 +181,22 @@ func Run(ctx context.Context, input Input) Outcome {
 		return Outcome{Kind: fintsprobe.NoGoOther, Other: OtherInvalidLogin}
 	}
 
-	entry := input.Interaction.Pin(input.BankName, input.UserID, false)
-	if entry == nil || entry.Pin() == nil || entry.IsEmpty() {
-		if entry != nil && entry.Pin() != nil {
-			entry.Pin().Wipe()
-		}
-		return Outcome{Kind: fintsprobe.NoGoOther, Other: OtherCancelled, Cancelled: true}
+	var pin *secret.Text
+	usedSavedPin := false
+	if input.SavedPin != nil {
+		pin = input.SavedPin()
+		usedSavedPin = pin != nil
 	}
-	pin := entry.Pin()
+	if pin == nil {
+		entry := input.Interaction.Pin(input.BankName, input.UserID, false)
+		if entry == nil || entry.Pin() == nil || entry.IsEmpty() {
+			if entry != nil && entry.Pin() != nil {
+				entry.Pin().Wipe()
+			}
+			return Outcome{Kind: fintsprobe.NoGoOther, Other: OtherCancelled, Cancelled: true}
+		}
+		pin = entry.Pin()
+	}
 	defer pin.Wipe()
 
 	factory := input.Factory
@@ -189,7 +205,11 @@ func Run(ctx context.Context, input Input) Outcome {
 	}
 	transport, err := factory(inputs.URL)
 	if err != nil || transport == nil {
-		return Outcome{Kind: fintsprobe.NoGoOther, Other: OtherTransport}
+		return Outcome{
+			Kind:         fintsprobe.NoGoOther,
+			Other:        OtherTransport,
+			UsedSavedPin: usedSavedPin,
+		}
 	}
 	collector := newMessageCollector(transport)
 	recorder := trace.NewRecorder(collector)
@@ -223,6 +243,7 @@ func Run(ctx context.Context, input Input) Outcome {
 		Cancelled:     adapter.wasCancelled(),
 		StrongSync:    result.Path == fintsprobe.ProbePathStrongSync,
 		StrongSyncTAN: result.StrongSyncTAN,
+		UsedSavedPin:  usedSavedPin,
 		Trace:         traceBytes.Bytes(),
 	}
 	if !outcome.Go {

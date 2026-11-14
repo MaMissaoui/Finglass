@@ -494,14 +494,26 @@ func (s *Session) BankingSubmitAddOnlineBank(
 
 // BankingSubmitConnection saves the connection dialog, as
 // banking::submit_connection does. An offline bank only gets a new name.
+// pinForgetAfter is optional; when present it must be "1" or "2".
 func (s *Session) BankingSubmitConnection(
 	bankID int,
 	name string,
 	blz string,
 	userID string,
 	serverURL string,
+	pinForgetAfter ...string,
 ) {
+	pinForgetAfterValue := ""
+	if len(pinForgetAfter) > 0 {
+		pinForgetAfterValue = pinForgetAfter[0]
+	}
 	s.mu.Lock()
+	if pinForgetAfterValue != "" && pinForgetAfterValue != "1" && pinForgetAfterValue != "2" {
+		s.accountsDialog.ErrorText = i18n.Text(s.language, i18n.ErrorUnexpected)
+		s.mu.Unlock()
+		s.notifyBankingAndAccounts()
+		return
+	}
 	if s.refuseBankingIfSyncingLocked() {
 		s.mu.Unlock()
 		s.notifyBanking()
@@ -544,7 +556,22 @@ func (s *Session) BankingSubmitConnection(
 		service *banksync.BankingService,
 		state *banking.BankingState,
 	) {
-		_ = state.UpdateConnection(ctx, database, service, id, name, blz, userID, serverURL)
+		previousOption := service.PinForgetAfter(ctx, database, id)
+		updateErr := state.UpdateConnection(ctx, database, service, id, name, blz, userID, serverURL)
+		if updateErr != nil || pinForgetAfterValue == "" {
+			return
+		}
+		if err := service.SavePinForgetAfter(
+			ctx,
+			database,
+			id,
+			pinForgetAfterValue,
+			previousOption,
+		); err != nil {
+			state.Message = nil
+			message := err.Error()
+			state.Error = &message
+		}
 	})
 	s.mu.Unlock()
 	s.startBankingJob(job)
@@ -932,17 +959,40 @@ func (s *Session) BankingTestConnection(bankID int) {
 		}
 
 		outcome := connectiontest.Run(ctx, connectiontest.Input{
-			BankName:       bankName,
-			BLZ:            blz,
-			UserID:         userID,
-			ServerURL:      serverURL,
-			ProductID:      productID,
-			Interaction:    bridge,
+			BankName:    bankName,
+			BLZ:         blz,
+			UserID:      userID,
+			ServerURL:   serverURL,
+			ProductID:   productID,
+			Interaction: bridge,
+			SavedPin: func() *secret.Text {
+				var saved *secret.Text
+				job.busy.Run(func() {
+					saved = service.StoredPinForTest(ctx, database, id)
+				})
+				return saved
+			},
 			Factory:        factory,
 			Today:          today,
 			ProductVersion: connectionTestProductVersion,
 			Language:       state.Language,
 		})
+		savedPinForgotten := false
+		savedPinRejectedOnce := false
+		if outcome.Go {
+			job.busy.Run(func() { service.ResetPinRejections(ctx, database, id) })
+		} else if outcome.UsedSavedPin {
+			failure := banksync.PinFailureFromCodes(
+				outcome.Codes,
+				outcome.Kind == fintsprobe.NoGoLoginRejected,
+			)
+			result := banksync.PinFailureIgnored
+			job.busy.Run(func() {
+				result = service.ApplyPinFailure(ctx, database, id, failure)
+			})
+			savedPinForgotten = result == banksync.PinFailureRemoved
+			savedPinRejectedOnce = result == banksync.PinFailureCounted
+		}
 		applySyncUnlock(ctx, database, service, &job.busy, id, blz, userID, serverURL, outcome)
 		if action := connectiontest.SyncUnlockActionFor(outcome); action != connectiontest.SyncUnlockUnchanged {
 			_ = state.Refresh(ctx, database, service)
@@ -960,15 +1010,18 @@ func (s *Session) BankingTestConnection(bankID int) {
 			HasTrace: len(outcome.Trace) > 0,
 		}
 		state.ConnectionTest = &banking.ConnectionTestResult{
-			BankID:        id,
-			Go:            outcome.Go,
-			Reason:        connectionTestReason(state.Language, outcome),
-			Codes:         append([]string(nil), outcome.Codes...),
-			Messages:      connectionTestMessages(outcome.Messages),
-			Probed:        outcome.Probed,
-			Skipped:       outcome.Skipped,
-			StrongSync:    outcome.StrongSync,
-			StrongSyncTAN: outcome.StrongSyncTAN,
+			BankID:               id,
+			Go:                   outcome.Go,
+			Reason:               connectionTestReason(state.Language, outcome),
+			Codes:                append([]string(nil), outcome.Codes...),
+			Messages:             connectionTestMessages(outcome.Messages),
+			Probed:               outcome.Probed,
+			Skipped:              outcome.Skipped,
+			StrongSync:           outcome.StrongSync,
+			StrongSyncTAN:        outcome.StrongSyncTAN,
+			UsedSavedPin:         outcome.UsedSavedPin,
+			SavedPinForgotten:    savedPinForgotten,
+			SavedPinRejectedOnce: savedPinRejectedOnce,
 		}
 	})
 	if job == nil {
@@ -1251,18 +1304,19 @@ func (s *Session) BankingOpenConnectionDialog(bankID int) {
 	}
 	syncing := s.banking.SyncingBank != nil && *s.banking.SyncingBank == bank.ID
 	s.accountsDialog = AccountsDialogState{
-		Kind:                "connection",
-		Title:               title,
-		AccountName:         bank.BankName,
-		BankID:              bankID,
-		Offline:             bank.Offline,
-		ConnectionName:      bank.BankName,
-		ConnectionBLZ:       bank.BLZ,
-		ConnectionUserID:    bank.UserID,
-		ConnectionServerURL: serverURL,
-		ConnectionHasPin:    bank.HasSavedPin,
-		ConnectionPinText:   pinText,
-		ConnectionSyncing:   syncing,
+		Kind:                     "connection",
+		Title:                    title,
+		AccountName:              bank.BankName,
+		BankID:                   bankID,
+		Offline:                  bank.Offline,
+		ConnectionName:           bank.BankName,
+		ConnectionBLZ:            bank.BLZ,
+		ConnectionUserID:         bank.UserID,
+		ConnectionServerURL:      serverURL,
+		ConnectionHasPin:         bank.HasSavedPin,
+		ConnectionPinText:        pinText,
+		ConnectionPinForgetAfter: bank.PinForgetAfter,
+		ConnectionSyncing:        syncing,
 	}
 	s.mu.Unlock()
 	s.notifyBankingAndAccounts()

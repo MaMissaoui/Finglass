@@ -520,6 +520,8 @@ function initialState(scenario: string): MockState {
     case 'accounts-test-connection-en-dark':
     case 'accounts-test-connection-nogo-en-light':
     case 'accounts-test-connection-nogo-en-dark':
+    case 'accounts-test-saved-pin':
+    case 'accounts-test-saved-pin-rejected-de':
     case 'banking-walkthrough':
       openShell(state);
       state.theme =
@@ -538,7 +540,8 @@ function initialState(scenario: string): MockState {
         scenario === 'accounts-de-dark' ||
         scenario === 'accounts-detail-flat-de' ||
         scenario === 'accounts-add-online-bank-no-match-de-dark' ||
-        scenario === 'accounts-bank-menu-de-dark'
+        scenario === 'accounts-bank-menu-de-dark' ||
+        scenario === 'accounts-test-saved-pin-rejected-de'
           ? 'de'
           : 'en';
       state.sidebarCollapsed = scenario === 'shell-collapsed' || scenario === 'shell-de-dark';
@@ -659,6 +662,7 @@ export function createMockApi(scenario = scenarioName()): Api {
         connectionServerUrl: dialog.serverUrl,
         connectionHasPin: dialog.hasPin,
         connectionPinText: dialog.pinText,
+        connectionPinForgetAfter: dialog.pinForgetAfter,
         connectionSyncing: dialog.syncing,
       });
     },
@@ -1277,8 +1281,11 @@ export function createMockApi(scenario = scenarioName()): Api {
       blz: string,
       userID: string,
       serverURL: string,
+      pinForgetAfter: string,
     ) {
-      return Promise.resolve(banking.submitConnection(bankID, name, blz, userID, serverURL));
+      return Promise.resolve(
+        banking.submitConnection(bankID, name, blz, userID, serverURL, pinForgetAfter),
+      );
     },
     bankingForgetPin(bankID: number) {
       return Promise.resolve(banking.forgetPin(bankID));

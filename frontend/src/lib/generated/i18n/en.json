@@ -907,5 +907,12 @@
   "SyncLockedHint": "Sync is locked until Test connection returns GO.",
   "SyncAllSkippedLocked": "%d {1:bank was|banks were} skipped because {1:its|their} last Test connection was not GO: %s. Run Test connection first.",
   "SyncAllNothingReady": "No bank in Sync all is ready yet. Run Test connection first.",
-  "TestConnectionStrongSyncNoUnlock": "Sync stays locked for now: it can't register again with a TAN yet."
+  "TestConnectionStrongSyncNoUnlock": "Sync stays locked for now: it can't register again with a TAN yet.",
+  "PinForgetAfterLabel": "Remove the saved PIN after",
+  "PinForgetAfterFirst": "the first rejection",
+  "PinForgetAfterSecond": "the second rejection",
+  "PinForgetAfterHint": "A wrong-PIN answer always removes it at once. Banks usually lock the login after three wrong PINs, so two leave you one try.",
+  "TestConnectionUsedSavedPin": "Used the saved PIN.",
+  "TestConnectionSavedPinRejectedOnce": "The bank rejected the saved PIN. It is kept for one more try; check it in Connection settings.",
+  "TestConnectionSavedPinForgotten": "The bank rejected the saved PIN, so it was removed. You'll be asked for it next time."
 }

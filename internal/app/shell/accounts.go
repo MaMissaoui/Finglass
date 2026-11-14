@@ -56,6 +56,9 @@ type AccountsDialogState struct {
 	ConnectionHasPin bool
 	// ConnectionPinText explains the remembered-PIN state.
 	ConnectionPinText string
+	// ConnectionPinForgetAfter is the stored-PIN removal option: "1" after the
+	// first rejection, "2" after the second.
+	ConnectionPinForgetAfter string
 	// ConnectionSyncing says whether this bank is syncing now.
 	ConnectionSyncing bool
 	// HistoryDate is the history-from dialog's date field.

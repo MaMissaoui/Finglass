@@ -916,10 +916,17 @@ const (
 	SyncAllSkippedLocked
 	SyncAllNothingReady
 	TestConnectionStrongSyncNoUnlock
+	PinForgetAfterLabel
+	PinForgetAfterFirst
+	PinForgetAfterSecond
+	PinForgetAfterHint
+	TestConnectionUsedSavedPin
+	TestConnectionSavedPinRejectedOnce
+	TestConnectionSavedPinForgotten
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 909
+const NumKeys = 916
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1832,6 +1839,13 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	SyncAllSkippedLocked:                "SyncAllSkippedLocked",
 	SyncAllNothingReady:                 "SyncAllNothingReady",
 	TestConnectionStrongSyncNoUnlock:    "TestConnectionStrongSyncNoUnlock",
+	PinForgetAfterLabel:                 "PinForgetAfterLabel",
+	PinForgetAfterFirst:                 "PinForgetAfterFirst",
+	PinForgetAfterSecond:                "PinForgetAfterSecond",
+	PinForgetAfterHint:                  "PinForgetAfterHint",
+	TestConnectionUsedSavedPin:          "TestConnectionUsedSavedPin",
+	TestConnectionSavedPinRejectedOnce:  "TestConnectionSavedPinRejectedOnce",
+	TestConnectionSavedPinForgotten:     "TestConnectionSavedPinForgotten",
 }
 
 // keysByName is built from keyNames, so the two cannot drift apart.

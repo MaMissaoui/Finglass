@@ -54,6 +54,7 @@ type fakeTransport struct {
 	expected [][]string
 	replies  []fakeReply
 	records  [][]string
+	requests [][]byte
 }
 
 func newFakeTransport(t *testing.T) *fakeTransport {
@@ -75,6 +76,7 @@ func (f *fakeTransport) Exchange(_ context.Context, request []byte) ([]byte, err
 	if err != nil {
 		f.t.Fatalf("inspect request: %v", err)
 	}
+	f.requests = append(f.requests, append([]byte(nil), request...))
 	call := len(f.records)
 	f.records = append(f.records, types)
 
@@ -538,6 +540,123 @@ func TestRunGoProbesOneAccountAndSkipsTheDepot(t *testing.T) {
 	}
 	if interaction.pinBanks[0] != "Invented Bank" || interaction.pinUsers[0] != testUser {
 		t.Fatalf("pin prompt bank/user = %q/%q", interaction.pinBanks[0], interaction.pinUsers[0])
+	}
+}
+
+func TestRunUsesASavedPinWithoutPrompting(t *testing.T) {
+	const savedPIN = "saved-pin-2468"
+	interaction := &fakeInteraction{pin: testPIN}
+	bank := depotGoBank(t)
+	input := newInput(t, interaction, factoryFor(bank))
+	input.SavedPin = func() *secret.Text { return secret.NewText([]byte(savedPIN)) }
+
+	outcome := Run(context.Background(), input)
+
+	if !outcome.Go {
+		t.Fatalf("outcome = %s, want GO", outcome)
+	}
+	if !outcome.UsedSavedPin {
+		t.Fatal("UsedSavedPin = false")
+	}
+	if len(interaction.remember) != 0 {
+		t.Fatalf("the PIN prompt ran %d times, want 0", len(interaction.remember))
+	}
+	found := false
+	for _, request := range bank.requests {
+		if bytes.Contains(request, []byte(savedPIN)) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("the fake bank never received the saved PIN")
+	}
+}
+
+func TestRunSavedPinNilFallsBackToThePrompt(t *testing.T) {
+	interaction := &fakeInteraction{pin: testPIN}
+	input := newInput(t, interaction, factoryFor(depotGoBank(t)))
+	input.SavedPin = func() *secret.Text { return nil }
+
+	outcome := Run(context.Background(), input)
+
+	if !outcome.Go {
+		t.Fatalf("outcome = %s, want GO", outcome)
+	}
+	if outcome.UsedSavedPin {
+		t.Fatal("UsedSavedPin = true")
+	}
+	if len(interaction.remember) != 1 || interaction.remember[0] {
+		t.Fatalf("offerRemember = %v, want one false", interaction.remember)
+	}
+}
+
+func TestRunEarlyExitsNeverCallSavedPin(t *testing.T) {
+	tests := []struct {
+		name  string
+		input func(t *testing.T) Input
+	}{
+		{
+			name: "invalid login",
+			input: func(t *testing.T) Input {
+				input := newInput(t, &fakeInteraction{pin: testPIN}, func(string) (fints.Transport, error) {
+					t.Fatal("the transport was built")
+					return nil, nil
+				})
+				input.BLZ = ""
+				return input
+			},
+		},
+		{
+			name: "missing product id",
+			input: func(t *testing.T) Input {
+				input := newInput(t, &fakeInteraction{pin: testPIN}, func(string) (fints.Transport, error) {
+					t.Fatal("the transport was built")
+					return nil, nil
+				})
+				input.ProductID = nil
+				return input
+			},
+		},
+		{
+			name: "invalid product id",
+			input: func(t *testing.T) Input {
+				input := newInput(t, &fakeInteraction{pin: testPIN}, func(string) (fints.Transport, error) {
+					t.Fatal("the transport was built")
+					return nil, nil
+				})
+				input.ProductID = secret.NewText([]byte("bad product id"))
+				return input
+			},
+		},
+		{
+			name: "no interaction",
+			input: func(t *testing.T) Input {
+				input := newInput(t, &fakeInteraction{pin: testPIN}, func(string) (fints.Transport, error) {
+					t.Fatal("the transport was built")
+					return nil, nil
+				})
+				input.Interaction = nil
+				return input
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			calls := 0
+			input := test.input(t)
+			input.SavedPin = func() *secret.Text {
+				calls++
+				return secret.NewText([]byte("saved-pin"))
+			}
+			outcome := Run(context.Background(), input)
+			if outcome.Go {
+				t.Fatalf("outcome = %s, want NO-GO", outcome)
+			}
+			if calls != 0 {
+				t.Fatalf("SavedPin calls = %d, want 0", calls)
+			}
+		})
 	}
 }
 

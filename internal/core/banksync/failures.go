@@ -24,6 +24,9 @@ const (
 	CodePinSaved = "PIN_SAVED"
 	// CodePinForgotten means the remembered PIN was forgotten.
 	CodePinForgotten = "PIN_FORGOTTEN"
+	// CodePinForgetAfter is the audit action for changing a bank's stored-PIN
+	// removal option.
+	CodePinForgetAfter = "PIN_FORGET_AFTER"
 	// CodeSyncFailed means an internal operation failed during a sync.
 	CodeSyncFailed = "SYNC_FAILED"
 	// CodeFintsError means the bank's dialog failed.
@@ -73,10 +76,11 @@ const (
 //
 // The zero value is a network failure; build one with the New functions.
 type GatewayError struct {
-	kind       GatewayErrorKind
-	httpStatus uint16
-	codes      []string
-	text       string
+	kind        GatewayErrorKind
+	httpStatus  uint16
+	codes       []string
+	text        string
+	pinRejected bool
 }
 
 // NewGatewayNetworkError builds the "server could not be reached" failure.
@@ -95,9 +99,19 @@ func NewGatewayBankError(codes []string) GatewayError {
 	return GatewayError{kind: GatewayErrorBank, codes: append([]string(nil), codes...)}
 }
 
+// NewGatewayPINRejectedBankError builds a bank-code failure that came from a
+// dialog's PIN-rejected answer whose codes are not in fints's explicit list.
+func NewGatewayPINRejectedBankError(codes []string) GatewayError {
+	return GatewayError{
+		kind:        GatewayErrorBank,
+		codes:       append([]string(nil), codes...),
+		pinRejected: true,
+	}
+}
+
 // NewGatewayPinRejectedError builds the "bank rejected the PIN" failure.
 func NewGatewayPinRejectedError() GatewayError {
-	return GatewayError{kind: GatewayErrorPinRejected}
+	return GatewayError{kind: GatewayErrorPinRejected, pinRejected: true}
 }
 
 // NewGatewayCancelledError builds the "user cancelled a prompt" failure.
@@ -142,6 +156,13 @@ func (e GatewayError) Codes() []string {
 		return []string{}
 	}
 	return append([]string{}, e.codes...)
+}
+
+// PINRejectedKind reports whether the failure came from a dialog answer that
+// the bank marked as a PIN rejection, including answers whose codes are not in
+// fints's explicit list.
+func (e GatewayError) PINRejectedKind() bool {
+	return e.pinRejected
 }
 
 // Describe returns a short message for a failed dialog, as FinDesk builds it.

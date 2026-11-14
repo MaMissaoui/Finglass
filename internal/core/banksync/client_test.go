@@ -203,21 +203,20 @@ func TestCancellingTheRePromptAfterARejectedStoredPinForgetsIt(t *testing.T) {
 	}
 }
 
-func TestADialogFailureAfterAStoredPinWasUsedForgetsIt(t *testing.T) {
+func TestANetworkFailureAfterAStoredPinWasUsedKeepsIt(t *testing.T) {
 	h := newHarness(t)
 	storePin(t, h)
-	failure := NewGatewayOtherError("connection lost")
+	failure := NewGatewayNetworkError()
 	h.gateway.setFailure(gatewayFailure(failure))
 
 	_, err := h.sync(t, newScriptedInteraction(stringPointer("12345"), false))
 	if err == nil || bankingCode(err) != CodeFintsError {
 		t.Fatalf("error = %v, want code FINTS_ERROR", err)
 	}
-	if !h.store.IsEmpty() {
-		t.Fatal("a re-prompt is cheap, a locked login is not")
-	}
-	if h.service.HasSavedPin(context.Background(), h.db, h.bank) {
-		t.Fatal("has saved pin = true")
+	key := PinKey(h.dataDir, int64(h.bank))
+	assertString(t, mustReadStore(t, h.store, key), "12345")
+	if !h.service.HasSavedPin(context.Background(), h.db, h.bank) {
+		t.Fatal("a network failure forgot the stored PIN")
 	}
 }
 

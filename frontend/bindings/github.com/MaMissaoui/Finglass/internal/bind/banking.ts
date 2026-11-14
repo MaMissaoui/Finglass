@@ -266,8 +266,8 @@ export function SubmitAddOnlineBank(name: string, blz: string, bic: string, user
 /**
  * SubmitConnection saves the connection dialog.
  */
-export function SubmitConnection(bankID: number, name: string, blz: string, userID: string, serverURL: string): $CancellablePromise<$models.BankingDTO> {
-    return $Call.ByID(1729665352, bankID, name, blz, userID, serverURL).then(($result: any) => {
+export function SubmitConnection(bankID: number, name: string, blz: string, userID: string, serverURL: string, pinForgetAfter: string): $CancellablePromise<$models.BankingDTO> {
+    return $Call.ByID(1729665352, bankID, name, blz, userID, serverURL, pinForgetAfter).then(($result: any) => {
         return $$createType1($result);
     });
 }

@@ -86,16 +86,19 @@ type BankingBankDTO struct {
 // trace bytes or the product id; it carries the bank's warning/error texts for
 // display only.
 type ConnectionTestDTO struct {
-	BankID        int              `json:"bankId"`
-	Running       bool             `json:"running"`
-	Go            bool             `json:"go"`
-	Reason        string           `json:"reason"`
-	Codes         []string         `json:"codes"`
-	Messages      []BankMessageDTO `json:"messages"`
-	Probed        int              `json:"probed"`
-	Skipped       int              `json:"skipped"`
-	StrongSync    bool             `json:"strongSync"`
-	StrongSyncTAN string           `json:"strongSyncTAN"`
+	BankID               int              `json:"bankId"`
+	Running              bool             `json:"running"`
+	Go                   bool             `json:"go"`
+	Reason               string           `json:"reason"`
+	Codes                []string         `json:"codes"`
+	Messages             []BankMessageDTO `json:"messages"`
+	Probed               int              `json:"probed"`
+	Skipped              int              `json:"skipped"`
+	StrongSync           bool             `json:"strongSync"`
+	StrongSyncTAN        string           `json:"strongSyncTAN"`
+	UsedSavedPin         bool             `json:"usedSavedPin"`
+	SavedPinForgotten    bool             `json:"savedPinForgotten"`
+	SavedPinRejectedOnce bool             `json:"savedPinRejectedOnce"`
 }
 
 // BankMessageDTO is one warning or error the bank returned during the test.
@@ -279,9 +282,9 @@ func (b *Banking) BankBLZChanged(name string, blz string, bic string) (AddBankFi
 }
 
 // SubmitConnection saves the connection dialog.
-func (b *Banking) SubmitConnection(bankID int, name string, blz string, userID string, serverURL string) (BankingDTO, error) {
+func (b *Banking) SubmitConnection(bankID int, name string, blz string, userID string, serverURL string, pinForgetAfter string) (BankingDTO, error) {
 	return b.action(func() {
-		b.session.BankingSubmitConnection(bankID, name, blz, userID, serverURL)
+		b.session.BankingSubmitConnection(bankID, name, blz, userID, serverURL, pinForgetAfter)
 	})
 }
 
@@ -560,16 +563,19 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 			})
 		}
 		dto.ConnectionTest = &ConnectionTestDTO{
-			BankID:        int(state.ConnectionTest.BankID),
-			Running:       state.ConnectionTest.Running,
-			Go:            state.ConnectionTest.Go,
-			Reason:        state.ConnectionTest.Reason,
-			Codes:         append([]string(nil), state.ConnectionTest.Codes...),
-			Messages:      messages,
-			Probed:        state.ConnectionTest.Probed,
-			Skipped:       state.ConnectionTest.Skipped,
-			StrongSync:    state.ConnectionTest.StrongSync,
-			StrongSyncTAN: state.ConnectionTest.StrongSyncTAN,
+			BankID:               int(state.ConnectionTest.BankID),
+			Running:              state.ConnectionTest.Running,
+			Go:                   state.ConnectionTest.Go,
+			Reason:               state.ConnectionTest.Reason,
+			Codes:                append([]string(nil), state.ConnectionTest.Codes...),
+			Messages:             messages,
+			Probed:               state.ConnectionTest.Probed,
+			Skipped:              state.ConnectionTest.Skipped,
+			StrongSync:           state.ConnectionTest.StrongSync,
+			StrongSyncTAN:        state.ConnectionTest.StrongSyncTAN,
+			UsedSavedPin:         state.ConnectionTest.UsedSavedPin,
+			SavedPinForgotten:    state.ConnectionTest.SavedPinForgotten,
+			SavedPinRejectedOnce: state.ConnectionTest.SavedPinRejectedOnce,
 		}
 	}
 	if state.LastTrace != nil {

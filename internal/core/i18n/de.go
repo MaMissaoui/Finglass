@@ -911,4 +911,11 @@ var deTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	SyncAllSkippedLocked:                "%d {1:Bank wurde|Banken wurden} übersprungen, weil der letzte Verbindungstest nicht GO war: %s. Führen Sie zuerst den Verbindungstest aus.",
 	SyncAllNothingReady:                 "Keine Bank in „Alle synchronisieren“ ist bereit. Führen Sie zuerst den Verbindungstest aus.",
 	TestConnectionStrongSyncNoUnlock:    "Die Synchronisierung bleibt vorerst gesperrt: Sie kann sich noch nicht erneut mit TAN anmelden.",
+	PinForgetAfterLabel:                 "Gespeicherte PIN löschen nach",
+	PinForgetAfterFirst:                 "der ersten Ablehnung",
+	PinForgetAfterSecond:                "der zweiten Ablehnung",
+	PinForgetAfterHint:                  "Eine Antwort „PIN falsch“ löscht sie immer sofort. Banken sperren den Zugang meist nach drei falschen PINs; nach zwei bleibt Ihnen ein Versuch.",
+	TestConnectionUsedSavedPin:          "Gespeicherte PIN verwendet.",
+	TestConnectionSavedPinRejectedOnce:  "Die Bank hat die gespeicherte PIN abgelehnt. Sie bleibt für einen weiteren Versuch gespeichert; prüfen Sie sie in den Verbindungseinstellungen.",
+	TestConnectionSavedPinForgotten:     "Die Bank hat die gespeicherte PIN abgelehnt; sie wurde gelöscht. Beim nächsten Mal werden Sie danach gefragt.",
 }

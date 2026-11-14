@@ -910,6 +910,13 @@ export const keys = [
   'SyncAllSkippedLocked',
   'SyncAllNothingReady',
   'TestConnectionStrongSyncNoUnlock',
+  'PinForgetAfterLabel',
+  'PinForgetAfterFirst',
+  'PinForgetAfterSecond',
+  'PinForgetAfterHint',
+  'TestConnectionUsedSavedPin',
+  'TestConnectionSavedPinRejectedOnce',
+  'TestConnectionSavedPinForgotten',
 ] as const;
 
 export type Key = (typeof keys)[number];

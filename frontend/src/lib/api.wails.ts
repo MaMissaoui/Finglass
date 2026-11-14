@@ -315,8 +315,9 @@ export function createWailsApi(): Api {
       blz: string,
       userID: string,
       serverURL: string,
+      pinForgetAfter: string,
     ) {
-      return Banking.SubmitConnection(bankID, name, blz, userID, serverURL);
+      return Banking.SubmitConnection(bankID, name, blz, userID, serverURL, pinForgetAfter);
     },
     bankingForgetPin(bankID: number) {
       return Banking.ForgetPin(bankID);
