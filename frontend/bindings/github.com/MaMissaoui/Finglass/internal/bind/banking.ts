@@ -38,6 +38,15 @@ export function AnswerPin(id: number, pin: string, remember: boolean): $Cancella
 }
 
 /**
+ * AnswerProductID answers the product-id prompt with id. The value is converted
+ * once to a byte slice, handed to the bridge, and wiped on every path; it is
+ * never stored or returned.
+ */
+export function AnswerProductID(id: number, value: string): $CancellablePromise<void> {
+    return $Call.ByID(3253277668, id, value);
+}
+
+/**
  * AnswerTan answers the TAN prompt with id. The TAN is converted once to a byte
  * slice, handed to the bridge, and wiped on every path; it is never stored.
  */
@@ -193,6 +202,15 @@ export function Refresh(): $CancellablePromise<$models.BankingDTO> {
 }
 
 /**
+ * SaveConnectionTrace asks where to save the last redacted connection trace.
+ */
+export function SaveConnectionTrace(): $CancellablePromise<$models.BankingDTO> {
+    return $Call.ByID(1244954090).then(($result: any) => {
+        return $$createType1($result);
+    });
+}
+
+/**
  * SearchBanks re-runs the in-memory bank search for the dialog's current query,
  * as Rust's update_bank_search does.
  */
@@ -261,6 +279,15 @@ export function SubmitConnection(bankID: number, name: string, blz: string, user
  */
 export function SubmitHistory(bankID: number, date: string): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(3550999016, bankID, date).then(($result: any) => {
+        return $$createType1($result);
+    });
+}
+
+/**
+ * TestConnection runs the read-only connection test for one bank.
+ */
+export function TestConnection(bankID: number): $CancellablePromise<$models.BankingDTO> {
+    return $Call.ByID(506250892, bankID).then(($result: any) => {
         return $$createType1($result);
     });
 }

@@ -47,6 +47,12 @@ type fakeFileDialogs struct {
 	fileCalls       int
 	onFile          func()
 
+	tracePath   string
+	traceResult bool
+	traceTitle  string
+	traceName   string
+	traceCalls  int
+
 	rulesPath   string
 	rulesResult bool
 	rulesTitle  string
@@ -126,6 +132,15 @@ func (f *fakeFileDialogs) SaveFile(title i18n.Key, defaultName string) (string, 
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return f.filePath, f.fileResult
+}
+
+func (f *fakeFileDialogs) SaveTrace(title string, defaultName string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.traceTitle = title
+	f.traceName = defaultName
+	f.traceCalls++
+	return f.tracePath, f.traceResult
 }
 
 func (f *fakeFileDialogs) counts() (statements int, receipts int, saves int) {

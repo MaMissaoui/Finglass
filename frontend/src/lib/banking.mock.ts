@@ -446,6 +446,7 @@ export function createMockBanking(
       syncEnabled: onlineSyncAvailable && !isSyncing(),
       syncTooltip: onlineSyncAvailable ? '' : t('OnlineSyncNotYetAvailable'),
       pinText: pinText(bank),
+      canTestConnection: !bank.offline && bank.serverUrl.trim() !== '',
       menu: bankMenu(bank),
     };
   }
@@ -489,6 +490,7 @@ export function createMockBanking(
       canRememberPin,
       onlineSyncNote: !onlineSyncAvailable && hasOnlineBank() ? t('OnlineSyncNotYetAvailable') : '',
       banks: banksForCard(),
+      connectionTest: null,
       infoText,
     };
   }

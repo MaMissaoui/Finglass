@@ -27,6 +27,9 @@ type FileDialogs interface {
 	// i18n key of the dialog title; defaultName is the suggested file name. The
 	// boolean is false when the user cancelled.
 	SaveFile(title i18n.Key, defaultName string) (string, bool)
+	// SaveTrace asks where to write the redacted connection trace. The boolean
+	// is false when the user cancelled.
+	SaveTrace(title string, defaultName string) (string, bool)
 	// SaveRules asks where to write the rule export. The boolean is false when
 	// the user cancelled.
 	SaveRules(title string, defaultName string) (string, bool)

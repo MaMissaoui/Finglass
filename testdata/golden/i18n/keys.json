@@ -1364,6 +1364,11 @@
     "de": "Bankverbindung %d nicht gefunden",
     "fr": "Connexion bancaire %d introuvable"
   },
+  "ErrorConnectionTrace": {
+    "en": "The redacted trace could not be saved.",
+    "de": "Der verschleierte Verlauf konnte nicht gespeichert werden.",
+    "fr": "La trace expurgée n'a pas pu être enregistrée."
+  },
   "ErrorCsvExportFailed": {
     "en": "CSV export failed",
     "de": "CSV-Export fehlgeschlagen",
@@ -1493,6 +1498,11 @@
     "en": "Name is required",
     "de": "Name ist erforderlich",
     "fr": "Le nom est requis"
+  },
+  "ErrorNoConnectionTrace": {
+    "en": "No trace is available yet.",
+    "de": "Es ist noch kein Verlauf verfügbar.",
+    "fr": "Aucune trace n'est encore disponible."
   },
   "ErrorNoFintsServer": {
     "en": "No FinTS server known for BLZ %s. Enter the bank's FinTS URL.",
@@ -2233,6 +2243,11 @@
     "en": "Connection settings saved",
     "de": "Verbindungseinstellungen gespeichert",
     "fr": "Paramètres de connexion enregistrés"
+  },
+  "MessageConnectionTraceSaved": {
+    "en": "The redacted trace was saved.",
+    "de": "Der verschleierte Verlauf wurde gespeichert.",
+    "fr": "La trace expurgée a été enregistrée."
   },
   "MessageDefaultCategoriesAdded": {
     "en": "%d default categories added",
@@ -3174,6 +3189,21 @@
     "de": "Priorität muss eine ganze Zahl sein",
     "fr": "La priorité doit être un nombre entier"
   },
+  "ProductIDPromptLabel": {
+    "en": "Product id",
+    "de": "Produkt-ID",
+    "fr": "Identifiant de produit"
+  },
+  "ProductIDPromptText": {
+    "en": "Enter the FinTS product registration id. It is used only for this test and is not stored.",
+    "de": "Geben Sie die FinTS-Produktregistrierungs-ID ein. Sie wird nur für diesen Test verwendet und nicht gespeichert.",
+    "fr": "Saisissez l'identifiant d'enregistrement du produit FinTS. Il sert uniquement à ce test et n'est pas stocké."
+  },
+  "ProductIDPromptTitle": {
+    "en": "FinTS product id",
+    "de": "FinTS-Produkt-ID",
+    "fr": "Identifiant de produit FinTS"
+  },
   "ProfileName": {
     "en": "Profile name",
     "de": "Profilname",
@@ -3608,6 +3638,11 @@
     "en": "Save backup",
     "de": "Sicherung speichern",
     "fr": "Enregistrer la sauvegarde"
+  },
+  "SaveConnectionTrace": {
+    "en": "Save redacted trace…",
+    "de": "Verschleierten Verlauf speichern…",
+    "fr": "Enregistrer la trace expurgée…"
   },
   "SearchDocuments": {
     "en": "Search documents by name or text content…",
@@ -4118,6 +4153,66 @@
     "en": "Tesseract not found. Install with: brew install tesseract tesseract-lang",
     "de": "Tesseract nicht gefunden. Installation: brew install tesseract tesseract-lang",
     "fr": "Tesseract introuvable. Installation : brew install tesseract tesseract-lang"
+  },
+  "TestConnection": {
+    "en": "Test connection",
+    "de": "Verbindung testen",
+    "fr": "Tester la connexion"
+  },
+  "TestConnectionCancelled": {
+    "en": "Connection test cancelled.",
+    "de": "Verbindungstest abgebrochen.",
+    "fr": "Test de connexion annulé."
+  },
+  "TestConnectionGo": {
+    "en": "Connection works.",
+    "de": "Die Verbindung funktioniert.",
+    "fr": "La connexion fonctionne."
+  },
+  "TestConnectionHelp": {
+    "en": "Runs a read-only check against your bank. Nothing is imported. Your bank may ask you to approve a new device.",
+    "de": "Führt eine schreibgeschützte Prüfung bei Ihrer Bank aus. Es wird nichts importiert. Ihre Bank kann Sie bitten, ein neues Gerät zu bestätigen.",
+    "fr": "Effectue une vérification en lecture seule auprès de votre banque. Rien n'est importé. Votre banque peut vous demander d'approuver un nouvel appareil."
+  },
+  "TestConnectionInvalidLogin": {
+    "en": "The login data is invalid.",
+    "de": "Die Anmeldedaten sind ungültig.",
+    "fr": "Les identifiants sont invalides."
+  },
+  "TestConnectionLoginRejected": {
+    "en": "The bank rejected the login.",
+    "de": "Die Bank hat die Anmeldung abgelehnt.",
+    "fr": "La banque a refusé la connexion."
+  },
+  "TestConnectionOther": {
+    "en": "The test failed: %s",
+    "de": "Der Test ist fehlgeschlagen: %s",
+    "fr": "Le test a échoué : %s"
+  },
+  "TestConnectionProductID": {
+    "en": "The FinTS product id is missing or invalid.",
+    "de": "Die FinTS-Produkt-ID fehlt oder ist ungültig.",
+    "fr": "L'identifiant de produit FinTS est manquant ou invalide."
+  },
+  "TestConnectionRunning": {
+    "en": "Testing connection…",
+    "de": "Verbindung wird getestet…",
+    "fr": "Test de la connexion…"
+  },
+  "TestConnectionStatementsUnavailable": {
+    "en": "The bank did not provide statements.",
+    "de": "Die Bank hat keine Kontoauszüge bereitgestellt.",
+    "fr": "La banque n'a pas fourni de relevés."
+  },
+  "TestConnectionTanMethodUnsupported": {
+    "en": "The bank's TAN method is not supported. Choose pushTAN in your bank settings.",
+    "de": "Die TAN-Methode der Bank wird nicht unterstützt. Wählen Sie pushTAN in Ihren Bankeinstellungen.",
+    "fr": "La méthode TAN de la banque n'est pas prise en charge. Choisissez pushTAN dans les réglages de votre banque."
+  },
+  "TestConnectionTanTimeout": {
+    "en": "The TAN confirmation timed out.",
+    "de": "Die TAN-Bestätigung ist abgelaufen.",
+    "fr": "La confirmation TAN a expiré."
   },
   "TextExtracted": {
     "en": "Text extracted",

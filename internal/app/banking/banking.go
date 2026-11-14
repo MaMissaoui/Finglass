@@ -80,6 +80,30 @@ type BankItem struct {
 	LastSync *time.Time
 	// HasSavedPin says whether a PIN is remembered for this login.
 	HasSavedPin bool
+	// CanTestConnection says whether the bank has a server URL, so the
+	// read-only connection test can run.
+	CanTestConnection bool
+}
+
+// ConnectionTestResult is the latest read-only connection test, as the Banking
+// page shows it. It never carries bank text or trace bytes.
+type ConnectionTestResult struct {
+	// BankID is the bank the test ran for.
+	BankID model.BankConnectionID
+	// Running says whether the test is still running.
+	Running bool
+	// Go is the probe's GO/NO-GO decision.
+	Go bool
+	// Reason is the localized reason.
+	Reason string
+	// Codes are the bank's four-digit return codes.
+	Codes []string
+	// Probed is the number of accounts the probe attempted.
+	Probed int
+	// Skipped is the number of accounts the probe skipped.
+	Skipped int
+	// HasTrace says whether a redacted trace is in memory.
+	HasTrace bool
 }
 
 // BankingState is the bank-login state: validation, connection editing, PIN
@@ -105,6 +129,8 @@ type BankingState struct {
 	// CanRememberPin says whether the system offers a credential store, so the
 	// UI may offer to remember a PIN.
 	CanRememberPin bool
+	// ConnectionTest is the latest read-only connection test, if any.
+	ConnectionTest *ConnectionTestResult
 }
 
 // New builds empty state for language.
@@ -139,6 +165,11 @@ func (s *BankingState) Clone() *BankingState {
 		value := *s.SyncAll
 		cloned.SyncAll = &value
 	}
+	if s.ConnectionTest != nil {
+		value := *s.ConnectionTest
+		value.Codes = append([]string(nil), s.ConnectionTest.Codes...)
+		cloned.ConnectionTest = &value
+	}
 	cloned.Banks = make([]BankItem, len(s.Banks))
 	for index, bank := range s.Banks {
 		copied := bank
@@ -153,6 +184,16 @@ func (s *BankingState) Clone() *BankingState {
 // IsSyncing reports whether a single sync or "Sync all" is running.
 func (s *BankingState) IsSyncing() bool {
 	return s.SyncingBank != nil || s.SyncAll != nil
+}
+
+// IsTesting reports whether a read-only connection test is running.
+func (s *BankingState) IsTesting() bool {
+	return s.ConnectionTest != nil && s.ConnectionTest.Running
+}
+
+// IsBusy reports whether a sync or a connection test is running.
+func (s *BankingState) IsBusy() bool {
+	return s.IsSyncing() || s.IsTesting()
 }
 
 // Load reloads the bank list, the remembered-PIN flags and the credential-store
@@ -185,6 +226,8 @@ func (s *BankingState) Refresh(ctx context.Context, database *db.Database, servi
 			SyncFrom:         cloneDate(bank.SyncFrom),
 			LastSync:         cloneTime(bank.LastSync),
 			HasSavedPin:      !bank.Offline && service.HasSavedPin(ctx, database, bank.ID),
+			CanTestConnection: bank.ServerURL != nil &&
+				strings.TrimSpace(*bank.ServerURL) != "",
 		})
 	}
 	s.Banks = items

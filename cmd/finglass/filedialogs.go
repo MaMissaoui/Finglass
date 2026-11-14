@@ -107,6 +107,22 @@ func (d *wailsFileDialogs) SaveFile(title i18n.Key, defaultName string) (string,
 	return path, true
 }
 
+// SaveTrace asks where to write the redacted connection trace.
+func (d *wailsFileDialogs) SaveTrace(title string, defaultName string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	path, err := d.app.Dialog.SaveFile().
+		SetFilename(defaultName).
+		AddFilter(title, "*.txt").
+		AttachToWindow(d.window).
+		PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
+}
+
 // SaveRules asks where to write the rule export.
 func (d *wailsFileDialogs) SaveRules(title string, defaultName string) (string, bool) {
 	if d == nil || d.app == nil {

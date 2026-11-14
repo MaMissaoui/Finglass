@@ -41,6 +41,7 @@ export {
     BankingBankDTO,
     BankingDTO,
     BankingPromptChoiceDTO,
+    ConnectionTestDTO,
     DashboardBudgetRowDTO,
     DashboardCategoryRowDTO,
     DashboardDTO,
