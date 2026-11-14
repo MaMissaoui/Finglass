@@ -81,6 +81,7 @@ Results of your Test connection runs (2026-11-14):
   push to the HVB app; after approval the app shows a 6-digit TAN, but the bank's response carried no HITAN, so
   Finglass could not ask for it. FinDesk, with a known system id, gets 3076. The bank's message text (now on screen)
   is the next clue.
+  - [x] Test connection retries the login once with the same system id after you approve in the HVB app (memory only)
 - **DKB (12030000): NO-GO.** 9078 with 3079 and 9800: most likely the product registration from 2026-11-13 has not
   reached DKB yet. Retry in a few days.
 
@@ -90,6 +91,8 @@ the newest supported HKTAN version, and names kept out of traces.
 - [ ] **You:** run Test connection for HVB again and send the 9210 text shown in the panel.
 - [ ] HVB login: fix based on the bank's message. Note that a real sync also syncs a new system id on every attempt
   until one login succeeds (the TAN method is stored only after a success), so HVB sees a new device each time.
+- [ ] Sync: the gateway's retry with Sync (`retryableInitError`) gets a new system id from HVB each time, so every
+  attempt triggers a fresh approval; fix once Test connection shows which mechanism works.
 - [ ] **You:** retry DKB once the registration has propagated.
 - [ ] Before `OnlineSyncAvailable` flips (after HVB's GO): check the adapter's one retry with Sync against the codes
   seen. It retries every Init error except the PIN codes (9340, 9910, 9930, 9931, 9942) and a locked account (3938);

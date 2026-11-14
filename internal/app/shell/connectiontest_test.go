@@ -329,6 +329,72 @@ func TestConnectionTestRunsThroughTheBridgeAndChangesNothing(t *testing.T) {
 	}
 }
 
+func retryConnectionBank(t *testing.T) *connectionTestTransport {
+	t.Helper()
+	bank := &connectionTestTransport{t: t}
+	bank.reply(connectionSync(
+		connectionChipHitans("chipTAN manuell", 5, 2),
+		connectionAllowed(),
+		connectionHipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
+		connectionHisals(7),
+		connectionHikazs(6),
+		connectionHiupd(connectionTestIBAN, "00000001", "EUR"),
+	))
+	bank.reply(connectionSuccess("dialog-sync"))
+	bank.reply(connectionResponse(
+		connectionTestDialog,
+		"HIRMG:2:2+9050::"+connectionTestText+"'",
+		"HIRMS:3:2:4+9210::"+connectionTestText+"'",
+	))
+	bank.reply(connectionResponse(
+		connectionTestDialog,
+		"HIRMG:2:2+0020::"+connectionTestText+"'",
+		"HIRMS:3:2:4+3076::"+connectionTestText+"'",
+	))
+	bank.reply(connectionExecuted(connectionTestDialog, connectionHispa(
+		connectionHispaAccount(connectionTestIBAN, "TESTDEFFXXX", "00000001"),
+	)))
+	bank.reply(connectionExecuted(connectionTestDialog, connectionHisalPayload()))
+	bank.reply(connectionExecuted(connectionTestDialog, connectionHikazPayload(connectionMT940(), nil)))
+	bank.reply(connectionSuccess(connectionTestDialog))
+	return bank
+}
+
+func TestConnectionTestRetriesAfterApprovalAndChangesNothing(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	session, bankID, _ := newBankingSession(t, store, nil)
+	database := sessionDatabase(t, session)
+	before := bankingFingerprint(t, database)
+
+	session.connectionTestFactory = func(string) (fints.Transport, error) {
+		return retryConnectionBank(t), nil
+	}
+	session.BankingTestConnection(int(bankID))
+	answerProductID(t, session, []byte(connectionTestID))
+	answerBankingPin(t, session, connectionTestPIN, false)
+
+	prompt := waitForBankingPrompt(t, session, banking.Decoupled)
+	wantPrompt := i18n.Text(i18n.En, i18n.TestConnectionApproveThenRetry)
+	if prompt.Message != wantPrompt {
+		t.Fatalf("approval prompt = %q, want %q", prompt.Message, wantPrompt)
+	}
+	session.Bridge().AnswerDecoupled(prompt.ID, true)
+
+	result := waitConnectionTestDone(t, session)
+	if !result.Go || result.Reason != i18n.Text(i18n.En, i18n.TestConnectionGo) {
+		t.Fatalf("result = %+v", result)
+	}
+	if !store.IsEmpty() {
+		t.Fatalf("credential store has %d entries after a test", store.Len())
+	}
+	after := bankingFingerprint(t, database)
+	for table, want := range before {
+		if after[table] != want {
+			t.Fatalf("%s changed: %s -> %s", table, want, after[table])
+		}
+	}
+}
+
 func TestConnectionTestIsRefusedWhileSyncing(t *testing.T) {
 	session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
 	session.mu.Lock()
@@ -468,11 +534,12 @@ func markerConnectionBank(t *testing.T, marker string) *connectionTestTransport 
 		connectionHiupd(connectionTestIBAN, "00000001", "EUR"),
 	))
 	bank.reply(connectionSuccess("dialog-sync"))
-	// The Init request numbers HKIDN 3, HKVVB 4 and HKTAN 5.
+	// The Init request numbers HKIDN 3, HKVVB 4 and HKTAN 5. 9942 is a PIN
+	// code, so the approval retry does not run here.
 	bank.reply(connectionResponse(
 		connectionTestDialog,
 		"HIRMG:2:2+3060::"+marker+"'",
-		"HIRMS:3:2:5+9210::"+marker+"'",
+		"HIRMS:3:2:5+9210::"+marker+"+9942::"+connectionTestText+"'",
 		"HIRMS:4:2:5+0020::"+connectionTestText+"'",
 	))
 	return bank

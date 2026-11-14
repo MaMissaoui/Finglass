@@ -892,6 +892,7 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionCancelled:             "Test de connexion annulé.",
 	TestConnectionInvalidLogin:          "Les identifiants sont invalides.",
 	TestConnectionProductID:             "L'identifiant de produit FinTS est manquant ou invalide.",
+	TestConnectionApproveThenRetry:      "Votre banque vous a peut-être envoyé une demande d'approbation dans son application. Approuvez-la, puis choisissez « J'ai confirmé » pour réessayer la connexion.",
 	SaveConnectionTrace:                 "Enregistrer la trace expurgée…",
 	MessageConnectionTraceSaved:         "La trace expurgée a été enregistrée.",
 	ErrorConnectionTrace:                "La trace expurgée n'a pas pu être enregistrée.",

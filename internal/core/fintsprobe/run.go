@@ -15,6 +15,8 @@ import (
 const (
 	// confirmLogin is printed when the bank's app must confirm a challenge.
 	confirmLogin = "Confirm the login in your banking app."
+	// confirmRetryMessage is printed before the one retry after an approval.
+	confirmRetryMessage = "The bank may have sent an approval request to its app. Approve it, then press Enter (or type n to stop)."
 	// unsupportedTanMessage is printed instead of a TAN method name.
 	unsupportedTanMessage = "TAN method not supported by the probe; choose pushTAN in your bank settings"
 	// tanPrompt is the prompt for a typed TAN.
@@ -51,6 +53,10 @@ type Interaction interface {
 	// ConfirmInApp says the bank's app must confirm (pushTAN / decoupled). The
 	// probe polls meanwhile; the person cancels by cancelling ctx.
 	ConfirmInApp(ctx context.Context, challenge string)
+	// ConfirmRetry tells the person that the bank may have sent an approval
+	// request to its app, and waits until they approve it and continue (true) or
+	// cancel (false). It blocks.
+	ConfirmRetry(ctx context.Context) bool
 	// Notice reports a fixed notice.
 	Notice(notice Notice)
 }
@@ -206,7 +212,7 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 		return invalidResult()
 	}
 
-	dialog, err := fints.NewDialog(fints.DialogConfig{
+	config := fints.DialogConfig{
 		BLZ:            env.Inputs.BLZ,
 		UserID:         env.Inputs.User,
 		CustomerID:     env.Inputs.User,
@@ -215,7 +221,8 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 		PIN:            env.PIN,
 		Transport:      env.Transport,
 		Sleeper:        env.Sleeper,
-	})
+	}
+	dialog, err := fints.NewDialog(config)
 	if err != nil {
 		reason := NoGoReason{Kind: NoGoOther, Other: "InvalidState"}
 		return resultFrom(nil, nil, 0, &reason)
@@ -227,6 +234,24 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 	}
 
 	initResult, err := dialog.Init(ctx)
+	if err != nil && shouldRetryAfterApproval(err, dialog.SystemID()) {
+		// The bank rejected a new system id but may have sent an approval
+		// request anyway. Retry exactly once in memory with that system id.
+		if !env.Interaction.ConfirmRetry(ctx) {
+			reason := NoGoReason{Kind: NoGoOther, Other: "Cancelled"}
+			return resultFrom(nil, nil, 0, &reason)
+		}
+		config.SystemID = dialog.SystemID()
+		config.Params = dialog.Params()
+		retryDialog, newErr := fints.NewDialog(config)
+		if newErr != nil {
+			reason := NoGoReason{Kind: NoGoOther, Other: "InvalidState"}
+			return resultFrom(nil, nil, 0, &reason)
+		}
+		dialog = retryDialog
+		// Init on the new dialog exactly as the normal path; no Sync.
+		initResult, err = dialog.Init(ctx)
+	}
 	if err != nil {
 		reason := classifyError(err)
 		return resultFrom(nil, nil, 0, &reason)
@@ -247,6 +272,29 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 	summaries, lines, skipped, failure := probeAccounts(ctx, env, dialog, workflow)
 	_ = dialog.End(ctx)
 	return resultFrom(summaries, lines, skipped, failure)
+}
+
+// shouldRetryAfterApproval reports whether an Init failure may be the bank's
+// approval-push answer for a new system id. It needs 9210 and must not repeat a
+// PIN or locked-account failure, which a retry would send again.
+func shouldRetryAfterApproval(err error, systemID string) bool {
+	var dialogError *fints.DialogError
+	if !errors.As(err, &dialogError) {
+		return false
+	}
+	if systemID == "" || systemID == "0" {
+		return false
+	}
+	hasApprovalCode := false
+	for _, code := range dialogError.Codes {
+		switch code {
+		case "9340", "9910", "9930", "9931", "9942", "3938":
+			return false
+		case "9210":
+			hasApprovalCode = true
+		}
+	}
+	return hasApprovalCode
 }
 
 func invalidResult() Result {
@@ -522,6 +570,20 @@ func (t terminalInteraction) TAN(_ context.Context, challenge string) (*secret.T
 // ConfirmInApp prints the fixed confirmation line, ignoring the challenge.
 func (t terminalInteraction) ConfirmInApp(context.Context, string) {
 	t.terminal.Println(confirmLogin)
+}
+
+// ConfirmRetry prints the fixed approval line and reads one line without echo.
+// An empty line retries; anything else stops. The read bytes are wiped.
+func (t terminalInteraction) ConfirmRetry(_ context.Context) bool {
+	t.terminal.Println(confirmRetryMessage)
+	raw, err := t.terminal.ReadSecret("")
+	if err != nil {
+		wipeBytes(raw)
+		return false
+	}
+	retry := len(raw) == 0
+	wipeBytes(raw)
+	return retry
 }
 
 // Notice prints the fixed notice line.
