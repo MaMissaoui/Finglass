@@ -3,6 +3,7 @@
     AccountsBankCardDTO,
     BankAccountRowDTO,
     ConnectionTestDTO,
+    LastTraceDTO,
   } from '../../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
   import {
     BankBadge,
@@ -18,6 +19,7 @@
     card,
     t,
     connectionTest = null,
+    lastTrace = null,
     syncControlsVisible = false,
     onToggle,
     onSync,
@@ -34,6 +36,7 @@
     card: AccountsBankCardDTO;
     t: (key: string, ...args: (string | number)[]) => string;
     connectionTest?: ConnectionTestDTO | null;
+    lastTrace?: LastTraceDTO | null;
     syncControlsVisible?: boolean;
     onToggle: (bankID: number) => void;
     onSync: (bankID: number) => void;
@@ -209,7 +212,7 @@
           </span>
           <span class="test-reason">{connectionTest.reason}</span>
           <span class="test-spacer"></span>
-          {#if connectionTest.hasTrace}
+          {#if lastTrace !== null && lastTrace.kind === 'test' && lastTrace.hasTrace}
             <SecondaryButton
               text={t('SaveConnectionTrace')}
               icon="file_download"
@@ -233,6 +236,12 @@
 
         <p class="test-help">{t('TestConnectionHelp')}</p>
       {/if}
+    </div>
+  {/if}
+
+  {#if lastTrace !== null && lastTrace.kind === 'sync' && lastTrace.hasTrace && syncControlsVisible}
+    <div class="sync-trace" data-testid={`sync-trace-${card.bankId}`}>
+      <TextButton text={t('SaveConnectionTrace')} icon="file_download" onclick={onSaveTrace} />
     </div>
   {/if}
 
@@ -635,6 +644,12 @@
     font-size: var(--type-body-small-size);
     font-weight: var(--type-body-small-weight);
     line-height: 1.35;
+  }
+
+  .sync-trace {
+    display: flex;
+    justify-content: flex-end;
+    margin: -4px 16px 8px;
   }
 
   .rule {

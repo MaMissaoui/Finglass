@@ -290,14 +290,17 @@ In order, each one compared with the G1 reference screenshots:
 - [x] Go `finglass-probe` (`cmd/finglass-probe`, see `internal/core/fintsprobe/README.md`).
 - [ ] **You** run the probe per bank (Volksbank, DKB, HVB) and report only the `RESULT` lines (with codes on NO-GO).
   `OnlineSyncAvailable` stays `false` until at least one bank reports GO.
-- [ ] Adapter behind the gateway port, plus the M5b prerequisites (one dialog per login, the trace switch with
-  masking). Progress: the adapter (`internal/core/fintsgateway`, G10-4b-1: one dialog per sync, system id
-  remembered per login) and the redacted trace (`internal/fints/trace`, G10-T1) are done; wiring behind
-  `OnlineSyncAvailable` and the sync trace (G10-4b-2) are next.
-- [ ] **Test connection** in the app (your request, 2026-11-14): per bank on the Banking page, read-only, asks only
-  for the PIN, TAN and (in builds without it) the product id, imports nothing, and offers "Save redacted trace…".
-  It runs the probe's checks (`fintsprobe.Probe`, G10-P-B done); the app wiring (G10-P-C) and the Banking page UI
-  (G10-P-D) are next. For your test, run the local build with a separate `FINGLASS_HOME` and import FinDesk there.
+- [x] Adapter behind the gateway port, plus the M5b prerequisites (one dialog per login, the trace switch with
+  masking): the adapter (`internal/core/fintsgateway`, G10-4b-1: one dialog per sync, system id remembered per
+  login), the redacted trace (`internal/fints/trace`, G10-T1), and the wiring behind `OnlineSyncAvailable` with a
+  redacted trace for every sync (G10-4b-2; one in-memory slot shared with Test connection, saved with mode 0600).
+- [x] **Test connection** in the app (your request, 2026-11-14): in each bank's menu on the Accounts page, read-only,
+  asks only for the PIN, TAN and (in builds without it) the product id, imports nothing, and offers "Save redacted
+  trace…" (G10-P-B, C, D). For your test, run the local build with a separate `FINGLASS_HOME` and import FinDesk
+  there.
+- [ ] Before `OnlineSyncAvailable` flips: check the adapter's one retry with Sync against the return codes your probe
+  runs show. It retries every Init error except the PIN codes (9340, 9910, 9930, 9931, 9942) and a locked account
+  (3938); a bank that reports a wrong PIN with another code would see the PIN twice in one sync.
 - [ ] Before 0.4.0: your real-data test includes two syncs in a row per bank (the second one reuses the stored system
   id and TAN method).
 

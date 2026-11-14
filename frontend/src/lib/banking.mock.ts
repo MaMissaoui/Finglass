@@ -5,6 +5,7 @@ import type {
   BankMenuItemDTO,
   BankSuggestionDTO,
   ConnectionTestDTO,
+  LastTraceDTO,
   PromptDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
 import { mockBankDirectory, searchBanks } from './bankDirectory';
@@ -213,6 +214,8 @@ export function createMockBanking(
   let testingBankId: number | null = null;
   let testStage: TestStage = '';
   let connectionTest: ConnectionTestDTO | null = null;
+  /** The last sync's or connection test's trace slot, as the Go shell keeps it. */
+  let lastTrace: LastTraceDTO | null = null;
   /**
    * Mock only: a build with a linked product id asks for no product id. The
    * default asks, so the prompt is part of the walkthrough.
@@ -522,6 +525,7 @@ export function createMockBanking(
       onlineSyncNote: !onlineSyncAvailable && hasOnlineBank() ? t('OnlineSyncNotYetAvailable') : '',
       banks: banksForCard(),
       connectionTest: connectionTestState(),
+      lastTrace: lastTrace === null ? null : { ...lastTrace },
       infoText,
     };
   }
@@ -626,6 +630,7 @@ export function createMockBanking(
         bank.hasSavedPin = true;
       }
       bank.rememberedThisRun = false;
+      lastTrace = { kind: 'sync', bankId: bank.id, hasTrace: true };
     }
     messageText = t('SyncSummary', 2);
     errorText = '';
@@ -673,6 +678,7 @@ export function createMockBanking(
       return publish();
     }
     syncingBankId = bankId;
+    lastTrace = { kind: 'sync', bankId, hasTrace: false };
     syncStep = t('SyncConnecting');
     errorText = '';
     messageText = '';
@@ -699,6 +705,7 @@ export function createMockBanking(
     }
     syncAll = { position: 1, total: included.length, bankName: first.name };
     syncingBankId = first.id;
+    lastTrace = { kind: 'sync', bankId: 0, hasTrace: false };
     syncStep = t('SyncConnecting');
     errorText = '';
     messageText = '';
@@ -830,8 +837,8 @@ export function createMockBanking(
       codes: [],
       probed: 0,
       skipped: 0,
-      hasTrace: false,
     };
+    lastTrace = { kind: 'test', bankId, hasTrace: false };
     errorText = '';
     messageText = '';
     startTestPrompt();
@@ -852,8 +859,8 @@ export function createMockBanking(
         codes: [],
         probed: 0,
         skipped: 0,
-        hasTrace: false,
       };
+      lastTrace = { kind: 'test', bankId, hasTrace: false };
     } else if (noGoBankId === bankId) {
       connectionTest = {
         bankId,
@@ -863,8 +870,8 @@ export function createMockBanking(
         codes: ['9942'],
         probed: 0,
         skipped: 0,
-        hasTrace: true,
       };
+      lastTrace = { kind: 'test', bankId, hasTrace: true };
     } else {
       connectionTest = {
         bankId,
@@ -874,8 +881,8 @@ export function createMockBanking(
         codes: [],
         probed: 1,
         skipped: 1,
-        hasTrace: true,
       };
+      lastTrace = { kind: 'test', bankId, hasTrace: true };
     }
     testingBankId = null;
     testStage = '';
@@ -901,7 +908,7 @@ export function createMockBanking(
   }
 
   function saveConnectionTrace(): BankingDTO {
-    if (connectionTest === null || !connectionTest.hasTrace) {
+    if (lastTrace === null || !lastTrace.hasTrace) {
       errorText = t('ErrorNoConnectionTrace');
       return publish();
     }

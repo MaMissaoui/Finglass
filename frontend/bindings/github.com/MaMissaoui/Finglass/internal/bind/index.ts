@@ -54,6 +54,7 @@ export {
     DocumentsDTO,
     ImportCSVFieldDTO,
     ImportFileRowDTO,
+    LastTraceDTO,
     ProfileDTO,
     PromptDTO,
     ReapplyGroupRowDTO,

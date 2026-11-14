@@ -382,6 +382,7 @@
             connectionTest={banking?.connectionTest?.bankId === card.bankId
               ? banking.connectionTest
               : null}
+            lastTrace={banking?.lastTrace?.bankId === card.bankId ? banking.lastTrace : null}
             syncControlsVisible={banking?.syncControlsVisible ?? false}
             onToggle={toggleBank}
             onSync={syncBank}

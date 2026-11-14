@@ -202,7 +202,8 @@ export function Refresh(): $CancellablePromise<$models.BankingDTO> {
 }
 
 /**
- * SaveConnectionTrace asks where to save the last redacted connection trace.
+ * SaveConnectionTrace asks where to save the last redacted sync or connection
+ * test trace.
  */
 export function SaveConnectionTrace(): $CancellablePromise<$models.BankingDTO> {
     return $Call.ByID(1244954090).then(($result: any) => {
