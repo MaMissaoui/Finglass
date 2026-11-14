@@ -43,7 +43,7 @@ is ink when ≥ 0 and alert when < 0. Totals of expenses are ink, never red.
 ## Type
 
 IBM Plex Sans (bundled). Every text follows the role table; use the tokens by role, never a literal size or weight
-(the only exception is the bank monogram in `components.slint`).
+(the only exception is the bank monogram).
 
 | Role | Token | Size/weight | Use |
 |---|---|---|---|
@@ -114,7 +114,8 @@ shown month, in the primary currency only; loans, net worth and other currencies
 
 ## Phases
 
-0. Tokens: move colour and radius literals into `theme.slint` with no visual change (screenshots byte-identical).
+0. Tokens: move colour and radius literals into the design tokens (`frontend/src/styles/tokens.css`) with no visual
+   change (screenshots byte-identical).
 1. Palette, selection, amount colours, radii, page title, quiet destructive icons — app-wide.
 2. Dashboard reconciliation block and calmer KPI band.
 3. Page details: Accounts (no disabled Sync pills while sync is unavailable), Transactions (account panel width,
