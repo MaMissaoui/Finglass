@@ -393,7 +393,19 @@ func NewHKCAZ(
 
 // ---- envelope segments, built by [BuildMessage] ----
 
+// dialogIDUnassigned is the dialog id of a dialog's first message.
+const dialogIDUnassigned = "0"
+
+// identifiedRoleMessageSender is "1: Message Sender (MS)" in the security
+// identification of HNVSK and HNSHK: the customer sends to the bank.
+const identifiedRoleMessageSender = "1"
+
 func newHNHBK(messageSize uint64, dialogID string, messageNumber uint16) Segment {
+	if dialogID == "" {
+		// A dialog's first message carries the unassigned id "0"; banks
+		// reject an empty one (HVB: 9050).
+		dialogID = dialogIDUnassigned
+	}
 	return newSegment("HNHBK", 3,
 		DEG{textElement(fmt.Sprintf("%012d", messageSize))},
 		DEG{textElement("300")},
@@ -406,12 +418,19 @@ func newHNHBS(messageNumber uint16) Segment {
 	return newSegment("HNHBS", 1, DEG{numberElement(messageNumber)})
 }
 
-func newHNVSK(blz, userID, systemID string, now time.Time) Segment {
+// newHNVSK builds the encryption header. Its security profile is PIN:1 in a
+// one-step dialog (999) and PIN:2 in a two-step one, as python-fints and the
+// banks expect; HNSHK stays PIN:1 in both.
+func newHNVSK(securityFunction, blz, userID, systemID string, now time.Time) Segment {
+	profileVersion := "2"
+	if securityFunction == SecurityFunctionPINOnly {
+		profileVersion = "1"
+	}
 	return newSegment("HNVSK", 3,
-		DEG{textElement("PIN"), textElement("1")},
+		DEG{textElement("PIN"), textElement(profileVersion)},
 		DEG{textElement("998")},
 		DEG{textElement("1")},
-		DEG{textElement("2"), emptyElement(), valueElement(systemID)},
+		DEG{textElement(identifiedRoleMessageSender), emptyElement(), valueElement(systemID)},
 		DEG{textElement("1"), textElement(now.Format("20060102")), textElement(now.Format("150405"))},
 		DEG{
 			textElement("2"),
@@ -449,7 +468,7 @@ func newHNSHK(
 		DEG{textElement(strconv.FormatUint(uint64(securityReference), 10))},
 		DEG{textElement("1")},
 		DEG{textElement("1")},
-		DEG{textElement("2"), emptyElement(), valueElement(systemID)},
+		DEG{textElement(identifiedRoleMessageSender), emptyElement(), valueElement(systemID)},
 		DEG{textElement("1")},
 		DEG{textElement("1"), textElement(now.Format("20060102")), textElement(now.Format("150405"))},
 		DEG{textElement("1"), textElement("999"), textElement("1")},

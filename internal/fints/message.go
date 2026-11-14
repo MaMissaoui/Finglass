@@ -175,7 +175,7 @@ func BuildMessage(input MessageInput, segments ...Segment) ([]byte, error) {
 
 	// HNVSK and HNHBS hold no secret; encode them first so body can be sized
 	// exactly and never reallocates after the PIN is copied into it.
-	hnvsk, err := appendOutgoingSegment(nil, newHNVSK(input.BLZ, input.UserID, input.SystemID, now), 998)
+	hnvsk, err := appendOutgoingSegment(nil, newHNVSK(input.SecurityFunction, input.BLZ, input.UserID, input.SystemID, now), 998)
 	if err != nil {
 		Wipe(inner)
 		return nil, err
