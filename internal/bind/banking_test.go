@@ -483,23 +483,30 @@ func TestBankCardsCarryTheOnlineFieldsAndTheBankMenu(t *testing.T) {
 	for _, item := range card.Menu {
 		actions = append(actions, item.Action)
 	}
-	want := []string{"history", "include", "rename", "connection", "clear-history", "forget-pin", "delete"}
+	want := []string{"test-connection", "history", "include", "rename", "connection", "clear-history", "forget-pin", "delete"}
 	if strings.Join(actions, ",") != strings.Join(want, ",") {
 		t.Fatalf("menu actions = %v, want %v", actions, want)
 	}
-	history := card.Menu[0]
+	if !card.CanTestConnection {
+		t.Fatal("bank with a server URL cannot test its connection")
+	}
+	testConnection := card.Menu[0]
+	if !testConnection.Enabled || testConnection.Label != i18n.Text(i18n.En, i18n.TestConnection) {
+		t.Fatalf("test-connection item = %+v", testConnection)
+	}
+	history := card.Menu[1]
 	if history.Enabled || history.Icon != "date_range" {
 		t.Fatalf("history item = %+v", history)
 	}
-	include := card.Menu[1]
+	include := card.Menu[2]
 	if include.Enabled || !include.Checked {
 		t.Fatalf("include item = %+v", include)
 	}
-	clear := card.Menu[4]
+	clear := card.Menu[5]
 	if !clear.Enabled || clear.Icon != "history" {
 		t.Fatalf("clear-history item = %+v", clear)
 	}
-	forget := card.Menu[5]
+	forget := card.Menu[6]
 	if !forget.Enabled || forget.Icon != "lock" {
 		t.Fatalf("forget-pin item = %+v", forget)
 	}
@@ -681,6 +688,16 @@ func TestPromptDTOMapsEveryPromptKind(t *testing.T) {
 		decoupledDTO.Title != i18n.Text(i18n.En, i18n.ConfirmInBankingApp) ||
 		decoupledDTO.Text != "Bitte bestätigen" {
 		t.Fatalf("decoupled prompt = %+v", decoupledDTO)
+	}
+
+	product := bankingcore.BankingPrompt{ID: 14, Kind: bankingcore.ProductID}
+	productDTO := promptDTO(&product, i18n.En, true)
+	if productDTO.Kind != "product-id" ||
+		productDTO.Title != i18n.Text(i18n.En, i18n.ProductIDPromptTitle) ||
+		productDTO.Text != i18n.Text(i18n.En, i18n.ProductIDPromptText) ||
+		productDTO.Label != i18n.Text(i18n.En, i18n.ProductIDPromptLabel) ||
+		productDTO.BankName != "" || productDTO.UserID != "" {
+		t.Fatalf("product prompt = %+v", productDTO)
 	}
 
 	ticket := promptDTO(nil, i18n.En, true)

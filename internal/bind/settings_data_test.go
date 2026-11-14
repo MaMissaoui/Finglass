@@ -60,6 +60,8 @@ func (f *bindFileDialogs) SaveCSV(string, string) (string, bool) { return "", fa
 
 func (f *bindFileDialogs) SaveFile(i18n.Key, string) (string, bool) { return "", false }
 
+func (f *bindFileDialogs) SaveTrace(string, string) (string, bool) { return "", false }
+
 func (f *bindFileDialogs) SaveRules(string, string) (string, bool) { return "", false }
 
 func (f *bindFileDialogs) PickRuleFile(string) (string, bool) { return "", false }

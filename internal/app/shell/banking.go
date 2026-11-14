@@ -2,19 +2,23 @@ package shell
 
 import (
 	"context"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/app/accountsview"
 	"github.com/MaMissaoui/Finglass/internal/app/banking"
+	"github.com/MaMissaoui/Finglass/internal/app/connectiontest"
 	"github.com/MaMissaoui/Finglass/internal/app/startup"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
 	"github.com/MaMissaoui/Finglass/internal/core/fintsproduct"
 	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
+	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
 // OnlineSyncAvailable says whether the real FinTS gateway is wired in. It is
@@ -23,6 +27,20 @@ import (
 // also require fintsproduct.Present(), so a build without the product id keeps
 // online sync off even then.
 const OnlineSyncAvailable = false
+
+// connectionTestProductVersion is the HKVVB product version the connection
+// test and the sync adapter send.
+const connectionTestProductVersion = "0.4"
+
+// connectionTestTransportFactory is the shell's seam for the test transport.
+type connectionTestTransportFactory = connectiontest.TransportFactory
+
+// connectionTraceState is the last connection test's redacted trace, kept in
+// memory only.
+type connectionTraceState struct {
+	trace []byte
+	blz   string
+}
 
 // bankingJob is one blocking banking call prepared under the session mutex and
 // run after it, as Rust's spawn_action and start_sync do.
@@ -44,6 +62,11 @@ type bankingJob struct {
 	// mergeOnly keeps the live sync fields and merges only the freshly loaded
 	// bank list, as banking::load does.
 	mergeOnly bool
+	// setConnectionTrace replaces the session's in-memory trace with the job's
+	// trace, even when it is empty (a new test started).
+	setConnectionTrace bool
+	connectionTrace    []byte
+	connectionTraceBLZ string
 }
 
 // bankingServiceLocked builds the service exactly as Rust's
@@ -178,6 +201,12 @@ func (s *Session) runBankingJob(job *bankingJob) {
 	current := s.jobs.IsCurrent(job.generation)
 	var dashboardJob *pageJob
 	if current {
+		if job.setConnectionTrace {
+			s.connectionTrace = connectionTraceState{
+				trace: append([]byte(nil), job.connectionTrace...),
+				blz:   job.connectionTraceBLZ,
+			}
+		}
 		if job.mergeOnly && s.banking != nil {
 			s.banking.Language = job.pending.Language
 			s.banking.Banks = append([]banking.BankItem(nil), job.pending.Banks...)
@@ -267,6 +296,8 @@ func (s *Session) mergeBanksLocked(accounts *accountsview.AccountsState) {
 			SyncFrom:         cloneCivilDate(access.SyncFrom),
 			LastSync:         cloneTimePointer(access.LastSync),
 			HasSavedPin:      false,
+			CanTestConnection: access.ServerURL != nil &&
+				strings.TrimSpace(*access.ServerURL) != "",
 		})
 	}
 	s.banking.Banks = kept
@@ -677,6 +708,237 @@ func (s *Session) BankingStartSyncAll() {
 	s.startBankingJob(job)
 }
 
+// BankingTestConnection runs the read-only connection test for one bank on a
+// worker. It is refused while a sync or another test runs. The PIN and (when
+// the build has no linked id) the product id are asked through the live bridge.
+func (s *Session) BankingTestConnection(bankID int) {
+	s.mu.Lock()
+	if s.db == nil || s.bridge == nil || s.banking == nil {
+		s.mu.Unlock()
+		return
+	}
+	if s.banking.IsBusy() {
+		s.setBankingErrorLocked(i18n.ErrorConnectionBusy)
+		s.mu.Unlock()
+		s.notifyBanking()
+		return
+	}
+	bank := s.bankingBankLocked(bankID)
+	if bank == nil {
+		s.setBankingErrorLocked(i18n.ErrorBankConnectionNotFound)
+		s.mu.Unlock()
+		s.notifyBanking()
+		return
+	}
+	if !bank.CanTestConnection {
+		s.setBankingErrorLocked(i18n.ErrorNoFintsServer)
+		s.mu.Unlock()
+		s.notifyBanking()
+		return
+	}
+
+	id := model.BankConnectionID(bankID)
+	bankName := bank.BankName
+	blz := bank.BLZ
+	userID := bank.UserID
+	serverURL := ""
+	if bank.ServerURL != nil {
+		serverURL = *bank.ServerURL
+	}
+	bridge := s.bridge
+	today := s.today()
+	factory := s.connectionTestFactory
+	if factory == nil {
+		factory = connectiontest.DefaultTransportFactory
+	}
+	// The product id is a release secret. It is read here and wiped by
+	// connectiontest.Run after this one test.
+	var linkedProductID *secret.Text
+	if value, ok := fintsproduct.ID(); ok {
+		linkedProductID = secret.NewText([]byte(value))
+	}
+
+	running := &banking.ConnectionTestResult{BankID: id, Running: true}
+	var job *bankingJob
+	job = s.beginBankingActionLocked(func(
+		ctx context.Context,
+		_ *db.Database,
+		_ *banksync.BankingService,
+		state *banking.BankingState,
+	) {
+		productID := linkedProductID
+		if productID == nil {
+			productID = bridge.AskProductID()
+			if productID == nil {
+				state.ConnectionTest = &banking.ConnectionTestResult{
+					BankID: id,
+					Reason: connectionTestReason(state.Language, connectiontest.Outcome{
+						Kind:      fintsprobe.NoGoOther,
+						Other:     connectiontest.OtherCancelled,
+						Cancelled: true,
+					}),
+				}
+				job.setConnectionTrace = true
+				return
+			}
+		}
+
+		outcome := connectiontest.Run(ctx, connectiontest.Input{
+			BankName:       bankName,
+			BLZ:            blz,
+			UserID:         userID,
+			ServerURL:      serverURL,
+			ProductID:      productID,
+			Interaction:    bridge,
+			Factory:        factory,
+			Today:          today,
+			ProductVersion: connectionTestProductVersion,
+			Language:       state.Language,
+		})
+		job.setConnectionTrace = true
+		job.connectionTrace = outcome.Trace
+		job.connectionTraceBLZ = blz
+		state.ConnectionTest = &banking.ConnectionTestResult{
+			BankID:   id,
+			Go:       outcome.Go,
+			Reason:   connectionTestReason(state.Language, outcome),
+			Codes:    append([]string(nil), outcome.Codes...),
+			Probed:   outcome.Probed,
+			Skipped:  outcome.Skipped,
+			HasTrace: len(outcome.Trace) > 0,
+		}
+	})
+	if job == nil {
+		if linkedProductID != nil {
+			linkedProductID.Wipe()
+		}
+		s.mu.Unlock()
+		return
+	}
+	job.pending.ConnectionTest = &banking.ConnectionTestResult{BankID: id, Running: true}
+	s.banking.ConnectionTest = running
+	s.connectionTrace = connectionTraceState{}
+	s.mu.Unlock()
+	s.notifyBanking()
+	s.startBankingJob(job)
+}
+
+// BankingSaveConnectionTrace asks where to save the last redacted connection
+// trace and writes it with mode 0600. The path never appears in an error.
+func (s *Session) BankingSaveConnectionTrace() {
+	s.mu.Lock()
+	if s.db == nil || s.banking == nil {
+		s.mu.Unlock()
+		return
+	}
+	trace := append([]byte(nil), s.connectionTrace.trace...)
+	blz := s.connectionTrace.blz
+	if len(trace) == 0 {
+		s.setBankingErrorLocked(i18n.ErrorNoConnectionTrace)
+		s.mu.Unlock()
+		s.notifyBanking()
+		return
+	}
+	dialogs := s.fileDialogs
+	language := s.language
+	var now time.Time
+	if s.clock != nil {
+		now = s.clock()
+	}
+	defaultName := connectionTraceFileName(blz, now)
+
+	job := s.beginBankingActionLocked(func(
+		_ context.Context,
+		_ *db.Database,
+		_ *banksync.BankingService,
+		state *banking.BankingState,
+	) {
+		if dialogs == nil {
+			state.Message = nil
+			message := i18n.Text(language, i18n.ErrorConnectionTrace)
+			state.Error = &message
+			return
+		}
+		path, ok := dialogs.SaveTrace(i18n.Text(language, i18n.SaveConnectionTrace), defaultName)
+		if !ok {
+			return
+		}
+		if err := writeConnectionTrace(path, trace); err != nil {
+			state.Message = nil
+			message := i18n.Text(language, i18n.ErrorConnectionTrace)
+			state.Error = &message
+			return
+		}
+		state.Error = nil
+		message := i18n.Text(language, i18n.MessageConnectionTraceSaved)
+		state.Message = &message
+	})
+	s.mu.Unlock()
+	s.startBankingJob(job)
+}
+
+// setBankingErrorLocked publishes a localized banking error. The caller holds
+// the session mutex.
+func (s *Session) setBankingErrorLocked(key i18n.Key) {
+	if s.banking == nil {
+		return
+	}
+	message := i18n.Text(s.language, key)
+	s.banking.Error = &message
+}
+
+// connectionTestReason localizes an outcome. It never includes bank text.
+func connectionTestReason(language i18n.Language, outcome connectiontest.Outcome) string {
+	if outcome.Cancelled || outcome.Other == connectiontest.OtherCancelled {
+		return i18n.Text(language, i18n.TestConnectionCancelled)
+	}
+	if outcome.Go {
+		return i18n.Text(language, i18n.TestConnectionGo)
+	}
+	switch outcome.Kind {
+	case fintsprobe.NoGoLoginRejected:
+		return i18n.Text(language, i18n.TestConnectionLoginRejected)
+	case fintsprobe.NoGoTanMethodUnsupported:
+		return i18n.Text(language, i18n.TestConnectionTanMethodUnsupported)
+	case fintsprobe.NoGoTanTimeout:
+		return i18n.Text(language, i18n.TestConnectionTanTimeout)
+	case fintsprobe.NoGoStatementsUnavailable:
+		return i18n.Text(language, i18n.TestConnectionStatementsUnavailable)
+	}
+	switch outcome.Other {
+	case connectiontest.OtherInvalidLogin:
+		return i18n.Text(language, i18n.TestConnectionInvalidLogin)
+	case connectiontest.OtherProductIDMissing, connectiontest.OtherProductIDInvalid:
+		return i18n.Text(language, i18n.TestConnectionProductID)
+	}
+	other := outcome.Other
+	if other == "" {
+		other = "Unknown"
+	}
+	return i18n.Format(language, i18n.TestConnectionOther, i18n.Str(other))
+}
+
+// connectionTraceFileName builds the dialog's default name.
+func connectionTraceFileName(blz string, now time.Time) string {
+	return "finglass-trace-" + blz + "-" + now.Format("20060102-1504") + ".txt"
+}
+
+// writeConnectionTrace creates the file with 0600, truncates an existing file
+// and forces its mode to 0600 before writing.
+func writeConnectionTrace(path string, trace []byte) error {
+	// #nosec G304 -- the path comes only from the user's save dialog.
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = file.Close() }()
+	if err := file.Chmod(0o600); err != nil {
+		return err
+	}
+	_, err = file.Write(trace)
+	return err
+}
+
 // BankingRemoveBank deletes an online bank with its remembered PIN and
 // registration, as banking::delete_bank does.
 func (s *Session) BankingRemoveBank(bankID int) {
@@ -816,6 +1078,8 @@ func (s *Session) BankingHandleMenu(bankID int, action string) {
 	switch action {
 	case "sync":
 		s.BankingStartSync(bankID)
+	case "test-connection":
+		s.BankingTestConnection(bankID)
 	case "history":
 		s.BankingOpenHistoryDialog(bankID)
 	case "clear-history":

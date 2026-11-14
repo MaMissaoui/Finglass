@@ -78,24 +78,25 @@ type BankAccountRowDTO struct {
 // AccountsBankCardDTO is one bank card, including the online-banking fields
 // Rust's banking::bank_cards sets (sync state, menu, PIN).
 type AccountsBankCardDTO struct {
-	BankID           int                 `json:"bankId"`
-	Name             string              `json:"name"`
-	Subtitle         string              `json:"subtitle"`
-	CentralBLZHint   string              `json:"centralBlzHint"`
-	Offline          bool                `json:"offline"`
-	Collapsed        bool                `json:"collapsed"`
-	AccountCountText string              `json:"accountCountText"`
-	Totals           []AccountAmountDTO  `json:"totals"`
-	Accounts         []BankAccountRowDTO `json:"accounts"`
-	Syncing          bool                `json:"syncing"`
-	SyncStep         string              `json:"syncStep"`
-	SyncEnabled      bool                `json:"syncEnabled"`
-	SyncTooltip      string              `json:"syncTooltip"`
-	PinText          string              `json:"pinText"`
-	Menu             []BankMenuItemDTO   `json:"menu"`
-	Logo             string              `json:"logo"`
-	LogoLetters      string              `json:"logoLetters"`
-	LogoColour       int                 `json:"logoColour"`
+	BankID            int                 `json:"bankId"`
+	Name              string              `json:"name"`
+	Subtitle          string              `json:"subtitle"`
+	CentralBLZHint    string              `json:"centralBlzHint"`
+	Offline           bool                `json:"offline"`
+	Collapsed         bool                `json:"collapsed"`
+	AccountCountText  string              `json:"accountCountText"`
+	Totals            []AccountAmountDTO  `json:"totals"`
+	Accounts          []BankAccountRowDTO `json:"accounts"`
+	Syncing           bool                `json:"syncing"`
+	SyncStep          string              `json:"syncStep"`
+	SyncEnabled       bool                `json:"syncEnabled"`
+	SyncTooltip       string              `json:"syncTooltip"`
+	PinText           string              `json:"pinText"`
+	CanTestConnection bool                `json:"canTestConnection"`
+	Menu              []BankMenuItemDTO   `json:"menu"`
+	Logo              string              `json:"logo"`
+	LogoLetters       string              `json:"logoLetters"`
+	LogoColour        int                 `json:"logoColour"`
 }
 
 // AccountPanelRowDTO is one row of the shared account panel.
@@ -663,6 +664,7 @@ func applyBankingCard(
 	card.SyncEnabled = shell.OnlineSyncAvailable && !bankingState.IsSyncing()
 	card.SyncTooltip = bankSyncTooltip(language)
 	card.PinText = bankPinText(bank, bankingState, language)
+	card.CanTestConnection = bank.CanTestConnection
 	card.Menu = bankMenu(bank, bankingState, accountsBusy, language)
 }
 

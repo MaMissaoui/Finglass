@@ -32,6 +32,9 @@ const (
 	Tan
 	// Decoupled asks the user to confirm in the bank's app.
 	Decoupled
+	// ProductID asks for the FinTS product registration id without echo. It
+	// carries no bank data.
+	ProductID
 )
 
 // BankingPrompt is a question from the bank waiting for the user. It never
@@ -75,6 +78,7 @@ const (
 	answerChoice
 	answerTan
 	answerDecoupled
+	answerProductID
 )
 
 // answer is the only place a secret ever lives, and it is consumed immediately.
@@ -84,6 +88,7 @@ type answer struct {
 	choice    *string
 	tan       *secret.Text
 	decoupled bool
+	productID *secret.Text
 }
 
 // wipe destroys every secret this answer still holds.
@@ -100,6 +105,10 @@ func (a *answer) wipe() {
 			pin.Wipe()
 		}
 		a.pin = nil
+	}
+	if a.productID != nil {
+		a.productID.Wipe()
+		a.productID = nil
 	}
 }
 
@@ -225,6 +234,29 @@ func (b *PromptBridge) answerTanText(id uint64, text *secret.Text) {
 	b.answerIf(id, func(kind PromptKind) bool { return kind == Tan }, answer{kind: answerTan, tan: text})
 }
 
+// AnswerProductID answers the product-id prompt. An empty value cancels. The
+// input bytes are wiped after the bridge has copied them, and an answer whose
+// id is not the open prompt's id is ignored.
+func (b *PromptBridge) AnswerProductID(id uint64, value []byte) {
+	if len(value) == 0 {
+		b.answerIf(
+			id,
+			func(kind PromptKind) bool { return kind == ProductID },
+			answer{kind: answerProductID},
+		)
+		return
+	}
+	text := secret.NewText(value)
+	for index := range value {
+		value[index] = 0
+	}
+	b.answerIf(
+		id,
+		func(kind PromptKind) bool { return kind == ProductID },
+		answer{kind: answerProductID, productID: text},
+	)
+}
+
 // AnswerDecoupled answers a decoupled-confirmation prompt. An answer whose id is
 // not the open prompt's id is ignored.
 func (b *PromptBridge) AnswerDecoupled(id uint64, confirmed bool) {
@@ -233,6 +265,20 @@ func (b *PromptBridge) AnswerDecoupled(id uint64, confirmed bool) {
 		func(kind PromptKind) bool { return kind == Decoupled },
 		answer{kind: answerDecoupled, decoupled: confirmed},
 	)
+}
+
+// DismissDecoupled answers only a pending decoupled prompt with false, as the
+// connection test does when its polling ends before the user acts. A late
+// answer is ignored by the ordinary id and kind check.
+func (b *PromptBridge) DismissDecoupled() {
+	b.mu.Lock()
+	if b.closed || b.prompt == nil || b.prompt.Kind != Decoupled {
+		b.mu.Unlock()
+		return
+	}
+	id := b.prompt.ID
+	b.mu.Unlock()
+	b.AnswerDecoupled(id, false)
 }
 
 // CancelPending cancels the open prompt and every later one. The worker is
@@ -428,6 +474,20 @@ func (b *PromptBridge) Tan(challenge banksync.TanChallenge) *secret.Text {
 		return nil
 	}
 	return result.tan
+}
+
+// AskProductID asks for the FinTS product registration id without echo. The
+// prompt carries no bank data. A nil answer cancels.
+func (b *PromptBridge) AskProductID() *secret.Text {
+	result := b.ask(BankingPrompt{Kind: ProductID})
+	if result == nil {
+		return nil
+	}
+	if result.kind != answerProductID {
+		result.wipe()
+		return nil
+	}
+	return result.productID
 }
 
 // ConfirmDecoupled handles decoupled procedures (for example pushTAN).

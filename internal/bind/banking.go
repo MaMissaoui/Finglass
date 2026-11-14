@@ -71,13 +71,27 @@ type PromptDTO struct {
 // BankingBankDTO is one bank's online-banking fields, as bank_cards and
 // bank_menu build them for the page.
 type BankingBankDTO struct {
-	BankID      int               `json:"bankId"`
-	Syncing     bool              `json:"syncing"`
-	SyncStep    string            `json:"syncStep"`
-	SyncEnabled bool              `json:"syncEnabled"`
-	SyncTooltip string            `json:"syncTooltip"`
-	PinText     string            `json:"pinText"`
-	Menu        []BankMenuItemDTO `json:"menu"`
+	BankID            int               `json:"bankId"`
+	Syncing           bool              `json:"syncing"`
+	SyncStep          string            `json:"syncStep"`
+	SyncEnabled       bool              `json:"syncEnabled"`
+	SyncTooltip       string            `json:"syncTooltip"`
+	PinText           string            `json:"pinText"`
+	CanTestConnection bool              `json:"canTestConnection"`
+	Menu              []BankMenuItemDTO `json:"menu"`
+}
+
+// ConnectionTestDTO is the latest read-only connection test. It never carries
+// trace bytes, the product id or bank text.
+type ConnectionTestDTO struct {
+	BankID   int      `json:"bankId"`
+	Running  bool     `json:"running"`
+	Go       bool     `json:"go"`
+	Reason   string   `json:"reason"`
+	Codes    []string `json:"codes"`
+	Probed   int      `json:"probed"`
+	Skipped  int      `json:"skipped"`
+	HasTrace bool     `json:"hasTrace"`
 }
 
 // BankSuggestionDTO is one row of the add-online-bank search.
@@ -115,9 +129,10 @@ type BankingDTO struct {
 	OnlineSyncAvailable bool `json:"onlineSyncAvailable"`
 	CanRememberPin      bool `json:"canRememberPin"`
 
-	OnlineSyncNote string           `json:"onlineSyncNote"`
-	Banks          []BankingBankDTO `json:"banks"`
-	InfoText       string           `json:"infoText"`
+	OnlineSyncNote string             `json:"onlineSyncNote"`
+	Banks          []BankingBankDTO   `json:"banks"`
+	ConnectionTest *ConnectionTestDTO `json:"connectionTest"`
+	InfoText       string             `json:"infoText"`
 }
 
 // BankingOptions is the process wiring the caller supplies.
@@ -256,6 +271,16 @@ func (b *Banking) SubmitHistory(bankID int, date string) (BankingDTO, error) {
 	return b.action(func() { b.session.BankingSubmitHistory(bankID, date) })
 }
 
+// TestConnection runs the read-only connection test for one bank.
+func (b *Banking) TestConnection(bankID int) (BankingDTO, error) {
+	return b.action(func() { b.session.BankingTestConnection(bankID) })
+}
+
+// SaveConnectionTrace asks where to save the last redacted connection trace.
+func (b *Banking) SaveConnectionTrace() (BankingDTO, error) {
+	return b.action(func() { b.session.BankingSaveConnectionTrace() })
+}
+
 // StartSync starts one bank's sync.
 func (b *Banking) StartSync(bankID int) (BankingDTO, error) {
 	return b.action(func() { b.session.BankingStartSync(bankID) })
@@ -376,6 +401,22 @@ func (b *Banking) CancelChoice(id uint64) error {
 	return nil
 }
 
+// AnswerProductID answers the product-id prompt with id. The value is converted
+// once to a byte slice, handed to the bridge, and wiped on every path; it is
+// never stored or returned.
+func (b *Banking) AnswerProductID(id uint64, value string) error {
+	bridge := b.bridge()
+	if bridge == nil {
+		return errBankingNotStarted
+	}
+	raw := []byte(value)
+	defer clear(raw)
+	b.captureAnswer(raw)
+	bridge.AnswerProductID(id, raw)
+	clear(raw)
+	return nil
+}
+
 // AnswerDecoupled answers a decoupled-confirmation prompt with id.
 func (b *Banking) AnswerDecoupled(id uint64, confirmed bool) error {
 	bridge := b.bridge()
@@ -474,6 +515,18 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 	if state.SyncStep != nil {
 		dto.SyncStep = *state.SyncStep
 	}
+	if state.ConnectionTest != nil {
+		dto.ConnectionTest = &ConnectionTestDTO{
+			BankID:   int(state.ConnectionTest.BankID),
+			Running:  state.ConnectionTest.Running,
+			Go:       state.ConnectionTest.Go,
+			Reason:   state.ConnectionTest.Reason,
+			Codes:    append([]string(nil), state.ConnectionTest.Codes...),
+			Probed:   state.ConnectionTest.Probed,
+			Skipped:  state.ConnectionTest.Skipped,
+			HasTrace: state.ConnectionTest.HasTrace,
+		}
+	}
 	return dto
 }
 
@@ -481,13 +534,14 @@ func bankingBanks(state *bankingcore.BankingState, language i18n.Language) []Ban
 	banks := make([]BankingBankDTO, 0, len(state.Banks))
 	for _, bank := range state.Banks {
 		banks = append(banks, BankingBankDTO{
-			BankID:      int(bank.ID),
-			Syncing:     state.SyncingBank != nil && *state.SyncingBank == bank.ID,
-			SyncStep:    bankSyncStep(state, language),
-			SyncEnabled: shell.OnlineSyncAvailable && !state.IsSyncing(),
-			SyncTooltip: bankSyncTooltip(language),
-			PinText:     bankPinText(&bank, state, language),
-			Menu:        bankMenu(&bank, state, false, language),
+			BankID:            int(bank.ID),
+			Syncing:           state.SyncingBank != nil && *state.SyncingBank == bank.ID,
+			SyncStep:          bankSyncStep(state, language),
+			SyncEnabled:       shell.OnlineSyncAvailable && !state.IsSyncing(),
+			SyncTooltip:       bankSyncTooltip(language),
+			PinText:           bankPinText(&bank, state, language),
+			CanTestConnection: bank.CanTestConnection,
+			Menu:              bankMenu(&bank, state, false, language),
 		})
 	}
 	return banks
@@ -544,6 +598,11 @@ func promptDTO(prompt *bankingcore.BankingPrompt, language i18n.Language, canRem
 		dto.Kind = "decoupled"
 		dto.Title = i18n.Text(language, i18n.ConfirmInBankingApp)
 		dto.Text = prompt.Message
+	case bankingcore.ProductID:
+		dto.Kind = "product-id"
+		dto.Title = i18n.Text(language, i18n.ProductIDPromptTitle)
+		dto.Text = i18n.Text(language, i18n.ProductIDPromptText)
+		dto.Label = i18n.Text(language, i18n.ProductIDPromptLabel)
 	}
 	return dto
 }
@@ -796,9 +855,18 @@ func bankMenu(
 		return []BankMenuItemDTO{}
 	}
 	enabled := !state.IsSyncing()
+	testEnabled := enabled && !state.IsTesting()
 	syncEnabled := shell.OnlineSyncAvailable && enabled
-	items := make([]BankMenuItemDTO, 0, 7)
+	items := make([]BankMenuItemDTO, 0, 8)
 	if !bank.Offline {
+		if bank.CanTestConnection {
+			items = append(items, BankMenuItemDTO{
+				Action:  "test-connection",
+				Label:   i18n.Text(language, i18n.TestConnection),
+				Enabled: testEnabled,
+				Icon:    "network_check",
+			})
+		}
 		items = append(items,
 			BankMenuItemDTO{
 				Action:  "history",
