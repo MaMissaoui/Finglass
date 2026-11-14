@@ -287,42 +287,38 @@
 
       {#each card.accounts as account (account.accountId)}
         <div class="account-block">
-          <div
-            class="account-row"
-            role="button"
-            tabindex="0"
-            data-testid={`account-row-${account.accountId}`}
-            onclick={() => {
-              accountMenu = -1;
-              bankMenuOpen = false;
-              onOpenDetail(account.accountId);
-            }}
-            onkeydown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
+          <div class="account-row" data-testid={`account-row-${account.accountId}`}>
+            <button
+              type="button"
+              class="account-main"
+              onclick={() => {
                 accountMenu = -1;
+                bankMenuOpen = false;
                 onOpenDetail(account.accountId);
-              }
-            }}
-          >
-            <BankBadge
-              logo={account.logo}
-              letters={account.logoLetters}
-              colourIndex={account.logoColour}
-              size={24}
-            />
-            <div class="account-text">
-              <span class="account-name">{account.name}</span>
-              <span class="account-subtitle">{account.subtitle}</span>
-            </div>
-            <span class="badge-column">
-              <CountBadge count={account.newCount} />
-            </span>
-            <span
-              class="account-amount"
-              class:muted={accountTone(account) === 'muted'}
-              class:negative={accountTone(account) === 'negative'}>{account.balanceText}</span
+              }}
             >
+              <BankBadge
+                logo={account.logo}
+                letters={account.logoLetters}
+                colourIndex={account.logoColour}
+                size={24}
+              />
+              <span class="account-text">
+                <span class="account-name">{account.name}</span>
+                <span class="account-subtitle">{account.subtitle}</span>
+              </span>
+              <span class="badge-column">
+                <CountBadge
+                  count={account.newCount}
+                  label={t('NewBookingsCount', account.newCount)}
+                />
+              </span>
+              <span
+                class="account-amount"
+                class:muted={accountTone(account) === 'muted'}
+                class:negative={accountTone(account) === 'negative'}>{account.balanceText}</span
+              >
+            </button>
             <button
               type="button"
               class="row-icon transactions"
@@ -779,6 +775,22 @@
     background: var(--color-background);
   }
 
+  .account-main {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 100%;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
   .row-icon.transactions {
     opacity: 0;
   }
@@ -788,7 +800,7 @@
     opacity: 1;
   }
 
-  .account-row:focus-visible {
+  .account-main:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: -2px;
   }

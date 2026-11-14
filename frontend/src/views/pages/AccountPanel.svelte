@@ -35,7 +35,7 @@
     groups: AccountGroupChoiceDTO[];
     filterText: string;
     shownText: string;
-    t: (key: string) => string;
+    t: (key: string, ...args: (string | number)[]) => string;
     pageSearch?: boolean;
     onFilter: (text: string) => void;
     onSelect: (kind: string, groupKind: string, id: number, accountType: string) => void;
@@ -159,24 +159,63 @@
           class="row"
           class:account={row.kind === 'account'}
           class:selected={row.selected}
-          role="button"
-          tabindex="0"
           data-testid={`panel-row-${rowKey(row)}`}
           data-kind={row.kind}
           data-group-kind={row.groupKind}
           data-row-id={row.id}
           data-label={row.label}
-          onclick={() => onSelect(row.kind, row.groupKind, row.id, row.accountType)}
-          onkeydown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              onSelect(row.kind, row.groupKind, row.id, row.accountType);
-            }
-          }}
         >
           {#if row.selected}
             <span class="accent" aria-hidden="true"></span>
           {/if}
+
+          <button
+            type="button"
+            class="row-main"
+            onclick={() => onSelect(row.kind, row.groupKind, row.id, row.accountType)}
+          >
+            {#if row.kind === 'account' && row.logo === '' && row.logoLetters === ''}
+              <span class="badge-space" aria-hidden="true"></span>
+            {/if}
+
+            {#if row.logo !== '' || row.logoLetters !== ''}
+              <BankBadge
+                logo={row.logo}
+                letters={row.logoLetters}
+                colourIndex={row.logoColour}
+                size={20}
+              />
+            {/if}
+
+            <span class="row-text">
+              <span class="label" class:group-label={row.kind === 'group'}>{row.label}</span>
+              {#if row.secondary !== ''}
+                <span class="secondary">{row.secondary}</span>
+              {/if}
+            </span>
+
+            <span class="count-column" class:empty={row.newCount === 0}>
+              <CountBadge count={row.newCount} label={t('NewBookingsCount', row.newCount)} />
+            </span>
+
+            <span class="amounts">
+              {#if split.main}
+                <span
+                  class="amount"
+                  class:muted={amountClass(row, split.main.tone) === 'muted'}
+                  class:negative={amountClass(row, split.main.tone) === 'negative'}
+                  >{split.main.text}</span
+                >
+              {/if}
+              {#if split.further.length > 0}
+                <span class="amount-further">
+                  {#each split.further as amount (amount.text)}
+                    <span>+ {amount.text}</span>
+                  {/each}
+                </span>
+              {/if}
+            </span>
+          </button>
 
           {#if row.kind === 'group'}
             <button
@@ -196,48 +235,6 @@
               />
             </button>
           {/if}
-
-          {#if row.kind === 'account' && row.logo === '' && row.logoLetters === ''}
-            <span class="badge-space" aria-hidden="true"></span>
-          {/if}
-
-          {#if row.logo !== '' || row.logoLetters !== ''}
-            <BankBadge
-              logo={row.logo}
-              letters={row.logoLetters}
-              colourIndex={row.logoColour}
-              size={20}
-            />
-          {/if}
-
-          <div class="row-text">
-            <span class="label" class:group-label={row.kind === 'group'}>{row.label}</span>
-            {#if row.secondary !== ''}
-              <span class="secondary">{row.secondary}</span>
-            {/if}
-          </div>
-
-          <span class="count-column" class:empty={row.newCount === 0}>
-            <CountBadge count={row.newCount} />
-          </span>
-
-          <div class="amounts">
-            {#if split.main}
-              <span
-                class="amount"
-                class:muted={amountClass(row, split.main.tone) === 'muted'}
-                class:negative={amountClass(row, split.main.tone) === 'negative'}
-                >{split.main.text}</span
-              >
-            {/if}
-            {#if split.further.length > 0}
-              <span class="amount-further">
-                {#each split.further as amount (amount.text)}
-                  <span>+ {amount.text}</span>
-                {/each}
-              </span>
-            {/if}
-          </div>
 
           {#if row.newCount > 0 || row.kind === 'account' || (row.kind === 'group' && row.groupKind === 'custom')}
             <button
@@ -455,7 +452,23 @@
     background: var(--color-selected);
   }
 
-  .row:focus-visible {
+  .row-main {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 100%;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .row-main:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: -2px;
   }
@@ -483,6 +496,10 @@
     background: transparent;
     color: var(--color-muted-text);
     cursor: pointer;
+  }
+
+  .chevron {
+    order: -1;
   }
 
   .dot {

@@ -55,70 +55,66 @@
     class:pending={row.pending}
     class:new={row.isNew}
     class:interactive={!row.pending}
-    role="button"
-    tabindex={row.pending ? -1 : 0}
-    aria-disabled={row.pending || undefined}
     data-id={row.id}
-    onclick={activate}
-    onkeydown={(event) => {
-      if (row.pending) {
-        return;
-      }
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        onOpen(row.id);
-      }
-    }}
   >
     {#if row.selected}
       <span class="accent" aria-hidden="true"></span>
     {/if}
 
-    <div class="select-column">
-      {#if row.isNew}
-        <span class="new-dot" aria-hidden="true"></span>
-      {/if}
-    </div>
-
-    <span class="date">{row.dateText}</span>
-
-    <div class="description">
-      <div class="title-line">
-        <span class="title">{row.title}</span>
-        {#if row.hasDocuments}
-          <span class="paperclip" title={row.documentsText}>
-            <Icon name="attach_file" size={16} />
-          </span>
+    <button
+      type="button"
+      class="row-main"
+      aria-disabled={row.pending || undefined}
+      disabled={row.pending}
+      onclick={activate}
+    >
+      <span class="select-column">
+        {#if row.isNew}
+          <span class="new-dot" aria-hidden="true"></span>
+          <span class="visually-hidden">{t('NewBooking')}</span>
         {/if}
-      </div>
-      {#if row.subtitle !== ''}
-        <span class="subtitle">{row.subtitle}</span>
-      {/if}
-    </div>
-
-    <div class="category">
-      <span class="marker" style:background={row.categoryColour} aria-hidden="true"></span>
-      {#if !row.pending}
-        <span class="category-text">{row.categoryText}</span>
-      {/if}
-    </div>
-
-    <span class="amount" class:negative={!row.pending && row.expense}>{row.amountText}</span>
-
-    {#if hasBalanceColumn}
-      <span
-        class="balance"
-        class:muted={balanceClass(row.balanceTone) === 'muted'}
-        class:negative={balanceClass(row.balanceTone) === 'negative'}
-      >
-        {#if row.balanceWarning}
-          <span class="warning" title={row.balanceMismatch}>
-            <Icon name="warning" size={16} />
-          </span>
-        {/if}
-        {row.balanceText}
       </span>
-    {/if}
+
+      <span class="date">{row.dateText}</span>
+
+      <span class="description">
+        <span class="title-line">
+          <span class="title">{row.title}</span>
+          {#if row.hasDocuments}
+            <span class="paperclip" title={row.documentsText}>
+              <Icon name="attach_file" size={16} />
+            </span>
+          {/if}
+        </span>
+        {#if row.subtitle !== ''}
+          <span class="subtitle">{row.subtitle}</span>
+        {/if}
+      </span>
+
+      <span class="category">
+        <span class="marker" style:background={row.categoryColour} aria-hidden="true"></span>
+        {#if !row.pending}
+          <span class="category-text">{row.categoryText}</span>
+        {/if}
+      </span>
+
+      <span class="amount" class:negative={!row.pending && row.expense}>{row.amountText}</span>
+
+      {#if hasBalanceColumn}
+        <span
+          class="balance"
+          class:muted={balanceClass(row.balanceTone) === 'muted'}
+          class:negative={balanceClass(row.balanceTone) === 'negative'}
+        >
+          {#if row.balanceWarning}
+            <span class="warning" title={row.balanceMismatch}>
+              <Icon name="warning" size={16} />
+            </span>
+          {/if}
+          {row.balanceText}
+        </span>
+      {/if}
+    </button>
 
     <button
       type="button"
@@ -193,9 +189,41 @@
     background: var(--color-selected);
   }
 
-  .row:focus-visible {
+  .row-main {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .row-main[disabled] {
+    cursor: default;
+  }
+
+  .row-main:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: -2px;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .accent {
