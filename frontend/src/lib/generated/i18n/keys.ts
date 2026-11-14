@@ -876,6 +876,8 @@ export const keys = [
   'ErrorFinDeskSourceChanged',
   'ErrorMigrationTargetNotEmpty',
   'TestConnection',
+  'TestConnectionBankMessages',
+  'TestConnectionBankMessagesNote',
   'TestConnectionHelp',
   'TestConnectionRunning',
   'TestConnectionGo',

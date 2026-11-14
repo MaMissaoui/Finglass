@@ -37,6 +37,7 @@ export {
     AppInfoDTO,
     BankAccountRowDTO,
     BankMenuItemDTO,
+    BankMessageDTO,
     BankSuggestionDTO,
     BankingBankDTO,
     BankingDTO,

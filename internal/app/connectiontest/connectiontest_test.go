@@ -1,6 +1,7 @@
 package connectiontest
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -845,5 +846,173 @@ func TestRunDismissesAPromptPostedAfterThePollEnded(t *testing.T) {
 	}
 	if active := interaction.activeConfirmations(); active != 0 {
 		t.Fatalf("confirmation goroutines still active: %d", active)
+	}
+}
+
+// ---- bank messages ----
+
+const bankMessageMarker = "MARKER-TEXT-1234567890"
+
+// fixedTransport answers every exchange with one scripted response.
+type fixedTransport struct {
+	response string
+}
+
+func (f *fixedTransport) Exchange(_ context.Context, _ []byte) ([]byte, error) {
+	return []byte(f.response), nil
+}
+
+func hirmsResponse(reference int, entries ...string) string {
+	return responseMessage(
+		testDialogID,
+		fmt.Sprintf("HIRMS:2:2:%d+%s'", reference, strings.Join(entries, "+")),
+	)
+}
+
+func collectMessages(t *testing.T, request string, entries ...string) []BankMessage {
+	t.Helper()
+	collector := newMessageCollector(&fixedTransport{
+		response: hirmsResponse(5, entries...),
+	})
+	if _, err := collector.Exchange(context.Background(), []byte(request)); err != nil {
+		t.Fatalf("exchange: %v", err)
+	}
+	return collector.snapshot()
+}
+
+func findMessage(messages []BankMessage, code string) (BankMessage, bool) {
+	for _, message := range messages {
+		if message.Code == code {
+			return message, true
+		}
+	}
+	return BankMessage{}, false
+}
+
+func TestRunCollectsTheBanksWarningsAndErrors(t *testing.T) {
+	bank := newFakeTransport(t)
+	bank.reply(syncResponse(
+		chipHitans("chipTAN manuell", 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N"),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	// Init numbers HKIDN 3, HKVVB 4 and HKTAN 5 inside HNVSD.
+	bank.reply(responseMessage(
+		testDialogID,
+		"HIRMG:2:2+3060::"+bankMessageMarker+"'",
+		"HIRMS:3:2:5+9210::"+bankMessageMarker+"'",
+		"HIRMS:4:2:5+0020::"+testMessage+"'",
+	))
+
+	outcome := Run(context.Background(), newInput(t, &fakeInteraction{pin: testPIN}, factoryFor(bank)))
+	if outcome.Go {
+		t.Fatalf("outcome = %s, want NO-GO", outcome)
+	}
+	if len(outcome.Messages) < 2 {
+		t.Fatalf("messages = %s, want at least two", fmt.Sprint(outcome.Messages))
+	}
+	message, ok := findMessage(outcome.Messages, "9210")
+	if !ok {
+		t.Fatalf("messages = %s, want 9210", fmt.Sprint(outcome.Messages))
+	}
+	if message.Segment != "HKTAN" {
+		t.Fatalf("9210 segment = %q, want HKTAN", message.Segment)
+	}
+	if !strings.Contains(message.Text, bankMessageMarker) {
+		t.Fatalf("9210 text = %q, want the marker", message.Text)
+	}
+	if _, ok := findMessage(outcome.Messages, "0020"); ok {
+		t.Fatal("a success code was collected")
+	}
+	warning, ok := findMessage(outcome.Messages, "3060")
+	if !ok || warning.Segment != "" {
+		t.Fatalf("3060 = %#v, want a message-level warning", warning)
+	}
+
+	if bytes.Contains(outcome.Trace, []byte(bankMessageMarker)) {
+		t.Fatalf("trace leaked the bank text: %s", outcome.Trace)
+	}
+	rendered := []string{
+		fmt.Sprintf("%v %+v %#v %s", outcome, outcome, outcome, outcome),
+		fmt.Sprint(outcome.Messages),
+		fmt.Sprint(outcome.Messages[0]),
+		fmt.Sprintf("%v %+v %#v %s", outcome.Messages[0], outcome.Messages[0], outcome.Messages[0], outcome.Messages[0]),
+	}
+	for _, value := range rendered {
+		if strings.Contains(value, bankMessageMarker) {
+			t.Fatalf("formatting leaked the bank text: %s", value)
+		}
+	}
+}
+
+func TestMessageCollectorDeduplicatesAndKeepsTwenty(t *testing.T) {
+	entries := []string{
+		"3001::same",
+		"3001::same",
+		"3001::different",
+	}
+	for index := 1; index <= 25; index++ {
+		entries = append(entries, fmt.Sprintf("30%02d::message %d", index, index))
+	}
+
+	messages := collectMessages(t, "HKTAN:5:7+4+HKIDN'", entries...)
+	if len(messages) != 20 {
+		t.Fatalf("messages = %d, want the first 20", len(messages))
+	}
+	if messages[0].Code != "3001" || messages[0].Text != "same" {
+		t.Fatalf("first message = %#v", messages[0])
+	}
+	if messages[1].Code != "3001" || messages[1].Text != "different" {
+		t.Fatalf("second message = %#v", messages[1])
+	}
+	for _, message := range messages[2:] {
+		if message.Text == "same" {
+			t.Fatal("the duplicate survived")
+		}
+	}
+	if messages[19].Text != "message 18" {
+		t.Fatalf("20th message = %#v, want message 18", messages[19])
+	}
+}
+
+func TestMessageCollectorCutsTextAt300Runes(t *testing.T) {
+	messages := collectMessages(t, "HKTAN:5:7+4+HKIDN'", "3002::"+strings.Repeat("x", 350))
+	if len(messages) != 1 {
+		t.Fatalf("messages = %#v", messages)
+	}
+	if runes := []rune(messages[0].Text); len(runes) != 301 || runes[300] != '…' {
+		t.Fatalf("long text has %d runes and ends with %q", len(runes), runes[len(runes)-1])
+	}
+}
+
+func TestMessageCollectorCleansTextAndRejectsBadCodesAndSegments(t *testing.T) {
+	messages := collectMessages(
+		t,
+		"HK2AN:5:7+4+HKIDN'",
+		"3001::  A\x00\x07\tB\n\nC   D  ",
+		"30X0::invalid warning",
+		"921::short error",
+		"9210::valuable error",
+	)
+	if len(messages) != 2 {
+		t.Fatalf("messages = %s, want two", fmt.Sprint(messages))
+	}
+	if messages[0].Text != "A B C D" {
+		t.Fatalf("cleaned text = %q, want %q", messages[0].Text, "A B C D")
+	}
+	if messages[0].Segment != "" || messages[1].Segment != "" {
+		t.Fatalf("bad request segment names were kept: %s", fmt.Sprint(messages))
+	}
+	if messages[1].Code != "9210" || messages[1].Text != "valuable error" {
+		t.Fatalf("valid message = %#v", messages[1])
+	}
+}
+
+func TestMessageCollectorWithoutARequestMapKeepsTheMessageLevelSegment(t *testing.T) {
+	messages := collectMessages(t, "not a segment", "9210::still collected")
+	if len(messages) != 1 || messages[0].Segment != "" || messages[0].Text != "still collected" {
+		t.Fatalf("messages = %#v", messages)
 	}
 }

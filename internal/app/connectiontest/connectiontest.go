@@ -2,9 +2,10 @@
 // login and returns a result the app can show.
 //
 // It never imports, stores or changes anything: no account, balance, booking,
-// TAN method, capability, system id or remembered PIN. The result carries only
-// a localized reason, four-digit bank codes and counts; the redacted trace is
-// kept in memory by the caller.
+// TAN method, capability, system id or remembered PIN. The result carries a
+// localized reason, four-digit bank codes, counts and the bank's warning/error
+// texts for on-screen display; the redacted trace is kept in memory by the
+// caller.
 package connectiontest
 
 import (
@@ -77,8 +78,9 @@ type Input struct {
 	Language i18n.Language
 }
 
-// Outcome is the result of one connection test. It contains no bank text, no
-// account identifier and no secret.
+// Outcome is the result of one connection test. It contains no account
+// identifier and no secret. Its bank messages are the bank's own warning/error
+// texts: show them on screen only and never log, store, audit or trace them.
 type Outcome struct {
 	// Go reports whether the probe saw a usable read-only login.
 	Go bool
@@ -89,6 +91,8 @@ type Outcome struct {
 	Other string
 	// Codes are the bank's four-digit return codes.
 	Codes []string
+	// Messages are the bank's warning and error texts for on-screen display.
+	Messages []BankMessage
 	// Probed is the number of accounts the probe attempted.
 	Probed int
 	// Skipped is the number of accounts the probe skipped.
@@ -99,16 +103,16 @@ type Outcome struct {
 	Trace []byte
 }
 
-// String prints the decision, kind and counts and never the trace or a bank
-// value.
+// String prints the decision, kind, counts and message count. It never prints
+// the trace, a bank value or a bank message text.
 func (o Outcome) String() string {
 	decision := fmt.Sprintf("NO-GO (%d:%s)", o.Kind, o.Other)
 	if o.Go {
 		decision = "GO"
 	}
 	return fmt.Sprintf(
-		"connectiontest.Outcome{decision:%s codes:%d probed:%d skipped:%d cancelled:%t trace:%t}",
-		decision, len(o.Codes), o.Probed, o.Skipped, o.Cancelled, len(o.Trace) > 0,
+		"connectiontest.Outcome{decision:%s codes:%d messages:%d probed:%d skipped:%d cancelled:%t trace:%t}",
+		decision, len(o.Codes), len(o.Messages), o.Probed, o.Skipped, o.Cancelled, len(o.Trace) > 0,
 	)
 }
 
@@ -182,7 +186,8 @@ func Run(ctx context.Context, input Input) Outcome {
 	if err != nil || transport == nil {
 		return Outcome{Kind: fintsprobe.NoGoOther, Other: OtherTransport}
 	}
-	recorder := trace.NewRecorder(transport)
+	collector := newMessageCollector(transport)
+	recorder := trace.NewRecorder(collector)
 
 	probeContext, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -207,6 +212,7 @@ func Run(ctx context.Context, input Input) Outcome {
 		Kind:      result.Decision.Reason.Kind,
 		Other:     result.Decision.Reason.Other,
 		Codes:     append([]string(nil), result.Decision.Reason.Codes...),
+		Messages:  collector.snapshot(),
 		Probed:    result.Probed,
 		Skipped:   result.Skipped,
 		Cancelled: adapter.wasCancelled(),

@@ -448,7 +448,17 @@ test('a refused login shows the NO-GO panel with the bank return code', async ({
   await runConnectionTest(page);
   const panel = connectionPanel(page);
   await expect(panel).toContainText('The login data is invalid.');
-  await expect(panel.locator('.code-chip')).toHaveText(['9942']);
+  await expect(panel.locator('.test-codes .code-chip')).toHaveText(['9942']);
+  await expect(panel.getByText('Messages from the bank', { exact: true })).toBeVisible();
+  const bankMessage = panel.locator('.test-bank-message').filter({ hasText: '9210' });
+  await expect(bankMessage).toContainText('HKTAN');
+  await expect(bankMessage).toContainText('Invented test message for the mock bank.');
+  await expect(
+    panel.getByText(
+      'Bank messages can contain account details. They are shown only here and are not saved, not even in the trace.',
+      { exact: true },
+    ),
+  ).toBeVisible();
   await expect(panel).not.toContainText('Connection works.');
   await expect(panel.getByRole('button', { name: 'Save redacted trace…' })).toBeVisible();
   await expectClean(watcher);

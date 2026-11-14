@@ -131,6 +131,31 @@ func TestResponseTouchdownPrefersSegmentCodes(t *testing.T) {
 	}
 }
 
+func TestReturnCodesOfSegment(t *testing.T) {
+	input := "HIRMS:2:2:1+9210::Erste Meldung:param+3060::Zweite Meldung'"
+	response, err := ParseResponse([]byte(input))
+	if err != nil {
+		t.Fatalf("ParseResponse: %v", err)
+	}
+	if len(response.Segments) != 1 {
+		t.Fatalf("segments = %d, want 1", len(response.Segments))
+	}
+	codes := ReturnCodesOf(response.Segments[0])
+	if len(codes) != 2 {
+		t.Fatalf("codes = %d, want 2", len(codes))
+	}
+	if codes[0].Code != "9210" || codes[0].Text() != "Erste Meldung" ||
+		len(codes[0].Params) != 1 || codes[0].Params[0] != "param" {
+		t.Fatalf("first code = %#v", codes[0])
+	}
+	if codes[1].Code != "3060" || codes[1].Text() != "Zweite Meldung" {
+		t.Fatalf("second code = %#v", codes[1])
+	}
+	if got := ReturnCodesOf(ParsedSegment{}); got != nil {
+		t.Fatalf("empty segment codes = %v", got)
+	}
+}
+
 func TestResponseWithoutErrorsOrTouchdown(t *testing.T) {
 	response, err := ParseResponse([]byte("HIRMG:1:2+0010::OK'"))
 	if err != nil {
