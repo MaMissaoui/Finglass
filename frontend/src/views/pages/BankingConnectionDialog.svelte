@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { AccountsDialogDTO } from '../../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
-  import { OutlinedField, PrimaryButton, TextButton } from '../../lib/components';
+  import { OutlinedField, PrimaryButton, SelectPill, TextButton } from '../../lib/components';
 
   let {
     dialog,
@@ -13,7 +13,14 @@
     t: (key: string) => string;
     onClose: () => void;
     onForgetPin: (bankID: number) => void;
-    onSave: (bankID: number, name: string, blz: string, userID: string, serverURL: string) => void;
+    onSave: (
+      bankID: number,
+      name: string,
+      blz: string,
+      userID: string,
+      serverURL: string,
+      pinForgetAfter: string,
+    ) => void;
   } = $props();
 
   // The parent keys this component by dialog identity, so these are the
@@ -26,9 +33,16 @@
   let userID = $state(dialog.connectionUserId);
   // svelte-ignore state_referenced_locally
   let serverURL = $state(dialog.connectionServerUrl);
+  // svelte-ignore state_referenced_locally
+  let pinForgetAfter = $state(dialog.connectionPinForgetAfter === '2' ? '2' : '1');
+
+  const pinForgetAfterLabels = $derived([t('PinForgetAfterFirst'), t('PinForgetAfterSecond')]);
+  const pinForgetAfterLabel = $derived(
+    pinForgetAfter === '2' ? t('PinForgetAfterSecond') : t('PinForgetAfterFirst'),
+  );
 
   function save(): void {
-    onSave(dialog.bankId, name, blz, userID, serverURL);
+    onSave(dialog.bankId, name, blz, userID, serverURL, pinForgetAfter);
   }
 </script>
 
@@ -63,6 +77,17 @@
           />
         </div>
       {/if}
+
+      <div class="pin-forget-after">
+        <span class="hint">{t('PinForgetAfterLabel')}</span>
+        <SelectPill
+          value={pinForgetAfterLabel}
+          options={pinForgetAfterLabels}
+          enabled={!dialog.connectionSyncing}
+          onchosen={(index) => (pinForgetAfter = index === 1 ? '2' : '1')}
+        />
+      </div>
+      <p class="hint">{t('PinForgetAfterHint')}</p>
     {/if}
 
     {#if dialog.errorText !== ''}
@@ -133,6 +158,13 @@
 
   .forget {
     display: flex;
+  }
+
+  .pin-forget-after {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .error {

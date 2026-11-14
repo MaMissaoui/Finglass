@@ -20,6 +20,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
+	"github.com/MaMissaoui/Finglass/internal/core/paths"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/bankconnections"
 	"github.com/MaMissaoui/Finglass/internal/core/settings"
 	"github.com/MaMissaoui/Finglass/internal/fints"
@@ -48,6 +49,7 @@ type connectionTestTransport struct {
 	t        *testing.T
 	replies  []connectionTestReply
 	records  [][]string
+	sent     [][]byte
 	requests int
 }
 
@@ -61,6 +63,7 @@ func (f *connectionTestTransport) Exchange(_ context.Context, request []byte) ([
 	if err != nil {
 		f.t.Fatalf("inspect request: %v", err)
 	}
+	f.sent = append(f.sent, append([]byte(nil), request...))
 	f.records = append(f.records, types)
 	call := len(f.records) - 1
 	f.requests++
@@ -582,6 +585,25 @@ func markerConnectionBank(t *testing.T, marker string) *connectionTestTransport 
 	return bank
 }
 
+func rejectedSavedPinBank(t *testing.T, code string) *connectionTestTransport {
+	t.Helper()
+	bank := &connectionTestTransport{t: t}
+	bank.reply(connectionSync(
+		connectionChipHitans("chipTAN manuell", 5, 2),
+		connectionAllowed(),
+		connectionHipins("HKSAL:N"),
+		connectionHiupd(connectionTestIBAN, "00000001", "EUR"),
+	))
+	bank.reply(connectionSuccess("dialog-sync"))
+	bank.reply(connectionResponse(
+		connectionTestDialog,
+		"HIRMG:2:2+3060::"+connectionTestText+"'",
+		"HIRMS:3:2:5+9210::"+connectionTestText+"+"+code+"::"+connectionTestText+"'",
+		"HIRMS:4:2:5+0020::"+connectionTestText+"'",
+	))
+	return bank
+}
+
 func tableContents(t *testing.T, database *db.Database, table string) string {
 	t.Helper()
 	var builder strings.Builder
@@ -776,4 +798,343 @@ func TestAConnectionTestSetsOrKeepsTheSyncUnlock(t *testing.T) {
 			t.Fatalf("a transport failure changed the unlock: ok=%t err=%v", ok, err)
 		}
 	})
+}
+
+func storedPinSnapshot(t *testing.T, store *banksync.MemoryCredentialStore, appPaths paths.AppPaths, bankID model.BankConnectionID) (int, string) {
+	t.Helper()
+	value, found, err := store.Read(bankingPinKey(appPaths, bankID))
+	if err != nil {
+		t.Fatalf("read saved PIN: %v", err)
+	}
+	if !found {
+		return store.Len(), ""
+	}
+	return store.Len(), string(value)
+}
+
+func runTestConnectionWithSavedPin(
+	t *testing.T,
+	session *Session,
+	bank *connectionTestTransport,
+) banking.ConnectionTestResult {
+	t.Helper()
+	session.connectionTestFactory = func(string) (fints.Transport, error) { return bank, nil }
+	session.BankingTestConnection(int(testBankID(t, session)))
+	answerProductID(t, session, []byte(connectionTestID))
+	answerBankingTan(t, session, connectionTestTAN)
+	return waitConnectionTestDone(t, session)
+}
+
+func TestConnectionTestUsesTheSavedPinWithoutPromptingOrStoring(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	session, bankID, appPaths := newBankingSession(t, store, nil)
+	saveBankingPin(t, session, store, appPaths, bankID)
+	beforeLen, beforeValue := storedPinSnapshot(t, store, appPaths, bankID)
+	bank := typedTANConnectionBank(t)
+
+	result := runTestConnectionWithSavedPin(t, session, bank)
+
+	if !result.Go || !result.UsedSavedPin {
+		t.Fatalf("result = %+v, want GO with the saved PIN", result)
+	}
+	if result.SavedPinForgotten || result.SavedPinRejectedOnce {
+		t.Fatalf("a GO changed the saved PIN state: %+v", result)
+	}
+	found := false
+	for _, request := range bank.sent {
+		if strings.Contains(string(request), "24680") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("the fake bank never received the saved PIN")
+	}
+	afterLen, afterValue := storedPinSnapshot(t, store, appPaths, bankID)
+	if afterLen != beforeLen || afterValue != beforeValue {
+		t.Fatalf("credential store changed: %d/%q -> %d/%q", beforeLen, beforeValue, afterLen, afterValue)
+	}
+}
+
+func TestConnectionTestSavedPinReadFailureAsksAndDeletesNothing(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	session, bankID, appPaths := newBankingSession(t, store, nil)
+	saveBankingPin(t, session, store, appPaths, bankID)
+	beforeLen, beforeValue := storedPinSnapshot(t, store, appPaths, bankID)
+	store.SetFailingReads(true)
+
+	session.connectionTestFactory = func(string) (fints.Transport, error) {
+		return typedTANConnectionBank(t), nil
+	}
+	session.BankingTestConnection(int(bankID))
+	answerProductID(t, session, []byte(connectionTestID))
+	answerBankingPin(t, session, connectionTestPIN, false)
+	answerBankingTan(t, session, connectionTestTAN)
+	result := waitConnectionTestDone(t, session)
+
+	if result.UsedSavedPin {
+		t.Fatal("a failing store read still reported the saved PIN")
+	}
+	store.SetFailingReads(false)
+	afterLen, afterValue := storedPinSnapshot(t, store, appPaths, bankID)
+	if afterLen != beforeLen || afterValue != beforeValue {
+		t.Fatalf("credential store changed: %d/%q -> %d/%q", beforeLen, beforeValue, afterLen, afterValue)
+	}
+	if !hasBankingPin(t, session, store, appPaths, bankID) {
+		t.Fatal("the saved PIN or its flag was deleted after a read failure")
+	}
+}
+
+func TestConnectionTestStaleSavedPinIsForgottenAndThePromptAsks(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	session, bankID, appPaths := newBankingSession(t, store, nil)
+	saveBankingPin(t, session, store, appPaths, bankID)
+	database := sessionDatabase(t, session)
+	if err := settings.Set(
+		context.Background(),
+		database,
+		banksync.PinFlagKey(bankID),
+		"37040044|someone-else",
+	); err != nil {
+		t.Fatalf("stale flag: %v", err)
+	}
+
+	session.connectionTestFactory = func(string) (fints.Transport, error) {
+		return typedTANConnectionBank(t), nil
+	}
+	session.BankingTestConnection(int(bankID))
+	answerProductID(t, session, []byte(connectionTestID))
+	answerBankingPin(t, session, connectionTestPIN, false)
+	answerBankingTan(t, session, connectionTestTAN)
+	result := waitConnectionTestDone(t, session)
+
+	if !result.Go || result.UsedSavedPin {
+		t.Fatalf("result = %+v, want GO after the prompt", result)
+	}
+	if store.Contains(bankingPinKey(appPaths, bankID)) {
+		t.Fatal("the stale saved PIN survived")
+	}
+	if hasBankingPin(t, session, store, appPaths, bankID) {
+		t.Fatal("the stale PIN flag survived")
+	}
+}
+
+func TestConnectionTestSavedPinRejectionLockSyncAndForgetsWithOptionOne(t *testing.T) {
+	for _, code := range []string{"9931", "9999"} {
+		t.Run(code, func(t *testing.T) {
+			store := banksync.NewMemoryCredentialStore()
+			session, bankID, appPaths := newBankingSession(t, store, nil)
+			saveBankingPin(t, session, store, appPaths, bankID)
+			session.connectionTestFactory = func(string) (fints.Transport, error) {
+				return rejectedSavedPinBank(t, code), nil
+			}
+			session.BankingTestConnection(int(bankID))
+			answerProductID(t, session, []byte(connectionTestID))
+			result := waitConnectionTestDone(t, session)
+
+			if result.Go || !result.UsedSavedPin || !result.SavedPinForgotten {
+				t.Fatalf("result = %+v, want NO-GO with the saved PIN removed", result)
+			}
+			if store.Contains(bankingPinKey(appPaths, bankID)) {
+				t.Fatal("the rejected PIN is still stored")
+			}
+			database := sessionDatabase(t, session)
+			if _, ok, err := settings.Get(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil || ok {
+				t.Fatalf("the NO-GO did not lock sync: ok=%t err=%v", ok, err)
+			}
+			if !auditHasActionForKey(t, database, banksync.CodeSyncLocked) {
+				t.Fatal("the NO-GO wrote no sync-locked audit entry")
+			}
+		})
+	}
+}
+
+func auditHasActionForKey(t *testing.T, database *db.Database, action string) bool {
+	t.Helper()
+	entries, err := audit.Recent(context.Background(), database, 1000)
+	if err != nil {
+		t.Fatalf("audit: %v", err)
+	}
+	for _, entry := range entries {
+		if entry.Action == action {
+			return true
+		}
+	}
+	return false
+}
+
+func TestConnectionTestKeepsTheSavedPinAfterTransportAndCancel(t *testing.T) {
+	t.Run("transport", func(t *testing.T) {
+		store := banksync.NewMemoryCredentialStore()
+		session, bankID, appPaths := newBankingSession(t, store, nil)
+		saveBankingPin(t, session, store, appPaths, bankID)
+		service, ok := session.bankingServiceLocked(i18n.En)
+		if !ok {
+			t.Fatal("no banking service")
+		}
+		if pin := service.StoredPinForTest(context.Background(), sessionDatabase(t, session), bankID); pin == nil {
+			t.Fatal("test setup: the saved PIN is not readable")
+		} else {
+			pin.Wipe()
+		}
+		beforeLen, beforeValue := storedPinSnapshot(t, store, appPaths, bankID)
+		session.connectionTestFactory = func(string) (fints.Transport, error) {
+			return nil, errors.New("invented transport failure")
+		}
+		session.BankingTestConnection(int(bankID))
+		answerProductID(t, session, []byte(connectionTestID))
+		result := waitConnectionTestDone(t, session)
+		if result.Go || !result.UsedSavedPin || result.SavedPinForgotten {
+			t.Fatalf("result = %+v", result)
+		}
+		afterLen, afterValue := storedPinSnapshot(t, store, appPaths, bankID)
+		if afterLen != beforeLen || afterValue != beforeValue {
+			t.Fatalf("credential store changed: %d/%q -> %d/%q", beforeLen, beforeValue, afterLen, afterValue)
+		}
+		if pinRejectionsSet(t, session, bankID) {
+			t.Fatal("a transport failure changed the rejection count")
+		}
+	})
+
+	t.Run("cancel", func(t *testing.T) {
+		store := banksync.NewMemoryCredentialStore()
+		session, bankID, appPaths := newBankingSession(t, store, nil)
+		saveBankingPin(t, session, store, appPaths, bankID)
+		beforeLen, beforeValue := storedPinSnapshot(t, store, appPaths, bankID)
+		session.connectionTestFactory = func(string) (fints.Transport, error) {
+			return typedTANConnectionBank(t), nil
+		}
+		session.BankingTestConnection(int(bankID))
+		answerProductID(t, session, []byte(connectionTestID))
+		prompt := waitForBankingPrompt(t, session, banking.Tan)
+		session.Bridge().AnswerTan(prompt.ID, nil)
+		result := waitConnectionTestDone(t, session)
+		if result.Go || !result.UsedSavedPin {
+			t.Fatalf("result = %+v, want a non-GO with the saved PIN", result)
+		}
+		if result.Reason != i18n.Text(i18n.En, i18n.TestConnectionCancelled) &&
+			result.Reason != i18n.Format(i18n.En, i18n.TestConnectionOther, i18n.Str("PromptFailed")) {
+			t.Fatalf("result = %+v, want a cancel or prompt failure", result)
+		}
+		afterLen, afterValue := storedPinSnapshot(t, store, appPaths, bankID)
+		if afterLen != beforeLen || afterValue != beforeValue {
+			t.Fatalf("credential store changed: %d/%q -> %d/%q", beforeLen, beforeValue, afterLen, afterValue)
+		}
+		if pinRejectionsSet(t, session, bankID) {
+			t.Fatal("a cancel changed the rejection count")
+		}
+	})
+}
+
+func pinRejectionsSet(t *testing.T, session *Session, bankID model.BankConnectionID) bool {
+	t.Helper()
+	database := sessionDatabase(t, session)
+	_, ok, err := settings.Get(context.Background(), database, banksync.PinRejectionsKey(bankID))
+	if err != nil {
+		t.Fatalf("settings.Get: %v", err)
+	}
+	return ok
+}
+
+func setPinForgetAfterForTest(t *testing.T, session *Session, bankID model.BankConnectionID, value string) {
+	t.Helper()
+	database := sessionDatabase(t, session)
+	if err := settings.Set(
+		context.Background(),
+		database,
+		banksync.PinForgetAfterKey(bankID),
+		value,
+	); err != nil {
+		t.Fatalf("set pin-forget-after: %v", err)
+	}
+}
+
+func TestConnectionTestOptionTwoKeepsAndThenRemovesTheSavedPin(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	session, bankID, appPaths := newBankingSession(t, store, nil)
+	saveBankingPin(t, session, store, appPaths, bankID)
+	setPinForgetAfterForTest(t, session, bankID, "2")
+
+	run := func(code string) banking.ConnectionTestResult {
+		session.connectionTestFactory = func(string) (fints.Transport, error) {
+			return rejectedSavedPinBank(t, code), nil
+		}
+		session.BankingTestConnection(int(bankID))
+		answerProductID(t, session, []byte(connectionTestID))
+		return waitConnectionTestDone(t, session)
+	}
+
+	first := run("9999")
+	if first.SavedPinForgotten || !first.SavedPinRejectedOnce {
+		t.Fatalf("first rejection = %+v, want kept for one more try", first)
+	}
+	if !store.Contains(bankingPinKey(appPaths, bankID)) {
+		t.Fatal("the first rejection removed the saved PIN")
+	}
+	if !pinRejectionsSet(t, session, bankID) {
+		t.Fatal("the first rejection wrote no count")
+	}
+
+	second := run("9999")
+	if !second.SavedPinForgotten || second.SavedPinRejectedOnce {
+		t.Fatalf("second rejection = %+v, want removed", second)
+	}
+	if store.Contains(bankingPinKey(appPaths, bankID)) {
+		t.Fatal("the second rejection kept the saved PIN")
+	}
+}
+
+func TestConnectionTestOptionTwoResetsTheCountAfterAGo(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	session, bankID, appPaths := newBankingSession(t, store, nil)
+	saveBankingPin(t, session, store, appPaths, bankID)
+	setPinForgetAfterForTest(t, session, bankID, "2")
+
+	session.connectionTestFactory = func(string) (fints.Transport, error) {
+		return rejectedSavedPinBank(t, "9999"), nil
+	}
+	session.BankingTestConnection(int(bankID))
+	answerProductID(t, session, []byte(connectionTestID))
+	first := waitConnectionTestDone(t, session)
+	if !first.SavedPinRejectedOnce || !pinRejectionsSet(t, session, bankID) {
+		t.Fatalf("first rejection = %+v", first)
+	}
+
+	result := runTestConnectionWithSavedPin(t, session, typedTANConnectionBank(t))
+	if !result.Go {
+		t.Fatalf("GO result = %+v", result)
+	}
+	if pinRejectionsSet(t, session, bankID) {
+		t.Fatal("a GO did not reset the rejection count")
+	}
+
+	session.connectionTestFactory = func(string) (fints.Transport, error) {
+		return rejectedSavedPinBank(t, "9999"), nil
+	}
+	session.BankingTestConnection(int(bankID))
+	answerProductID(t, session, []byte(connectionTestID))
+	again := waitConnectionTestDone(t, session)
+	if !again.SavedPinRejectedOnce || !store.Contains(bankingPinKey(appPaths, bankID)) {
+		t.Fatalf("the rejection after a GO = %+v, want kept for one more try", again)
+	}
+}
+
+func TestConnectionTestOptionTwoStillRemovesAnExplicitWrongPinAtOnce(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	session, bankID, appPaths := newBankingSession(t, store, nil)
+	saveBankingPin(t, session, store, appPaths, bankID)
+	setPinForgetAfterForTest(t, session, bankID, "2")
+
+	session.connectionTestFactory = func(string) (fints.Transport, error) {
+		return rejectedSavedPinBank(t, "9931"), nil
+	}
+	session.BankingTestConnection(int(bankID))
+	answerProductID(t, session, []byte(connectionTestID))
+	result := waitConnectionTestDone(t, session)
+	if !result.SavedPinForgotten || result.SavedPinRejectedOnce {
+		t.Fatalf("explicit rejection = %+v, want removed at once", result)
+	}
+	if store.Contains(bankingPinKey(appPaths, bankID)) {
+		t.Fatal("the explicitly rejected PIN is still stored")
+	}
 }

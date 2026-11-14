@@ -571,6 +571,7 @@ export class AccountsDialogDTO {
     "connectionServerUrl": string;
     "connectionHasPin": boolean;
     "connectionPinText": string;
+    "connectionPinForgetAfter": string;
     "connectionSyncing": boolean;
     "historyDate": string;
     "historyHasStart": boolean;
@@ -627,6 +628,9 @@ export class AccountsDialogDTO {
         }
         if (!("connectionPinText" in $$source)) {
             this["connectionPinText"] = "";
+        }
+        if (!("connectionPinForgetAfter" in $$source)) {
+            this["connectionPinForgetAfter"] = "";
         }
         if (!("connectionSyncing" in $$source)) {
             this["connectionSyncing"] = false;
@@ -1135,6 +1139,9 @@ export class ConnectionTestDTO {
     "skipped": number;
     "strongSync": boolean;
     "strongSyncTAN": string;
+    "usedSavedPin": boolean;
+    "savedPinForgotten": boolean;
+    "savedPinRejectedOnce": boolean;
 
     /** Creates a new ConnectionTestDTO instance. */
     constructor($$source: Partial<ConnectionTestDTO> = {}) {
@@ -1167,6 +1174,15 @@ export class ConnectionTestDTO {
         }
         if (!("strongSyncTAN" in $$source)) {
             this["strongSyncTAN"] = "";
+        }
+        if (!("usedSavedPin" in $$source)) {
+            this["usedSavedPin"] = false;
+        }
+        if (!("savedPinForgotten" in $$source)) {
+            this["savedPinForgotten"] = false;
+        }
+        if (!("savedPinRejectedOnce" in $$source)) {
+            this["savedPinRejectedOnce"] = false;
         }
 
         Object.assign(this, $$source);

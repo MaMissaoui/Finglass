@@ -235,6 +235,21 @@
           </p>
         {/if}
 
+        {#if connectionTest.usedSavedPin}
+          <p class="test-path" data-testid={`connection-test-saved-pin-${card.bankId}`}>
+            {t('TestConnectionUsedSavedPin')}
+          </p>
+          {#if connectionTest.savedPinRejectedOnce}
+            <p class="test-path warning">
+              {t('TestConnectionSavedPinRejectedOnce')}
+            </p>
+          {:else if connectionTest.savedPinForgotten}
+            <p class="test-path warning">
+              {t('TestConnectionSavedPinForgotten')}
+            </p>
+          {/if}
+        {/if}
+
         {#if connectionTest.codes.length > 0}
           <div class="test-codes">
             {#each connectionTest.codes as code (code)}
@@ -644,6 +659,10 @@
     font-weight: var(--type-body-small-weight);
     line-height: 1.35;
     overflow-wrap: anywhere;
+  }
+
+  .test-path.warning {
+    color: var(--color-warning-strong);
   }
 
   .test-codes {

@@ -418,8 +418,10 @@
             {t}
             onClose={() => run(() => api.accountsCloseDialog())}
             onForgetPin={(bankID) => runBanking(() => api.bankingForgetPin(bankID))}
-            onSave={(bankID, name, blz, userID, serverURL) =>
-              runBanking(() => api.bankingSubmitConnection(bankID, name, blz, userID, serverURL))}
+            onSave={(bankID, name, blz, userID, serverURL, pinForgetAfter) =>
+              runBanking(() =>
+                api.bankingSubmitConnection(bankID, name, blz, userID, serverURL, pinForgetAfter),
+              )}
           />
         {:else if accounts.dialog.kind === 'history'}
           <BankingHistoryDialog

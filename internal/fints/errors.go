@@ -233,6 +233,19 @@ var pinRejectedCodes = map[string]bool{
 	"9942": true,
 }
 
+// IsExplicitPINRejection reports whether codes contains a return code that
+// always means the PIN was rejected, whatever dialog state the bank answered
+// in. Banks use their own 93xx/99xx codes for other rejections; those are not
+// explicit PIN rejections.
+func IsExplicitPINRejection(codes []string) bool {
+	for _, code := range codes {
+		if pinRejectedCodes[code] {
+			return true
+		}
+	}
+	return false
+}
+
 func newCancelledError(cause error) *DialogError {
 	if cause == nil {
 		cause = errors.New("context cancelled")

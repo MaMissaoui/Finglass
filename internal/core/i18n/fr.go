@@ -911,4 +911,11 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	SyncAllSkippedLocked:                "%d {1:banque a été ignorée|banques ont été ignorées} car le dernier test de connexion n'était pas GO : %s. Lancez d'abord le test de connexion.",
 	SyncAllNothingReady:                 "Aucune banque de « Tout synchroniser » n'est prête. Lancez d'abord le test de connexion.",
 	TestConnectionStrongSyncNoUnlock:    "La synchronisation reste verrouillée pour l'instant : elle ne peut pas encore se réenregistrer avec une TAN.",
+	PinForgetAfterLabel:                 "Supprimer le code PIN enregistré après",
+	PinForgetAfterFirst:                 "le premier refus",
+	PinForgetAfterSecond:                "le deuxième refus",
+	PinForgetAfterHint:                  "Une réponse « code PIN erroné » le supprime toujours immédiatement. Les banques bloquent généralement l'accès après trois codes PIN erronés ; après deux, il vous reste un essai.",
+	TestConnectionUsedSavedPin:          "Code PIN enregistré utilisé.",
+	TestConnectionSavedPinRejectedOnce:  "La banque a refusé le code PIN enregistré. Il est conservé pour un autre essai ; vérifiez-le dans les paramètres de connexion.",
+	TestConnectionSavedPinForgotten:     "La banque a refusé le code PIN enregistré ; il a été supprimé. Il vous sera demandé la prochaine fois.",
 }

@@ -289,6 +289,27 @@ test('the banking reference screenshots', async ({ page }) => {
   await expect(connectionPanel(page)).toContainText('9942');
   await shot(page, 'accounts-test-connection-nogo-en-dark');
 
+  await goto(page, 'accounts-test-saved-pin', 1100, 900);
+  await sparkasse(page)
+    .locator('.bank-head')
+    .getByRole('button', { name: 'More', exact: true })
+    .click();
+  await sparkasse(page).getByRole('menuitem', { name: 'Test connection', exact: true }).click();
+  await expect(connectionPanel(page)).toContainText('Used the saved PIN.');
+  await shot(page, 'accounts-test-saved-pin-en');
+
+  await goto(page, 'accounts-test-saved-pin-rejected-de', 1100, 900);
+  await sparkasse(page)
+    .locator('.bank-head')
+    .getByRole('button', { name: 'Mehr', exact: true })
+    .click();
+  await sparkasse(page).getByRole('menuitem', { name: 'Verbindung testen', exact: true }).click();
+  await expect(connectionPanel(page)).toContainText('Gespeicherte PIN verwendet.');
+  await expect(connectionPanel(page)).toContainText(
+    'Die Bank hat die gespeicherte PIN abgelehnt; sie wurde gelöscht.',
+  );
+  await shot(page, 'accounts-test-saved-pin-rejected-de');
+
   await goto(page, 'accounts-connection');
   await expect(
     page.getByTestId('accounts-dialog').getByRole('heading', {
@@ -650,6 +671,8 @@ test('every banking scenario renders without a CSP or console error', async ({ p
     'accounts-test-connection-en-dark',
     'accounts-test-connection-nogo-en-light',
     'accounts-test-connection-nogo-en-dark',
+    'accounts-test-saved-pin',
+    'accounts-test-saved-pin-rejected-de',
     'banking-walkthrough',
   ];
   for (const scenario of scenarios) {

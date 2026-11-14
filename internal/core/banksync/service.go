@@ -21,6 +21,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/repo/pendingbookings"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/transactions"
 	"github.com/MaMissaoui/Finglass/internal/core/rules"
+	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
 // InitialSyncDays is how far the first sync goes back (many banks require a
@@ -133,6 +134,22 @@ func (s *BankingService) PinNotSaved() bool {
 // only; the credential store is never read here).
 func (s *BankingService) HasSavedPin(ctx context.Context, database *db.Database, bankID model.BankConnectionID) bool {
 	return s.client.HasSavedPin(ctx, database, bankID)
+}
+
+// StoredPinForTest reads the PIN remembered for bankID's current login, or nil
+// when there is none, the bank is offline or missing, or the store cannot be
+// read. A stale login flag forgets the PIN with its audit entry; a store read
+// error deletes nothing; a missing entry clears the flag.
+func (s *BankingService) StoredPinForTest(
+	ctx context.Context,
+	database *db.Database,
+	bankID model.BankConnectionID,
+) *secret.Text {
+	bank, ok, err := bankconnections.GetItem(ctx, database, bankID)
+	if err != nil || !ok || bank.Offline {
+		return nil
+	}
+	return s.client.storedPinFor(ctx, database, bank)
 }
 
 // ForgetPin deletes a remembered PIN for bankID.

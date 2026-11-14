@@ -113,6 +113,9 @@ the newest supported HKTAN version, and names kept out of traces.
 
 - [x] Online sync per bank: unlocked by a GO Test connection (locked again by a NO-GO or a login change),
   "Sync now" in the bank menu, "Include in Sync all" always editable, Sync all skips locked banks.
+- [x] Test connection uses a saved PIN (never stores one); one removal rule for sync and test: an explicit
+  wrong-PIN code removes it at once, other rejections after the per-bank option (1st or 2nd, your choice
+  2026-11-14); network errors and cancels keep it.
 - [ ] HVB login: fix based on the bank's message. Note that a real sync also syncs a new system id on every attempt
   until one login succeeds (the TAN method is stored only after a success), so HVB sees a new device each time.
 - [x] Sync: the gateway's retry with Sync (`retryableInitError`) gets a new system id from HVB each time, so every

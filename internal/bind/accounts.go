@@ -160,15 +160,16 @@ type AccountsDialogDTO struct {
 	BankID       int    `json:"bankId"`
 	AccountID    int    `json:"accountId"`
 
-	ConnectionName      string `json:"connectionName"`
-	ConnectionBLZ       string `json:"connectionBlz"`
-	ConnectionUserID    string `json:"connectionUserId"`
-	ConnectionServerURL string `json:"connectionServerUrl"`
-	ConnectionHasPin    bool   `json:"connectionHasPin"`
-	ConnectionPinText   string `json:"connectionPinText"`
-	ConnectionSyncing   bool   `json:"connectionSyncing"`
-	HistoryDate         string `json:"historyDate"`
-	HistoryHasStart     bool   `json:"historyHasStart"`
+	ConnectionName           string `json:"connectionName"`
+	ConnectionBLZ            string `json:"connectionBlz"`
+	ConnectionUserID         string `json:"connectionUserId"`
+	ConnectionServerURL      string `json:"connectionServerUrl"`
+	ConnectionHasPin         bool   `json:"connectionHasPin"`
+	ConnectionPinText        string `json:"connectionPinText"`
+	ConnectionPinForgetAfter string `json:"connectionPinForgetAfter"`
+	ConnectionSyncing        bool   `json:"connectionSyncing"`
+	HistoryDate              string `json:"historyDate"`
+	HistoryHasStart          bool   `json:"historyHasStart"`
 }
 
 // AccountsDTO is everything the Accounts page shows.
@@ -462,26 +463,27 @@ func accountsDTO(
 		DaysChoices:   accountsDaysChoices(language),
 		DayLabels:     accountsDayLabels(language),
 		Dialog: AccountsDialogDTO{
-			Kind:                dialog.Kind,
-			Title:               dialog.Title,
-			Text:                dialog.Text,
-			ErrorText:           dialog.ErrorText,
-			AccountLabel:        dialog.AccountLabel,
-			AccountName:         dialog.AccountName,
-			Balance:             dialog.Balance,
-			AccountType:         dialog.AccountType,
-			Offline:             dialog.Offline,
-			BankID:              dialog.BankID,
-			AccountID:           dialog.AccountID,
-			ConnectionName:      dialog.ConnectionName,
-			ConnectionBLZ:       dialog.ConnectionBLZ,
-			ConnectionUserID:    dialog.ConnectionUserID,
-			ConnectionServerURL: dialog.ConnectionServerURL,
-			ConnectionHasPin:    dialog.ConnectionHasPin,
-			ConnectionPinText:   dialog.ConnectionPinText,
-			ConnectionSyncing:   dialog.ConnectionSyncing,
-			HistoryDate:         dialog.HistoryDate,
-			HistoryHasStart:     dialog.HistoryHasStart,
+			Kind:                     dialog.Kind,
+			Title:                    dialog.Title,
+			Text:                     dialog.Text,
+			ErrorText:                dialog.ErrorText,
+			AccountLabel:             dialog.AccountLabel,
+			AccountName:              dialog.AccountName,
+			Balance:                  dialog.Balance,
+			AccountType:              dialog.AccountType,
+			Offline:                  dialog.Offline,
+			BankID:                   dialog.BankID,
+			AccountID:                dialog.AccountID,
+			ConnectionName:           dialog.ConnectionName,
+			ConnectionBLZ:            dialog.ConnectionBLZ,
+			ConnectionUserID:         dialog.ConnectionUserID,
+			ConnectionServerURL:      dialog.ConnectionServerURL,
+			ConnectionHasPin:         dialog.ConnectionHasPin,
+			ConnectionPinText:        dialog.ConnectionPinText,
+			ConnectionPinForgetAfter: dialog.ConnectionPinForgetAfter,
+			ConnectionSyncing:        dialog.ConnectionSyncing,
+			HistoryDate:              dialog.HistoryDate,
+			HistoryHasStart:          dialog.HistoryHasStart,
 		},
 	}
 	if state.Error != nil {

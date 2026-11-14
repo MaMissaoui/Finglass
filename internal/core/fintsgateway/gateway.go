@@ -535,10 +535,10 @@ func mapError(err error) banksync.GatewayError {
 	if errors.As(err, &dialogError) {
 		switch dialogError.Kind {
 		case fints.ErrorKindPinRejected:
-			if includesPinRejection(dialogError.Codes) {
+			if fints.IsExplicitPINRejection(dialogError.Codes) {
 				return banksync.NewGatewayPinRejectedError()
 			}
-			return banksync.NewGatewayBankError(dialogError.Codes)
+			return banksync.NewGatewayPINRejectedBankError(dialogError.Codes)
 		case fints.ErrorKindAccountLocked, fints.ErrorKindBankError, fints.ErrorKindTanRejected:
 			return banksync.NewGatewayBankError(dialogError.Codes)
 		case fints.ErrorKindTransport:
@@ -563,18 +563,6 @@ func mapError(err error) banksync.GatewayError {
 	return banksync.NewGatewayOtherError(kindDialogue)
 }
 
-// pinRejectionCodes is the map the gateway still uses in mapError to tell a
-// PIN rejection from a general bank error. The retry decision uses
-// fints.BlocksPINRepeat instead, so a bank's own PIN code (93xx/99xx) also
-// stops a second signed message.
-var pinRejectionCodes = map[string]struct{}{
-	"9340": {},
-	"9910": {},
-	"9930": {},
-	"9931": {},
-	"9942": {},
-}
-
 // gatewayHTTPStatus narrows an HTTP status to the gateway's uint16. An
 // out-of-range value is treated as a network failure instead of wrapping.
 func gatewayHTTPStatus(status int) (uint16, bool) {
@@ -582,15 +570,6 @@ func gatewayHTTPStatus(status int) (uint16, bool) {
 		return 0, false
 	}
 	return uint16(status), true
-}
-
-func includesPinRejection(codes []string) bool {
-	for _, code := range codes {
-		if _, ok := pinRejectionCodes[code]; ok {
-			return true
-		}
-	}
-	return false
 }
 
 func methodForSecurityFunction(methods []fints.TanMethod, securityFunction string) (fints.TanMethod, bool) {

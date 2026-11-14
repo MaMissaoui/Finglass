@@ -77,6 +77,7 @@ interface MockDialog {
   connectionServerUrl: string;
   connectionHasPin: boolean;
   connectionPinText: string;
+  connectionPinForgetAfter: string;
   connectionSyncing: boolean;
   historyDate: string;
   historyHasStart: boolean;
@@ -121,6 +122,7 @@ function emptyDialog(): MockDialog {
     connectionServerUrl: '',
     connectionHasPin: false,
     connectionPinText: '',
+    connectionPinForgetAfter: '1',
     connectionSyncing: false,
     historyDate: '',
     historyHasStart: false,

@@ -200,6 +200,7 @@ export interface Api {
     blz: string,
     userID: string,
     serverURL: string,
+    pinForgetAfter: string,
   ): Promise<BankingDTO>;
   bankingForgetPin(bankID: number): Promise<BankingDTO>;
   bankingSetIncludeInSyncAll(bankID: number): Promise<BankingDTO>;
