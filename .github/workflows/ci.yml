@@ -24,9 +24,38 @@ permissions:
   contents: read
 
 jobs:
+  # A push to main usually has exactly the tree its PR already tested. Decide that first;
+  # every doubt means "do not skip" and CI runs as before.
+  dedupe:
+    name: Dedupe
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    outputs:
+      skip: ${{ steps.dedupe.outputs.skip }}
+      pr: ${{ steps.dedupe.outputs.pr }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Decide whether the PR head already tested this tree
+        id: dedupe
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          REF: ${{ github.ref }}
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+        run: bash scripts/ci/dedupe.sh
+
   # The Mac installer test. It has its own Go-era script.
   install:
     name: Installer (${{ matrix.os }})
+    needs: dedupe
+    if: needs.dedupe.outputs.skip != 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -40,6 +69,8 @@ jobs:
   # gofmt, go vet, golangci-lint, the kdftest guard, the bindings check and the product-id tests.
   lint:
     name: Go lint
+    needs: dedupe
+    if: needs.dedupe.outputs.skip != 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -58,6 +89,8 @@ jobs:
   # The whole suite with the cheap test-only SQLCipher KDF.
   test:
     name: Go tests
+    needs: dedupe
+    if: needs.dedupe.outputs.skip != 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -71,6 +104,8 @@ jobs:
   # The storage packages without the tag, so the real KDF is checked end to end.
   test-real-kdf:
     name: Go tests (real KDF)
+    needs: dedupe
+    if: needs.dedupe.outputs.skip != 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -84,6 +119,8 @@ jobs:
   # svelte-check, Vitest, build, Playwright screenshots (WebKit).
   frontend:
     name: Frontend
+    needs: dedupe
+    if: needs.dedupe.outputs.skip != 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -119,6 +156,8 @@ jobs:
   # Universal, ad-hoc-signed Finglass.app with its --self-check, then a launch check.
   package:
     name: Package
+    needs: dedupe
+    if: needs.dedupe.outputs.skip != 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -155,6 +194,8 @@ jobs:
   # The FinTS product id is a release secret. Forks and PRs without the secret skip the scan.
   secret-scan:
     name: Secret scan (macos-latest)
+    needs: dedupe
+    if: needs.dedupe.outputs.skip != 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -181,12 +222,17 @@ jobs:
   # The one required check: green only when every job above succeeded.
   ci-ok:
     name: CI OK
-    needs: [install, lint, test, test-real-kdf, frontend, package, secret-scan]
+    needs: [dedupe, install, lint, test, test-real-kdf, frontend, package, secret-scan]
     if: always()
     runs-on: macos-latest
     steps:
+      - name: Note that CI was skipped
+        if: ${{ needs.dedupe.outputs.skip == 'true' }}
+        env:
+          PR: ${{ needs.dedupe.outputs.pr }}
+        run: printf 'main has the same tree as PR \043%s\x27s tested head; CI skipped\n' "$PR"
       - name: Fail unless every needed job succeeded
-        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
+        if: ${{ needs.dedupe.outputs.skip != 'true' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')) }}
         run: |
           echo "one or more needed jobs did not succeed" >&2
           exit 1

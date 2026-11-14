@@ -69,6 +69,7 @@ testdata/golden/             reference outputs of Finglass 0.3.4 that the Go cod
 - [x] Release notes `docs/releases/v0.4.0.md`: Test connection and traces, fresh start from FinDesk, install steps.
 - [x] CI split into parallel jobs; tests use a cheap SQLCipher KDF (build tag `finglass_testkdf`), the storage
   packages also run with the real KDF.
+- [x] CI on main is skipped when the merged tree equals the PR head that passed CI (dedupe job; any doubt runs it).
 - [x] **You:** rehearse the fresh start with the release candidate: launch it with `FINGLASS_HOME=<new folder>`, let
   it import FinDesk (it only reads `~/.findesk`), run Test connection for each bank, and save one trace.
   Done 2026-11-14 with the candidate at `9ddd48c`: all three banks got their server URL from FinDesk.app and show
