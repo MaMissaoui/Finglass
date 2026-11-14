@@ -148,8 +148,9 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
   wizard; a click without the tick keeps the typed fields); passphrase rules under the field with a live count
   ("4 of 10 characters", counted like Go). "Quit FinDesk first." is a neutral note now.
 - [ ] **C2:** show "Quit FinDesk" only while FinDesk runs (needs a portable running check; not started).
-- [ ] **D — checks:** automated accessibility check in the Playwright run (dev dependency only), failing on serious or
-  critical findings; fix what it finds.
+- [x] **D — checks:** automated accessibility check in the Playwright run (dev dependency only), failing on serious or
+  critical findings; fix what it finds. Done: axe found nested buttons in the account and transaction rows (fixed);
+  the "new" dot and the count badge have names.
 
 ## G11 — Windows and Linux
 
