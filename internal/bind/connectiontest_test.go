@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
+	"github.com/MaMissaoui/Finglass/internal/app/connectiontest"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
@@ -25,7 +26,9 @@ func TestConnectionTestDTOsCarryNoTraceProductIDOrBankText(t *testing.T) {
 		ConnectionTest: &bankingcore.ConnectionTestResult{
 			BankID:  7,
 			Go:      false,
-			Reason:  i18n.Format(i18n.En, i18n.TestConnectionOther, i18n.Str("Transport")),
+			Reason:  i18n.Text(i18n.En, i18n.TestConnectionTransport),
+			Kind:    bankingcore.ConnectionTestKindOther,
+			Other:   connectiontest.OtherTransport,
 			Codes:   []string{"9942"},
 			Probed:  1,
 			Skipped: 1,
@@ -213,11 +216,110 @@ func TestConnectionTestDTOCarriesTheVerdictAndNextStep(t *testing.T) {
 			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionStrongSyncNoUnlock),
 		},
 		{
-			name:        "NO-GO",
-			result:      bankingcore.ConnectionTestResult{Go: false},
+			name: "running still shows the general help",
+			result: bankingcore.ConnectionTestResult{
+				Running: true,
+			},
+			wantVerdict: "",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionHelp),
+		},
+		{
+			name: "NO-GO with no reason information asks for the trace",
+			result: bankingcore.ConnectionTestResult{
+				Go: false,
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepTrace),
+		},
+		{
+			name: "NO-GO login rejected checks the login",
+			result: bankingcore.ConnectionTestResult{
+				Kind: bankingcore.ConnectionTestKindLoginRejected,
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepCheckLogin),
+		},
+		{
+			name: "NO-GO invalid login checks the login",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindOther,
+				Other: connectiontest.OtherInvalidLogin,
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepCheckLogin),
+		},
+		{
+			name: "NO-GO missing registration waits",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindOther,
+				Other: "BankError",
+				Codes: []string{"3079", "9078", "9800"},
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepRegistration),
+		},
+		{
+			name: "NO-GO transport checks the internet",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindOther,
+				Other: connectiontest.OtherTransport,
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepTransport),
+		},
+		{
+			name: "cancelled",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindOther,
+				Other: connectiontest.OtherCancelled,
+			},
 			wantGo:      false,
 			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionHelp),
+			wantStep:    "",
+		},
+		{
+			name: "NO-GO account locked asks to unlock",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindOther,
+				Other: "AccountLocked",
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepUnlock),
+		},
+		{
+			name: "NO-GO locked account code asks to unlock",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindLoginRejected,
+				Codes: []string{"3938"},
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepUnlock),
+		},
+		{
+			name: "NO-GO TAN rejected asks to approve in time",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindOther,
+				Other: "TanRejected",
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepApprove),
+		},
+		{
+			name: "NO-GO approval timed out asks to approve in time",
+			result: bankingcore.ConnectionTestResult{
+				Kind: bankingcore.ConnectionTestKindTanTimeout,
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepApprove),
+		},
+		{
+			name: "NO-GO protocol asks for the trace",
+			result: bankingcore.ConnectionTestResult{
+				Kind:  bankingcore.ConnectionTestKindOther,
+				Other: "Protocol",
+			},
+			wantVerdict: "NO-GO",
+			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepTrace),
 		},
 	}
 	for _, test := range tests {

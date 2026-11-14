@@ -894,7 +894,6 @@ const (
 	TestConnectionSkipped
 	TestConnectionTanTimeout
 	TestConnectionStatementsUnavailable
-	TestConnectionOther
 	TestConnectionCancelled
 	TestConnectionInvalidLogin
 	TestConnectionProductID
@@ -929,10 +928,26 @@ const (
 	SyncStatusNotInAllTested
 	SyncStatusRunTest
 	TestConnectionSyncNow
+	TestConnectionBankError
+	TestConnectionRegistrationMissing
+	TestConnectionAccountLocked
+	TestConnectionTanRejected
+	TestConnectionProtocol
+	TestConnectionNoAccounts
+	TestConnectionBalanceAbsent
+	TestConnectionTransport
+	TestConnectionApprovalTimedOut
+	TestConnectionUnexpected
+	TestConnectionNextStepCheckLogin
+	TestConnectionNextStepRegistration
+	TestConnectionNextStepTransport
+	TestConnectionNextStepUnlock
+	TestConnectionNextStepApprove
+	TestConnectionNextStepTrace
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 922
+const NumKeys = 937
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1823,7 +1838,6 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	TestConnectionSkipped:               "TestConnectionSkipped",
 	TestConnectionTanTimeout:            "TestConnectionTanTimeout",
 	TestConnectionStatementsUnavailable: "TestConnectionStatementsUnavailable",
-	TestConnectionOther:                 "TestConnectionOther",
 	TestConnectionCancelled:             "TestConnectionCancelled",
 	TestConnectionInvalidLogin:          "TestConnectionInvalidLogin",
 	TestConnectionProductID:             "TestConnectionProductID",
@@ -1858,6 +1872,22 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	SyncStatusNotInAllTested:            "SyncStatusNotInAllTested",
 	SyncStatusRunTest:                   "SyncStatusRunTest",
 	TestConnectionSyncNow:               "TestConnectionSyncNow",
+	TestConnectionBankError:             "TestConnectionBankError",
+	TestConnectionRegistrationMissing:   "TestConnectionRegistrationMissing",
+	TestConnectionAccountLocked:         "TestConnectionAccountLocked",
+	TestConnectionTanRejected:           "TestConnectionTanRejected",
+	TestConnectionProtocol:              "TestConnectionProtocol",
+	TestConnectionNoAccounts:            "TestConnectionNoAccounts",
+	TestConnectionBalanceAbsent:         "TestConnectionBalanceAbsent",
+	TestConnectionTransport:             "TestConnectionTransport",
+	TestConnectionApprovalTimedOut:      "TestConnectionApprovalTimedOut",
+	TestConnectionUnexpected:            "TestConnectionUnexpected",
+	TestConnectionNextStepCheckLogin:    "TestConnectionNextStepCheckLogin",
+	TestConnectionNextStepRegistration:  "TestConnectionNextStepRegistration",
+	TestConnectionNextStepTransport:     "TestConnectionNextStepTransport",
+	TestConnectionNextStepUnlock:        "TestConnectionNextStepUnlock",
+	TestConnectionNextStepApprove:       "TestConnectionNextStepApprove",
+	TestConnectionNextStepTrace:         "TestConnectionNextStepTrace",
 }
 
 // keysByName is built from keyNames, so the two cannot drift apart.

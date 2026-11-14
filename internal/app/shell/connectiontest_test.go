@@ -1013,7 +1013,7 @@ func TestConnectionTestKeepsTheSavedPinAfterTransportAndCancel(t *testing.T) {
 			t.Fatalf("result = %+v, want a non-GO with the saved PIN", result)
 		}
 		if result.Reason != i18n.Text(i18n.En, i18n.TestConnectionCancelled) &&
-			result.Reason != i18n.Format(i18n.En, i18n.TestConnectionOther, i18n.Str("PromptFailed")) {
+			result.Reason != i18n.Text(i18n.En, i18n.TestConnectionUnexpected) {
 			t.Fatalf("result = %+v, want a cancel or prompt failure", result)
 		}
 		afterLen, afterValue := storedPinSnapshot(t, store, appPaths, bankID)
