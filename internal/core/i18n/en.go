@@ -906,4 +906,7 @@ var enTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	ProductIDPromptLabel:                "Product id",
 	FinDeskImportServerURLsFilled:       "%d {1:FinTS server address|FinTS server addresses} taken from FinDesk's bank list.",
 	FinDeskImportServerURLsMissing:      "%d {1:bank has|banks have} no FinTS server address. Add it in the bank's menu under “Connection settings”.",
+	SyncLockedHint:                      "Sync is locked until Test connection returns GO.",
+	SyncAllSkippedLocked:                "%d {1:bank was|banks were} skipped because {1:its|their} last Test connection was not GO: %s. Run Test connection first.",
+	SyncAllNothingReady:                 "No bank in Sync all is ready yet. Run Test connection first.",
 }

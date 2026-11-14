@@ -614,7 +614,8 @@ func accountsBankCards(
 			}
 		}
 		card := accountsBankCard(state, bank.ID, bank.BankName, bank.BLZ, bank.BIC,
-			accountsBankSubtitle(bank, language), accountsCentralBLZHint(bank, language),
+			accountsBankSubtitle(bank, bankingBankUnlocked(&bankingState, bank.ID), language),
+			accountsCentralBLZHint(bank, language),
 			bank.Offline, accountsCollapsedBank(state, bank.ID), accounts, language)
 		applyBankingCard(&card, &bankingState, state.Busy.Active(), language)
 		cards = append(cards, card)
@@ -661,8 +662,8 @@ func applyBankingCard(
 	}
 	card.Syncing = bankingState.SyncingBank != nil && *bankingState.SyncingBank == bank.ID
 	card.SyncStep = bankSyncStep(bankingState, language)
-	card.SyncEnabled = shell.OnlineSyncAvailable && !bankingState.IsSyncing()
-	card.SyncTooltip = bankSyncTooltip(language)
+	card.SyncEnabled = bankSyncEnabled(bank, bankingState)
+	card.SyncTooltip = bankSyncTooltip(bank, language)
 	card.PinText = bankPinText(bank, bankingState, language)
 	card.CanTestConnection = bank.CanTestConnection
 	card.Menu = bankMenu(bank, bankingState, accountsBusy, language)
@@ -728,7 +729,7 @@ func accountsBankCard(
 	}
 }
 
-func accountsBankSubtitle(bank model.BankAccessItem, language i18n.Language) string {
+func accountsBankSubtitle(bank model.BankAccessItem, unlocked bool, language i18n.Language) string {
 	if bank.Offline {
 		return i18n.Text(language, i18n.BankOfflineHint)
 	}
@@ -743,10 +744,24 @@ func accountsBankSubtitle(bank model.BankAccessItem, language i18n.Language) str
 	if bank.SyncFrom != nil {
 		parts = append(parts, i18n.Format(language, i18n.NextSyncFrom, i18n.Str(format.Date(*bank.SyncFrom))))
 	}
-	if !bank.IncludeInSyncAll {
+	if !unlocked {
+		parts = append(parts, i18n.Text(language, i18n.SyncLockedHint))
+	} else if !bank.IncludeInSyncAll {
 		parts = append(parts, i18n.Text(language, i18n.NotInSyncAll))
 	}
 	return strings.Join(parts, " · ")
+}
+
+func bankingBankUnlocked(state *bankingcore.BankingState, bankID model.BankConnectionID) bool {
+	if state == nil {
+		return false
+	}
+	for _, bank := range state.Banks {
+		if bank.ID == bankID {
+			return bank.SyncUnlocked
+		}
+	}
+	return false
 }
 
 func accountsCentralBLZHint(bank model.BankAccessItem, language i18n.Language) string {

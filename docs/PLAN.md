@@ -111,17 +111,18 @@ Results of your Test connection runs (2026-11-14):
 Fixed along the way: the first message's envelope (dialog id 0, sender role, `PIN:2`), the BIC taken from HISPA only,
 the newest supported HKTAN version, and names kept out of traces.
 
+- [x] Online sync per bank: unlocked by a GO Test connection (locked again by a NO-GO or a login change),
+  "Sync now" in the bank menu, "Include in Sync all" always editable, Sync all skips locked banks.
 - [ ] HVB login: fix based on the bank's message. Note that a real sync also syncs a new system id on every attempt
   until one login succeeds (the TAN method is stored only after a success), so HVB sees a new device each time.
-- [ ] Sync: the gateway's retry with Sync (`retryableInitError`) gets a new system id from HVB each time, so every
-  attempt triggers a fresh approval; fix once Test connection shows which mechanism works.
+- [x] Sync: the gateway's retry with Sync (`retryableInitError`) gets a new system id from HVB each time, so every
+  attempt triggers a fresh approval; fix once Test connection shows which mechanism works. The retry now uses
+  `fints.BlocksPINRepeat`: a bank-answered PIN/lock code (known PIN codes, 3938, any 93xx or 99xx) never sees the PIN
+  twice, while a stale-system-id error such as 9010 still retries once with Sync.
 - [ ] **You:** retry DKB once the registration has propagated.
-- [ ] Before `OnlineSyncAvailable` flips (after HVB's GO): check the adapter's one retry with Sync against the codes
-  seen. It retries every Init error except the PIN codes (9340, 9910, 9930, 9931, 9942) and a locked account (3938);
-  a bank that reports a wrong PIN with another code would see the PIN twice in one sync.
 - [ ] Check HKTAN v5's layout against a bank (none of yours uses v5).
-- [ ] **You:** after the flip, two syncs in a row per bank (the second reuses the stored system id and TAN method).
-  The trace slot keeps only the last bank of a "Sync all"; to save a failing bank's trace, sync that bank on its own.
+- [ ] **You:** Volksbank: Sync now twice in a row with "Save redacted trace…" after each; then Sync all with HVB
+  excluded.
 - [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
   list you received, or it ships with the app only if the terms allow it). Until then, the FinDesk import reads
   FinDesk.app's local copy and ships nothing.

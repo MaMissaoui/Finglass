@@ -76,6 +76,9 @@ type BankItem struct {
 	Offline bool
 	// IncludeInSyncAll says whether "Sync all" includes this connection.
 	IncludeInSyncAll bool
+	// SyncUnlocked says whether the last completed connection test was GO for
+	// this bank's current login. A locked bank is not synced.
+	SyncUnlocked bool
 	// SyncFrom is the start date of the next history window.
 	SyncFrom *civil.Date
 	// LastSync is the last successful sync.
@@ -273,9 +276,15 @@ func (s *BankingState) Refresh(ctx context.Context, database *db.Database, servi
 			ServerURL:        cloneString(bank.ServerURL),
 			Offline:          bank.Offline,
 			IncludeInSyncAll: bank.IncludeInSyncAll,
-			SyncFrom:         cloneDate(bank.SyncFrom),
-			LastSync:         cloneTime(bank.LastSync),
-			HasSavedPin:      !bank.Offline && service.HasSavedPin(ctx, database, bank.ID),
+			SyncUnlocked: !bank.Offline && service.SyncUnlocked(
+				ctx,
+				database,
+				bank.ID,
+				connectionForBankItem(bank.BLZ, bank.UserID, bank.ServerURL),
+			),
+			SyncFrom:    cloneDate(bank.SyncFrom),
+			LastSync:    cloneTime(bank.LastSync),
+			HasSavedPin: !bank.Offline && service.HasSavedPin(ctx, database, bank.ID),
 			CanTestConnection: bank.ServerURL != nil &&
 				strings.TrimSpace(*bank.ServerURL) != "",
 		})
@@ -590,6 +599,17 @@ func (s *BankingState) SetIncludeInSyncAll(
 	if _, err := bankconnections.SetIncludeInSyncAll(ctx, database, id, include); err != nil {
 		return s.recordErrorKey(i18n.ErrorUnexpected)
 	}
+	action := "excluded from Sync all"
+	if include {
+		action = "included in Sync all"
+	}
+	_ = audit.Log(
+		ctx,
+		database,
+		banksync.CodeIncludeInSyncAll,
+		audit.ActorUser,
+		fmt.Sprintf("Bank access %d: %s", int64(id), action),
+	)
 	return s.Refresh(ctx, database, service)
 }
 
@@ -614,6 +634,10 @@ func (s *BankingState) BeginSync(id model.BankConnectionID) bool {
 	}
 	if found.Offline {
 		s.setErrorKey(i18n.ErrorBankOffline)
+		return false
+	}
+	if !found.SyncUnlocked {
+		s.setErrorKey(i18n.SyncLockedHint)
 		return false
 	}
 
@@ -664,8 +688,9 @@ func (s *BankingState) BeginSyncAll() bool {
 	return true
 }
 
-// RunSyncAll runs "Sync all": included, non-offline banks in bank-card order,
-// one dialog after another.
+// RunSyncAll runs "Sync all": included, unlocked, non-offline banks in
+// bank-card order, one dialog after another. Included but locked banks are
+// named as skipped in the summary.
 //
 // onProgress is called after each progress update so the caller can publish the
 // state from the worker; the state itself is not shared. A cancelled bank stops
@@ -686,10 +711,19 @@ func (s *BankingState) RunSyncAll(
 		return
 	}
 	included := make([]model.BankAccessItem, 0, len(banks))
+	ready := make([]model.BankAccessItem, 0, len(banks))
+	skipped := make([]string, 0)
 	for _, bank := range banks {
-		if bank.IncludeInSyncAll && !bank.Offline {
-			included = append(included, bank)
+		if !bank.IncludeInSyncAll || bank.Offline {
+			continue
 		}
+		included = append(included, bank)
+		connection := connectionForBankItem(bank.BLZ, bank.UserID, bank.ServerURL)
+		if service.SyncUnlocked(ctx, database, bank.ID, connection) {
+			ready = append(ready, bank)
+			continue
+		}
+		skipped = append(skipped, bank.BankName)
 	}
 
 	if len(included) == 0 {
@@ -698,9 +732,20 @@ func (s *BankingState) RunSyncAll(
 		s.setErrorKey(i18n.SyncAllNothingIncluded)
 		return
 	}
+	skippedText := syncAllSkippedText(s.Language, skipped)
+	if len(ready) == 0 {
+		s.SyncAll = nil
+		if skippedText != "" {
+			s.Message = &skippedText
+		} else {
+			s.Message = nil
+		}
+		s.setErrorKey(i18n.SyncAllNothingReady)
+		return
+	}
 
-	ids := make([]string, 0, len(included))
-	for _, bank := range included {
+	ids := make([]string, 0, len(ready))
+	for _, bank := range ready {
 		ids = append(ids, fmt.Sprintf("%d", int64(bank.ID)))
 	}
 	_ = audit.Log(
@@ -711,12 +756,12 @@ func (s *BankingState) RunSyncAll(
 		fmt.Sprintf("Sync all: bank access ids %s", strings.Join(ids, ", ")),
 	)
 
-	total := len(included)
+	total := len(ready)
 	messages := make([]string, 0)
 	failures := make([]string, 0)
 	var stoppedAt *string
 
-	for index, bank := range included {
+	for index, bank := range ready {
 		s.SyncAll = &SyncAllProgress{
 			Position: index + 1,
 			Total:    total,
@@ -747,6 +792,15 @@ func (s *BankingState) RunSyncAll(
 	if stoppedAt != nil {
 		messages = append(messages, i18n.Format(s.Language, i18n.SyncAllStopped, i18n.Str(*stoppedAt)))
 	}
+	if skippedText != "" {
+		if len(failures) > 0 {
+			// The error banner wins over the success text, so a skipped bank is
+			// named there when the run also failed.
+			failures = append(failures, skippedText)
+		} else {
+			messages = append(messages, skippedText)
+		}
+	}
 	if len(messages) > 0 {
 		message := strings.Join(messages, "\n")
 		s.Message = &message
@@ -760,6 +814,19 @@ func (s *BankingState) RunSyncAll(
 		s.Error = nil
 	}
 	s.SyncAll = nil
+}
+
+// syncAllSkippedText names the included banks whose last test was not GO.
+func syncAllSkippedText(language i18n.Language, names []string) string {
+	if len(names) == 0 {
+		return ""
+	}
+	return i18n.Format(
+		language,
+		i18n.SyncAllSkippedLocked,
+		i18n.Int(int64(len(names))),
+		i18n.Str(strings.Join(names, ", ")),
+	)
 }
 
 // ClearMessages clears the current error and success text.
@@ -890,6 +957,14 @@ func asciiLower(text string) string {
 		lowered.WriteByte(character)
 	}
 	return lowered.String()
+}
+
+func connectionForBankItem(blz, userID string, serverURL *string) banksync.FinTsConnection {
+	url := ""
+	if serverURL != nil {
+		url = *serverURL
+	}
+	return banksync.FinTsConnection{BLZ: blz, UserID: userID, ServerURL: url}
 }
 
 func cloneString(value *string) *string {

@@ -71,6 +71,7 @@ interface MockBankingBank {
   serverUrl: string;
   offline: boolean;
   includeInSyncAll: boolean;
+  syncUnlocked: boolean;
   syncFrom: string | null;
   hasSavedPin: boolean;
   /** Mock only: the user ticked "Remember PIN" in this run. No PIN is kept. */
@@ -198,7 +199,11 @@ export function createMockBanking(
   hooks: MockBankingHooks,
 ) {
   let language = initialLanguage;
-  const onlineSyncAvailable = scenario === 'banking-walkthrough';
+  const onlineSyncAvailable =
+    scenario === 'banking-walkthrough' ||
+    scenario === 'accounts-sync-per-bank' ||
+    scenario === 'accounts-bank-menu-en-light' ||
+    scenario === 'accounts-bank-menu-de-dark';
   const canRememberPin = true;
   let errorText = '';
   let messageText = '';
@@ -234,6 +239,7 @@ export function createMockBanking(
       serverUrl: '',
       offline: true,
       includeInSyncAll: false,
+      syncUnlocked: false,
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
@@ -247,6 +253,7 @@ export function createMockBanking(
       serverUrl: 'https://fints.example/pintan',
       offline: false,
       includeInSyncAll: true,
+      syncUnlocked: true,
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
@@ -356,6 +363,7 @@ export function createMockBanking(
         serverUrl: '',
         offline: item.offline,
         includeInSyncAll: false,
+        syncUnlocked: false,
         syncFrom: null,
         hasSavedPin: false,
         rememberedThisRun: false,
@@ -366,7 +374,7 @@ export function createMockBanking(
   function bankMenu(bank: MockBankingBank): BankMenuItemDTO[] {
     const enabled = !isSyncing();
     const testEnabled = enabled && testingBankId === null;
-    const syncEnabled = onlineSyncAvailable && enabled;
+    const syncEnabled = onlineSyncAvailable && bank.syncUnlocked && enabled;
     const items: BankMenuItemDTO[] = [];
     if (!bank.offline) {
       if (bank.serverUrl.trim() !== '') {
@@ -381,6 +389,14 @@ export function createMockBanking(
       }
       items.push(
         {
+          action: 'sync',
+          label: t('SyncNow'),
+          checked: false,
+          danger: false,
+          enabled: syncEnabled,
+          icon: 'sync',
+        },
+        {
           action: 'history',
           label: t('FetchHistory'),
           checked: false,
@@ -393,7 +409,7 @@ export function createMockBanking(
           label: t('IncludeInSyncAll'),
           checked: bank.includeInSyncAll,
           danger: false,
-          enabled: syncEnabled,
+          enabled,
           icon: 'check',
         },
         {
@@ -470,8 +486,13 @@ export function createMockBanking(
       bankId: bank.id,
       syncing,
       syncStep: syncStep === '' ? t('Syncing') : syncStep,
-      syncEnabled: onlineSyncAvailable && !isSyncing(),
-      syncTooltip: onlineSyncAvailable ? '' : t('OnlineSyncNotYetAvailable'),
+      syncEnabled:
+        onlineSyncAvailable && bank.syncUnlocked && !isSyncing() && testingBankId === null,
+      syncTooltip: !onlineSyncAvailable
+        ? t('OnlineSyncNotYetAvailable')
+        : bank.syncUnlocked
+          ? ''
+          : t('SyncLockedHint'),
       pinText: pinText(bank),
       canTestConnection: !bank.offline && bank.serverUrl.trim() !== '',
       menu: bankMenu(bank),
@@ -625,6 +646,7 @@ export function createMockBanking(
 
   function finishSync(): void {
     const bank = syncingBankId === null ? undefined : bankById(syncingBankId);
+    const wasSyncAll = syncAll !== null;
     prompt = emptyPrompt();
     syncingBankId = null;
     syncStep = '';
@@ -636,7 +658,11 @@ export function createMockBanking(
       bank.rememberedThisRun = false;
       lastTrace = { kind: 'sync', bankId: bank.id, hasTrace: true };
     }
-    messageText = t('SyncSummary', 2);
+    const included = banks.filter((bank) => bank.includeInSyncAll && !bank.offline);
+    const skipped = included.filter((bank) => !bank.syncUnlocked).map((bank) => bank.name);
+    const skippedText = wasSyncAll ? syncAllSkipped(skipped) : '';
+    messageText =
+      skippedText === '' ? t('SyncSummary', 2) : `${t('SyncSummary', 2)}\n${skippedText}`;
     errorText = '';
     publish();
     publishPrompt();
@@ -681,6 +707,10 @@ export function createMockBanking(
       errorText = t('ErrorBankOffline');
       return publish();
     }
+    if (!bank.syncUnlocked) {
+      errorText = t('SyncLockedHint');
+      return publish();
+    }
     syncingBankId = bankId;
     lastTrace = { kind: 'sync', bankId, hasTrace: false };
     syncStep = t('SyncConnecting');
@@ -690,6 +720,13 @@ export function createMockBanking(
     scriptIndex = 0;
     runStep();
     return state();
+  }
+
+  function syncAllSkipped(names: string[]): string {
+    if (names.length === 0) {
+      return '';
+    }
+    return t('SyncAllSkippedLocked', names.length, names.join(', '));
   }
 
   function startSyncAll(): BankingDTO {
@@ -703,11 +740,19 @@ export function createMockBanking(
       errorText = t('SyncAllNothingIncluded');
       return publish();
     }
-    const first = included[0];
+    const ready = included.filter((bank) => bank.syncUnlocked);
+    const skipped = included.filter((bank) => !bank.syncUnlocked).map((bank) => bank.name);
+    if (ready.length === 0) {
+      syncAll = null;
+      errorText = t('SyncAllNothingReady');
+      messageText = syncAllSkipped(skipped);
+      return publish();
+    }
+    const first = ready[0];
     if (first === undefined) {
       return state();
     }
-    syncAll = { position: 1, total: included.length, bankName: first.name };
+    syncAll = { position: 1, total: ready.length, bankName: first.name };
     syncingBankId = first.id;
     lastTrace = { kind: 'sync', bankId: 0, hasTrace: false };
     syncStep = t('SyncConnecting');
@@ -975,6 +1020,7 @@ export function createMockBanking(
       serverUrl: serverUrl.trim(),
       offline: false,
       includeInSyncAll: true,
+      syncUnlocked: true,
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
@@ -1187,6 +1233,28 @@ export function createMockBanking(
 
   function init(): void {
     alignBanks();
+    if (scenario === 'accounts-sync-per-bank') {
+      hooks.addOnlineBank(3, 'Nordlicht Bank', '20050550', 'NOLADEHHXXX');
+      hooks.addOnlineBank(4, 'Rheintal Hypobank', '70020270', 'HYVEDEMM488');
+      alignBanks();
+      const sparkasse = bankById(2);
+      if (sparkasse !== undefined) {
+        sparkasse.includeInSyncAll = true;
+        sparkasse.syncUnlocked = true;
+      }
+      const locked = bankById(3);
+      if (locked !== undefined) {
+        locked.includeInSyncAll = true;
+        locked.syncUnlocked = false;
+      }
+      const excluded = bankById(4);
+      if (excluded !== undefined) {
+        excluded.includeInSyncAll = false;
+        excluded.syncUnlocked = true;
+      }
+      messageText = syncAllSkipped(['Nordlicht Bank']);
+      errorText = '';
+    }
     if (scenario === 'accounts-connection') {
       const bank = bankById(2);
       if (bank !== undefined) {

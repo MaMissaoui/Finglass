@@ -19,6 +19,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/decimal"
+	"github.com/MaMissaoui/Finglass/internal/core/fintsproduct"
 	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -62,6 +63,12 @@ func (g *bankingTestGateway) setPinPrompts(count int) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	g.pinPrompts = count
+}
+
+func (g *bankingTestGateway) setRejectStored(reject bool) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	g.rejectStored = reject
 }
 
 func (g *bankingTestGateway) FetchAll(
@@ -192,6 +199,15 @@ func seedBankingDatabase(t *testing.T, appPaths paths.AppPaths, userID string) m
 		model.BankConnectionUpdate{ServerURL: &serverURL},
 	); err != nil {
 		t.Fatalf("update online bank: %v", err)
+	}
+	// The fixture stands in for a bank whose last connection test was GO.
+	if err := settings.Set(
+		context.Background(),
+		database,
+		banksync.SyncUnlockKey(created.ID),
+		banksync.SyncFingerprint("37040044", userID, serverURL),
+	); err != nil {
+		t.Fatalf("unlock online bank: %v", err)
 	}
 	if err := database.Close(); err != nil {
 		t.Fatalf("close seeded database: %v", err)
@@ -918,9 +934,12 @@ func TestBankMessageTextWithAnAccountNumberIsMaskedAndNeverAudited(t *testing.T)
 	}
 }
 
-func TestWithTheUnavailableGatewaySyncControlsFollowTheFlag(t *testing.T) {
-	if OnlineSyncAvailable {
-		t.Fatal("OnlineSyncAvailable must be false while the real gateway is not wired in")
+func TestWithNoProductIDTheSyncControlsStayHiddenAndAnAttemptFails(t *testing.T) {
+	if !OnlineSyncAvailable {
+		t.Fatal("OnlineSyncAvailable must be true: it is the master switch")
+	}
+	if fintsproduct.Present() {
+		t.Skip("this build links a product id; the no-product path is covered by the selection test")
 	}
 	session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
 	session.BankingStartSync(int(bankID))
@@ -931,5 +950,78 @@ func TestWithTheUnavailableGatewaySyncControlsFollowTheFlag(t *testing.T) {
 	}
 	if !strings.Contains(*state.Error, i18n.Text(i18n.En, i18n.ErrorOnlineSyncUnavailable)) {
 		t.Fatalf("error = %q, want the unavailable-gateway text", *state.Error)
+	}
+}
+
+func lockBankForTest(t *testing.T, session *Session, bankID model.BankConnectionID) {
+	t.Helper()
+	database := sessionDatabase(t, session)
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(bankID)); err != nil {
+		t.Fatalf("lock bank: %v", err)
+	}
+	session.BankingLoad()
+	waitForJobs(t, session)
+}
+
+func TestALockedBankIsRefusedWithoutAGatewayCallOrAPinPrompt(t *testing.T) {
+	gateway := newBankingTestGateway()
+	gateway.setSnapshots([]banksync.AccountSnapshot{bankingSnapshot()})
+	session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, gateway)
+	lockBankForTest(t, session, bankID)
+
+	session.BankingStartSync(int(bankID))
+	waitForJobs(t, session)
+	state := waitForBankingIdle(t, session)
+	if state.Error == nil || *state.Error != i18n.Text(i18n.En, i18n.SyncLockedHint) {
+		t.Fatalf("error = %v, want the locked hint", state.Error)
+	}
+	if calls, pins, _ := gateway.counts(); calls != 0 || pins != 0 {
+		t.Fatalf("gateway calls/pins = %d/%d, want none", calls, pins)
+	}
+	if prompt := session.Bridge().Prompt(); prompt != nil {
+		t.Fatalf("a prompt opened for a locked bank: %+v", prompt)
+	}
+}
+
+func TestRememberPinHoldsOnSyncNowAndSyncAllAndARejectionForgetsIt(t *testing.T) {
+	store := banksync.NewMemoryCredentialStore()
+	gateway := newBankingTestGateway()
+	gateway.askTan = false
+	gateway.setSnapshots([]banksync.AccountSnapshot{bankingSnapshot()})
+	session, bankID, appPaths := newBankingSession(t, store, gateway)
+
+	session.BankingHandleMenu(int(bankID), "sync")
+	answerBankingPin(t, session, "24680", true)
+	if state := waitForBankingIdle(t, session); state.Error != nil {
+		t.Fatalf("first Sync now error = %q", *state.Error)
+	}
+	if !hasBankingPin(t, session, store, appPaths, bankID) {
+		t.Fatal("Sync now did not remember the PIN")
+	}
+
+	session.BankingHandleMenu(int(bankID), "sync")
+	if state := waitForBankingIdle(t, session); state.Error != nil {
+		t.Fatalf("second Sync now error = %q (the stored PIN should answer)", *state.Error)
+	}
+	if _, pins, _ := gateway.counts(); pins != 2 {
+		t.Fatalf("gateway received %d PINs, want the entered one and the stored one", pins)
+	}
+
+	session.BankingStartSyncAll()
+	if state := waitForBankingIdle(t, session); state.Error != nil {
+		t.Fatalf("Sync all error = %q (the stored PIN should answer)", *state.Error)
+	}
+	if !hasBankingPin(t, session, store, appPaths, bankID) {
+		t.Fatal("Sync all forgot the remembered PIN")
+	}
+
+	gateway.setRejectStored(true)
+	session.BankingHandleMenu(int(bankID), "sync")
+	state := waitForBankingIdle(t, session)
+	if state.Error == nil {
+		t.Fatal("the rejected PIN did not publish an error")
+	}
+	if hasBankingPin(t, session, store, appPaths, bankID) {
+		t.Fatal("the rejected PIN is still remembered")
 	}
 }

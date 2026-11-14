@@ -3,6 +3,7 @@ package shell
 import (
 	"bytes"
 	"context"
+	"log/slog"
 	"os"
 	"strings"
 	"sync/atomic"
@@ -26,11 +27,30 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/fints/trace"
 )
 
-// OnlineSyncAvailable says whether the real FinTS gateway is wired in. It is
-// false while banksync.UnavailableGateway stands in for the M5b adapter. The sync controls follow it. The adapter slice will
-// also require fintsproduct.Present(), so a build without the product id keeps
-// online sync off even then.
-const OnlineSyncAvailable = false
+// OnlineSyncAvailable is the master switch (kill switch) for online sync. Each
+// bank is additionally gated by its own unlock from a GO connection test. The
+// real gateway is still selected only when this switch is on and
+// fintsproduct.Present(); a build without the product id keeps the unavailable
+// gateway and hides the sync controls.
+const OnlineSyncAvailable = true
+
+// OnlineSyncReady reports whether online sync can run in this build: the
+// master switch is on and a FinTS product id is linked.
+func OnlineSyncReady() bool {
+	return OnlineSyncAvailable && onlineSyncProductPresent()
+}
+
+// onlineSyncProductPresent is the product-id seam. Production reads
+// fintsproduct.Present; tests may override it.
+var onlineSyncProductPresent = fintsproduct.Present
+
+// SetOnlineSyncProductPresentForTest overrides the product-id presence check
+// and returns a restore function. Tests only.
+func SetOnlineSyncProductPresentForTest(present bool) func() {
+	previous := onlineSyncProductPresent
+	onlineSyncProductPresent = func() bool { return present }
+	return func() { onlineSyncProductPresent = previous }
+}
 
 // connectionTestProductVersion is the HKVVB product version the connection
 // test and the sync adapter send.
@@ -143,7 +163,7 @@ func (s *Session) bankingServiceWithTraceLocked(
 	if err != nil {
 		return nil, false
 	}
-	gateway := selectGateway(OnlineSyncAvailable, fintsproduct.Present(), language, func() banksync.FinTsGateway {
+	gateway := selectGateway(OnlineSyncAvailable, onlineSyncProductPresent(), language, func() banksync.FinTsGateway {
 		options := make([]fintsgateway.Option, 0, 1)
 		if sink != nil {
 			options = append(options, fintsgateway.WithTransportWrapper(sink.wrap))
@@ -378,6 +398,7 @@ func (s *Session) mergeBanksLocked(accounts *accountsview.AccountsState) {
 			ServerURL:        cloneStringPointer(access.ServerURL),
 			Offline:          access.Offline,
 			IncludeInSyncAll: access.IncludeInSyncAll,
+			SyncUnlocked:     false,
 			SyncFrom:         cloneCivilDate(access.SyncFrom),
 			LastSync:         cloneTimePointer(access.LastSync),
 			HasSavedPin:      false,
@@ -884,8 +905,8 @@ func (s *Session) BankingTestConnection(bankID int) {
 	var job *bankingJob
 	job = s.beginBankingActionLocked(func(
 		ctx context.Context,
-		_ *db.Database,
-		_ *banksync.BankingService,
+		database *db.Database,
+		service *banksync.BankingService,
 		state *banking.BankingState,
 	) {
 		productID := linkedProductID
@@ -919,6 +940,10 @@ func (s *Session) BankingTestConnection(bankID int) {
 			ProductVersion: connectionTestProductVersion,
 			Language:       state.Language,
 		})
+		applySyncUnlock(ctx, database, service, &job.busy, id, blz, userID, serverURL, outcome)
+		if action := connectiontest.SyncUnlockActionFor(outcome); action != connectiontest.SyncUnlockUnchanged {
+			_ = state.Refresh(ctx, database, service)
+		}
 		job.setLastTrace = true
 		job.lastTrace = lastTraceState{
 			trace:  append([]byte(nil), outcome.Trace...),
@@ -1054,6 +1079,49 @@ func (s *Session) setBankingErrorLocked(key i18n.Key) {
 	}
 	message := i18n.Text(s.language, key)
 	s.banking.Error = &message
+}
+
+// applySyncUnlock stores or clears a bank's sync unlock after a completed
+// connection test. The write runs as a profile-busy section, like other bank
+// writes. A failure never changes the shown test result; the log line carries
+// no bank data.
+func applySyncUnlock(
+	ctx context.Context,
+	database *db.Database,
+	service *banksync.BankingService,
+	busy *accountsview.Busy,
+	bankID model.BankConnectionID,
+	blz,
+	userID,
+	serverURL string,
+	outcome connectiontest.Outcome,
+) {
+	action := connectiontest.SyncUnlockActionFor(outcome)
+	if action == connectiontest.SyncUnlockUnchanged {
+		return
+	}
+	var writeErr error
+	run := func() {
+		switch action {
+		case connectiontest.SyncUnlockSet:
+			writeErr = service.MarkSyncUnlocked(
+				ctx,
+				database,
+				bankID,
+				banksync.SyncFingerprint(blz, userID, serverURL),
+			)
+		case connectiontest.SyncUnlockClear:
+			writeErr = service.MarkSyncLocked(ctx, database, bankID)
+		}
+	}
+	if busy != nil {
+		busy.Run(run)
+	} else {
+		run()
+	}
+	if writeErr != nil {
+		slog.Default().Error("banking: could not update the sync unlock state")
+	}
 }
 
 // connectionTestReason localizes an outcome. It never includes bank text.

@@ -85,6 +85,15 @@ func newBankingFixture(
 	); err != nil {
 		t.Fatalf("update online bank: %v", err)
 	}
+	// The fixture stands in for a bank whose last connection test was GO.
+	if err := settings.Set(
+		context.Background(),
+		database,
+		banksync.SyncUnlockKey(created.ID),
+		banksync.SyncFingerprint("37040044", "user", serverURL),
+	); err != nil {
+		t.Fatalf("unlock online bank: %v", err)
+	}
 	if seed != nil {
 		seed(database, created.ID)
 	}
@@ -483,7 +492,7 @@ func TestBankCardsCarryTheOnlineFieldsAndTheBankMenu(t *testing.T) {
 	for _, item := range card.Menu {
 		actions = append(actions, item.Action)
 	}
-	want := []string{"test-connection", "history", "include", "rename", "connection", "clear-history", "forget-pin", "delete"}
+	want := []string{"test-connection", "sync", "history", "include", "rename", "connection", "clear-history", "forget-pin", "delete"}
 	if strings.Join(actions, ",") != strings.Join(want, ",") {
 		t.Fatalf("menu actions = %v, want %v", actions, want)
 	}
@@ -494,19 +503,23 @@ func TestBankCardsCarryTheOnlineFieldsAndTheBankMenu(t *testing.T) {
 	if !testConnection.Enabled || testConnection.Label != i18n.Text(i18n.En, i18n.TestConnection) {
 		t.Fatalf("test-connection item = %+v", testConnection)
 	}
-	history := card.Menu[1]
+	syncNow := card.Menu[1]
+	if syncNow.Enabled || syncNow.Label != i18n.Text(i18n.En, i18n.SyncNow) || syncNow.Icon != "sync" {
+		t.Fatalf("sync-now item = %+v", syncNow)
+	}
+	history := card.Menu[2]
 	if history.Enabled || history.Icon != "date_range" {
 		t.Fatalf("history item = %+v", history)
 	}
-	include := card.Menu[2]
-	if include.Enabled || !include.Checked {
+	include := card.Menu[3]
+	if !include.Enabled || !include.Checked {
 		t.Fatalf("include item = %+v", include)
 	}
-	clear := card.Menu[5]
+	clear := card.Menu[6]
 	if !clear.Enabled || clear.Icon != "history" {
 		t.Fatalf("clear-history item = %+v", clear)
 	}
-	forget := card.Menu[6]
+	forget := card.Menu[7]
 	if !forget.Enabled || forget.Icon != "lock" {
 		t.Fatalf("forget-pin item = %+v", forget)
 	}
@@ -580,8 +593,8 @@ func TestWithTheUnavailableGatewaySyncControlsAreHiddenAndAnAttemptFails(t *test
 	bankingDTO = fixture.waitBanking(t, "the unavailable gateway error", func(dto BankingDTO) bool {
 		return dto.ErrorText != ""
 	})
-	if bankingDTO.SyncControlsVisible || bankingDTO.OnlineSyncAvailable || bankingDTO.SyncAllEnabled {
-		t.Fatalf("sync controls follow the flag: %+v", bankingDTO)
+	if bankingDTO.SyncControlsVisible || !bankingDTO.OnlineSyncAvailable || bankingDTO.SyncAllEnabled {
+		t.Fatalf("sync controls follow the product id: %+v", bankingDTO)
 	}
 	if bankingDTO.OnlineSyncNote != i18n.Text(i18n.En, i18n.OnlineSyncNotYetAvailable) {
 		t.Fatalf("online sync note = %q", bankingDTO.OnlineSyncNote)
@@ -631,8 +644,8 @@ func TestBankingDTOMapsEveryApplyPropsValue(t *testing.T) {
 			dto.SyncControlsVisible,
 		)
 	}
-	if dto.OnlineSyncAvailable || dto.OnlineSyncNote != i18n.Text(i18n.En, i18n.OnlineSyncNotYetAvailable) {
-		t.Fatalf("online note = %q", dto.OnlineSyncNote)
+	if !dto.OnlineSyncAvailable || dto.OnlineSyncNote != i18n.Text(i18n.En, i18n.OnlineSyncNotYetAvailable) {
+		t.Fatalf("online switch/note = %v/%q", dto.OnlineSyncAvailable, dto.OnlineSyncNote)
 	}
 	if dto.ErrorText != "error" || dto.MessageText != "message" || !dto.CanRememberPin {
 		t.Fatalf("messages = %q / %q can remember %v", dto.ErrorText, dto.MessageText, dto.CanRememberPin)
@@ -1025,6 +1038,111 @@ func TestCentralNoteIsLocalized(t *testing.T) {
 		)
 		if got := centralNote(language, fields); got != want {
 			t.Fatalf("central note (%v) = %q, want %q", language, got, want)
+		}
+	}
+}
+
+func bankMenuItem(menu []BankMenuItemDTO, action string) *BankMenuItemDTO {
+	for index := range menu {
+		if menu[index].Action == action {
+			return &menu[index]
+		}
+	}
+	return nil
+}
+
+func TestTheBankMenuGatesSyncNowOnTheUnlockAndLeavesIncludeEditable(t *testing.T) {
+	restore := shell.SetOnlineSyncProductPresentForTest(true)
+	t.Cleanup(restore)
+
+	t.Run("locked", func(t *testing.T) {
+		fixture := newBankingFixture(t, banksync.NoCredentialStore{}, func(database *db.Database, id model.BankConnectionID) {
+			if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(id)); err != nil {
+				t.Fatalf("lock bank: %v", err)
+			}
+		})
+		dto := fixture.waitAccounts(t, "the locked bank card", func(dto AccountsDTO) bool {
+			return len(dto.BankCards) > 0 && dto.BankCards[0].BankID == int(fixture.bankID)
+		})
+		card := dto.BankCards[0]
+		if card.SyncEnabled {
+			t.Fatal("the card sync button is enabled for a locked bank")
+		}
+		if !strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.SyncLockedHint)) {
+			t.Fatalf("subtitle = %q, want the locked hint", card.Subtitle)
+		}
+		if card.SyncTooltip != i18n.Text(i18n.En, i18n.SyncLockedHint) {
+			t.Fatalf("sync tooltip = %q", card.SyncTooltip)
+		}
+		if item := bankMenuItem(card.Menu, "sync"); item == nil || item.Enabled ||
+			item.Label != i18n.Text(i18n.En, i18n.SyncNow) || item.Icon != "sync" {
+			t.Fatalf("sync now item = %+v", item)
+		}
+		if item := bankMenuItem(card.Menu, "history"); item == nil || item.Enabled {
+			t.Fatalf("history item = %+v", item)
+		}
+		if item := bankMenuItem(card.Menu, "include"); item == nil || !item.Enabled {
+			t.Fatalf("include item = %+v, want it editable for a locked bank", item)
+		}
+	})
+
+	t.Run("unlocked and excluded", func(t *testing.T) {
+		fixture := newBankingFixture(t, banksync.NoCredentialStore{}, func(database *db.Database, id model.BankConnectionID) {
+			if _, err := bankconnections.SetIncludeInSyncAll(context.Background(), database, id, false); err != nil {
+				t.Fatalf("exclude bank: %v", err)
+			}
+		})
+		dto := fixture.waitAccounts(t, "the excluded bank card", func(dto AccountsDTO) bool {
+			return len(dto.BankCards) > 0 && dto.BankCards[0].BankID == int(fixture.bankID)
+		})
+		card := dto.BankCards[0]
+		if !card.SyncEnabled {
+			t.Fatal("the card sync button is disabled for an unlocked bank")
+		}
+		if strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.SyncLockedHint)) {
+			t.Fatalf("subtitle = %q, want no locked hint", card.Subtitle)
+		}
+		if !strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.NotInSyncAll)) {
+			t.Fatalf("subtitle = %q, want not-in-Sync-all", card.Subtitle)
+		}
+		if item := bankMenuItem(card.Menu, "sync"); item == nil || !item.Enabled {
+			t.Fatalf("sync now item = %+v, want it enabled", item)
+		}
+		if item := bankMenuItem(card.Menu, "history"); item == nil || !item.Enabled {
+			t.Fatalf("history item = %+v, want it enabled", item)
+		}
+		if item := bankMenuItem(card.Menu, "include"); item == nil || !item.Enabled || item.Checked {
+			t.Fatalf("include item = %+v, want editable and unchecked", item)
+		}
+	})
+}
+
+func TestTheBankMenuIsDisabledWhileASyncRuns(t *testing.T) {
+	restore := shell.SetOnlineSyncProductPresentForTest(true)
+	t.Cleanup(restore)
+	id := model.BankConnectionID(7)
+	serverURL := "https://fints.example/pintan"
+	state := bankingcore.BankingState{
+		Language:    i18n.En,
+		SyncingBank: &id,
+		Banks: []bankingcore.BankItem{{
+			ID:                id,
+			BankName:          "Sparkasse",
+			BLZ:               "37040044",
+			UserID:            "user",
+			ServerURL:         &serverURL,
+			IncludeInSyncAll:  true,
+			SyncUnlocked:      true,
+			CanTestConnection: true,
+		}},
+	}
+	dto := bankingDTO(state, i18n.En)
+	if len(dto.Banks) != 1 {
+		t.Fatalf("banks = %d", len(dto.Banks))
+	}
+	for _, item := range dto.Banks[0].Menu {
+		if item.Enabled {
+			t.Fatalf("menu item %q is enabled while a sync runs", item.Action)
 		}
 	}
 }

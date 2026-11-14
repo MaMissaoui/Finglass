@@ -309,6 +309,13 @@ test('the banking reference screenshots', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Add bank', exact: true })).toBeDisabled();
   await shot(page, 'accounts-sync-all-en');
 
+  await goto(page, 'accounts-sync-per-bank', 1100, 900);
+  await expect(page.getByText('Sync is locked until Test connection returns GO.')).toBeVisible();
+  await expect(
+    page.getByText(/skipped because its last Test connection was not GO/u),
+  ).toBeVisible();
+  await shot(page, 'accounts-sync-per-bank-en');
+
   await goto(page, 'accounts-syncing');
   await expect(sparkasse(page).getByText('Connecting…')).toBeVisible();
   await shot(page, 'accounts-syncing-en');
@@ -631,6 +638,7 @@ test('every banking scenario renders without a CSP or console error', async ({ p
     'accounts-connection',
     'accounts-history',
     'accounts-sync-all',
+    'accounts-sync-per-bank',
     'accounts-syncing',
     'accounts-pin',
     'accounts-pin-remember',

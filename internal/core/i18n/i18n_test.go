@@ -25,6 +25,8 @@ import (
 //     ImportSummaryDeleted: German/French add a second plural marker for the verb.
 //   - RuleImportDuplicates: French uses {1:s||} for an optional letter, which is not a plural
 //     marker under FinDesk's regex; English and German use a real plural marker.
+//   - SyncAllSkippedLocked: English marks both the noun and its possessive, German and French
+//     only the noun.
 var placeholderAllowList = []Key{
 	PendingLeftOut,
 	UnreadableCount,
@@ -41,6 +43,7 @@ var placeholderAllowList = []Key{
 	ImportSummaryDeleted,
 	SelectedCount,
 	DeleteSelectedCount,
+	SyncAllSkippedLocked,
 }
 
 // paymentNameExceptions are variant names that legitimately carry a payment word: these four
@@ -339,8 +342,8 @@ func TestSingularRulesMatchFinDesk(t *testing.T) {
 }
 
 func TestNumKeys(t *testing.T) {
-	if NumKeys != 904 {
-		t.Errorf("NumKeys = %d, want 904", NumKeys)
+	if NumKeys != 907 {
+		t.Errorf("NumKeys = %d, want 907", NumKeys)
 	}
 	if len(All()) != NumKeys {
 		t.Errorf("len(All()) = %d, want %d", len(All()), NumKeys)

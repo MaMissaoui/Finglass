@@ -676,12 +676,20 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
   function bankCard(bank: MockBank): AccountsBankCardDTO {
     const rows = bankRows(bank);
     const online = bankingSource?.(bank.id);
+    let subtitle = bank.offline
+      ? translate(language, 'BankOfflineHint')
+      : `${translate(language, 'BlzPrefix', bank.blz)} · ${translate(language, 'BicPrefix', bank.bic)}`;
+    if (scenario === 'accounts-sync-per-bank') {
+      if (bank.id === 3) {
+        subtitle = `${subtitle} · ${translate(language, 'SyncLockedHint')}`;
+      } else if (bank.id === 4) {
+        subtitle = `${subtitle} · ${translate(language, 'NotInSyncAll')}`;
+      }
+    }
     return {
       bankId: bank.id,
       name: bank.name,
-      subtitle: bank.offline
-        ? translate(language, 'BankOfflineHint')
-        : `${translate(language, 'BlzPrefix', bank.blz)} · ${translate(language, 'BicPrefix', bank.bic)}`,
+      subtitle,
       centralBlzHint: '',
       offline: bank.offline,
       collapsed: bank.collapsed,

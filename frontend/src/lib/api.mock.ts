@@ -505,6 +505,7 @@ function initialState(scenario: string): MockState {
     case 'accounts-connection':
     case 'accounts-history':
     case 'accounts-sync-all':
+    case 'accounts-sync-per-bank':
     case 'accounts-syncing':
     case 'accounts-pin':
     case 'accounts-pin-remember':

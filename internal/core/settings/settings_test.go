@@ -57,6 +57,24 @@ func TestASettingRoundTripsAndCanBeOverwritten(t *testing.T) {
 	}
 }
 
+func TestDeleteRemovesASettingAndIgnoresAMissingKey(t *testing.T) {
+	database := testDatabase(t)
+	ctx := context.Background()
+
+	if err := Set(ctx, database, "language", "en"); err != nil {
+		t.Fatalf("Set: %v", err)
+	}
+	if err := Delete(ctx, database, "language"); err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+	if _, ok, err := Get(ctx, database, "language"); err != nil || ok {
+		t.Fatalf("Get after Delete: ok = %v, err = %v", ok, err)
+	}
+	if err := Delete(ctx, database, "language"); err != nil {
+		t.Fatalf("Delete of a missing key: %v", err)
+	}
+}
+
 func TestAMissingKeyIsNone(t *testing.T) {
 	database := testDatabase(t)
 
