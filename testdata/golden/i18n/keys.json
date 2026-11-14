@@ -2899,6 +2899,11 @@
     "de": "Mindestens %d Zeichen. Ein paar zusammenhanglose Wörter sind leicht zu merken und schwer zu erraten.",
     "fr": "Au moins %d caractères. Quelques mots sans rapport sont faciles à retenir et difficiles à deviner."
   },
+  "PassphraseLengthCount": {
+    "en": "%d of %d characters",
+    "de": "%d von %d Zeichen",
+    "fr": "%d caractères sur %d"
+  },
   "PassphraseMismatch": {
     "en": "The passphrases don't match.",
     "de": "Die Passphrasen stimmen nicht überein.",

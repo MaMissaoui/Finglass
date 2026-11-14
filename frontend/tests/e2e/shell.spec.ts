@@ -104,6 +104,14 @@ test('the reference screenshots', async ({ page }) => {
   ).toBeVisible();
   await shot(page, 'unlock-create-en');
 
+  await goto(page, 'unlock-create-short-de', 560, 760);
+  await expect(
+    page.getByRole('heading', { name: 'Daten mit einer Passphrase schützen' }),
+  ).toBeVisible();
+  await page.getByLabel('Neue Passphrase').fill('Vier');
+  await expect(page.getByText('4 von 10 Zeichen')).toBeVisible();
+  await shot(page, 'unlock-create-short-de');
+
   await goto(page, 'unlock-wrong-de', 560, 700);
   await expect(page.getByRole('heading', { name: 'Passphrase eingeben' })).toBeVisible();
   await page.getByRole('textbox', { name: 'Passphrase' }).fill('not the passphrase');
@@ -140,6 +148,14 @@ test('the reference screenshots', async ({ page }) => {
   await goto(page, 'migration-profile', 560, 800);
   await expect(page.getByRole('heading', { name: 'Profile 2 of 2: Business' })).toBeVisible();
   await shot(page, 'migration-profile-en');
+
+  await page.getByLabel('FinDesk passphrase').fill(passphrase);
+  await page.getByRole('button', { name: 'Migrate profile' }).click();
+  await expect(page.getByTestId('migration-error')).toHaveText(
+    "Confirm that you understand there's no recovery.",
+  );
+  await expect(page.getByLabel('FinDesk passphrase')).toHaveValue(passphrase);
+  await shot(page, 'migration-profile-acknowledge-en-light');
 
   await goto(page, 'migration-profile-new-passphrase', 560, 800);
   await expect(page.getByRole('heading', { name: 'Profile 2 of 2: Business' })).toBeVisible();
@@ -207,6 +223,7 @@ test('every view renders without a CSP or console error', async ({ page }) => {
     'already-running',
     'target-after-switch',
     'unlock-wrong-de',
+    'unlock-create-short-de',
     'migration-welcome',
     'migration-profile',
     'migration-profile-new-passphrase',

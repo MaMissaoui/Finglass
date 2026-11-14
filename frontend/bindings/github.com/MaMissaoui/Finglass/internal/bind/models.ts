@@ -3467,6 +3467,12 @@ export class ShellDTO {
     "profileLabel": string;
     "profileName": string;
     "passphraseHint": string;
+
+    /**
+     * PassphraseMinLength is the minimum number of NFC runes for a new
+     * passphrase, so the field can count live without hard-coding it.
+     */
+    "passphraseMinLength": number;
     "leftoverLines": string[];
     "shellOpen": boolean;
     "language": string;
@@ -3495,6 +3501,7 @@ export class ShellDTO {
     "migrationProfileCount": number;
     "migrationSamePassphrase": boolean;
     "migrationNewPassphraseRequired": boolean;
+    "migrationAcknowledged": boolean;
     "migrationSummaryLines": string[];
 
     /** Creates a new ShellDTO instance. */
@@ -3525,6 +3532,9 @@ export class ShellDTO {
         }
         if (!("passphraseHint" in $$source)) {
             this["passphraseHint"] = "";
+        }
+        if (!("passphraseMinLength" in $$source)) {
+            this["passphraseMinLength"] = 0;
         }
         if (!("leftoverLines" in $$source)) {
             this["leftoverLines"] = [];
@@ -3586,6 +3596,9 @@ export class ShellDTO {
         if (!("migrationNewPassphraseRequired" in $$source)) {
             this["migrationNewPassphraseRequired"] = false;
         }
+        if (!("migrationAcknowledged" in $$source)) {
+            this["migrationAcknowledged"] = false;
+        }
         if (!("migrationSummaryLines" in $$source)) {
             this["migrationSummaryLines"] = [];
         }
@@ -3597,22 +3610,22 @@ export class ShellDTO {
      * Creates a new ShellDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ShellDTO {
-        const $$createField9_0 = $$createType16;
-        const $$createField18_0 = $$createType71;
-        const $$createField23_0 = $$createType16;
-        const $$createField29_0 = $$createType16;
+        const $$createField10_0 = $$createType16;
+        const $$createField19_0 = $$createType71;
+        const $$createField24_0 = $$createType16;
+        const $$createField31_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("leftoverLines" in $$parsedSource) {
-            $$parsedSource["leftoverLines"] = $$createField9_0($$parsedSource["leftoverLines"]);
+            $$parsedSource["leftoverLines"] = $$createField10_0($$parsedSource["leftoverLines"]);
         }
         if ("profiles" in $$parsedSource) {
-            $$parsedSource["profiles"] = $$createField18_0($$parsedSource["profiles"]);
+            $$parsedSource["profiles"] = $$createField19_0($$parsedSource["profiles"]);
         }
         if ("migrationProfileNames" in $$parsedSource) {
-            $$parsedSource["migrationProfileNames"] = $$createField23_0($$parsedSource["migrationProfileNames"]);
+            $$parsedSource["migrationProfileNames"] = $$createField24_0($$parsedSource["migrationProfileNames"]);
         }
         if ("migrationSummaryLines" in $$parsedSource) {
-            $$parsedSource["migrationSummaryLines"] = $$createField29_0($$parsedSource["migrationSummaryLines"]);
+            $$parsedSource["migrationSummaryLines"] = $$createField31_0($$parsedSource["migrationSummaryLines"]);
         }
         return new ShellDTO($$parsedSource as Partial<ShellDTO>);
     }

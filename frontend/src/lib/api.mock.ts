@@ -17,6 +17,7 @@ import { createMockBanking } from './banking.mock';
 import { createMockDocuments } from './documents.mock';
 import { languageFromCode, translate, type Language } from './i18n';
 import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
+import { passphraseLength } from './passphrase';
 import { MockReports } from './reports.mock';
 import { createMockSettings } from './settings.mock';
 import { createMockTransactions } from './transactions.mock';
@@ -64,6 +65,7 @@ type MockState = {
   migrationProfileIndex: number;
   migrationSamePassphrase: boolean;
   migrationNeedsNewPassphrase: boolean;
+  migrationAcknowledged: boolean;
   migrationSummaryLines: string[];
 };
 
@@ -324,10 +326,6 @@ function scenarioName(): string {
   return new URLSearchParams(location.search).get('scenario') ?? '';
 }
 
-function runeCount(value: string): number {
-  return Array.from(value).length;
-}
-
 function hasSurroundingSpace(value: string): boolean {
   return /^\s|\s$/u.test(value) || /^\s+$/u.test(value);
 }
@@ -370,6 +368,7 @@ function baseState(): MockState {
     migrationProfileIndex: 0,
     migrationSamePassphrase: true,
     migrationNeedsNewPassphrase: false,
+    migrationAcknowledged: false,
     migrationSummaryLines: [],
   };
 }
@@ -480,6 +479,10 @@ function initialState(scenario: string): MockState {
     case 'unlock-wrong-de':
       state.mode = 'unlock';
       state.allowChange = true;
+      state.language = 'de';
+      break;
+    case 'unlock-create-short-de':
+      state.mode = 'create';
       state.language = 'de';
       break;
     case 'shell':
@@ -720,6 +723,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       profileLabel: profileLabel(language, state.profileName),
       profileName: state.profileName,
       passphraseHint: translate(language, 'PassphraseHint', passphraseMinimum),
+      passphraseMinLength: passphraseMinimum,
       leftoverLines: [...state.leftoverLines],
       shellOpen: state.shellOpen,
       language,
@@ -743,6 +747,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       migrationSamePassphrase: state.migrationSamePassphrase,
       migrationNewPassphraseRequired:
         !state.migrationSamePassphrase || state.migrationNeedsNewPassphrase,
+      migrationAcknowledged: state.migrationAcknowledged,
       migrationSummaryLines: [...state.migrationSummaryLines],
     };
   }
@@ -786,7 +791,7 @@ export function createMockApi(scenario = scenarioName()): Api {
   }
 
   function validateNew(passphrase: string, repeat: string, acknowledged: boolean): string {
-    if (runeCount(passphrase) < passphraseMinimum) {
+    if (passphraseLength(passphrase) < passphraseMinimum) {
       return translate(state.language, 'PassphraseTooShort', passphraseMinimum);
     }
     if (hasSurroundingSpace(passphrase)) {
@@ -973,8 +978,8 @@ export function createMockApi(scenario = scenarioName()): Api {
       return publish();
     },
 
-    async migrationMigrate(acknowledged: boolean) {
-      if (acknowledged && state.migrationStep === 'welcome') {
+    async migrationMigrate() {
+      if (state.migrationStep === 'welcome') {
         state.migrationStep = 'profile';
         state.migrationProfileIndex = 0;
         state.migrationProfileName = state.migrationProfileNames[0] ?? '';
@@ -984,6 +989,7 @@ export function createMockApi(scenario = scenarioName()): Api {
           state.migrationProfileNames.length,
           state.migrationProfileName,
         );
+        state.migrationAcknowledged = false;
         state.errorText = '';
       }
       return publish();
@@ -992,6 +998,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       state.mode = 'create';
       state.migrationStep = '';
       state.migrationProfileNames = [];
+      state.migrationAcknowledged = false;
       state.migrationSummaryLines = [];
       state.errorText = '';
       return publish();
@@ -1001,9 +1008,15 @@ export function createMockApi(scenario = scenarioName()): Api {
       newPassphrase: string,
       repeat: string,
       samePassphrase: boolean,
+      acknowledged: boolean,
     ) {
       if (state.migrationStep !== 'profile') {
         return dto();
+      }
+      state.migrationAcknowledged = state.migrationAcknowledged || acknowledged;
+      if (!state.migrationAcknowledged) {
+        state.errorText = translate(state.language, 'PassphraseAcknowledge');
+        return publish();
       }
       state.migrationSamePassphrase = samePassphrase;
       if (passphrase === '') {
@@ -1011,7 +1024,7 @@ export function createMockApi(scenario = scenarioName()): Api {
         return publish();
       }
       if (samePassphrase) {
-        if (runeCount(passphrase) < passphraseMinimum) {
+        if (passphraseLength(passphrase) < passphraseMinimum) {
           state.migrationNeedsNewPassphrase = true;
           state.errorText = translate(state.language, 'MigrationNewPassphraseNeeded');
           return publish();
@@ -1037,6 +1050,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       state.mode = 'create';
       state.migrationStep = '';
       state.migrationProfileNames = [];
+      state.migrationAcknowledged = false;
       state.migrationSummaryLines = [];
       state.profileName = 'Personal';
       state.profiles = [{ name: 'Personal', slug: '', open: false }];
@@ -1049,7 +1063,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       if (state.migrationStep !== 'profile' || !state.migrationSamePassphrase) {
         return publish();
       }
-      state.migrationNeedsNewPassphrase = text !== '' && runeCount(text) < passphraseMinimum;
+      state.migrationNeedsNewPassphrase = text !== '' && passphraseLength(text) < passphraseMinimum;
       return publish();
     },
 

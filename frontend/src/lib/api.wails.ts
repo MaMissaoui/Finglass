@@ -104,8 +104,8 @@ export function createWailsApi(): Api {
       return Shell.ManageProfiles();
     },
 
-    migrationMigrate(acknowledged: boolean): Promise<ShellDTO> {
-      return Shell.MigrationMigrate(acknowledged);
+    migrationMigrate(): Promise<ShellDTO> {
+      return Shell.MigrationMigrate();
     },
     migrationStartEmpty(): Promise<ShellDTO> {
       return Shell.MigrationStartEmpty();
@@ -115,8 +115,9 @@ export function createWailsApi(): Api {
       newPassphrase: string,
       repeat: string,
       samePassphrase: boolean,
+      acknowledged: boolean,
     ): Promise<ShellDTO> {
-      return Shell.MigrationSubmit(passphrase, newPassphrase, repeat, samePassphrase);
+      return Shell.MigrationSubmit(passphrase, newPassphrase, repeat, samePassphrase, acknowledged);
     },
     migrationSkip(): Promise<ShellDTO> {
       return Shell.MigrationSkip();

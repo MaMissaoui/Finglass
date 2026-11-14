@@ -45,16 +45,19 @@ type ProfileDTO struct {
 //
 // It never carries a passphrase or any other secret.
 type ShellDTO struct {
-	Mode           string   `json:"mode"`
-	AllowChange    bool     `json:"allowChange"`
-	Busy           bool     `json:"busy"`
-	Restored       bool     `json:"restored"`
-	StartupError   bool     `json:"startupError"`
-	ErrorText      string   `json:"errorText"`
-	ProfileLabel   string   `json:"profileLabel"`
-	ProfileName    string   `json:"profileName"`
-	PassphraseHint string   `json:"passphraseHint"`
-	LeftoverLines  []string `json:"leftoverLines"`
+	Mode           string `json:"mode"`
+	AllowChange    bool   `json:"allowChange"`
+	Busy           bool   `json:"busy"`
+	Restored       bool   `json:"restored"`
+	StartupError   bool   `json:"startupError"`
+	ErrorText      string `json:"errorText"`
+	ProfileLabel   string `json:"profileLabel"`
+	ProfileName    string `json:"profileName"`
+	PassphraseHint string `json:"passphraseHint"`
+	// PassphraseMinLength is the minimum number of NFC runes for a new
+	// passphrase, so the field can count live without hard-coding it.
+	PassphraseMinLength int      `json:"passphraseMinLength"`
+	LeftoverLines       []string `json:"leftoverLines"`
 
 	ShellOpen          bool         `json:"shellOpen"`
 	Language           string       `json:"language"`
@@ -78,6 +81,7 @@ type ShellDTO struct {
 	MigrationProfileCount          int      `json:"migrationProfileCount"`
 	MigrationSamePassphrase        bool     `json:"migrationSamePassphrase"`
 	MigrationNewPassphraseRequired bool     `json:"migrationNewPassphraseRequired"`
+	MigrationAcknowledged          bool     `json:"migrationAcknowledged"`
 	MigrationSummaryLines          []string `json:"migrationSummaryLines"`
 }
 
@@ -322,14 +326,13 @@ func (s *Shell) ManageProfiles() (ShellDTO, error) {
 }
 
 // MigrationMigrate writes the migrate marker and moves to the first profile.
-// Without the acknowledgement nothing happens.
-func (s *Shell) MigrationMigrate(acknowledged bool) (ShellDTO, error) {
+func (s *Shell) MigrationMigrate() (ShellDTO, error) {
 	s.migrationMu.Lock()
 	if s.wizard == nil {
 		s.migrationMu.Unlock()
 		return s.snapshot(), ErrNoMigration
 	}
-	err := s.wizard.BeginMigration(s.language(), s.paths, s.clock().UTC(), acknowledged)
+	err := s.wizard.BeginMigration(s.language(), s.paths, s.clock().UTC())
 	s.migrationMu.Unlock()
 	return s.publish(), err
 }
@@ -350,8 +353,9 @@ func (s *Shell) MigrationStartEmpty() (ShellDTO, error) {
 }
 
 // MigrationSubmit validates the current profile's passphrases and runs its
-// migration. samePassphrase is the wizard's "use the same passphrase" box.
-func (s *Shell) MigrationSubmit(passphrase, newPassphrase, repeat string, samePassphrase bool) (ShellDTO, error) {
+// migration. samePassphrase is the wizard's "use the same passphrase" box and
+// acknowledged is the recovery confirmation on the passphrase step.
+func (s *Shell) MigrationSubmit(passphrase, newPassphrase, repeat string, samePassphrase, acknowledged bool) (ShellDTO, error) {
 	s.migrationMu.Lock()
 	if s.wizard == nil {
 		s.migrationMu.Unlock()
@@ -378,6 +382,7 @@ func (s *Shell) MigrationSubmit(passphrase, newPassphrase, repeat string, samePa
 		newInput,
 		repeatInput,
 		samePassphrase,
+		acknowledged,
 	)
 	// Wiped now, before the key derivation below; the defers only cover a panic.
 	wipe(findeskInput)
@@ -548,27 +553,28 @@ func (s *Shell) snapshot() ShellDTO {
 	screen := s.session.CurrentScreen()
 
 	dto := ShellDTO{
-		Mode:               unlock.Mode,
-		AllowChange:        unlock.AllowChange,
-		Busy:               unlock.Busy,
-		Restored:           unlock.Restored,
-		StartupError:       unlock.StartupError,
-		ErrorText:          unlock.ErrorText,
-		ProfileLabel:       unlock.ProfileLabel,
-		ProfileName:        unlock.ProfileName,
-		PassphraseHint:     unlock.PassphraseHint,
-		LeftoverLines:      append([]string(nil), unlock.LeftoverLines...),
-		ShellOpen:          s.session.IsOpen(),
-		Language:           language.Code(),
-		Theme:              s.session.Theme().Code(),
-		SidebarCollapsed:   s.session.SidebarCollapsed(),
-		Screen:             screen,
-		ScreenTitle:        shell.Title(screen, language),
-		CurrentProfileName: unlock.ProfileName,
-		Profiles:           s.profileList(),
-		Version:            Version,
-		AboutVersion:       shell.AboutVersionText(language, Version),
-		FindEnabled:        shell.FindEnabled(screen, false),
+		Mode:                unlock.Mode,
+		AllowChange:         unlock.AllowChange,
+		Busy:                unlock.Busy,
+		Restored:            unlock.Restored,
+		StartupError:        unlock.StartupError,
+		ErrorText:           unlock.ErrorText,
+		ProfileLabel:        unlock.ProfileLabel,
+		ProfileName:         unlock.ProfileName,
+		PassphraseHint:      unlock.PassphraseHint,
+		PassphraseMinLength: shell.MinPassphraseLength,
+		LeftoverLines:       append([]string(nil), unlock.LeftoverLines...),
+		ShellOpen:           s.session.IsOpen(),
+		Language:            language.Code(),
+		Theme:               s.session.Theme().Code(),
+		SidebarCollapsed:    s.session.SidebarCollapsed(),
+		Screen:              screen,
+		ScreenTitle:         shell.Title(screen, language),
+		CurrentProfileName:  unlock.ProfileName,
+		Profiles:            s.profileList(),
+		Version:             Version,
+		AboutVersion:        shell.AboutVersionText(language, Version),
+		FindEnabled:         shell.FindEnabled(screen, false),
 	}
 	if target, ok := s.session.NavTarget(); ok {
 		dto.BackTitle = shell.Title(target.Screen, language)
@@ -589,6 +595,7 @@ func (s *Shell) snapshot() ShellDTO {
 		dto.MigrationProfileCount = wizard.ProfileCount()
 		dto.MigrationSamePassphrase = wizard.SamePassphrase()
 		dto.MigrationNewPassphraseRequired = !wizard.SamePassphrase() || wizard.NeedsNewPassphrase()
+		dto.MigrationAcknowledged = wizard.Acknowledged()
 		dto.MigrationSummaryLines = wizard.SummaryLines(language)
 	}
 	s.migrationMu.Unlock()

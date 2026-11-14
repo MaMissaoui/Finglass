@@ -2,6 +2,7 @@ package shell
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	coremigration "github.com/MaMissaoui/Finglass/internal/app/migration"
@@ -93,6 +94,7 @@ type MigrationSession struct {
 	index              int
 	samePassphrase     bool
 	needsNewPassphrase bool
+	acknowledged       bool
 	busy               bool
 	errorText          *string
 	results            []MigrationProfileResult
@@ -107,6 +109,7 @@ func NewMigrationSession(install coremigration.FinDeskInstall, start startup.Sta
 		index:              0,
 		samePassphrase:     true,
 		needsNewPassphrase: false,
+		acknowledged:       false,
 		results:            make([]MigrationProfileResult, 0),
 	}
 }
@@ -180,6 +183,12 @@ func (s *MigrationSession) NeedsNewPassphrase() bool {
 	return s.needsNewPassphrase
 }
 
+// Acknowledged reports whether the user confirmed that a forgotten passphrase
+// cannot be recovered. The wizard asks once and remembers it for every profile.
+func (s *MigrationSession) Acknowledged() bool {
+	return s.acknowledged
+}
+
 // Busy reports whether a migration is running.
 func (s *MigrationSession) Busy() bool {
 	return s.busy
@@ -213,14 +222,12 @@ func WelcomeAction(appPaths paths.AppPaths, migrate bool, now time.Time) error {
 }
 
 // BeginMigration writes the "migrate" marker and moves to the first profile.
-// An unacknowledged click does nothing.
 func (s *MigrationSession) BeginMigration(
 	language i18n.Language,
 	appPaths paths.AppPaths,
 	now time.Time,
-	acknowledged bool,
 ) error {
-	if s.busy || !acknowledged {
+	if s.busy {
 		return nil
 	}
 	if err := WelcomeAction(appPaths, true, now); err != nil {
@@ -232,6 +239,7 @@ func (s *MigrationSession) BeginMigration(
 	s.index = 0
 	s.samePassphrase = true
 	s.needsNewPassphrase = false
+	s.acknowledged = false
 	s.errorText = nil
 	return nil
 }
@@ -252,13 +260,17 @@ func (s *MigrationSession) BeginEmpty(language i18n.Language, appPaths paths.App
 // Submit validates the passphrases of the current profile, as
 // on_migration_submit does.
 //
-// The migration itself always treats the recovery warning as acknowledged. The
-// returned passphrases are owned by the caller, which
+// The recovery warning is acknowledged once per wizard. Without that
+// acknowledgement Submit refuses, sets the acknowledgement error text and
+// zeroes the inputs; it never migrates anything.
+//
+// The returned passphrases are owned by the caller, which
 // must wipe them after running the migration.
 func (s *MigrationSession) Submit(
 	language i18n.Language,
 	findeskInput, newInput, repeatInput []byte,
 	samePassphrase bool,
+	acknowledged bool,
 ) (*secret.Passphrase, *secret.Passphrase, error) {
 	if s.busy {
 		return nil, nil, ErrMigrationBusy
@@ -266,6 +278,14 @@ func (s *MigrationSession) Submit(
 	profile := s.currentProfile()
 	if profile == nil {
 		return nil, nil, ErrNoMigrationProfile
+	}
+
+	s.acknowledged = s.acknowledged || acknowledged
+	if !s.acknowledged {
+		zeroBytes(findeskInput, newInput, repeatInput)
+		text := i18n.Text(language, i18n.PassphraseAcknowledge)
+		s.errorText = &text
+		return nil, nil, fmt.Errorf("migration submit: %w", unlock.ErrNotAcknowledged)
 	}
 
 	s.samePassphrase = samePassphrase
@@ -428,6 +448,13 @@ func (s *MigrationSession) currentProfile() *coremigration.FinDeskProfile {
 		return nil
 	}
 	return &s.install.Profiles[s.index]
+}
+
+// zeroBytes wipes the caller's passphrase buffers on a refused submit.
+func zeroBytes(values ...[]byte) {
+	for _, value := range values {
+		clear(value)
+	}
 }
 
 // MigratedResult builds a migrated profile's summary entry.

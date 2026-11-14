@@ -3,6 +3,7 @@
   import type { Api, ShellDTO } from '../lib/api';
   import { Checkbox, OutlinedField, PrimaryButton, TextButton } from '../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../lib/i18n';
+  import { passphraseLength } from '../lib/passphrase';
 
   let {
     dto,
@@ -28,6 +29,12 @@
   const busy = $derived(dto.busy || pending);
   const errorText = $derived(localError || dto.errorText);
   const showNewFields = $derived(dto.migrationNewPassphraseRequired || !samePassphrase);
+  const newPassphraseLength = $derived(passphraseLength(newPassphrase));
+  const newPassphraseSupportingText = $derived(
+    showNewFields && newPassphrase !== '' && newPassphraseLength < dto.passphraseMinLength
+      ? t('PassphraseLengthCount', newPassphraseLength, dto.passphraseMinLength)
+      : dto.passphraseHint,
+  );
 
   function t(key: string, ...args: FormatArg[]): string {
     return translate(language, key, ...args);
@@ -72,15 +79,29 @@
     if (busy) {
       return;
     }
+    if (!dto.migrationAcknowledged && !acknowledged) {
+      // Keep the typed passphrases: the user only has to tick the box.
+      localError = t('PassphraseAcknowledge');
+      return;
+    }
     const findeskValue = findeskPassphrase;
     const newValue = newPassphrase;
     const repeatValue = repeat;
     const sameValue = samePassphrase;
+    const acknowledgedValue = acknowledged;
     clearSecrets();
     localError = '';
     pending = true;
     try {
-      onchange(await api.migrationSubmit(findeskValue, newValue, repeatValue, sameValue));
+      onchange(
+        await api.migrationSubmit(
+          findeskValue,
+          newValue,
+          repeatValue,
+          sameValue,
+          acknowledgedValue,
+        ),
+      );
     } catch {
       localError = t('ErrorUnexpected');
     } finally {
@@ -90,7 +111,7 @@
   }
 
   function startMigration(): void {
-    void run(() => api.migrationMigrate(acknowledged));
+    void run(() => api.migrationMigrate());
   }
 
   function startEmpty(): void {
@@ -117,17 +138,12 @@
       <p class="muted">• {name}</p>
     {/each}
     <p class="small">{t('MigrationCopiedText')}</p>
-    <p class="caution">{t('MigrationQuitHint')}</p>
-    <Checkbox text={t('PassphraseNoRecovery')} bind:checked={acknowledged} enabled={!busy} />
+    <p class="small">{t('MigrationQuitHint')}</p>
     {#if errorText !== ''}
       <p class="error" role="alert" data-testid="migration-error">{errorText}</p>
     {/if}
     <div class="actions">
-      <PrimaryButton
-        text={t('MigrationStart')}
-        enabled={!busy && acknowledged}
-        onclick={startMigration}
-      />
+      <PrimaryButton text={t('MigrationStart')} enabled={!busy} onclick={startMigration} />
       <TextButton text={t('MigrationStartEmpty')} enabled={!busy} onclick={startEmpty} />
     </div>
   </div>
@@ -154,6 +170,7 @@
           bind:value={newPassphrase}
           enabled={!busy}
           secret={!showPassphrase}
+          supportingText={newPassphraseSupportingText}
           onaccepted={() => void submitProfile()}
         />
         <OutlinedField
@@ -168,12 +185,12 @@
 
     <Checkbox text={t('ShowPassphrase')} bind:checked={showPassphrase} enabled={!busy} />
 
-    {#if dto.passphraseHint !== ''}
-      <p class="small">{dto.passphraseHint}</p>
-    {/if}
-
     {#if errorText !== ''}
       <p class="error" role="alert" data-testid="migration-error">{errorText}</p>
+    {/if}
+
+    {#if !dto.migrationAcknowledged}
+      <Checkbox text={t('PassphraseNoRecovery')} bind:checked={acknowledged} enabled={!busy} />
     {/if}
 
     <div class="actions">
@@ -249,12 +266,6 @@
     color: var(--color-muted-text);
     font-size: var(--type-body-small-size);
     font-weight: var(--type-body-small-weight);
-  }
-
-  .caution {
-    color: var(--color-caution);
-    font-size: var(--type-label-size);
-    font-weight: var(--type-label-weight);
   }
 
   .error {

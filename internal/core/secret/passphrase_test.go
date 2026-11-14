@@ -9,6 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"unicode/utf8"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 // repoRoot walks up from the test's working directory until it finds go.mod.
@@ -159,6 +162,31 @@ func TestNFCNormalizesBothFormsToTheSameValue(t *testing.T) {
 	}
 	if got := exposed(t, decomposed); got != "\u00e9" {
 		t.Fatalf("normalised value = %q, want %q", got, "\u00e9")
+	}
+}
+
+// TestLengthCountMatchesTheFrontend pins the rune counts the passphrase field
+// shows while typing. frontend/tests/unit/passphrase.test.ts asserts the same
+// constants, so the TypeScript counter and this NFC rule cannot drift apart.
+func TestLengthCountMatchesTheFrontend(t *testing.T) {
+	cases := []struct {
+		value string
+		count int
+	}{
+		{"", 0},
+		{"abc", 3},
+		{"correct horse battery staple", 28},
+		{"Über", 4},
+		{"U\u0308ber", 4},
+		{"a😀b", 3},
+		{"👍🏽", 2},
+		{"👨\u200d👩\u200d👧\u200d👦", 7},
+	}
+	for _, test := range cases {
+		normalized := norm.NFC.Append(nil, []byte(test.value)...)
+		if got := utf8.RuneCount(normalized); got != test.count {
+			t.Errorf("%q counts %d runes, want %d", test.value, got, test.count)
+		}
 	}
 }
 

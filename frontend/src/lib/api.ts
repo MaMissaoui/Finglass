@@ -91,13 +91,14 @@ export interface Api {
   switchProfile(index: number): Promise<ShellDTO>;
   manageProfiles(): Promise<ShellDTO>;
 
-  migrationMigrate(acknowledged: boolean): Promise<ShellDTO>;
+  migrationMigrate(): Promise<ShellDTO>;
   migrationStartEmpty(): Promise<ShellDTO>;
   migrationSubmit(
     passphrase: string,
     newPassphrase: string,
     repeat: string,
     samePassphrase: boolean,
+    acknowledged: boolean,
   ): Promise<ShellDTO>;
   migrationSkip(): Promise<ShellDTO>;
   migrationContinue(): Promise<ShellDTO>;
