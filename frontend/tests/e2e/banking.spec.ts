@@ -161,6 +161,43 @@ async function answerPin(page: Page, pin: string): Promise<void> {
   await dialog.getByRole('button', { name: 'OK', exact: true }).click();
 }
 
+async function answerProductID(page: Page, productID: string): Promise<void> {
+  const dialog = prompt(page);
+  await dialog.getByRole('textbox', { name: 'Product id', exact: true }).fill(productID);
+  await dialog.getByRole('button', { name: 'OK', exact: true }).click();
+}
+
+async function openTestConnection(page: Page): Promise<void> {
+  await sparkasse(page)
+    .locator('.bank-head')
+    .getByRole('button', { name: 'More', exact: true })
+    .click();
+  await sparkasse(page).getByRole('menuitem', { name: 'Test connection', exact: true }).click();
+  await expect(prompt(page)).toBeVisible();
+}
+
+function connectionPanel(page: Page) {
+  return sparkasse(page).getByTestId('connection-test-2');
+}
+
+async function runConnectionTest(
+  page: Page,
+  productID = 'INVENTED-PRODUCT-ID',
+  pin = 'INVENTED-PIN-2468',
+): Promise<void> {
+  await openTestConnection(page);
+  await expect(
+    prompt(page).getByRole('heading', { name: 'FinTS product id', exact: true }),
+  ).toBeVisible();
+  await answerProductID(page, productID);
+  await expect(
+    prompt(page).getByRole('heading', { name: 'PIN for Sparkasse', exact: true }),
+  ).toBeVisible();
+  await expect(prompt(page).getByText('Remember PIN for syncs')).toHaveCount(0);
+  await answerPin(page, pin);
+  await expect(connectionPanel(page)).toBeVisible();
+}
+
 async function answerChoice(page: Page, label: string): Promise<void> {
   const dialog = prompt(page);
   await dialog.getByRole('option', { name: label, exact: true }).click();
@@ -224,6 +261,33 @@ test('the banking reference screenshots', async ({ page }) => {
   await sparkasse(page).locator('.bank-head').getByRole('button', { name: 'Mehr' }).click();
   await expect(sparkasse(page).getByRole('menu')).toBeVisible();
   await shot(page, 'accounts-bank-menu-de-dark');
+
+  await goto(page, 'accounts', 1100, 900);
+  await openTestConnection(page);
+  await expect(
+    prompt(page).getByRole('heading', { name: 'FinTS product id', exact: true }),
+  ).toBeVisible();
+  await shot(page, 'accounts-test-connection-product-id-en');
+
+  await answerProductID(page, 'INVENTED-PRODUCT-ID');
+  await answerPin(page, 'INVENTED-PIN-2468');
+  await expect(connectionPanel(page)).toContainText('Connection works.');
+  await shot(page, 'accounts-test-connection-go-en-light');
+
+  await goto(page, 'accounts-test-connection-en-dark', 1100, 900, 'dark');
+  await runConnectionTest(page);
+  await expect(connectionPanel(page)).toContainText('Connection works.');
+  await shot(page, 'accounts-test-connection-go-en-dark');
+
+  await goto(page, 'accounts-test-connection-nogo-en-light', 1100, 900);
+  await runConnectionTest(page);
+  await expect(connectionPanel(page)).toContainText('9942');
+  await shot(page, 'accounts-test-connection-nogo-en-light');
+
+  await goto(page, 'accounts-test-connection-nogo-en-dark', 1100, 900, 'dark');
+  await runConnectionTest(page);
+  await expect(connectionPanel(page)).toContainText('9942');
+  await shot(page, 'accounts-test-connection-nogo-en-dark');
 
   await goto(page, 'accounts-connection');
   await expect(
@@ -332,6 +396,70 @@ test('the scripted sync walks through every prompt', async ({ page }) => {
   expect(consoleText).not.toContain('7F3K-TAN-8812');
   await assertSecretGone(page, 'S3cret-PIN-9931');
   await assertSecretGone(page, '7F3K-TAN-8812');
+  await expectClean(watcher);
+});
+
+test('the connection test walks product id and PIN then saves the trace', async ({ page }) => {
+  const watcher = await watch(page);
+  await goto(page, 'accounts');
+
+  await openTestConnection(page);
+  const productIDField = prompt(page).getByRole('textbox', { name: 'Product id', exact: true });
+  await expect(productIDField).toHaveAttribute('type', 'password');
+  await expect(productIDField).toHaveAttribute('autocomplete', 'off');
+  await productIDField.fill('INVENTED-PRODUCT-ID');
+  await prompt(page).getByRole('button', { name: 'OK', exact: true }).click();
+
+  await expect(
+    prompt(page).getByRole('heading', { name: 'PIN for Sparkasse', exact: true }),
+  ).toBeVisible();
+  await assertSecretGone(page, 'INVENTED-PRODUCT-ID');
+  await expect(prompt(page).getByText('Remember PIN for syncs')).toHaveCount(0);
+  const pinField = prompt(page).getByRole('textbox', { name: 'PIN', exact: true });
+  await expect(pinField).toHaveAttribute('type', 'password');
+  await pinField.fill('INVENTED-PIN-2468');
+  await prompt(page).getByRole('button', { name: 'OK', exact: true }).click();
+
+  await expect(prompt(page)).toHaveCount(0);
+  const panel = connectionPanel(page);
+  await expect(panel).toContainText('Connection works.');
+  await expect(panel).toContainText('1 account checked');
+  await expect(panel).toContainText('1 account skipped');
+  await expect(panel).toContainText('Runs a read-only check against your bank.');
+  await assertSecretGone(page, 'INVENTED-PIN-2468');
+
+  await panel.getByRole('button', { name: 'Save redacted trace…', exact: true }).click();
+  await expect(page.getByText('The redacted trace was saved.')).toBeVisible();
+  await expectClean(watcher);
+});
+
+test('a refused login shows the NO-GO panel with the bank return code', async ({ page }) => {
+  const watcher = await watch(page);
+  await goto(page, 'accounts-test-connection-nogo-en-light');
+
+  await runConnectionTest(page);
+  const panel = connectionPanel(page);
+  await expect(panel).toContainText('The login data is invalid.');
+  await expect(panel.locator('.code-chip')).toHaveText(['9942']);
+  await expect(panel).not.toContainText('Connection works.');
+  await expect(panel.getByRole('button', { name: 'Save redacted trace…' })).toBeVisible();
+  await expectClean(watcher);
+});
+
+test('cancel at the product id prompt shows the cancelled panel', async ({ page }) => {
+  const watcher = await watch(page);
+  await goto(page, 'accounts');
+
+  await openTestConnection(page);
+  await expect(
+    prompt(page).getByRole('heading', { name: 'FinTS product id', exact: true }),
+  ).toBeVisible();
+  await prompt(page).getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(prompt(page)).toHaveCount(0);
+
+  const panel = connectionPanel(page);
+  await expect(panel).toContainText('Connection test cancelled.');
+  await expect(panel.getByRole('button', { name: 'Save redacted trace…' })).toHaveCount(0);
   await expectClean(watcher);
 });
 
@@ -493,6 +621,9 @@ test('every banking scenario renders without a CSP or console error', async ({ p
     'accounts-tan-photo',
     'accounts-tan-text',
     'accounts-decoupled',
+    'accounts-test-connection-en-dark',
+    'accounts-test-connection-nogo-en-light',
+    'accounts-test-connection-nogo-en-dark',
     'banking-walkthrough',
   ];
   for (const scenario of scenarios) {

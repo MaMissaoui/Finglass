@@ -4,6 +4,7 @@ import type {
   BankingDTO,
   BankMenuItemDTO,
   BankSuggestionDTO,
+  ConnectionTestDTO,
   PromptDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
 import { mockBankDirectory, searchBanks } from './bankDirectory';
@@ -82,6 +83,8 @@ interface MockSyncAll {
 }
 
 type ScriptStep = 'pin' | 'method' | 'medium' | 'tan' | 'decoupled';
+
+type TestStage = '' | 'product-id' | 'pin';
 
 interface PinOptions {
   rememberVisible?: boolean;
@@ -207,6 +210,16 @@ export function createMockBanking(
   let nextBankId = 3;
   let script: ScriptStep[] = [];
   let scriptIndex = 0;
+  let testingBankId: number | null = null;
+  let testStage: TestStage = '';
+  let connectionTest: ConnectionTestDTO | null = null;
+  /**
+   * Mock only: a build with a linked product id asks for no product id. The
+   * default asks, so the prompt is part of the walkthrough.
+   */
+  const linkedProductID = scenario === 'accounts-test-connection-linked';
+  /** Mock only: this bank's login is refused with FinTS code 9942. */
+  const noGoBankId = scenario.includes('nogo') ? 2 : null;
 
   const banks: MockBankingBank[] = [
     {
@@ -349,9 +362,20 @@ export function createMockBanking(
 
   function bankMenu(bank: MockBankingBank): BankMenuItemDTO[] {
     const enabled = !isSyncing();
+    const testEnabled = enabled && testingBankId === null;
     const syncEnabled = onlineSyncAvailable && enabled;
     const items: BankMenuItemDTO[] = [];
     if (!bank.offline) {
+      if (bank.serverUrl.trim() !== '') {
+        items.push({
+          action: 'test-connection',
+          label: t('TestConnection'),
+          checked: false,
+          danger: false,
+          enabled: testEnabled,
+          icon: 'network_check',
+        });
+      }
       items.push(
         {
           action: 'history',
@@ -473,6 +497,13 @@ export function createMockBanking(
     return banks.some((bank) => bank.includeInSyncAll && !bank.offline);
   }
 
+  function connectionTestState(): ConnectionTestDTO | null {
+    if (connectionTest === null) {
+      return null;
+    }
+    return { ...connectionTest, codes: [...connectionTest.codes] };
+  }
+
   function state(): BankingDTO {
     alignBanks();
     return {
@@ -490,7 +521,7 @@ export function createMockBanking(
       canRememberPin,
       onlineSyncNote: !onlineSyncAvailable && hasOnlineBank() ? t('OnlineSyncNotYetAvailable') : '',
       banks: banksForCard(),
-      connectionTest: null,
+      connectionTest: connectionTestState(),
       infoText,
     };
   }
@@ -521,7 +552,7 @@ export function createMockBanking(
   }
 
   function promptFor(step: ScriptStep, options: PinOptions & TanOptions = {}): PromptDTO {
-    const bank = bankById(syncingBankId ?? 2) ?? banks[1];
+    const bank = bankById(syncingBankId ?? testingBankId ?? 2) ?? banks[1];
     const bankName = bank?.name ?? '';
     const userId = bank?.userId ?? '';
     const id = nextPromptId;
@@ -685,6 +716,10 @@ export function createMockBanking(
     if (!currentMatches(id, 'pin') || pin === '') {
       return;
     }
+    if (testingBankId !== null) {
+      finishTest(false);
+      return;
+    }
     const bank = syncingBankId === null ? undefined : bankById(syncingBankId);
     if (remember && bank !== undefined) {
       bank.rememberedThisRun = true;
@@ -722,6 +757,10 @@ export function createMockBanking(
 
   function cancelPin(id: number): void {
     if (currentMatches(id, 'pin')) {
+      if (testingBankId !== null) {
+        finishTest(true);
+        return;
+      }
       cancelSync();
     }
   }
@@ -736,6 +775,139 @@ export function createMockBanking(
     if (currentMatches(id, 'choice')) {
       cancelSync();
     }
+  }
+
+  function productIDPrompt(): PromptDTO {
+    const id = nextPromptId;
+    nextPromptId += 1;
+    return {
+      ...emptyPrompt(),
+      id,
+      kind: 'product-id',
+      title: t('ProductIDPromptTitle'),
+      text: t('ProductIDPromptText'),
+      label: t('ProductIDPromptLabel'),
+    };
+  }
+
+  function startTestPrompt(): void {
+    if (linkedProductID) {
+      testStage = 'pin';
+      setPrompt(promptFor('pin', { rememberVisible: false }));
+    } else {
+      testStage = 'product-id';
+      setPrompt(productIDPrompt());
+    }
+    publish();
+    publishPrompt();
+  }
+
+  function testConnection(bankId: number): BankingDTO {
+    if (isSyncing() || testingBankId !== null) {
+      errorText = t('ErrorConnectionBusy');
+      return publish();
+    }
+    const bank = bankById(bankId);
+    if (bank === undefined) {
+      errorText = t('ErrorBankConnectionNotFound');
+      return publish();
+    }
+    if (bank.offline) {
+      errorText = t('ErrorBankOffline');
+      return publish();
+    }
+    if (bank.serverUrl.trim() === '') {
+      errorText = t('ErrorNoFintsServer', bank.blz);
+      return publish();
+    }
+    testingBankId = bankId;
+    testStage = '';
+    connectionTest = {
+      bankId,
+      running: true,
+      go: false,
+      reason: '',
+      codes: [],
+      probed: 0,
+      skipped: 0,
+      hasTrace: false,
+    };
+    errorText = '';
+    messageText = '';
+    startTestPrompt();
+    return state();
+  }
+
+  function finishTest(cancelled: boolean): void {
+    const bankId = testingBankId;
+    if (bankId === null) {
+      return;
+    }
+    if (cancelled) {
+      connectionTest = {
+        bankId,
+        running: false,
+        go: false,
+        reason: t('TestConnectionCancelled'),
+        codes: [],
+        probed: 0,
+        skipped: 0,
+        hasTrace: false,
+      };
+    } else if (noGoBankId === bankId) {
+      connectionTest = {
+        bankId,
+        running: false,
+        go: false,
+        reason: t('TestConnectionInvalidLogin'),
+        codes: ['9942'],
+        probed: 0,
+        skipped: 0,
+        hasTrace: true,
+      };
+    } else {
+      connectionTest = {
+        bankId,
+        running: false,
+        go: true,
+        reason: t('TestConnectionGo'),
+        codes: [],
+        probed: 1,
+        skipped: 1,
+        hasTrace: true,
+      };
+    }
+    testingBankId = null;
+    testStage = '';
+    prompt = emptyPrompt();
+    errorText = '';
+    messageText = '';
+    publish();
+    publishPrompt();
+  }
+
+  function answerProductID(id: number, value: string): void {
+    if (!currentMatches(id, 'product-id') || testStage !== 'product-id') {
+      return;
+    }
+    if (value === '') {
+      finishTest(true);
+      return;
+    }
+    testStage = 'pin';
+    setPrompt(promptFor('pin', { rememberVisible: false }));
+    publish();
+    publishPrompt();
+  }
+
+  function saveConnectionTrace(): BankingDTO {
+    if (connectionTest === null || !connectionTest.hasTrace) {
+      errorText = t('ErrorNoConnectionTrace');
+      return publish();
+    }
+    errorText = '';
+    messageText = t('MessageConnectionTraceSaved');
+    return publish();
   }
 
   function addOnlineBank(
@@ -956,6 +1128,8 @@ export function createMockBanking(
     switch (action) {
       case 'sync':
         return startSync(bankId);
+      case 'test-connection':
+        return testConnection(bankId);
       case 'history':
         return openHistoryDialog(bankId);
       case 'clear-history':
@@ -1035,10 +1209,12 @@ export function createMockBanking(
     setLanguage,
     startSync,
     startSyncAll,
+    testConnection,
     answerPin,
     answerTan,
     answerChoice,
     answerDecoupled,
+    answerProductID,
     cancelPin,
     cancelTan,
     cancelChoice,
@@ -1051,6 +1227,7 @@ export function createMockBanking(
     setIncludeInSyncAll,
     clearHistory,
     submitHistory,
+    saveConnectionTrace,
     deleteBank,
     openConnectionDialog,
     openHistoryDialog,

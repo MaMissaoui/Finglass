@@ -512,13 +512,18 @@ function initialState(scenario: string): MockState {
     case 'accounts-tan-photo':
     case 'accounts-tan-text':
     case 'accounts-decoupled':
+    case 'accounts-test-connection-en-dark':
+    case 'accounts-test-connection-nogo-en-light':
+    case 'accounts-test-connection-nogo-en-dark':
     case 'banking-walkthrough':
       openShell(state);
       state.theme =
         scenario === 'shell-de-dark' ||
         scenario === 'accounts-de-dark' ||
         scenario === 'accounts-bank-menu-de-dark' ||
-        scenario === 'accounts-add-online-bank-no-match-de-dark'
+        scenario === 'accounts-add-online-bank-no-match-de-dark' ||
+        scenario === 'accounts-test-connection-en-dark' ||
+        scenario === 'accounts-test-connection-nogo-en-dark'
           ? 'dark'
           : 'light';
       state.language =
@@ -1271,6 +1276,12 @@ export function createMockApi(scenario = scenarioName()): Api {
     bankingSubmitHistory(bankID: number, date: string) {
       return Promise.resolve(banking.submitHistory(bankID, date));
     },
+    bankingTestConnection(bankID: number) {
+      return Promise.resolve(banking.testConnection(bankID));
+    },
+    bankingSaveConnectionTrace() {
+      return Promise.resolve(banking.saveConnectionTrace());
+    },
     bankingStartSync(bankID: number) {
       return Promise.resolve(banking.startSync(bankID));
     },
@@ -1318,6 +1329,10 @@ export function createMockApi(scenario = scenarioName()): Api {
     },
     bankingCancelChoice(id: number) {
       banking.cancelChoice(id);
+      return Promise.resolve();
+    },
+    bankingAnswerProductID(id: number, value: string) {
+      banking.answerProductID(id, value);
       return Promise.resolve();
     },
     bankingAnswerDecoupled(id: number, confirmed: boolean) {

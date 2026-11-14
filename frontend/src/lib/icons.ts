@@ -37,6 +37,7 @@ export const iconNames = [
   'menu-open',
   'moon',
   'more_vert',
+  'network_check',
   'palette',
   'person',
   'refresh',

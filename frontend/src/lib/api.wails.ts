@@ -329,6 +329,12 @@ export function createWailsApi(): Api {
     bankingSubmitHistory(bankID: number, date: string) {
       return Banking.SubmitHistory(bankID, date);
     },
+    bankingTestConnection(bankID: number) {
+      return Banking.TestConnection(bankID);
+    },
+    bankingSaveConnectionTrace() {
+      return Banking.SaveConnectionTrace();
+    },
     bankingStartSync(bankID: number) {
       return Banking.StartSync(bankID);
     },
@@ -370,6 +376,9 @@ export function createWailsApi(): Api {
     },
     bankingCancelChoice(id: number) {
       return Banking.CancelChoice(id);
+    },
+    bankingAnswerProductID(id: number, value: string) {
+      return Banking.AnswerProductID(id, value);
     },
     bankingAnswerDecoupled(id: number, confirmed: boolean) {
       return Banking.AnswerDecoupled(id, confirmed);

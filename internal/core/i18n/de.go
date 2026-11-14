@@ -882,6 +882,8 @@ var deTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionGo:                    "Die Verbindung funktioniert.",
 	TestConnectionLoginRejected:         "Die Bank hat die Anmeldung abgelehnt.",
 	TestConnectionTanMethodUnsupported:  "Die TAN-Methode der Bank wird nicht unterstützt. Wählen Sie pushTAN in Ihren Bankeinstellungen.",
+	TestConnectionProbed:                "%d {1:Konto|Konten} geprüft",
+	TestConnectionSkipped:               "%d {1:Konto|Konten} übersprungen",
 	TestConnectionTanTimeout:            "Die TAN-Bestätigung ist abgelaufen.",
 	TestConnectionStatementsUnavailable: "Die Bank hat keine Kontoauszüge bereitgestellt.",
 	TestConnectionOther:                 "Der Test ist fehlgeschlagen: %s",

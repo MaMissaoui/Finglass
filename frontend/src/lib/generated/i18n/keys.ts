@@ -881,6 +881,8 @@ export const keys = [
   'TestConnectionGo',
   'TestConnectionLoginRejected',
   'TestConnectionTanMethodUnsupported',
+  'TestConnectionProbed',
+  'TestConnectionSkipped',
   'TestConnectionTanTimeout',
   'TestConnectionStatementsUnavailable',
   'TestConnectionOther',

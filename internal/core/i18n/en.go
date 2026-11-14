@@ -882,6 +882,8 @@ var enTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionGo:                    "Connection works.",
 	TestConnectionLoginRejected:         "The bank rejected the login.",
 	TestConnectionTanMethodUnsupported:  "The bank's TAN method is not supported. Choose pushTAN in your bank settings.",
+	TestConnectionProbed:                "%d {1:account|accounts} checked",
+	TestConnectionSkipped:               "%d {1:account|accounts} skipped",
 	TestConnectionTanTimeout:            "The TAN confirmation timed out.",
 	TestConnectionStatementsUnavailable: "The bank did not provide statements.",
 	TestConnectionOther:                 "The test failed: %s",

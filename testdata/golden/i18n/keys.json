@@ -4189,6 +4189,11 @@
     "de": "Der Test ist fehlgeschlagen: %s",
     "fr": "Le test a échoué : %s"
   },
+  "TestConnectionProbed": {
+    "en": "%d {1:account|accounts} checked",
+    "de": "%d {1:Konto|Konten} geprüft",
+    "fr": "%d {1:compte vérifié|comptes vérifiés}"
+  },
   "TestConnectionProductID": {
     "en": "The FinTS product id is missing or invalid.",
     "de": "Die FinTS-Produkt-ID fehlt oder ist ungültig.",
@@ -4198,6 +4203,11 @@
     "en": "Testing connection…",
     "de": "Verbindung wird getestet…",
     "fr": "Test de la connexion…"
+  },
+  "TestConnectionSkipped": {
+    "en": "%d {1:account|accounts} skipped",
+    "de": "%d {1:Konto|Konten} übersprungen",
+    "fr": "%d {1:compte ignoré|comptes ignorés}"
   },
   "TestConnectionStatementsUnavailable": {
     "en": "The bank did not provide statements.",

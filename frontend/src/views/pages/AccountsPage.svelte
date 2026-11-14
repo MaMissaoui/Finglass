@@ -166,6 +166,9 @@
       case 'decoupled':
         void answer(() => api.bankingAnswerDecoupled(id, false));
         break;
+      case 'product-id':
+        void answer(() => api.bankingAnswerProductID(id, ''));
+        break;
       default:
         break;
     }
@@ -376,6 +379,9 @@
           <AccountsBankCard
             {card}
             {t}
+            connectionTest={banking?.connectionTest?.bankId === card.bankId
+              ? banking.connectionTest
+              : null}
             syncControlsVisible={banking?.syncControlsVisible ?? false}
             onToggle={toggleBank}
             onSync={syncBank}
@@ -387,6 +393,7 @@
             onForgetDeleted={forgetDeleted}
             onOpenDeleteAccount={openDeleteAccount}
             onBankMenu={bankMenu}
+            onSaveTrace={() => void runBanking(() => api.bankingSaveConnectionTrace())}
           />
         {/each}
       </div>
@@ -473,6 +480,8 @@
           onCancelTan={(id) => answer(() => api.bankingCancelTan(id))}
           onAnswerChoice={(id, choice) => answer(() => api.bankingAnswerChoice(id, choice))}
           onCancelChoice={(id) => answer(() => api.bankingCancelChoice(id))}
+          onAnswerProductID={(id, value) => answer(() => api.bankingAnswerProductID(id, value))}
+          onCancelProductID={(id) => answer(() => api.bankingAnswerProductID(id, ''))}
           onAnswerDecoupled={(id, confirmed) =>
             answer(() => api.bankingAnswerDecoupled(id, confirmed))}
         />

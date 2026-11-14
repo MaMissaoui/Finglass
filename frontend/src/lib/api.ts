@@ -29,6 +29,7 @@ export type {
   BankingBankDTO,
   BankingDTO,
   BankingPromptChoiceDTO,
+  ConnectionTestDTO,
   PromptDTO,
   TransactionsDTO,
   TransactionRowDTO,
@@ -203,6 +204,8 @@ export interface Api {
   bankingSetIncludeInSyncAll(bankID: number): Promise<BankingDTO>;
   bankingClearHistory(bankID: number): Promise<BankingDTO>;
   bankingSubmitHistory(bankID: number, date: string): Promise<BankingDTO>;
+  bankingTestConnection(bankID: number): Promise<BankingDTO>;
+  bankingSaveConnectionTrace(): Promise<BankingDTO>;
   bankingStartSync(bankID: number): Promise<BankingDTO>;
   bankingStartSyncAll(): Promise<BankingDTO>;
   bankingDeleteBank(bankID: number): Promise<BankingDTO>;
@@ -217,6 +220,7 @@ export interface Api {
   bankingCancelTan(id: number): Promise<void>;
   bankingAnswerChoice(id: number, choice: string): Promise<void>;
   bankingCancelChoice(id: number): Promise<void>;
+  bankingAnswerProductID(id: number, value: string): Promise<void>;
   bankingAnswerDecoupled(id: number, confirmed: boolean): Promise<void>;
   transactionsState(): Promise<TransactionsDTO>;
   transactionsLoad(): Promise<TransactionsDTO>;

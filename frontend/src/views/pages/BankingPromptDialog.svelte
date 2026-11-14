@@ -12,6 +12,8 @@
     onAnswerChoice,
     onCancelChoice,
     onAnswerDecoupled,
+    onAnswerProductID,
+    onCancelProductID,
   }: {
     prompt: PromptDTO;
     t: (key: string) => string;
@@ -22,18 +24,22 @@
     onAnswerChoice: (id: number, choice: string) => Promise<void>;
     onCancelChoice: (id: number) => Promise<void>;
     onAnswerDecoupled: (id: number, confirmed: boolean) => Promise<void>;
+    onAnswerProductID: (id: number, value: string) => Promise<void>;
+    onCancelProductID: (id: number) => Promise<void>;
   } = $props();
 
   // The secret lives only here while the prompt is open. Every path copies it
   // into a local, clears the field, and clears it again in finally.
   let pin = $state('');
   let tan = $state('');
+  let productID = $state('');
   let remember = $state(false);
   let selected = $state(-1);
 
   function clearSecrets(): void {
     pin = '';
     tan = '';
+    productID = '';
     remember = false;
   }
 
@@ -54,6 +60,24 @@
   async function cancelPin(): Promise<void> {
     clearSecrets();
     await onCancelPin(prompt.id);
+  }
+
+  async function submitProductID(): Promise<void> {
+    if (productID === '') {
+      return;
+    }
+    const value = productID;
+    clearSecrets();
+    try {
+      await onAnswerProductID(prompt.id, value);
+    } finally {
+      clearSecrets();
+    }
+  }
+
+  async function cancelProductID(): Promise<void> {
+    clearSecrets();
+    await onCancelProductID(prompt.id);
   }
 
   async function submitTan(): Promise<void> {
@@ -103,7 +127,25 @@
       <p class="body">{prompt.text}</p>
     {/if}
 
-    {#if prompt.kind === 'pin'}
+    {#if prompt.kind === 'product-id'}
+      <div class="fields">
+        <OutlinedField
+          label={prompt.label}
+          bind:value={productID}
+          secret
+          onaccepted={() => void submitProductID()}
+        />
+      </div>
+
+      <div class="actions">
+        <TextButton text={t('Cancel')} onclick={() => void cancelProductID()} />
+        <PrimaryButton
+          text={t('Ok')}
+          enabled={productID !== ''}
+          onclick={() => void submitProductID()}
+        />
+      </div>
+    {:else if prompt.kind === 'pin'}
       <div class="fields">
         <OutlinedField
           label={prompt.label}

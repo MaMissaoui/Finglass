@@ -882,6 +882,8 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionGo:                    "La connexion fonctionne.",
 	TestConnectionLoginRejected:         "La banque a refusé la connexion.",
 	TestConnectionTanMethodUnsupported:  "La méthode TAN de la banque n'est pas prise en charge. Choisissez pushTAN dans les réglages de votre banque.",
+	TestConnectionProbed:                "%d {1:compte vérifié|comptes vérifiés}",
+	TestConnectionSkipped:               "%d {1:compte ignoré|comptes ignorés}",
 	TestConnectionTanTimeout:            "La confirmation TAN a expiré.",
 	TestConnectionStatementsUnavailable: "La banque n'a pas fourni de relevés.",
 	TestConnectionOther:                 "Le test a échoué : %s",
