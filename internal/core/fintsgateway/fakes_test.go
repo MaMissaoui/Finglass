@@ -320,6 +320,7 @@ type testInteraction struct {
 	tan           *secret.Text
 	tanMethod     *string
 	answerNil     bool
+	remember      bool
 	confirm       bool
 	pinAsked      int
 	tanAsked      int
@@ -344,7 +345,7 @@ func (i *testInteraction) Pin(string, string, bool) *banksync.PinEntry {
 	if i.pin == nil {
 		return nil
 	}
-	entry := banksync.NewPinEntry(i.pin, false)
+	entry := banksync.NewPinEntry(i.pin, i.remember)
 	return &entry
 }
 

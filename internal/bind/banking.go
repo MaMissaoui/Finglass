@@ -84,14 +84,21 @@ type BankingBankDTO struct {
 // ConnectionTestDTO is the latest read-only connection test. It never carries
 // trace bytes, the product id or bank text.
 type ConnectionTestDTO struct {
-	BankID   int      `json:"bankId"`
-	Running  bool     `json:"running"`
-	Go       bool     `json:"go"`
-	Reason   string   `json:"reason"`
-	Codes    []string `json:"codes"`
-	Probed   int      `json:"probed"`
-	Skipped  int      `json:"skipped"`
-	HasTrace bool     `json:"hasTrace"`
+	BankID  int      `json:"bankId"`
+	Running bool     `json:"running"`
+	Go      bool     `json:"go"`
+	Reason  string   `json:"reason"`
+	Codes   []string `json:"codes"`
+	Probed  int      `json:"probed"`
+	Skipped int      `json:"skipped"`
+}
+
+// LastTraceDTO names the last sync or connection test whose redacted trace is
+// in memory. It never carries trace bytes.
+type LastTraceDTO struct {
+	Kind     string `json:"kind"`
+	BankID   int    `json:"bankId"`
+	HasTrace bool   `json:"hasTrace"`
 }
 
 // BankSuggestionDTO is one row of the add-online-bank search.
@@ -132,6 +139,7 @@ type BankingDTO struct {
 	OnlineSyncNote string             `json:"onlineSyncNote"`
 	Banks          []BankingBankDTO   `json:"banks"`
 	ConnectionTest *ConnectionTestDTO `json:"connectionTest"`
+	LastTrace      *LastTraceDTO      `json:"lastTrace"`
 	InfoText       string             `json:"infoText"`
 }
 
@@ -276,7 +284,8 @@ func (b *Banking) TestConnection(bankID int) (BankingDTO, error) {
 	return b.action(func() { b.session.BankingTestConnection(bankID) })
 }
 
-// SaveConnectionTrace asks where to save the last redacted connection trace.
+// SaveConnectionTrace asks where to save the last redacted sync or connection
+// test trace.
 func (b *Banking) SaveConnectionTrace() (BankingDTO, error) {
 	return b.action(func() { b.session.BankingSaveConnectionTrace() })
 }
@@ -517,14 +526,20 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 	}
 	if state.ConnectionTest != nil {
 		dto.ConnectionTest = &ConnectionTestDTO{
-			BankID:   int(state.ConnectionTest.BankID),
-			Running:  state.ConnectionTest.Running,
-			Go:       state.ConnectionTest.Go,
-			Reason:   state.ConnectionTest.Reason,
-			Codes:    append([]string(nil), state.ConnectionTest.Codes...),
-			Probed:   state.ConnectionTest.Probed,
-			Skipped:  state.ConnectionTest.Skipped,
-			HasTrace: state.ConnectionTest.HasTrace,
+			BankID:  int(state.ConnectionTest.BankID),
+			Running: state.ConnectionTest.Running,
+			Go:      state.ConnectionTest.Go,
+			Reason:  state.ConnectionTest.Reason,
+			Codes:   append([]string(nil), state.ConnectionTest.Codes...),
+			Probed:  state.ConnectionTest.Probed,
+			Skipped: state.ConnectionTest.Skipped,
+		}
+	}
+	if state.LastTrace != nil {
+		dto.LastTrace = &LastTraceDTO{
+			Kind:     state.LastTrace.Kind,
+			BankID:   int(state.LastTrace.BankID),
+			HasTrace: state.LastTrace.HasTrace,
 		}
 	}
 	return dto

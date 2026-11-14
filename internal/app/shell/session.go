@@ -226,12 +226,16 @@ type Session struct {
 	// gatewayFactory is nil in production. The shell tests set it to inject a
 	// fake FinTS gateway; no production path ever opens a socket.
 	gatewayFactory func(i18n.Language) banksync.FinTsGateway
+	// syncGatewayFactory is nil in production. The shell tests set it to build
+	// a real gateway with a fake transport and the running sync's trace sink.
+	syncGatewayFactory func(i18n.Language, *syncTraceSink) banksync.FinTsGateway
 	// connectionTestFactory is nil in production. The shell tests set it to
 	// inject a fake transport; no production path ever opens a socket in tests.
 	connectionTestFactory connectionTestTransportFactory
-	// connectionTrace is the last connection test's redacted trace, in memory
-	// only. It is cleared when a new test starts and when the profile closes.
-	connectionTrace connectionTraceState
+	// lastTrace is the last sync's or connection test's redacted trace, in
+	// memory only. It is cleared when a new sync or test starts and when the
+	// profile closes or switches.
+	lastTrace lastTraceState
 }
 
 // Change says which screen's state a listener must publish.
@@ -1059,7 +1063,7 @@ func (s *Session) TeardownToUnlock(prepared startup.Startup) {
 func (s *Session) teardownLocked(prepared startup.Startup, oldGeneration uint64) {
 	old := s.db
 	s.db = nil
-	s.connectionTrace = connectionTraceState{}
+	s.lastTrace = lastTraceState{}
 	s.retireDatabaseLocked(old, oldGeneration)
 
 	s.slug = copyString(prepared.Slug)
@@ -1458,7 +1462,7 @@ func (s *Session) Shutdown() error {
 	s.shutDown = true
 	bridge := s.bridge
 	s.bridge = nil
-	s.connectionTrace = connectionTraceState{}
+	s.lastTrace = lastTraceState{}
 	database := s.db
 	s.db = nil
 	lock := s.lock

@@ -102,6 +102,14 @@ type ConnectionTestResult struct {
 	Probed int
 	// Skipped is the number of accounts the probe skipped.
 	Skipped int
+}
+
+// LastTrace is the last sync's or connection test's redacted trace.
+type LastTrace struct {
+	// Kind is "sync" or "test".
+	Kind string
+	// BankID is the bank the trace belongs to.
+	BankID model.BankConnectionID
 	// HasTrace says whether a redacted trace is in memory.
 	HasTrace bool
 }
@@ -131,6 +139,8 @@ type BankingState struct {
 	CanRememberPin bool
 	// ConnectionTest is the latest read-only connection test, if any.
 	ConnectionTest *ConnectionTestResult
+	// LastTrace is the last sync's or connection test's redacted trace.
+	LastTrace *LastTrace
 }
 
 // New builds empty state for language.
@@ -169,6 +179,10 @@ func (s *BankingState) Clone() *BankingState {
 		value := *s.ConnectionTest
 		value.Codes = append([]string(nil), s.ConnectionTest.Codes...)
 		cloned.ConnectionTest = &value
+	}
+	if s.LastTrace != nil {
+		value := *s.LastTrace
+		cloned.LastTrace = &value
 	}
 	cloned.Banks = make([]BankItem, len(s.Banks))
 	for index, bank := range s.Banks {

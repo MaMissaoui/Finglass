@@ -312,8 +312,11 @@ func TestConnectionTestRunsThroughTheBridgeAndChangesNothing(t *testing.T) {
 	if !result.Go || result.Reason != i18n.Text(i18n.En, i18n.TestConnectionGo) {
 		t.Fatalf("result = %+v", result)
 	}
-	if result.Probed != 1 || result.Skipped != 0 || !result.HasTrace {
-		t.Fatalf("counts/trace = %+v", result)
+	state = session.BankingState()
+	if result.Probed != 1 || result.Skipped != 0 ||
+		state.LastTrace == nil || state.LastTrace.Kind != traceKindTest ||
+		state.LastTrace.BankID != bankID || !state.LastTrace.HasTrace {
+		t.Fatalf("counts/trace = %+v %+v", result, state.LastTrace)
 	}
 	if !store.IsEmpty() {
 		t.Fatalf("credential store has %d entries after a test", store.Len())
@@ -349,11 +352,12 @@ func TestConnectionTestIsRefusedWhileSyncing(t *testing.T) {
 	}
 }
 
-func TestConnectionTraceClearsOnANewTestAndOnClose(t *testing.T) {
+func TestLastTraceClearsOnANewTestAndOnClose(t *testing.T) {
 	session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
-	result := runTypedTANConnectionTest(t, session, typedTANConnectionBank(t))
-	if !result.HasTrace {
-		t.Fatal("no trace after the test")
+	runTypedTANConnectionTest(t, session, typedTANConnectionBank(t))
+	if state := session.BankingState(); state.LastTrace == nil || !state.LastTrace.HasTrace ||
+		state.LastTrace.Kind != traceKindTest || state.LastTrace.BankID != bankID {
+		t.Fatalf("last trace = %+v", state.LastTrace)
 	}
 
 	// A new test clears the previous trace at once.
@@ -361,17 +365,21 @@ func TestConnectionTraceClearsOnANewTestAndOnClose(t *testing.T) {
 	session.connectionTestFactory = func(string) (fints.Transport, error) { return cancelled, nil }
 	session.BankingTestConnection(int(bankID))
 	session.mu.Lock()
-	trace := append([]byte(nil), session.connectionTrace.trace...)
+	trace := append([]byte(nil), session.lastTrace.trace...)
 	session.mu.Unlock()
 	if len(trace) != 0 {
 		t.Fatal("the old trace survived a new test")
 	}
 	answerProductID(t, session, nil)
-	result = waitConnectionTestDone(t, session)
-	if result.HasTrace {
-		t.Fatal("cancelled test reports a trace")
+	waitConnectionTestDone(t, session)
+	state := session.BankingState()
+	if state.LastTrace == nil || state.LastTrace.HasTrace {
+		t.Fatalf("cancelled test reports a trace: %+v", state.LastTrace)
 	}
-	if session.connectionTraceBLZForTest() != "" {
+	if state.LastTrace.Kind != traceKindTest {
+		t.Fatalf("cancelled test trace kind = %q", state.LastTrace.Kind)
+	}
+	if session.lastTraceBLZForTest() != "" {
 		t.Fatal("cancelled test kept a BLZ")
 	}
 
@@ -386,21 +394,21 @@ func TestConnectionTraceClearsOnANewTestAndOnClose(t *testing.T) {
 	waitConnectionTestDone(t, session)
 	session.Teardown(startup.Startup{})
 	session.mu.Lock()
-	trace = append([]byte(nil), session.connectionTrace.trace...)
+	trace = append([]byte(nil), session.lastTrace.trace...)
 	session.mu.Unlock()
 	if len(trace) != 0 {
 		t.Fatal("the trace survived the profile close")
 	}
 }
 
-func sessionConnectionTraceBLZForTest(session *Session) string {
+func sessionLastTraceBLZForTest(session *Session) string {
 	session.mu.Lock()
 	defer session.mu.Unlock()
-	return session.connectionTrace.blz
+	return session.lastTrace.blz
 }
 
-func (s *Session) connectionTraceBLZForTest() string {
-	return sessionConnectionTraceBLZForTest(s)
+func (s *Session) lastTraceBLZForTest() string {
+	return sessionLastTraceBLZForTest(s)
 }
 
 func TestSaveConnectionTraceWritesMode0600AndCancelWritesNothing(t *testing.T) {

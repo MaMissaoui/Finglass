@@ -58,10 +58,10 @@ func TestAboutAndBankingDTOsNeverPrintAPromptedProductID(t *testing.T) {
 	state := bankingcore.BankingState{
 		Language: i18n.En,
 		ConnectionTest: &bankingcore.ConnectionTestResult{
-			BankID:   1,
-			Reason:   i18n.Text(i18n.En, i18n.TestConnectionProductID),
-			HasTrace: true,
+			BankID: 1,
+			Reason: i18n.Text(i18n.En, i18n.TestConnectionProductID),
 		},
+		LastTrace: &bankingcore.LastTrace{Kind: "test", BankID: 1, HasTrace: true},
 	}
 	dto := bankingDTO(state, i18n.En)
 	encoded, err := json.Marshal(dto)

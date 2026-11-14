@@ -9,15 +9,15 @@ import (
 func TestConnectionTestCloneCopiesTheCodesAndResult(t *testing.T) {
 	state := New(i18n.En)
 	state.ConnectionTest = &ConnectionTestResult{
-		BankID:   7,
-		Running:  true,
-		Go:       true,
-		Reason:   "GO",
-		Codes:    []string{"9942"},
-		Probed:   1,
-		Skipped:  2,
-		HasTrace: true,
+		BankID:  7,
+		Running: true,
+		Go:      true,
+		Reason:  "GO",
+		Codes:   []string{"9942"},
+		Probed:  1,
+		Skipped: 2,
 	}
+	state.LastTrace = &LastTrace{Kind: "test", BankID: 7, HasTrace: true}
 	state.Banks = []BankItem{{ID: 7, CanTestConnection: true}}
 
 	clone := state.Clone()
@@ -26,9 +26,12 @@ func TestConnectionTestCloneCopiesTheCodesAndResult(t *testing.T) {
 	}
 	if clone.ConnectionTest.BankID != 7 || !clone.ConnectionTest.Running ||
 		!clone.ConnectionTest.Go || clone.ConnectionTest.Reason != "GO" ||
-		clone.ConnectionTest.Probed != 1 || clone.ConnectionTest.Skipped != 2 ||
-		!clone.ConnectionTest.HasTrace {
+		clone.ConnectionTest.Probed != 1 || clone.ConnectionTest.Skipped != 2 {
 		t.Fatalf("cloned result = %+v", clone.ConnectionTest)
+	}
+	if clone.LastTrace == state.LastTrace || clone.LastTrace.Kind != "test" ||
+		clone.LastTrace.BankID != 7 || !clone.LastTrace.HasTrace {
+		t.Fatalf("cloned last trace = %+v", clone.LastTrace)
 	}
 	clone.ConnectionTest.Codes[0] = "0000"
 	if state.ConnectionTest.Codes[0] != "9942" {

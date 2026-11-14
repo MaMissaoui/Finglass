@@ -925,6 +925,319 @@ func TestPinRejectionStopsWithoutASecondMessage(t *testing.T) {
 	}
 }
 
+func TestStaleRememberedStateRetriesOnceWithSyncAndSucceeds(t *testing.T) {
+	parameters := standardParameters(
+		hitans(hitansMethod("942", "chipTAN", -1, 1, 1)),
+		"942",
+		"HKSAL:N:HKKAZ:N:HKCAZ:N:HKSPA:N",
+	)
+	initCalls := 0
+	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+		switch {
+		case request.has("HKSYN"):
+			return syncBody(parameters), nil
+		case request.has("HKSPA"):
+			return executedResponse("dialog-1"), nil
+		case request.has("HKEND"):
+			return okResponse("dialog-1"), nil
+		default:
+			initCalls++
+			if initCalls == 1 {
+				return bankErrorResponse("dialog-1", "9010"), nil
+			}
+			return initBody(parameters), nil
+		}
+	})
+	gateway := newTestGateway(t, bank)
+	connection := testConnection()
+	connection.SystemID = testSystemID
+	tanMethod := "942"
+	connection.TanMethod = &tanMethod
+	connection.HKTANVersion = 7
+	interaction := newTestInteraction(testPIN)
+
+	if _, err := gateway.FetchAll(
+		context.Background(), connection, interaction,
+		func(string) *civil.Date { return nil },
+		date(2026, time.November, 14),
+	); err != nil {
+		t.Fatalf("FetchAll: %v", err)
+	}
+	if initCalls != 2 {
+		t.Fatalf("Init calls = %d, want 2", initCalls)
+	}
+	if bank.countSegments("HKSYN") != 1 {
+		t.Fatalf("HKSYN = %d, want 1", bank.countSegments("HKSYN"))
+	}
+	if interaction.pinAsked != 1 {
+		t.Fatalf("PIN prompts = %d, want 1 (the retry reuses the entry)", interaction.pinAsked)
+	}
+}
+
+func TestStaleRememberedStateAsksForANewMethodAfterTheRetrySync(t *testing.T) {
+	parameters := standardParameters(
+		hitans(
+			hitansMethod("943", "pushTAN", 3, 1, 1),
+			hitansMethod("944", "chipTAN", -1, 1, 1),
+		),
+		"943:944",
+		"HKSAL:N:HKKAZ:N:HKCAZ:N:HKSPA:N",
+	)
+	initCalls := 0
+	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+		switch {
+		case request.has("HKSYN"):
+			return syncBody(parameters), nil
+		case request.has("HKSPA"):
+			return executedResponse("dialog-1"), nil
+		case request.has("HKEND"):
+			return okResponse("dialog-1"), nil
+		default:
+			initCalls++
+			if initCalls == 1 {
+				return bankErrorResponse("dialog-1", "9010"), nil
+			}
+			return initBody(parameters), nil
+		}
+	})
+	gateway := newTestGateway(t, bank)
+	connection := testConnection()
+	connection.SystemID = testSystemID
+	tanMethod := "942"
+	connection.TanMethod = &tanMethod
+	connection.HKTANVersion = 7
+	interaction := newTestInteraction(testPIN)
+	interaction.answerTanMethod("943")
+
+	if _, err := gateway.FetchAll(
+		context.Background(), connection, interaction,
+		func(string) *civil.Date { return nil },
+		date(2026, time.November, 14),
+	); err != nil {
+		t.Fatalf("FetchAll: %v", err)
+	}
+	if len(interaction.tanOptions) != 1 {
+		t.Fatalf("SelectTanMethod calls = %d, want 1", len(interaction.tanOptions))
+	}
+	options := interaction.tanOptions[0]
+	if len(options) != 2 || options[0].ID != "943" || options[1].ID != "944" {
+		t.Fatalf("options = %+v, want 943 and 944", options)
+	}
+}
+
+func TestStaleRememberedStateNeverRetriesAfterAPinCode(t *testing.T) {
+	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+		if request.has("HKEND") {
+			return okResponse("dialog-1"), nil
+		}
+		return bankErrorResponse("dialog-1", "9942"), nil
+	})
+	gateway := newTestGateway(t, bank)
+	connection := testConnection()
+	connection.SystemID = testSystemID
+	tanMethod := "942"
+	connection.TanMethod = &tanMethod
+	connection.HKTANVersion = 7
+
+	_, err := gateway.FetchAll(
+		context.Background(), connection, newTestInteraction(testPIN),
+		func(string) *civil.Date { return nil },
+		date(2026, time.November, 14),
+	)
+	if !isGatewayKind(err, banksync.GatewayErrorPinRejected) {
+		t.Fatalf("error = %v, want PIN rejected", err)
+	}
+	if bank.countSegments("HKSYN") != 0 {
+		t.Fatal("a PIN rejection retried with a sync")
+	}
+	if bank.countSegments("HKEND") != 0 {
+		t.Fatal("HKEND was sent after a PIN rejection")
+	}
+}
+
+func TestStaleRememberedStateNeverRetriesALockedAccount(t *testing.T) {
+	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+		if request.has("HKEND") {
+			return okResponse("dialog-1"), nil
+		}
+		return bankErrorResponse("dialog-1", "3938"), nil
+	})
+	gateway := newTestGateway(t, bank)
+	connection := testConnection()
+	connection.SystemID = testSystemID
+	tanMethod := "942"
+	connection.TanMethod = &tanMethod
+	connection.HKTANVersion = 7
+
+	_, err := gateway.FetchAll(
+		context.Background(), connection, newTestInteraction(testPIN),
+		func(string) *civil.Date { return nil },
+		date(2026, time.November, 14),
+	)
+	if !isGatewayKind(err, banksync.GatewayErrorBank) {
+		t.Fatalf("error = %v, want bank", err)
+	}
+	if bank.countSegments("HKSYN") != 0 {
+		t.Fatal("a locked account retried with a sync")
+	}
+	if bank.countSegments("HKEND") != 0 {
+		t.Fatal("HKEND was sent after a locked account")
+	}
+}
+
+func TestStaleRememberedStateReturnsTheSecondFailure(t *testing.T) {
+	parameters := standardParameters(
+		hitans(hitansMethod("942", "chipTAN", -1, 1, 1)),
+		"942",
+		"HKSAL:N:HKKAZ:N:HKCAZ:N:HKSPA:N",
+	)
+	initCalls := 0
+	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+		switch {
+		case request.has("HKSYN"):
+			return syncBody(parameters), nil
+		case request.has("HKEND"):
+			return okResponse("dialog-1"), nil
+		default:
+			initCalls++
+			if initCalls == 1 {
+				return bankErrorResponse("dialog-1", "9010"), nil
+			}
+			return bankErrorResponse("dialog-1", "9011"), nil
+		}
+	})
+	gateway := newTestGateway(t, bank)
+	connection := testConnection()
+	connection.SystemID = testSystemID
+	tanMethod := "942"
+	connection.TanMethod = &tanMethod
+	connection.HKTANVersion = 7
+
+	_, err := gateway.FetchAll(
+		context.Background(), connection, newTestInteraction(testPIN),
+		func(string) *civil.Date { return nil },
+		date(2026, time.November, 14),
+	)
+	var gatewayError banksync.GatewayError
+	if !errors.As(err, &gatewayError) {
+		t.Fatalf("error = %v, want GatewayError", err)
+	}
+	if got := strings.Join(gatewayError.Codes(), ","); got != "9011" {
+		t.Fatalf("codes = %q, want the second failure", got)
+	}
+	if initCalls != 2 {
+		t.Fatalf("Init calls = %d, want 2 (at most one retry)", initCalls)
+	}
+	if bank.countSegments("HKSYN") != 1 {
+		t.Fatalf("HKSYN = %d, want 1", bank.countSegments("HKSYN"))
+	}
+}
+
+func TestDecoupledInitWithoutHitansUsesTheSeedAndPolls(t *testing.T) {
+	connection := testConnection()
+	connection.SystemID = testSystemID
+	tanMethod := "942"
+	connection.TanMethod = &tanMethod
+	connection.HKTANVersion = 7
+
+	seed := paramsFor(connection, tanMethod)
+	if len(seed.TANMethods) != 1 || seed.TANMethods[0].DecoupledMaxPolls != -1 {
+		t.Fatalf("seed = %+v, want DecoupledMaxPolls -1", seed.TANMethods)
+	}
+
+	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+		switch {
+		case request.has("HKSPA"):
+			return executedResponse("dialog-1"), nil
+		case request.has("HKEND"):
+			return okResponse("dialog-1"), nil
+		case request.has("HKTAN") && containsProcess(request, "S"):
+			return executedResponse("dialog-1"), nil
+		default:
+			// The Init response is decoupled and carries no HITANS.
+			return decoupledResponse("dialog-init", "task-1", "Approve in the app"), nil
+		}
+	})
+	gateway := newTestGateway(t, bank)
+	interaction := newTestInteraction(testPIN)
+	interaction.confirm = true
+
+	if _, err := gateway.FetchAll(
+		context.Background(), connection, interaction,
+		func(string) *civil.Date { return nil },
+		date(2026, time.November, 14),
+	); err != nil {
+		t.Fatalf("FetchAll: %v", err)
+	}
+	if bank.countSegments("HKSYN") != 0 {
+		t.Fatal("the stored system id still synchronised")
+	}
+	if bank.countHKTANProcess("S") == 0 {
+		t.Fatal("the seeded method did not poll")
+	}
+	if interaction.confirmAsked != 1 {
+		t.Fatalf("confirm prompts = %d, want 1", interaction.confirmAsked)
+	}
+}
+
+func TestDecoupledStatementDeclineSendsExactlyOneHKEND(t *testing.T) {
+	account := hiuPd(9, "00000001", "1", testIBAN, "EUR", "Erika Musterfrau", "Girokonto", "HKSAL:1+HKKAZ:1")
+	parameters := standardParameters(
+		hitans(hitansMethod("942", "pushTAN", 3, 1, 1)),
+		"942",
+		"HKSAL:N:HKKAZ:J:HKCAZ:N:HKSPA:N",
+		account,
+	)
+	bank := newFakeBank(t, func(_ int, request exchangeRecord) (string, error) {
+		switch {
+		case request.has("HKSYN"):
+			return syncBody(parameters), nil
+		case request.has("HKSPA"):
+			return executedResponse("dialog-1", hispa(10, testIBAN, testBIC, "00000001")), nil
+		case request.has("HKSAL"):
+			return executedResponse("dialog-1", hisalPayload()), nil
+		case request.has("HKKAZ"):
+			return decoupledResponse("dialog-1", "task-statement", "Approve the statement"), nil
+		case request.has("HKEND"):
+			return okResponse("dialog-1"), nil
+		default:
+			return initBody(parameters), nil
+		}
+	})
+	gateway := newTestGateway(t, bank)
+	connection := testConnection()
+	connection.SystemID = testSystemID
+	tanMethod := "942"
+	connection.TanMethod = &tanMethod
+	connection.HKTANVersion = 7
+	interaction := newTestInteraction(testPIN)
+	interaction.confirm = false
+
+	_, err := gateway.FetchAll(
+		context.Background(), connection, interaction,
+		func(accountNumber string) *civil.Date {
+			if accountNumber == testIBAN {
+				value := date(2026, time.January, 1)
+				return &value
+			}
+			return nil
+		},
+		date(2026, time.November, 14),
+	)
+	if !isGatewayKind(err, banksync.GatewayErrorCancelled) {
+		t.Fatalf("error = %v, want cancelled", err)
+	}
+	if bank.countHKTANProcess("S") != 0 {
+		t.Fatal("a declined statement confirmation still polled")
+	}
+	if got := bank.countSegments("HKSYN"); got != 0 {
+		t.Fatalf("HKSYN = %d, want 0", got)
+	}
+	if got := bank.countSegments("HKEND"); got != 1 {
+		t.Fatalf("HKEND = %d, want exactly 1 after the cancel", got)
+	}
+}
+
 func TestInvalidInputsFailBeforeAnyDialog(t *testing.T) {
 	tests := []struct {
 		name       string
