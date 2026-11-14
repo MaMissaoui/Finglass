@@ -391,6 +391,11 @@ test('the scripted sync walks through every prompt', async ({ page }) => {
   await expect(page.getByRole('status')).toContainText('Synced 2 accounts');
   await expect(sparkasse(page).getByText('Syncing…')).toHaveCount(0);
 
+  // The sync left a redacted trace; the bank card offers to save it.
+  const syncTrace = page.getByTestId('sync-trace-2');
+  await syncTrace.getByRole('button', { name: 'Save redacted trace…', exact: true }).click();
+  await expect(page.getByText('The redacted trace was saved.')).toBeVisible();
+
   const consoleText = watcher.consoleText.join('\n');
   expect(consoleText).not.toContain('S3cret-PIN-9931');
   expect(consoleText).not.toContain('7F3K-TAN-8812');

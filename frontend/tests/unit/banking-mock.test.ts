@@ -366,8 +366,8 @@ describe('banking.mock', () => {
       go: false,
       probed: 0,
       skipped: 0,
-      hasTrace: false,
     });
+    expect(running.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: false });
 
     const productID = banking.prompt();
     expect(productID.kind).toBe('product-id');
@@ -392,8 +392,8 @@ describe('banking.mock', () => {
       codes: [],
       probed: 1,
       skipped: 1,
-      hasTrace: true,
     });
+    expect(done.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: true });
     const published = JSON.stringify(done) + JSON.stringify(banking.prompt());
     expect(published).not.toContain('invented-product-id');
     expect(published).not.toContain('S3cret-PIN-9931');
@@ -416,8 +416,8 @@ describe('banking.mock', () => {
       codes: [],
       probed: 0,
       skipped: 0,
-      hasTrace: false,
     });
+    expect(done.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: false });
   });
 
   it('reports the NO-GO login with the bank return code', () => {
@@ -435,8 +435,8 @@ describe('banking.mock', () => {
       codes: ['9942'],
       probed: 0,
       skipped: 0,
-      hasTrace: true,
     });
+    expect(done.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: true });
   });
 
   it('skips the product id prompt when the build has a linked id', () => {
