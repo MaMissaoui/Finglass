@@ -86,6 +86,11 @@ Results of your Test connection runs (2026-11-14):
   Finglass could not ask for it. FinDesk, with a known system id, gets 3076. The bank's message text (now on screen)
   is the next clue.
   - [x] Test connection retries the login once with the same system id after you approve in the HVB app (memory only)
+  - Round 4 (2026-11-14, with that retry): after your approval Finglass logged in again with the same system id and
+    no new sync; HVB answered the same 9050 + 9210 "Auftrag abgelehnt. Kein eingereichter Auftrag gefunden" on HKTAN.
+    The approval does not make the system id known.
+  - [ ] Next experiment (0.4.x): run the sync dialog with the TAN method (904) and HKTAN process 4 instead of
+    single-step 999, as hbci4java does, so the strong authentication happens while the new system id is issued.
 - **DKB (12030000): NO-GO.** 9078 with 3079 and 9800: most likely the product registration from 2026-11-13 has not
   reached DKB yet. Retry in a few days.
 
