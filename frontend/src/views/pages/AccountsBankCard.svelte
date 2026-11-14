@@ -229,6 +229,9 @@
             {:else if connectionTest.strongSyncTAN === 'decoupled'}
               {t('TestConnectionStrongSyncDecoupled')}
             {/if}
+            {#if connectionTest.go}
+              {t('TestConnectionStrongSyncNoUnlock')}
+            {/if}
           </p>
         {/if}
 

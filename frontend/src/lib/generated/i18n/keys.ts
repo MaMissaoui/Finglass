@@ -908,6 +908,7 @@ export const keys = [
   'SyncLockedHint',
   'SyncAllSkippedLocked',
   'SyncAllNothingReady',
+  'TestConnectionStrongSyncNoUnlock',
 ] as const;
 
 export type Key = (typeof keys)[number];

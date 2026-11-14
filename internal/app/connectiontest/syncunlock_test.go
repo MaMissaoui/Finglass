@@ -16,6 +16,8 @@ func TestSyncUnlockActionCoversEveryOutcomeKind(t *testing.T) {
 		want    SyncUnlockAction
 	}{
 		{name: "GO", outcome: Outcome{Go: true}, want: SyncUnlockSet},
+		{name: "GO through the strong sync", outcome: Outcome{Go: true, StrongSync: true}, want: SyncUnlockUnchanged},
+		{name: "NO-GO after the strong sync", outcome: Outcome{Kind: fintsprobe.NoGoLoginRejected, StrongSync: true}, want: SyncUnlockClear},
 		{name: "login rejected", outcome: Outcome{Kind: fintsprobe.NoGoLoginRejected}, want: SyncUnlockClear},
 		{name: "TAN method unsupported", outcome: Outcome{Kind: fintsprobe.NoGoTanMethodUnsupported}, want: SyncUnlockClear},
 		{name: "TAN timeout", outcome: Outcome{Kind: fintsprobe.NoGoTanTimeout}, want: SyncUnlockUnchanged},
