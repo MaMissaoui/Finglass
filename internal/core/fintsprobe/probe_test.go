@@ -533,7 +533,7 @@ func TestProbeGoLinesMatchRunOutput(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("Run exit code = %d, want 0", code)
 	}
-	wantTerminal := append(append([]string(nil), result.Lines...), "RESULT: GO")
+	wantTerminal := append(append([]string(nil), result.Lines...), "Path: normal", "RESULT: GO")
 	if fmt.Sprint(terminal.lines) != fmt.Sprint(wantTerminal) {
 		t.Fatalf("terminal output = %v, want %v", terminal.lines, wantTerminal)
 	}
@@ -885,5 +885,286 @@ func enableApprovalRetry(t *testing.T) {
 func TestProbeDoesNotRetryWhileTheApprovalRetryIsOff(t *testing.T) {
 	if ApprovalRetryEnabled {
 		t.Fatal("the approval retry must be off by default")
+	}
+}
+
+// setStrongSyncFallback switches the strong-sync fallback for one test.
+func setStrongSyncFallback(t *testing.T, enabled bool) {
+	t.Helper()
+	previous := StrongSyncFallbackEnabled
+	StrongSyncFallbackEnabled = enabled
+	t.Cleanup(func() { StrongSyncFallbackEnabled = previous })
+}
+
+// hisynSuccessResponse answers with a HISYN system id and a success code.
+func hisynSuccessResponse(dialogID, systemID string) string {
+	return responseMessage(
+		dialogID,
+		"HISYN:2:4:1+"+systemID+"'",
+		"HIRMG:2:2+0010::"+testMessage+"'",
+	)
+}
+
+// strongSyncTypedBank scripts the HVB-like 9210 followed by one strong sync
+// with a typed TAN and a complete GO run.
+func strongSyncTypedBank(t *testing.T) *fakeTransport {
+	t.Helper()
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKIDN", "HKVVB", "HKTAN", "HKSYN"),
+		requestShape("HKTAN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKSAL"),
+		requestShape("HKKAZ"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		chipHitans("chipTAN manuell", 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
+		hisals(7),
+		hikazs(6),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(approvalRequiredResponse(testDialogID))
+	bank.reply(tanRequiredResponse("dialog-strong", "task-strong", testChallenge))
+	bank.reply(hisynSuccessResponse("dialog-strong", "strong-system"))
+	bank.reply(successResponse("dialog-strong"))
+	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
+	bank.reply(executedResponse(testDialogID, hisalPayload()))
+	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
+	bank.reply(successResponse(testDialogID))
+	return bank
+}
+
+func TestProbeNormalLoginDoesNotTryAStrongSync(t *testing.T) {
+	setStrongSyncFallback(t, true)
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, depotGoBank(t), interaction, pin))
+
+	if !result.Decision.Go {
+		t.Fatalf("decision = %q, want GO", result.Decision.Reason.String())
+	}
+	if result.Path != ProbePathNormal {
+		t.Fatalf("path = %s, want normal", result.Path)
+	}
+	if result.StrongSyncTAN != "" {
+		t.Fatalf("StrongSyncTAN = %q, want empty", result.StrongSyncTAN)
+	}
+	if len(interaction.notices) != 0 {
+		t.Fatalf("notices = %v, want none", interaction.notices)
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeStrongSyncTypedTANFallback(t *testing.T) {
+	setStrongSyncFallback(t, true)
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	strongHKIDN := ""
+	initHKIDN := ""
+	capture := &captureTransport{
+		fakeTransport: strongSyncTypedBank(t),
+		onExchange: func(call int, request []byte) {
+			if call != 3 && call != 6 {
+				return
+			}
+			segments, err := flattenRequest(request)
+			if err != nil {
+				t.Fatalf("inspect request %d: %v", call, err)
+			}
+			for _, segment := range segments {
+				if segment.Type() != "HKIDN" {
+					continue
+				}
+				if call == 3 {
+					strongHKIDN = segment.DEG(3).Text(0)
+				} else {
+					initHKIDN = segment.DEG(3).Text(0)
+				}
+			}
+		},
+	}
+
+	result := Probe(context.Background(), newProbeEnv(t, capture, interaction, pin))
+	if !result.Decision.Go {
+		t.Fatalf("decision = %q, want GO", result.Decision.Reason.String())
+	}
+	if result.Path != ProbePathStrongSync {
+		t.Fatalf("path = %s, want strong sync", result.Path)
+	}
+	if result.StrongSyncTAN != StrongSyncTANTyped {
+		t.Fatalf("StrongSyncTAN = %q, want typed", result.StrongSyncTAN)
+	}
+	if len(interaction.notices) != 1 || interaction.notices[0] != NoticeStrongSync {
+		t.Fatalf("notices = %v, want [%v]", interaction.notices, NoticeStrongSync)
+	}
+	if fmt.Sprint(interaction.tans) != fmt.Sprint([]string{testChallenge}) {
+		t.Fatalf("TAN challenges = %v, want [%q]", interaction.tans, testChallenge)
+	}
+	if strongHKIDN != "0" {
+		t.Fatalf("strong sync HKIDN system id = %q, want 0", strongHKIDN)
+	}
+	if initHKIDN != "strong-system" {
+		t.Fatalf("Init after strong sync HKIDN system id = %q, want strong-system", initHKIDN)
+	}
+	if got := result.PathLine(); got != "Path: strong sync (TAN in the sync dialog), typed" {
+		t.Fatalf("path line = %q", got)
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeStrongSyncIsBlockedByAPINOrLockCode(t *testing.T) {
+	setStrongSyncFallback(t, true)
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+	)
+	bank.reply(syncResponse(
+		chipHitans("chipTAN manuell", 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N"),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(responseMessage(
+		testDialogID,
+		"HIRMG:2:2+9050::"+testMessage+"'",
+		"HIRMS:3:2:4+9210::"+testMessage+"+9942::"+testMessage+"'",
+	))
+
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, bank, interaction, pin))
+
+	if result.Decision.Go {
+		t.Fatal("a PIN code must not be a GO")
+	}
+	if result.Path != ProbePathNormal {
+		t.Fatalf("path = %s, want normal", result.Path)
+	}
+	if len(interaction.notices) != 0 {
+		t.Fatalf("notices = %v, want none", interaction.notices)
+	}
+	if len(bank.records) != 3 {
+		t.Fatalf("exchanges = %d, want 3", len(bank.records))
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeStrongSyncFailureIsANoGoWithTheBankCodes(t *testing.T) {
+	setStrongSyncFallback(t, true)
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKIDN", "HKVVB", "HKTAN", "HKSYN"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		chipHitans("chipTAN manuell", 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N"),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(approvalRequiredResponse(testDialogID))
+	bank.reply(approvalRequiredResponse("dialog-strong"))
+	bank.reply(successResponse("dialog-strong"))
+
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, bank, interaction, pin))
+
+	if result.Decision.Go {
+		t.Fatal("a failed strong sync must not be a GO")
+	}
+	if result.Path != ProbePathStrongSync {
+		t.Fatalf("path = %s, want strong sync", result.Path)
+	}
+	if len(interaction.notices) != 1 || interaction.notices[0] != NoticeStrongSync {
+		t.Fatalf("notices = %v, want [%v]", interaction.notices, NoticeStrongSync)
+	}
+	reason := result.Decision.Reason.String()
+	if !strings.Contains(reason, "9050") || !strings.Contains(reason, "9210") {
+		t.Fatalf("reason = %q, want the bank's 9050 and 9210", reason)
+	}
+	strongSyncs := 0
+	for _, record := range bank.records {
+		if strings.Join(record, ",") == strings.Join(requestShape("HKIDN", "HKVVB", "HKTAN", "HKSYN"), ",") {
+			strongSyncs++
+		}
+	}
+	if strongSyncs != 1 {
+		t.Fatalf("strong sync attempts = %d, want exactly 1", strongSyncs)
+	}
+	if len(bank.records) != 5 {
+		t.Fatalf("exchanges = %d, want the strong sync and its best-effort HKEND", len(bank.records))
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestProbeStrongSyncFallbackOffKeepsTodaysBehaviour(t *testing.T) {
+	setStrongSyncFallback(t, false)
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+	)
+	bank.reply(syncResponse(
+		chipHitans("chipTAN manuell", 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N"),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(approvalRequiredResponse(testDialogID))
+
+	interaction := &probeInteraction{}
+	pin := secret.NewText([]byte(testPIN))
+	result := Probe(context.Background(), newProbeEnv(t, bank, interaction, pin))
+
+	if result.Decision.Go {
+		t.Fatal("a rejected login must not be a GO")
+	}
+	if result.Path != ProbePathNormal {
+		t.Fatalf("path = %s, want normal", result.Path)
+	}
+	if len(interaction.notices) != 0 {
+		t.Fatalf("notices = %v, want none", interaction.notices)
+	}
+	if len(bank.records) != 3 {
+		t.Fatalf("exchanges = %d, want 3", len(bank.records))
+	}
+	if !pin.IsEmpty() {
+		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+func TestStrongSyncFallbackIsOnByDefault(t *testing.T) {
+	if !StrongSyncFallbackEnabled {
+		t.Fatal("the strong-sync fallback must be on by default")
 	}
 }

@@ -1167,3 +1167,85 @@ func enableApprovalRetry(t *testing.T) {
 	fintsprobe.ApprovalRetryEnabled = true
 	t.Cleanup(func() { fintsprobe.ApprovalRetryEnabled = previous })
 }
+
+// strongSyncConnectionBank scripts the HVB-like 9210 followed by one strong
+// sync with a typed TAN and a complete GO run.
+func strongSyncConnectionBank(t *testing.T) *fakeTransport {
+	t.Helper()
+	bank := newFakeTransport(t)
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKSYN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKIDN", "HKVVB", "HKTAN", "HKSYN"),
+		requestShape("HKTAN"),
+		requestShape("HKEND"),
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKSPA"),
+		requestShape("HKSAL"),
+		requestShape("HKKAZ"),
+		requestShape("HKEND"),
+	)
+	bank.reply(syncResponse(
+		chipHitans("chipTAN manuell", 5, 2),
+		allowedSecurityFunction("942"),
+		hipins("HKSAL:N+HKKAZ:N+HKSPA:N"),
+		hisals(7),
+		hikazs(6),
+		hiupd(testIBAN, "00000001", "EUR"),
+	))
+	bank.reply(successResponse("dialog-sync"))
+	bank.reply(approvalRequiredResponse(testDialogID, "First dialog 9210"))
+	bank.reply(responseMessage(
+		"dialog-strong",
+		"HIRMS:3:2:4+0030::TAN erforderlich'",
+		"HIRMS:5:2:4+3060::Strong sync warning'",
+		"HITAN:4:7:3+4+task-hash+task-strong+"+testChallenge+"+@0@'",
+	))
+	bank.reply(responseMessage(
+		"dialog-strong",
+		"HISYN:2:4:1+strong-system'",
+		"HIRMG:2:2+0010::"+testMessage+"'",
+	))
+	bank.reply(successResponse("dialog-strong"))
+	bank.reply(executedResponse(testDialogID))
+	bank.reply(executedResponse(testDialogID, hispa(
+		hispaAccount(testIBAN, "TESTDEFFXXX", "00000001"),
+	)))
+	bank.reply(executedResponse(testDialogID, hisalPayload()))
+	bank.reply(executedResponse(testDialogID, hikazPayload(mt940Booked(), mt940Pending())))
+	bank.reply(successResponse(testDialogID))
+	return bank
+}
+
+func TestRunStrongSyncFallbackShowsTheNoticeAndCarriesThePath(t *testing.T) {
+	interaction := &fakeInteraction{pin: testPIN}
+	bank := strongSyncConnectionBank(t)
+	outcome := Run(context.Background(), newInput(t, interaction, factoryFor(bank)))
+
+	if !outcome.Go {
+		t.Fatalf("outcome = %s, want GO", outcome)
+	}
+	if !outcome.StrongSync {
+		t.Fatal("outcome does not report the strong sync")
+	}
+	if outcome.StrongSyncTAN != fintsprobe.StrongSyncTANTyped {
+		t.Fatalf("StrongSyncTAN = %q, want typed", outcome.StrongSyncTAN)
+	}
+	wantNotice := i18n.Text(i18n.En, i18n.TestConnectionStrongSyncNotice)
+	if len(interaction.infos) != 1 || interaction.infos[0] != wantNotice {
+		t.Fatalf("Info texts = %q, want [%q]", interaction.infos, wantNotice)
+	}
+	if fmt.Sprint(interaction.tans) != fmt.Sprint([]string{testChallenge}) {
+		t.Fatalf("TAN challenges = %v, want [%q]", interaction.tans, testChallenge)
+	}
+
+	first, ok := findMessage(outcome.Messages, "9210")
+	if !ok || first.Text != "First dialog 9210" {
+		t.Fatalf("first dialog message = %#v", first)
+	}
+	warning, ok := findMessage(outcome.Messages, "3060")
+	if !ok || warning.Text != "Strong sync warning" {
+		t.Fatalf("strong sync message = %#v, want the warning from the second dialog", warning)
+	}
+}

@@ -1133,6 +1133,8 @@ export class ConnectionTestDTO {
     "messages": BankMessageDTO[];
     "probed": number;
     "skipped": number;
+    "strongSync": boolean;
+    "strongSyncTAN": string;
 
     /** Creates a new ConnectionTestDTO instance. */
     constructor($$source: Partial<ConnectionTestDTO> = {}) {
@@ -1159,6 +1161,12 @@ export class ConnectionTestDTO {
         }
         if (!("skipped" in $$source)) {
             this["skipped"] = 0;
+        }
+        if (!("strongSync" in $$source)) {
+            this["strongSync"] = false;
+        }
+        if (!("strongSyncTAN" in $$source)) {
+            this["strongSyncTAN"] = "";
         }
 
         Object.assign(this, $$source);

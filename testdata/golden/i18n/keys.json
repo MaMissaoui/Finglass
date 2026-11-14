@@ -4214,6 +4214,11 @@
     "de": "Der Test ist fehlgeschlagen: %s",
     "fr": "Le test a échoué : %s"
   },
+  "TestConnectionPathStrongSync": {
+    "en": "Registered again with the TAN method (strong sync).",
+    "de": "Erneut mit dem TAN-Verfahren angemeldet (Synchronisierung mit TAN).",
+    "fr": "Réenregistré avec la méthode TAN (synchronisation avec TAN)."
+  },
   "TestConnectionProbed": {
     "en": "%d {1:account|accounts} checked",
     "de": "%d {1:Konto|Konten} geprüft",
@@ -4238,6 +4243,21 @@
     "en": "The bank did not provide statements.",
     "de": "Die Bank hat keine Kontoauszüge bereitgestellt.",
     "fr": "La banque n'a pas fourni de relevés."
+  },
+  "TestConnectionStrongSyncDecoupled": {
+    "en": "The bank asked for an approval in its app.",
+    "de": "Die Bank hat eine Freigabe in ihrer App verlangt.",
+    "fr": "La banque a demandé une approbation dans son application."
+  },
+  "TestConnectionStrongSyncNotice": {
+    "en": "Your bank rejected the login. Finglass now registers this device again with your TAN method. If your bank app shows a new approval request, approve the newest one and type the TAN it shows. Ignore an older request.",
+    "de": "Ihre Bank hat die Anmeldung abgelehnt. Finglass meldet dieses Gerät jetzt erneut mit Ihrem TAN-Verfahren an. Wenn Ihre Bank-App eine neue Freigabeanfrage zeigt, bestätigen Sie die neueste und geben Sie die angezeigte TAN ein. Eine ältere Anfrage ignorieren Sie.",
+    "fr": "Votre banque a refusé la connexion. Finglass enregistre maintenant de nouveau cet appareil avec votre méthode TAN. Si l'application de votre banque affiche une nouvelle demande d'approbation, approuvez la plus récente et saisissez le TAN qu'elle affiche. Ignorez une demande plus ancienne."
+  },
+  "TestConnectionStrongSyncTyped": {
+    "en": "The bank asked for a typed TAN.",
+    "de": "Die Bank hat eine TAN-Eingabe verlangt.",
+    "fr": "La banque a demandé la saisie d'un TAN."
   },
   "TestConnectionTanMethodUnsupported": {
     "en": "The bank's TAN method is not supported. Choose pushTAN in your bank settings.",

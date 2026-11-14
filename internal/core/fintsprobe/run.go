@@ -19,6 +19,8 @@ const (
 	confirmRetryMessage = "The bank may have sent an approval request to its app. Approve it, then press Enter (or type n to stop)."
 	// unsupportedTanMessage is printed instead of a TAN method name.
 	unsupportedTanMessage = "TAN method not supported by the probe; choose pushTAN in your bank settings"
+	// strongSyncMessage is printed before the strong-sync fallback.
+	strongSyncMessage = "The bank rejected the login. Trying the TAN method in the sync dialog."
 	// tanPrompt is the prompt for a typed TAN.
 	tanPrompt = "TAN: "
 )
@@ -28,6 +30,12 @@ const (
 // retried login with the same 9210, so the retry only cost the person a second
 // approval push. Tests switch it on to keep the retry path covered.
 var ApprovalRetryEnabled = false
+
+// StrongSyncFallbackEnabled switches the strong-sync fallback of the Test
+// connection probe on (see [Probe]). It is for HVB: after the bank's 9210 the
+// probe runs one sync dialog with the TAN method and HKTAN process 4, as
+// python-fints does. Normal logins never reach it.
+var StrongSyncFallbackEnabled = true
 
 // tanTimeout bounds a decoupled login poll. It is a variable only so a test
 // can shorten it.
@@ -49,6 +57,9 @@ type Notice uint8
 const (
 	// NoticeTanMethodUnsupported tells the person to choose a pushTAN method.
 	NoticeTanMethodUnsupported Notice = iota
+	// NoticeStrongSync tells the person that the probe registers the device
+	// again with the TAN method.
+	NoticeStrongSync
 )
 
 // Interaction is how the probe talks to the person running it.
@@ -128,10 +139,44 @@ func (e ProbeEnv) Format(f fmt.State, _ rune) {
 	_, _ = f.Write([]byte(e.String()))
 }
 
+// ProbePath is the login path the probe took.
+type ProbePath uint8
+
+// The probe login paths.
+const (
+	// ProbePathNormal is the usual Sync then Init login.
+	ProbePathNormal ProbePath = iota
+	// ProbePathStrongSync is the strong-sync fallback after a 9210.
+	ProbePathStrongSync
+)
+
+// String returns the path's name. It never contains bank data.
+func (p ProbePath) String() string {
+	switch p {
+	case ProbePathStrongSync:
+		return "strong sync (TAN in the sync dialog)"
+	default:
+		return "normal"
+	}
+}
+
+// The strong-sync TAN modes.
+const (
+	// StrongSyncTANTyped means the bank asked for a typed TAN.
+	StrongSyncTANTyped = "typed"
+	// StrongSyncTANDecoupled means the bank asked for an app approval.
+	StrongSyncTANDecoupled = "decoupled"
+)
+
 // Result is the probe's outcome without any terminal formatting.
 type Result struct {
 	// Decision is the GO/NO-GO decision.
 	Decision Decision
+	// Path is the login path the probe took.
+	Path ProbePath
+	// StrongSyncTAN says how the bank asked for the TAN in the strong sync:
+	// "", "typed" or "decoupled".
+	StrongSyncTAN string
 	// Summaries are the probed accounts, in wire order.
 	Summaries []AccountSummary
 	// Lines are the account lines, including skipped ones, exactly as the
@@ -145,15 +190,25 @@ type Result struct {
 	Invalid bool
 }
 
-// String prints only the decision and counts, never an account or bank text.
+// PathLine is the one path line Run prints before the decision line.
+func (r Result) PathLine() string {
+	line := "Path: " + r.Path.String()
+	if r.Path == ProbePathStrongSync && r.StrongSyncTAN != "" {
+		line += ", " + r.StrongSyncTAN
+	}
+	return line
+}
+
+// String prints only the decision, path and counts, never an account or bank
+// text.
 func (r Result) String() string {
 	decision := "NO-GO (" + r.Decision.Reason.String() + ")"
 	if r.Decision.Go {
 		decision = "GO"
 	}
 	return fmt.Sprintf(
-		"fintsprobe.Result{decision:%s probed:%d skipped:%d invalid:%t lines:%d}",
-		decision, r.Probed, r.Skipped, r.Invalid, len(r.Lines),
+		"fintsprobe.Result{decision:%s path:%s strongSyncTAN:%s probed:%d skipped:%d invalid:%t lines:%d}",
+		decision, r.Path, r.StrongSyncTAN, r.Probed, r.Skipped, r.Invalid, len(r.Lines),
 	)
 }
 
@@ -196,6 +251,7 @@ func Run(ctx context.Context, env Env) int {
 	for _, line := range result.Lines {
 		env.Terminal.Println(line)
 	}
+	env.Terminal.Println(result.PathLine())
 	if result.Decision.Go {
 		env.Terminal.Println("RESULT: GO")
 	} else {
@@ -228,43 +284,110 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 		Transport:      env.Transport,
 		Sleeper:        env.Sleeper,
 	}
+	path := ProbePathNormal
+	strongSyncTAN := ""
+	finish := func(
+		summaries []AccountSummary,
+		lines []string,
+		skipped int,
+		failure *NoGoReason,
+	) Result {
+		result := resultFrom(summaries, lines, skipped, failure)
+		result.Path = path
+		result.StrongSyncTAN = strongSyncTAN
+		return result
+	}
+
 	dialog, err := fints.NewDialog(config)
 	if err != nil {
 		reason := NoGoReason{Kind: NoGoOther, Other: "InvalidState"}
-		return resultFrom(nil, nil, 0, &reason)
+		return finish(nil, nil, 0, &reason)
 	}
 
 	if err := dialog.Sync(ctx); err != nil {
 		reason := classifyError(err)
-		return resultFrom(nil, nil, 0, &reason)
+		return finish(nil, nil, 0, &reason)
 	}
 
 	initResult, err := dialog.Init(ctx)
+	retried := false
 	if err != nil && ApprovalRetryEnabled && shouldRetryAfterApproval(err, dialog.SystemID()) {
+		retried = true
 		// The bank rejected a new system id but may have sent an approval
 		// request anyway. Retry exactly once in memory with that system id.
 		if !env.Interaction.ConfirmRetry(ctx) {
 			reason := NoGoReason{Kind: NoGoOther, Other: "Cancelled"}
-			return resultFrom(nil, nil, 0, &reason)
+			return finish(nil, nil, 0, &reason)
 		}
 		config.SystemID = dialog.SystemID()
 		config.Params = dialog.Params()
 		retryDialog, newErr := fints.NewDialog(config)
 		if newErr != nil {
 			reason := NoGoReason{Kind: NoGoOther, Other: "InvalidState"}
-			return resultFrom(nil, nil, 0, &reason)
+			return finish(nil, nil, 0, &reason)
 		}
 		dialog = retryDialog
 		// Init on the new dialog exactly as the normal path; no Sync.
 		initResult, err = dialog.Init(ctx)
 	}
+
+	// The strong sync is HVB's fallback after a 9210. It never stacks with the
+	// approval retry: when the retry ran, this path is skipped.
+	if err != nil && !retried && StrongSyncFallbackEnabled &&
+		shouldTryStrongSync(err, dialog.Params()) {
+		path = ProbePathStrongSync
+		env.Interaction.Notice(NoticeStrongSync)
+
+		strongConfig := config
+		strongConfig.Params = dialog.Params()
+		strongConfig.SystemID = ""
+		strongDialog, newErr := fints.NewDialog(strongConfig)
+		if newErr != nil {
+			reason := NoGoReason{Kind: NoGoOther, Other: "InvalidState"}
+			return finish(nil, nil, 0, &reason)
+		}
+		dialog = strongDialog
+
+		syncResult, syncErr := dialog.StrongSync(ctx)
+		if syncErr != nil {
+			reason := classifyError(syncErr)
+			return finish(nil, nil, 0, &reason)
+		}
+		if !syncResult.Done {
+			if syncResult.Decoupled {
+				strongSyncTAN = StrongSyncTANDecoupled
+			} else {
+				strongSyncTAN = StrongSyncTANTyped
+			}
+			if reason, done := completeInitialTAN(
+				ctx, env, dialog, syncResult.Challenge, syncResult.Decoupled,
+			); done {
+				return finish(nil, nil, 0, reason)
+			}
+		}
+
+		initResult, err = dialog.Init(ctx)
+		if err != nil {
+			reason := classifyError(err)
+			return finish(nil, nil, 0, &reason)
+		}
+		if !initResult.Opened {
+			if reason, done := completeInitialTAN(
+				ctx, env, dialog, initResult.Challenge, initResult.Decoupled,
+			); done {
+				return finish(nil, nil, 0, reason)
+			}
+			initResult.Opened = true
+		}
+	}
+
 	if err != nil {
 		reason := classifyError(err)
-		return resultFrom(nil, nil, 0, &reason)
+		return finish(nil, nil, 0, &reason)
 	}
 	if !initResult.Opened {
-		if reason, done := completeInitialTAN(ctx, env, dialog, initResult); done {
-			return resultFrom(nil, nil, 0, reason)
+		if reason, done := completeInitialTAN(ctx, env, dialog, initResult.Challenge, initResult.Decoupled); done {
+			return finish(nil, nil, 0, reason)
 		}
 	}
 
@@ -272,12 +395,33 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 	if _, err := workflow.FetchSEPAAccounts(ctx); err != nil {
 		reason := classifyError(err)
 		_ = dialog.End(ctx)
-		return resultFrom(nil, nil, 0, &reason)
+		return finish(nil, nil, 0, &reason)
 	}
 
 	summaries, lines, skipped, failure := probeAccounts(ctx, env, dialog, workflow)
 	_ = dialog.End(ctx)
-	return resultFrom(summaries, lines, skipped, failure)
+	return finish(summaries, lines, skipped, failure)
+}
+
+// blockedRetryCodes are the PIN and locked-account codes that neither the
+// approval retry nor the strong sync may repeat.
+var blockedRetryCodes = map[string]bool{
+	"9340": true,
+	"9910": true,
+	"9930": true,
+	"9931": true,
+	"9942": true,
+	"3938": true,
+}
+
+// hasBlockedRetryCode reports whether codes contains a PIN or lock code.
+func hasBlockedRetryCode(codes []string) bool {
+	for _, code := range codes {
+		if blockedRetryCodes[code] {
+			return true
+		}
+	}
+	return false
 }
 
 // shouldRetryAfterApproval reports whether an Init failure may be the bank's
@@ -291,16 +435,45 @@ func shouldRetryAfterApproval(err error, systemID string) bool {
 	if systemID == "" || systemID == "0" {
 		return false
 	}
-	hasApprovalCode := false
+	if hasBlockedRetryCode(dialogError.Codes) {
+		return false
+	}
 	for _, code := range dialogError.Codes {
-		switch code {
-		case "9340", "9910", "9930", "9931", "9942", "3938":
-			return false
-		case "9210":
-			hasApprovalCode = true
+		if code == "9210" {
+			return true
 		}
 	}
-	return hasApprovalCode
+	return false
+}
+
+// shouldTryStrongSync reports whether an Init failure is the bank's 9210 answer
+// and the parameters carry a two-step TAN method for the strong-sync fallback.
+func shouldTryStrongSync(err error, params *fints.BankParams) bool {
+	var dialogError *fints.DialogError
+	if !errors.As(err, &dialogError) {
+		return false
+	}
+	if hasBlockedRetryCode(dialogError.Codes) {
+		return false
+	}
+	hasApprovalCode := false
+	for _, code := range dialogError.Codes {
+		if code == "9210" {
+			hasApprovalCode = true
+			break
+		}
+	}
+	if !hasApprovalCode || params == nil {
+		return false
+	}
+	securityFunction := params.SelectedSecurityFunction
+	if securityFunction == "" || securityFunction == fints.SecurityFunctionPINOnly {
+		return false
+	}
+	if method, ok := params.SelectedMethod(); ok {
+		return method.TanProcess == fints.TanProcessTwoStep
+	}
+	return true
 }
 
 func invalidResult() Result {
@@ -325,16 +498,17 @@ func resultFrom(
 	}
 }
 
-// completeInitialTAN handles a TAN-pending Init. done reports that the probe
-// must stop with reason.
+// completeInitialTAN handles a TAN-pending Init or strong sync. done reports
+// that the probe must stop with reason.
 func completeInitialTAN(
 	ctx context.Context,
 	env ProbeEnv,
 	dialog *fints.Dialog,
-	result fints.InitResult,
+	challenge fints.TanChallenge,
+	decoupled bool,
 ) (*NoGoReason, bool) {
-	if result.Decoupled {
-		env.Interaction.ConfirmInApp(ctx, result.Challenge.Challenge())
+	if decoupled {
+		env.Interaction.ConfirmInApp(ctx, challenge.Challenge())
 		pollContext, cancel := context.WithTimeout(ctx, tanTimeout)
 		_, err := dialog.Poll(pollContext)
 		deadlineReached := pollContext.Err() == context.DeadlineExceeded && ctx.Err() == nil
@@ -362,7 +536,7 @@ func completeInitialTAN(
 		return &reason, true
 	}
 
-	tan, err := env.Interaction.TAN(ctx, result.Challenge.Challenge())
+	tan, err := env.Interaction.TAN(ctx, challenge.Challenge())
 	if err != nil || tan == nil {
 		if tan != nil {
 			tan.Wipe()
@@ -597,6 +771,8 @@ func (t terminalInteraction) Notice(notice Notice) {
 	switch notice {
 	case NoticeTanMethodUnsupported:
 		t.terminal.Println(unsupportedTanMessage)
+	case NoticeStrongSync:
+		t.terminal.Println(strongSyncMessage)
 	}
 }
 

@@ -17,8 +17,10 @@ func TestConnectionTestCloneCopiesTheCodesAndResult(t *testing.T) {
 		Messages: []BankMessage{
 			{Code: "9210", Segment: "HKTAN", Text: "Invented bank message"},
 		},
-		Probed:  1,
-		Skipped: 2,
+		Probed:        1,
+		Skipped:       2,
+		StrongSync:    true,
+		StrongSyncTAN: "typed",
 	}
 	state.LastTrace = &LastTrace{Kind: "test", BankID: 7, HasTrace: true}
 	state.Banks = []BankItem{{ID: 7, CanTestConnection: true}}
@@ -29,7 +31,8 @@ func TestConnectionTestCloneCopiesTheCodesAndResult(t *testing.T) {
 	}
 	if clone.ConnectionTest.BankID != 7 || !clone.ConnectionTest.Running ||
 		!clone.ConnectionTest.Go || clone.ConnectionTest.Reason != "GO" ||
-		clone.ConnectionTest.Probed != 1 || clone.ConnectionTest.Skipped != 2 {
+		clone.ConnectionTest.Probed != 1 || clone.ConnectionTest.Skipped != 2 ||
+		!clone.ConnectionTest.StrongSync || clone.ConnectionTest.StrongSyncTAN != "typed" {
 		t.Fatalf("cloned result = %+v", clone.ConnectionTest)
 	}
 	if clone.LastTrace == state.LastTrace || clone.LastTrace.Kind != "test" ||
