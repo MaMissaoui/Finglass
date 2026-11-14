@@ -393,6 +393,7 @@ test('the scripted sync walks through every prompt', async ({ page }) => {
 
   // The sync left a redacted trace; the bank card offers to save it.
   const syncTrace = page.getByTestId('sync-trace-2');
+  await expect(syncTrace).toBeVisible();
   await syncTrace.getByRole('button', { name: 'Save redacted trace…', exact: true }).click();
   await expect(page.getByText('The redacted trace was saved.')).toBeVisible();
 
@@ -402,6 +403,8 @@ test('the scripted sync walks through every prompt', async ({ page }) => {
   await assertSecretGone(page, 'S3cret-PIN-9931');
   await assertSecretGone(page, '7F3K-TAN-8812');
   await expectClean(watcher);
+  // After the CSP check: the screenshot helper injects a style of its own.
+  await shot(page, 'accounts-sync-trace-en-light');
 });
 
 test('the connection test walks product id and PIN then saves the trace', async ({ page }) => {

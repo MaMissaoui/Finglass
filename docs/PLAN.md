@@ -302,7 +302,8 @@ In order, each one compared with the G1 reference screenshots:
   runs show. It retries every Init error except the PIN codes (9340, 9910, 9930, 9931, 9942) and a locked account
   (3938); a bank that reports a wrong PIN with another code would see the PIN twice in one sync.
 - [ ] Before 0.4.0: your real-data test includes two syncs in a row per bank (the second one reuses the stored system
-  id and TAN method).
+  id and TAN method). The trace slot keeps only the last bank of a "Sync all"; to save a failing bank's trace, sync
+  that bank on its own.
 
 ### G11 — Windows and Linux (M, after parity)
 

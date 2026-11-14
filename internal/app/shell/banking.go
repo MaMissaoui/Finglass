@@ -805,9 +805,9 @@ func (s *Session) BankingStartSyncAll() {
 		) {
 			state.RunSyncAll(ctx, database, service, bridge, &busy, today, func(current *banking.BankingState) {
 				if current.SyncAll != nil {
+					job.traceBankID = current.SyncAll.BankID
 					for _, bank := range pending.Banks {
-						if bank.BankName == current.SyncAll.BankName {
-							job.traceBankID = bank.ID
+						if bank.ID == current.SyncAll.BankID {
 							job.traceBLZ = bank.BLZ
 							break
 						}

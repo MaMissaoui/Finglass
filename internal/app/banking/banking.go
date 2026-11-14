@@ -56,6 +56,8 @@ type SyncAllProgress struct {
 	Total int
 	// BankName is the bank's display name.
 	BankName string
+	// BankID is the bank just started.
+	BankID model.BankConnectionID
 }
 
 // BankItem is one bank connection as the bank-login dialogs need it.
@@ -685,6 +687,7 @@ func (s *BankingState) RunSyncAll(
 			Position: index + 1,
 			Total:    total,
 			BankName: bank.BankName,
+			BankID:   bank.ID,
 		}
 		if onProgress != nil {
 			onProgress(s)
