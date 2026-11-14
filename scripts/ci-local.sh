@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Runs CI locally, as far as this machine can.
 #
-# - The macOS jobs (Go, Installer, Lint, Test) run natively, through the same scripts/ci/*.sh files ci.yml runs.
-#   GitHub's runner can't be emulated: Docker can't run macOS, and act's host mode would install rustup
-#   and toolchains outside the repo, so this script runs the job scripts directly instead.
+# - The macOS jobs (Go, Installer) run natively, through the same scripts/ci/*.sh files ci.yml runs.
+#   GitHub's runner can't be emulated: Docker can't run macOS, so this script runs the job scripts directly
+#   instead.
 # - With Docker running, the Go checks also run in a Linux container. CI is macOS-only until FinDesk parity
 #   (docs/PLAN.md), so this is an extra portability check, not a copy of a CI job.
 #
-# Usage: scripts/ci-local.sh [go] [frontend] [package] [install] [lint] [test] [linux] [secret-scan]
+# Usage: scripts/ci-local.sh [go] [frontend] [package] [install] [linux] [secret-scan]
 # (no arguments: all of the default jobs; secret-scan is optional)
 # Logs: build/ci-local/<job>.log. Exit status is non-zero if any job failed.
 set -euo pipefail
@@ -21,7 +21,7 @@ linux_image="finglass-ci-linux:local"
 
 jobs=("$@")
 if [ ${#jobs[@]} -eq 0 ]; then
-  jobs=(go frontend package install lint test linux)
+  jobs=(go frontend package install linux)
 fi
 
 log_dir="$repo_root/build/ci-local"
@@ -100,8 +100,6 @@ for job in "${jobs[@]}"; do
         skip_job install "macOS only"
       fi
       ;;
-    lint) run_job lint bash scripts/ci/rust-lint.sh ;;
-    test) run_job test bash scripts/ci/rust-test.sh ;;
     linux)
       if command -v docker >/dev/null && docker info >/dev/null 2>&1; then
         run_job linux linux_go
@@ -117,7 +115,7 @@ for job in "${jobs[@]}"; do
       fi
       ;;
     *)
-      echo "unknown job: $job (expected go, frontend, package, install, lint, test, linux or secret-scan)" >&2
+      echo "unknown job: $job (expected go, frontend, package, install, linux or secret-scan)" >&2
       exit 2
       ;;
   esac

@@ -8,11 +8,3 @@ updates:
     groups:
       actions:
         patterns: ["*"]
-  - package-ecosystem: cargo
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-    groups:
-      cargo-minor-and-patch:
-        update-types: ["minor", "patch"]
