@@ -59,6 +59,9 @@
   --color-shadow: #1c273326;
   --color-warning-pale: #9a5b0066;
   --color-warning-strong: #6b3f00;
+  --color-ready-wash: #e8f4ee;
+  --color-attention-wash: #f8f0e2;
+  --color-off-wash: #eef1f4;
 
   /* The dark values live here once; the two dark contexts below map them. */
   --dark-color-ink: #e6eaee;
@@ -83,6 +86,9 @@
   --dark-color-shadow: #00000099;
   --dark-color-warning-pale: #e0a54a66;
   --dark-color-warning-strong: #f7d08a;
+  --dark-color-ready-wash: #17322a;
+  --dark-color-attention-wash: #332814;
+  --dark-color-off-wash: #222b34;
 
   /* Theme.role aliases, so components can use the design names directly. */
   --color-primary: var(--color-petrol);
@@ -212,6 +218,9 @@
   --color-shadow: var(--dark-color-shadow);
   --color-warning-pale: var(--dark-color-warning-pale);
   --color-warning-strong: var(--dark-color-warning-strong);
+  --color-ready-wash: var(--dark-color-ready-wash);
+  --color-attention-wash: var(--dark-color-attention-wash);
+  --color-off-wash: var(--dark-color-off-wash);
 }
 
 @media (prefers-color-scheme: dark) {

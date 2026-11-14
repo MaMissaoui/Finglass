@@ -4578,5 +4578,35 @@
     "en": "The bank rejected the saved PIN, so it was removed. You'll be asked for it next time.",
     "de": "Die Bank hat die gespeicherte PIN abgelehnt; sie wurde gelöscht. Beim nächsten Mal werden Sie danach gefragt.",
     "fr": "La banque a refusé le code PIN enregistré ; il a été supprimé. Il vous sera demandé la prochaine fois."
+  },
+  "SyncStatusReady": {
+    "en": "Ready to sync",
+    "de": "Bereit zum Synchronisieren",
+    "fr": "Prêt à synchroniser"
+  },
+  "SyncStatusReadyTested": {
+    "en": "Ready to sync · tested %s",
+    "de": "Bereit zum Synchronisieren · getestet am %s",
+    "fr": "Prêt à synchroniser · testé le %s"
+  },
+  "SyncStatusNotInAll": {
+    "en": "Not in Sync all",
+    "de": "Nicht in „Alle synchronisieren“",
+    "fr": "Pas dans « Tout synchroniser »"
+  },
+  "SyncStatusNotInAllTested": {
+    "en": "Not in Sync all · tested %s",
+    "de": "Nicht in „Alle synchronisieren“ · getestet am %s",
+    "fr": "Pas dans « Tout synchroniser » · testé le %s"
+  },
+  "SyncStatusRunTest": {
+    "en": "Run Test connection first",
+    "de": "Zuerst „Verbindung testen“ ausführen",
+    "fr": "Lancez d'abord « Tester la connexion »"
+  },
+  "TestConnectionSyncNow": {
+    "en": "This bank can sync now.",
+    "de": "Diese Bank kann jetzt synchronisieren.",
+    "fr": "Cette banque peut maintenant synchroniser."
   }
 }

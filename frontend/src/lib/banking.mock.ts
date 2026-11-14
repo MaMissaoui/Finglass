@@ -3,6 +3,7 @@ import type {
   BankingBankDTO,
   BankingDTO,
   BankMenuItemDTO,
+  BankStatusDTO,
   BankSuggestionDTO,
   ConnectionTestDTO,
   LastTraceDTO,
@@ -73,12 +74,18 @@ interface MockBankingBank {
   offline: boolean;
   includeInSyncAll: boolean;
   syncUnlocked: boolean;
+  syncUnlockedOn: string | null;
   syncFrom: string | null;
   hasSavedPin: boolean;
   /** Mock only: the user ticked "Remember PIN" in this run. No PIN is kept. */
   rememberedThisRun: boolean;
   /** The bank's stored-PIN removal option: "1" or "2". */
   pinForgetAfter: string;
+}
+
+/** A bank as the accounts fake's cards need it, including the status line. */
+export interface MockBankingCard extends BankingBankDTO {
+  status: BankStatusDTO;
 }
 
 interface MockSyncAll {
@@ -247,6 +254,7 @@ export function createMockBanking(
       offline: true,
       includeInSyncAll: false,
       syncUnlocked: false,
+      syncUnlockedOn: null,
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
@@ -262,6 +270,7 @@ export function createMockBanking(
       offline: false,
       includeInSyncAll: true,
       syncUnlocked: true,
+      syncUnlockedOn: '2026-11-14',
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
@@ -373,6 +382,7 @@ export function createMockBanking(
         offline: item.offline,
         includeInSyncAll: false,
         syncUnlocked: false,
+        syncUnlockedOn: null,
         syncFrom: null,
         hasSavedPin: false,
         rememberedThisRun: false,
@@ -490,7 +500,47 @@ export function createMockBanking(
     return canRememberPin ? t('PinAskedEverySync') : t('PinNeverStored');
   }
 
-  function bankDTO(bank: MockBankingBank): BankingBankDTO {
+  function bankStatus(bank: MockBankingBank): BankStatusDTO {
+    const status: BankStatusDTO = {
+      tone: '',
+      icon: '',
+      text: '',
+      action: '',
+      actionText: '',
+      actionEnabled: false,
+    };
+    if (bank.offline || !onlineSyncAvailable) {
+      return status;
+    }
+    if (syncingBankId === bank.id || testingBankId === bank.id) {
+      return status;
+    }
+    const canTest = bank.serverUrl.trim() !== '';
+    if (!bank.syncUnlocked) {
+      status.tone = 'attention';
+      status.icon = 'warning';
+      status.text = t('SyncStatusRunTest');
+      if (canTest) {
+        status.action = 'test-connection';
+        status.actionText = t('TestConnection');
+        status.actionEnabled = !isSyncing() && testingBankId === null;
+      }
+      return status;
+    }
+    status.tone = bank.includeInSyncAll ? 'ready' : 'off';
+    status.icon = bank.includeInSyncAll ? 'check_circle' : 'sync';
+    const base = bank.includeInSyncAll ? 'SyncStatusReady' : 'SyncStatusNotInAll';
+    const tested = bank.includeInSyncAll ? 'SyncStatusReadyTested' : 'SyncStatusNotInAllTested';
+    status.text =
+      bank.syncUnlockedOn === null ? t(base) : t(tested, formatDate(bank.syncUnlockedOn));
+    status.action = 'sync';
+    status.actionText = t('SyncNow');
+    status.actionEnabled =
+      onlineSyncAvailable && bank.syncUnlocked && !isSyncing() && testingBankId === null;
+    return status;
+  }
+
+  function bankDTO(bank: MockBankingBank): MockBankingCard {
     const syncing = syncingBankId === bank.id;
     return {
       bankId: bank.id,
@@ -506,10 +556,11 @@ export function createMockBanking(
       pinText: pinText(bank),
       canTestConnection: !bank.offline && bank.serverUrl.trim() !== '',
       menu: bankMenu(bank),
+      status: bankStatus(bank),
     };
   }
 
-  function banksForCard(): BankingBankDTO[] {
+  function banksForCard(): MockBankingCard[] {
     return banks.map(bankDTO);
   }
 
@@ -893,7 +944,9 @@ export function createMockBanking(
             bankId,
             running: false,
             go: false,
+            verdictText: 'NO-GO',
             reason: t('TestConnectionLoginRejected'),
+            nextStep: t('TestConnectionHelp'),
             codes: ['9931'],
             messages: [],
             probed: 0,
@@ -908,7 +961,9 @@ export function createMockBanking(
             bankId,
             running: false,
             go: true,
+            verdictText: 'GO',
             reason: t('TestConnectionGo'),
+            nextStep: t('TestConnectionSyncNow'),
             codes: [],
             messages: [],
             probed: 1,
@@ -932,7 +987,9 @@ export function createMockBanking(
       bankId,
       running: true,
       go: false,
+      verdictText: '',
       reason: '',
+      nextStep: '',
       codes: [],
       messages: [],
       probed: 0,
@@ -960,7 +1017,9 @@ export function createMockBanking(
         bankId,
         running: false,
         go: false,
+        verdictText: 'NO-GO',
         reason: t('TestConnectionCancelled'),
+        nextStep: t('TestConnectionHelp'),
         codes: [],
         messages: [],
         probed: 0,
@@ -977,7 +1036,9 @@ export function createMockBanking(
         bankId,
         running: false,
         go: false,
+        verdictText: 'NO-GO',
         reason: t('TestConnectionInvalidLogin'),
+        nextStep: t('TestConnectionHelp'),
         codes: ['9942'],
         messages: [
           { code: '9050', segment: '', text: 'Die Nachricht enthält Fehler.' },
@@ -997,7 +1058,9 @@ export function createMockBanking(
         bankId,
         running: false,
         go: true,
+        verdictText: 'GO',
         reason: t('TestConnectionGo'),
+        nextStep: t('TestConnectionSyncNow'),
         codes: [],
         messages: [],
         probed: 1,
@@ -1009,6 +1072,13 @@ export function createMockBanking(
         savedPinRejectedOnce: false,
       };
       lastTrace = { kind: 'test', bankId, hasTrace: true };
+    }
+    if (!cancelled) {
+      const testedBank = bankById(bankId);
+      if (testedBank !== undefined) {
+        testedBank.syncUnlocked = noGoBankId !== bankId;
+        testedBank.syncUnlockedOn = testedBank.syncUnlocked ? todayIso() : null;
+      }
     }
     testingBankId = null;
     testStage = '';
@@ -1083,6 +1153,7 @@ export function createMockBanking(
       offline: false,
       includeInSyncAll: true,
       syncUnlocked: true,
+      syncUnlockedOn: null,
       syncFrom: null,
       hasSavedPin: false,
       rememberedThisRun: false,
@@ -1307,16 +1378,23 @@ export function createMockBanking(
       if (sparkasse !== undefined) {
         sparkasse.includeInSyncAll = true;
         sparkasse.syncUnlocked = true;
+        sparkasse.syncUnlockedOn = '2026-11-14';
       }
       const locked = bankById(3);
       if (locked !== undefined) {
         locked.includeInSyncAll = true;
         locked.syncUnlocked = false;
+        locked.syncUnlockedOn = null;
+        locked.serverUrl = 'https://fints.example/nordlicht';
+        locked.userId = 'nordlicht-user';
       }
       const excluded = bankById(4);
       if (excluded !== undefined) {
         excluded.includeInSyncAll = false;
         excluded.syncUnlocked = true;
+        excluded.syncUnlockedOn = '2026-11-14';
+        excluded.serverUrl = 'https://fints.example/rheintal';
+        excluded.userId = 'rheintal-user';
       }
       messageText = syncAllSkipped(['Nordlicht Bank']);
       errorText = '';
@@ -1394,7 +1472,7 @@ export function createMockBanking(
     handleBankMenu,
     clearMessages,
     clearInfo,
-    bankForCard(bankId: number): BankingBankDTO | undefined {
+    bankForCard(bankId: number): MockBankingCard | undefined {
       alignBanks();
       const bank = bankById(bankId);
       return bank === undefined ? undefined : bankDTO(bank);

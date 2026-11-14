@@ -9,11 +9,13 @@ import (
 	"testing"
 	"time"
 
+	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
 	"github.com/MaMissaoui/Finglass/internal/core/balance"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
@@ -645,5 +647,227 @@ func TestAccountsPanelRowsNeverShowAFullIBANWhereV034ShowsTheDigits(t *testing.T
 	}
 	if invalid.Dialog.ErrorText != i18n.Text(i18n.En, i18n.AccountIbanExists) {
 		t.Fatalf("error = %q", invalid.Dialog.ErrorText)
+	}
+}
+
+func TestTheBankStatusLineCoversEveryCardState(t *testing.T) {
+	tested := civil.FromTime(time.Date(2026, time.November, 14, 12, 0, 0, 0, time.Local))
+	bankID := model.BankConnectionID(7)
+	otherID := model.BankConnectionID(8)
+	serverURL := "https://fints.example/pintan"
+
+	ready := func(language i18n.Language, date *civil.Date, included bool) BankStatusDTO {
+		tone := "ready"
+		icon := "check_circle"
+		text := i18n.Text(language, i18n.SyncStatusReady)
+		key := i18n.SyncStatusReadyTested
+		if !included {
+			tone = "off"
+			icon = "sync"
+			text = i18n.Text(language, i18n.SyncStatusNotInAll)
+			key = i18n.SyncStatusNotInAllTested
+		}
+		if date != nil {
+			text = i18n.Format(language, key, i18n.Str(format.Date(*date)))
+		}
+		return BankStatusDTO{
+			Tone:          tone,
+			Icon:          icon,
+			Text:          text,
+			Action:        "sync",
+			ActionText:    i18n.Text(language, i18n.SyncNow),
+			ActionEnabled: true,
+		}
+	}
+	locked := func(language i18n.Language, canTest bool) BankStatusDTO {
+		status := BankStatusDTO{
+			Tone: "attention",
+			Icon: "warning",
+			Text: i18n.Text(language, i18n.SyncStatusRunTest),
+		}
+		if canTest {
+			status.Action = "test-connection"
+			status.ActionText = i18n.Text(language, i18n.TestConnection)
+			status.ActionEnabled = true
+		}
+		return status
+	}
+
+	tests := []struct {
+		name         string
+		language     i18n.Language
+		onlineReady  bool
+		offline      bool
+		unlocked     bool
+		include      bool
+		date         *civil.Date
+		canTest      bool
+		syncing      bool
+		otherSyncing bool
+		testing      bool
+		want         BankStatusDTO
+	}{
+		{
+			name:        "ready with the GO date",
+			language:    i18n.En,
+			onlineReady: true,
+			unlocked:    true,
+			include:     true,
+			date:        &tested,
+			canTest:     true,
+			want:        ready(i18n.En, &tested, true),
+		},
+		{
+			name:        "ready without an older GO date",
+			language:    i18n.En,
+			onlineReady: true,
+			unlocked:    true,
+			include:     true,
+			canTest:     true,
+			want:        ready(i18n.En, nil, true),
+		},
+		{
+			name:        "unlocked but not in Sync all",
+			language:    i18n.En,
+			onlineReady: true,
+			unlocked:    true,
+			include:     false,
+			date:        &tested,
+			canTest:     true,
+			want:        ready(i18n.En, &tested, false),
+		},
+		{
+			name:        "locked with a connection test",
+			language:    i18n.En,
+			onlineReady: true,
+			unlocked:    false,
+			include:     true,
+			canTest:     true,
+			want:        locked(i18n.En, true),
+		},
+		{
+			name:        "locked without a server URL",
+			language:    i18n.En,
+			onlineReady: true,
+			unlocked:    false,
+			include:     true,
+			canTest:     false,
+			want:        locked(i18n.En, false),
+		},
+		{
+			name:        "German ready with the GO date",
+			language:    i18n.De,
+			onlineReady: true,
+			unlocked:    true,
+			include:     true,
+			date:        &tested,
+			canTest:     true,
+			want:        ready(i18n.De, &tested, true),
+		},
+		{
+			name:        "French unlocked but not in Sync all",
+			language:    i18n.Fr,
+			onlineReady: true,
+			unlocked:    true,
+			include:     false,
+			date:        &tested,
+			canTest:     true,
+			want:        ready(i18n.Fr, &tested, false),
+		},
+		{
+			name:        "offline has no line",
+			language:    i18n.En,
+			onlineReady: true,
+			offline:     true,
+			unlocked:    true,
+			include:     true,
+			canTest:     true,
+			want:        BankStatusDTO{},
+		},
+		{
+			name:        "no sync controls has no line",
+			language:    i18n.En,
+			onlineReady: false,
+			unlocked:    true,
+			include:     true,
+			canTest:     true,
+			want:        BankStatusDTO{},
+		},
+		{
+			name:        "the syncing bank has no line",
+			language:    i18n.En,
+			onlineReady: true,
+			unlocked:    true,
+			include:     true,
+			canTest:     true,
+			syncing:     true,
+			want:        BankStatusDTO{},
+		},
+		{
+			name:        "the testing bank has no line",
+			language:    i18n.En,
+			onlineReady: true,
+			unlocked:    true,
+			include:     true,
+			canTest:     true,
+			testing:     true,
+			want:        BankStatusDTO{},
+		},
+		{
+			name:         "another bank syncing disables Sync now",
+			language:     i18n.En,
+			onlineReady:  true,
+			unlocked:     true,
+			include:      true,
+			date:         &tested,
+			canTest:      true,
+			otherSyncing: true,
+			want: func() BankStatusDTO {
+				status := ready(i18n.En, &tested, true)
+				status.ActionEnabled = false
+				return status
+			}(),
+		},
+	}
+
+	restore := shell.SetOnlineSyncProductPresentForTest(true)
+	t.Cleanup(restore)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			shell.SetOnlineSyncProductPresentForTest(test.onlineReady)
+			bank := bankingcore.BankItem{
+				ID:                bankID,
+				BankName:          "Sparkasse",
+				BLZ:               "37040044",
+				UserID:            "user",
+				ServerURL:         &serverURL,
+				Offline:           test.offline,
+				IncludeInSyncAll:  test.include,
+				SyncUnlocked:      test.unlocked,
+				SyncUnlockedOn:    test.date,
+				CanTestConnection: test.canTest,
+			}
+			state := bankingcore.BankingState{
+				Language: test.language,
+				Banks:    []bankingcore.BankItem{bank},
+			}
+			if test.syncing {
+				claimed := bankID
+				state.SyncingBank = &claimed
+			}
+			if test.otherSyncing {
+				claimed := otherID
+				state.SyncingBank = &claimed
+			}
+			if test.testing {
+				state.ConnectionTest = &bankingcore.ConnectionTestResult{
+					BankID:  bankID,
+					Running: true,
+				}
+			}
+			if got := bankStatus(&state.Banks[0], &state, test.language); got != test.want {
+				t.Fatalf("status = %+v, want %+v", got, test.want)
+			}
+		})
 	}
 }

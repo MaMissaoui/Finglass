@@ -918,4 +918,10 @@ var enTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionUsedSavedPin:          "Used the saved PIN.",
 	TestConnectionSavedPinRejectedOnce:  "The bank rejected the saved PIN. It is kept for one more try; check it in Connection settings.",
 	TestConnectionSavedPinForgotten:     "The bank rejected the saved PIN, so it was removed. You'll be asked for it next time.",
+	SyncStatusReady:                     "Ready to sync",
+	SyncStatusReadyTested:               "Ready to sync · tested %s",
+	SyncStatusNotInAll:                  "Not in Sync all",
+	SyncStatusNotInAllTested:            "Not in Sync all · tested %s",
+	SyncStatusRunTest:                   "Run Test connection first",
+	TestConnectionSyncNow:               "This bank can sync now.",
 }

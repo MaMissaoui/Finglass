@@ -1068,8 +1068,15 @@ func TestTheBankMenuGatesSyncNowOnTheUnlockAndLeavesIncludeEditable(t *testing.T
 		if card.SyncEnabled {
 			t.Fatal("the card sync button is enabled for a locked bank")
 		}
-		if !strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.SyncLockedHint)) {
-			t.Fatalf("subtitle = %q, want the locked hint", card.Subtitle)
+		if strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.SyncLockedHint)) {
+			t.Fatalf("subtitle = %q, want no locked hint", card.Subtitle)
+		}
+		if card.Status.Tone != "attention" ||
+			card.Status.Text != i18n.Text(i18n.En, i18n.SyncStatusRunTest) ||
+			card.Status.Action != "test-connection" ||
+			card.Status.ActionText != i18n.Text(i18n.En, i18n.TestConnection) ||
+			!card.Status.ActionEnabled {
+			t.Fatalf("locked status = %+v", card.Status)
 		}
 		if card.SyncTooltip != i18n.Text(i18n.En, i18n.SyncLockedHint) {
 			t.Fatalf("sync tooltip = %q", card.SyncTooltip)
@@ -1102,8 +1109,15 @@ func TestTheBankMenuGatesSyncNowOnTheUnlockAndLeavesIncludeEditable(t *testing.T
 		if strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.SyncLockedHint)) {
 			t.Fatalf("subtitle = %q, want no locked hint", card.Subtitle)
 		}
-		if !strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.NotInSyncAll)) {
-			t.Fatalf("subtitle = %q, want not-in-Sync-all", card.Subtitle)
+		if strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.NotInSyncAll)) {
+			t.Fatalf("subtitle = %q, want no not-in-Sync-all text", card.Subtitle)
+		}
+		if card.Status.Tone != "off" ||
+			card.Status.Text != i18n.Text(i18n.En, i18n.SyncStatusNotInAll) ||
+			card.Status.Action != "sync" ||
+			card.Status.ActionText != i18n.Text(i18n.En, i18n.SyncNow) ||
+			!card.Status.ActionEnabled {
+			t.Fatalf("excluded status = %+v", card.Status)
 		}
 		if item := bankMenuItem(card.Menu, "sync"); item == nil || !item.Enabled {
 			t.Fatalf("sync now item = %+v, want it enabled", item)

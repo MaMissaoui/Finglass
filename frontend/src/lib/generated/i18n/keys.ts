@@ -917,6 +917,12 @@ export const keys = [
   'TestConnectionUsedSavedPin',
   'TestConnectionSavedPinRejectedOnce',
   'TestConnectionSavedPinForgotten',
+  'SyncStatusReady',
+  'SyncStatusReadyTested',
+  'SyncStatusNotInAll',
+  'SyncStatusNotInAllTested',
+  'SyncStatusRunTest',
+  'TestConnectionSyncNow',
 ] as const;
 
 export type Key = (typeof keys)[number];

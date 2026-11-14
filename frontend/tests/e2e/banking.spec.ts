@@ -151,7 +151,7 @@ async function assertSecretGone(page: Page, secret: string): Promise<void> {
 }
 
 async function startSync(page: Page): Promise<void> {
-  await sparkasse(page).getByRole('button', { name: 'Sync', exact: true }).click();
+  await sparkasse(page).getByRole('button', { name: 'Sync now', exact: true }).click();
   await expect(prompt(page)).toBeVisible();
 }
 
@@ -331,7 +331,25 @@ test('the banking reference screenshots', async ({ page }) => {
   await shot(page, 'accounts-sync-all-en');
 
   await goto(page, 'accounts-sync-per-bank', 1100, 900);
-  await expect(page.getByText('Sync is locked until Test connection returns GO.')).toBeVisible();
+  await expect(page.getByTestId('bank-status-2')).toContainText(
+    'Ready to sync · tested 14.11.2026',
+  );
+  await expect(
+    page.getByTestId('bank-status-2').getByRole('button', { name: 'Sync now', exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByTestId('bank-status-3')).toContainText('Run Test connection first');
+  await expect(
+    page.getByTestId('bank-status-3').getByRole('button', {
+      name: 'Test connection',
+      exact: true,
+    }),
+  ).toBeEnabled();
+  await expect(page.getByTestId('bank-status-4')).toContainText(
+    'Not in Sync all · tested 14.11.2026',
+  );
+  await expect(
+    page.getByTestId('bank-status-4').getByRole('button', { name: 'Sync now', exact: true }),
+  ).toBeEnabled();
   await expect(
     page.getByText(/skipped because its last Test connection was not GO/u),
   ).toBeVisible();
@@ -377,6 +395,7 @@ test('the scripted sync walks through every prompt', async ({ page }) => {
   await goto(page, 'banking-walkthrough');
 
   await startSync(page);
+  await expect(page.getByTestId('bank-status-2')).toHaveCount(0);
   const pinID = await currentPromptId(page);
   expect(pinID).toBeGreaterThan(0);
   await expect(prompt(page).getByRole('heading', { name: 'PIN for Sparkasse' })).toBeVisible();
@@ -458,10 +477,11 @@ test('the connection test walks product id and PIN then saves the trace', async 
 
   await expect(prompt(page)).toHaveCount(0);
   const panel = connectionPanel(page);
+  await expect(panel.locator('.verdict-chip')).toHaveText('GO');
   await expect(panel).toContainText('Connection works.');
+  await expect(panel).toContainText('This bank can sync now.');
   await expect(panel).toContainText('1 account checked');
   await expect(panel).toContainText('1 account skipped');
-  await expect(panel).toContainText('Runs a read-only check against your bank.');
   await assertSecretGone(page, 'INVENTED-PIN-2468');
 
   await panel.getByRole('button', { name: 'Save redacted trace…', exact: true }).click();
@@ -475,7 +495,9 @@ test('a refused login shows the NO-GO panel with the bank return code', async ({
 
   await runConnectionTest(page);
   const panel = connectionPanel(page);
+  await expect(panel.locator('.verdict-chip')).toHaveText('NO-GO');
   await expect(panel).toContainText('The login data is invalid.');
+  await expect(panel).toContainText('Runs a read-only check against your bank.');
   await expect(panel.locator('.test-codes .code-chip')).toHaveText(['9942']);
   await expect(panel.getByText('Messages from the bank', { exact: true })).toBeVisible();
   const bankMessage = panel.locator('.test-bank-message').filter({ hasText: '9210' });
@@ -518,7 +540,9 @@ test('cancel closes the prompt and ends the sync', async ({ page }) => {
   await prompt(page).getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(prompt(page)).toHaveCount(0);
   await expect(sparkasse(page).getByText('Connecting…')).toHaveCount(0);
-  await expect(sparkasse(page).getByRole('button', { name: 'Sync', exact: true })).toBeVisible();
+  await expect(
+    sparkasse(page).getByRole('button', { name: 'Sync now', exact: true }),
+  ).toBeVisible();
   await assertSecretGone(page, 'cancel-pin-4711');
 
   // A fresh sync starts at the PIN prompt again, with an empty field.

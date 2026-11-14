@@ -848,6 +848,44 @@ func TestALockedBankIsRefusedBeforeTheGatewayRuns(t *testing.T) {
 	}
 }
 
+func TestBankItemsCarryTheUnlockDateOnlyWhileUnlocked(t *testing.T) {
+	database := testDatabase(t)
+	bank := onlineBank(t, database, "A Bank", "a")
+	service, _ := serviceFor(t, newTestGateway())
+	if err := settings.Set(context.Background(), database, banksync.SyncUnlockedOnKey(bank), "2026-11-14"); err != nil {
+		t.Fatalf("set unlock date: %v", err)
+	}
+	state := New(i18n.En)
+	if err := state.Load(context.Background(), database, service); err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if len(state.Banks) != 1 || state.Banks[0].SyncUnlockedOn == nil ||
+		state.Banks[0].SyncUnlockedOn.String() != "2026-11-14" {
+		t.Fatalf("unlock date = %+v", state.Banks)
+	}
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockedOnKey(bank)); err != nil {
+		t.Fatalf("delete unlock date: %v", err)
+	}
+	if err := state.Load(context.Background(), database, service); err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if state.Banks[0].SyncUnlockedOn != nil {
+		t.Fatalf("older unlock date = %v, want nil", state.Banks[0].SyncUnlockedOn)
+	}
+	if err := settings.Delete(context.Background(), database, banksync.SyncUnlockKey(bank)); err != nil {
+		t.Fatalf("lock bank: %v", err)
+	}
+	if err := settings.Set(context.Background(), database, banksync.SyncUnlockedOnKey(bank), "2026-11-14"); err != nil {
+		t.Fatalf("set stale unlock date: %v", err)
+	}
+	if err := state.Load(context.Background(), database, service); err != nil {
+		t.Fatalf("reload locked: %v", err)
+	}
+	if state.Banks[0].SyncUnlocked || state.Banks[0].SyncUnlockedOn != nil {
+		t.Fatalf("locked bank = %+v, want no date", state.Banks[0])
+	}
+}
+
 func TestIncludeInSyncAllWritesAnAuditEntry(t *testing.T) {
 	database := testDatabase(t)
 	bank := onlineBank(t, database, "A Bank", "a")

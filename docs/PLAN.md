@@ -148,9 +148,10 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
   rows and Export next to the period; Documents with one main action and a quiet delete icon; Dashboard cards sized to
   their content; sidebar collapses below 960 px; remaining colour literals into tokens. Done in #205; the tax shares
   come from Go. The Accounts header's currencies move to B, which changes the Accounts page anyway.
-- [ ] **B — state in words** (after the HVB experiment PR): Accounts per-bank status lines and next action (with the
-  per-bank sync PR), one main currency in the Accounts header; Test connection opens with the verdict; text for the "new" dots, the account badge and the
-  "month so far" bar; the pending-tasks count announced.
+- [x] **B1:** per-bank status line and next action on Accounts (GO date shown), no Sync button in the header, no
+  monogram on Accounts rows; Test connection opens with the verdict and the next step.
+- [ ] **B2:** one main currency in the Accounts header; text for the "new" dots, the account badge and the "month so
+  far" bar; the pending-tasks count announced.
 - [x] **C — onboarding:** the migration asks for the passphrase acknowledgement on the passphrase step (once per
   wizard; a click without the tick keeps the typed fields); passphrase rules under the field with a live count
   ("4 of 10 characters", counted like Go). "Quit FinDesk first." is a neutral note now.

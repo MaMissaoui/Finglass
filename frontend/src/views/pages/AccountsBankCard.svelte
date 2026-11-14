@@ -55,7 +55,6 @@
   let accountMenu = $state(-1);
 
   const hasBank = $derived(card.bankId >= 0);
-  const showSync = $derived(hasBank && !card.offline && !card.syncing && syncControlsVisible);
 
   function toneClass(tone: string): string {
     if (tone === 'negative') {
@@ -89,6 +88,14 @@
   function chooseAccount(accountID: number, action: () => void): void {
     accountMenu = -1;
     action();
+  }
+
+  function runStatusAction(): void {
+    if (card.status.action === 'sync') {
+      onSync(card.bankId);
+    } else if (card.status.action === 'test-connection') {
+      onBankMenu(card.bankId, 'test-connection');
+    }
   }
 </script>
 
@@ -150,14 +157,6 @@
           <span class="spinner" aria-hidden="true"></span>
           <span class="sync-step">{card.syncStep}</span>
         </span>
-      {:else if showSync}
-        <SecondaryButton
-          text={t('Sync')}
-          icon="refresh"
-          enabled={card.syncEnabled}
-          tooltip={card.syncTooltip}
-          onclick={() => onSync(card.bankId)}
-        />
       {/if}
 
       {#if hasBank}
@@ -198,6 +197,30 @@
     </div>
   </header>
 
+  {#if card.status.text !== ''}
+    <div
+      class="bank-status"
+      class:ready={card.status.tone === 'ready'}
+      class:attention={card.status.tone === 'attention'}
+      class:off={card.status.tone === 'off'}
+      data-testid={`bank-status-${card.bankId}`}
+    >
+      <span class="bank-status-icon" aria-hidden="true">
+        <Icon name={card.status.icon as IconName} size={20} />
+      </span>
+      <span class="bank-status-text">{card.status.text}</span>
+      {#if card.status.action !== ''}
+        <span class="bank-status-action">
+          <TextButton
+            text={card.status.actionText}
+            enabled={card.status.actionEnabled}
+            onclick={runStatusAction}
+          />
+        </span>
+      {/if}
+    </div>
+  {/if}
+
   {#if connectionTest !== null && connectionTest.bankId === card.bankId}
     <div class="connection-test" data-testid={`connection-test-${card.bankId}`} aria-live="polite">
       {#if connectionTest.running}
@@ -207,55 +230,14 @@
         </div>
       {:else}
         <div class="test-line" class:warning={!connectionTest.go}>
-          <span class="test-icon">
-            <Icon name={connectionTest.go ? 'check_circle' : 'warning'} size={20} />
+          <span class="verdict-chip" class:go={connectionTest.go} class:nogo={!connectionTest.go}>
+            {connectionTest.verdictText}
           </span>
           <span class="test-reason">{connectionTest.reason}</span>
-          <span class="test-spacer"></span>
-          {#if lastTrace !== null && lastTrace.kind === 'test' && lastTrace.hasTrace}
-            <SecondaryButton
-              text={t('SaveConnectionTrace')}
-              icon="file_download"
-              onclick={onSaveTrace}
-            />
-          {/if}
         </div>
 
-        {#if connectionTest.strongSync}
-          <p class="test-path" data-testid={`connection-test-path-${card.bankId}`}>
-            {t('TestConnectionPathStrongSync')}
-            {#if connectionTest.strongSyncTAN === 'typed'}
-              {t('TestConnectionStrongSyncTyped')}
-            {:else if connectionTest.strongSyncTAN === 'decoupled'}
-              {t('TestConnectionStrongSyncDecoupled')}
-            {/if}
-            {#if connectionTest.go}
-              {t('TestConnectionStrongSyncNoUnlock')}
-            {/if}
-          </p>
-        {/if}
-
-        {#if connectionTest.usedSavedPin}
-          <p class="test-path" data-testid={`connection-test-saved-pin-${card.bankId}`}>
-            {t('TestConnectionUsedSavedPin')}
-          </p>
-          {#if connectionTest.savedPinRejectedOnce}
-            <p class="test-path warning">
-              {t('TestConnectionSavedPinRejectedOnce')}
-            </p>
-          {:else if connectionTest.savedPinForgotten}
-            <p class="test-path warning">
-              {t('TestConnectionSavedPinForgotten')}
-            </p>
-          {/if}
-        {/if}
-
-        {#if connectionTest.codes.length > 0}
-          <div class="test-codes">
-            {#each connectionTest.codes as code (code)}
-              <span class="code-chip">{code}</span>
-            {/each}
-          </div>
+        {#if connectionTest.nextStep !== ''}
+          <p class="test-next-step">{connectionTest.nextStep}</p>
         {/if}
 
         {#if connectionTest.messages.length > 0}
@@ -276,12 +258,56 @@
           </div>
         {/if}
 
-        <div class="test-meta">
-          <span>{t('TestConnectionProbed', connectionTest.probed)}</span>
-          <span>{t('TestConnectionSkipped', connectionTest.skipped)}</span>
-        </div>
+        <div class="test-details">
+          {#if connectionTest.strongSync}
+            <p class="test-path" data-testid={`connection-test-path-${card.bankId}`}>
+              {t('TestConnectionPathStrongSync')}
+              {#if connectionTest.strongSyncTAN === 'typed'}
+                {t('TestConnectionStrongSyncTyped')}
+              {:else if connectionTest.strongSyncTAN === 'decoupled'}
+                {t('TestConnectionStrongSyncDecoupled')}
+              {/if}
+            </p>
+          {/if}
 
-        <p class="test-help">{t('TestConnectionHelp')}</p>
+          {#if connectionTest.usedSavedPin}
+            <p class="test-path" data-testid={`connection-test-saved-pin-${card.bankId}`}>
+              {t('TestConnectionUsedSavedPin')}
+            </p>
+            {#if connectionTest.savedPinRejectedOnce}
+              <p class="test-path warning">
+                {t('TestConnectionSavedPinRejectedOnce')}
+              </p>
+            {:else if connectionTest.savedPinForgotten}
+              <p class="test-path warning">
+                {t('TestConnectionSavedPinForgotten')}
+              </p>
+            {/if}
+          {/if}
+
+          {#if connectionTest.codes.length > 0}
+            <div class="test-codes">
+              {#each connectionTest.codes as code (code)}
+                <span class="code-chip">{code}</span>
+              {/each}
+            </div>
+          {/if}
+
+          <div class="test-meta">
+            <span>{t('TestConnectionProbed', connectionTest.probed)}</span>
+            <span>{t('TestConnectionSkipped', connectionTest.skipped)}</span>
+          </div>
+
+          {#if lastTrace !== null && lastTrace.kind === 'test' && lastTrace.hasTrace}
+            <div class="test-trace">
+              <SecondaryButton
+                text={t('SaveConnectionTrace')}
+                icon="file_download"
+                onclick={onSaveTrace}
+              />
+            </div>
+          {/if}
+        </div>
       {/if}
     </div>
   {/if}
@@ -312,12 +338,6 @@
                 onOpenDetail(account.accountId);
               }}
             >
-              <BankBadge
-                logo={account.logo}
-                letters={account.logoLetters}
-                colourIndex={account.logoColour}
-                size={24}
-              />
               <span class="account-text">
                 <span class="account-name">{account.name}</span>
                 <span class="account-subtitle">{account.subtitle}</span>
@@ -516,6 +536,48 @@
     gap: 8px;
   }
 
+  .bank-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 16px 12px;
+    padding: 8px 12px;
+    border-radius: var(--radius-panel);
+  }
+
+  .bank-status.ready {
+    background: var(--color-ready-wash);
+    color: var(--color-success);
+  }
+
+  .bank-status.attention {
+    background: var(--color-attention-wash);
+    color: var(--color-caution);
+  }
+
+  .bank-status.off {
+    background: var(--color-off-wash);
+    color: var(--color-muted-text);
+  }
+
+  .bank-status-icon {
+    display: inline-flex;
+    flex: none;
+  }
+
+  .bank-status-text {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--type-body-small-size);
+    font-weight: var(--type-body-small-weight);
+    line-height: 1.35;
+  }
+
+  .bank-status-action {
+    flex: none;
+    margin-left: auto;
+  }
+
   .sync-status {
     display: inline-flex;
     align-items: center;
@@ -635,9 +697,26 @@
     color: var(--color-warning-strong);
   }
 
-  .test-icon {
+  .verdict-chip {
     display: inline-flex;
+    align-items: center;
     flex: none;
+    height: 22px;
+    padding: 0 10px;
+    border-radius: var(--radius-tag);
+    font-size: var(--type-label-small-size);
+    font-weight: var(--type-label-small-weight);
+    white-space: nowrap;
+  }
+
+  .verdict-chip.go {
+    background: var(--color-ready-wash);
+    color: var(--color-success);
+  }
+
+  .verdict-chip.nogo {
+    background: var(--color-attention-wash);
+    color: var(--color-caution);
   }
 
   .test-reason {
@@ -648,8 +727,24 @@
     overflow-wrap: anywhere;
   }
 
-  .test-spacer {
-    flex: 1;
+  .test-next-step {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--type-body-size);
+    font-weight: var(--type-body-weight);
+    line-height: 1.35;
+  }
+
+  .test-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-divider);
+  }
+
+  .test-trace {
+    display: flex;
   }
 
   .test-path {
@@ -742,14 +837,6 @@
   }
 
   .test-bank-messages-note {
-    margin: 0;
-    color: var(--color-muted-text);
-    font-size: var(--type-body-small-size);
-    font-weight: var(--type-body-small-weight);
-    line-height: 1.35;
-  }
-
-  .test-help {
     margin: 0;
     color: var(--color-muted-text);
     font-size: var(--type-body-small-size);
