@@ -575,7 +575,7 @@ func ptr[T any](value T) *T {
 }
 
 // reportGoldenFixture builds the throwaway database the report and export
-// goldens share, step for step as Rust does.
+// goldens share, step for step as the goldens were produced.
 func reportGoldenFixture(t *testing.T) *db.Database {
 	t.Helper()
 	ctx := context.Background()
@@ -717,7 +717,7 @@ func reportGoldenFixture(t *testing.T) *db.Database {
 
 // --- the report golden ------------------------------------------------------
 
-func TestReportsMatchTheRustGolden(t *testing.T) {
+func TestReportsMatchTheV034Golden(t *testing.T) {
 	root := repoRoot(t)
 	content, err := os.ReadFile(filepath.Join(root, "testdata", "golden", "report", "reports.json")) // #nosec G304 -- fixed repository fixture path.
 	if err != nil {
@@ -806,7 +806,7 @@ func TestReportsMatchTheRustGolden(t *testing.T) {
 
 // --- the export golden ------------------------------------------------------
 
-func TestExportsMatchTheRustGolden(t *testing.T) {
+func TestExportsMatchTheV034Golden(t *testing.T) {
 	root := repoRoot(t)
 	content, err := os.ReadFile(filepath.Join(root, "testdata", "golden", "export", "exports.json")) // #nosec G304 -- fixed repository fixture path.
 	if err != nil {
@@ -843,7 +843,7 @@ func TestExportsMatchTheRustGolden(t *testing.T) {
 		}
 		if string(exported) != entry.Text {
 			t.Fatalf(
-				"%s: the CSV differs from the Rust golden\n got: %q\nwant: %q",
+				"%s: the CSV differs from the golden\n got: %q\nwant: %q",
 				lang.Code(), string(exported), entry.Text,
 			)
 		}

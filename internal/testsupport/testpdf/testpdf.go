@@ -1,9 +1,8 @@
 // Package testpdf writes the PDF and PNG fixtures shared by the document
 // package tests and the app-state tests.
 //
-// It is the Go home of Rust's `documents::test_support` module. The PDF is
-// written by hand, with a correct cross-reference table, so it has no test
-// dependency beyond the pure-Go reader that parses it.
+// The PDF is written by hand, with a correct cross-reference table, so it has
+// no test dependency beyond the pure-Go reader that parses it.
 package testpdf
 
 import (
@@ -15,12 +14,12 @@ import (
 
 // TextPDF writes a single-page PDF whose text layer contains lines. The page is
 // PDF 1.5 with a Helvetica Type1 font using WinAnsiEncoding and a 595x842
-// MediaBox, matching Rust's test_support::text_pdf.
+// MediaBox, matching the text PDF fixture.
 func TextPDF(path string, lines []string) {
 	var content bytes.Buffer
 	content.WriteString("BT\n/F1 12 Tf\n50 700 Td\n")
-	// The same content stream as Rust's test_support::text_pdf: each line is
-	// shown, then the next line starts 16 points lower with a relative Td.
+	// The same content stream as the text PDF fixture: each line is shown, then
+	// the next line starts 16 points lower with a relative Td.
 	for _, line := range lines {
 		content.WriteString("(")
 		content.WriteString(escapeText(line))

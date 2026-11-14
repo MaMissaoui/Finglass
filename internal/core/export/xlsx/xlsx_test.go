@@ -546,7 +546,7 @@ func buildReferenceWorkbook(t *testing.T) *Writer {
 	return writer
 }
 
-func TestReferenceWorkbookMatchesRust(t *testing.T) {
+func TestReferenceWorkbookMatchesV034(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "reference.xlsx")
 	if err := buildReferenceWorkbook(t).Write(file); err != nil {
 		t.Fatalf("write the reference workbook: %v", err)
@@ -554,7 +554,7 @@ func TestReferenceWorkbookMatchesRust(t *testing.T) {
 	compareWorkbooks(t, file, filepath.Join("testdata", "reference.xlsx"))
 }
 
-func TestEmptyWorkbookMatchesRust(t *testing.T) {
+func TestEmptyWorkbookMatchesV034(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "empty.xlsx")
 	writer := NewWriter()
 	writer.Sheet("Empty", nil, true, true, func(*Sheet) {})

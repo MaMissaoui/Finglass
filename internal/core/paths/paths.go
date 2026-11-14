@@ -1,9 +1,8 @@
 // Package paths chooses where Finglass keeps its data on disk.
 //
 // The root folder is chosen by [Resolve]. Only [FromEnv] reads the environment,
-// which keeps the rest of the package pure and easy to test. The layout matches
-// `crates/finglass-core/src/paths.rs` exactly, so the Go build and the Rust app
-// can share one data folder.
+// which keeps the rest of the package pure and easy to test. The layout is
+// fixed, so every build shares one data folder.
 package paths
 
 import (
@@ -63,8 +62,8 @@ func (p AppPaths) Root() string {
 // ProfileDir returns the folder for a profile. "default" maps to the root
 // itself; other valid slugs map to root/profiles/<slug>.
 //
-// The slug is validated before it is joined, because filepath.Join cleans ".."
-// while Rust's join does not. Validation is the only guard.
+// The slug is validated before it is joined, because filepath.Join cleans "..".
+// Validation is the only guard.
 func (p AppPaths) ProfileDir(slug string) (string, error) {
 	if slug == "default" {
 		return p.root, nil

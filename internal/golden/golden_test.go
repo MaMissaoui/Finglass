@@ -1,7 +1,8 @@
 // Package golden is a placeholder for the per-area golden tests added in G2–G5.
 //
-// G1 records the Rust outputs under testdata/golden. This test only proves that every recorded file is valid,
-// non-empty JSON; the package-specific tests will read the same files later.
+// G1 records the reference outputs of Finglass 0.3.4 under testdata/golden. This
+// test only proves that every recorded file is valid, non-empty JSON; the
+// package-specific tests will read the same files later.
 package golden
 
 import (
@@ -13,7 +14,7 @@ import (
 	"testing"
 )
 
-// goldenDir is the repository's recorded Rust output directory, relative to this package.
+// goldenDir is the repository's recorded reference output directory, relative to this package.
 const goldenDir = "../../testdata/golden"
 
 func TestEveryGoldenFileParses(t *testing.T) {

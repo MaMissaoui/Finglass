@@ -1,5 +1,4 @@
-// Package iban normalises and validates IBANs, ported from
-// crates/finglass-core/src/iban.rs.
+// Package iban normalises and validates IBANs.
 package iban
 
 import (

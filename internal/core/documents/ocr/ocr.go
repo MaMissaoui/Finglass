@@ -359,7 +359,7 @@ func DetectLanguage(text string) string {
 	return "de"
 }
 
-// isAlphabetic is Rust's char::is_alphabetic: the Unicode Alphabetic property.
+// isAlphabetic reports the Unicode Alphabetic property.
 func isAlphabetic(character rune) bool {
 	return unicode.IsLetter(character) ||
 		unicode.Is(unicode.Nl, character) ||

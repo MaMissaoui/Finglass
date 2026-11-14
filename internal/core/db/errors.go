@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-// Sentinel errors. Their messages match the Rust `DbError` texts where a Rust
-// variant exists.
+// Sentinel errors. Their messages match Finglass 0.3.4's database error texts
+// where a variant exists.
 var (
 	// ErrNotFound means the database file does not exist.
 	ErrNotFound = errors.New("database file not found")

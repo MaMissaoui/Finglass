@@ -1,9 +1,8 @@
 // The Tax bookings exports: an Excel workbook and a printable PDF.
 //
-// Ported from FinDesk's document/TaxReportExporter.kt, via
-// crates/finglass-core/src/report/tax_export.rs. All strings come from i18n,
-// every amount is in the report's currency, and the PDF uses the same layout as
-// the PDFBox version.
+// Ported from FinDesk's document/TaxReportExporter.kt. All strings come from
+// i18n, every amount is in the report's currency, and the PDF uses the same
+// layout as the PDFBox version.
 package report
 
 import (

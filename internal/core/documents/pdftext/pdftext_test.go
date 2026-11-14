@@ -70,7 +70,7 @@ func readGolden(t *testing.T) []goldenPDF {
 	return golden
 }
 
-func TestExtractAndInspectMatchTheRustGolden(t *testing.T) {
+func TestExtractAndInspectMatchTheV034Golden(t *testing.T) {
 	root := repoRoot(t)
 
 	for _, fixture := range readGolden(t) {
@@ -80,18 +80,18 @@ func TestExtractAndInspectMatchTheRustGolden(t *testing.T) {
 			text, ok := Extract(path, 5)
 			if fixture.Text == nil {
 				if ok {
-					t.Fatalf("Extract(%s) succeeded, but Rust gives no text", fixture.File)
+					t.Fatalf("Extract(%s) succeeded, but the reference gives no text", fixture.File)
 				}
 			} else {
 				if !ok {
-					t.Fatalf("Extract(%s) failed, but Rust returns text", fixture.File)
+					t.Fatalf("Extract(%s) failed, but the reference returns text", fixture.File)
 				}
 				if text.PageCount != fixture.Text.PageCount {
 					t.Errorf("page count = %d, want %d", text.PageCount, fixture.Text.PageCount)
 				}
 				if text.Text != fixture.Text.Text {
 					t.Errorf(
-						"text differs from Rust:\n got: %q\nwant: %q",
+						"text differs from the reference:\n got: %q\nwant: %q",
 						text.Text,
 						fixture.Text.Text,
 					)
@@ -101,12 +101,12 @@ func TestExtractAndInspectMatchTheRustGolden(t *testing.T) {
 			info, ok := Inspect(path)
 			if fixture.Info == nil {
 				if ok {
-					t.Fatalf("Inspect(%s) succeeded, but Rust gives no info", fixture.File)
+					t.Fatalf("Inspect(%s) succeeded, but the reference gives no info", fixture.File)
 				}
 				return
 			}
 			if !ok {
-				t.Fatalf("Inspect(%s) failed, but Rust returns info", fixture.File)
+				t.Fatalf("Inspect(%s) failed, but the reference returns info", fixture.File)
 			}
 			if info.PageCount != fixture.Info.PageCount {
 				t.Errorf("page count = %d, want %d", info.PageCount, fixture.Info.PageCount)
@@ -173,22 +173,22 @@ func TestMissingAndOversizedFilesAreRefused(t *testing.T) {
 	}
 }
 
-type rustTextEntry struct {
+type referenceTextEntry struct {
 	File      string  `json:"file"`
 	MaxPages  int     `json:"max_pages"`
 	Text      *string `json:"text"`
 	PageCount *int    `json:"page_count"`
 }
 
-func readRustText(t *testing.T) []rustTextEntry {
+func readReferenceText(t *testing.T) []referenceTextEntry {
 	t.Helper()
 
-	path := filepath.Join("testdata", "rust", "rust_text.json")
+	path := filepath.Join("testdata", "reference", "reference_text.json")
 	data, err := os.ReadFile(path) // #nosec G304 -- fixed path below the package directory
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}
-	var entries []rustTextEntry
+	var entries []referenceTextEntry
 	if err := json.Unmarshal(data, &entries); err != nil {
 		t.Fatalf("parse %s: %v", path, err)
 	}
@@ -198,31 +198,31 @@ func readRustText(t *testing.T) []rustTextEntry {
 	return entries
 }
 
-func rustFixturePath(t *testing.T, file string) string {
+func referenceFixturePath(t *testing.T, file string) string {
 	t.Helper()
 
-	rustPath := filepath.Join("testdata", "rust", file)
-	if _, err := os.Stat(rustPath); err == nil {
-		return rustPath
+	referencePath := filepath.Join("testdata", "reference", file)
+	if _, err := os.Stat(referencePath); err == nil {
+		return referencePath
 	}
 	return filepath.Join(repoRoot(t), "testdata", "pdf", file)
 }
 
-func TestExtractMatchesRustPdfExtract(t *testing.T) {
-	for _, entry := range readRustText(t) {
+func TestExtractMatchesReferencePDFText(t *testing.T) {
+	for _, entry := range readReferenceText(t) {
 		t.Run(fmt.Sprintf("%s/max_pages=%d", entry.File, entry.MaxPages), func(t *testing.T) {
-			text, ok := Extract(rustFixturePath(t, entry.File), entry.MaxPages)
+			text, ok := Extract(referenceFixturePath(t, entry.File), entry.MaxPages)
 			if entry.Text == nil {
 				if ok {
-					t.Fatalf("Extract(%s) succeeded, but Rust gives no text", entry.File)
+					t.Fatalf("Extract(%s) succeeded, but the reference gives no text", entry.File)
 				}
 				return
 			}
 			if !ok {
-				t.Fatalf("Extract(%s) failed, but Rust returns text %q", entry.File, *entry.Text)
+				t.Fatalf("Extract(%s) failed, but the reference returns text %q", entry.File, *entry.Text)
 			}
 			if text.Text != *entry.Text {
-				t.Errorf("text differs from Rust:\n got: %q\nwant: %q", text.Text, *entry.Text)
+				t.Errorf("text differs from the reference:\n got: %q\nwant: %q", text.Text, *entry.Text)
 			}
 			if entry.PageCount != nil && text.PageCount != *entry.PageCount {
 				t.Errorf("page count = %d, want %d", text.PageCount, *entry.PageCount)
@@ -234,7 +234,7 @@ func TestExtractMatchesRustPdfExtract(t *testing.T) {
 func TestExtractNeverPanicsOnTruncatedPrefixes(t *testing.T) {
 	files := make([]string, 0)
 	for _, directory := range []string{
-		filepath.Join("testdata", "rust"),
+		filepath.Join("testdata", "reference"),
 		filepath.Join(repoRoot(t), "testdata", "pdf"),
 	} {
 		matches, err := filepath.Glob(filepath.Join(directory, "*.pdf"))

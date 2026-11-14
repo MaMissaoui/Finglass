@@ -170,7 +170,7 @@ func appendDecimal(out []byte, value float32) []byte {
 	return strconv.AppendFloat(out, float64(value), 'f', -1, 32)
 }
 
-// toI32 reproduces Rust's saturating `f32 as i32` cast.
+// toI32 reproduces a saturating float-to-int conversion.
 func toI32(value float32) int32 {
 	switch {
 	case math.IsNaN(float64(value)):

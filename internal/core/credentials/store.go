@@ -41,16 +41,16 @@ type Store interface {
 
 // AccountFor is the Keychain account string of a profile-scoped bank access.
 //
-// It mirrors Rust's account_for: std::path::absolute (which does not resolve
-// symlinks or `..`), then "#bank-<id>". The profile folder keeps two profiles
-// with the same bank id apart.
+// It uses an absolute path (without resolving symlinks or `..`), then
+// "#bank-<id>". The profile folder keeps two profiles with the same bank id
+// apart.
 func AccountFor(profileDir string, bankID int64) string {
 	return fmt.Sprintf("%s#bank-%d", absolutePath(profileDir), bankID)
 }
 
-// absolutePath is Rust's std::path::absolute for POSIX paths: collapse
-// separators, drop `.` components, keep `..`, keep a trailing separator, and
-// start relative paths at the current directory.
+// absolutePath makes a POSIX path absolute: collapse separators, drop `.`
+// components, keep `..`, keep a trailing separator, and start relative paths at
+// the current directory.
 func absolutePath(path string) string {
 	if path == "" {
 		return path

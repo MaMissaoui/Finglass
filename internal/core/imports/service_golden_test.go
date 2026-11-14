@@ -46,7 +46,7 @@ type goldenDedupReports struct {
 	Stored []goldenDedupStored `json:"stored"`
 }
 
-func TestDedupReportsMatchTheRustGolden(t *testing.T) {
+func TestDedupReportsMatchTheV034Golden(t *testing.T) {
 	root := repoRoot(t)
 	data, err := os.ReadFile(filepath.Join(root, "testdata", "golden", "dedup", "reports.json")) // #nosec G304 -- fixed repository fixture path.
 	if err != nil {

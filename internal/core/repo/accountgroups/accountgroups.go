@@ -1,6 +1,4 @@
 // Package accountgroups is the account group repository.
-//
-// It ports `crates/finglass-core/src/repo/account_groups.rs`.
 package accountgroups
 
 import (

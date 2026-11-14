@@ -2,8 +2,8 @@
 // exports.
 //
 // Ported from FinDesk's `util/Formats.kt` and the number handling of
-// `TaxReportExporter.kt`, via crates/finglass-core/src/report/format.rs.
-// Reports use the app language's separators; dates always use `dd.MM.yyyy`.
+// `TaxReportExporter.kt`. Reports use the app language's separators; dates
+// always use `dd.MM.yyyy`.
 package report
 
 import (

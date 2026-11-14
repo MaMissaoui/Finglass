@@ -1,5 +1,5 @@
-// Bank-connection lifecycle and sync, ported from FinDesk's BankingService.kt
-// and crates/finglass-core/src/sync/service.rs, minus every order method.
+// Bank-connection lifecycle and sync, ported from FinDesk's BankingService.kt,
+// minus every order method.
 package banksync
 
 import (

@@ -65,7 +65,7 @@ const (
 	StartupFailed
 )
 
-// StartupRefusal is Rust's StartupRefusal.
+// StartupRefusal describes why startup was refused.
 type StartupRefusal struct {
 	// Kind says which refusal this is.
 	Kind StartupRefusalKind
@@ -84,8 +84,8 @@ func (r *StartupRefusal) Message(language i18n.Language) string {
 	return i18n.Text(language, i18n.ErrorStartupFailed)
 }
 
-// UnlockScreen is everything configure_unlock_window and
-// configure_startup_error set on the unlock window, without Slint.
+// UnlockScreen is everything the unlock configuration and the startup error set
+// on the unlock window.
 type UnlockScreen struct {
 	// Mode is "create", "unlock" or "change".
 	Mode string
@@ -113,12 +113,12 @@ type UnlockScreen struct {
 
 // Session is the shell's non-UI state for one running app.
 //
-// One sync.Mutex guards the session fields. The concurrency pattern is Rust's
-// ShellState's: begin under the mutex (check the guards, take the job
-// generation), run the slow work without the mutex, and publish under the
-// mutex only if Jobs.IsCurrent(generation) still holds. The four guards stay
-// separate, as in Rust: Jobs, switching, the profile Busy (shared with the
-// Accounts state, sync and import) and the accounts-work Busy. PromptBridge is
+// One sync.Mutex guards the session fields. The concurrency pattern: begin
+// under the mutex (check the guards, take the job generation), run the slow
+// work without the mutex, and publish under the mutex only if
+// Jobs.IsCurrent(generation) still holds. The four guards stay separate: Jobs,
+// switching, the profile Busy (shared with the Accounts state, sync and import)
+// and the accounts-work Busy. PromptBridge is
 // never called while the session mutex is held.
 //
 // A passphrase is never stored on the session. Unlock, Create and Change take
@@ -329,10 +329,10 @@ type pageJob struct {
 	// "banking" because it refreshes or merges the bank-login state too.
 	also string
 	// finish runs after the result was published or dropped, before listeners
-	// see it: Transactions uses it for Rust's BusyGuard.
+	// see it: Transactions uses it to end its busy section.
 	finish func(published bool)
 	// afterPublish runs after listeners saw the change, without the session
-	// mutex: Transactions uses it for Rust's PendingSearch.
+	// mutex: Transactions uses it for its pending search.
 	afterPublish func(published bool)
 }
 
@@ -383,8 +383,7 @@ func (s *Session) runPageJob(job *pageJob) {
 	}
 }
 
-// Start takes the instance lock first, then prepares the active profile, as
-// Rust's prepare_startup does.
+// Start takes the instance lock first, then prepares the active profile.
 //
 // credentials is never the Keychain in tests. findeskRoot is the FinDesk folder
 // the caller resolved; nil offers no migration. clock and today are injected so
@@ -623,7 +622,7 @@ func (s *Session) UnlockScreen() UnlockScreen {
 	return screen
 }
 
-// configureUnlockLocked is configure_unlock_window without Slint.
+// configureUnlockLocked configures the unlock window.
 func (s *Session) configureUnlockLocked(prepared startup.Startup) {
 	slugKey := startup.SlugKey(prepared.Slug)
 	mode := unlock.ModeCreate
@@ -646,8 +645,8 @@ func (s *Session) IsOpen() bool {
 	return s.db != nil
 }
 
-// ProfileRow is one profile of the top bar's menu, as Rust's profile_model
-// builds it from the loaded Settings list.
+// ProfileRow is one profile of the top bar's menu, built from the loaded
+// Settings list.
 type ProfileRow struct {
 	// Index is the profile's place in the list SwitchProfile takes.
 	Index int
@@ -696,7 +695,8 @@ func (s *Session) NavigateToSection(screen string, section int) {
 	s.startPageJob(job)
 }
 
-// configureStartupErrorLocked is configure_startup_error without Slint.
+// configureStartupErrorLocked configures the startup error on the unlock
+// window.
 func (s *Session) configureStartupErrorLocked(message string) {
 	text := message
 	s.unlockMode = unlock.ModeUnlock
@@ -1003,10 +1003,10 @@ func (s *Session) SwitchProfile(index int) error {
 		return switchErr
 	}
 
-	// Rust tears down on the UI thread right after the switch, so nothing runs in
-	// between. Here concurrent calls can, so switching stays set until the
-	// teardown and the target's unlock screen are in place: no job and no unlock
-	// can start against the half-closed profile.
+	// Concurrent calls can run between the teardown and the end of the switch,
+	// so switching stays set until the teardown and the target's unlock screen
+	// are in place: no job and no unlock can start against the half-closed
+	// profile.
 	s.Teardown(prepared)
 	if gate := s.switchGate; gate != nil {
 		gate()

@@ -1,15 +1,15 @@
 // Package limits holds the size and resolution limits for attached documents.
 //
 // Attached files can come from anyone, so a crafted file must not be able to
-// exhaust memory while it is copied, parsed, rendered or OCR-ed. This ports
-// FinDesk's DocumentLimits via `crates/finglass-core/src/documents/limits.rs`.
+// exhaust memory while it is copied, parsed, rendered or OCR-ed. This follows
+// FinDesk's DocumentLimits.
 //
-// ImageDimensions replaces the Rust `imagesize` 0.15 crate. It ports the
-// detection order of `formats::image_type` and the size readers for JPEG, PNG,
-// GIF, TIFF, WebP, BMP and PNM. Everything else the crate knows deliberately
-// reports ok=false: Aseprite, ASTC, ATC, DDS, EAC/ETC2 (PKM), OpenEXR,
-// Farbfeld, HEIF, Radiance HDR, ICO, ILBM, JPEG XL, KTX2, PSD, PVRTC, QOI,
-// TGA and VTF. That is the one known deviation from Rust.
+// ImageDimensions detects image dimensions in-process. It follows a fixed
+// detection order and the size readers for JPEG, PNG, GIF, TIFF, WebP, BMP and
+// PNM. All other formats the reference library supports deliberately report
+// ok=false: Aseprite, ASTC, ATC, DDS, EAC/ETC2 (PKM), OpenEXR, Farbfeld, HEIF,
+// Radiance HDR, ICO, ILBM, JPEG XL, KTX2, PSD, PVRTC, QOI, TGA and VTF. Those
+// formats are the one known gap.
 package limits
 
 import (
@@ -75,9 +75,8 @@ func CheckImage(file string) *LimitError {
 // CappedScale lowers scale so that widthPt*scale by heightPt*scale does not
 // exceed MaxPixels.
 //
-// Non-positive or non-finite page sizes leave scale unchanged. This mirrors
-// Rust's capped_scale exactly: an f64 square root, then a comparison with the
-// float32 scale.
+// Non-positive or non-finite page sizes leave scale unchanged. It computes a
+// float64 square root, then compares with the float32 scale.
 func CappedScale(widthPt, heightPt, scale float32) float32 {
 	if widthPt <= 0 || heightPt <= 0 || math.IsInf(float64(widthPt), 0) || math.IsNaN(float64(widthPt)) ||
 		math.IsInf(float64(heightPt), 0) || math.IsNaN(float64(heightPt)) {

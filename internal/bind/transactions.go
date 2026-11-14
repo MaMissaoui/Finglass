@@ -81,9 +81,8 @@ type ReapplyGroupRowDTO struct {
 // TransactionsDTO is everything the Transactions page shows.
 //
 // Money is already formatted by the view; chart coordinates stay numbers.
-// Every value Rust's apply_with_excluded, apply_reapply, apply_chart,
-// apply_selection, apply_detail and apply_duplicate set has a field here. The
-// statement-import dialog is G8c-2 and has no fields yet.
+// Every value the page applies has a field here. The statement-import dialog is
+// G8c-2 and has no fields yet.
 type TransactionsDTO struct {
 	Loading     bool   `json:"loading"`
 	HasAccounts bool   `json:"hasAccounts"`
@@ -543,7 +542,7 @@ func (t *Transactions) CloseDetail() (TransactionsDTO, error) {
 	return t.action(func() { t.session.TransactionsCloseDetail() })
 }
 
-// DetailClose closes the detail panel from Rust's detail-close callback.
+// DetailClose closes the detail panel.
 func (t *Transactions) DetailClose() (TransactionsDTO, error) {
 	return t.action(func() { t.session.TransactionsDetailClose() })
 }
@@ -1660,7 +1659,7 @@ type ImportCSVFieldDTO struct {
 	Index   int      `json:"index"`
 }
 
-// transactionsApplyImport sets every value Rust's apply_import sets.
+// transactionsApplyImport sets every value the import dialog applies.
 func transactionsApplyImport(
 	dto *TransactionsDTO,
 	state transactionsview.TransactionsState,

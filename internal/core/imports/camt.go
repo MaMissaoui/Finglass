@@ -1,5 +1,5 @@
 // Reading ISO 20022 CAMT.053 (and CAMT.052) account statements, as XML or a ZIP
-// of XML files. Ports crates/finglass-core/src/import/camt.rs.
+// of XML files.
 package imports
 
 import (

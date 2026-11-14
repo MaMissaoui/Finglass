@@ -1,5 +1,5 @@
 // Tax-relevance suggestions from keywords, ported from FinDesk's
-// document/TaxSuggestions.kt, via crates/finglass-core/src/report/suggestions.rs.
+// document/TaxSuggestions.kt.
 package report
 
 import (
@@ -91,7 +91,7 @@ func FindTaxSuggestions(bookings []model.TransactionItem, keywords []string) []T
 		if len([]rune(trimmed)) < 3 {
 			continue
 		}
-		pattern := `(?i)(?<![\p{L}\p{N}])` + rustEscape(trimmed)
+		pattern := `(?i)(?<![\p{L}\p{N}])` + escapeKeyword(trimmed)
 		compiled, err := regexp2.Compile(pattern, regexp2.Unicode)
 		if err != nil {
 			panic("the suggestion pattern is valid")
@@ -145,13 +145,12 @@ func matchesText(pattern *regexp2.Regexp, text *string) bool {
 	return err == nil && matched
 }
 
-// rustEscape escapes a keyword exactly like Rust's regex::escape: only the
-// regex meta characters are prefixed with a backslash.
-func rustEscape(keyword string) string {
+// escapeKeyword prefixes only the regex meta characters with a backslash.
+func escapeKeyword(keyword string) string {
 	var escaped strings.Builder
 	escaped.Grow(len(keyword))
 	for _, character := range keyword {
-		if isRustMetaCharacter(character) {
+		if isMetaCharacter(character) {
 			escaped.WriteByte('\\')
 		}
 		escaped.WriteRune(character)
@@ -159,8 +158,8 @@ func rustEscape(keyword string) string {
 	return escaped.String()
 }
 
-// isRustMetaCharacter mirrors regex_syntax::is_meta_character.
-func isRustMetaCharacter(character rune) bool {
+// isMetaCharacter reports whether a character is a regex meta character.
+func isMetaCharacter(character rune) bool {
 	switch character {
 	case '\\', '.', '+', '*', '?', '(', ')', '|', '[', ']', '{', '}', '^', '$', '#', '&', '-', '~':
 		return true

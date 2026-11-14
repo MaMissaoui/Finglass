@@ -730,7 +730,7 @@ func TestTheNextImportUsesTheReplacedProfileBusy(t *testing.T) {
 	})
 }
 
-func TestImportCSVOptionsAndRemapFollowRust(t *testing.T) {
+func TestImportCSVOptionsAndRemapFollowV034(t *testing.T) {
 	csv := &imports.CsvLayout{Headers: []string{"Buchung", "", "Betrag"}}
 	options := ImportCSVOptions(csv, i18n.En)
 	if len(options) != 4 {
@@ -767,7 +767,7 @@ func TestImportCSVOptionsAndRemapFollowRust(t *testing.T) {
 	}
 }
 
-func TestImportDialogUsesTheRustFilterTitles(t *testing.T) {
+func TestImportDialogUsesTheFilterTitles(t *testing.T) {
 	session, _ := newLoadedTransactionsSession(t)
 	fake := &fakeFileDialogs{
 		statements:       []string{importFixture(t, "n26_preset_2026_10.csv")},

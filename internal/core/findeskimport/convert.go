@@ -44,9 +44,8 @@ var (
 	errFractionalAmount = convertError{kind: convertFractionalAmount}
 )
 
-// sourceDecimal converts a source number the way Rust's decimal() does:
-// INTEGER exactly, REAL through the shortest round-trip text, TEXT trimmed and
-// parsed.
+// sourceDecimal converts a source number: INTEGER exactly, REAL through the
+// shortest round-trip text, TEXT trimmed and parsed.
 func sourceDecimal(value *sourceNumber) (decimal.Decimal, bool) {
 	if value == nil {
 		return decimal.Decimal{}, false

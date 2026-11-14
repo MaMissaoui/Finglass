@@ -1,8 +1,7 @@
 // Package model holds the plain domain data.
 //
-// Nothing here holds a database connection. It ports
-// `crates/finglass-core/src/model.rs`, so the Go build and the Rust build share
-// the same field meanings and stored enum texts.
+// Nothing here holds a database connection. The field meanings and stored enum
+// texts are fixed, so every build reads the same data.
 package model
 
 import (
@@ -333,7 +332,7 @@ func TaxSourceFromStored(text string) (TaxSource, bool) {
 	}
 }
 
-// AccountIDSet is a set of account ids, matching Rust's `BTreeSet<AccountId>`.
+// AccountIDSet is a set of account ids.
 type AccountIDSet map[AccountID]struct{}
 
 // TransactionFilter is the filter behind a transaction list.

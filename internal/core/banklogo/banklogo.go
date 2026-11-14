@@ -1,6 +1,5 @@
 // Package banklogo chooses which bundled bank logo an account shows, and the
-// monogram for banks without one. Ported from
-// crates/finglass-core/src/bank_logo.rs.
+// monogram for banks without one.
 //
 // The matching rules are shared with FinDesk. They only inspect the bank's
 // name, BLZ and BIC, so the function is pure and has no UI types. The SVG
@@ -184,8 +183,7 @@ func monogramLetters(name string) string {
 	}
 }
 
-// uppercase returns the first character of the full Unicode uppercase mapping,
-// like Rust's char::to_uppercase().next().
+// uppercase returns the first character of the full Unicode uppercase mapping.
 func uppercase(character rune) rune {
 	for _, upper := range cases.Upper(language.Und).String(string(character)) {
 		return upper
@@ -193,16 +191,14 @@ func uppercase(character rune) rune {
 	return character
 }
 
-// isAlphabetic reports the Unicode Alphabetic property, as Rust's
-// char::is_alphabetic does.
+// isAlphabetic reports the Unicode Alphabetic property.
 func isAlphabetic(character rune) bool {
 	return unicode.Is(unicode.L, character) ||
 		unicode.Is(unicode.Nl, character) ||
 		unicode.Is(unicode.Other_Alphabetic, character)
 }
 
-// isUppercase reports the Unicode Uppercase property, as Rust's
-// char::is_uppercase does.
+// isUppercase reports the Unicode Uppercase property.
 func isUppercase(character rune) bool {
 	return unicode.Is(unicode.Upper, character) ||
 		unicode.Is(unicode.Other_Uppercase, character)
@@ -226,8 +222,7 @@ func containsAny(value string, needles ...string) bool {
 	return false
 }
 
-// asciiUpperCase upper-cases ASCII letters only, like Rust's
-// str::to_ascii_uppercase.
+// asciiUpperCase upper-cases ASCII letters only.
 func asciiUpperCase(value string) string {
 	characters := []byte(value)
 	for index, character := range characters {

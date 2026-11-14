@@ -71,7 +71,7 @@ func pageMediaBox(page pdf.Page) (llx, lly, urx, ury float64) {
 		if box.Kind() != pdf.Array {
 			continue
 		}
-		// pdf-extract converts the whole array to Vec<f64>, so a non-number
+		// pdf-extract converts the whole array to numbers, so a non-number
 		// element is a failure even when the first four numbers are fine.
 		for i := 0; i < box.Len(); i++ {
 			_ = asNum(box.Index(i))

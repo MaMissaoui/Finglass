@@ -8,9 +8,9 @@ import "sync"
 // its result has been handled. A profile switch bumps the generation, so a late
 // result can never reach the next profile's pages.
 //
-// It is safe for concurrent use. Unlike Rust's JobTracker, Go has no garbage
-// collector to close an old database when its last reference disappears, so the
-// counter also keeps per-generation in-flight counts: [Jobs.WhenIdle] runs a
+// It is safe for concurrent use. Go has no reference counting to close an old
+// database when its last reference disappears, so the counter also keeps
+// per-generation in-flight counts: [Jobs.WhenIdle] runs a
 // function when the last job of one generation finishes. That is how the
 // session closes a torn-down profile's database exactly once.
 type Jobs struct {
@@ -34,13 +34,12 @@ func (j *Jobs) Begin() uint64 {
 	return generation
 }
 
-// End releases a slot of the current generation, as Rust's JobTracker::end
-// does.
+// End releases a slot of the current generation.
 //
 // Callers that may outlive a profile switch must use [Jobs.EndGeneration] with
 // the generation [Begin] returned: Go needs per-generation counts to close a
-// torn-down database when its last job ends, which Rust's one global counter
-// cannot express.
+// torn-down database when its last job ends, which one global counter cannot
+// express.
 func (j *Jobs) End() {
 	j.mu.Lock()
 	generation := j.generation

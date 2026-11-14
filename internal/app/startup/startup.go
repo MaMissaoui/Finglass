@@ -1,5 +1,5 @@
-// Package startup ports crates/finglass-core/src/app/startup.rs: which profile
-// opens, and the restore that must happen before the database does.
+// Package startup decides which profile opens, and the restore that must happen
+// before the database does.
 //
 // Finglass applies a staged restore before the unlock gate looks at the
 // database. The profile's folder is created before the restore is applied,
@@ -22,7 +22,7 @@ import (
 )
 
 // backupVersion is passed to the backup service. Applying a staged restore
-// never reads it; Rust keeps the crate version inside BackupService.
+// never reads it; the backup service keeps the crate version itself.
 const backupVersion = ""
 
 // SlugKey returns the string form of a profile slug, with "default" for the

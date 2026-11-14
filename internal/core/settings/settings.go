@@ -1,7 +1,6 @@
 // Package settings stores key/value settings in the encrypted database.
 //
-// The SQL matches `crates/finglass-core/src/settings.rs`, so both builds see
-// the same rows.
+// The SQL is fixed, so every build sees the same rows.
 package settings
 
 import (

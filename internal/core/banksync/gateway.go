@@ -102,7 +102,7 @@ type FinTsBalance struct {
 	AvailableBalance *decimal.Decimal
 	// Currency is the balance's currency as stated by the bank.
 	Currency string
-	// Date is when the bank reported the balance (Rust's OffsetDateTime).
+	// Date is when the bank reported the balance.
 	Date time.Time
 }
 
@@ -229,7 +229,7 @@ func NewUnavailableGateway(language i18n.Language) UnavailableGateway {
 	return UnavailableGateway{language: language}
 }
 
-// DefaultUnavailableGateway is Rust's UnavailableGateway::default: English.
+// DefaultUnavailableGateway returns the default unavailable gateway in English.
 func DefaultUnavailableGateway() UnavailableGateway {
 	return NewUnavailableGateway(i18n.En)
 }

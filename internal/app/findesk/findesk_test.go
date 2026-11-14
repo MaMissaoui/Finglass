@@ -327,7 +327,7 @@ func TestReportTextBreaksDownEverySkippedRowOnce(t *testing.T) {
 	}
 }
 
-// errorIs is a tiny alias so the assertions above read like the Rust tests.
+// errorIs is a tiny alias so the assertions above read like the original tests.
 func errorIs(err, target error) bool {
 	return errors.Is(err, target)
 }

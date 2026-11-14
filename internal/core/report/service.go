@@ -1,5 +1,4 @@
-// Reports ported from FinDesk's document/ReportService.kt, via
-// crates/finglass-core/src/report/service.rs.
+// Reports ported from FinDesk's document/ReportService.kt.
 //
 // The calculations are pure: they take already-loaded bookings and return
 // report data with integer minor-unit amounts. Totals never mix currencies;
@@ -320,8 +319,7 @@ func amountOf(minor int64, currency money.Currency) money.Money {
 	return money.Money{Minor: minor, Currency: currency}
 }
 
-// absClamped returns the unsigned absolute value clamped to i64::MAX, like
-// Rust's i64::try_from(minor.unsigned_abs()).unwrap_or(i64::MAX).
+// absClamped returns the unsigned absolute value clamped to i64::MAX.
 func absClamped(minor int64) int64 {
 	if minor >= 0 {
 		return minor
@@ -332,8 +330,7 @@ func absClamped(minor int64) int64 {
 	return -minor
 }
 
-// saturatingAddInt64 adds two integers, clamping at the i64 bounds like Rust's
-// saturating_add.
+// saturatingAddInt64 adds two integers, clamping at the i64 bounds.
 func saturatingAddInt64(left, right int64) int64 {
 	sum := left + right
 	if right > 0 && sum < left {
@@ -851,13 +848,13 @@ func topVendorsRefs(expenses []*model.TransactionItem, limit int) []NamedAmount 
 	return vendors
 }
 
-// vendorKey is Rust's key: collapse whitespace runs, then lower-case.
+// vendorKey collapses whitespace runs, then lower-cases.
 func vendorKey(name string) string {
-	return rustLower(strings.Join(strings.Fields(name), " "))
+	return fullLower(strings.Join(strings.Fields(name), " "))
 }
 
-// rustLower is full Unicode lower-casing, like Rust's str::to_lowercase.
-func rustLower(text string) string {
+// fullLower is full Unicode lower-casing.
+func fullLower(text string) string {
 	return cases.Lower(language.Und).String(text)
 }
 
@@ -1000,7 +997,7 @@ func GetCategoryTrends(
 
 // trendPercent computes the latest month against the average, in percent,
 // one decimal: difference * 100 / average rounded to 1 dp, halfway away from
-// zero, like rust_decimal's div plus round_dp_with_strategy.
+// zero.
 func trendPercent(latest, average int64) decimal.Decimal {
 	if average <= 0 {
 		return decimal.Zero
@@ -1023,7 +1020,7 @@ func trendPercent(latest, average int64) decimal.Decimal {
 }
 
 // decimalFromTenths builds a decimal from a value in tenths, dropping a
-// trailing zero like rust_decimal's unscale.
+// trailing zero.
 func decimalFromTenths(tenths *big.Int) decimal.Decimal {
 	if tenths.Sign() == 0 {
 		return decimal.Zero
@@ -1059,7 +1056,8 @@ func saturatingMulInt64(left, right int64) int64 {
 	return product
 }
 
-// monthsBack is Rust's i32::try_from(months.saturating_sub(1)).unwrap_or(i32::MAX).
+// monthsBack returns months minus one, clamped between zero and the 32-bit
+// maximum.
 func monthsBack(months int) int {
 	if months <= 1 {
 		return 0
@@ -1164,8 +1162,7 @@ func sameCategoryID(left, right *model.CategoryID) bool {
 	return *left == *right
 }
 
-// compareTransactionTuple orders bookings by date, then id, like Rust's
-// (date, id) tuple comparison.
+// compareTransactionTuple orders bookings by date, then id.
 func compareTransactionTuple(left, right model.TransactionItem) int {
 	if comparison := left.Date.Compare(right.Date); comparison != 0 {
 		return comparison
@@ -1253,7 +1250,7 @@ func displayPurpose(raw *string) *string {
 }
 
 // splitWhitespaceRuns splits text at every run of at least minimum whitespace
-// characters, like Rust's Regex::split with `\s{3,}`.
+// characters.
 func splitWhitespaceRuns(text string, minimum int) []string {
 	parts := make([]string, 0)
 	start := 0

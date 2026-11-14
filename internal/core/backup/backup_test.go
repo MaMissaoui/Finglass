@@ -26,11 +26,11 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
-// The committed fixture passphrase of the Rust-made backups. It is a dummy and
-// protects nothing.
+// The committed fixture passphrase of the backup made by Finglass 0.3.4. It is
+// a dummy and protects nothing.
 const fixturePass = "correct horse battery staple"
 
-// otherPass is the passphrase of testdata/rust-backup-other-passphrase.zip.
+// otherPass is the passphrase of testdata/v0.3.4-backup-other-passphrase.zip.
 const otherPass = "a different backup passphrase"
 
 const wrongPass = "a completely wrong passphrase"
@@ -1190,12 +1190,12 @@ func TestTheManifestIsReadLeniently(t *testing.T) {
 	}
 }
 
-func TestReadsRustBackup(t *testing.T) {
+func TestReadsV034Backup(t *testing.T) {
 	// The live database is the one inside the fixture, copied out first. SQLCipher's
 	// `ATTACH DATABASE` without a `KEY` clause inherits the main database's salt, so
 	// this is the live database a same-passphrase backup can be staged into with a
 	// nil passphrase.
-	backup := copyFixture(t, "rust-backup.zip")
+	backup := copyFixture(t, "v0.3.4-backup.zip")
 
 	dir := filepath.Join(t.TempDir(), "data")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
@@ -1274,11 +1274,11 @@ func TestReadsRustBackup(t *testing.T) {
 	}
 }
 
-// TestRustBackupIntoAFreshProfile is the restore on a new machine: a fresh
+// TestV034BackupIntoAFreshProfile is the restore on a new machine: a fresh
 // database with the same passphrase has another KDF salt, so the live key
-// cannot read the backup and the passphrase is asked for, exactly as Rust
-// 0.3.4 does (checked with testdata/rust_probe.rs.txt).
-func TestRustBackupIntoAFreshProfile(t *testing.T) {
+// cannot read the backup and the passphrase is asked for, exactly as Finglass
+// 0.3.4 does (checked with testdata/README.md).
+func TestV034BackupIntoAFreshProfile(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "data")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		t.Fatalf("MkdirAll: %v", err)
@@ -1290,7 +1290,7 @@ func TestRustBackupIntoAFreshProfile(t *testing.T) {
 	defer func() { _ = d.Close() }()
 
 	service := NewService(dir, "0.3.4")
-	backup := copyFixture(t, "rust-backup.zip")
+	backup := copyFixture(t, "v0.3.4-backup.zip")
 
 	_, err = service.StageRestore(d, backup, nil)
 	var required *PassphraseRequiredError
@@ -1322,7 +1322,7 @@ func TestRustBackupIntoAFreshProfile(t *testing.T) {
 	}
 }
 
-func TestRustBackupWithAnotherPassphrase(t *testing.T) {
+func TestV034BackupWithAnotherPassphrase(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "data")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		t.Fatalf("MkdirAll: %v", err)
@@ -1334,7 +1334,7 @@ func TestRustBackupWithAnotherPassphrase(t *testing.T) {
 	defer func() { _ = d.Close() }()
 
 	service := NewService(dir, "0.3.4")
-	backup := copyFixture(t, "rust-backup-other-passphrase.zip")
+	backup := copyFixture(t, "v0.3.4-backup-other-passphrase.zip")
 
 	if _, err := service.StageRestore(d, backup, nil); err == nil {
 		t.Fatal("stage must ask for a passphrase")
@@ -1386,7 +1386,7 @@ func TestRustBackupWithAnotherPassphrase(t *testing.T) {
 	}
 }
 
-func TestBackupLayoutMatchesRust(t *testing.T) {
+func TestBackupLayoutMatchesV034(t *testing.T) {
 	temp, dir, d := profile(t)
 
 	documents := filepath.Join(dir, "documents")
@@ -1415,54 +1415,54 @@ func TestBackupLayoutMatchesRust(t *testing.T) {
 		t.Errorf("documents = %d, want 2", info.Documents)
 	}
 
-	rustBackup := filepath.Join("testdata", "rust-backup.zip")
+	referenceBackup := filepath.Join("testdata", "v0.3.4-backup.zip")
 	goNames := orderedZipNames(t, goBackup)
-	rustNames := orderedZipNames(t, rustBackup)
-	if len(goNames) != len(rustNames) {
-		t.Fatalf("entry count = %d, want %d (%v vs %v)", len(goNames), len(rustNames), goNames, rustNames)
+	referenceNames := orderedZipNames(t, referenceBackup)
+	if len(goNames) != len(referenceNames) {
+		t.Fatalf("entry count = %d, want %d (%v vs %v)", len(goNames), len(referenceNames), goNames, referenceNames)
 	}
 	for index := range goNames {
-		if goNames[index] != rustNames[index] {
-			t.Errorf("entry %d = %q, want %q", index, goNames[index], rustNames[index])
+		if goNames[index] != referenceNames[index] {
+			t.Errorf("entry %d = %q, want %q", index, goNames[index], referenceNames[index])
 		}
 	}
 
 	goFiles := openZip(t, goBackup).File
-	rustFiles := openZip(t, rustBackup).File
+	referenceFiles := openZip(t, referenceBackup).File
 	for index := range goFiles {
 		if goFiles[index].Method != zip.Deflate {
 			t.Errorf("%q method = %d, want Deflate", goFiles[index].Name, goFiles[index].Method)
 		}
-		if rustFiles[index].Method != zip.Deflate {
-			t.Errorf("Rust %q method = %d, want Deflate", rustFiles[index].Name, rustFiles[index].Method)
+		if referenceFiles[index].Method != zip.Deflate {
+			t.Errorf("0.3.4 %q method = %d, want Deflate", referenceFiles[index].Name, referenceFiles[index].Method)
 		}
 		if mode := goFiles[index].Mode().Perm(); mode != 0o600 {
 			t.Errorf("%q mode = %04o, want 0600", goFiles[index].Name, mode)
 		}
-		if mode := rustFiles[index].Mode().Perm(); mode != 0o600 {
-			t.Errorf("Rust %q mode = %04o, want 0600", rustFiles[index].Name, mode)
+		if mode := referenceFiles[index].Mode().Perm(); mode != 0o600 {
+			t.Errorf("0.3.4 %q mode = %04o, want 0600", referenceFiles[index].Name, mode)
 		}
 	}
 
 	goManifest := strings.Split(string(zipEntryBytes(t, goBackup, Manifest)), "\n")
-	rustManifest := strings.Split(string(zipEntryBytes(t, rustBackup, Manifest)), "\n")
-	if len(goManifest) != len(rustManifest) {
-		t.Fatalf("manifest line count = %d, want %d", len(goManifest), len(rustManifest))
+	referenceManifest := strings.Split(string(zipEntryBytes(t, referenceBackup, Manifest)), "\n")
+	if len(goManifest) != len(referenceManifest) {
+		t.Fatalf("manifest line count = %d, want %d", len(goManifest), len(referenceManifest))
 	}
 	for index := range goManifest {
 		if strings.HasPrefix(goManifest[index], "created=") {
-			if !strings.HasPrefix(rustManifest[index], "created=") {
-				t.Errorf("manifest line %d = %q, want a created line", index, rustManifest[index])
+			if !strings.HasPrefix(referenceManifest[index], "created=") {
+				t.Errorf("manifest line %d = %q, want a created line", index, referenceManifest[index])
 			}
 			continue
 		}
-		if goManifest[index] != rustManifest[index] {
-			t.Errorf("manifest line %d = %q, want %q", index, goManifest[index], rustManifest[index])
+		if goManifest[index] != referenceManifest[index] {
+			t.Errorf("manifest line %d = %q, want %q", index, goManifest[index], referenceManifest[index])
 		}
 	}
 
 	for _, name := range []string{"documents/a-receipt.txt", "documents/b-scan.pdf"} {
-		if got, want := zipEntryBytes(t, goBackup, name), zipEntryBytes(t, rustBackup, name); string(got) != string(want) {
+		if got, want := zipEntryBytes(t, goBackup, name), zipEntryBytes(t, referenceBackup, name); string(got) != string(want) {
 			t.Errorf("%s = %q, want %q", name, got, want)
 		}
 	}

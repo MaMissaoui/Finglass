@@ -1,6 +1,4 @@
 // Package accounts is the account repository.
-//
-// It ports `crates/finglass-core/src/repo/accounts.rs`.
 package accounts
 
 import (
@@ -12,10 +10,10 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/debugquote"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 	"github.com/MaMissaoui/Finglass/internal/core/repo"
-	"github.com/MaMissaoui/Finglass/internal/core/rustfmt"
 )
 
 const columns = "a.id, a.bank_connection_id, a.institution, a.name, a.iban, a.account_number, a.currency, " +
@@ -64,7 +62,7 @@ func fromRow(row scanner) (model.Account, error) {
 	accountType, ok := model.AccountTypeFromStored(accountTypeText)
 	if !ok {
 		return model.Account{}, repo.InvalidError{
-			Msg: "unknown account type " + rustfmt.Quote(accountTypeText),
+			Msg: "unknown account type " + debugquote.Quote(accountTypeText),
 		}
 	}
 

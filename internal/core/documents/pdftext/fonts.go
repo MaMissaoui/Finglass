@@ -88,7 +88,7 @@ func newSimpleFont(font pdf.Value) *simpleFont {
 		}
 	}
 
-	// Rust extends any CFF map with the ToUnicode map, so ToUnicode wins.
+	// pdf-extract extends any CFF map with the ToUnicode map, so ToUnicode wins.
 	// No CFF map is built here, so the ToUnicode map is used directly.
 	unicodeMap := getUnicodeMap(font)
 

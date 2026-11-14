@@ -878,8 +878,8 @@ func TestProfileDialogsCreateRenameAndRefuseTheOpenProfile(t *testing.T) {
 		return false
 	})
 
-	// The default profile has no slug, so a confirmation cannot reach it; Rust
-	// returns silently there.
+	// The default profile has no slug, so a confirmation cannot reach it; the
+	// call returns silently there.
 	session.SettingsRequestDeleteProfile(defaultIndex)
 	if dialog := session.SettingsDialog(); !dialog.ProfileDeleteOpen ||
 		!strings.Contains(dialog.ProfileDeleteTitle, "Personal") {

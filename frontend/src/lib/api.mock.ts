@@ -1096,7 +1096,7 @@ export function createMockApi(scenario = scenarioName()): Api {
       return openScreen('accounts');
     },
     async dashboardOpenSettings() {
-      // Rust's dashboard_open_settings opens the categories section.
+      // Opening settings from the dashboard opens the categories section.
       settings.setSection(2);
       return openScreen('settings');
     },

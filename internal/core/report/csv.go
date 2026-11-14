@@ -1,5 +1,5 @@
 // CSV writing and the report CSV exports, ported from ReportService.kt and
-// CsvFormat, via crates/finglass-core/src/report/csv.rs.
+// CsvFormat.
 package report
 
 import (
@@ -125,8 +125,8 @@ func ExportToCSV(
 		_ = file.Close()
 		return err
 	}
-	// Rust drops the BufWriter and the File after flushing; a close error is
-	// not surfaced.
+	// The writer and file are dropped after flushing; a close error is not
+	// surfaced.
 	_ = file.Close()
 	return nil
 }

@@ -65,7 +65,7 @@
 //     warning;
 //   - a missing balance date stays zero instead of becoming the current date;
 //   - constructors report bad arguments at encode time instead of panicking;
-//   - the dialog is one type with a checked state instead of Rust's typestate
+//   - the dialog is one type with a checked state instead of a typestate
 //     generic, so every invalid transition returns a typed error and never
 //     sends;
 //   - HKEND is sent best effort on error paths once a dialog id exists, and a

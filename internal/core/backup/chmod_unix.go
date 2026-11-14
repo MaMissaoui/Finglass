@@ -5,8 +5,7 @@ package backup
 
 import "syscall"
 
-// chmod changes a path's mode. Rust's #[cfg(unix)] permission calls use the
-// same system call.
+// chmod changes a path's mode with the platform's chmod system call.
 func chmod(path string, mode uint32) error {
 	return syscall.Chmod(path, mode)
 }

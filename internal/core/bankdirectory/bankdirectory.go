@@ -1,6 +1,5 @@
 // Package bankdirectory is the offline German bank directory from the
-// Bundesbank bank code file, ported from
-// crates/finglass-core/src/bank_directory.rs.
+// Bundesbank bank code file.
 //
 // The embedded data/blz-aktuell.txt is the Bundesbank's bank code file, byte
 // for byte as published. It is not covered by Finglass's MIT licence; see

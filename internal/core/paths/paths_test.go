@@ -186,8 +186,8 @@ func TestEnsureDirCreatesNestedFolders(t *testing.T) {
 	}
 }
 
-// TestResolveKeepsTheRootUnchanged guards the Rust behaviour: FINGLASS_HOME is
-// used exactly as given, without cleaning or making it absolute.
+// TestResolveKeepsTheRootUnchanged guards the behaviour: FINGLASS_HOME is used
+// exactly as given, without cleaning or making it absolute.
 func TestResolveKeepsTheRootUnchanged(t *testing.T) {
 	root := filepath.Join("relative", "..", "data") + string(os.PathSeparator)
 	paths, err := Resolve(root, "/home/alice")

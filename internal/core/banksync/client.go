@@ -1,5 +1,5 @@
 // PIN lifecycle and the fetch entry point, ported from FinDesk's
-// FinTSClient.kt and crates/finglass-core/src/sync/client.rs.
+// FinTSClient.kt.
 //
 // A stored PIN is used at most once per dialog, only for the login it was
 // saved for, and is dropped before the user is asked again after a rejection.
@@ -196,8 +196,8 @@ func (c *FinTsClient) FetchAll(
 			value := c.mapGatewayError(gatewayValue)
 			mapped = &value
 		} else {
-			// Rust's gateway can only return GatewayError. Any other error text
-			// may carry bank text; NewBankingError masks it.
+			// Any other error text may carry bank text; NewBankingError masks
+			// it.
 			value := NewBankingError(CodeFintsError, gatewayErr.Error())
 			mapped = &value
 		}
@@ -335,7 +335,7 @@ func (c *FinTsClient) savePin(
 }
 
 // ensureMarker writes the empty marker file with 0600 permissions in a 0700
-// directory. This is deliberately stricter than Rust's File::create, which
+// directory. This is deliberately stricter than a plain file create, which
 // takes the process umask.
 func ensureMarker(marker string) error {
 	directory := filepath.Dir(marker)

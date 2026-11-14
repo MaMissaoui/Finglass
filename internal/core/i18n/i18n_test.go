@@ -347,7 +347,7 @@ func TestNumKeys(t *testing.T) {
 	}
 }
 
-func TestTablesMatchTheRustGolden(t *testing.T) {
+func TestTablesMatchTheV034Golden(t *testing.T) {
 	// #nosec G304 -- fixed path below the repository root.
 	data, err := os.ReadFile("../../../testdata/golden/i18n/keys.json")
 	if err != nil {

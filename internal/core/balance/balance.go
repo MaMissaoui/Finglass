@@ -1,7 +1,5 @@
 // Package balance reconstructs an account's running balances and its end-of-day
 // balance history.
-//
-// It ports crates/finglass-core/src/balance/ (running.rs and history.rs).
 package balance
 
 import (
@@ -237,9 +235,8 @@ func reversePoints(points []BalancePoint) {
 	}
 }
 
-// addSaturating adds two minor-unit amounts without silently wrapping. Rust
-// panics on overflow in a debug build and has no release behaviour to match, so
-// the value is clamped instead of wrapping.
+// addSaturating adds two minor-unit amounts without silently wrapping. Overflow
+// is clamped instead of wrapping.
 func addSaturating(left, right int64) int64 {
 	if right > 0 && left > math.MaxInt64-right {
 		return math.MaxInt64

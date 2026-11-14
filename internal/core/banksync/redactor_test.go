@@ -296,9 +296,9 @@ type redactorGolden struct {
 	ReturnCodesNone []string                `json:"return_codes_none"`
 }
 
-// TestRedactorMatchesRust checks every redactor result against the corpus the
-// Rust implementation wrote.
-func TestRedactorMatchesRust(t *testing.T) {
+// TestRedactorMatchesV034 checks every redactor result against the corpus
+// Finglass 0.3.4 wrote.
+func TestRedactorMatchesV034(t *testing.T) {
 	const path = "testdata/redactor.json"
 	data, err := os.ReadFile(path) // #nosec G304 -- fixed path below the package directory
 	if err != nil {

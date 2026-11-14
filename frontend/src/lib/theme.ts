@@ -15,9 +15,8 @@ export function applyTheme(mode: ThemeMode): void {
 }
 
 /**
- * The eight fixed monogram backgrounds from `theme.slint`'s `MonogramColours`,
- * indexed by the bank logo colour index. White letters reach at least 4.5:1 on
- * every one of them.
+ * The eight fixed monogram backgrounds, indexed by the bank logo colour index.
+ * White letters reach at least 4.5:1 on every one of them.
  */
 export const MONOGRAM_COLOURS = [
   '#B45309',

@@ -59,7 +59,7 @@ export function bankDirectory(mock: boolean): BankSuggestion[] {
   return mock ? mockBankDirectory : [];
 }
 
-/** Searches by name, BLZ or BIC, as the Rust bank directory's Search does. */
+/** Searches by name, BLZ or BIC. */
 export function searchBanks(
   directory: BankSuggestion[],
   query: string,

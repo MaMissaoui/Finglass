@@ -140,8 +140,7 @@ func allItems(t *testing.T, d *db.Database) []model.TransactionItem {
 	return items
 }
 
-// itemBuilder builds a TransactionItem for the pure calculations, like Rust's
-// test-only Item.
+// itemBuilder builds a TransactionItem for the pure calculations.
 type itemBuilder struct {
 	id            int64
 	minor         int64
@@ -324,7 +323,7 @@ func pdfContains(content []byte, text string) bool {
 }
 
 // pdfStringText decodes literal and hex strings in the (uncompressed) PDF
-// content streams, like Rust's pdf_string_text.
+// content streams.
 func pdfStringText(content []byte) string {
 	var out bytes.Buffer
 	index := 0
@@ -554,7 +553,7 @@ func firstSheetRows(t *testing.T, bytes []byte) [][]string {
 
 // xlsxSheetRows reads one worksheet by pointing the first relationship at that
 // sheet and reusing the production reader, rewriting the relationship target in
-// memory exactly like Rust's xlsx_sheet_rows.
+// memory.
 func xlsxSheetRows(t *testing.T, content []byte, sheet int) [][]string {
 	t.Helper()
 	if sheet == 0 {

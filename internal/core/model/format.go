@@ -111,8 +111,8 @@ func formatRedacted(typeName string, fields []redactedField, withNames bool) str
 	return formatted.String()
 }
 
-// debugValue formats a value the way Rust's Debug would show it, without ever
-// dereferencing a bank user id.
+// debugValue formats a value in its debug form without ever dereferencing a
+// bank user id.
 func debugValue(value any) string {
 	if value == nil {
 		return "None"

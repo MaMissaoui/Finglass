@@ -323,7 +323,7 @@ func TestThePrimaryCurrencyIsReadFromTheSettingsWithTheFindeskKey(t *testing.T) 
 	}
 }
 
-func TestInvalidErrorsUseRustQuoting(t *testing.T) {
+func TestInvalidErrorsUseDebugQuoting(t *testing.T) {
 	_, err := ParseDecimal("  ", eur())
 	var invalid InvalidError
 	if !errors.As(err, &invalid) {

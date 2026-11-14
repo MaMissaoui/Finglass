@@ -4,7 +4,7 @@
 test in `FixtureGen.kt.txt`, run once in a throwaway FinDesk worktree. Passphrase: `fixture passphrase 1`. The
 orphan rows at the end were inserted with foreign keys off, as older FinDesk databases may contain them.
 
-Stored formats (checked with rusqlite):
+Stored formats (checked against the 0.3.4 database):
 
 - decimals (`amount`, `balance`, `balance_after`, `budget_limit`, `confidence`): REAL or INTEGER (NUMERIC affinity),
   e.g. `real:-0.1`, `int:100`, `real:-1234567.89`

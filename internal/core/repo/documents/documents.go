@@ -2,8 +2,7 @@
 //
 // Documents and their OCR texts live in separate tables. Deleting a document
 // row removes its OCR texts through the foreign key, but **never its file on
-// disk**: removing the file is the document service's job. It ports
-// `crates/finglass-core/src/repo/documents.rs`.
+// disk**: removing the file is the document service's job.
 package documents
 
 import (

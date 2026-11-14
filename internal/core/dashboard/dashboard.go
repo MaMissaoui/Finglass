@@ -1,5 +1,5 @@
-// Package dashboard computes the dashboard's month figures, ported from
-// FinDesk's `DashboardViewModel` and `crates/finglass-core/src/dashboard/mod.rs`.
+// Package dashboard computes the dashboard's month figures, following FinDesk's
+// `DashboardViewModel`.
 //
 // The computation is pure: it takes repository data and returns numbers. There
 // is no UI state and no coroutine; callers choose the month and decide when to
@@ -173,10 +173,10 @@ type BudgetStatus struct {
 // Ratio returns spent divided by the limit, for a progress bar.
 //
 // It is a ratio, not money, so it is a float; it uses the same operands and
-// order of operations as Rust.
+// order of operations.
 func (b BudgetStatus) Ratio() float64 {
 	if b.Limit.Minor > 0 {
-		// The ratio Rust computes with `spent as f64 / limit as f64`.
+		// The ratio is spent divided by limit.
 		return float64(b.Spent.Minor) / float64(b.Limit.Minor)
 	}
 	return 0.0
@@ -214,9 +214,8 @@ type DashboardFigures struct {
 	// HasLoans says whether the accounts include loans.
 	HasLoans bool
 	// OtherBalances are balances of accounts in other currencies, never added
-	// to the totals. It holds Rust's `BTreeMap<Currency, Money>`: one entry per
-	// currency, sorted by the currency code, and each amount's currency is its
-	// own code.
+	// to the totals. It holds one entry per currency, sorted by the currency
+	// code, and each amount's currency is its own code.
 	OtherBalances []money.Money
 	// MonthlyIncome is income in the selected month, transfers excluded.
 	MonthlyIncome money.Money
@@ -496,7 +495,7 @@ func (Dashboard) Compute(input DashboardInput) DashboardFigures {
 
 	monthProgress := 1.0
 	if currentMonth {
-		// A ratio, not money: today's day over the month's length, as in Rust.
+		// A ratio, not money: today's day over the month's length.
 		monthProgress = float64(input.Today.Day()) / float64(month.Length())
 	}
 
@@ -711,7 +710,7 @@ func totalIn(entries []money.CurrencyTotal, currency money.Currency) int64 {
 	return 0
 }
 
-// totalCmp orders floats like Rust's f64::total_cmp.
+// totalCmp orders floats by the IEEE 754 total order.
 func totalCmp(left, right float64) int {
 	leftBits := sortableBits(left)
 	rightBits := sortableBits(right)
@@ -726,7 +725,7 @@ func totalCmp(left, right float64) int {
 }
 
 // sortableBits maps a float's bits to an order-preserving unsigned value, the
-// same total order Rust's f64::total_cmp gives.
+// IEEE 754 total order.
 func sortableBits(value float64) uint64 {
 	bits := math.Float64bits(value)
 	if bits>>63 != 0 {

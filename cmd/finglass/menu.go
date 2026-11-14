@@ -283,8 +283,8 @@ func (c *menuController) apply(dto bind.ShellDTO) {
 	c.rebuild()
 }
 
-// effectiveDark reports whether the current theme shows the dark palette, as
-// Rust's Theme.dark does; "system" follows the operating system.
+// effectiveDark reports whether the current theme shows the dark palette;
+// "system" follows the operating system.
 func (c *menuController) effectiveDark(theme string) bool {
 	preference, ok := prefs.ThemeFromCode(theme)
 	if !ok {

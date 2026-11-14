@@ -13,9 +13,9 @@ import (
 
 // Clone returns a deep copy of the state.
 //
-// Rust's AccountsState is Clone: the shell clones it before a background
-// action and publishes the clone afterwards. The Busy handle is shared by
-// identity, as Rust's Arc<Busy> is, so the copy keeps the profile's one counter.
+// The shell clones the state before a background action and publishes the
+// clone afterwards. The Busy handle is shared by identity, so the copy keeps
+// the profile's one counter.
 func (s *AccountsState) Clone() AccountsState {
 	if s == nil {
 		return AccountsState{}

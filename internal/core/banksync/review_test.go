@@ -33,8 +33,8 @@ func (g scriptedErrorGateway) FetchAll(
 	return FetchOutcome{}, g.err
 }
 
-// A Go gateway may return an error that is not a GatewayError; Rust's cannot.
-// Its text may carry bank text, so the account number must come back masked.
+// A Go gateway may return an error that is not a GatewayError. Its text may
+// carry bank text, so the account number must come back masked.
 func TestANonGatewayErrorIsMasked(t *testing.T) {
 	h := newHarness(t)
 	const iban = "DE89370400440532013000"

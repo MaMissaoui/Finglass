@@ -428,7 +428,7 @@ func (s *cmapScanner) parseLiteralString() []byte {
 		case '\\':
 			s.parseEscape(&result)
 		case '(':
-			// The Rust parser keeps the parentheses of a nested string.
+			// adobe-cmap-parser keeps the parentheses of a nested string.
 			s.pos--
 			nested := s.parseLiteralString()
 			result = append(result, '(')
@@ -478,7 +478,7 @@ func (s *cmapScanner) parseEscape(result *[]byte) {
 			}
 			*result = append(*result, byteFromInt(value))
 		} else {
-			// Rust's escape parser leaves an unrecognised character to be
+			// adobe-cmap-parser's escape parser leaves an unrecognised character to be
 			// read again as a normal literal byte.
 			*result = append(*result, c)
 		}

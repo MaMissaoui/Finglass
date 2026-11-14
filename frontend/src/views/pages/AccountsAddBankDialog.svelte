@@ -25,7 +25,7 @@
     ) => void;
   } = $props();
 
-  // Offline is the historical default, as Rust's dialog-online starts false.
+  // Offline is the default: a new bank starts offline.
   let online = $state(false);
   let name = $state('');
   let blz = $state('');

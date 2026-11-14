@@ -44,7 +44,7 @@ func currencyForExponent(t *testing.T, exponent int32) money.Currency {
 	return currency
 }
 
-func TestRequiredMinorMatchesRust(t *testing.T) {
+func TestRequiredMinorMatchesV034(t *testing.T) {
 	contents, err := os.ReadFile("testdata/required_minor.json") // #nosec G304 -- committed test data.
 	if err != nil {
 		t.Fatalf("read golden: %v", err)
@@ -89,7 +89,7 @@ func TestRequiredMinorMatchesRust(t *testing.T) {
 				if !math.IsNaN(value.real) && !math.IsInf(value.real, 0) {
 					formatted := strconv.FormatFloat(value.real, 'f', -1, 64)
 					if formatted != testCase.Display {
-						t.Errorf("FormatFloat = %q, want Rust display %q", formatted, testCase.Display)
+						t.Errorf("FormatFloat = %q, want decimal display %q", formatted, testCase.Display)
 					}
 				}
 			default:

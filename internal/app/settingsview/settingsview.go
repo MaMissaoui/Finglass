@@ -1,13 +1,12 @@
-// Package settingsview ports crates/finglass-core/src/app/settings/: the
-// Settings page's state, without any UI.
+// Package settingsview is the Settings page's state, without any UI.
 //
 // Every write goes through the existing repositories and services, which audit;
 // this package adds audit entries only for the settings and profile changes
 // that have no repository of their own. It ports FinDesk's SettingsViewModel
 // minus the protocol trace and the dark-theme flag, which app/prefs owns.
 //
-// The state is single-caller, as Rust's `&mut self` implies. The Wails layer
-// serializes calls with one sync.Mutex per profile.
+// The state is single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 package settingsview
 
 import (
@@ -44,9 +43,9 @@ import (
 
 // BackupVersion is written into the manifest of backups this view creates.
 //
-// Rust's backup service reads crate::VERSION itself. Go's core cannot import
-// internal/bind and this view cannot import it either, because the bind layer
-// calls the view. The bind layer sets this to bind.Version when it starts.
+// The core cannot import internal/bind and this view cannot import it either,
+// because the bind layer calls the view. The bind layer sets this to
+// bind.Version when it starts.
 var BackupVersion string
 
 // TaxKeywordsKey is the settings key holding the user's tax suggestion
@@ -99,7 +98,7 @@ type SettingsError struct {
 	Err error
 }
 
-// Error implements error with Rust's SettingsError display.
+// Error implements error with the SettingsError display.
 func (e *SettingsError) Error() string {
 	if e == nil {
 		return "<nil>"
@@ -177,8 +176,8 @@ type RestoreCandidate struct {
 // the documents folder, OCR availability, encryption state) are left to the
 // shell; this state only holds what its actions load and change.
 //
-// The state is single-caller, as Rust's `&mut self` implies. The Wails layer
-// serializes calls with one sync.Mutex per profile.
+// The state is single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 type SettingsState struct {
 	// Categories holds every category, in repository order (by name).
 	Categories []model.Category
@@ -263,7 +262,7 @@ func New(language i18n.Language) *SettingsState {
 	}
 }
 
-// Default builds an empty state in English, like Rust's SettingsState::default.
+// Default builds an empty state in English.
 func Default() *SettingsState {
 	return New(i18n.En)
 }
@@ -1369,14 +1368,13 @@ func isHexColor(color string) bool {
 	return true
 }
 
-// lower is full Unicode lower-casing, like Rust's str::to_lowercase: "İ"
-// becomes "i" + U+0307 and a word-final "Σ" becomes "ς".
+// lower is full Unicode lower-casing: "İ" becomes "i" + U+0307 and a word-final
+// "Σ" becomes "ς".
 func lower(text string) string {
 	return cases.Lower(xlanguage.Und).String(text)
 }
 
-// upper is full Unicode upper-casing, like Rust's str::to_uppercase: "ß"
-// becomes "SS".
+// upper is full Unicode upper-casing: "ß" becomes "SS".
 func upper(text string) string {
 	return cases.Upper(xlanguage.Und).String(text)
 }
@@ -1399,7 +1397,7 @@ func profileSlug(profile profiles.Profile) *string {
 }
 
 // profileSlugArgument converts an optional slug for the profiles package,
-// whose default profile is the empty string, as Rust's None is.
+// where nil means the default profile.
 func profileSlugArgument(slug *string) string {
 	if slug == nil {
 		return ""
@@ -1407,8 +1405,8 @@ func profileSlugArgument(slug *string) string {
 	return *slug
 }
 
-// slugText is the text used in audit details and messages, where Rust writes
-// "default" for the default profile.
+// slugText is the text used in audit details and messages, where the default
+// profile is written as "default".
 func slugText(slug *string) string {
 	if slug == nil {
 		return "default"

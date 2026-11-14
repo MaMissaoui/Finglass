@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { applyTheme, MONOGRAM_COLOURS, monogramColour } from '../../src/lib/theme';
 
-// The same eight colours, in the same order, as `MONOGRAM_COLOURS` in
-// rust-ref/crates/finglass/src/lib.rs.
+// The eight expected monogram colours, in the same order as `MONOGRAM_COLOURS`.
 const COLOURS = [0xb45309, 0x0e7490, 0x7c3aed, 0xbe123c, 0x15803d, 0x1d4ed8, 0xa21caf, 0xc2410c];
 
 function relativeLuminance(hex: number): number {
@@ -18,7 +17,7 @@ describe('theme', () => {
     vi.unstubAllGlobals();
   });
 
-  it('keeps the monogram colours in the Rust order', () => {
+  it('keeps the monogram colours in the expected order', () => {
     expect(MONOGRAM_COLOURS.map((colour) => Number.parseInt(colour.slice(1), 16))).toEqual(COLOURS);
   });
 

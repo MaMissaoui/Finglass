@@ -50,7 +50,7 @@ type DocumentLinkRowDTO struct {
 
 // DocumentsDTO is everything the Documents page shows.
 //
-// Every value Rust's apply sets has a field here. The preview image travels as a
+// Every value the page applies has a field here. The preview image travels as a
 // data URL, as the page's own CSP allows for images; no other file route is
 // added. Money and dates are already formatted by the page.
 type DocumentsDTO struct {
@@ -214,7 +214,7 @@ func (d *Documents) snapshot() DocumentsDTO {
 	return documentsDTO(d.session.DocumentsState())
 }
 
-// documentsDTO maps one Documents snapshot to the page DTO, as Rust's apply does.
+// documentsDTO maps one Documents snapshot to the page DTO.
 func documentsDTO(page shell.DocumentsPageState) DocumentsDTO {
 	state := page.State
 	language := state.Language
@@ -445,7 +445,7 @@ func documentMoneyText(amount money.Money, language i18n.Language) string {
 	return format.Money(amount, language, false)
 }
 
-// documentID narrows a row id to the page's 32-bit range, as Rust does.
+// documentID narrows a row id to the page's 32-bit range.
 func documentID(value int64) int {
 	if value < math.MinInt32 || value > math.MaxInt32 {
 		return math.MaxInt32

@@ -1,5 +1,5 @@
-// Duplicate detection shared by FinTS sync and file import, ported from
-// FinDesk's BookingDedup and crates/finglass-core/src/import/dedup.rs.
+// Duplicate detection shared by FinTS sync and file import, following FinDesk's
+// BookingDedup.
 //
 // Exact: a booking whose hash is already stored. Probable: the same booking
 // from a different source (FinTS vs CSV vs CAMT vs manual), whose

@@ -50,8 +50,8 @@ type BankingPromptChoiceDTO struct {
 
 // PromptDTO is the UI model of one open banking prompt, without any answer.
 //
-// It carries only what Rust's prompt_view shows (plus the bridge's sequence id,
-// a deliberate deviation from Rust): kind, titles, the PIN prompt's bank name
+// It carries only what the prompt dialog shows (plus the bridge's sequence id,
+// a deliberate addition): kind, titles, the PIN prompt's bank name
 // and user id, the choice list, the TAN challenge and flicker note, and the
 // decoded challenge image as a data: URL. No field ever holds a PIN or a TAN.
 type PromptDTO struct {
@@ -254,8 +254,7 @@ func (b *Banking) SubmitAddOnlineBank(name string, blz string, bic string, userI
 	})
 }
 
-// SearchBanks re-runs the in-memory bank search for the dialog's current query,
-// as Rust's update_bank_search does.
+// SearchBanks re-runs the in-memory bank search for the dialog's current query.
 func (b *Banking) SearchBanks(query string) ([]BankSuggestionDTO, error) {
 	entries := bankdirectory.Bundled().Search(query, 15)
 	rows := make([]BankSuggestionDTO, 0, len(entries))
@@ -265,15 +264,13 @@ func (b *Banking) SearchBanks(query string) ([]BankSuggestionDTO, error) {
 	return rows, nil
 }
 
-// PickBankSuggestion maps a picked search suggestion to the dialog fields, as
-// Rust's pick_bank_suggestion does.
+// PickBankSuggestion maps a picked search suggestion to the dialog fields.
 func (b *Banking) PickBankSuggestion(name string, blz string, bic string) (AddBankFieldsDTO, error) {
 	fields := pickedBankFields(bankdirectory.Bundled(), name, blz, bic)
 	return b.addBankFieldsDTO(fields), nil
 }
 
-// BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ, as
-// Rust's update_bank_blz does.
+// BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ.
 func (b *Banking) BankBLZChanged(name string, blz string, bic string) (AddBankFieldsDTO, error) {
 	fields := typedBankBLZ(bankdirectory.Bundled(), name, blz, bic)
 	return b.addBankFieldsDTO(fields), nil
@@ -602,8 +599,8 @@ func emptyPromptDTO() PromptDTO {
 	return PromptDTO{Choices: []BankingPromptChoiceDTO{}}
 }
 
-// promptDTO maps a core prompt into the dialog model, as Rust's prompt_view
-// does. The remember field is hidden when no credential store exists.
+// promptDTO maps a core prompt into the dialog model. The remember field is
+// hidden when no credential store exists.
 func promptDTO(prompt *bankingcore.BankingPrompt, language i18n.Language, canRememberPin bool) PromptDTO {
 	dto := emptyPromptDTO()
 	if prompt == nil {
@@ -658,8 +655,8 @@ func promptDTO(prompt *bankingcore.BankingPrompt, language i18n.Language, canRem
 	return dto
 }
 
-// addBankFields is Rust's AddBankFields: the dialog fields plus the branch BLZ
-// when the stored BLZ is a central code.
+// addBankFields is the dialog fields plus the branch BLZ when the stored BLZ is
+// a central code.
 type addBankFields struct {
 	Name        string
 	BLZ         string
@@ -667,7 +664,7 @@ type addBankFields struct {
 	OriginalBLZ *string
 }
 
-// pickedBankFields is Rust's picked_bank.
+// pickedBankFields builds the dialog fields for a picked search suggestion.
 func pickedBankFields(directory *bankdirectory.BankDirectory, name string, blz string, bic string) addBankFields {
 	original := strings.TrimSpace(blz)
 	mapped := bankdirectory.FintsBLZ(directory, original)
@@ -679,8 +676,8 @@ func pickedBankFields(directory *bankdirectory.BankDirectory, name string, blz s
 	}
 }
 
-// typedBankBLZ is Rust's typed_bank_blz: a valid 8-digit BLZ fills only the
-// empty name and BIC fields; anything else leaves every field as it was.
+// typedBankBLZ fills only the empty name and BIC fields from a valid 8-digit
+// BLZ; anything else leaves every field as it was.
 func typedBankBLZ(directory *bankdirectory.BankDirectory, name string, blz string, bic string) addBankFields {
 	trimmed := strings.TrimSpace(blz)
 	if !isEightDigits(trimmed) {
@@ -706,8 +703,7 @@ func typedBankBLZ(directory *bankdirectory.BankDirectory, name string, blz strin
 	return fields
 }
 
-// branchBLZ returns original when the mapped BLZ differs from it, as Rust's
-// AddBankFields.original_blz does.
+// branchBLZ returns original when the mapped BLZ differs from it.
 func branchBLZ(mapped string, original string) *string {
 	if mapped == original {
 		return nil
@@ -716,7 +712,7 @@ func branchBLZ(mapped string, original string) *string {
 	return &value
 }
 
-// centralNote is Rust's central_note.
+// centralNote returns the note about a central BLZ, or "" when none applies.
 func centralNote(language i18n.Language, fields addBankFields) string {
 	if fields.OriginalBLZ == nil {
 		return ""
@@ -729,7 +725,7 @@ func centralNote(language i18n.Language, fields addBankFields) string {
 	)
 }
 
-// suggestionRow is Rust's suggestion_row.
+// suggestionRow builds one bank search suggestion.
 func suggestionRow(entry bankdirectory.BankEntry) BankSuggestionDTO {
 	parts := make([]string, 0, 3)
 	for _, part := range []string{entry.BLZ, entry.City, entry.BIC} {
@@ -803,7 +799,7 @@ func tanImageDataURL(bytesIn []byte) string {
 	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(encoded.Bytes())
 }
 
-// syncAllText is Rust's sync_all_text: empty before the first bank starts.
+// syncAllText is empty before the first bank starts.
 func syncAllText(state *bankingcore.BankingState) string {
 	if state.SyncAll == nil || state.SyncAll.Position == 0 {
 		return ""
@@ -893,7 +889,7 @@ func bankPinText(bank *bankingcore.BankItem, state *bankingcore.BankingState, la
 	return i18n.Text(language, i18n.PinNeverStored)
 }
 
-// bankMenu is Rust's bank_menu, in FinDesk's order. Offline banks only rename
+// bankMenu builds the bank menu, in FinDesk's order. Offline banks only rename
 // or delete; online banks get the sync actions. History and "include in Sync
 // all" stay disabled until the FinTS gateway replaces UnavailableGateway.
 func bankMenu(

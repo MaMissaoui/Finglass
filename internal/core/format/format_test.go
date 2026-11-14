@@ -381,7 +381,7 @@ func TestJavaCurrencyCodesAreSortedAndComplete(t *testing.T) {
 		t.Error("javaCurrencyCodes is not sorted")
 	}
 	if len(javaCurrencyCodes) != 233 {
-		t.Errorf("len(javaCurrencyCodes) = %d, want Rust's 233", len(javaCurrencyCodes))
+		t.Errorf("len(javaCurrencyCodes) = %d, want 233", len(javaCurrencyCodes))
 	}
 }
 

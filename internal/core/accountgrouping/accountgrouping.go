@@ -1,8 +1,7 @@
 // Package accountgrouping groups accounts for the account panel and decides
 // their balance tones.
 //
-// It ports the non-UI part of crates/finglass-core/src/account_grouping.rs. The
-// Compose geometry (drag targets with offsets and rects) has no counterpart
+// The Compose geometry (drag targets with offsets and rects) has no counterpart
 // here; only grouping, ordering, totals and balance tones are part of the core.
 package accountgrouping
 
@@ -305,9 +304,8 @@ func GroupIDFor(key GroupKey) *model.AccountGroupID {
 	return &groupID
 }
 
-// addSaturating adds two minor-unit amounts without silently wrapping. Rust
-// panics on overflow in a debug build and has no release behaviour to match, so
-// the value is clamped instead of wrapping.
+// addSaturating adds two minor-unit amounts without silently wrapping. Overflow
+// is clamped instead of wrapping.
 func addSaturating(left, right int64) int64 {
 	if right > 0 && left > math.MaxInt64-right {
 		return math.MaxInt64

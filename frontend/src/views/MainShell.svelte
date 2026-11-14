@@ -37,8 +37,8 @@
     { screen: 'settings', key: 'NavSettings', icon: 'settings' },
   ];
 
-  // The names are the language endonyms from Language.NativeName in Go and
-  // the Slint language menu, not translated copy.
+  // The names are the language endonyms from Language.NativeName in Go, not
+  // translated copy.
   const languageOptions = [
     { code: 'en', name: 'English' },
     { code: 'de', name: 'Deutsch' },
@@ -137,7 +137,7 @@
     <div class="brand">
       <img src={icon} alt={t('AppLogo')} width="36" height="36" />
       {#if !dto.sidebarCollapsed}
-        <!-- The product name, as Slint's app-name: not a translated text. -->
+        <!-- The product name: not a translated text. -->
         <span class="app-name">Finglass</span>
       {/if}
     </div>
@@ -316,8 +316,8 @@
 </div>
 
 <style>
-  /* A fixed window as Slint's: only the page area scrolls, so the sidebar
-     (and its version) and the top bar stay in place. */
+  /* A fixed window: only the page area scrolls, so the sidebar (and its
+     version) and the top bar stay in place. */
   .shell {
     display: flex;
     height: 100vh;

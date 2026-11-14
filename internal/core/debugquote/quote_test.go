@@ -1,8 +1,8 @@
-package rustfmt
+package debugquote
 
 import "testing"
 
-func TestQuoteMatchesRustDebug(t *testing.T) {
+func TestQuoteMatchesDebugOutput(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string

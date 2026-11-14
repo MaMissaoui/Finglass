@@ -5,7 +5,7 @@ package i18n
 // The constant names match FinDesk's StringKey.
 type Key int
 
-// The user-visible strings, in the same order as the Rust Key::ALL.
+// The user-visible strings, in their fixed order.
 const (
 	Cancel Key = iota
 	Save
@@ -473,7 +473,7 @@ const (
 	AboutText
 	AboutTypeface
 	AboutBankCodesSource
-	LanguageKey // Rust's Language variant; the Go type already uses that name.
+	LanguageKey // the language key; the Go type already uses that name.
 	Categories
 	AddCategory
 	CategoryUsage

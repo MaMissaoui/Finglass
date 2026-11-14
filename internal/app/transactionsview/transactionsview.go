@@ -1,7 +1,7 @@
-// Package transactionsview ports crates/finglass-core/src/app/transactions/: the
-// Transactions view's state and actions, without any UI.
+// Package transactionsview is the Transactions view's state and actions,
+// without any UI.
 //
-// This is the UI-free port of FinDesk's TransactionsViewModel. The page renders
+// This is the UI-free version of FinDesk's TransactionsViewModel. The page renders
 // TransactionsState and calls the synchronous methods on TransactionsView with
 // the database. Every method takes today (and sometimes now) explicitly; nothing
 // here reads the clock or an environment variable.
@@ -10,8 +10,8 @@
 // internal/app/accountpanel; this package only wires it into the transaction
 // list.
 //
-// The state types are single-caller, as Rust's `&mut self` implies. The Wails
-// layer serializes calls with one sync.Mutex per profile.
+// The state types are single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 //
 // This page lists, edits, categorizes, imports and exports stored bookings.
 // Nothing is sent to a bank, and there is no transfer or order of any kind.
@@ -463,8 +463,7 @@ func NewState(language i18n.Language) *TransactionsState {
 	}
 }
 
-// DefaultState builds empty state in English, like Rust's
-// TransactionsState::default.
+// DefaultState builds empty state in English.
 func DefaultState() *TransactionsState {
 	return NewState(i18n.En)
 }
@@ -555,8 +554,7 @@ func New(language i18n.Language) *TransactionsView {
 	}
 }
 
-// Default builds a view with empty state in English, like Rust's
-// TransactionsView::default.
+// Default builds a view with empty state in English.
 func Default() *TransactionsView {
 	return New(i18n.En)
 }
@@ -2534,8 +2532,8 @@ func (v *TransactionsView) RecordError(err error) error {
 	return err
 }
 
-// actionError handles a group action's failure like Rust's match on AppError:
-// a user-visible message is shown and swallowed, anything else is recorded.
+// actionError handles a group action's failure: a user-visible message is shown
+// and swallowed, anything else is recorded.
 func (v *TransactionsView) actionError(err error) error {
 	var appError *accountpanel.AppError
 	if errors.As(err, &appError) {

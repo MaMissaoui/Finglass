@@ -1,6 +1,5 @@
-// Package format formats amounts, dates and numbers per language, ported from
-// crates/finglass-core/src/format.rs (itself ported from FinDesk's
-// util/Formats.kt).
+// Package format formats amounts, dates and numbers per language, following
+// FinDesk's util/Formats.kt.
 //
 // Money values are money.Money in integer minor units and use the currency's
 // exponent. No money is ever formatted through float64.

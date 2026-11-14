@@ -85,8 +85,7 @@ type DashboardTransactionRowDTO struct {
 // DashboardDTO is everything the Dashboard page shows.
 //
 // Money is already formatted by dashboardview; the chart fractions and the
-// budget ratio stay numbers. Tones and statement kinds are the strings Rust's
-// tone_code and StatementLineKind mapping return.
+// budget ratio stay numbers. Tones and statement kinds are fixed strings.
 type DashboardDTO struct {
 	Loading       bool     `json:"loading"`
 	FirstRun      bool     `json:"firstRun"`

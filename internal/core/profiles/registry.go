@@ -40,7 +40,7 @@ func baseSlug(name string) string {
 	return strings.Trim(string(runes), "-")
 }
 
-// escape applies exactly the escapes the Rust registry writer applies.
+// escape applies exactly the escapes the registry writer applies.
 func escape(text string) string {
 	var escaped strings.Builder
 	escaped.Grow(len(text))

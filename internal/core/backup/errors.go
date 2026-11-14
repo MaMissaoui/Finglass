@@ -3,7 +3,7 @@ package backup
 
 import "errors"
 
-// Sentinel errors. Their messages match the Rust `BackupError` texts.
+// Sentinel errors. Their messages match Finglass 0.3.4's backup error texts.
 var (
 	// ErrNotABackup means the file has no backup manifest.
 	ErrNotABackup = errors.New("not a Finglass backup")

@@ -781,9 +781,8 @@ func TestNoPaymentDataReachesTheTarget(t *testing.T) {
 						text = fmt.Sprint(typed)
 					}
 					for _, marker := range forbidden {
-						// The bank connection's login user id is imported
-						// on purpose, exactly as Rust imports it; it is not
-						// payment data.
+						// The bank connection's login user id is imported on
+						// purpose; it is not payment data.
 						if table == "bank_connections" && columns[index] == "user_id" && marker == "fixture-user" {
 							continue
 						}

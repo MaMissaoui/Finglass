@@ -2,7 +2,7 @@ import type { DocumentLinkRowDTO, DocumentRowDTO, DocumentsDTO } from './api';
 import { languageFromCode, translate, type Language } from './i18n';
 
 // The mock preview is a small generated image, not a receipt: a teal frame
-// around a pale sheet, the same shape the Slint screenshot fixture draws.
+// around a pale sheet, the same shape the screenshot fixture draws.
 const previewDataUrl =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAABQCAIAAABd+SbeAAAAnklEQVR42u3dMQ0AIBAEwTeAbwS8VUJChQDKDzRMstWVY+CiZdeDAgFo0AINGvQxjblUDDRo0AINGjRo0KAFGjRo0KBBCzRo0KBBgxZo0KBBgwYt0KBBgwYNWqBBgwYNGrRAgwYNGjRogQYNGjRo0AINGjRo0KAFGjRo0KBBCzRo0KBBgxZo0KBBgwYt0KBBgwb9B7S8VoAWaNCgdaENluFk5Bcq9sIAAAAASUVORK5CYII=';
 

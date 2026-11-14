@@ -76,8 +76,8 @@ var (
 	tagPattern  = mustCompile(sepaTagPattern)
 )
 
-// runeSpan is a half-open range of rune offsets. Unlike Rust's fancy-regex,
-// regexp2 reports match offsets in runes, never in bytes.
+// runeSpan is a half-open range of rune offsets. regexp2 reports match offsets
+// in runes, never in bytes.
 type runeSpan struct {
 	start int
 	end   int
@@ -387,9 +387,8 @@ func sanitize(raw *string) *string {
 	return &candidate
 }
 
-// isAlphabetic is Rust's char::is_alphabetic: the Unicode Alphabetic property
-// (letters, letter numbers and Other_Alphabetic marks), wider than
-// unicode.IsLetter.
+// isAlphabetic reports the Unicode Alphabetic property (letters, letter numbers
+// and Other_Alphabetic marks), wider than unicode.IsLetter.
 func isAlphabetic(character rune) bool {
 	return unicode.IsLetter(character) ||
 		unicode.Is(unicode.Nl, character) ||

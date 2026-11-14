@@ -1,5 +1,4 @@
-// Package migration ports crates/finglass-core/src/app/migration.rs: the
-// first-run migration from a FinDesk install.
+// Package migration is the first-run migration from a FinDesk install.
 //
 // FinDesk's folder is only ever read. Each selected profile is verified and
 // imported by [findeskimport], which copies the database first, into a staging
@@ -51,8 +50,8 @@ var (
 // after the documents and side files were moved.
 var failMove atomic.Bool
 
-// nameLower is Rust's `str::to_lowercase`: Unicode full lowercasing, including
-// the special cases such as "İ" and a word-final "Σ".
+// nameLower is Unicode full lowercasing, including the special cases such as
+// "İ" and a word-final "Σ".
 var nameLower = cases.Lower(language.Und)
 
 // FinDeskProfile is one profile of a FinDesk install.
@@ -622,8 +621,8 @@ func isRegularFile(path string) bool {
 	return err == nil && info.Mode().IsRegular()
 }
 
-// removeDirectory mirrors Rust's fs::remove_dir: it never removes a file or a
-// symlink, and it only removes an empty folder.
+// removeDirectory never removes a file or a symlink, and it only removes an
+// empty folder.
 func removeDirectory(path string) error {
 	info, err := os.Lstat(path)
 	if err != nil {

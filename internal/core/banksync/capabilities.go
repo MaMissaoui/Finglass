@@ -66,7 +66,7 @@ func (c BankCapabilities) SupportsBalance() bool {
 }
 
 // Serialize returns a stable form for the bank_connections.capabilities column:
-// the jobs sorted and joined with commas, like Rust's BTreeSet.
+// the jobs sorted and joined with commas.
 func (c BankCapabilities) Serialize() string {
 	jobs := make([]string, 0, len(c.Jobs))
 	for job := range c.Jobs {
@@ -88,8 +88,7 @@ func DetectCapabilities(isSupported func(job string) bool) BankCapabilities {
 	return BankCapabilities{Jobs: jobs}
 }
 
-// Detect is [DetectCapabilities] as a method, matching Rust's
-// BankCapabilities::detect.
+// Detect is [DetectCapabilities] as a method.
 func (BankCapabilities) Detect(isSupported func(job string) bool) BankCapabilities {
 	return DetectCapabilities(isSupported)
 }
@@ -117,8 +116,7 @@ func ParseCapabilities(serialized *string) *BankCapabilities {
 	return &BankCapabilities{Jobs: jobs}
 }
 
-// Parse is [ParseCapabilities] as a method, matching Rust's
-// BankCapabilities::parse.
+// Parse is [ParseCapabilities] as a method.
 func (BankCapabilities) Parse(serialized *string) *BankCapabilities {
 	return ParseCapabilities(serialized)
 }

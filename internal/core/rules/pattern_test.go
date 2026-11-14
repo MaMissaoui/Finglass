@@ -32,7 +32,7 @@ func boolPointer(value bool) *bool {
 }
 
 // knownDifferences lists the exact corpus cells where regexp2 cannot reproduce
-// Rust's fancy-regex result. Every entry is asserted below.
+// the reference result. Every entry is asserted below.
 var knownDifferences = []knownDifference{
 	{
 		Pattern:     "a{2,1}",
@@ -40,25 +40,25 @@ var knownDifferences = []knownDifference{
 		WantIsRegex: boolPointer(false),
 		WantMatches: boolPointer(false),
 		Reason: "regexp2 rejects a repetition whose maximum is below its minimum, so Go falls back " +
-			"to a substring test; Rust's fancy-regex compiles the swapped bounds and matches two a's",
+			"to a substring test; the reference engine compiles the swapped bounds and matches two a's",
 	},
 	{
 		Pattern:     "a{2,1}",
 		Input:       "aaa",
 		WantMatches: boolPointer(false),
-		Reason:      "Rust's swapped-bound repetition matches two or more a's; Go's substring fallback does not",
+		Reason:      "The swapped-bound repetition matches two or more a's; Go's substring fallback does not",
 	},
 	{
 		Pattern:     "a{2,1}",
 		Input:       "aaaa",
 		WantMatches: boolPointer(false),
-		Reason:      "Rust's swapped-bound repetition matches two or more a's; Go's substring fallback does not",
+		Reason:      "The swapped-bound repetition matches two or more a's; Go's substring fallback does not",
 	},
 	{
 		Pattern:     "a{2,1}",
 		Input:       "aaaaaaaaaaaaaaaaaaaaaaaaaaaa!",
 		WantMatches: boolPointer(false),
-		Reason:      "Rust's swapped-bound repetition matches two or more a's; Go's substring fallback does not",
+		Reason:      "The swapped-bound repetition matches two or more a's; Go's substring fallback does not",
 	},
 }
 
@@ -118,7 +118,7 @@ func kindDifferenceFor(pattern string) (knownDifference, bool) {
 	return knownDifference{}, false
 }
 
-func TestPatternsMatchTheRustCorpus(t *testing.T) {
+func TestPatternsMatchTheV034Corpus(t *testing.T) {
 	corpus := readCorpus(t)
 	for _, entry := range corpus {
 		entry := entry
@@ -190,7 +190,7 @@ func TestKnownDifferencesAreReal(t *testing.T) {
 					found = true
 					if result.Matches == *difference.WantMatches {
 						t.Errorf(
-							"known difference for %q / %q does not differ from Rust",
+							"known difference for %q / %q does not differ from the reference",
 							difference.Pattern,
 							difference.Input,
 						)
@@ -217,8 +217,8 @@ func TestCatastrophicPatternReturnsQuickly(t *testing.T) {
 	}
 }
 
-// The substring fallback lower-cases like Rust's str::to_lowercase (full
-// Unicode mapping), not like strings.ToLower.
+// The substring fallback lower-cases with the full Unicode mapping, not like
+// strings.ToLower.
 func TestSubstringFallbackUsesFullLowerCasing(t *testing.T) {
 	cases := []struct {
 		name, pattern, text string

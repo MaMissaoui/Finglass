@@ -1,5 +1,4 @@
-// Package accountids handles the identifiers stored in accounts.iban, ported
-// from crates/finglass-core/src/account_ids.rs.
+// Package accountids handles the identifiers stored in accounts.iban.
 //
 // An offline bank's account may name a card instead of an IBAN: the synthetic
 // identifier "CARD" plus exactly the card's last 4 digits (for example

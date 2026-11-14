@@ -1,7 +1,7 @@
 // Package secret holds the passphrase rules and the in-memory secret itself.
 //
 // A passphrase is normalised to Unicode NFC once, validated for its purpose and
-// then kept as bytes. The rules mirror `crates/finglass-core/src/secret.rs`.
+// then kept as bytes. The rules are fixed.
 // Secrets are best effort: Go's garbage collector and any copies made by a
 // caller or the webview cannot be wiped.
 package secret

@@ -33,7 +33,7 @@
 :root {
   color-scheme: light dark;
 
-  /* Colour roles from docs/design.md and theme.slint. Light values. */
+  /* Colour roles from docs/design.md. Light values. */
   --color-ink: #1c2733;
   --color-slate: #5b6875;
   --color-paper: #ffffff;
@@ -163,7 +163,7 @@
   --radius-control: 8px;
   --radius-dialog: 8px;
 
-  /* Control sizes from theme.slint and docs/design.md. */
+  /* Control sizes from docs/design.md. */
   --size-control-height: 36px;
   --size-control-height-large: 40px;
   --size-icon: 20px;

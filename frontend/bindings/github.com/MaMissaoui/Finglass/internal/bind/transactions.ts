@@ -250,7 +250,7 @@ export function DetailCategory(index: number): $CancellablePromise<$models.Trans
 }
 
 /**
- * DetailClose closes the detail panel from Rust's detail-close callback.
+ * DetailClose closes the detail panel.
  */
 export function DetailClose(): $CancellablePromise<$models.TransactionsDTO> {
     return $Call.ByID(2939277292).then(($result: any) => {

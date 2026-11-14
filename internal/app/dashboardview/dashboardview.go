@@ -1,13 +1,12 @@
-// Package dashboardview ports crates/finglass-core/src/app/dashboard.rs: the
-// Dashboard page state without any UI.
+// Package dashboardview is the Dashboard page state without any UI.
 //
 // This is the UI-free view of FinDesk's DashboardViewModel: the selected and
 // loaded months, the clock and first-run flags, and a DashboardView whose rows
 // and texts are ready to render. Every figure comes from
 // dashboard.LoadDashboard; the page never recomputes money.
 //
-// The state types are single-caller, as Rust's `&mut self` implies. The Wails
-// layer serializes calls with one sync.Mutex per profile.
+// The state types are single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 package dashboardview
 
 import (
@@ -687,8 +686,8 @@ func FromFigures(figures dashboard.DashboardFigures, unlinkedDocuments int, lang
 
 // DashboardState is the Dashboard page's state.
 //
-// The state is single-caller, as Rust's `&mut self` implies. The Wails layer
-// serializes calls with one sync.Mutex per profile.
+// The state is single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 type DashboardState struct {
 	// SelectedMonth is the month the header shows; a load may clamp it.
 	SelectedMonth dashboard.YearMonth
@@ -955,8 +954,8 @@ func (s *DashboardState) NextMonth(ctx context.Context, d *db.Database, today ci
 
 // SelectCurrentMonth returns to today's month and loads it.
 //
-// Rust's method is `current_month`; Go cannot give it that name because the
-// state also has a CurrentMonth field.
+// It cannot be named CurrentMonth because the state also has a CurrentMonth
+// field.
 func (s *DashboardState) SelectCurrentMonth(ctx context.Context, d *db.Database, today civil.Date) error {
 	return s.SelectMonth(ctx, d, today, dashboard.YearMonthFromDate(today))
 }

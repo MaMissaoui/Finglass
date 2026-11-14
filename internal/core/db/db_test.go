@@ -400,14 +400,14 @@ func fixturePath(t *testing.T, name string) string {
 	return filepath.Join(repoRoot(t), "testdata", "sqlcipher", name)
 }
 
-func TestOpensTheRustCreatedFixture(t *testing.T) {
+func TestOpensTheV034CreatedFixture(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, "rust-created.db")
-	copyFile(t, fixturePath(t, "rust-created.db"), path)
+	path := filepath.Join(dir, "v0.3.4-created.db")
+	copyFile(t, fixturePath(t, "v0.3.4-created.db"), path)
 
 	d, err := Open(path, fixtureUnlock(t))
 	if err != nil {
-		t.Fatalf("Open(rust-created.db): %v", err)
+		t.Fatalf("Open(v0.3.4-created.db): %v", err)
 	}
 	defer func() {
 		_ = d.Close()
@@ -430,11 +430,11 @@ func TestOpensTheRustCreatedFixture(t *testing.T) {
 	}()
 
 	if got, want := schemaRows(t, d), schemaRows(t, fresh); !reflect.DeepEqual(got, want) {
-		t.Fatalf("sqlite_master differs between the Rust fixture and a fresh Go database:\nrust: %+v\ngo:   %+v", want, got)
+		t.Fatalf("sqlite_master differs between the 0.3.4 fixture and a fresh Go database:\n0.3.4: %+v\ngo:    %+v", want, got)
 	}
 }
 
-func TestMigrationsMatchTheRustGolden(t *testing.T) {
+func TestMigrationsMatchTheV034Golden(t *testing.T) {
 	path := filepath.Join(repoRoot(t), "testdata", "golden", "migrations.json")
 	data, err := os.ReadFile(path) // #nosec G304 -- fixed path below the repository root
 	if err != nil {
@@ -652,7 +652,7 @@ func pragmaValue(t *testing.T, d *Database, name string) string {
 	return value
 }
 
-func TestConnectionPragmasMatchRust(t *testing.T) {
+func TestConnectionPragmasMatchV034(t *testing.T) {
 	path := filepath.Join(repoRoot(t), "testdata", "golden", "connection_pragmas.json")
 	data, err := os.ReadFile(path) // #nosec G304 -- fixed path below the repository root
 	if err != nil {
@@ -677,7 +677,7 @@ func TestConnectionPragmasMatchRust(t *testing.T) {
 
 	for name, want := range golden {
 		if got := pragmaValue(t, d, name); got != want {
-			t.Errorf("PRAGMA %s = %q, want %q (Rust)", name, got, want)
+			t.Errorf("PRAGMA %s = %q, want %q (0.3.4)", name, got, want)
 		}
 	}
 }

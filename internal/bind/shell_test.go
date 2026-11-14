@@ -350,7 +350,7 @@ func TestProfileListSwitchAndRefusedBusySwitch(t *testing.T) {
 	}
 
 	// The unlock started the dashboard's first load, and a switch is refused
-	// while a job runs (as Rust's), so let that load finish first.
+	// while a job runs, so let that load finish first.
 	waitForDashboardLoad(t, fixture.session)
 
 	switched, err := fixture.service.SwitchProfile(1)
@@ -421,7 +421,7 @@ func TestManageProfilesOpensSettings(t *testing.T) {
 	if dto.Screen != "settings" || dto.ScreenTitle != shell.Title("settings", i18n.En) {
 		t.Fatalf("screen = %q / %q", dto.Screen, dto.ScreenTitle)
 	}
-	// Rust's navigate_to_section is a plain navigation: no back entry.
+	// Navigating to a section is plain navigation: no back entry.
 	if dto.BackTitle != "" {
 		t.Fatalf("back title = %q after Manage profiles, want none", dto.BackTitle)
 	}

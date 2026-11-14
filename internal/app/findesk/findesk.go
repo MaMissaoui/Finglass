@@ -1,5 +1,5 @@
-// Package findesk ports crates/finglass-core/src/app/findesk.rs: UI-free
-// helpers and state for the one-time FinDesk import.
+// Package findesk holds UI-free helpers and state for the one-time FinDesk
+// import.
 //
 // The Settings page only picks a folder and asks for FinDesk's passphrase;
 // everything else lives here. The state keeps what the dialogs need (the chosen

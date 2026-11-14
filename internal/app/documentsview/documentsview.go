@@ -1,12 +1,12 @@
-// Package documentsview ports crates/finglass-core/src/app/documents.rs: the
-// Documents page state without any UI or coroutine machinery.
+// Package documentsview is the Documents page state without any UI or coroutine
+// machinery.
 //
 // It keeps FinDesk's DocumentsViewModel state: the same tabs, search, counts,
 // upload batch, selection, linking and OCR actions, but synchronous. Every write
 // goes through documents/service, which writes the audit log.
 //
-// The state types are single-caller, as Rust's `&mut self` implies. The Wails
-// layer serializes calls with one sync.Mutex per profile.
+// The state types are single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 package documentsview
 
 import (
@@ -74,8 +74,8 @@ func (c DocumentCounts) Get(tab DocumentTab) int {
 
 // DocumentsState is the Documents page state.
 //
-// The state is single-caller, as Rust's `&mut self` implies. The Wails layer
-// serializes calls with one sync.Mutex per profile.
+// The state is single-caller. The Wails layer serializes calls with one
+// sync.Mutex per profile.
 type DocumentsState struct {
 	// Documents holds the documents shown for the current tab and search.
 	Documents []model.DocumentItem
@@ -137,7 +137,7 @@ func New(language i18n.Language, isOCRAvailable bool) *DocumentsState {
 	}
 }
 
-// Default builds an empty state in English, like Rust's DocumentsState::default.
+// Default builds an empty state in English.
 func Default() *DocumentsState {
 	return New(i18n.En, false)
 }
@@ -508,8 +508,7 @@ func (s *DocumentsState) failPath(err error) {
 	s.Error = &message
 }
 
-// wrappedRepositoryError turns a repository error into a document error, like
-// Rust's DocumentError::from.
+// wrappedRepositoryError turns a repository error into a document error.
 type wrappedRepositoryError struct {
 	cause error
 }
@@ -534,18 +533,16 @@ func cloneDocument(document *model.DocumentItem) *model.DocumentItem {
 	return &copied
 }
 
-// documentFileName is Rust's file_name helper: the last normal component, or
-// "document".
+// documentFileName returns the last normal component, or "document".
 func documentFileName(file string) string {
-	if name, ok := rustFileName(file); ok {
+	if name, ok := lastPathComponent(file); ok {
 		return name
 	}
 	return "document"
 }
 
-// rustFileName returns the last normal path component, like Rust's
-// Path::file_name.
-func rustFileName(path string) (string, bool) {
+// lastPathComponent returns the last normal path component.
+func lastPathComponent(path string) (string, bool) {
 	components := make([]string, 0)
 	for _, component := range splitRuns(path, byte(filepath.Separator)) {
 		switch component {

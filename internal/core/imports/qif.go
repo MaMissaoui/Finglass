@@ -1,5 +1,5 @@
-// Reading Quicken Interchange Format (.qif) files. Ports
-// crates/finglass-core/src/import/qif.rs.
+// Reading Quicken Interchange Format (.qif) files.
+
 package imports
 
 import (

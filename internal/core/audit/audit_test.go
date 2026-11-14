@@ -141,7 +141,7 @@ func TestActorsAreStoredAsLowercaseText(t *testing.T) {
 	}
 }
 
-func TestTimestampFormatMatchesRust(t *testing.T) {
+func TestTimestampFormatMatchesV034(t *testing.T) {
 	database := testDatabase(t)
 	ctx := context.Background()
 

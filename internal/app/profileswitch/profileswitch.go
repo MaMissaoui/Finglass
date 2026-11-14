@@ -1,5 +1,4 @@
-// Package profileswitch ports crates/finglass-core/src/app/switch.rs: the
-// UI-free part of the live profile switch.
+// Package profileswitch is the UI-free part of the live profile switch.
 //
 // A switch always goes through the target profile's unlock window. The order
 // matters: prepare the target first, then record the switch in the profile
