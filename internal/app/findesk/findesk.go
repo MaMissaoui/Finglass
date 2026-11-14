@@ -190,7 +190,14 @@ func (s *FindeskImportState) Import(
 
 	s.IsImporting = true
 	documentsDir := filepath.Join(profileDir, "documents")
-	report, err := findeskimport.Import(database, documentsDir, sourceDir, passphrase, offset)
+	report, err := findeskimport.Import(
+		database,
+		documentsDir,
+		sourceDir,
+		passphrase,
+		offset,
+		bankDirectoryLookup(),
+	)
 	s.IsImporting = false
 
 	if err != nil {

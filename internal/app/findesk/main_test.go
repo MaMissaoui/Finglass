@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/MaMissaoui/Finglass/internal/app/findeskapp"
 )
 
 // originalHome is the real home before TestMain points HOME at a temp folder.
@@ -31,6 +33,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	_ = os.Unsetenv("FINDESK_HOME")
+	findeskapp.Paths = func() []string { return nil }
 
 	code := m.Run()
 

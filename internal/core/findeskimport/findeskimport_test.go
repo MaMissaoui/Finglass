@@ -80,6 +80,7 @@ func importInto(t *testing.T, target *db.Database, documentsDir, sourceDir strin
 		sourceDir,
 		passphrase(fixturePassphrase, secret.Unlock),
 		offset(),
+		nil,
 	)
 }
 
@@ -523,6 +524,7 @@ func TestAWrongPassphraseLeavesTheTargetUnchanged(t *testing.T) {
 		sourceDir,
 		passphrase("wrong passphrase", secret.Unlock),
 		offset(),
+		nil,
 	)
 	if !errors.Is(err, ErrWrongPassphrase) {
 		t.Fatalf("Import = %v, want ErrWrongPassphrase", err)
@@ -645,7 +647,7 @@ func TestATargetThatFillsAfterTheEarlyCheckIsRefusedInsideTheTransaction(t *test
 		if _, err := conn.ExecContext(ctx, "INSERT INTO accounts (currency) VALUES ('EUR')"); err != nil {
 			return err
 		}
-		_, err := importInConnection(ctx, conn, data, sourceDir, documentsDir, offset())
+		_, err := importInConnection(ctx, conn, data, sourceDir, documentsDir, offset(), nil)
 		if !errors.Is(err, ErrTargetNotEmpty) {
 			t.Errorf("importInConnection = %v, want ErrTargetNotEmpty", err)
 		}

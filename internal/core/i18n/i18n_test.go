@@ -339,8 +339,8 @@ func TestSingularRulesMatchFinDesk(t *testing.T) {
 }
 
 func TestNumKeys(t *testing.T) {
-	if NumKeys != 898 {
-		t.Errorf("NumKeys = %d, want 898", NumKeys)
+	if NumKeys != 900 {
+		t.Errorf("NumKeys = %d, want 900", NumKeys)
 	}
 	if len(All()) != NumKeys {
 		t.Errorf("len(All()) = %d, want %d", len(All()), NumKeys)

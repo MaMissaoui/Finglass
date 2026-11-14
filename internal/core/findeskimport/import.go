@@ -54,6 +54,7 @@ func run(
 	findeskDataDir string,
 	passphrase *secret.Passphrase,
 	offset *time.Location,
+	lookup ServerURLLookup,
 ) (*FinDeskImportReport, error) {
 	if err := ensureTargetEmpty(target); err != nil {
 		return nil, err
@@ -81,6 +82,7 @@ func run(
 			findeskDataDir,
 			targetDocumentsDir,
 			offset,
+			lookup,
 		)
 		if importErr != nil {
 			return importErr
@@ -146,6 +148,7 @@ func importInConnection(
 	findeskDataDir string,
 	targetDocumentsDir string,
 	offset *time.Location,
+	lookup ServerURLLookup,
 ) (*FinDeskImportReport, error) {
 	report := &FinDeskImportReport{PaymentOrdersLeftBehind: data.paymentOrders}
 	copies := &copiedFiles{}
@@ -209,6 +212,17 @@ func importInConnection(
 		if err != nil {
 			report.BankConnections.recordInvalid()
 			continue
+		}
+		if values.serverURL == nil || strings.TrimSpace(*values.serverURL) == "" {
+			if lookup != nil {
+				if filled, ok := lookup(strings.TrimSpace(values.blz)); ok && strings.TrimSpace(filled) != "" {
+					values.serverURL = &filled
+					report.ServerURLsFilled++
+				}
+			}
+		}
+		if !values.offline && (values.serverURL == nil || strings.TrimSpace(*values.serverURL) == "") {
+			report.BankConnectionsWithoutServerURL++
 		}
 		if _, err := transaction.ExecContext(
 			ctx,
@@ -558,7 +572,8 @@ func importInConnection(
 	details := fmt.Sprintf(
 		"account_groups=%d bank_connections=%d accounts=%d categories=%d rules=%d transactions=%d "+
 			"deleted_bookings=%d pending_bookings=%d documents=%d ocr_texts=%d settings=%d skipped=%d "+
-			"documents_missing=%d documents_refused=%d payment_orders_left=%d",
+			"documents_missing=%d documents_refused=%d payment_orders_left=%d "+
+			"server_urls_filled=%d bank_connections_without_server_url=%d",
 		report.AccountGroups.Imported,
 		report.BankConnections.Imported,
 		report.Accounts.Imported,
@@ -574,6 +589,8 @@ func importInConnection(
 		report.Documents.Missing,
 		report.Documents.Refused,
 		report.PaymentOrdersLeftBehind,
+		report.ServerURLsFilled,
+		report.BankConnectionsWithoutServerURL,
 	)
 	if err := audit.LogConn(ctx, transaction, "FINDESK_IMPORTED", audit.ActorImport, details); err != nil {
 		return nil, newDatabaseError(err)

@@ -80,7 +80,7 @@ func TestImportNeverWritesTheSelectedFolder(t *testing.T) {
 	checkUnchanged("VerifyPassphrase")
 
 	target, documents := newTarget(t)
-	if _, err := Import(target, documents, sourceDir, correct, offset()); err != nil {
+	if _, err := Import(target, documents, sourceDir, correct, offset(), nil); err != nil {
 		t.Fatalf("successful Import: %v", err)
 	}
 	checkUnchanged("a successful import")
@@ -92,6 +92,7 @@ func TestImportNeverWritesTheSelectedFolder(t *testing.T) {
 		sourceDir,
 		passphrase("wrong passphrase", secret.Unlock),
 		offset(),
+		nil,
 	); !errors.Is(err, ErrWrongPassphrase) {
 		t.Fatalf("wrong-passphrase Import = %v, want ErrWrongPassphrase", err)
 	}
@@ -105,7 +106,7 @@ func TestImportNeverWritesTheSelectedFolder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("seed refused target: %v", err)
 	}
-	if _, err := Import(refusedTarget, refusedDocuments, sourceDir, correct, offset()); !errors.Is(err, ErrTargetNotEmpty) {
+	if _, err := Import(refusedTarget, refusedDocuments, sourceDir, correct, offset(), nil); !errors.Is(err, ErrTargetNotEmpty) {
 		t.Fatalf("refused Import = %v, want ErrTargetNotEmpty", err)
 	}
 	checkUnchanged("a refused import")
@@ -153,7 +154,7 @@ func TestTemporaryCopyIsRemoved(t *testing.T) {
 	}
 	checkEmpty("VerifyPassphrase")
 
-	if _, err := Import(successTarget, successDocuments, sourceDir, correct, offset()); err != nil {
+	if _, err := Import(successTarget, successDocuments, sourceDir, correct, offset(), nil); err != nil {
 		t.Fatalf("successful Import: %v", err)
 	}
 	checkEmpty("a successful import")
@@ -164,12 +165,13 @@ func TestTemporaryCopyIsRemoved(t *testing.T) {
 		sourceDir,
 		passphrase("wrong passphrase", secret.Unlock),
 		offset(),
+		nil,
 	); !errors.Is(err, ErrWrongPassphrase) {
 		t.Fatalf("wrong-passphrase Import = %v, want ErrWrongPassphrase", err)
 	}
 	checkEmpty("a wrong-passphrase import")
 
-	if _, err := Import(refusedTarget, refusedDocuments, sourceDir, correct, offset()); !errors.Is(err, ErrTargetNotEmpty) {
+	if _, err := Import(refusedTarget, refusedDocuments, sourceDir, correct, offset(), nil); !errors.Is(err, ErrTargetNotEmpty) {
 		t.Fatalf("refused Import = %v, want ErrTargetNotEmpty", err)
 	}
 	checkEmpty("a refused import")
@@ -182,7 +184,7 @@ func TestPassphraseNeverFormatted(t *testing.T) {
 	var failures []error
 
 	missingTarget, missingDocuments := newTarget(t)
-	if _, err := Import(missingTarget, missingDocuments, t.TempDir(), correct, offset()); err != nil {
+	if _, err := Import(missingTarget, missingDocuments, t.TempDir(), correct, offset(), nil); err != nil {
 		failures = append(failures, err)
 	} else {
 		t.Fatal("import from a missing folder succeeded")
@@ -195,6 +197,7 @@ func TestPassphraseNeverFormatted(t *testing.T) {
 		sourceDir,
 		passphrase("wrong passphrase", secret.Unlock),
 		offset(),
+		nil,
 	); err != nil {
 		failures = append(failures, err)
 	} else {
@@ -209,7 +212,7 @@ func TestPassphraseNeverFormatted(t *testing.T) {
 	}
 	_ = foreignDatabase.Close()
 	foreignTarget, foreignDocuments := newTarget(t)
-	if _, err := Import(foreignTarget, foreignDocuments, foreign, correct, offset()); err != nil {
+	if _, err := Import(foreignTarget, foreignDocuments, foreign, correct, offset(), nil); err != nil {
 		failures = append(failures, err)
 	} else {
 		t.Fatal("import from a foreign database succeeded")
@@ -223,7 +226,7 @@ func TestPassphraseNeverFormatted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("seed refused target: %v", err)
 	}
-	if _, err := Import(refusedTarget, refusedDocuments, sourceDir, correct, offset()); err != nil {
+	if _, err := Import(refusedTarget, refusedDocuments, sourceDir, correct, offset(), nil); err != nil {
 		failures = append(failures, err)
 	} else {
 		t.Fatal("import into a non-empty target succeeded")
@@ -241,7 +244,7 @@ func TestPassphraseNeverFormatted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create trigger: %v", err)
 	}
-	if _, err := Import(triggerTarget, triggerDocuments, sourceDir, correct, offset()); err != nil {
+	if _, err := Import(triggerTarget, triggerDocuments, sourceDir, correct, offset(), nil); err != nil {
 		failures = append(failures, err)
 	} else {
 		t.Fatal("import with a failing audit trigger succeeded")
@@ -253,7 +256,7 @@ func TestPassphraseNeverFormatted(t *testing.T) {
 	)
 
 	successTarget, successDocuments := newTarget(t)
-	report, err := Import(successTarget, successDocuments, sourceDir, correct, offset())
+	report, err := Import(successTarget, successDocuments, sourceDir, correct, offset(), nil)
 	if err != nil {
 		t.Fatalf("successful Import: %v", err)
 	}

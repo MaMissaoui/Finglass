@@ -1769,6 +1769,16 @@
     "de": "FinDesk-Import abgeschlossen",
     "fr": "Import FinDesk terminé"
   },
+  "FinDeskImportServerURLsFilled": {
+    "en": "%d {1:FinTS server address|FinTS server addresses} taken from FinDesk's bank list.",
+    "de": "%d {1:FinTS-Serveradresse|FinTS-Serveradressen} aus der Bankliste von FinDesk übernommen.",
+    "fr": "%d {1:adresse de serveur FinTS reprise|adresses de serveur FinTS reprises} de la liste des banques de FinDesk."
+  },
+  "FinDeskImportServerURLsMissing": {
+    "en": "%d {1:bank has|banks have} no FinTS server address. Add it in the bank's menu under “Connection settings”.",
+    "de": "%d {1:Bank hat|Banken haben} keine FinTS-Serveradresse. Tragen Sie sie im Menü der Bank unter „Verbindungseinstellungen“ ein.",
+    "fr": "%d {1:banque n'a|banques n'ont} pas d'adresse de serveur FinTS. Ajoutez-la dans le menu de la banque sous « Paramètres de connexion »."
+  },
   "FinDeskImportSkipped": {
     "en": "Skipped: %d rows without their account, category or document, %d invalid rows, %d with a fractional cent amount, and %d settings Finglass does not use.",
     "de": "Übersprungen: %d Zeilen ohne ihr Konto, ihre Kategorie oder ihr Dokument, %d ungültige Zeilen, %d mit Bruchteilen eines Cents und %d Einstellungen, die Finglass nicht verwendet.",
