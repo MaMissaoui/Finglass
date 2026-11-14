@@ -333,3 +333,20 @@ func checkInitResponse(response *Response) *DialogError {
 	}
 	return nil
 }
+
+// BlocksPINRepeat reports whether a bank answer must stop every further signed
+// message with the same PIN in this attempt (a retry, a strong sync): it holds a
+// known PIN or lock code, 3938, or any code in 9300-9399 (security) or
+// 9900-9999 (bank-specific, where banks put their own PIN and lock codes). A
+// bank that reports a wrong PIN with an unlisted code must not see it twice.
+func BlocksPINRepeat(codes []string) bool {
+	for _, code := range codes {
+		if pinRejectedCodes[code] || code == "3938" {
+			return true
+		}
+		if len(code) == 4 && (strings.HasPrefix(code, "93") || strings.HasPrefix(code, "99")) {
+			return true
+		}
+	}
+	return false
+}

@@ -450,7 +450,7 @@ func TestShouldRetryAfterApproval(t *testing.T) {
 			want:     false,
 		},
 	}
-	for _, blocked := range []string{"9340", "9910", "9930", "9931", "9942", "3938"} {
+	for _, blocked := range []string{"9340", "9910", "9930", "9931", "9942", "3938", "9301", "9399", "9950", "9999"} {
 		cases = append(cases, retryCase{
 			name:     "blocked " + blocked,
 			err:      &fints.DialogError{Codes: []string{"9210", blocked}},
@@ -1166,5 +1166,17 @@ func TestProbeStrongSyncFallbackOffKeepsTodaysBehaviour(t *testing.T) {
 func TestStrongSyncFallbackIsOnByDefault(t *testing.T) {
 	if !StrongSyncFallbackEnabled {
 		t.Fatal("the strong-sync fallback must be on by default")
+	}
+}
+
+func TestShouldTryStrongSyncNeverRepeatsThePINAfterASecurityCode(t *testing.T) {
+	params := &fints.BankParams{SelectedSecurityFunction: "942"}
+	if !shouldTryStrongSync(&fints.DialogError{Codes: []string{"9050", "9210"}}, params) {
+		t.Fatal("9050 + 9210 must allow the strong sync")
+	}
+	for _, blocked := range []string{"9340", "9942", "3938", "9301", "9399", "9931", "9950", "9999"} {
+		if shouldTryStrongSync(&fints.DialogError{Codes: []string{"9210", blocked}}, params) {
+			t.Fatalf("9210 + %s must not start a strong sync", blocked)
+		}
 	}
 }

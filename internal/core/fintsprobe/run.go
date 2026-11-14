@@ -403,25 +403,11 @@ func Probe(ctx context.Context, env ProbeEnv) Result {
 	return finish(summaries, lines, skipped, failure)
 }
 
-// blockedRetryCodes are the PIN and locked-account codes that neither the
-// approval retry nor the strong sync may repeat.
-var blockedRetryCodes = map[string]bool{
-	"9340": true,
-	"9910": true,
-	"9930": true,
-	"9931": true,
-	"9942": true,
-	"3938": true,
-}
-
-// hasBlockedRetryCode reports whether codes contains a PIN or lock code.
+// hasBlockedRetryCode reports whether codes forbid sending the PIN again (see
+// [fints.BlocksPINRepeat]); neither the approval retry nor the strong sync runs
+// then.
 func hasBlockedRetryCode(codes []string) bool {
-	for _, code := range codes {
-		if blockedRetryCodes[code] {
-			return true
-		}
-	}
-	return false
+	return fints.BlocksPINRepeat(codes)
 }
 
 // shouldRetryAfterApproval reports whether an Init failure may be the bank's
