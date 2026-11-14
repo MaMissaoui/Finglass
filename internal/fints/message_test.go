@@ -439,3 +439,54 @@ func TestLongFullyEscapedSecretsBuildWithoutReallocation(t *testing.T) {
 		t.Fatal("a long escaped PIN or TAN did not round-trip")
 	}
 }
+
+// TestFirstMessageEnvelopeMatchesTheSpec pins the envelope fields every bank
+// checks on a dialog's first message. Real banks rejected an empty dialog id
+// (HVB 9120/9050, DKB HTTP 400, Atruvia an empty answer); the security
+// identification names the customer as message sender (1), not receiver (2).
+func TestFirstMessageEnvelopeMatchesTheSpec(t *testing.T) {
+	input := messageInput(testPIN, "")
+	input.DialogID = ""
+	input.SystemID = "0"
+	message := string(buildTestMessage(t, input,
+		NewHKIDN(testBLZ, testCustomerID, "0"),
+		NewHKVVB(0, 0, testProductID, "1.0"),
+		NewHKSYN(),
+	))
+
+	header := message[:strings.Index(message, "'")+1]
+	if !strings.HasSuffix(header, "+300+0+1'") {
+		t.Fatalf("first HNHBK = %q, want dialog id 0", header)
+	}
+	for _, expected := range []string{
+		"HNVSK:998:3+PIN:1+998+1+1::0+",
+		"HNSHK:2:4+PIN:1+999+",
+		"+1+1+1::0+1+1:",
+	} {
+		if !strings.Contains(message, expected) {
+			t.Fatalf("message does not contain %q", expected)
+		}
+	}
+	if strings.Contains(message, "+2::0+") {
+		t.Fatal("a security header names the customer as message receiver (2)")
+	}
+
+	// A two-step dialog (a TAN method such as 942) encrypts with PIN:2 and
+	// still signs with PIN:1.
+	twoStep := messageInput(testPIN, "")
+	twoStep.SecurityFunction = "942"
+	twoStepMessage := string(buildTestMessage(t, twoStep, NewHKSYN()))
+	for _, expected := range []string{"HNVSK:998:3+PIN:2+998+", "HNSHK:2:4+PIN:1+942+"} {
+		if !strings.Contains(twoStepMessage, expected) {
+			t.Fatalf("two-step message does not contain %q", expected)
+		}
+	}
+
+	// A bank-assigned dialog id is sent unchanged.
+	assigned := messageInput(testPIN, "")
+	header = string(buildTestMessage(t, assigned, NewHKSYN()))
+	header = header[:strings.Index(header, "'")+1]
+	if !strings.HasSuffix(header, "+300+"+testDialogID+"+1'") {
+		t.Fatalf("HNHBK = %q, want the assigned dialog id", header)
+	}
+}

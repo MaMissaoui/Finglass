@@ -181,7 +181,9 @@ func redactSegmentLine(segment fints.ParsedSegment) string {
 				add(index, redactedGroup(current))
 			}
 		}
-	case "HNVSK", "HNSHA":
+	case "HNVSK":
+		groups = append(groups, redactHNVSK(segment, body)...)
+	case "HNSHA":
 		add(0, "<redacted "+strconv.Itoa(body)+" groups>")
 	case "HNSHK":
 		groups = append(groups, redactHNSHK(segment, body)...)
@@ -467,10 +469,111 @@ func redactHNSHK(segment fints.ParsedSegment, body int) []string {
 		securityIndex = body
 	}
 
+	if securityIndex == 2 && body == 11 && isSecurityProfile(segment.DEG(1)) {
+		return securityHeaderGroups(segment, body, hnshkLayout)
+	}
+
 	groups := make([]string, 0, 2)
 	groups = append(groups, formatGroup(segment.DEG(securityIndex), codeValue))
 	groups = append(groups, "<redacted "+strconv.Itoa(body-1)+" groups>")
 	return groups
+}
+
+// securityField says how one group of a security header is shown.
+type securityField int
+
+const (
+	securityRedacted securityField = iota
+	securityProfile
+	securityCode
+	securityIdentification
+)
+
+// hnvskLayout and hnshkLayout are the codec's HNVSK:3 and HNSHK:4 layouts.
+// Only public protocol constants are kept: the security profile, function,
+// role and identified-role codes, and the algorithm codes. The system id, user
+// id, BLZ, timestamps and reference numbers stay redacted.
+var (
+	hnvskLayout = []securityField{
+		securityProfile,        // PIN:1 or PIN:2
+		securityCode,           // security function 998
+		securityCode,           // role of the security supplier
+		securityIdentification, // identified role : : system id
+		securityRedacted,       // date and time
+		securityCode,           // encryption algorithm (the 8-byte value stays redacted)
+		securityRedacted,       // key name: BLZ, user id
+		securityCode,           // compression
+	}
+	hnshkLayout = []securityField{
+		securityProfile,        // PIN:1
+		securityCode,           // security function (999 or the TAN method)
+		securityRedacted,       // security control reference
+		securityCode,           // area of security application
+		securityCode,           // role of the security supplier
+		securityIdentification, // identified role : : system id
+		securityRedacted,       // security reference number
+		securityRedacted,       // date and time
+		securityCode,           // hash algorithm
+		securityCode,           // signature algorithm
+		securityRedacted,       // key name: BLZ, user id
+	}
+	securityCodePattern = regexp.MustCompile(`^[0-9]{1,3}$`)
+)
+
+// redactHNVSK shows the codec's HNVSK layout field by field and redacts any
+// other shape whole.
+func redactHNVSK(segment fints.ParsedSegment, body int) []string {
+	if body != len(hnvskLayout) || !isSecurityProfile(segment.DEG(1)) {
+		return []string{"<redacted " + strconv.Itoa(body) + " groups>"}
+	}
+	return securityHeaderGroups(segment, body, hnvskLayout)
+}
+
+func securityHeaderGroups(segment fints.ParsedSegment, body int, layout []securityField) []string {
+	groups := make([]string, 0, body)
+	for index := 1; index <= body; index++ {
+		current := segment.DEG(index)
+		switch layout[index-1] {
+		case securityProfile:
+			groups = append(groups, "PIN:"+current.Text(1))
+		case securityCode:
+			groups = append(groups, formatGroup(current, patternValue(securityCodePattern)))
+		case securityIdentification:
+			groups = append(groups, identificationGroup(current))
+		default:
+			groups = append(groups, redactedGroup(current))
+		}
+	}
+	return groups
+}
+
+// isSecurityProfile matches exactly PIN:1 or PIN:2.
+func isSecurityProfile(group fints.DEG) bool {
+	return group.Len() == 2 && !group.At(0).IsBinary() && !group.At(1).IsBinary() &&
+		group.Text(0) == "PIN" && (group.Text(1) == "1" || group.Text(1) == "2")
+}
+
+// identificationGroup keeps the identified-role code (1 or 2) and names the
+// system id without showing it.
+func identificationGroup(group fints.DEG) string {
+	if group.Len() == 0 {
+		return ""
+	}
+	elements := make([]string, group.Len())
+	for index := 0; index < group.Len(); index++ {
+		element := group.At(index)
+		switch {
+		case element.IsEmpty():
+			elements[index] = ""
+		case index == 0 && !element.IsBinary() && (element.Text() == "1" || element.Text() == "2"):
+			elements[index] = element.Text()
+		case index == group.Len()-1:
+			elements[index] = "<system id>"
+		default:
+			elements[index] = "<redacted>"
+		}
+	}
+	return strings.Join(elements, ":")
 }
 
 func isParameterSegmentType(segmentType string) bool {

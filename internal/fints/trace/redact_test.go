@@ -278,9 +278,25 @@ func TestRedactMessageHeaderDialogAndSystem(t *testing.T) {
 
 func TestRedactMessageHNSHKAndHNVSK(t *testing.T) {
 	got := redacted("HNVSK:998:3+SECRETMARK+2'" +
-		"HNSHK:2:4+PIN:1+999+REFMARK+1+1+2::SYSTEMMARK+1+1:20260329:123456+1:999:1+6:10:16+280:99999999:USERMARK:S:0:0'")
-	assertContains(t, got, "HNVSK:998:3 | <redacted 2 groups>", "HNSHK:2:4 | 999 | <redacted 10 groups>")
-	assertAbsent(t, got, "SECRETMARK", "REFMARK", "SYSTEMMARK", "USERMARK")
+		"HNSHK:2:4+PIN:1+999+REFMARK+1+1+1::SYSTEMMARK+1+1:20260329:123456+1:999:1+6:10:16+280:99999999:USERMARK:S:0:0'")
+	assertContains(t, got, "HNVSK:998:3 | <redacted 2 groups>",
+		"HNSHK:2:4 | PIN:1 | 999 | <redacted len=7> | 1 | 1 | 1::<system id> | ",
+		"| 1:999:1 | 6:10:16 | ")
+	assertAbsent(t, got, "SECRETMARK", "REFMARK", "SYSTEMMARK", "USERMARK", "99999999", "20260329")
+
+	// The codec's HNVSK layout keeps its public codes (profile, function, role,
+	// identified role, algorithm) and nothing that identifies the customer.
+	got = redacted("HNVSK:998:3+PIN:2+998+1+1::SYSTEMMARK+1:20260329:123456+2:2:13:@8@KEYBYTES:5:1+280:99999999:USERMARK:V:0:0+0'")
+	assertContains(t, got, "HNVSK:998:3 | PIN:2 | 998 | 1 | 1::<system id> | ", "| 2:2:13:", ":5:1 | ", " | 0")
+	assertAbsent(t, got, "SYSTEMMARK", "USERMARK", "KEYBYTES", "99999999", "20260329", "123456")
+
+	// A role field that is not 1 or 2 and a profile that is not PIN:1/PIN:2
+	// are never shown.
+	got = redacted("HNVSK:998:3+PIN:2+998+1+ROLEMARK::SYSTEMMARK+1:20260329:123456+2:2:13:@8@KEYBYTES:5:1+280:99999999:USERMARK:V:0:0+0'" +
+		"HNVSK:998:3+PROFILEMARK:2+998+1+1::SYSTEMMARK+1:20260329:123456+2:2:13:@8@KEYBYTES:5:1+280:99999999:USERMARK:V:0:0+0'" +
+		"HNSHK:2:4+PIN:1+CODEMARK+REFMARK+1+1+1::SYSTEMMARK+1+1:20260329:123456+1:999:1+6:10:16+280:99999999:USERMARK:S:0:0'")
+	assertContains(t, got, "HNVSK:998:3 | <redacted 8 groups>")
+	assertAbsent(t, got, "ROLEMARK", "PROFILEMARK", "CODEMARK", "SYSTEMMARK", "USERMARK", "REFMARK", "KEYBYTES")
 
 	got = redacted("HNVSK:998:3+a+b+c+d+e+f'" +
 		"HNSHK:2:4+999+a+b+c+d+e+f+g+h'")

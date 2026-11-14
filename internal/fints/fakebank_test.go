@@ -66,6 +66,9 @@ func (b *fakeBank) Exchange(_ context.Context, request []byte) ([]byte, error) {
 	}
 	call := len(b.records)
 	b.records = append(b.records, record)
+	if problem := envelopeProblem(request); problem != "" {
+		b.t.Errorf("exchange %d: %s", call, problem)
+	}
 
 	if b.expected != nil {
 		if call >= len(b.expected) {
@@ -338,4 +341,22 @@ func newSyncedDialog(t *testing.T, bank *fakeBank, body string, options ...func(
 
 func secretTextForTest(value string) *secret.Text {
 	return secret.NewText([]byte(value))
+}
+
+// envelopeProblem reports the envelope faults real banks rejected: an empty
+// dialog id in HNHBK (HVB 9120/9050) and the customer named as message
+// receiver (2) instead of sender (1) in HNVSK or HNSHK.
+func envelopeProblem(request []byte) string {
+	text := string(request)
+	header := text
+	if end := strings.IndexByte(text, '\''); end >= 0 {
+		header = text[:end]
+	}
+	if strings.HasPrefix(header, "HNHBK:") && strings.Contains(header, "+300++") {
+		return "HNHBK has an empty dialog id"
+	}
+	if strings.Contains(text, "+998+1+2::") || strings.Contains(text, "+1+1+2::") {
+		return "a security header names the customer as message receiver"
+	}
+	return ""
 }
