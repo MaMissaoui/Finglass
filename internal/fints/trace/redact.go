@@ -505,7 +505,7 @@ var (
 		securityCode,           // compression
 	}
 	hnshkLayout = []securityField{
-		securityProfile,        // PIN:1
+		securityProfile,        // PIN:1 or PIN:2
 		securityCode,           // security function (999 or the TAN method)
 		securityRedacted,       // security control reference
 		securityCode,           // area of security application

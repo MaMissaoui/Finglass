@@ -119,6 +119,22 @@ func TestDialogStrongSyncMessageShapeAndDirectFinish(t *testing.T) {
 	if got := hkidn.DEG(3).Text(0); got != "0" {
 		t.Fatalf("HKIDN system id = %q, want 0", got)
 	}
+	for _, header := range []struct {
+		segmentType string
+		index       int
+	}{
+		{"HNVSK", 4},
+		{"HNSHK", 6},
+	} {
+		group := findRequestSegment(t, segments, header.segmentType).DEG(header.index)
+		if group.Len() != 3 || group.Text(2) != "0" {
+			t.Fatalf("%s security identification system id = %q, want 0",
+				header.segmentType, group.Text(2))
+		}
+	}
+	if got := findRequestSegment(t, segments, "HNSHK").DEG(1).Text(1); got != "2" {
+		t.Fatalf("HNSHK security profile = %q, want 2", got)
+	}
 	hktan := findRequestSegment(t, segments, "HKTAN")
 	if got := hktan.DEG(1).Text(0); got != "4" {
 		t.Fatalf("HKTAN process = %q, want 4", got)

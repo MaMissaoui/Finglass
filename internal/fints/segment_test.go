@@ -335,6 +335,68 @@ func TestHKCAZRejectsBadArguments(t *testing.T) {
 	}
 }
 
+func TestSecurityHeadersUseTheProfileVersion(t *testing.T) {
+	now := fixedSource().now()
+	cases := []struct {
+		securityFunction string
+		want             string
+	}{
+		{SecurityFunctionPINOnly, "1"},
+		{"904", "2"},
+		{"921", "2"},
+		{"942", "2"},
+	}
+	for _, testCase := range cases {
+		t.Run(testCase.securityFunction, func(t *testing.T) {
+			hnvsk := parseOne(t, segmentWire(t,
+				newHNVSK(testCase.securityFunction, testBLZ, testUserID, testSystemID, now), 998))
+			if got := hnvsk.DEG(1).Text(1); got != testCase.want {
+				t.Fatalf("HNVSK profile = %q, want %q", got, testCase.want)
+			}
+			hnshk := parseOne(t, segmentWire(t,
+				newHNSHK(testCase.securityFunction, 1_234_567, testBLZ, testUserID, testSystemID, now), 2))
+			if got := hnshk.DEG(1).Text(1); got != testCase.want {
+				t.Fatalf("HNSHK profile = %q, want %q", got, testCase.want)
+			}
+		})
+	}
+}
+
+func TestSecurityHeadersEncodeAnEmptySystemIDAsZero(t *testing.T) {
+	now := fixedSource().now()
+	cases := []struct {
+		name     string
+		systemID string
+		want     string
+	}{
+		{"empty", "", "0"},
+		{"real", testSystemID, testSystemID},
+	}
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			hnvsk := parseOne(t, segmentWire(t,
+				newHNVSK("942", testBLZ, testUserID, testCase.systemID, now), 998))
+			assertSecurityIdentification(t, hnvsk.DEG(4), testCase.want)
+			hnshk := parseOne(t, segmentWire(t,
+				newHNSHK("942", 1_234_567, testBLZ, testUserID, testCase.systemID, now), 2))
+			assertSecurityIdentification(t, hnshk.DEG(6), testCase.want)
+		})
+	}
+}
+
+func assertSecurityIdentification(t *testing.T, group DEG, wantSystemID string) {
+	t.Helper()
+	if group.Len() != 3 {
+		t.Fatalf("security identification has %d elements, want 3", group.Len())
+	}
+	if got := group.Text(0); got != identifiedRoleMessageSender {
+		t.Fatalf("identified role = %q, want %q", got, identifiedRoleMessageSender)
+	}
+	if got := group.Text(2); got != wantSystemID {
+		t.Fatalf("system id = %q, want %q", got, wantSystemID)
+	}
+}
+
 func TestHKIDNWireFormat(t *testing.T) {
 	got := segmentWire(t, NewHKIDN(testBLZ, testCustomerID, testSystemID), 3)
 	if got != "HKIDN:3:2+280:99999999+test-customer+test-system+1'" {

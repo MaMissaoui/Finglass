@@ -400,6 +400,26 @@ const dialogIDUnassigned = "0"
 // identification of HNVSK and HNSHK: the customer sends to the bank.
 const identifiedRoleMessageSender = "1"
 
+// securityProfileVersion is the PIN/TAN security profile version: 1 for the
+// one-step PIN-only function (999), 2 for every two-step TAN method. HNVSK and
+// HNSHK carry the same version.
+func securityProfileVersion(securityFunction string) string {
+	if securityFunction == SecurityFunctionPINOnly {
+		return "1"
+	}
+	return "2"
+}
+
+// securitySystemID is the system id in HNVSK's and HNSHK's security
+// identification. Before the first sync there is no system id yet; the wire
+// value is "0", never an empty field.
+func securitySystemID(systemID string) string {
+	if systemID == "" {
+		return "0"
+	}
+	return systemID
+}
+
 func newHNHBK(messageSize uint64, dialogID string, messageNumber uint16) Segment {
 	if dialogID == "" {
 		// A dialog's first message carries the unassigned id "0"; banks
@@ -420,17 +440,13 @@ func newHNHBS(messageNumber uint16) Segment {
 
 // newHNVSK builds the encryption header. Its security profile is PIN:1 in a
 // one-step dialog (999) and PIN:2 in a two-step one, as python-fints and the
-// banks expect; HNSHK stays PIN:1 in both.
+// banks expect. HNSHK uses the same profile version.
 func newHNVSK(securityFunction, blz, userID, systemID string, now time.Time) Segment {
-	profileVersion := "2"
-	if securityFunction == SecurityFunctionPINOnly {
-		profileVersion = "1"
-	}
 	return newSegment("HNVSK", 3,
-		DEG{textElement("PIN"), textElement(profileVersion)},
+		DEG{textElement("PIN"), textElement(securityProfileVersion(securityFunction))},
 		DEG{textElement("998")},
 		DEG{textElement("1")},
-		DEG{textElement(identifiedRoleMessageSender), emptyElement(), valueElement(systemID)},
+		DEG{textElement(identifiedRoleMessageSender), emptyElement(), valueElement(securitySystemID(systemID))},
 		DEG{textElement("1"), textElement(now.Format("20060102")), textElement(now.Format("150405"))},
 		DEG{
 			textElement("2"),
@@ -463,12 +479,12 @@ func newHNSHK(
 	now time.Time,
 ) Segment {
 	return newSegment("HNSHK", 4,
-		DEG{textElement("PIN"), textElement("1")},
+		DEG{textElement("PIN"), textElement(securityProfileVersion(securityFunction))},
 		DEG{valueElement(securityFunction)},
 		DEG{textElement(strconv.FormatUint(uint64(securityReference), 10))},
 		DEG{textElement("1")},
 		DEG{textElement("1")},
-		DEG{textElement(identifiedRoleMessageSender), emptyElement(), valueElement(systemID)},
+		DEG{textElement(identifiedRoleMessageSender), emptyElement(), valueElement(securitySystemID(systemID))},
 		DEG{textElement("1")},
 		DEG{textElement("1"), textElement(now.Format("20060102")), textElement(now.Format("150405"))},
 		DEG{textElement("1"), textElement("999"), textElement("1")},

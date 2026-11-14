@@ -344,8 +344,9 @@ func secretTextForTest(value string) *secret.Text {
 }
 
 // envelopeProblem reports the envelope faults real banks rejected: an empty
-// dialog id in HNHBK (HVB 9120/9050) and the customer named as message
-// receiver (2) instead of sender (1) in HNVSK or HNSHK.
+// dialog id in HNHBK (HVB 9120/9050), the customer named as message receiver
+// (2) instead of sender (1) in HNVSK or HNSHK, a two-step HNSHK with the
+// one-step profile PIN:1, and an empty system id in a security identification.
 func envelopeProblem(request []byte) string {
 	text := string(request)
 	header := text
@@ -358,5 +359,64 @@ func envelopeProblem(request []byte) string {
 	if strings.Contains(text, "+998+1+2::") || strings.Contains(text, "+1+1+2::") {
 		return "a security header names the customer as message receiver"
 	}
+
+	outer, err := ParseMessage(request)
+	if err != nil {
+		return ""
+	}
+	segments, err := flattenResponses(outer, 0)
+	if err != nil {
+		return ""
+	}
+	for _, segment := range segments {
+		switch segment.Type() {
+		case "HNVSK":
+			if group := segment.DEG(4); group.Len() < 3 || group.Text(2) == "" {
+				return "9050: HNVSK security identification has an empty system id"
+			}
+		case "HNSHK":
+			if group := segment.DEG(6); group.Len() < 3 || group.Text(2) == "" {
+				return "9050: HNSHK security identification has an empty system id"
+			}
+			securityFunction := segment.DEG(2).Text(0)
+			if securityFunction != "" && securityFunction != SecurityFunctionPINOnly &&
+				segment.DEG(1).Text(0) == "PIN" && segment.DEG(1).Text(1) == "1" {
+				return "9050: a two-step HNSHK has security profile PIN:1"
+			}
+		}
+	}
 	return ""
+}
+
+func TestEnvelopeProblemRejectsTheSecurityHeaderRules(t *testing.T) {
+	cases := []struct {
+		name    string
+		message string
+	}{
+		{
+			name:    "two-step profile PIN:1",
+			message: "HNSHK:2:4+PIN:1+942+REFMARK+1+1+1::test-system'",
+		},
+		{
+			name:    "HNVSK empty system id",
+			message: "HNVSK:998:3+PIN:2+998+1+1::+0+0+0+0'",
+		},
+		{
+			name:    "HNSHK empty system id",
+			message: "HNSHK:2:4+PIN:2+942+REFMARK+1+1+1::'",
+		},
+	}
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			problem := envelopeProblem([]byte(testCase.message))
+			if !strings.Contains(problem, "9050") {
+				t.Fatalf("envelopeProblem = %q, want a 9050 rejection", problem)
+			}
+		})
+	}
+
+	valid := "HNSHK:2:4+PIN:2+942+REFMARK+1+1+1::test-system'"
+	if problem := envelopeProblem([]byte(valid)); problem != "" {
+		t.Fatalf("valid two-step HNSHK rejected: %s", problem)
+	}
 }
