@@ -56,15 +56,18 @@ root="$PWD"
 build="$root/build"
 cache="$build/go/.cache"
 
-mkdir -p "$build/go" "$cache/tmp" "$cache/npm" "$cache/go"
+mkdir -p "$build/go" "$cache/tmp" "$cache/npm"
 
-# Keep tool caches and temporary files inside build/go/.
-export GOCACHE="$cache/go"
+# Keep tool caches and temporary files inside build/go/. CI can point the Go
+# build cache at a restored folder so it survives the build.
+export GOCACHE="${FINGLASS_PACKAGE_GOCACHE:-$cache/go}"
 export GOTMPDIR="$cache/tmp"
 export GOPROXY=off
 export GOTOOLCHAIN=local
 export GOTELEMETRY=off
 export npm_config_cache="$cache/npm"
+
+mkdir -p "$GOCACHE"
 
 # 1. Frontend.
 (
@@ -93,10 +96,34 @@ export MACOSX_DEPLOYMENT_TARGET="$deployment_target"
 export CGO_CFLAGS="-mmacosx-version-min=$deployment_target"
 export CGO_LDFLAGS="-mmacosx-version-min=$deployment_target"
 
+arm64_pid=""
+amd64_pid=""
 for arch in arm64 amd64; do
-  GOARCH="$arch" go build -trimpath -ldflags "$ldflags" \
-    -o "$build/go/finglass-$arch" ./cmd/finglass
+  (
+    GOARCH="$arch" go build -trimpath -ldflags "$ldflags" \
+      -o "$build/go/finglass-$arch" ./cmd/finglass
+  ) >"$build/go/build-$arch.log" 2>&1 &
+  case "$arch" in
+    arm64) arm64_pid=$! ;;
+    amd64) amd64_pid=$! ;;
+  esac
 done
+
+build_failed=0
+for arch in arm64 amd64; do
+  case "$arch" in
+    arm64) pid=$arm64_pid ;;
+    amd64) pid=$amd64_pid ;;
+  esac
+  if ! wait "$pid"; then
+    echo "$arch build failed:" >&2
+    cat "$build/go/build-$arch.log" >&2
+    build_failed=1
+  fi
+done
+if [[ "$build_failed" -ne 0 ]]; then
+  exit 1
+fi
 
 lipo -create \
   "$build/go/finglass-arm64" \

@@ -15,6 +15,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/decimal"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/imports"
@@ -235,6 +236,8 @@ func snapshotFiles(t *testing.T, root string) map[string][]byte {
 }
 
 func TestTheFixtureImportsWithTheExpectedCounts(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	fixture := importedFixture(t)
 	report := fixture.report
 
@@ -308,6 +311,8 @@ func TestTheFixtureImportsWithTheExpectedCounts(t *testing.T) {
 }
 
 func TestAmountsDatesBooleansAndTaxOverridesMatchTheSource(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	fixture := importedFixture(t)
 	database := fixture.db
 
@@ -418,6 +423,8 @@ func TestAmountsDatesBooleansAndTaxOverridesMatchTheSource(t *testing.T) {
 }
 
 func TestStoredHashesAreCopiedVerbatimAndDedupFindsNothingNew(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	fixture := importedFixture(t)
 	transactions := storedTransactions(t, fixture.db)
 	day, ok := civil.New(2026, time.October, 1)
@@ -550,6 +557,8 @@ func TestAWrongPassphraseLeavesTheTargetUnchanged(t *testing.T) {
 }
 
 func TestANonEmptyTargetIsRefusedAndSeededCategoriesAreReplaced(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 
 	target, documentsDir := newTarget(t)
@@ -630,6 +639,8 @@ func TestANonEmptyTargetIsRefusedAndSeededCategoriesAreReplaced(t *testing.T) {
 }
 
 func TestATargetThatFillsAfterTheEarlyCheckIsRefusedInsideTheTransaction(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	target, documentsDir := newTarget(t)
 
@@ -675,6 +686,8 @@ func TestATargetThatFillsAfterTheEarlyCheckIsRefusedInsideTheTransaction(t *test
 }
 
 func TestNoPaymentDataReachesTheTarget(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	fixture := importedFixture(t)
 	database := fixture.db
 
@@ -818,6 +831,8 @@ func TestNoPaymentDataReachesTheTarget(t *testing.T) {
 }
 
 func TestOnlyTheReceiptDocumentIsCopiedAndItsOCRTextIsKept(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	fixture := importedFixture(t)
 	database := fixture.db
 
@@ -918,6 +933,8 @@ func fileMode(t *testing.T, path string) os.FileMode {
 }
 
 func TestTheAuditLogGainsExactlyOneEntryWithoutPersonalData(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	fixture := importedFixture(t)
 	entries, err := audit.Recent(context.Background(), fixture.db, 100)
 	if err != nil {
@@ -950,6 +967,8 @@ func TestTheAuditLogGainsExactlyOneEntryWithoutPersonalData(t *testing.T) {
 }
 
 func TestTheSourceFolderIsByteIdenticalAfterTheImport(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	before := snapshotFiles(t, sourceDir)
 
@@ -976,6 +995,8 @@ func TestTheSourceFolderIsByteIdenticalAfterTheImport(t *testing.T) {
 }
 
 func TestAFailedTransactionRemovesCopiedFiles(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	target, documentsDir := newTarget(t)
 
@@ -1063,6 +1084,8 @@ func TestAMissingSourceIsNotFoundAndAForeignDatabaseIsNotFinDesk(t *testing.T) {
 }
 
 func TestADatabaseFromBeforeGroupsPendingBookingsAndPaymentsStillImports(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	execOnSource(t, sourceDir,
 		"UPDATE accounts SET group_id = NULL",
@@ -1158,6 +1181,8 @@ func TestTheSourceSnapshotComparisonDetectsAChange(t *testing.T) {
 }
 
 func TestABudgetWithTooManyDecimalsKeepsItsCategory(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	execOnSource(t, sourceDir, "UPDATE categories SET budget_limit = 250.505 WHERE id = 1")
 

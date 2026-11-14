@@ -35,6 +35,9 @@ bash scripts/ci/go-package.sh      # universal, ad-hoc-signed Finglass.app with 
 scripts/ci-local.sh                # all of CI's jobs on this Mac
 ```
 
+Tests build with the tag `finglass_testkdf`, which lowers SQLCipher's key derivation to one round for test speed
+(never in the app). A fast single-package run is `go test -tags finglass_testkdf ./internal/<pkg>/`.
+
 The read-only FinTS probe is `cmd/finglass-probe`; see
 [`internal/core/fintsprobe/README.md`](internal/core/fintsprobe/README.md).
 

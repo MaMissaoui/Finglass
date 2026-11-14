@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
@@ -39,6 +40,8 @@ func unlockWith(t *testing.T, value string) *secret.Passphrase {
 }
 
 func TestOpenUnmigratedOpensTheFinDeskFixture(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := copyFindeskFixture(t)
 	path := filepath.Join(sourceDir, "findesk.db")
 
@@ -63,6 +66,8 @@ func TestOpenUnmigratedOpensTheFinDeskFixture(t *testing.T) {
 }
 
 func TestOpenUnmigratedReportsWrongPassphrasesWithoutSQLSyntaxErrors(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := copyFindeskFixture(t)
 	path := filepath.Join(sourceDir, "findesk.db")
 
@@ -92,6 +97,8 @@ func TestOpenUnmigratedReportsWrongPassphrasesWithoutSQLSyntaxErrors(t *testing.
 }
 
 func TestOpenUnmigratedLeavesUserVersionAlone(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := copyFindeskFixture(t)
 	path := filepath.Join(sourceDir, "findesk.db")
 	passphrase := unlockWith(t, unmigratedFixturePassphrase)
@@ -145,6 +152,8 @@ func TestOpenUnmigratedLeavesUserVersionAlone(t *testing.T) {
 }
 
 func TestOpenUnmigratedLeavesTheFileBytesUnchanged(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := copyFindeskFixture(t)
 	path := filepath.Join(sourceDir, "findesk.db")
 

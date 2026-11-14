@@ -1,25 +1,20 @@
 name: Package
 
-# The Go app and its universal DMG are built on every push to main, on packaging-relevant pull
-# requests and on demand. A pushed v* tag runs the same checks and then publishes the DMG as a
-# GitHub pre-release.
+# The Go app and its universal DMG are published on a v* tag, and the
+# install-twice check runs on demand and for packaging changes. CI's Package
+# job builds and launch-checks every non-docs change, so this workflow no longer
+# builds on every push to main.
 on:
   workflow_dispatch:
   push:
-    branches: [main]
     tags: ["v*"]
-    # A docs-only merge to main builds no DMG. Path filters don't apply to tag pushes, so a release tag
-    # always packages.
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
   pull_request:
     paths:
-      - "scripts/**"
+      - "scripts/go-package-macos.sh"
+      - "scripts/install-mac.sh"
+      - "scripts/ci/go-package.sh"
       - "packaging/**"
       - "assets/icons/**"
-      - "cmd/**"
-      - "frontend/**"
       - ".github/workflows/package.yml"
 
 concurrency:

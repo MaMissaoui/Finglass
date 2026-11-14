@@ -7,10 +7,14 @@ on:
     paths-ignore:
       - "**/*.md"
       - "docs/**"
+      - "LICENSE"
+      - ".gitignore"
   pull_request:
     paths-ignore:
       - "**/*.md"
       - "docs/**"
+      - "LICENSE"
+      - ".gitignore"
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -33,31 +37,73 @@ jobs:
       - name: Mac installer test
         run: bash scripts/ci/install-mac.sh
 
-  # The Go app (docs/PLAN.md).
-  go:
-    name: Go (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest]
+  # gofmt, go vet, golangci-lint, the kdftest guard, the bindings check and the product-id tests.
+  lint:
+    name: Go lint
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
+          cache: true
       # Installs golangci-lint only; scripts/ci/go.sh runs it with the other checks.
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
           version: v2.15.0
           install-only: true
-      # The same script scripts/ci-local.sh runs: gofmt, go vet, golangci-lint, go test.
-      - name: Go checks
-        run: bash scripts/ci/go.sh
+      - name: Go lint checks
+        run: bash scripts/ci/go.sh lint
+
+  # The whole suite with the cheap test-only SQLCipher KDF.
+  test:
+    name: Go tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Go tests
+        run: bash scripts/ci/go.sh test
+
+  # The storage packages without the tag, so the real KDF is checked end to end.
+  test-real-kdf:
+    name: Go tests (real KDF)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Go tests (real KDF)
+        run: bash scripts/ci/go.sh test-real-kdf
+
+  # svelte-check, Vitest, build, Playwright screenshots (WebKit).
+  frontend:
+    name: Frontend
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The third-party notices check needs Go to list the modules.
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "26"
-      # The same scripts scripts/ci-local.sh runs: svelte-check, Vitest, build, Playwright screenshots (WebKit).
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/Library/Caches/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
       - name: Frontend checks
         run: bash scripts/ci/frontend.sh
         env:
@@ -69,9 +115,42 @@ jobs:
           name: go-screenshots
           path: ${{ runner.temp }}/screenshots
           if-no-files-found: ignore
-      # Universal, ad-hoc-signed Finglass.app with its --self-check.
+
+  # Universal, ad-hoc-signed Finglass.app with its --self-check, then a launch check.
+  package:
+    name: Package
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Restore the package Go cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/package-gocache
+          key: package-gocache-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            package-gocache-${{ runner.os }}-${{ hashFiles('go.sum') }}-
+            package-gocache-${{ runner.os }}-
       - name: Package the Go app
         run: bash scripts/ci/go-package.sh
+        env:
+          FINGLASS_PACKAGE_GOCACHE: ${{ runner.temp }}/package-gocache
+      - name: Launch the packaged app once
+        run: bash scripts/ci/launch-check.sh
+      - name: Save the package Go cache
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/package-gocache
+          key: package-gocache-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
 
   # The FinTS product id is a release secret. Forks and PRs without the secret skip the scan.
   secret-scan:
@@ -98,3 +177,16 @@ jobs:
             exit 0
           fi
           bash scripts/go-package-macos.sh --validate-only
+
+  # The one required check: green only when every job above succeeded.
+  ci-ok:
+    name: CI OK
+    needs: [install, lint, test, test-real-kdf, frontend, package, secret-scan]
+    if: always()
+    runs-on: macos-latest
+    steps:
+      - name: Fail unless every needed job succeeded
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
+        run: |
+          echo "one or more needed jobs did not succeed" >&2
+          exit 1

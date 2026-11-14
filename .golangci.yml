@@ -1,5 +1,9 @@
 version: "2"
 
+run:
+  build-tags:
+    - finglass_testkdf
+
 linters:
   default: standard
   enable:

@@ -19,6 +19,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/findeskimport"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -560,6 +561,8 @@ func findeskPassphrase(t *testing.T, value string) *secret.Passphrase {
 }
 
 func TestFindeskImportWrongThenRightPassphraseHoldsTheProfileBusy(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	appPaths := testPaths(t)
 	session := newEmptySettingsSession(t, appPaths)
 	folder := findeskFixtureCopy(t)
@@ -665,6 +668,8 @@ func TestFindeskImportCancelAndNotAFolder(t *testing.T) {
 }
 
 func TestAFindeskPassphraseIsWipedOnEveryPath(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	newChosen := func(t *testing.T) *Session {
 		t.Helper()
 		session := newEmptySettingsSession(t, testPaths(t))
@@ -1170,6 +1175,8 @@ func findeskTarget(t *testing.T) (paths.AppPaths, *db.Database) {
 }
 
 func TestTheFindeskImportReleasesTheProfileBusyAfterSuccess(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	appPaths, database := findeskTarget(t)
 	busy := accountsview.NewBusy()
 	pending := findesk.NewFindeskImportState(i18n.En)

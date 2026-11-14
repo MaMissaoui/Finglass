@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
@@ -401,6 +402,8 @@ func fixturePath(t *testing.T, name string) string {
 }
 
 func TestOpensTheV034CreatedFixture(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	dir := t.TempDir()
 	path := filepath.Join(dir, "v0.3.4-created.db")
 	copyFile(t, fixturePath(t, "v0.3.4-created.db"), path)
@@ -451,6 +454,8 @@ func TestMigrationsMatchTheV034Golden(t *testing.T) {
 }
 
 func TestWriteGoCreatedFixture(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	if !*updateGoFixture {
 		t.Skip("run with -update-go-fixture to regenerate testdata/sqlcipher/go-created.db")
 	}
@@ -482,6 +487,8 @@ func TestWriteGoCreatedFixture(t *testing.T) {
 }
 
 func TestTheGoCreatedFixtureOpens(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	path := filepath.Join(t.TempDir(), "go-created.db")
 	copyFile(t, fixturePath(t, "go-created.db"), path)
 
@@ -653,6 +660,8 @@ func pragmaValue(t *testing.T, d *Database, name string) string {
 }
 
 func TestConnectionPragmasMatchV034(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	path := filepath.Join(repoRoot(t), "testdata", "golden", "connection_pragmas.json")
 	data, err := os.ReadFile(path) // #nosec G304 -- fixed path below the repository root
 	if err != nil {

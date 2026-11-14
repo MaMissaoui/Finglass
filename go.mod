@@ -151,3 +151,5 @@ require (
 )
 
 tool github.com/wailsapp/wails/v3/cmd/wails3
+
+ignore ./frontend/node_modules

@@ -18,6 +18,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
@@ -1191,6 +1192,8 @@ func TestTheManifestIsReadLeniently(t *testing.T) {
 }
 
 func TestReadsV034Backup(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	// The live database is the one inside the fixture, copied out first. SQLCipher's
 	// `ATTACH DATABASE` without a `KEY` clause inherits the main database's salt, so
 	// this is the live database a same-passphrase backup can be staged into with a
@@ -1279,6 +1282,8 @@ func TestReadsV034Backup(t *testing.T) {
 // cannot read the backup and the passphrase is asked for, exactly as Finglass
 // 0.3.4 does (checked with testdata/README.md).
 func TestV034BackupIntoAFreshProfile(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	dir := filepath.Join(t.TempDir(), "data")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		t.Fatalf("MkdirAll: %v", err)
@@ -1323,6 +1328,8 @@ func TestV034BackupIntoAFreshProfile(t *testing.T) {
 }
 
 func TestV034BackupWithAnotherPassphrase(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	dir := filepath.Join(t.TempDir(), "data")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		t.Fatalf("MkdirAll: %v", err)

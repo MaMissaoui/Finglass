@@ -14,6 +14,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/findeskimport"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
@@ -167,6 +168,8 @@ func TestARootWithProfilesUsesItsDefaultDatabaseOrItsOnlyProfile(t *testing.T) {
 }
 
 func TestTheStateImportsTheFixtureAndReportsTheCounts(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	appPaths, opened := freshProfile(t)
 
@@ -226,6 +229,8 @@ func TestTheStateImportsTheFixtureAndReportsTheCounts(t *testing.T) {
 }
 
 func TestANonEmptyProfileReportsTheNamedProfileHint(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	appPaths, opened := freshProfile(t)
 
@@ -397,6 +402,8 @@ func storedServerURL(t *testing.T, database *db.Database) *string {
 }
 
 func TestTheImportFillsAServerURLFromTheInstalledFinDeskApp(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	blankFirstBankServerURL(t, sourceDir)
 
@@ -427,6 +434,8 @@ func TestTheImportFillsAServerURLFromTheInstalledFinDeskApp(t *testing.T) {
 }
 
 func TestTheImportReportNamesBanksWithoutAServerURL(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	blankFirstBankServerURL(t, sourceDir)
 

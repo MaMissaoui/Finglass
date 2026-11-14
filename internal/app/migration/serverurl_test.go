@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 )
 
@@ -65,6 +66,8 @@ func syntheticFindDeskApp(t *testing.T, blz, serverURL string) string {
 }
 
 func TestTheMigrationFillsAServerURLFromTheInstalledFinDeskApp(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	root := fixtureCopy(t)
 	blankFirstBankServerURL(t, root)
 
@@ -119,6 +122,8 @@ func TestTheMigrationFillsAServerURLFromTheInstalledFinDeskApp(t *testing.T) {
 }
 
 func TestTheMigrationSummaryNamesBanksWithoutAServerURL(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	root := fixtureCopy(t)
 	blankFirstBankServerURL(t, root)
 
