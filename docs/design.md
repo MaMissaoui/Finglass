@@ -1,6 +1,6 @@
 # Finglass design direction: "Kontoauszug, modern"
 
-Approved by the user on 2026-11-08. FinDesk has the same direction (its `docs/design.md`); a change to a rule here
+Approved by the user on 2026-11-08; v2 approved on 2026-11-14 (see "v2" below). FinDesk has the same direction (its `docs/design.md`); a change to a rule here
 goes there too.
 
 ## Subject
@@ -22,6 +22,7 @@ app shows where the money stands and what needs doing, with the calm precision o
 | selected-accent| `#DCE6EE` | `#1E3A44` |
 | control-fill   | `#E6EAEE` | `#26303A` |
 | control-fill-hover | `#E1E6EA` | `#2F3A45` |
+| control-border | `#8A96A3` | `#6B7886` |
 | inflow         | `#1E7B4F` | `#5CC28F` |
 | alert          | `#B3261E` | `#F2867E` |
 | caution        | `#9A5B00` | `#E0A54A` |
@@ -36,6 +37,7 @@ app shows where the money stands and what needs doing, with the calm precision o
 | Inflow | `Theme.money-in` / `success` | incoming money, success states that aren't money |
 | Alert | `Theme.error` | negative balances, errors, destructive actions |
 | Caution | `Theme.caution` | warnings, "steuerrelevant", open-task counts |
+| Control edge | `control-border` | the edge of fields, checkboxes and the search field (at least 3:1 against paper); dividers stay `rule` |
 
 Amount colours: a booking going out is ink with a leading minus; a booking coming in is inflow with "+"; a balance
 is ink when ≥ 0 and alert when < 0. Totals of expenses are ink, never red.
@@ -112,6 +114,34 @@ The Dashboard opens with the month's reconciliation set like the foot of a bank 
 of figures — Übertrag, + Eingänge, − Ausgänge, ± Umbuchungen — a rule, then Verfügbar. It must add up exactly for the
 shown month, in the primary currency only; loans, net worth and other currencies stay outside the column.
 
+## v2 (2026-11-14)
+
+Same palette, type, surfaces and signature. v2 changes how state, edges and figures are shown.
+
+- **Control edges.** Fields, checkboxes and the search field use `control-border` (3:1 or more against paper in both
+  themes, WCAG 1.4.11). Hairline dividers and card edges stay `rule`.
+- **State in words.** No state is shown by colour alone: every coloured dot, badge, bar or tint that means something
+  also has text (visible, or an accessible name where the text would repeat what the row says). Status lines use the
+  role colours on a light wash with an icon: inflow for ready, caution for "needs you", slate for off.
+- **Per-bank state on Accounts.** No global sync banner. Each online bank card shows one status line ("Ready to sync ·
+  tested <date>", "Run Test connection first", "Not in Sync all") and its next action as a quiet button ("Sync now"
+  or "Test connection"). The bank monogram appears on the bank header only, not on each account row; mixed lists
+  (the Transactions account panel) keep it.
+- **Results lead with a verdict.** A check's result (Test connection) opens with a verdict chip (GO / NO-GO), one
+  sentence and the next step; then the bank's messages; then details (counts, codes) and the trace action.
+- **One main currency per figure.** A figure shows the primary currency at its size; other currencies follow on one
+  slate line below (`+ $35.97`), never wrapped into the figure. The same everywhere figures appear.
+- **One category pattern.** Every part-to-whole by category (Dashboard, Reports' tax list, category analysis) uses
+  `CategorySplit` rows.
+- **One main action per panel.** A detail panel has at most one `primary` button; others are quiet; destructive
+  actions are a slate icon (alert on hover) that asks before acting.
+- **Helper text at the field.** Rules and errors sit directly under their field and are linked with
+  `aria-describedby`; counters update while typing.
+- **Motion.** Menus, hover and the sidebar move in 120–200 ms; with "Reduce motion" on, nothing animates.
+- **Narrow windows.** Below 960 px the sidebar collapses on its own (the collapsed state already exists).
+- **Checks.** The Playwright run includes an automated accessibility check on every screenshot state and fails on
+  serious or critical findings.
+
 ## Phases
 
 0. Tokens: move colour and radius literals into the design tokens (`frontend/src/styles/tokens.css`) with no visual
@@ -120,3 +150,4 @@ shown month, in the primary currency only; loans, net worth and other currencies
 2. Dashboard reconciliation block and calmer KPI band.
 3. Page details: Accounts (no disabled Sync pills while sync is unavailable), Transactions (account panel width,
    select-all placement, "new" dots), Reports (tax list layout, distinct category hues), Settings (rules list).
+4. v2 (see above), in the steps listed in `docs/PLAN.md` under "Design v2".
