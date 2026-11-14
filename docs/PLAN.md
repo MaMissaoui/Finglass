@@ -106,7 +106,8 @@ Results of your Test connection runs (2026-11-14):
     approval.
   - [x] Signature header: PIN:2 for two-step methods (PIN:1 only with 999), and never an empty system id in the
     security headers — found by comparing the HVB trace with a working client.
-  - [ ] **You:** run Test connection for HVB with a build that has the product id; send the panel text and the trace.
+  - [ ] **You:** after the next build — Test connection for Volksbank first (must stay GO; if not, stop and send its
+    trace), then HVB; send the panel text and the trace.
     Note: every attempt registers another HBCI device at HVB.
 - **DKB (12030000): NO-GO.** 9078 with 3079 and 9800: most likely the product registration from 2026-11-13 has not
   reached DKB yet. Retry in a few days.
@@ -126,7 +127,6 @@ the newest supported HKTAN version, and names kept out of traces.
   `fints.BlocksPINRepeat`: a bank-answered PIN/lock code (known PIN codes, 3938, any 93xx or 99xx) never sees the PIN
   twice, while a stale-system-id error such as 9010 still retries once with Sync.
 - [ ] **You:** retry DKB once the registration has propagated.
-- [ ] **You:** after the next build — Test connection for Volksbank (must stay GO) and HVB.
 - [ ] Check HKTAN v5's layout against a bank (none of yours uses v5).
 - [ ] **You:** Volksbank: Sync now twice in a row with "Save redacted trace…" after each; then Sync all with HVB
   excluded.
