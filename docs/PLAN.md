@@ -128,6 +128,23 @@ The product id is the GitHub secret `FINGLASS_FINTS_PRODUCT_ID`, built into tag 
 manager and never paste it into a chat, issue, commit or file. A CI check confirms it never appears in the
 repository.
 
+## Design v2
+
+Approved 2026-11-14 (`docs/design.md`, "v2"; side-by-side preview shown to you). Each step: spec, OpenCode, review
+with before/after screenshots (EN/DE, light/dark, narrow), PR.
+
+- [ ] **A — visual only (no new texts):** `control-border` on fields, checkboxes and search; reduced motion; one main
+  currency per figure (Transactions figures, Accounts header, account panel); Reports tax list as `CategorySplit`
+  rows and Export next to the period; Documents with one main action and a quiet delete icon; Dashboard cards sized to
+  their content; sidebar collapses below 960 px; remaining colour literals into tokens.
+- [ ] **B — state in words** (after the HVB experiment PR): Accounts per-bank status lines and next action (with the
+  per-bank sync PR); Test connection opens with the verdict; text for the "new" dots, the account badge and the
+  "month so far" bar; the pending-tasks count announced.
+- [ ] **C — onboarding:** the migration welcome asks for the passphrase acknowledgement on the passphrase step and
+  shows "Quit FinDesk" only while it runs; passphrase rules under the field with a live count.
+- [ ] **D — checks:** automated accessibility check in the Playwright run (dev dependency only), failing on serious or
+  critical findings; fix what it finds.
+
 ## G11 — Windows and Linux
 
 - [ ] WebView2 / WebKitGTK, MSI/NSIS and DEB/RPM, credential stores, each installer launched once in CI.
