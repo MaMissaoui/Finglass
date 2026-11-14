@@ -194,6 +194,7 @@ func approvalRetryGoBank(t *testing.T) *fakeTransport {
 }
 
 func TestProbeRetriesLoginOnceAfterApproval(t *testing.T) {
+	enableApprovalRetry(t)
 	interaction := &probeInteraction{}
 	pin := secret.NewText([]byte(testPIN))
 	initRequests := make([][]fints.ParsedSegment, 0, 2)
@@ -245,6 +246,7 @@ func TestProbeRetriesLoginOnceAfterApproval(t *testing.T) {
 }
 
 func TestProbeApprovalCancelStopsWithoutRetry(t *testing.T) {
+	enableApprovalRetry(t)
 	bank := approvalRetryGoBank(t)
 	interaction := &probeInteraction{
 		confirmRetry: func(context.Context) bool { return false },
@@ -270,6 +272,7 @@ func TestProbeApprovalCancelStopsWithoutRetry(t *testing.T) {
 }
 
 func TestProbeDoesNotRetryOnPinCodeWithApprovalCode(t *testing.T) {
+	enableApprovalRetry(t)
 	bank := newFakeTransport(t)
 	bank.expect(
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
@@ -306,6 +309,7 @@ func TestProbeDoesNotRetryOnPinCodeWithApprovalCode(t *testing.T) {
 }
 
 func TestProbeRetriesOnlyOnce(t *testing.T) {
+	enableApprovalRetry(t)
 	bank := newFakeTransport(t)
 	bank.expect(
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
@@ -340,6 +344,7 @@ func TestProbeRetriesOnlyOnce(t *testing.T) {
 }
 
 func TestProbeDoesNotRetryOnNineThousandWithoutApprovalCode(t *testing.T) {
+	enableApprovalRetry(t)
 	bank := newFakeTransport(t)
 	bank.expect(
 		requestShape("HKIDN", "HKVVB", "HKSYN"),
@@ -372,6 +377,7 @@ func TestProbeDoesNotRetryOnNineThousandWithoutApprovalCode(t *testing.T) {
 }
 
 func TestProbeRetrySendsAndWipesThePIN(t *testing.T) {
+	enableApprovalRetry(t)
 	inits := 0
 	capture := &captureTransport{
 		fakeTransport: approvalRetryGoBank(t),
@@ -865,5 +871,19 @@ func TestProbeDismissedTANInsideWorkflow(t *testing.T) {
 	}
 	if !pin.IsEmpty() {
 		t.Fatal("Probe did not wipe the PIN")
+	}
+}
+
+// enableApprovalRetry switches the approval retry on for one test.
+func enableApprovalRetry(t *testing.T) {
+	t.Helper()
+	previous := ApprovalRetryEnabled
+	ApprovalRetryEnabled = true
+	t.Cleanup(func() { ApprovalRetryEnabled = previous })
+}
+
+func TestProbeDoesNotRetryWhileTheApprovalRetryIsOff(t *testing.T) {
+	if ApprovalRetryEnabled {
+		t.Fatal("the approval retry must be off by default")
 	}
 }

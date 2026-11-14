@@ -86,6 +86,8 @@ Results of your Test connection runs (2026-11-14):
   Finglass could not ask for it. FinDesk, with a known system id, gets 3076. The bank's message text (now on screen)
   is the next clue.
   - [x] Test connection retries the login once with the same system id after you approve in the HVB app (memory only)
+    Switched off for the release (your decision, 2026-11-14): `fintsprobe.ApprovalRetryEnabled = false`; the code and
+    its tests stay for later experiments.
   - Round 4 (2026-11-14, with that retry): after your approval Finglass logged in again with the same system id and
     no new sync; HVB answered the same 9050 + 9210 "Auftrag abgelehnt. Kein eingereichter Auftrag gefunden" on HKTAN.
     The approval does not make the system id known.

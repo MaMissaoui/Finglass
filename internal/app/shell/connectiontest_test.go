@@ -15,6 +15,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/app/startup"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/fintsprobe"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/fints"
 )
@@ -361,6 +362,7 @@ func retryConnectionBank(t *testing.T) *connectionTestTransport {
 }
 
 func TestConnectionTestRetriesAfterApprovalAndChangesNothing(t *testing.T) {
+	enableApprovalRetry(t)
 	store := banksync.NewMemoryCredentialStore()
 	session, bankID, _ := newBankingSession(t, store, nil)
 	database := sessionDatabase(t, session)
@@ -630,4 +632,12 @@ func TestBankMessagesReachTheScreenButAreNeverStored(t *testing.T) {
 		t.Fatalf("messages survived the sync start: %+v", state.ConnectionTest)
 	}
 	waitForBankingIdle(t, session)
+}
+
+// enableApprovalRetry switches the probe's approval retry on for one test.
+func enableApprovalRetry(t *testing.T) {
+	t.Helper()
+	previous := fintsprobe.ApprovalRetryEnabled
+	fintsprobe.ApprovalRetryEnabled = true
+	t.Cleanup(func() { fintsprobe.ApprovalRetryEnabled = previous })
 }

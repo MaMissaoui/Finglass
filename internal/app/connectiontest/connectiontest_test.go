@@ -661,6 +661,7 @@ func TestRunDecoupledCancelledByTheUserPollsNoFurther(t *testing.T) {
 }
 
 func TestRunRetriesLoginAfterApproval(t *testing.T) {
+	enableApprovalRetry(t)
 	const firstText = "Invented first login attempt message"
 	const secondText = "Invented second login attempt message"
 
@@ -701,6 +702,7 @@ func TestRunRetriesLoginAfterApproval(t *testing.T) {
 }
 
 func TestRunRetryCancelIsCancelled(t *testing.T) {
+	enableApprovalRetry(t)
 	interaction := &fakeInteraction{pin: testPIN}
 	prompts := make([]string, 0, 1)
 	interaction.confirm = func(message string) bool {
@@ -1156,4 +1158,12 @@ func TestMessageCollectorWithoutARequestMapKeepsTheMessageLevelSegment(t *testin
 	if len(messages) != 1 || messages[0].Segment != "" || messages[0].Text != "still collected" {
 		t.Fatalf("messages = %#v", messages)
 	}
+}
+
+// enableApprovalRetry switches the probe's approval retry on for one test.
+func enableApprovalRetry(t *testing.T) {
+	t.Helper()
+	previous := fintsprobe.ApprovalRetryEnabled
+	fintsprobe.ApprovalRetryEnabled = true
+	t.Cleanup(func() { fintsprobe.ApprovalRetryEnabled = previous })
 }
