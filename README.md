@@ -85,5 +85,10 @@ Pushing a `v*` tag runs the release workflow: it builds the universal DMG with t
 
 ## License
 
-[MIT](LICENSE). The FinTS client in `internal/fints` is based on fints-rs (MIT, © 2025 Florian Minnecker); see
-[`internal/fints/NOTICE`](internal/fints/NOTICE).
+[MIT](LICENSE). Parts of Finglass are ported from MIT-licensed libraries, whose notices are kept next to the code:
+
+- the FinTS client in `internal/fints`: fints-rs (© 2025 Florian Minnecker), [`NOTICE`](internal/fints/NOTICE);
+- PDF text extraction in `internal/core/documents/pdftext`: pdf-extract and adobe-cmap-parser (Jeff Muizelaar),
+  [`NOTICE`](internal/core/documents/pdftext/NOTICE);
+- decimal arithmetic in `internal/core/decimal`: rust_decimal (© 2016 Paul Mason),
+  [`NOTICE`](internal/core/decimal/NOTICE).
