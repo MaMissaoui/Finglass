@@ -9,6 +9,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
@@ -40,6 +41,8 @@ func lookupForTests(blz string) (string, bool) {
 }
 
 func TestALookupFillsOnlyEmptyServerURLs(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	updateSource(t, sourceDir, "UPDATE bank_access SET blz = '11112222', server_url = NULL WHERE id = 1")
 	target, documentsDir := newTarget(t)
@@ -80,6 +83,8 @@ func TestALookupFillsOnlyEmptyServerURLs(t *testing.T) {
 }
 
 func TestAStoredServerURLIsNeverReplaced(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	target, documentsDir := newTarget(t)
 
@@ -107,6 +112,8 @@ func TestAStoredServerURLIsNeverReplaced(t *testing.T) {
 }
 
 func TestWithoutALookupEmptyURLsStayEmptyAndAreCounted(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	updateSource(t, sourceDir, "UPDATE bank_access SET server_url = NULL WHERE id = 1")
 	target, documentsDir := newTarget(t)
@@ -144,6 +151,8 @@ func TestWithoutALookupEmptyURLsStayEmptyAndAreCounted(t *testing.T) {
 }
 
 func TestAnOfflineBankGetsAURLAndCountsAsFilledOnly(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	updateSource(
 		t,

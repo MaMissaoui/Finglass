@@ -16,6 +16,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/app/prefs"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
@@ -62,6 +63,8 @@ func snapshotSource(t *testing.T, root string) map[string]sourceFileState {
 }
 
 func TestImportNeverWritesTheSelectedFolder(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	before := snapshotSource(t, sourceDir)
 
@@ -113,6 +116,8 @@ func TestImportNeverWritesTheSelectedFolder(t *testing.T) {
 }
 
 func TestTemporaryCopyIsRemoved(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	successTarget, successDocuments := newTarget(t)
 	wrongTarget, wrongDocuments := newTarget(t)
@@ -178,6 +183,8 @@ func TestTemporaryCopyIsRemoved(t *testing.T) {
 }
 
 func TestPassphraseNeverFormatted(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	sourceDir := fixtureCopy(t)
 	correct := passphrase(fixturePassphrase, secret.Unlock)
 

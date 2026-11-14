@@ -19,6 +19,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
 	"github.com/MaMissaoui/Finglass/internal/core/backup"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
@@ -560,6 +561,8 @@ func TestARestorePassphraseIsWipedThroughTheService(t *testing.T) {
 }
 
 func TestAFindeskPassphraseIsWipedThroughTheService(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	t.Run("success", func(t *testing.T) {
 		fixture := newEmptySettingsBindFixture(t)
 		loadEmptySettings(t, fixture)
@@ -684,6 +687,8 @@ func TestAFindeskPassphraseIsWipedThroughTheService(t *testing.T) {
 }
 
 func TestNoDTOEventOrLogCarriesAPassphrase(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	var logOutput bytes.Buffer
 	previousLogger := slog.Default()
 	slog.SetDefault(slog.New(slog.NewTextHandler(&logOutput, &slog.HandlerOptions{Level: slog.LevelDebug})))

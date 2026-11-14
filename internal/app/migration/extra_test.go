@@ -15,6 +15,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/app/findesk"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/findeskimport"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
@@ -161,6 +162,8 @@ func runScenario(t *testing.T, name string) (paths.AppPaths, string, fileSnapsho
 }
 
 func TestMigrationNeverWritesTheFinDeskRoot(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	for _, name := range scenarioNames {
 		t.Run(name, func(t *testing.T) {
 			_, _, before, after := runScenario(t, name)
@@ -172,6 +175,8 @@ func TestMigrationNeverWritesTheFinDeskRoot(t *testing.T) {
 }
 
 func TestStagingIsAlwaysRemoved(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	for _, name := range scenarioNames {
 		t.Run(name, func(t *testing.T) {
 			target, _, _, _ := runScenario(t, name)

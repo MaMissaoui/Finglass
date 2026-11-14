@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/findeskimport"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
 	"github.com/MaMissaoui/Finglass/internal/core/profiles"
@@ -424,6 +425,8 @@ func TestTheMarkerWritesRFC3339Fractions(t *testing.T) {
 }
 
 func TestTheDefaultProfileIsMigratedIntoTheRoot(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	root := fixtureCopy(t)
 	if err := os.WriteFile(filepath.Join(root, "profiles.properties"), []byte("name.default=Privat\n"), 0o600); err != nil {
 		t.Fatalf("write properties: %v", err)
@@ -478,6 +481,8 @@ func TestTheDefaultProfileIsMigratedIntoTheRoot(t *testing.T) {
 }
 
 func TestANamedProfileGetsItsOwnFinglassSlug(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	root := fixtureCopy(t)
 	writeNamedProfile(t, root, "work")
 	if err := os.WriteFile(
@@ -588,6 +593,8 @@ func TestAWrongPassphraseCreatesNothing(t *testing.T) {
 }
 
 func TestANonEmptyDefaultTargetMovesNothing(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	root := fixtureCopy(t)
 	install := Discover(root)
 	profile := install.Profiles[0]
@@ -675,6 +682,8 @@ func TestAStagingFolderWithoutADatabaseMovesNothing(t *testing.T) {
 }
 
 func TestAFailedNamedMoveRollsBackTheCreatedProfile(t *testing.T) {
+	kdftest.RealKDF(t)
+
 	root := fixtureCopy(t)
 	writeNamedProfile(t, root, "work")
 	if err := os.WriteFile(
