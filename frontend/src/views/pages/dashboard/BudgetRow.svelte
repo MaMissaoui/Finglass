@@ -21,9 +21,20 @@
     <span class="amount">{budget.amountText}</span>
   </div>
 
-  <div class="track">
-    <div class="fill" class:caution style:width={`${ratio * 100}%`} data-testid="budget-fill"></div>
-    <div class="marker" style:left={`${progress * 100}%`} data-testid="budget-marker"></div>
+  <div class="track" role="img" aria-label={budget.description} data-testid="budget-track">
+    <div
+      class="fill"
+      class:caution
+      style:width={`${ratio * 100}%`}
+      aria-hidden="true"
+      data-testid="budget-fill"
+    ></div>
+    <div
+      class="marker"
+      style:left={`${progress * 100}%`}
+      aria-hidden="true"
+      data-testid="budget-marker"
+    ></div>
   </div>
 
   <p class="rest" class:caution>{budget.restText}</p>

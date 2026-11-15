@@ -444,6 +444,11 @@
     "de": "Budget ist keine Zahl",
     "fr": "Le budget n'est pas un nombre"
   },
+  "BudgetProgressDescription": {
+    "en": "%1$s of the budget used; %2$s of the month has passed",
+    "de": "%1$s des Budgets genutzt; %2$s des Monats sind vergangen",
+    "fr": "%1$s du budget utilisé ; %2$s du mois écoulé"
+  },
   "BudgetsInMonth": {
     "en": "Budgets in %s",
     "de": "Budgets im %s",
@@ -3013,6 +3018,11 @@
     "en": "Transactions",
     "de": "Buchungen",
     "fr": "Opérations"
+  },
+  "PendingCountAnnouncement": {
+    "en": "%d {1:pending task|pending tasks}",
+    "de": "%d {1:offene Aufgabe|offene Aufgaben}",
+    "fr": "%d {1:tâche en attente|tâches en attente}"
   },
   "PendingHeader": {
     "en": "Pending (not yet booked) · as of %s",

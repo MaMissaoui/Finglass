@@ -53,13 +53,14 @@ type DashboardMonthBarDTO struct {
 
 // DashboardBudgetRowDTO is one budget row.
 type DashboardBudgetRowDTO struct {
-	Name       string  `json:"name"`
-	AmountText string  `json:"amountText"`
-	RestText   string  `json:"restText"`
-	Ratio      float32 `json:"ratio"`
-	Over       bool    `json:"over"`
-	Warning    bool    `json:"warning"`
-	Colour     string  `json:"colour"`
+	Name        string  `json:"name"`
+	AmountText  string  `json:"amountText"`
+	RestText    string  `json:"restText"`
+	Description string  `json:"description"`
+	Ratio       float32 `json:"ratio"`
+	Over        bool    `json:"over"`
+	Warning     bool    `json:"warning"`
+	Colour      string  `json:"colour"`
 }
 
 // DashboardUpcomingRowDTO is one recurring payment due soon.
@@ -110,11 +111,12 @@ type DashboardDTO struct {
 	ExpensesTitle string `json:"expensesTitle"`
 	ExpensesValue string `json:"expensesValue"`
 
-	PendingTitle    string   `json:"pendingTitle"`
-	PendingValue    string   `json:"pendingValue"`
-	PendingSubtitle string   `json:"pendingSubtitle"`
-	PendingLines    []string `json:"pendingLines"`
-	PendingEnabled  bool     `json:"pendingEnabled"`
+	PendingTitle        string   `json:"pendingTitle"`
+	PendingValue        string   `json:"pendingValue"`
+	PendingSubtitle     string   `json:"pendingSubtitle"`
+	PendingAnnouncement string   `json:"pendingAnnouncement"`
+	PendingLines        []string `json:"pendingLines"`
+	PendingEnabled      bool     `json:"pendingEnabled"`
 
 	ExpensesSectionTitle string                    `json:"expensesSectionTitle"`
 	ExpensesEmptyText    string                    `json:"expensesEmptyText"`
@@ -372,6 +374,7 @@ func dashboardDTO(state dashboardview.DashboardState) DashboardDTO {
 	dto.PendingTitle = view.PendingTitle
 	dto.PendingValue = view.PendingValue
 	dto.PendingSubtitle = view.PendingSubtitle
+	dto.PendingAnnouncement = view.PendingAnnouncement
 	dto.PendingLines = append([]string(nil), view.PendingLines...)
 	dto.PendingEnabled = view.PendingEnabled
 
@@ -494,13 +497,14 @@ func budgetRowDTOs(rows []dashboardview.BudgetRowView) []DashboardBudgetRowDTO {
 	result := make([]DashboardBudgetRowDTO, 0, len(rows))
 	for _, row := range rows {
 		result = append(result, DashboardBudgetRowDTO{
-			Name:       row.Name,
-			AmountText: row.AmountText,
-			RestText:   row.RestText,
-			Ratio:      row.Ratio,
-			Over:       row.IsOver,
-			Warning:    row.Warning,
-			Colour:     row.Color,
+			Name:        row.Name,
+			AmountText:  row.AmountText,
+			RestText:    row.RestText,
+			Description: row.Description,
+			Ratio:       row.Ratio,
+			Over:        row.IsOver,
+			Warning:     row.Warning,
+			Colour:      row.Color,
 		})
 	}
 	return result

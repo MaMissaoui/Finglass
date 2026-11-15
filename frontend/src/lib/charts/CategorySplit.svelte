@@ -64,7 +64,7 @@
 </script>
 
 {#snippet rowContent(row: CategoryRow)}
-  <span class="dot" style:background={colourOf(row)}></span>
+  <span class="dot" style:background={colourOf(row)} aria-hidden="true"></span>
   <span class="label">{row.label}</span>
   <span class="percent">{row.percentText}</span>
   <span class="amount">{row.amountText}</span>

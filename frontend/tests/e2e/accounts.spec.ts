@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -77,6 +77,23 @@ async function shot(page: Page, name: string): Promise<void> {
 async function expectClean(watcher: Watcher): Promise<void> {
   expect(await watcher.csp()).toEqual([]);
   expect(watcher.problems).toEqual([]);
+}
+
+type Box = { x: number; y: number; width: number; height: number };
+
+function overlaps(left: Box, right: Box): boolean {
+  return (
+    left.x < right.x + right.width &&
+    right.x < left.x + left.width &&
+    left.y < right.y + right.height &&
+    right.y < left.y + left.height
+  );
+}
+
+async function boxOf(locator: Locator): Promise<Box> {
+  const box = await locator.boundingBox();
+  expect(box).not.toBeNull();
+  return box as Box;
 }
 
 function panel(page: Page) {
@@ -200,6 +217,69 @@ test('the page pulls its state on mount', async ({ page }) => {
         ?.accountsStateCalls ?? 0,
   );
   expect(calls).toBeGreaterThanOrEqual(1);
+});
+
+test('the Accounts header figures and actions do not overlap at 800 px', async ({ page }) => {
+  const cases = [
+    {
+      scenario: 'accounts-status-no-server',
+      language: 'en',
+      addBank: 'Add bank',
+      syncAll: 'Sync all',
+    },
+    {
+      scenario: 'accounts-status-no-server-de',
+      language: 'de',
+      addBank: 'Bank hinzufügen',
+      syncAll: 'Alle synchronisieren',
+    },
+    {
+      scenario: 'accounts-status-no-server-fr',
+      language: 'fr',
+      addBank: 'Ajouter une banque',
+      syncAll: 'Tout synchroniser',
+    },
+  ];
+
+  for (const testCase of cases) {
+    await goto(page, testCase.scenario, 800, 720);
+    const figures = page.getByTestId('accounts-figure');
+    const syncAll = page.getByRole('button', { name: testCase.syncAll, exact: true });
+    const addBank = page.getByRole('button', { name: testCase.addBank, exact: true });
+    await expect(figures).toHaveCount(2);
+    await expect(syncAll).toBeVisible();
+    await expect(addBank).toBeVisible();
+
+    const boxes: Box[] = [];
+    for (const figure of await figures.all()) {
+      boxes.push(await boxOf(figure));
+    }
+    boxes.push(await boxOf(syncAll));
+    boxes.push(await boxOf(addBank));
+    for (let left = 0; left < boxes.length; left += 1) {
+      for (let right = left + 1; right < boxes.length; right += 1) {
+        expect(
+          overlaps(boxes[left] as Box, boxes[right] as Box),
+          `${testCase.language}: boxes ${left} and ${right} overlap`,
+        ).toBe(false);
+      }
+    }
+
+    // The further currencies sit on their own line below the main amount.
+    const further = page.getByTestId('accounts-figure-further');
+    await expect(further).toHaveCount(1);
+    const amount = figures.first().locator('.figure-amount');
+    const amountBox = await boxOf(amount);
+    const furtherBox = await boxOf(further.first());
+    expect(furtherBox.y).toBeGreaterThanOrEqual(amountBox.y + amountBox.height - 1);
+
+    const overflow = await page
+      .locator('.figures')
+      .evaluate((element) => element.scrollWidth - element.clientWidth);
+    expect(overflow, `${testCase.language}: the figures overflow their row`).toBeLessThanOrEqual(1);
+
+    await shot(page, `accounts-header-800-${testCase.language}`);
+  }
 });
 
 test('every dialog validates and submits', async ({ page }) => {

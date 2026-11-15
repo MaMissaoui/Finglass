@@ -1248,6 +1248,7 @@ export class DashboardBudgetRowDTO {
     "name": string;
     "amountText": string;
     "restText": string;
+    "description": string;
     "ratio": number;
     "over": boolean;
     "warning": boolean;
@@ -1263,6 +1264,9 @@ export class DashboardBudgetRowDTO {
         }
         if (!("restText" in $$source)) {
             this["restText"] = "";
+        }
+        if (!("description" in $$source)) {
+            this["description"] = "";
         }
         if (!("ratio" in $$source)) {
             this["ratio"] = 0;
@@ -1367,6 +1371,7 @@ export class DashboardDTO {
     "pendingTitle": string;
     "pendingValue": string;
     "pendingSubtitle": string;
+    "pendingAnnouncement": string;
     "pendingLines": string[];
     "pendingEnabled": boolean;
     "expensesSectionTitle": string;
@@ -1465,6 +1470,9 @@ export class DashboardDTO {
         }
         if (!("pendingSubtitle" in $$source)) {
             this["pendingSubtitle"] = "";
+        }
+        if (!("pendingAnnouncement" in $$source)) {
+            this["pendingAnnouncement"] = "";
         }
         if (!("pendingLines" in $$source)) {
             this["pendingLines"] = [];
@@ -1566,13 +1574,13 @@ export class DashboardDTO {
     static createFrom($$source: any = {}): DashboardDTO {
         const $$createField4_0 = $$createType17;
         const $$createField14_0 = $$createType32;
-        const $$createField22_0 = $$createType17;
-        const $$createField26_0 = $$createType34;
-        const $$createField33_0 = $$createType36;
-        const $$createField38_0 = $$createType38;
-        const $$createField44_0 = $$createType34;
-        const $$createField46_0 = $$createType40;
-        const $$createField50_0 = $$createType42;
+        const $$createField23_0 = $$createType17;
+        const $$createField27_0 = $$createType34;
+        const $$createField34_0 = $$createType36;
+        const $$createField39_0 = $$createType38;
+        const $$createField45_0 = $$createType34;
+        const $$createField47_0 = $$createType40;
+        const $$createField51_0 = $$createType42;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("monthOptions" in $$parsedSource) {
             $$parsedSource["monthOptions"] = $$createField4_0($$parsedSource["monthOptions"]);
@@ -1581,25 +1589,25 @@ export class DashboardDTO {
             $$parsedSource["statementLines"] = $$createField14_0($$parsedSource["statementLines"]);
         }
         if ("pendingLines" in $$parsedSource) {
-            $$parsedSource["pendingLines"] = $$createField22_0($$parsedSource["pendingLines"]);
+            $$parsedSource["pendingLines"] = $$createField23_0($$parsedSource["pendingLines"]);
         }
         if ("expenseRows" in $$parsedSource) {
-            $$parsedSource["expenseRows"] = $$createField26_0($$parsedSource["expenseRows"]);
+            $$parsedSource["expenseRows"] = $$createField27_0($$parsedSource["expenseRows"]);
         }
         if ("monthBars" in $$parsedSource) {
-            $$parsedSource["monthBars"] = $$createField33_0($$parsedSource["monthBars"]);
+            $$parsedSource["monthBars"] = $$createField34_0($$parsedSource["monthBars"]);
         }
         if ("budgetRows" in $$parsedSource) {
-            $$parsedSource["budgetRows"] = $$createField38_0($$parsedSource["budgetRows"]);
+            $$parsedSource["budgetRows"] = $$createField39_0($$parsedSource["budgetRows"]);
         }
         if ("taxRows" in $$parsedSource) {
-            $$parsedSource["taxRows"] = $$createField44_0($$parsedSource["taxRows"]);
+            $$parsedSource["taxRows"] = $$createField45_0($$parsedSource["taxRows"]);
         }
         if ("upcomingRows" in $$parsedSource) {
-            $$parsedSource["upcomingRows"] = $$createField46_0($$parsedSource["upcomingRows"]);
+            $$parsedSource["upcomingRows"] = $$createField47_0($$parsedSource["upcomingRows"]);
         }
         if ("recentRows" in $$parsedSource) {
-            $$parsedSource["recentRows"] = $$createField50_0($$parsedSource["recentRows"]);
+            $$parsedSource["recentRows"] = $$createField51_0($$parsedSource["recentRows"]);
         }
         return new DashboardDTO($$parsedSource as Partial<DashboardDTO>);
     }

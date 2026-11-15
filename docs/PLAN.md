@@ -154,8 +154,10 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
   monogram on Accounts rows; Test connection opens with the verdict and the next step.
 - [x] **B1 follow-ups:** "Not completed" for tests without a verdict; status lines for strong-sync GO and a missing
   server address; audit-safe unlock writes; one clock.
-- [ ] **B2:** one main currency in the Accounts header; text for the "new" dots, the account badge and the "month so
-  far" bar; the pending-tasks count announced.
+- [x] **B2:** one main currency in the Accounts header; text for the "new" dots, the account badge and the "month so
+  far" bar; the pending-tasks count announced. Done: the main currency stays at figure size with other currencies
+  below, the budget bar describes used vs. elapsed in words, a changed pending count reaches a polite live region,
+  and colour-only dots are decorative where the row names them.
 - [x] **C — onboarding:** the migration asks for the passphrase acknowledgement on the passphrase step (once per
   wizard; a click without the tick keeps the typed fields); passphrase rules under the field with a live count
   ("4 of 10 characters", counted like Go). "Quit FinDesk first." is a neutral note now.

@@ -125,6 +125,44 @@ test('the dashboard reference screenshots', async ({ page }) => {
   await shot(page, 'dashboard-chart-hover-en-light');
 });
 
+test('the budget bar says its state in words', async ({ page }) => {
+  await goto(page, 'dashboard-en-light');
+  await expectDashboard(page);
+
+  const track = page.getByTestId('budget-track').first();
+  await expect(track).toHaveAttribute('role', 'img');
+  await expect(track).toHaveAttribute(
+    'aria-label',
+    '40% of the budget used; 60% of the month has passed',
+  );
+
+  await goto(page, 'dashboard-de-light');
+  await expectDashboard(page);
+  await expect(page.getByTestId('budget-track').first()).toHaveAttribute(
+    'aria-label',
+    '40\u00a0% des Budgets genutzt; 60\u00a0% des Monats sind vergangen',
+  );
+});
+
+test('a changed pending count is announced politely', async ({ page }) => {
+  await goto(page, 'dashboard-en-light');
+  await expectDashboard(page);
+
+  const announcement = page.getByTestId('pending-announcement');
+  await expect(announcement).toHaveAttribute('role', 'status');
+  await expect(announcement).toHaveAttribute('aria-live', 'polite');
+  await expect(announcement).toHaveText(/^\s*$/);
+
+  await page.evaluate(() => {
+    (
+      window as unknown as { __finglassMock?: { dashboardSetPending: (count: number) => void } }
+    ).__finglassMock?.dashboardSetPending(3);
+  });
+
+  await expect(announcement).toHaveText('3 pending tasks');
+  await expect(page.getByTestId('pending-panel')).toContainText('3 uncategorized');
+});
+
 test('the month header moves, selects and returns to the current month', async ({ page }) => {
   await goto(page, 'dashboard-en-light');
   await expectDashboard(page);
