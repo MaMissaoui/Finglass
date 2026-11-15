@@ -353,16 +353,22 @@ func (s *BankingState) ValidateBankAccess(name, blz string) *string {
 	return nil
 }
 
+// ValidServerURL reports whether serverURL is a non-empty https address. It is
+// the same test ValidateServerURL applies.
+func ValidServerURL(serverURL string) bool {
+	url := strings.TrimSpace(serverURL)
+	lower := asciiLower(url)
+	return strings.HasPrefix(lower, "https://") && len(lower) > len("https://")
+}
+
 // ValidateServerURL validates the FinTS server URL: it is required and must use
 // HTTPS.
 func (s *BankingState) ValidateServerURL(serverURL string) *string {
-	url := strings.TrimSpace(serverURL)
-	if url == "" {
+	if strings.TrimSpace(serverURL) == "" {
 		message := i18n.Text(s.Language, i18n.ErrorServerUrlRequired)
 		return &message
 	}
-	lower := asciiLower(url)
-	if !strings.HasPrefix(lower, "https://") || len(lower) == len("https://") {
+	if !ValidServerURL(serverURL) {
 		message := i18n.Text(s.Language, i18n.ErrorServerUrlMustBeHttps)
 		return &message
 	}

@@ -9,7 +9,7 @@ import type {
   LastTraceDTO,
   PromptDTO,
 } from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
-import { mockBankDirectory, searchBanks } from './bankDirectory';
+import { mockBankDirectory, searchBanks, type BankSuggestion } from './bankDirectory';
 import { translate, type Language } from './i18n';
 import { mockTanChallengeImage } from './mock/tanChallenge';
 
@@ -323,13 +323,26 @@ export function createMockBanking(
         note = centralNote(mapped, exact.branchBlz);
       }
     }
-    return { name: name.trim(), blz: mapped, bic: bic.trim(), centralNote: note };
+    return {
+      name: name.trim(),
+      blz: mapped,
+      bic: bic.trim(),
+      serverUrl: '',
+      centralNote: note,
+    };
   }
 
-  function bankBlzChanged(name: string, blz: string, bic: string): AddBankFieldsDTO {
+  function bankBlzChanged(
+    name: string,
+    blz: string,
+    bic: string,
+    serverURL: string,
+  ): AddBankFieldsDTO {
     const trimmed = blz.trim();
+    const suggestion = (entry: BankSuggestion | undefined): string =>
+      serverURL.trim() === '' ? (entry?.serverUrl ?? '') : '';
     if (!isEightDigits(trimmed)) {
-      return { name, blz, bic, centralNote: '' };
+      return { name, blz, bic, serverUrl: '', centralNote: '' };
     }
     const branch = mockBankDirectory.find((entry) => entry.branchBlz === trimmed);
     if (branch !== undefined && branch.branchBlz !== undefined) {
@@ -337,17 +350,19 @@ export function createMockBanking(
         name: name.trim() === '' ? branch.name : name,
         blz: branch.blz,
         bic: bic.trim() === '' ? branch.bic : bic,
+        serverUrl: suggestion(branch),
         centralNote: centralNote(branch.blz, branch.branchBlz),
       };
     }
     const exact = mockBankDirectory.find((entry) => entry.blz === trimmed);
     if (exact === undefined) {
-      return { name, blz, bic, centralNote: '' };
+      return { name, blz, bic, serverUrl: '', centralNote: '' };
     }
     return {
       name: name.trim() === '' ? exact.name : name,
       blz: exact.blz,
       bic: bic.trim() === '' ? exact.bic : bic,
+      serverUrl: suggestion(exact),
       centralNote: exact.branchBlz === undefined ? '' : centralNote(exact.blz, exact.branchBlz),
     };
   }

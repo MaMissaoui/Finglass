@@ -195,6 +195,11 @@ type SettingsDTO struct {
 	// QuitFinDeskVisible says whether the FinDesk import section shows the
 	// "Quit FinDesk first." note.
 	QuitFinDeskVisible bool `json:"quitFinDeskVisible"`
+
+	// BankListPresent says whether the installation-wide bank list is loaded.
+	BankListPresent bool `json:"bankListPresent"`
+	// BankListSummary is "N banks · loaded on <date>" while a list is loaded.
+	BankListSummary string `json:"bankListSummary"`
 }
 
 // SettingsOptions is the process wiring the caller supplies.
@@ -455,6 +460,16 @@ func (s *Settings) CancelPendingRestore() (SettingsDTO, error) {
 	return s.action(func() { s.session.SettingsCancelPendingRestore() })
 }
 
+// LoadBankList asks for the DK bank list CSV and stores its server addresses.
+func (s *Settings) LoadBankList() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsLoadBankList() })
+}
+
+// RemoveBankList deletes the installation-wide bank list.
+func (s *Settings) RemoveBankList() (SettingsDTO, error) {
+	return s.action(func() { s.session.SettingsRemoveBankList() })
+}
+
 // ImportFindesk asks for a FinDesk folder and opens the passphrase dialog for a
 // valid one.
 func (s *Settings) ImportFindesk() (SettingsDTO, error) {
@@ -626,12 +641,21 @@ func settingsDTO(
 		HasPendingRestore:          state.HasPendingRestore,
 		FindeskPassphraseOpen:      dialog.FindeskPassphraseOpen,
 		QuitFinDeskVisible:         quitFinDeskVisible,
+		BankListPresent:            state.BankListPresent,
 	}
 	if state.Error != nil {
 		dto.ErrorText = *state.Error
 	}
 	if state.Message != nil {
 		dto.MessageText = *state.Message
+	}
+	if state.BankListPresent {
+		dto.BankListSummary = i18n.Format(
+			state.Language,
+			i18n.BankListSummary,
+			i18n.Int(int64(state.BankListCount)),
+			i18n.Str(state.BankListLoadedOn.String()),
+		)
 	}
 	applyRuleImport(&dto, state, dialog)
 	applyProfiles(&dto, state)

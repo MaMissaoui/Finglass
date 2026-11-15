@@ -81,13 +81,16 @@
   async function updateBlz(text: string): Promise<void> {
     const token = ++blzToken;
     try {
-      const fields = await api.bankingBankBlzChanged(name, text, bic);
+      const fields = await api.bankingBankBlzChanged(name, text, bic, serverURL);
       if (token !== blzToken) {
         return;
       }
       name = fields.name;
       blz = fields.blz;
       bic = fields.bic;
+      if (serverURL.trim() === '' && fields.serverUrl !== '') {
+        serverURL = fields.serverUrl;
+      }
       centralNote = fields.centralNote;
     } catch {
       if (token === blzToken) {

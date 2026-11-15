@@ -306,8 +306,8 @@ export function createWailsApi(): Api {
     bankingPickBankSuggestion(name: string, blz: string, bic: string) {
       return Banking.PickBankSuggestion(name, blz, bic);
     },
-    bankingBankBlzChanged(name: string, blz: string, bic: string) {
-      return Banking.BankBLZChanged(name, blz, bic);
+    bankingBankBlzChanged(name: string, blz: string, bic: string, serverURL: string) {
+      return Banking.BankBLZChanged(name, blz, bic, serverURL);
     },
     bankingSubmitConnection(
       bankID: number,
@@ -837,6 +837,12 @@ export function createWailsApi(): Api {
     },
     settingsCancelPendingRestore(): Promise<SettingsDTO> {
       return Settings.CancelPendingRestore();
+    },
+    settingsLoadBankList(): Promise<SettingsDTO> {
+      return Settings.LoadBankList();
+    },
+    settingsRemoveBankList(): Promise<SettingsDTO> {
+      return Settings.RemoveBankList();
     },
     settingsImportFindesk(): Promise<SettingsDTO> {
       return Settings.ImportFindesk();

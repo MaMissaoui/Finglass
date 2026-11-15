@@ -132,9 +132,10 @@ the newest supported HKTAN version, and names kept out of traces.
   tests; a real-bank check waits until one of your banks offers only v5.
 - [x] Real-bank sync with 0.4.3 (2026-11-14): Sync now works for Volksbank and HVB.
 - [x] Sync all with Volksbank and HVB works (2026-11-14), each bank's second sync included.
-- [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the
-  list you received, or it ships with the app only if the terms allow it). Until then, the FinDesk import reads
-  FinDesk.app's local copy and ships nothing.
+- [x] Settings → Load bank list: you load the DK list (CSV) you received; only BLZ, server URL and name are kept in
+  `bank-servers.json` in the data folder; Add bank fills an empty server address. Nothing is shipped.
+- [ ] **You:** request the list from registrierung@hbci-zka.de with your product registration, load the CSV, and
+  report only the counts.
 
 The product id is the GitHub secret `FINGLASS_FINTS_PRODUCT_ID`, built into tag builds only; keep it in your password
 manager and never paste it into a chat, issue, commit or file. A CI check confirms it never appears in the

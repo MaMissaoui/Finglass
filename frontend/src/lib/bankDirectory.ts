@@ -10,6 +10,8 @@ export interface BankSuggestion {
   city: string;
   bic: string;
   detail: string;
+  /** The invented bank-list server address, used when the field is empty. */
+  serverUrl?: string;
   /** A branch code the bank maps to its central FinTS code. */
   branchBlz?: string;
 }
@@ -22,6 +24,7 @@ const entries: DirectoryEntry[] = [
     blz: '70020270',
     city: 'München',
     bic: 'HYVEDEMM488',
+    serverUrl: 'https://fints.example.test/rheintal',
     branchBlz: '10020890',
   },
   {
@@ -35,6 +38,7 @@ const entries: DirectoryEntry[] = [
     blz: '20050550',
     city: 'Hamburg',
     bic: 'NOLADEHHXXX',
+    serverUrl: 'https://fints.example.test/nordlicht',
   },
   {
     name: 'Seeblick Sparkasse',

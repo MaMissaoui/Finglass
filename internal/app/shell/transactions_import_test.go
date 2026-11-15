@@ -75,6 +75,11 @@ type fakeFileDialogs struct {
 	pickBackupTitle  string
 	pickBackupCalls  int
 
+	bankList       string
+	bankListResult bool
+	bankListTitle  string
+	bankListCalls  int
+
 	findeskFolder string
 	findeskResult bool
 	findeskTitle  string
@@ -181,6 +186,14 @@ func (f *fakeFileDialogs) PickBackup(title string) (string, bool) {
 	f.pickBackupTitle = title
 	f.pickBackupCalls++
 	return f.pickBackup, f.pickBackupResult
+}
+
+func (f *fakeFileDialogs) PickBankList(title string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.bankListTitle = title
+	f.bankListCalls++
+	return f.bankList, f.bankListResult
 }
 
 func (f *fakeFileDialogs) PickFindeskFolder(title string, startDir string) (string, bool) {

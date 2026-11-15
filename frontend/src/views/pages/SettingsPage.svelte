@@ -649,6 +649,29 @@
         {#if dto.backupRestoredText !== ''}
           <p class="restore-note">{dto.backupRestoredText}</p>
         {/if}
+
+        <div class="bank-list" data-testid="settings-bank-list">
+          <h3 class="block-title">{t('BankList')}</h3>
+          {#if dto.bankListPresent}
+            <p class="muted-text" data-testid="bank-list-summary">{dto.bankListSummary}</p>
+            <div class="backup-actions">
+              <TextButton
+                text={t('BankListRemove')}
+                enabled={!dto.busy}
+                onclick={() => run(() => api.settingsRemoveBankList())}
+              />
+            </div>
+          {:else}
+            <p class="muted-text">{t('BankListHint')}</p>
+            <div class="backup-actions">
+              <TextButton
+                text={t('BankListLoad')}
+                enabled={!dto.busy}
+                onclick={() => run(() => api.settingsLoadBankList())}
+              />
+            </div>
+          {/if}
+        </div>
       </div>
     </section>
   {:else if dto !== null && section === 6}
@@ -1324,6 +1347,20 @@
     font-size: var(--type-label-small-size);
     font-weight: var(--type-label-small-weight);
     white-space: nowrap;
+  }
+
+  .bank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .block-title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--type-label-size);
+    font-weight: var(--type-label-weight);
+    line-height: 1.3;
   }
 
   .backup-actions {

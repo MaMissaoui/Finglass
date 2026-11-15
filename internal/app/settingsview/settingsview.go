@@ -23,6 +23,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/app/auditview"
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/backup"
+	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -232,6 +233,12 @@ type SettingsState struct {
 	// Busy is the profile's busy flag, shared with the other views; the app
 	// replaces it with its own (see accountsview.Busy).
 	Busy accountsview.Busy
+	// BankListPresent says whether the installation-wide bank list is loaded.
+	BankListPresent bool
+	// BankListCount is the number of banks in the loaded list.
+	BankListCount int
+	// BankListLoadedOn is the date the loaded list was imported.
+	BankListLoadedOn civil.Date
 }
 
 // New builds an empty state for language.

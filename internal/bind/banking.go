@@ -149,6 +149,7 @@ type AddBankFieldsDTO struct {
 	Name        string `json:"name"`
 	BLZ         string `json:"blz"`
 	BIC         string `json:"bic"`
+	ServerURL   string `json:"serverUrl"`
 	CentralNote string `json:"centralNote"`
 }
 
@@ -277,9 +278,17 @@ func (b *Banking) PickBankSuggestion(name string, blz string, bic string) (AddBa
 	return b.addBankFieldsDTO(fields), nil
 }
 
-// BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ.
-func (b *Banking) BankBLZChanged(name string, blz string, bic string) (AddBankFieldsDTO, error) {
+// BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ. The
+// server address comes from the loaded DK list and only fills an empty field;
+// a typed address is never replaced.
+func (b *Banking) BankBLZChanged(name string, blz string, bic string, serverURL string) (AddBankFieldsDTO, error) {
 	fields := typedBankBLZ(bankdirectory.Bundled(), name, blz, bic)
+	if strings.TrimSpace(serverURL) == "" && b.session != nil {
+		if suggestion, ok := b.session.BankListServerURL(blz); ok &&
+			bankingcore.ValidServerURL(suggestion) {
+			fields.ServerURL = suggestion
+		}
+	}
 	return b.addBankFieldsDTO(fields), nil
 }
 
@@ -773,6 +782,7 @@ type addBankFields struct {
 	Name        string
 	BLZ         string
 	BIC         string
+	ServerURL   string
 	OriginalBLZ *string
 }
 
@@ -874,6 +884,7 @@ func (b *Banking) addBankFieldsDTO(fields addBankFields) AddBankFieldsDTO {
 		Name:        fields.Name,
 		BLZ:         fields.BLZ,
 		BIC:         fields.BIC,
+		ServerURL:   fields.ServerURL,
 		CentralNote: centralNote(language, fields),
 	}
 }

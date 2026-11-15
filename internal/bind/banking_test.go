@@ -23,6 +23,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
 	"github.com/MaMissaoui/Finglass/internal/core/bankdirectory"
+	"github.com/MaMissaoui/Finglass/internal/core/banklist"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/credentials"
@@ -1003,7 +1004,7 @@ func TestPickAndTypedBanksUseTheBundledDirectoryAndTheCentralNote(t *testing.T) 
 		t.Fatalf("central fields = %+v", central)
 	}
 
-	typed, err := service.BankBLZChanged("", "10020890", "")
+	typed, err := service.BankBLZChanged("", "10020890", "", "")
 	if err != nil {
 		t.Fatalf("BankBLZChanged: %v", err)
 	}
@@ -1012,13 +1013,55 @@ func TestPickAndTypedBanksUseTheBundledDirectoryAndTheCentralNote(t *testing.T) 
 		t.Fatalf("typed fields = %+v", typed)
 	}
 
-	untouched, err := service.BankBLZChanged("My bank", "1002", "MYBIC")
+	untouched, err := service.BankBLZChanged("My bank", "1002", "MYBIC", "")
 	if err != nil {
 		t.Fatalf("BankBLZChanged partial: %v", err)
 	}
 	if untouched.Name != "My bank" || untouched.BLZ != "1002" || untouched.BIC != "MYBIC" ||
 		untouched.CentralNote != "" {
 		t.Fatalf("partial fields = %+v", untouched)
+	}
+}
+
+func TestBankBLZChangedFillsAnEmptyServerURLFromTheLoadedList(t *testing.T) {
+	appPaths, err := paths.Resolve(t.TempDir(), "")
+	if err != nil {
+		t.Fatalf("resolve paths: %v", err)
+	}
+	loadedOn, _ := civil.New(2026, time.November, 15)
+	if err := banklist.Save(appPaths.Root(), banklist.List{
+		"99999901": {URL: "https://fints.example.test/bank", Name: "Beispiel Bank"},
+	}, loadedOn); err != nil {
+		t.Fatalf("save bank list: %v", err)
+	}
+	session, _, refusal := shell.Start(
+		appPaths,
+		nil,
+		nil,
+		func() time.Time { return testNow },
+		func() civil.Date { return civil.FromTime(testNow) },
+		func(string) (string, bool) { return "", false },
+	)
+	if refusal != nil {
+		t.Fatalf("start refused: %v", refusal)
+	}
+	t.Cleanup(func() { _ = session.Shutdown() })
+
+	service := NewBanking(session, BankingOptions{})
+	empty, err := service.BankBLZChanged("", "99999901", "", "")
+	if err != nil {
+		t.Fatalf("BankBLZChanged empty server: %v", err)
+	}
+	if empty.ServerURL != "https://fints.example.test/bank" {
+		t.Fatalf("server URL = %q, want the list's address", empty.ServerURL)
+	}
+
+	typed, err := service.BankBLZChanged("", "99999901", "", "https://fints.example.test/typed")
+	if err != nil {
+		t.Fatalf("BankBLZChanged typed server: %v", err)
+	}
+	if typed.ServerURL != "" {
+		t.Fatalf("a typed address was replaced by %q", typed.ServerURL)
 	}
 }
 

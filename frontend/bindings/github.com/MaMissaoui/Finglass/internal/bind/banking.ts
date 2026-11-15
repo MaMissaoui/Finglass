@@ -55,10 +55,12 @@ export function AnswerTan(id: number, tan: string): $CancellablePromise<void> {
 }
 
 /**
- * BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ.
+ * BankBLZChanged fills empty dialog fields from a hand-typed 8-digit BLZ. The
+ * server address comes from the loaded DK list and only fills an empty field;
+ * a typed address is never replaced.
  */
-export function BankBLZChanged(name: string, blz: string, bic: string): $CancellablePromise<$models.AddBankFieldsDTO> {
-    return $Call.ByID(3863024602, name, blz, bic).then(($result: any) => {
+export function BankBLZChanged(name: string, blz: string, bic: string, serverURL: string): $CancellablePromise<$models.AddBankFieldsDTO> {
+    return $Call.ByID(3863024602, name, blz, bic, serverURL).then(($result: any) => {
         return $$createType0($result);
     });
 }

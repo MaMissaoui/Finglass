@@ -193,7 +193,12 @@ export interface Api {
   ): Promise<BankingDTO>;
   bankingSearchBanks(query: string): Promise<BankSuggestionDTO[]>;
   bankingPickBankSuggestion(name: string, blz: string, bic: string): Promise<AddBankFieldsDTO>;
-  bankingBankBlzChanged(name: string, blz: string, bic: string): Promise<AddBankFieldsDTO>;
+  bankingBankBlzChanged(
+    name: string,
+    blz: string,
+    bic: string,
+    serverURL: string,
+  ): Promise<AddBankFieldsDTO>;
   bankingSubmitConnection(
     bankID: number,
     name: string,
@@ -395,6 +400,8 @@ export interface Api {
   settingsConfirmRestorePassphrase(passphrase: string): Promise<SettingsDTO>;
   settingsCancelRestorePassphrase(): Promise<SettingsDTO>;
   settingsCancelPendingRestore(): Promise<SettingsDTO>;
+  settingsLoadBankList(): Promise<SettingsDTO>;
+  settingsRemoveBankList(): Promise<SettingsDTO>;
   settingsImportFindesk(): Promise<SettingsDTO>;
   settingsSubmitFindeskPassphrase(passphrase: string): Promise<SettingsDTO>;
   settingsCancelFindeskPassphrase(): Promise<SettingsDTO>;

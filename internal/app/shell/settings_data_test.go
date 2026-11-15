@@ -1251,3 +1251,69 @@ func TestASettingsLoadDuringABackupDoesNotLeaveThePageBusy(t *testing.T) {
 		t.Fatalf("a load during the backup dropped its message: %+v", state.Message)
 	}
 }
+
+func TestLoadingAndRemovingTheBankListUpdatesTheStateAndAuditsOnlyCounts(t *testing.T) {
+	appPaths := testPaths(t)
+	seedSettingsDatabase(t, appPaths)
+	session := newLoadedSettingsSession(t, appPaths)
+
+	csvPath := filepath.Join(t.TempDir(), "invented-bank-list.csv")
+	csv := "Institut;BLZ;PIN/TAN URL\n" +
+		"Beispiel Eins;99999901;https://fints.example.test/one\n" +
+		"Beispiel Zwei;99999902;https://fints.example.test/two\n" +
+		"Kaputt;9999990;https://fints.example.test/short\n"
+	if err := os.WriteFile(csvPath, []byte(csv), 0o600); err != nil {
+		t.Fatalf("write bank list: %v", err)
+	}
+	dialogs := &fakeFileDialogs{bankList: csvPath, bankListResult: true}
+	session.SetFileDialogs(dialogs)
+	session.SettingsLoadBankList()
+	state := waitForSettingsState(t, session, "the loaded bank list", func(state settingsview.SettingsState) bool {
+		return state.BankListPresent && state.BankListCount == 2
+	})
+	if dialogs.bankListCalls != 1 {
+		t.Fatalf("the bank list dialog was called %d times", dialogs.bankListCalls)
+	}
+	if dialogs.bankListTitle != i18n.Text(i18n.En, i18n.BankListLoad) {
+		t.Fatalf("bank list dialog title = %q", dialogs.bankListTitle)
+	}
+	if state.BankListLoadedOn.String() != testToday().String() {
+		t.Fatalf("loaded on = %s, want %s", state.BankListLoadedOn, testToday())
+	}
+	if state.Message == nil || !strings.Contains(*state.Message, "2 banks loaded") ||
+		!strings.Contains(*state.Message, "1 row skipped") {
+		t.Fatalf("load message = %v", state.Message)
+	}
+	if _, err := os.Stat(filepath.Join(appPaths.Root(), "bank-servers.json")); err != nil {
+		t.Fatalf("bank list file in the data root: %v", err)
+	}
+
+	loaded := settingsAuditDetails(t, session, "BANK_LIST_LOADED")
+	if len(loaded) != 1 {
+		t.Fatalf("BANK_LIST_LOADED details = %+v", loaded)
+	}
+	if !strings.Contains(loaded[0], "2 banks") || !strings.Contains(loaded[0], "1 rows skipped") {
+		t.Fatalf("load audit details = %q", loaded[0])
+	}
+	for _, secret := range []string{csvPath, "99999901", "https://fints.example.test"} {
+		if strings.Contains(loaded[0], secret) {
+			t.Fatalf("load audit details carry %q: %q", secret, loaded[0])
+		}
+	}
+
+	session.SettingsRemoveBankList()
+	state = waitForSettingsState(t, session, "the removed bank list", func(state settingsview.SettingsState) bool {
+		return !state.BankListPresent && state.BankListCount == 0
+	})
+	if state.Message == nil || !strings.Contains(*state.Message, "2 banks") {
+		t.Fatalf("remove message = %v", state.Message)
+	}
+	if _, err := os.Stat(filepath.Join(appPaths.Root(), "bank-servers.json")); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("the bank list file is still there: %v", err)
+	}
+	removed := settingsAuditDetails(t, session, "BANK_LIST_REMOVED")
+	if len(removed) != 1 || !strings.Contains(removed[0], "2 banks") ||
+		strings.Contains(removed[0], csvPath) {
+		t.Fatalf("remove audit details = %+v", removed)
+	}
+}

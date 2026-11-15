@@ -334,6 +334,66 @@
     "de": "FinTS-Server: %s",
     "fr": "Serveur FinTS : %s"
   },
+  "BankList": {
+    "en": "Bank list",
+    "de": "Bankenliste",
+    "fr": "Liste des banques"
+  },
+  "BankListHint": {
+    "en": "Load the FinTS bank list you received from the DK (CSV). It stays on this computer and only fills in server addresses.",
+    "de": "Laden Sie die FinTS-Bankenliste, die Sie von der DK erhalten haben (CSV). Sie bleibt auf diesem Computer und füllt nur Serveradressen ein.",
+    "fr": "Chargez la liste des banques FinTS que vous avez reçue de la DK (CSV). Elle reste sur cet ordinateur et ne remplit que les adresses de serveur."
+  },
+  "BankListLoad": {
+    "en": "Load bank list…",
+    "de": "Bankenliste laden…",
+    "fr": "Charger la liste des banques…"
+  },
+  "BankListReasonBlz": {
+    "en": "bank code",
+    "de": "Bankleitzahl",
+    "fr": "code bancaire"
+  },
+  "BankListReasonDuplicate": {
+    "en": "duplicate",
+    "de": "Dopplung",
+    "fr": "doublon"
+  },
+  "BankListReasonEmpty": {
+    "en": "empty server address",
+    "de": "leere Serveradresse",
+    "fr": "adresse de serveur vide"
+  },
+  "BankListReasonInvalid": {
+    "en": "invalid server address",
+    "de": "ungültige Serveradresse",
+    "fr": "adresse de serveur invalide"
+  },
+  "BankListReasonNoScheme": {
+    "en": "no scheme",
+    "de": "kein Schema",
+    "fr": "sans schéma"
+  },
+  "BankListReasonNotHTTPS": {
+    "en": "not https",
+    "de": "kein HTTPS",
+    "fr": "pas HTTPS"
+  },
+  "BankListRemove": {
+    "en": "Remove bank list",
+    "de": "Bankenliste entfernen",
+    "fr": "Supprimer la liste des banques"
+  },
+  "BankListSkippedReason": {
+    "en": "%s: %d",
+    "de": "%s: %d",
+    "fr": "%s : %d"
+  },
+  "BankListSummary": {
+    "en": "%d {1:bank|banks} · loaded on %s",
+    "de": "%d {1:Bank|Banken} · geladen am %s",
+    "fr": "%d {1:banque|banques} · chargée le %s"
+  },
   "BankManualEntry": {
     "en": "or enter the details manually",
     "de": "oder Daten manuell eingeben",
@@ -1314,6 +1374,21 @@
     "de": "Bankverbindung nicht gefunden",
     "fr": "Connexion bancaire introuvable"
   },
+  "ErrorBankListMissingColumn": {
+    "en": "The bank list has no %s column.",
+    "de": "Der Bankenliste fehlt die Spalte %s.",
+    "fr": "La liste des banques n'a pas de colonne %s."
+  },
+  "ErrorBankListTooLarge": {
+    "en": "The bank list file is larger than 10 MB.",
+    "de": "Die Bankenlistendatei ist größer als 10 MB.",
+    "fr": "Le fichier de la liste des banques dépasse 10 Mo."
+  },
+  "ErrorBankListUseCsv": {
+    "en": "Choose the .csv version of the DK list.",
+    "de": "Wählen Sie die .csv-Version der DK-Liste.",
+    "fr": "Choisissez la version .csv de la liste DK."
+  },
   "ErrorBankOffline": {
     "en": "This bank is offline: nothing is sent to the bank.",
     "de": "Diese Bank ist offline: es wird nichts an die Bank gesendet.",
@@ -2233,6 +2308,21 @@
     "en": "Backup saved to %s (%d {2:transaction|transactions}, %d {3:document|documents})",
     "de": "Backup gespeichert unter %s (%d {2:Buchung|Buchungen}, %d {3:Dokument|Dokumente})",
     "fr": "Sauvegarde enregistrée dans %s (%d {2:opération|opérations}, %d {3:document|documents})"
+  },
+  "MessageBankListLoaded": {
+    "en": "%d {1:bank|banks} loaded, %d {2:row|rows} skipped (%s)",
+    "de": "%d {1:Bank|Banken} geladen, %d {2:Zeile|Zeilen} übersprungen (%s)",
+    "fr": "Chargement : %d {1:banque|banques}, %d {2:ligne ignorée|lignes ignorées} (%s)"
+  },
+  "MessageBankListLoadedAll": {
+    "en": "%d {1:bank|banks} loaded.",
+    "de": "%d {1:Bank|Banken} geladen.",
+    "fr": "Chargement : %d {1:banque|banques}."
+  },
+  "MessageBankListRemoved": {
+    "en": "Bank list removed: %d {1:bank|banks}.",
+    "de": "Bankenliste entfernt: %d {1:Bank|Banken}.",
+    "fr": "Liste des banques supprimée : %d {1:banque|banques}."
   },
   "MessageBankRemoved": {
     "en": "Bank removed",
