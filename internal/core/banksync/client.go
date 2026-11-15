@@ -18,7 +18,6 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
@@ -40,7 +39,6 @@ type FinTsClient struct {
 	productID   string
 	credentials credentials.Store
 	language    i18n.Language
-	now         func() time.Time
 	pinNotSaved atomic.Bool
 }
 
@@ -76,15 +74,7 @@ func NewFinTsClient(gateway FinTsGateway, dataDir, productID string, store crede
 		productID:   productID,
 		credentials: store,
 		language:    i18n.En,
-		now:         time.Now,
 	}
-}
-
-// WithClock sets the clock the client uses for the local civil date stored
-// with a sync unlock. Tests only; production uses time.Now.
-func (c *FinTsClient) WithClock(now func() time.Time) *FinTsClient {
-	c.now = now
-	return c
 }
 
 // WithLanguage sets the language used for user-visible error text.

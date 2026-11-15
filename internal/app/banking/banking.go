@@ -106,6 +106,15 @@ const (
 	ConnectionTestKindOther                 = "Other"
 )
 
+// The three verdicts a completed connection test can carry. "none" means the
+// test ended without a bank verdict, for example after a cancel or a local
+// transport failure.
+const (
+	ConnectionTestVerdictGo   = "go"
+	ConnectionTestVerdictNoGo = "nogo"
+	ConnectionTestVerdictNone = "none"
+)
+
 // ConnectionTestResult is the latest read-only connection test, as the Banking
 // page shows it. It never carries trace bytes. Its bank messages are the bank's
 // own warning/error texts: show them on screen only and never log, store, audit
@@ -117,6 +126,9 @@ type ConnectionTestResult struct {
 	Running bool
 	// Go is the probe's GO/NO-GO decision.
 	Go bool
+	// Verdict is "go", "nogo" or "none". A test that never reached a bank
+	// verdict carries "none", so the UI does not call it NO-GO.
+	Verdict string
 	// Reason is the localized reason.
 	Reason string
 	// Kind is the NO-GO category: one of the ConnectionTestKind values, or ""
@@ -303,7 +315,7 @@ func (s *BankingState) Refresh(ctx context.Context, database *db.Database, servi
 		unlocked := !bank.Offline && service.SyncUnlocked(ctx, database, bank.ID, connection)
 		var unlockedOn *civil.Date
 		if unlocked {
-			unlockedOn = service.SyncUnlockedOn(ctx, database, bank.ID, connection)
+			unlockedOn = service.SyncUnlockedOn(ctx, database, bank.ID)
 		}
 		items = append(items, BankItem{
 			ID:               bank.ID,

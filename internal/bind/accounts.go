@@ -70,9 +70,6 @@ type BankAccountRowDTO struct {
 	BalanceText string `json:"balanceText"`
 	Tone        string `json:"tone"`
 	NewCount    int    `json:"newCount"`
-	Logo        string `json:"logo"`
-	LogoLetters string `json:"logoLetters"`
-	LogoColour  int    `json:"logoColour"`
 }
 
 // BankStatusDTO is one bank card's state line and its next action.
@@ -100,8 +97,6 @@ type AccountsBankCardDTO struct {
 	Accounts          []BankAccountRowDTO `json:"accounts"`
 	Syncing           bool                `json:"syncing"`
 	SyncStep          string              `json:"syncStep"`
-	SyncEnabled       bool                `json:"syncEnabled"`
-	SyncTooltip       string              `json:"syncTooltip"`
 	PinText           string              `json:"pinText"`
 	CanTestConnection bool                `json:"canTestConnection"`
 	Menu              []BankMenuItemDTO   `json:"menu"`
@@ -675,8 +670,6 @@ func applyBankingCard(
 	}
 	card.Syncing = bankingState.SyncingBank != nil && *bankingState.SyncingBank == bank.ID
 	card.SyncStep = bankSyncStep(bankingState, language)
-	card.SyncEnabled = bankSyncEnabled(bank, bankingState)
-	card.SyncTooltip = bankSyncTooltip(bank, language)
 	card.PinText = bankPinText(bank, bankingState, language)
 	card.CanTestConnection = bank.CanTestConnection
 	card.Status = bankStatus(bank, bankingState, language)
@@ -706,12 +699,25 @@ func bankStatus(
 	if !bank.SyncUnlocked {
 		status.Tone = "attention"
 		status.Icon = "warning"
-		status.Text = i18n.Text(language, i18n.SyncStatusRunTest)
-		if bank.CanTestConnection {
-			status.Action = "test-connection"
-			status.ActionText = i18n.Text(language, i18n.TestConnection)
-			status.ActionEnabled = !state.IsSyncing() && !state.IsTesting()
+		latest := state.ConnectionTest
+		if latest != nil && !latest.Running && latest.BankID == bank.ID &&
+			latest.Go && latest.StrongSync {
+			// The strong sync reached the bank, but it cannot unlock the
+			// regular sync path yet.
+			status.Text = i18n.Text(language, i18n.SyncStatusStrongSyncLocked)
+			return status
 		}
+		if !bank.CanTestConnection {
+			status.Text = i18n.Text(language, i18n.SyncStatusAddServerURL)
+			status.Action = "connection"
+			status.ActionText = i18n.Text(language, i18n.ConnectionSettings)
+			status.ActionEnabled = !state.IsSyncing()
+			return status
+		}
+		status.Text = i18n.Text(language, i18n.SyncStatusRunTest)
+		status.Action = "test-connection"
+		status.ActionText = i18n.Text(language, i18n.TestConnection)
+		status.ActionEnabled = !state.IsSyncing() && !state.IsTesting()
 		return status
 	}
 
@@ -767,7 +773,7 @@ func accountsBankCard(
 
 	rows := make([]BankAccountRowDTO, 0, len(accounts))
 	for index := range accounts {
-		rows = append(rows, accountsBankAccountRow(&state, &accounts[index], language))
+		rows = append(rows, accountsBankAccountRow(&accounts[index], language))
 	}
 
 	var badge accountsBadgeFields
@@ -789,7 +795,6 @@ func accountsBankCard(
 		AccountCountText: i18n.Format(language, i18n.AccountCount, i18n.Int(int64(len(accounts)))),
 		Totals:           accountsAmounts(totals, groupingAccounts, language, false),
 		Accounts:         rows,
-		SyncEnabled:      true,
 		Menu:             []BankMenuItemDTO{},
 		Logo:             badge.Logo,
 		LogoLetters:      badge.Letters,
@@ -827,11 +832,9 @@ func accountsCentralBLZHint(bank model.BankAccessItem, language i18n.Language) s
 }
 
 func accountsBankAccountRow(
-	state *accountsview.AccountsState,
 	account *accountsview.AccountItem,
 	language i18n.Language,
 ) BankAccountRowDTO {
-	badge := accountsAccountBadge(*account, accountsBankFor(state, account))
 	return BankAccountRowDTO{
 		AccountID:   accountsID(int64(account.ID)),
 		Name:        accountsAccountLabel(*account, language),
@@ -841,10 +844,7 @@ func accountsBankAccountRow(
 			account.Balance,
 			account.AccountType == accountgrouping.LoanType,
 		)),
-		NewCount:    accountsNewCount(account.NewCount),
-		Logo:        badge.Logo,
-		LogoLetters: badge.Letters,
-		LogoColour:  badge.Colour,
+		NewCount: accountsNewCount(account.NewCount),
 	}
 }
 

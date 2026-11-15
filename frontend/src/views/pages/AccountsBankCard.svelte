@@ -95,6 +95,8 @@
       onSync(card.bankId);
     } else if (card.status.action === 'test-connection') {
       onBankMenu(card.bankId, 'test-connection');
+    } else if (card.status.action === 'connection') {
+      onBankMenu(card.bankId, 'connection');
     }
   }
 </script>
@@ -229,8 +231,13 @@
           <span class="test-reason">{t('TestConnectionRunning')}</span>
         </div>
       {:else}
-        <div class="test-line" class:warning={!connectionTest.go}>
-          <span class="verdict-chip" class:go={connectionTest.go} class:nogo={!connectionTest.go}>
+        <div class="test-line" class:warning={connectionTest.verdict === 'nogo'}>
+          <span
+            class="verdict-chip"
+            class:go={connectionTest.verdict === 'go'}
+            class:nogo={connectionTest.verdict === 'nogo'}
+            class:none={connectionTest.verdict === 'none'}
+          >
             {connectionTest.verdictText}
           </span>
           <span class="test-reason">{connectionTest.reason}</span>
@@ -538,6 +545,7 @@
 
   .bank-status {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     margin: 0 16px 12px;
@@ -566,7 +574,7 @@
   }
 
   .bank-status-text {
-    flex: 1;
+    flex: 1 1 200px;
     min-width: 0;
     font-size: var(--type-body-small-size);
     font-weight: var(--type-body-small-weight);
@@ -717,6 +725,11 @@
   .verdict-chip.nogo {
     background: var(--color-attention-wash);
     color: var(--color-caution);
+  }
+
+  .verdict-chip.none {
+    background: var(--color-off-wash);
+    color: var(--color-muted-text);
   }
 
   .test-reason {

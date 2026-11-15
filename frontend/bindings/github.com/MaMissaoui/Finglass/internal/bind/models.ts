@@ -262,8 +262,6 @@ export class AccountsBankCardDTO {
     "accounts": BankAccountRowDTO[];
     "syncing": boolean;
     "syncStep": string;
-    "syncEnabled": boolean;
-    "syncTooltip": string;
     "pinText": string;
     "canTestConnection": boolean;
     "menu": BankMenuItemDTO[];
@@ -309,12 +307,6 @@ export class AccountsBankCardDTO {
         if (!("syncStep" in $$source)) {
             this["syncStep"] = "";
         }
-        if (!("syncEnabled" in $$source)) {
-            this["syncEnabled"] = false;
-        }
-        if (!("syncTooltip" in $$source)) {
-            this["syncTooltip"] = "";
-        }
         if (!("pinText" in $$source)) {
             this["pinText"] = "";
         }
@@ -344,7 +336,7 @@ export class AccountsBankCardDTO {
         const $$createField3_0 = $$createType2;
         const $$createField8_0 = $$createType1;
         const $$createField9_0 = $$createType4;
-        const $$createField16_0 = $$createType6;
+        const $$createField14_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("status" in $$parsedSource) {
             $$parsedSource["status"] = $$createField3_0($$parsedSource["status"]);
@@ -356,7 +348,7 @@ export class AccountsBankCardDTO {
             $$parsedSource["accounts"] = $$createField9_0($$parsedSource["accounts"]);
         }
         if ("menu" in $$parsedSource) {
-            $$parsedSource["menu"] = $$createField16_0($$parsedSource["menu"]);
+            $$parsedSource["menu"] = $$createField14_0($$parsedSource["menu"]);
         }
         return new AccountsBankCardDTO($$parsedSource as Partial<AccountsBankCardDTO>);
     }
@@ -785,9 +777,6 @@ export class BankAccountRowDTO {
     "balanceText": string;
     "tone": string;
     "newCount": number;
-    "logo": string;
-    "logoLetters": string;
-    "logoColour": number;
 
     /** Creates a new BankAccountRowDTO instance. */
     constructor($$source: Partial<BankAccountRowDTO> = {}) {
@@ -808,15 +797,6 @@ export class BankAccountRowDTO {
         }
         if (!("newCount" in $$source)) {
             this["newCount"] = 0;
-        }
-        if (!("logo" in $$source)) {
-            this["logo"] = "";
-        }
-        if (!("logoLetters" in $$source)) {
-            this["logoLetters"] = "";
-        }
-        if (!("logoColour" in $$source)) {
-            this["logoColour"] = 0;
         }
 
         Object.assign(this, $$source);
@@ -997,8 +977,6 @@ export class BankingBankDTO {
     "bankId": number;
     "syncing": boolean;
     "syncStep": string;
-    "syncEnabled": boolean;
-    "syncTooltip": string;
     "pinText": string;
     "canTestConnection": boolean;
     "menu": BankMenuItemDTO[];
@@ -1013,12 +991,6 @@ export class BankingBankDTO {
         }
         if (!("syncStep" in $$source)) {
             this["syncStep"] = "";
-        }
-        if (!("syncEnabled" in $$source)) {
-            this["syncEnabled"] = false;
-        }
-        if (!("syncTooltip" in $$source)) {
-            this["syncTooltip"] = "";
         }
         if (!("pinText" in $$source)) {
             this["pinText"] = "";
@@ -1037,10 +1009,10 @@ export class BankingBankDTO {
      * Creates a new BankingBankDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): BankingBankDTO {
-        const $$createField7_0 = $$createType6;
+        const $$createField5_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("menu" in $$parsedSource) {
-            $$parsedSource["menu"] = $$createField7_0($$parsedSource["menu"]);
+            $$parsedSource["menu"] = $$createField5_0($$parsedSource["menu"]);
         }
         return new BankingBankDTO($$parsedSource as Partial<BankingBankDTO>);
     }
@@ -1184,6 +1156,7 @@ export class ConnectionTestDTO {
     "bankId": number;
     "running": boolean;
     "go": boolean;
+    "verdict": string;
     "verdictText": string;
     "reason": string;
     "nextStep": string;
@@ -1207,6 +1180,9 @@ export class ConnectionTestDTO {
         }
         if (!("go" in $$source)) {
             this["go"] = false;
+        }
+        if (!("verdict" in $$source)) {
+            this["verdict"] = "";
         }
         if (!("verdictText" in $$source)) {
             this["verdictText"] = "";
@@ -1252,14 +1228,14 @@ export class ConnectionTestDTO {
      * Creates a new ConnectionTestDTO instance from a string or object.
      */
     static createFrom($$source: any = {}): ConnectionTestDTO {
-        const $$createField6_0 = $$createType17;
-        const $$createField7_0 = $$createType30;
+        const $$createField7_0 = $$createType17;
+        const $$createField8_0 = $$createType30;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("codes" in $$parsedSource) {
-            $$parsedSource["codes"] = $$createField6_0($$parsedSource["codes"]);
+            $$parsedSource["codes"] = $$createField7_0($$parsedSource["codes"]);
         }
         if ("messages" in $$parsedSource) {
-            $$parsedSource["messages"] = $$createField7_0($$parsedSource["messages"]);
+            $$parsedSource["messages"] = $$createField8_0($$parsedSource["messages"]);
         }
         return new ConnectionTestDTO($$parsedSource as Partial<ConnectionTestDTO>);
     }

@@ -76,8 +76,6 @@ type BankingBankDTO struct {
 	BankID            int               `json:"bankId"`
 	Syncing           bool              `json:"syncing"`
 	SyncStep          string            `json:"syncStep"`
-	SyncEnabled       bool              `json:"syncEnabled"`
-	SyncTooltip       string            `json:"syncTooltip"`
 	PinText           string            `json:"pinText"`
 	CanTestConnection bool              `json:"canTestConnection"`
 	Menu              []BankMenuItemDTO `json:"menu"`
@@ -90,6 +88,7 @@ type ConnectionTestDTO struct {
 	BankID               int              `json:"bankId"`
 	Running              bool             `json:"running"`
 	Go                   bool             `json:"go"`
+	Verdict              string           `json:"verdict"`
 	VerdictText          string           `json:"verdictText"`
 	Reason               string           `json:"reason"`
 	NextStep             string           `json:"nextStep"`
@@ -569,7 +568,8 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 			BankID:               int(state.ConnectionTest.BankID),
 			Running:              state.ConnectionTest.Running,
 			Go:                   state.ConnectionTest.Go,
-			VerdictText:          connectionTestVerdict(state.ConnectionTest),
+			Verdict:              connectionTestVerdictValue(state.ConnectionTest),
+			VerdictText:          connectionTestVerdict(state.ConnectionTest, language),
 			Reason:               state.ConnectionTest.Reason,
 			NextStep:             connectionTestNextStep(&state, language),
 			Codes:                append([]string(nil), state.ConnectionTest.Codes...),
@@ -593,16 +593,42 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 	return dto
 }
 
-// connectionTestVerdict is GO for a GO result and NO-GO otherwise. A running
-// test has no verdict yet.
-func connectionTestVerdict(result *bankingcore.ConnectionTestResult) string {
+// connectionTestVerdictValue carries the shell's tri-state to the UI. Older
+// results without an explicit value fall back to their GO flag.
+func connectionTestVerdictValue(result *bankingcore.ConnectionTestResult) string {
 	if result == nil || result.Running {
 		return ""
 	}
-	if result.Go {
-		return "GO"
+	switch result.Verdict {
+	case bankingcore.ConnectionTestVerdictGo:
+		return bankingcore.ConnectionTestVerdictGo
+	case bankingcore.ConnectionTestVerdictNoGo:
+		return bankingcore.ConnectionTestVerdictNoGo
+	case bankingcore.ConnectionTestVerdictNone:
+		return bankingcore.ConnectionTestVerdictNone
 	}
-	return "NO-GO"
+	if result.Go {
+		return bankingcore.ConnectionTestVerdictGo
+	}
+	return bankingcore.ConnectionTestVerdictNoGo
+}
+
+// connectionTestVerdict is the chip text. A test without a bank verdict is
+// "Not completed", never NO-GO. A running test has no verdict yet.
+func connectionTestVerdict(
+	result *bankingcore.ConnectionTestResult,
+	language i18n.Language,
+) string {
+	switch connectionTestVerdictValue(result) {
+	case bankingcore.ConnectionTestVerdictGo:
+		return "GO"
+	case bankingcore.ConnectionTestVerdictNoGo:
+		return "NO-GO"
+	case bankingcore.ConnectionTestVerdictNone:
+		return i18n.Text(language, i18n.TestConnectionNotCompleted)
+	default:
+		return ""
+	}
 }
 
 // connectionTestNextStep is the one sentence that says what happens next.
@@ -673,8 +699,6 @@ func bankingBanks(state *bankingcore.BankingState, language i18n.Language) []Ban
 			BankID:            int(bank.ID),
 			Syncing:           state.SyncingBank != nil && *state.SyncingBank == bank.ID,
 			SyncStep:          bankSyncStep(state, language),
-			SyncEnabled:       bankSyncEnabled(&bank, state),
-			SyncTooltip:       bankSyncTooltip(&bank, language),
 			PinText:           bankPinText(&bank, state, language),
 			CanTestConnection: bank.CanTestConnection,
 			Menu:              bankMenu(&bank, state, false, language),
@@ -970,16 +994,6 @@ func bankSyncEnabled(bank *bankingcore.BankItem, state *bankingcore.BankingState
 		bank.SyncUnlocked &&
 		!state.IsSyncing() &&
 		!state.IsTesting()
-}
-
-func bankSyncTooltip(bank *bankingcore.BankItem, language i18n.Language) string {
-	if !shell.OnlineSyncReady() {
-		return i18n.Text(language, i18n.OnlineSyncNotYetAvailable)
-	}
-	if bank != nil && !bank.Offline && !bank.SyncUnlocked {
-		return i18n.Text(language, i18n.SyncLockedHint)
-	}
-	return ""
 }
 
 func bankPinText(bank *bankingcore.BankItem, state *bankingcore.BankingState, language i18n.Language) string {

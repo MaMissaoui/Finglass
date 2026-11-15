@@ -509,6 +509,10 @@ function initialState(scenario: string): MockState {
     case 'accounts-history':
     case 'accounts-sync-all':
     case 'accounts-sync-per-bank':
+    case 'accounts-status-strong-sync':
+    case 'accounts-status-no-server':
+    case 'accounts-status-no-server-de':
+    case 'accounts-status-no-server-fr':
     case 'accounts-syncing':
     case 'accounts-pin':
     case 'accounts-pin-remember':
@@ -534,16 +538,19 @@ function initialState(scenario: string): MockState {
           ? 'dark'
           : 'light';
       state.language =
-        scenario === 'shell-de-dark' ||
-        scenario === 'shell-profiles-de' ||
-        scenario === 'accounts-de-light' ||
-        scenario === 'accounts-de-dark' ||
-        scenario === 'accounts-detail-flat-de' ||
-        scenario === 'accounts-add-online-bank-no-match-de-dark' ||
-        scenario === 'accounts-bank-menu-de-dark' ||
-        scenario === 'accounts-test-saved-pin-rejected-de'
-          ? 'de'
-          : 'en';
+        scenario === 'accounts-status-no-server-fr'
+          ? 'fr'
+          : scenario === 'shell-de-dark' ||
+              scenario === 'shell-profiles-de' ||
+              scenario === 'accounts-de-light' ||
+              scenario === 'accounts-de-dark' ||
+              scenario === 'accounts-detail-flat-de' ||
+              scenario === 'accounts-add-online-bank-no-match-de-dark' ||
+              scenario === 'accounts-bank-menu-de-dark' ||
+              scenario === 'accounts-test-saved-pin-rejected-de' ||
+              scenario === 'accounts-status-no-server-de'
+            ? 'de'
+            : 'en';
       state.sidebarCollapsed = scenario === 'shell-collapsed' || scenario === 'shell-de-dark';
       if (scenario.startsWith('accounts') || scenario === 'banking-walkthrough') {
         state.screen = 'accounts';

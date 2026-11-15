@@ -2754,11 +2754,6 @@
     "de": "Nicht genug Daten",
     "fr": "Pas assez de données"
   },
-  "NotInSyncAll": {
-    "en": "not in Sync all",
-    "de": "nicht in „Alle synchronisieren“",
-    "fr": "hors « Tout synchroniser »"
-  },
   "NotLinked": {
     "en": "not linked",
     "de": "nicht verknüpft",
@@ -3098,6 +3093,26 @@
     "en": "PIN for %s",
     "de": "PIN für %s",
     "fr": "PIN pour %s"
+  },
+  "PinForgetAfterFirst": {
+    "en": "the first rejection",
+    "de": "der ersten Ablehnung",
+    "fr": "le premier refus"
+  },
+  "PinForgetAfterHint": {
+    "en": "A wrong-PIN answer always removes it at once. Banks usually lock the login after three wrong PINs, so two leave you one try.",
+    "de": "Eine Antwort „PIN falsch“ löscht sie immer sofort. Banken sperren den Zugang meist nach drei falschen PINs; nach zwei bleibt Ihnen ein Versuch.",
+    "fr": "Une réponse « code PIN erroné » le supprime toujours immédiatement. Les banques bloquent généralement l'accès après trois codes PIN erronés ; après deux, il vous reste un essai."
+  },
+  "PinForgetAfterLabel": {
+    "en": "Remove the saved PIN after",
+    "de": "Gespeicherte PIN löschen nach",
+    "fr": "Supprimer le code PIN enregistré après"
+  },
+  "PinForgetAfterSecond": {
+    "en": "the second rejection",
+    "de": "der zweiten Ablehnung",
+    "fr": "le deuxième refus"
   },
   "PinNeverStored": {
     "en": "Your PIN is asked for on every sync and can't be stored on this system.",
@@ -3829,11 +3844,6 @@
     "de": "Profil wechseln",
     "fr": "Changer de profil"
   },
-  "Sync": {
-    "en": "Sync",
-    "de": "Sync",
-    "fr": "Sync"
-  },
   "SyncAccountWithoutIban": {
     "en": "%s: the bank lists this account without an IBAN; Finglass can't store it yet.",
     "de": "%s: Die Bank meldet dieses Konto ohne IBAN; Finglass kann es noch nicht speichern.",
@@ -3898,6 +3908,41 @@
     "en": "Sync now",
     "de": "Jetzt synchronisieren",
     "fr": "Synchroniser maintenant"
+  },
+  "SyncStatusAddServerURL": {
+    "en": "Add the bank's server address first",
+    "de": "Zuerst die Serveradresse der Bank eintragen",
+    "fr": "Ajoutez d'abord l'adresse du serveur de la banque"
+  },
+  "SyncStatusNotInAll": {
+    "en": "Not in Sync all",
+    "de": "Nicht in „Alle synchronisieren“",
+    "fr": "Pas dans « Tout synchroniser »"
+  },
+  "SyncStatusNotInAllTested": {
+    "en": "Not in Sync all · tested %s",
+    "de": "Nicht in „Alle synchronisieren“ · getestet am %s",
+    "fr": "Pas dans « Tout synchroniser » · testé le %s"
+  },
+  "SyncStatusReady": {
+    "en": "Ready to sync",
+    "de": "Bereit zum Synchronisieren",
+    "fr": "Prêt à synchroniser"
+  },
+  "SyncStatusReadyTested": {
+    "en": "Ready to sync · tested %s",
+    "de": "Bereit zum Synchronisieren · getestet am %s",
+    "fr": "Prêt à synchroniser · testé le %s"
+  },
+  "SyncStatusRunTest": {
+    "en": "Run Test connection first",
+    "de": "Zuerst „Verbindung testen“ ausführen",
+    "fr": "Lancez d'abord « Tester la connexion »"
+  },
+  "SyncStatusStrongSyncLocked": {
+    "en": "Sync can't use this login path yet",
+    "de": "Der Abruf kann diesen Anmeldeweg noch nicht nutzen",
+    "fr": "La synchronisation ne peut pas encore utiliser ce mode de connexion"
   },
   "SyncSummary": {
     "en": "Synced %d {1:account|accounts}",
@@ -4189,10 +4234,30 @@
     "de": "Verbindung testen",
     "fr": "Tester la connexion"
   },
+  "TestConnectionAccountLocked": {
+    "en": "The bank reports that this login is locked. Unlock it with your bank first.",
+    "de": "Die Bank meldet, dass diese Anmeldung gesperrt ist. Entsperren Sie sie zuerst bei Ihrer Bank.",
+    "fr": "La banque indique que cette connexion est bloquée. Débloquez-la d'abord auprès de votre banque."
+  },
+  "TestConnectionApprovalTimedOut": {
+    "en": "The approval wasn't completed in time.",
+    "de": "Die Freigabe wurde nicht rechtzeitig abgeschlossen.",
+    "fr": "L'approbation n'a pas été effectuée à temps."
+  },
   "TestConnectionApproveThenRetry": {
     "en": "Your bank may have sent an approval request to its app. Approve it there, then choose “I confirmed it” to try the login again.",
     "de": "Ihre Bank hat Ihnen eventuell eine Freigabeanfrage in ihre App geschickt. Bestätigen Sie sie dort und wählen Sie dann „Ich habe bestätigt“, um die Anmeldung erneut zu versuchen.",
     "fr": "Votre banque vous a peut-être envoyé une demande d'approbation dans son application. Approuvez-la, puis choisissez « J'ai confirmé » pour réessayer la connexion."
+  },
+  "TestConnectionBalanceAbsent": {
+    "en": "The bank sent no balance for the accounts.",
+    "de": "Die Bank hat für die Konten keinen Saldo gesendet.",
+    "fr": "La banque n'a envoyé aucun solde pour les comptes."
+  },
+  "TestConnectionBankError": {
+    "en": "The bank ended the dialog. Its messages below say why.",
+    "de": "Die Bank hat den Dialog beendet. Die Meldungen unten sagen, warum.",
+    "fr": "La banque a mis fin au dialogue. Les messages ci-dessous en indiquent la raison."
   },
   "TestConnectionBankMessages": {
     "en": "Messages from the bank",
@@ -4229,6 +4294,46 @@
     "de": "Die Bank hat die Anmeldung abgelehnt.",
     "fr": "La banque a refusé la connexion."
   },
+  "TestConnectionNextStepApprove": {
+    "en": "Test again and approve in time.",
+    "de": "Testen Sie erneut und geben Sie rechtzeitig frei.",
+    "fr": "Testez à nouveau et approuvez à temps."
+  },
+  "TestConnectionNextStepCheckLogin": {
+    "en": "Check the bank code, user id and PIN in Connection settings, then test again.",
+    "de": "Prüfen Sie Bankleitzahl, Benutzerkennung und PIN in den Verbindungseinstellungen und testen Sie dann erneut.",
+    "fr": "Vérifiez le code bancaire, l'identifiant utilisateur et le code PIN dans les paramètres de connexion, puis testez à nouveau."
+  },
+  "TestConnectionNextStepRegistration": {
+    "en": "Nothing to change in Finglass; test again in a few days.",
+    "de": "In Finglass ist nichts zu ändern; testen Sie in einigen Tagen erneut.",
+    "fr": "Rien à modifier dans Finglass ; testez à nouveau dans quelques jours."
+  },
+  "TestConnectionNextStepTrace": {
+    "en": "Save the redacted trace and send it.",
+    "de": "Speichern Sie den verschleierten Verlauf und senden Sie ihn.",
+    "fr": "Enregistrez la trace expurgée et envoyez-la."
+  },
+  "TestConnectionNextStepTransport": {
+    "en": "Check the internet connection and the server address, then test again.",
+    "de": "Prüfen Sie die Internetverbindung und die Serveradresse und testen Sie dann erneut.",
+    "fr": "Vérifiez la connexion Internet et l'adresse du serveur, puis testez à nouveau."
+  },
+  "TestConnectionNextStepUnlock": {
+    "en": "Unlock the login with your bank, then test again.",
+    "de": "Entsperren Sie die Anmeldung bei Ihrer Bank und testen Sie dann erneut.",
+    "fr": "Débloquez la connexion auprès de votre banque, puis testez à nouveau."
+  },
+  "TestConnectionNoAccounts": {
+    "en": "The bank listed no accounts for this login.",
+    "de": "Die Bank hat für diese Anmeldung keine Konten aufgelistet.",
+    "fr": "La banque n'a listé aucun compte pour cette connexion."
+  },
+  "TestConnectionNotCompleted": {
+    "en": "Not completed",
+    "de": "Nicht abgeschlossen",
+    "fr": "Non terminé"
+  },
   "TestConnectionPathStrongSync": {
     "en": "Registered again with the TAN method (strong sync).",
     "de": "Erneut mit dem TAN-Verfahren angemeldet (Synchronisierung mit TAN).",
@@ -4244,10 +4349,30 @@
     "de": "Die FinTS-Produkt-ID fehlt oder ist ungültig.",
     "fr": "L'identifiant de produit FinTS est manquant ou invalide."
   },
+  "TestConnectionProtocol": {
+    "en": "Finglass couldn't read the bank's answer.",
+    "de": "Finglass konnte die Antwort der Bank nicht lesen.",
+    "fr": "Finglass n'a pas pu lire la réponse de la banque."
+  },
+  "TestConnectionRegistrationMissing": {
+    "en": "The bank doesn't know Finglass's FinTS registration yet (9078). Registrations can take a few days to reach a bank; try again later.",
+    "de": "Die Bank kennt die FinTS-Registrierung von Finglass noch nicht (9078). Es kann einige Tage dauern, bis eine Registrierung bei einer Bank ankommt; versuchen Sie es später erneut.",
+    "fr": "La banque ne connaît pas encore l'enregistrement FinTS de Finglass (9078). Un enregistrement peut mettre quelques jours à parvenir à une banque ; réessayez plus tard."
+  },
   "TestConnectionRunning": {
     "en": "Testing connection…",
     "de": "Verbindung wird getestet…",
     "fr": "Test de la connexion…"
+  },
+  "TestConnectionSavedPinForgotten": {
+    "en": "The bank rejected the saved PIN, so it was removed. You'll be asked for it next time.",
+    "de": "Die Bank hat die gespeicherte PIN abgelehnt; sie wurde gelöscht. Beim nächsten Mal werden Sie danach gefragt.",
+    "fr": "La banque a refusé le code PIN enregistré ; il a été supprimé. Il vous sera demandé la prochaine fois."
+  },
+  "TestConnectionSavedPinRejectedOnce": {
+    "en": "The bank rejected the saved PIN. It is kept for one more try; check it in Connection settings.",
+    "de": "Die Bank hat die gespeicherte PIN abgelehnt. Sie bleibt für einen weiteren Versuch gespeichert; prüfen Sie sie in den Verbindungseinstellungen.",
+    "fr": "La banque a refusé le code PIN enregistré. Il est conservé pour un autre essai ; vérifiez-le dans les paramètres de connexion."
   },
   "TestConnectionSkipped": {
     "en": "%d {1:account|accounts} skipped",
@@ -4279,15 +4404,40 @@
     "de": "Die Bank hat eine TAN-Eingabe verlangt.",
     "fr": "La banque a demandé la saisie d'un TAN."
   },
+  "TestConnectionSyncNow": {
+    "en": "This bank can sync now.",
+    "de": "Diese Bank kann jetzt synchronisieren.",
+    "fr": "Cette banque peut maintenant synchroniser."
+  },
   "TestConnectionTanMethodUnsupported": {
     "en": "The bank's TAN method is not supported. Choose pushTAN in your bank settings.",
     "de": "Die TAN-Methode der Bank wird nicht unterstützt. Wählen Sie pushTAN in Ihren Bankeinstellungen.",
     "fr": "La méthode TAN de la banque n'est pas prise en charge. Choisissez pushTAN dans les réglages de votre banque."
   },
+  "TestConnectionTanRejected": {
+    "en": "The bank rejected the TAN or the approval.",
+    "de": "Die Bank hat die TAN oder die Freigabe abgelehnt.",
+    "fr": "La banque a refusé le TAN ou l'approbation."
+  },
   "TestConnectionTanTimeout": {
     "en": "The TAN confirmation timed out.",
     "de": "Die TAN-Bestätigung ist abgelaufen.",
     "fr": "La confirmation TAN a expiré."
+  },
+  "TestConnectionTransport": {
+    "en": "Finglass couldn't reach the bank's server.",
+    "de": "Finglass konnte den Server der Bank nicht erreichen.",
+    "fr": "Finglass n'a pas pu joindre le serveur de la banque."
+  },
+  "TestConnectionUnexpected": {
+    "en": "The test stopped unexpectedly.",
+    "de": "Der Test wurde unerwartet beendet.",
+    "fr": "Le test s'est arrêté de manière inattendue."
+  },
+  "TestConnectionUsedSavedPin": {
+    "en": "Used the saved PIN.",
+    "de": "Gespeicherte PIN verwendet.",
+    "fr": "Code PIN enregistré utilisé."
   },
   "TextExtracted": {
     "en": "Text extracted",
@@ -4538,150 +4688,5 @@
     "en": "Yes",
     "de": "Ja",
     "fr": "Oui"
-  },
-  "PinForgetAfterLabel": {
-    "en": "Remove the saved PIN after",
-    "de": "Gespeicherte PIN löschen nach",
-    "fr": "Supprimer le code PIN enregistré après"
-  },
-  "PinForgetAfterFirst": {
-    "en": "the first rejection",
-    "de": "der ersten Ablehnung",
-    "fr": "le premier refus"
-  },
-  "PinForgetAfterSecond": {
-    "en": "the second rejection",
-    "de": "der zweiten Ablehnung",
-    "fr": "le deuxième refus"
-  },
-  "PinForgetAfterHint": {
-    "en": "A wrong-PIN answer always removes it at once. Banks usually lock the login after three wrong PINs, so two leave you one try.",
-    "de": "Eine Antwort „PIN falsch“ löscht sie immer sofort. Banken sperren den Zugang meist nach drei falschen PINs; nach zwei bleibt Ihnen ein Versuch.",
-    "fr": "Une réponse « code PIN erroné » le supprime toujours immédiatement. Les banques bloquent généralement l'accès après trois codes PIN erronés ; après deux, il vous reste un essai."
-  },
-  "TestConnectionUsedSavedPin": {
-    "en": "Used the saved PIN.",
-    "de": "Gespeicherte PIN verwendet.",
-    "fr": "Code PIN enregistré utilisé."
-  },
-  "TestConnectionSavedPinRejectedOnce": {
-    "en": "The bank rejected the saved PIN. It is kept for one more try; check it in Connection settings.",
-    "de": "Die Bank hat die gespeicherte PIN abgelehnt. Sie bleibt für einen weiteren Versuch gespeichert; prüfen Sie sie in den Verbindungseinstellungen.",
-    "fr": "La banque a refusé le code PIN enregistré. Il est conservé pour un autre essai ; vérifiez-le dans les paramètres de connexion."
-  },
-  "TestConnectionSavedPinForgotten": {
-    "en": "The bank rejected the saved PIN, so it was removed. You'll be asked for it next time.",
-    "de": "Die Bank hat die gespeicherte PIN abgelehnt; sie wurde gelöscht. Beim nächsten Mal werden Sie danach gefragt.",
-    "fr": "La banque a refusé le code PIN enregistré ; il a été supprimé. Il vous sera demandé la prochaine fois."
-  },
-  "SyncStatusReady": {
-    "en": "Ready to sync",
-    "de": "Bereit zum Synchronisieren",
-    "fr": "Prêt à synchroniser"
-  },
-  "SyncStatusReadyTested": {
-    "en": "Ready to sync · tested %s",
-    "de": "Bereit zum Synchronisieren · getestet am %s",
-    "fr": "Prêt à synchroniser · testé le %s"
-  },
-  "SyncStatusNotInAll": {
-    "en": "Not in Sync all",
-    "de": "Nicht in „Alle synchronisieren“",
-    "fr": "Pas dans « Tout synchroniser »"
-  },
-  "SyncStatusNotInAllTested": {
-    "en": "Not in Sync all · tested %s",
-    "de": "Nicht in „Alle synchronisieren“ · getestet am %s",
-    "fr": "Pas dans « Tout synchroniser » · testé le %s"
-  },
-  "SyncStatusRunTest": {
-    "en": "Run Test connection first",
-    "de": "Zuerst „Verbindung testen“ ausführen",
-    "fr": "Lancez d'abord « Tester la connexion »"
-  },
-  "TestConnectionSyncNow": {
-    "en": "This bank can sync now.",
-    "de": "Diese Bank kann jetzt synchronisieren.",
-    "fr": "Cette banque peut maintenant synchroniser."
-  },
-  "TestConnectionAccountLocked": {
-    "en": "The bank reports that this login is locked. Unlock it with your bank first.",
-    "de": "Die Bank meldet, dass diese Anmeldung gesperrt ist. Entsperren Sie sie zuerst bei Ihrer Bank.",
-    "fr": "La banque indique que cette connexion est bloquée. Débloquez-la d'abord auprès de votre banque."
-  },
-  "TestConnectionApprovalTimedOut": {
-    "en": "The approval wasn't completed in time.",
-    "de": "Die Freigabe wurde nicht rechtzeitig abgeschlossen.",
-    "fr": "L'approbation n'a pas été effectuée à temps."
-  },
-  "TestConnectionBalanceAbsent": {
-    "en": "The bank sent no balance for the accounts.",
-    "de": "Die Bank hat für die Konten keinen Saldo gesendet.",
-    "fr": "La banque n'a envoyé aucun solde pour les comptes."
-  },
-  "TestConnectionBankError": {
-    "en": "The bank ended the dialog. Its messages below say why.",
-    "de": "Die Bank hat den Dialog beendet. Die Meldungen unten sagen, warum.",
-    "fr": "La banque a mis fin au dialogue. Les messages ci-dessous en indiquent la raison."
-  },
-  "TestConnectionNextStepApprove": {
-    "en": "Test again and approve in time.",
-    "de": "Testen Sie erneut und geben Sie rechtzeitig frei.",
-    "fr": "Testez à nouveau et approuvez à temps."
-  },
-  "TestConnectionNextStepCheckLogin": {
-    "en": "Check the bank code, user id and PIN in Connection settings, then test again.",
-    "de": "Prüfen Sie Bankleitzahl, Benutzerkennung und PIN in den Verbindungseinstellungen und testen Sie dann erneut.",
-    "fr": "Vérifiez le code bancaire, l'identifiant utilisateur et le code PIN dans les paramètres de connexion, puis testez à nouveau."
-  },
-  "TestConnectionNextStepRegistration": {
-    "en": "Nothing to change in Finglass; test again in a few days.",
-    "de": "In Finglass ist nichts zu ändern; testen Sie in einigen Tagen erneut.",
-    "fr": "Rien à modifier dans Finglass ; testez à nouveau dans quelques jours."
-  },
-  "TestConnectionNextStepTrace": {
-    "en": "Save the redacted trace and send it.",
-    "de": "Speichern Sie den verschleierten Verlauf und senden Sie ihn.",
-    "fr": "Enregistrez la trace expurgée et envoyez-la."
-  },
-  "TestConnectionNextStepTransport": {
-    "en": "Check the internet connection and the server address, then test again.",
-    "de": "Prüfen Sie die Internetverbindung und die Serveradresse und testen Sie dann erneut.",
-    "fr": "Vérifiez la connexion Internet et l'adresse du serveur, puis testez à nouveau."
-  },
-  "TestConnectionNextStepUnlock": {
-    "en": "Unlock the login with your bank, then test again.",
-    "de": "Entsperren Sie die Anmeldung bei Ihrer Bank und testen Sie dann erneut.",
-    "fr": "Débloquez la connexion auprès de votre banque, puis testez à nouveau."
-  },
-  "TestConnectionNoAccounts": {
-    "en": "The bank listed no accounts for this login.",
-    "de": "Die Bank hat für diese Anmeldung keine Konten aufgelistet.",
-    "fr": "La banque n'a listé aucun compte pour cette connexion."
-  },
-  "TestConnectionProtocol": {
-    "en": "Finglass couldn't read the bank's answer.",
-    "de": "Finglass konnte die Antwort der Bank nicht lesen.",
-    "fr": "Finglass n'a pas pu lire la réponse de la banque."
-  },
-  "TestConnectionRegistrationMissing": {
-    "en": "The bank doesn't know Finglass's FinTS registration yet (9078). Registrations can take a few days to reach a bank; try again later.",
-    "de": "Die Bank kennt die FinTS-Registrierung von Finglass noch nicht (9078). Es kann einige Tage dauern, bis eine Registrierung bei einer Bank ankommt; versuchen Sie es später erneut.",
-    "fr": "La banque ne connaît pas encore l'enregistrement FinTS de Finglass (9078). Un enregistrement peut mettre quelques jours à parvenir à une banque ; réessayez plus tard."
-  },
-  "TestConnectionTanRejected": {
-    "en": "The bank rejected the TAN or the approval.",
-    "de": "Die Bank hat die TAN oder die Freigabe abgelehnt.",
-    "fr": "La banque a refusé le TAN ou l'approbation."
-  },
-  "TestConnectionTransport": {
-    "en": "Finglass couldn't reach the bank's server.",
-    "de": "Finglass konnte den Server der Bank nicht erreichen.",
-    "fr": "Finglass n'a pas pu joindre le serveur de la banque."
-  },
-  "TestConnectionUnexpected": {
-    "en": "The test stopped unexpectedly.",
-    "de": "Der Test wurde unerwartet beendet.",
-    "fr": "Le test s'est arrêté de manière inattendue."
   }
 }

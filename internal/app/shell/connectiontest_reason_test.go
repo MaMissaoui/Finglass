@@ -65,6 +65,50 @@ func TestConnectionTestReasonNamesEveryOtherReason(t *testing.T) {
 	}
 }
 
+func TestConnectionTestVerdictDistinguishesNoBankVerdict(t *testing.T) {
+	goOutcome := connectiontest.Outcome{Go: true}
+	if got := connectionTestVerdictFor(goOutcome); got != "go" {
+		t.Fatalf("GO verdict = %q, want go", got)
+	}
+	strongSync := connectiontest.Outcome{Go: true, StrongSync: true}
+	if got := connectionTestVerdictFor(strongSync); got != "go" {
+		t.Fatalf("strong-sync GO verdict = %q, want go", got)
+	}
+	for _, name := range []string{
+		"Transport",
+		"PollLimit",
+		"TouchdownLimit",
+		"InvalidState",
+		"PromptFailed",
+		"Unknown",
+		connectiontest.OtherInvalidLogin,
+		connectiontest.OtherProductIDMissing,
+		connectiontest.OtherProductIDInvalid,
+		connectiontest.OtherCancelled,
+	} {
+		outcome := connectiontest.Outcome{Kind: fintsprobe.NoGoOther, Other: name}
+		if got := connectionTestVerdictFor(outcome); got != "none" {
+			t.Errorf("%s verdict = %q, want none", name, got)
+		}
+	}
+	cancelled := connectiontest.Outcome{Cancelled: true}
+	if got := connectionTestVerdictFor(cancelled); got != "none" {
+		t.Fatalf("cancel verdict = %q, want none", got)
+	}
+	if got := connectionTestVerdictFor(connectiontest.Outcome{Kind: fintsprobe.NoGoTanTimeout}); got != "none" {
+		t.Fatalf("TAN timeout verdict = %q, want none", got)
+	}
+	for _, name := range []string{"PinRejected", "AccountLocked", "TanRejected", "BankError", "Protocol", "NoAccounts", "BalanceAbsent"} {
+		outcome := connectiontest.Outcome{Kind: fintsprobe.NoGoOther, Other: name}
+		if got := connectionTestVerdictFor(outcome); got != "nogo" {
+			t.Errorf("%s verdict = %q, want nogo", name, got)
+		}
+	}
+	if got := connectionTestVerdictFor(connectiontest.Outcome{Kind: fintsprobe.NoGoLoginRejected}); got != "nogo" {
+		t.Fatalf("login-rejected verdict = %q, want nogo", got)
+	}
+}
+
 func TestConnectionTestReasonSeparatesBankErrorFromMissingRegistration(t *testing.T) {
 	for _, language := range i18n.Languages {
 		plain := connectionTestReason(language, connectiontest.Outcome{

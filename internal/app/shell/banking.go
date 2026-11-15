@@ -943,15 +943,17 @@ func (s *Session) BankingTestConnection(bankID int) {
 		if productID == nil {
 			productID = bridge.AskProductID()
 			if productID == nil {
+				cancelled := connectiontest.Outcome{
+					Kind:      fintsprobe.NoGoOther,
+					Other:     connectiontest.OtherCancelled,
+					Cancelled: true,
+				}
 				state.ConnectionTest = &banking.ConnectionTestResult{
-					BankID: id,
-					Reason: connectionTestReason(state.Language, connectiontest.Outcome{
-						Kind:      fintsprobe.NoGoOther,
-						Other:     connectiontest.OtherCancelled,
-						Cancelled: true,
-					}),
-					Kind:  connectionTestKindName(fintsprobe.NoGoOther),
-					Other: connectiontest.OtherCancelled,
+					BankID:  id,
+					Verdict: connectionTestVerdictFor(cancelled),
+					Reason:  connectionTestReason(state.Language, cancelled),
+					Kind:    connectionTestKindName(fintsprobe.NoGoOther),
+					Other:   connectiontest.OtherCancelled,
 				}
 				state.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
 				job.setLastTrace = true
@@ -996,7 +998,7 @@ func (s *Session) BankingTestConnection(bankID int) {
 			savedPinForgotten = result == banksync.PinFailureRemoved
 			savedPinRejectedOnce = result == banksync.PinFailureCounted
 		}
-		applySyncUnlock(ctx, database, service, &job.busy, id, blz, userID, serverURL, outcome)
+		applySyncUnlock(ctx, database, service, &job.busy, id, blz, userID, serverURL, today, outcome)
 		if action := connectiontest.SyncUnlockActionFor(outcome); action != connectiontest.SyncUnlockUnchanged {
 			_ = state.Refresh(ctx, database, service)
 		}
@@ -1015,6 +1017,7 @@ func (s *Session) BankingTestConnection(bankID int) {
 		state.ConnectionTest = &banking.ConnectionTestResult{
 			BankID:               id,
 			Go:                   outcome.Go,
+			Verdict:              connectionTestVerdictFor(outcome),
 			Reason:               connectionTestReason(state.Language, outcome),
 			Kind:                 connectionTestKindName(outcome.Kind),
 			Other:                outcome.Other,
@@ -1142,6 +1145,19 @@ func (s *Session) setBankingErrorLocked(key i18n.Key) {
 	s.banking.Error = &message
 }
 
+// connectionTestVerdictFor is the tri-state the result carries: GO when the
+// probe succeeded, NO-GO only when the test reached a bank verdict, and none
+// when the unlock action stays unchanged because no bank verdict exists.
+func connectionTestVerdictFor(outcome connectiontest.Outcome) string {
+	if outcome.Go {
+		return banking.ConnectionTestVerdictGo
+	}
+	if connectiontest.SyncUnlockActionFor(outcome) == connectiontest.SyncUnlockUnchanged {
+		return banking.ConnectionTestVerdictNone
+	}
+	return banking.ConnectionTestVerdictNoGo
+}
+
 // applySyncUnlock stores or clears a bank's sync unlock after a completed
 // connection test. The write runs as a profile-busy section, like other bank
 // writes. A failure never changes the shown test result; the log line carries
@@ -1155,6 +1171,7 @@ func applySyncUnlock(
 	blz,
 	userID,
 	serverURL string,
+	today civil.Date,
 	outcome connectiontest.Outcome,
 ) {
 	action := connectiontest.SyncUnlockActionFor(outcome)
@@ -1170,6 +1187,7 @@ func applySyncUnlock(
 				database,
 				bankID,
 				banksync.SyncFingerprint(blz, userID, serverURL),
+				today,
 			)
 		case connectiontest.SyncUnlockClear:
 			writeErr = service.MarkSyncLocked(ctx, database, bankID)

@@ -152,6 +152,8 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
   come from Go. The Accounts header's currencies move to B, which changes the Accounts page anyway.
 - [x] **B1:** per-bank status line and next action on Accounts (GO date shown), no Sync button in the header, no
   monogram on Accounts rows; Test connection opens with the verdict and the next step.
+- [x] **B1 follow-ups:** "Not completed" for tests without a verdict; status lines for strong-sync GO and a missing
+  server address; audit-safe unlock writes; one clock.
 - [ ] **B2:** one main currency in the Accounts header; text for the "new" dots, the account badge and the "month so
   far" bar; the pending-tasks count announced.
 - [x] **C — onboarding:** the migration asks for the passphrase acknowledgement on the passphrase step (once per

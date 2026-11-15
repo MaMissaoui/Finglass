@@ -681,9 +681,6 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
       balanceText: formatAmount(account.minor, account.currency, language),
       tone: balanceTone(account),
       newCount: account.newCount,
-      logo: account.badge.logo,
-      logoLetters: account.badge.letters,
-      logoColour: account.badge.colour,
     };
   }
 
@@ -706,8 +703,6 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
       accounts: rows.map(accountRow),
       syncing: online?.syncing ?? false,
       syncStep: online?.syncStep ?? '',
-      syncEnabled: online?.syncEnabled ?? false,
-      syncTooltip: online?.syncTooltip ?? '',
       pinText: online?.pinText ?? '',
       canTestConnection: online?.canTestConnection ?? false,
       menu: online?.menu ?? [],
@@ -732,8 +727,6 @@ export function createMockAccounts(scenario: string, initialLanguage: Language) 
       accounts: rows.map(accountRow),
       syncing: false,
       syncStep: '',
-      syncEnabled: false,
-      syncTooltip: '',
       pinText: '',
       canTestConnection: false,
       menu: [],

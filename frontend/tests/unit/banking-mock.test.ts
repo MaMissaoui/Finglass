@@ -239,18 +239,14 @@ describe('banking.mock', () => {
     );
 
     const sparkasse = state.banks.find((bank) => bank.bankId === 2);
-    expect(sparkasse?.syncEnabled).toBe(true);
     expect(sparkasse?.menu.find((item) => item.action === 'sync')?.enabled).toBe(true);
 
     const locked = state.banks.find((bank) => bank.bankId === 3);
-    expect(locked?.syncEnabled).toBe(false);
-    expect(locked?.syncTooltip).toBe(translate('en', 'SyncLockedHint'));
     expect(locked?.menu.find((item) => item.action === 'sync')?.enabled).toBe(false);
     expect(locked?.menu.find((item) => item.action === 'history')?.enabled).toBe(false);
     expect(locked?.menu.find((item) => item.action === 'include')?.enabled).toBe(true);
 
     const excluded = state.banks.find((bank) => bank.bankId === 4);
-    expect(excluded?.syncEnabled).toBe(true);
     expect(excluded?.menu.find((item) => item.action === 'include')?.checked).toBe(false);
   });
 
@@ -287,6 +283,26 @@ describe('banking.mock', () => {
       action: 'sync',
       actionText: translate('en', 'SyncNow'),
       actionEnabled: true,
+    });
+
+    const noServer = fake('accounts-status-no-server').banking.bankForCard(2)?.status;
+    expect(noServer).toMatchObject({
+      tone: 'attention',
+      icon: 'warning',
+      text: translate('en', 'SyncStatusAddServerURL'),
+      action: 'connection',
+      actionText: translate('en', 'ConnectionSettings'),
+      actionEnabled: true,
+    });
+
+    const strongSync = fake('accounts-status-strong-sync').banking.bankForCard(2)?.status;
+    expect(strongSync).toMatchObject({
+      tone: 'attention',
+      icon: 'warning',
+      text: translate('en', 'SyncStatusStrongSyncLocked'),
+      action: '',
+      actionText: '',
+      actionEnabled: false,
     });
   });
 
@@ -458,7 +474,10 @@ describe('banking.mock', () => {
       bankId: 2,
       running: false,
       go: true,
+      verdict: 'go',
+      verdictText: 'GO',
       reason: translate('en', 'TestConnectionGo'),
+      nextStep: translate('en', 'TestConnectionSyncNow'),
       codes: [],
       messages: [],
       probed: 1,
@@ -483,6 +502,8 @@ describe('banking.mock', () => {
       bankId: 2,
       running: false,
       go: false,
+      verdict: 'none',
+      verdictText: translate('en', 'TestConnectionNotCompleted'),
       reason: translate('en', 'TestConnectionCancelled'),
       codes: [],
       probed: 0,
@@ -502,6 +523,8 @@ describe('banking.mock', () => {
       bankId: 2,
       running: false,
       go: false,
+      verdict: 'nogo',
+      verdictText: 'NO-GO',
       reason: translate('en', 'TestConnectionInvalidLogin'),
       codes: ['9942'],
       messages: [
@@ -520,6 +543,32 @@ describe('banking.mock', () => {
     const prompt = banking.prompt();
     expect(prompt.kind).toBe('pin');
     expect(prompt.rememberVisible).toBe(false);
+  });
+
+  it('keeps a GO next step empty when online sync is unavailable', () => {
+    const { banking } = fake('accounts-test-connection-linked');
+    banking.testConnection(2);
+    banking.answerPin(banking.prompt().id, '1234', false);
+    expect(banking.state().connectionTest).toMatchObject({
+      go: true,
+      verdict: 'go',
+      nextStep: '',
+    });
+  });
+
+  it('shows a strong-sync GO without unlocking the bank', () => {
+    const { banking } = fake('accounts-status-strong-sync');
+    const state = banking.state();
+    expect(state.connectionTest).toMatchObject({
+      go: true,
+      verdict: 'go',
+      strongSync: true,
+      nextStep: translate('en', 'TestConnectionStrongSyncNoUnlock'),
+    });
+    expect(banking.bankForCard(2)?.status).toMatchObject({
+      text: translate('en', 'SyncStatusStrongSyncLocked'),
+      action: '',
+    });
   });
 
   it('saves the redacted trace only after a test produced one', () => {

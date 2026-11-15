@@ -7,9 +7,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
@@ -40,23 +40,21 @@ func SyncFingerprint(blz, userID, serverURL string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// MarkSyncUnlocked stores a GO connection test's fingerprint and the local
-// civil date of the test for bankID, then writes the audit entry.
+// MarkSyncUnlocked stores a GO connection test's local civil date first and
+// its fingerprint last, then writes the audit entry. A failed date write leaves
+// the old unlock untouched; a failed fingerprint write leaves only a stale
+// date, which MarkSyncLocked can clear.
 func (s *BankingService) MarkSyncUnlocked(
 	ctx context.Context,
 	database *db.Database,
 	bankID model.BankConnectionID,
 	fingerprint string,
+	date civil.Date,
 ) error {
-	if err := settings.Set(ctx, database, SyncUnlockKey(bankID), fingerprint); err != nil {
+	if err := settings.Set(ctx, database, SyncUnlockedOnKey(bankID), date.String()); err != nil {
 		return internalError(err)
 	}
-	if err := settings.Set(
-		ctx,
-		database,
-		SyncUnlockedOnKey(bankID),
-		s.client.today().String(),
-	); err != nil {
+	if err := settings.Set(ctx, database, SyncUnlockKey(bankID), fingerprint); err != nil {
 		return internalError(err)
 	}
 	_ = audit.Log(
@@ -69,8 +67,9 @@ func (s *BankingService) MarkSyncUnlocked(
 	return nil
 }
 
-// MarkSyncLocked deletes bankID's unlock and its date and writes the audit
-// entry, but only when an unlock existed.
+// MarkSyncLocked deletes bankID's unlock key first and then its date, and
+// writes the audit entry once the unlock key is gone. A failed date delete is
+// logged without bank data and does not keep the bank unlocked.
 func (s *BankingService) MarkSyncLocked(
 	ctx context.Context,
 	database *db.Database,
@@ -83,7 +82,7 @@ func (s *BankingService) MarkSyncLocked(
 	if !existed {
 		// A date without an unlock is stale; clear it without an audit entry.
 		if err := settings.Delete(ctx, database, SyncUnlockedOnKey(bankID)); err != nil {
-			return internalError(err)
+			slog.Default().Warn("banksync: could not clear a stale sync unlock date")
 		}
 		return nil
 	}
@@ -91,7 +90,7 @@ func (s *BankingService) MarkSyncLocked(
 		return internalError(err)
 	}
 	if err := settings.Delete(ctx, database, SyncUnlockedOnKey(bankID)); err != nil {
-		return internalError(err)
+		slog.Default().Warn("banksync: could not clear the sync unlock date")
 	}
 	_ = audit.Log(
 		ctx,
@@ -114,18 +113,14 @@ func (s *BankingService) SyncUnlocked(
 	return s.client.SyncUnlocked(ctx, database, bankID, connection)
 }
 
-// SyncUnlockedOn returns the local civil date on which bankID's current
-// unlock was set, or nil when the bank is locked or an older unlock has no
-// stored date.
+// SyncUnlockedOn returns the local civil date stored with bankID's unlock, or
+// nil when it is missing or unreadable. The caller checks SyncUnlocked first;
+// this reads the date only once.
 func (s *BankingService) SyncUnlockedOn(
 	ctx context.Context,
 	database *db.Database,
 	bankID model.BankConnectionID,
-	connection FinTsConnection,
 ) *civil.Date {
-	if !s.SyncUnlocked(ctx, database, bankID, connection) {
-		return nil
-	}
 	return s.client.SyncUnlockedOn(ctx, database, bankID)
 }
 
@@ -160,12 +155,4 @@ func (c *FinTsClient) SyncUnlocked(
 		return false
 	}
 	return value == SyncFingerprint(connection.BLZ, connection.UserID, connection.ServerURL)
-}
-
-// today returns the client's local civil date.
-func (c *FinTsClient) today() civil.Date {
-	if c == nil || c.now == nil {
-		return civil.FromTime(time.Now())
-	}
-	return civil.FromTime(c.now())
 }

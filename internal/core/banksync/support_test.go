@@ -279,9 +279,7 @@ func newHarnessWithToday(t *testing.T, today civil.Date) *harness {
 	dataDir := filepath.Join(t.TempDir(), "profile")
 	gateway := newFakeGateway()
 	store := NewMemoryCredentialStore()
-	client := NewFinTsClient(gateway, dataDir, "TEST-PRODUCT", store).WithClock(func() time.Time {
-		return time.Date(today.Year(), today.Month(), today.Day(), 12, 0, 0, 0, time.Local)
-	})
+	client := NewFinTsClient(gateway, dataDir, "TEST-PRODUCT", store)
 	service := NewBankingService(client)
 	bank := createBank(t, database, "Sparkasse KölnBonn", "37050198", "demo-user", true)
 	return &harness{
