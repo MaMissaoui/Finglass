@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Finglass
+GenericName=Personal finance
+Comment=Keep accounts, transactions, documents and reports in an encrypted local database
+Comment[de]=Konten, Umsätze, Dokumente und Berichte in einer verschlüsselten lokalen Datenbank verwalten
+Comment[fr]=Gérer les comptes, les opérations, les documents et les rapports dans une base locale chiffrée
+Exec=finglass
+Icon=io.github.mamissaoui.finglass
+Terminal=false
+Categories=Office;Finance;
+Keywords=finance;banking;FinTS;

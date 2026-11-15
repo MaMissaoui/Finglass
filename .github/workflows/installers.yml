@@ -1,0 +1,291 @@
+# Installers (not released): built and launched once in CI, never published;
+# no product id; see docs/PLAN.md G11. Windows and Linux are not release
+# targets, so both jobs are continue-on-error: a red installer run is a result,
+# not a merge blocker. The artifacts expire after 7 days.
+name: Installers (not released)
+
+on:
+  pull_request:
+    paths:
+      - "packaging/**"
+      - "scripts/go-package-*.sh"
+      - "scripts/lib/**"
+      - "cmd/finglass/**"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/installers.yml"
+  push:
+    branches: [main]
+    paths:
+      - "packaging/**"
+      - "scripts/go-package-*.sh"
+      - "scripts/lib/**"
+      - "cmd/finglass/**"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/installers.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    timeout-minutes: 60
+    # Windows is not a release target: a red installer run is a result, not a merge blocker.
+    continue-on-error: true
+    env:
+      VERSION: "0.0.0-ci.${{ github.run_number }}"
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26"
+
+      - name: Download the Go modules
+        shell: bash
+        run: go mod download
+
+      - name: Build the installer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          log="$RUNNER_TEMP/installers-windows.log"
+          bash scripts/go-package-windows.sh "$VERSION" 2>&1 | tee "$log"
+          if ! grep -Fq "FinTS product id: absent" "$log"; then
+            echo "::error::the self-check did not report an absent FinTS product id"
+            exit 1
+          fi
+
+      - name: Install once
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $installer = (Resolve-Path "build/go/Finglass_$($env:VERSION)_windows_amd64_setup.exe").Path
+          $process = Start-Process -FilePath $installer -ArgumentList '/S' -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "the installer exited with $($process.ExitCode)"
+          }
+
+          $exe = Join-Path $env:LOCALAPPDATA 'Programs\Finglass\Finglass.exe'
+          if (!(Test-Path $exe)) {
+            throw "no installed EXE at $exe"
+          }
+
+          $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Finglass'
+          if (!(Test-Path $key)) {
+            throw "no uninstall key at $key"
+          }
+          Write-Host "Installed $exe"
+
+      - name: Launch once
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $exe = Join-Path $env:LOCALAPPDATA 'Programs\Finglass\Finglass.exe'
+          $dataHome = Join-Path $env:RUNNER_TEMP ("finglass-home-" + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $dataHome | Out-Null
+          $log = Join-Path $env:RUNNER_TEMP 'finglass-windows-launch.log'
+          $errLog = "$log.err"
+
+          $env:FINGLASS_HOME = $dataHome
+          $process = Start-Process -FilePath $exe -RedirectStandardOutput $log -RedirectStandardError $errLog -PassThru
+
+          Start-Sleep -Seconds 10
+          $process.Refresh()
+          if ($process.HasExited) {
+            Write-Host 'the app exited within 10 seconds'
+            if (Test-Path $log) { Get-Content $log }
+            if (Test-Path $errLog) { Get-Content $errLog }
+            exit 1
+          }
+          Write-Host 'The app is still running after 10 seconds; stopping it.'
+          & taskkill.exe /PID $process.Id /T /F | Out-Null
+          Start-Sleep -Seconds 2
+
+          $entries = @(Get-ChildItem -Force -Path $dataHome)
+          if ($entries.Count -ne 1 -or $entries[0].Name -ne 'finglass.lock') {
+            Write-Host 'expected only finglass.lock in FINGLASS_HOME:'
+            Get-ChildItem -Force -Path $dataHome | Format-Table -AutoSize
+            exit 1
+          }
+          Write-Host 'Launch check passed; FINGLASS_HOME holds only the instance lock.'
+
+      - name: Uninstall
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Finglass'
+          $quiet = (Get-ItemProperty -Path $key -Name QuietUninstallString).QuietUninstallString
+          if ([string]::IsNullOrWhiteSpace($quiet)) {
+            throw "no QuietUninstallString at $key"
+          }
+          Write-Host "QuietUninstallString: $quiet"
+
+          if ($quiet -match '^\s*"([^"]+)"\s*(.*)$') {
+            $uninstaller = $matches[1]
+            $arguments = $matches[2]
+          } else {
+            $parts = $quiet.Split(' ', 2)
+            $uninstaller = $parts[0]
+            $arguments = if ($parts.Length -gt 1) { $parts[1] } else { '' }
+          }
+          $process = Start-Process -FilePath $uninstaller -ArgumentList $arguments -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "the uninstaller exited with $($process.ExitCode)"
+          }
+
+          $dir = Join-Path $env:LOCALAPPDATA 'Programs\Finglass'
+          $deadline = (Get-Date).AddSeconds(30)
+          while (((Test-Path $dir) -or (Test-Path $key)) -and (Get-Date) -lt $deadline) {
+            Start-Sleep -Milliseconds 500
+          }
+          if (Test-Path $dir) {
+            throw "the program folder still exists: $dir"
+          }
+          if (Test-Path $key) {
+            throw "the uninstall key still exists: $key"
+          }
+          Write-Host 'Uninstall check passed.'
+
+      - name: Upload the Windows installer
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: finglass-windows-installer
+          path: build/go/*setup.exe
+          if-no-files-found: error
+          retention-days: 7
+
+  linux:
+    name: Linux DEB
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Linux is not a release target: a red installer run is a result, not a merge blocker.
+    continue-on-error: true
+    env:
+      VERSION: "0.0.0-ci.${{ github.run_number }}"
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26"
+
+      - name: Install the Linux cgo and Wails dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          # portability.yml's packages plus xvfb, xauth and dbus-x11 for the
+          # headless launch check.
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev \
+            gnome-keyring dbus-x11 xvfb xauth
+
+      - name: Download the Go modules
+        shell: bash
+        run: go mod download
+
+      - name: Build the DEB
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          log="$RUNNER_TEMP/installers-linux.log"
+          bash scripts/go-package-linux.sh "$VERSION" 2>&1 | tee "$log"
+          if ! grep -Fq "FinTS product id: absent" "$log"; then
+            echo "::error::the self-check did not report an absent FinTS product id"
+            exit 1
+          fi
+
+      - name: Install once
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          shopt -s nullglob
+          debs=(build/go/finglass_*.deb)
+          if [ "${#debs[@]}" -ne 1 ]; then
+            echo "::error::expected exactly one DEB, found ${#debs[@]}"
+            exit 1
+          fi
+          sudo apt-get install -y "./${debs[0]}"
+          dpkg -L finglass
+
+      - name: Launch once
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          home=$(mktemp -d)
+          log="$RUNNER_TEMP/finglass-linux-launch.log"
+          cleanup() {
+            rm -rf "$home"
+          }
+          trap cleanup EXIT
+
+          FINGLASS_HOME="$home" xvfb-run -a dbus-run-session -- /usr/bin/finglass >"$log" 2>&1 &
+          pid=$!
+
+          sleep 10
+          if ! kill -0 "$pid" 2>/dev/null; then
+            echo "::error::the app exited within 10 seconds"
+            cat "$log" || true
+            wait "$pid" || true
+            exit 1
+          fi
+          echo "The app is still running after 10 seconds; stopping it."
+          kill "$pid" 2>/dev/null || true
+          pkill -TERM -x finglass 2>/dev/null || true
+          wait "$pid" || true
+          sleep 2
+
+          entries=$(ls -A "$home")
+          if [ "$entries" != "finglass.lock" ]; then
+            echo "::error::expected only finglass.lock in FINGLASS_HOME:"
+            ls -la "$home"
+            exit 1
+          fi
+          echo "Launch check passed; FINGLASS_HOME holds only the instance lock."
+
+      - name: Uninstall
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get remove -y finglass
+          if [ -e /usr/bin/finglass ]; then
+            echo "::error::/usr/bin/finglass still exists after removal"
+            exit 1
+          fi
+          echo "Uninstall check passed."
+
+      - name: Upload the Linux DEB
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: finglass-linux-deb
+          path: build/go/*.deb
+          if-no-files-found: error
+          retention-days: 7
