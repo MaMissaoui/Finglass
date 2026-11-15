@@ -50,14 +50,16 @@ func TestPinStringsArePinned(t *testing.T) {
 	bank := model.BankAccessItem{BLZ: "37050198", UserID: "demo-user"}
 	assertString(t, PinFlagKey(7), "fints.pinSaved.7")
 	assertString(t, LoginSignature(bank), "37050198|demo-user")
-	assertString(t, PinMarkerPath("profile", 7), "profile/credentials/bank-7")
+	assertString(t, PinMarkerPath("profile", 7), filepath.Join("profile", "credentials", "bank-7"))
 
 	capabilities := BankCapabilities{Jobs: map[string]struct{}{
 		JobBalance:         {},
 		JobStatementsMT940: {},
 	}}
 	assertString(t, capabilities.Serialize(), "KUmsAll,SaldoReq")
-	assertString(t, PinKey("/data/profile", 7), "/data/profile#bank-7")
+	// The credential-store key keeps the slash-separated path form on every OS.
+	profile := "/data/profile"
+	assertString(t, PinKey(profile, 7), filepath.ToSlash(filepath.FromSlash(profile))+"#bank-7")
 }
 
 func TestRememberingThePinStoresItAndAuditsItWithoutTheSecret(t *testing.T) {

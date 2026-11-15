@@ -1,1 +1,5 @@
 internal/core/bankdirectory/data/blz-aktuell.txt -text -diff
+frontend/src/lib/generated/** text eol=lf
+frontend/bindings/** text eol=lf
+testdata/golden/** text eol=lf
+*.go text eol=lf

@@ -61,6 +61,10 @@ var contentDirs = []string{"documents"}
 // instead of trusting the ZIP's declared sizes.
 const bufferSize = 8 * 1024
 
+// beforeReplace runs just before a finished ZIP replaces the target. It is nil
+// in production; tests use it to assert that writeZip closed its file first.
+var beforeReplace func(tmpZip, target string)
+
 // stampLayout is the timestamp format used for `pre-restore-<timestamp>`
 // folders. It is `[year][month][day]-[hour][minute][second]`.
 const stampLayout = "20060102-150405"
@@ -190,6 +194,9 @@ func (s *Service) CreateBackup(d *db.Database, target string) (Info, error) {
 
 		if err := writeZip(tmpZip, info, tmpDB, content); err != nil {
 			return Info{}, err
+		}
+		if beforeReplace != nil {
+			beforeReplace(tmpZip, target)
 		}
 		if err := moveIntoPlace(tmpZip, target); err != nil {
 			return Info{}, err

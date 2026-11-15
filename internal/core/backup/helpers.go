@@ -123,7 +123,12 @@ func writeZip(tmpZip string, info Info, tmpDB string, content []contentFile) err
 	if err != nil {
 		return err
 	}
-	defer func() { _ = file.Close() }()
+	closed := false
+	defer func() {
+		if !closed {
+			_ = file.Close()
+		}
+	}()
 
 	writer := zip.NewWriter(file)
 
@@ -178,7 +183,15 @@ func writeZip(tmpZip string, info Info, tmpDB string, content []contentFile) err
 		}
 	}
 
-	return writer.Close()
+	if err := writer.Close(); err != nil {
+		return err
+	}
+	// Close the underlying file before returning: CreateBackup moves the ZIP
+	// into place right after this, and Windows cannot replace a file whose
+	// handle is still open.
+	err = file.Close()
+	closed = true
+	return err
 }
 
 // createZipEntry starts a Deflate entry with Unix mode 0600.

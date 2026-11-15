@@ -12,6 +12,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/fintsgateway"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/fints"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/perm"
 )
 
 const (
@@ -175,13 +176,9 @@ func TestASyncRecordsARedactedTraceInTheOneSlot(t *testing.T) {
 	if string(saved) != text {
 		t.Fatal("the saved file is not the sync's trace")
 	}
-	info, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("stat saved trace: %v", err)
-	}
-	if info.Mode().Perm() != 0o600 {
-		t.Fatalf("trace mode = %o, want 600", info.Mode().Perm())
-	}
+	t.Run("trace mode", func(t *testing.T) {
+		perm.AssertMode(t, path, 0o600)
+	})
 
 	// A connection test replaces the sync's trace in the one slot.
 	runTypedTANConnectionTest(t, session, typedTANConnectionBank(t))

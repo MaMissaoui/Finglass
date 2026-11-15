@@ -2,6 +2,7 @@ package shell
 
 import (
 	"errors"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -258,8 +259,8 @@ func TestAfterASwitchTheControllersAndUnlockUseTheTargetFolder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("target database file: %v", err)
 	}
-	if targetFile != target.Dir+"/finglass.db" {
-		t.Fatalf("target file = %q", targetFile)
+	if want := filepath.Join(target.Dir, "finglass.db"); targetFile != want {
+		t.Fatalf("target file = %q, want %q", targetFile, want)
 	}
 	if unlock.ModeFor(targetFile) != unlock.ModeUnlock {
 		t.Fatal("the target database does not open in unlock mode")

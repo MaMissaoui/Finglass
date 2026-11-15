@@ -200,6 +200,8 @@ func writeTestZip(t *testing.T, path string, entries []zipWriteEntry) {
 	}
 }
 
+// openZip opens path for the caller to read and close. Callers must not leave
+// the reader open: Windows cannot replace a backup whose ZIP is still open.
 func openZip(t *testing.T, path string) *zip.ReadCloser {
 	t.Helper()
 
@@ -210,15 +212,17 @@ func openZip(t *testing.T, path string) *zip.ReadCloser {
 	if reader == nil {
 		t.Fatalf("open zip: %v", err)
 	}
-	t.Cleanup(func() { _ = reader.Close() })
 	return reader
 }
 
 func zipNames(t *testing.T, path string) map[string]bool {
 	t.Helper()
 
+	reader := openZip(t, path)
+	defer func() { _ = reader.Close() }()
+
 	names := make(map[string]bool)
-	for _, entry := range openZip(t, path).File {
+	for _, entry := range reader.File {
 		names[entry.Name] = true
 	}
 	return names
@@ -227,8 +231,11 @@ func zipNames(t *testing.T, path string) map[string]bool {
 func orderedZipNames(t *testing.T, path string) []string {
 	t.Helper()
 
+	reader := openZip(t, path)
+	defer func() { _ = reader.Close() }()
+
 	var names []string
-	for _, entry := range openZip(t, path).File {
+	for _, entry := range reader.File {
 		names = append(names, entry.Name)
 	}
 	return names
@@ -237,8 +244,11 @@ func orderedZipNames(t *testing.T, path string) []string {
 func zipEntryBytes(t *testing.T, path, name string) []byte {
 	t.Helper()
 
+	reader := openZip(t, path)
+	defer func() { _ = reader.Close() }()
+
 	var found *zip.File
-	for _, entry := range openZip(t, path).File {
+	for _, entry := range reader.File {
 		if entry.Name == name {
 			found = entry
 		}
@@ -547,6 +557,51 @@ func TestABackupSavedInsideDocumentsDoesNotIncludeItself(t *testing.T) {
 		if dirHasSuffix(documents, ".zip.tmp") {
 			t.Error("no temporary ZIP left in documents/")
 		}
+	}
+}
+
+func TestCreateBackupClosesTheZipBeforeReplacingTheTarget(t *testing.T) {
+	_, dir, d := profile(t)
+	service := NewService(dir, "0.3.4")
+	target := filepath.Join(dir, "backup.zip")
+
+	if _, err := service.CreateBackup(d, target); err != nil {
+		t.Fatalf("first CreateBackup: %v", err)
+	}
+
+	// Renaming the target over an existing file fails on Windows while a
+	// handle to the target is still open.
+	existing := filepath.Join(dir, "existing.zip")
+	if err := os.WriteFile(existing, []byte("existing"), 0o600); err != nil {
+		t.Fatalf("seed existing file: %v", err)
+	}
+	if err := os.Rename(target, existing); err != nil {
+		t.Fatalf("the target is still open after CreateBackup: %v", err)
+	}
+	if err := os.Rename(existing, target); err != nil {
+		t.Fatalf("restore the target: %v", err)
+	}
+
+	// The hook runs after the ZIP is written and before it replaces the target.
+	// On Windows renaming the temporary ZIP fails if writeZip still holds it.
+	previous := beforeReplace
+	beforeReplace = func(tmpZip, target string) {
+		probe := tmpZip + ".probe"
+		if err := os.Rename(tmpZip, probe); err != nil {
+			t.Errorf("the temporary ZIP is still open before the replace: %v", err)
+			return
+		}
+		if err := os.Rename(probe, tmpZip); err != nil {
+			t.Errorf("restore the temporary ZIP: %v", err)
+		}
+		if _, err := os.Stat(target); err != nil {
+			t.Errorf("the earlier target is missing: %v", err)
+		}
+	}
+	t.Cleanup(func() { beforeReplace = previous })
+
+	if _, err := service.CreateBackup(d, target); err != nil {
+		t.Fatalf("second CreateBackup: %v", err)
 	}
 }
 
@@ -1434,8 +1489,12 @@ func TestBackupLayoutMatchesV034(t *testing.T) {
 		}
 	}
 
-	goFiles := openZip(t, goBackup).File
-	referenceFiles := openZip(t, referenceBackup).File
+	goReader := openZip(t, goBackup)
+	defer func() { _ = goReader.Close() }()
+	referenceReader := openZip(t, referenceBackup)
+	defer func() { _ = referenceReader.Close() }()
+	goFiles := goReader.File
+	referenceFiles := referenceReader.File
 	for index := range goFiles {
 		if goFiles[index].Method != zip.Deflate {
 			t.Errorf("%q method = %d, want Deflate", goFiles[index].Name, goFiles[index].Method)

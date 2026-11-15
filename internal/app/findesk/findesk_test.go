@@ -94,8 +94,8 @@ func stringPointer(value string) *string {
 
 func TestTheStartFolderIsFindeskHomeOrTheHiddenHomeFolder(t *testing.T) {
 	home := "/home/alice"
-	if got := FindeskStartDir(home, nil); got != "/home/alice/.findesk" {
-		t.Errorf("start dir = %q", got)
+	if got, want := FindeskStartDir(home, nil), filepath.Join(home, ".findesk"); got != want {
+		t.Errorf("start dir = %q, want %q", got, want)
 	}
 
 	custom := "/data/findesk-data"

@@ -21,6 +21,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
 	"github.com/MaMissaoui/Finglass/internal/core/profiles"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/perm"
 )
 
 var scenarioNames = []string{"success", "wrong passphrase", "target not empty", "failed move"}
@@ -205,15 +206,11 @@ func TestStagingIsPrivate(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.RemoveAll(filepath.Join(target.Root(), StagingDir)) })
 
-	for _, path := range []string{staging, filepath.Dir(staging)} {
-		info, err := os.Stat(path)
-		if err != nil {
-			t.Fatalf("stat %s: %v", path, err)
+	t.Run("mode", func(t *testing.T) {
+		for _, path := range []string{staging, filepath.Dir(staging)} {
+			perm.AssertMode(t, path, 0o700)
 		}
-		if mode := info.Mode().Perm(); mode != 0o700 {
-			t.Errorf("%s mode = %#o, want 0700", path, mode)
-		}
-	}
+	})
 }
 
 func TestPassphrasesNeverFormatted(t *testing.T) {

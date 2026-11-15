@@ -22,6 +22,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/perm"
 )
 
 const (
@@ -884,9 +885,9 @@ func TestOnlyTheReceiptDocumentIsCopiedAndItsOCRTextIsKept(t *testing.T) {
 	if filepath.Base(stored) == "11111111-2222-3333-4444-555555555555_receipt.pdf" {
 		t.Error("the FinDesk file name was reused")
 	}
-	if mode := fileMode(t, stored); mode != 0o600 {
-		t.Errorf("stored mode = %o, want 600", mode)
-	}
+	t.Run("stored file mode", func(t *testing.T) {
+		perm.AssertMode(t, stored, 0o600)
+	})
 
 	if got := optionalText(t, database, "SELECT content FROM ocr_texts WHERE document_id = 1"); got == nil || *got != "REWE Summe 0,10" {
 		t.Errorf("OCR content = %v", got)
@@ -921,15 +922,6 @@ func TestOnlyTheReceiptDocumentIsCopiedAndItsOCRTextIsKept(t *testing.T) {
 	if fixture.report.OCRTexts.Imported != 1 {
 		t.Errorf("OCR texts = %d, want 1", fixture.report.OCRTexts.Imported)
 	}
-}
-
-func fileMode(t *testing.T, path string) os.FileMode {
-	t.Helper()
-	info, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("stat %s: %v", path, err)
-	}
-	return info.Mode().Perm()
 }
 
 func TestTheAuditLogGainsExactlyOneEntryWithoutPersonalData(t *testing.T) {
