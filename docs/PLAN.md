@@ -175,6 +175,10 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 - [x] Private data folder on Windows: protected owner/SYSTEM/Administrators DACL on the data folder and every private file, checked in tests.
 - [x] Credential stores on Windows (Credential Manager, local machine) and Linux (Secret Service, default collection); built and tested in CI, not released.
 - [ ] WebView2 / WebKitGTK, NSIS and DEB, each installer launched once in CI (artifacts only, never release assets).
+- [ ] Before any Linux release: the Secret Service store closes its dbus connection on a reset, and `IsAvailable`
+  gets a timeout (today it makes dbus round trips on every call).
+- [ ] Before any Windows/Linux release with Remember PIN, tell the user: unlike the macOS Keychain, Windows Credential
+  Manager and an unlocked Secret Service collection let any process running as the user read the PIN without a prompt.
 
 ## Later
 
