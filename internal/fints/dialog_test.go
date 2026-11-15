@@ -163,6 +163,134 @@ func TestDialogInitWithTANThenSubmitTAN(t *testing.T) {
 	bank.assertRequestsWiped(t)
 }
 
+// requestHKTAN returns the HKTAN segment of a request, before the dialog wipes
+// the request bytes.
+func requestHKTAN(t *testing.T, request []byte) ParsedSegment {
+	t.Helper()
+	outer, err := ParseMessage(request)
+	if err != nil {
+		t.Fatalf("ParseMessage: %v", err)
+	}
+	segments, err := flattenResponses(outer, 0)
+	if err != nil {
+		t.Fatalf("flattenResponses: %v", err)
+	}
+	return findRequestSegment(t, segments, "HKTAN")
+}
+
+// A bank that offers only HITANS v5 must see HKTAN v5's field positions: the
+// TAN medium in field 12 and, for process 2, the task reference in field 5 and
+// "N" in field 7.
+func TestDialogHKTANv5FieldsThroughLoginAndSubmit(t *testing.T) {
+	bank := newFakeBank(t)
+	const (
+		medium        = "Handy"
+		taskReference = "task-v5"
+	)
+	dialog := newSyncedDialog(
+		t, bank,
+		syncResponse(
+			v5Hitans(),
+			allowedSecurityFunction("912"),
+			hipins("HKSAL:N"),
+			hisals(7),
+		),
+		func(config *DialogConfig) { config.TANMedium = medium },
+	)
+
+	bank.expect(
+		requestShape("HKIDN", "HKVVB", "HKTAN"),
+		requestShape("HKTAN"),
+	)
+	bank.handler = func(call int, record fakeExchange) (string, error) {
+		hktan := requestHKTAN(t, record.request)
+		reject := func(problem string) (string, error) {
+			t.Errorf("exchange %d HKTAN v5: %s", call, problem)
+			return codeResponse("dialog-init", "9050"), nil
+		}
+		if got := hktan.Version(); got != 5 {
+			return reject(fmt.Sprintf("version = %d, want 5", got))
+		}
+		switch call {
+		case 0:
+			// HKTAN v5 process 4: field 1=4, field 2=HKIDN, fields 3-11
+			// empty, field 12=TAN medium name.
+			if got := hktan.DEG(1).Text(0); got != "4" {
+				return reject("field 1 TAN process = " + got)
+			}
+			if got := hktan.DEG(2).Text(0); got != "HKIDN" {
+				return reject("field 2 segment type = " + got)
+			}
+			for field := 3; field <= 11; field++ {
+				if got := hktan.DEG(field).Text(0); got != "" {
+					return reject(fmt.Sprintf("field %d = %q, want empty", field, got))
+				}
+			}
+			if got := hktan.DEG(12).Text(0); got != medium {
+				return reject(fmt.Sprintf("field 12 TAN medium = %q, want %q", got, medium))
+			}
+			return tanRequiredResponseV5("dialog-init", taskReference, "Bitte TAN eingeben"), nil
+		case 1:
+			// HKTAN v5 process 2: field 1=2, fields 2-4 empty, field 5=task
+			// reference, field 6 empty, field 7=N, fields 8-11 empty,
+			// field 12=TAN medium name.
+			if got := hktan.DEG(1).Text(0); got != "2" {
+				return reject("field 1 TAN process = " + got)
+			}
+			for field := 2; field <= 4; field++ {
+				if got := hktan.DEG(field).Text(0); got != "" {
+					return reject(fmt.Sprintf("field %d = %q, want empty", field, got))
+				}
+			}
+			if got := hktan.DEG(5).Text(0); got != taskReference {
+				return reject(fmt.Sprintf("field 5 task reference = %q, want %q", got, taskReference))
+			}
+			if got := hktan.DEG(6).Text(0); got != "" {
+				return reject(fmt.Sprintf("field 6 = %q, want empty", got))
+			}
+			if got := hktan.DEG(7).Text(0); got != "N" {
+				return reject(fmt.Sprintf("field 7 further TAN follows = %q, want N", got))
+			}
+			for field := 8; field <= 11; field++ {
+				if got := hktan.DEG(field).Text(0); got != "" {
+					return reject(fmt.Sprintf("field %d = %q, want empty", field, got))
+				}
+			}
+			if got := hktan.DEG(12).Text(0); got != medium {
+				return reject(fmt.Sprintf("field 12 TAN medium = %q, want %q", got, medium))
+			}
+			return executedResponse("dialog-init"), nil
+		}
+		return "", fmt.Errorf("unexpected exchange %d", call)
+	}
+
+	result, err := dialog.Init(context.Background())
+	if err != nil {
+		t.Fatalf("Init: %v", err)
+	}
+	if result.Opened || result.Decoupled {
+		t.Fatalf("Init result = %v, want a waiting TAN", result)
+	}
+	if result.Challenge.TaskReference != taskReference {
+		t.Fatalf("task reference = %q, want %q", result.Challenge.TaskReference, taskReference)
+	}
+	if dialog.State() != DialogTANPending {
+		t.Fatalf("state = %s, want tan-pending", dialog.State())
+	}
+
+	tan := secret.NewText([]byte(testTAN))
+	if _, err := dialog.SubmitTAN(context.Background(), tan); err != nil {
+		t.Fatalf("SubmitTAN: %v", err)
+	}
+	if !tan.IsEmpty() {
+		t.Fatal("SubmitTAN did not wipe the TAN")
+	}
+	if dialog.State() != DialogOpen {
+		t.Fatalf("state = %s, want open", dialog.State())
+	}
+	bank.assertRequestsWiped(t)
+}
+
 func TestDialogInitDecoupledThenPoll(t *testing.T) {
 	bank := newFakeBank(t)
 	sleeper := &fakeSleeper{}

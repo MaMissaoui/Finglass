@@ -214,6 +214,157 @@ func NewHKEND(dialogID string) Segment {
 	return newSegment("HKEND", 1, DEG{valueElement(dialogID)})
 }
 
+// The HKTAN layouts below follow the FinTS 3.0 PIN/TAN spec's HKTAN tables. A
+// table helper returns all fields through the last one named in the table;
+// trailing empty fields are not sent (appendSegmentBytes strips them).
+//
+// HKTAN v5 fields:
+//
+//	 1 TAN process
+//	 2 segment type
+//	 3 account
+//	 4 task hash value
+//	 5 task reference
+//	 6 TAN list number
+//	 7 further TAN follows (J/N)
+//	 8 cancel task
+//	 9 SMS charge account
+//	10 challenge class
+//	11 parameter challenge class
+//	12 TAN medium name
+//
+// HKTAN v6/v7 fields:
+//
+//	 1 TAN process
+//	 2 segment type
+//	 3 account
+//	 4 task hash value
+//	 5 task reference
+//	 6 further TAN follows (J/N)
+//	 7 cancel task
+//	 8 SMS charge account
+//	 9 challenge class
+//	10 parameter challenge class
+//	11 TAN medium name
+//	12 response HHD_UC
+
+// hktanMediumField is the TAN medium name field, or an absent field when the
+// caller has no medium. Its position differs by version and is named at each
+// use below.
+func hktanMediumField(tanMediumName *string) DEG {
+	if tanMediumName == nil {
+		return DEG{}
+	}
+	return DEG{valueElement(*tanMediumName)}
+}
+
+// hktanV5Process4Fields is HKTAN v5 process 4: fields 1-2, then only with a
+// medium fields 3-11 empty and the medium in field 12.
+func hktanV5Process4Fields(reference TanSegmentRef, tanMediumName *string) []DEG {
+	return []DEG{
+		{textElement("4")},               // 1 TAN process
+		{textElement(string(reference))}, // 2 segment type
+		{},                               // 3 account
+		{},                               // 4 task hash value
+		{},                               // 5 task reference
+		{},                               // 6 TAN list number
+		{},                               // 7 further TAN follows (J/N)
+		{},                               // 8 cancel task
+		{},                               // 9 SMS charge account
+		{},                               // 10 challenge class
+		{},                               // 11 parameter challenge class
+		hktanMediumField(tanMediumName),  // 12 TAN medium name
+	}
+}
+
+// hktanV6Process4Fields is HKTAN v6/v7 process 4: fields 1-2, then only with a
+// medium fields 3-10 empty and the medium in field 11.
+func hktanV6Process4Fields(reference TanSegmentRef, tanMediumName *string) []DEG {
+	return []DEG{
+		{textElement("4")},               // 1 TAN process
+		{textElement(string(reference))}, // 2 segment type
+		{},                               // 3 account
+		{},                               // 4 task hash value
+		{},                               // 5 task reference
+		{},                               // 6 further TAN follows (J/N)
+		{},                               // 7 cancel task
+		{},                               // 8 SMS charge account
+		{},                               // 9 challenge class
+		{},                               // 10 parameter challenge class
+		hktanMediumField(tanMediumName),  // 11 TAN medium name
+		{},                               // 12 response HHD_UC
+	}
+}
+
+// hktanV5TaskReferenceFields is HKTAN v5 processes 2 and S: fields 2-4 empty,
+// the task reference in field 5, field 6 empty, N in field 7, then only with a
+// medium fields 8-11 empty and the medium in field 12.
+func hktanV5TaskReferenceFields(process, taskReference string, tanMediumName *string) []DEG {
+	return []DEG{
+		{textElement(process)},          // 1 TAN process
+		{},                              // 2 segment type
+		{},                              // 3 account
+		{},                              // 4 task hash value
+		{valueElement(taskReference)},   // 5 task reference
+		{},                              // 6 TAN list number
+		{boolElement(false)},            // 7 further TAN follows (J/N)
+		{},                              // 8 cancel task
+		{},                              // 9 SMS charge account
+		{},                              // 10 challenge class
+		{},                              // 11 parameter challenge class
+		hktanMediumField(tanMediumName), // 12 TAN medium name
+	}
+}
+
+// hktanV6TaskReferenceFields is HKTAN v6/v7 processes 2 and S: fields 2-4
+// empty, the task reference in field 5, N in field 6, then only with a medium
+// fields 7-10 empty and the medium in field 11.
+func hktanV6TaskReferenceFields(process, taskReference string, tanMediumName *string) []DEG {
+	return []DEG{
+		{textElement(process)},          // 1 TAN process
+		{},                              // 2 segment type
+		{},                              // 3 account
+		{},                              // 4 task hash value
+		{valueElement(taskReference)},   // 5 task reference
+		{boolElement(false)},            // 6 further TAN follows (J/N)
+		{},                              // 7 cancel task
+		{},                              // 8 SMS charge account
+		{},                              // 9 challenge class
+		{},                              // 10 parameter challenge class
+		hktanMediumField(tanMediumName), // 11 TAN medium name
+		{},                              // 12 response HHD_UC
+	}
+}
+
+// hktanLegacyProcess4Fields keeps the pre-v5 layout for versions below 5;
+// versions above 7 keep the v6/v7 layout.
+func hktanLegacyProcess4Fields(reference TanSegmentRef, tanMediumName *string) []DEG {
+	fields := []DEG{
+		{textElement("4")},               // 1 TAN process
+		{textElement(string(reference))}, // 2 segment type
+	}
+	if tanMediumName != nil {
+		fields = append(fields, DEG{valueElement(*tanMediumName)}) // 3 TAN medium name
+	}
+	return fields
+}
+
+// hktanLegacyTaskReferenceFields keeps the pre-v5 layout for versions below 5;
+// versions above 7 keep the v6/v7 layout.
+func hktanLegacyTaskReferenceFields(process, taskReference string, tanMediumName *string) []DEG {
+	fields := []DEG{
+		{textElement(process)},        // 1 TAN process
+		{},                            // 2
+		{},                            // 3
+		{valueElement(taskReference)}, // 4 task reference
+		{boolElement(false)},          // 5 further TAN follows (J/N)
+	}
+	if tanMediumName != nil {
+		fields = append(fields, DEG{valueElement(*tanMediumName)}) // 6 TAN medium name
+	}
+	return fields
+}
+
 // NewHKTANProcess4 builds HKTAN process 4 (request a TAN challenge) for one of
 // the allowed business segment references.
 func NewHKTANProcess4(version uint16, reference TanSegmentRef, tanMediumName *string) Segment {
@@ -221,23 +372,14 @@ func NewHKTANProcess4(version uint16, reference TanSegmentRef, tanMediumName *st
 		return Segment{err: errUnknownTanReference}
 	}
 
-	body := make([]DEG, 0, 12)
-	body = append(body,
-		DEG{textElement("4")},
-		DEG{textElement(string(reference))},
-	)
-	if version >= 6 {
-		for count := 0; count < 5; count++ {
-			body = append(body, DEG{emptyElement()})
-		}
-	}
-	if tanMediumName != nil {
-		if version >= 6 {
-			for count := 0; count < 3; count++ {
-				body = append(body, DEG{emptyElement()})
-			}
-		}
-		body = append(body, DEG{valueElement(*tanMediumName)})
+	var body []DEG
+	switch {
+	case version == 5:
+		body = hktanV5Process4Fields(reference, tanMediumName)
+	case version >= 6:
+		body = hktanV6Process4Fields(reference, tanMediumName)
+	default:
+		body = hktanLegacyProcess4Fields(reference, tanMediumName)
 	}
 	return newSegment("HKTAN", version, body...)
 }
@@ -251,32 +393,14 @@ func NewHKTANProcess2(version uint16, taskReference string, tanMediumName *strin
 // newHKTANWithTaskReference builds the shared layout of HKTAN processes 2 and S.
 // process is a constant from those two constructors only.
 func newHKTANWithTaskReference(process string, version uint16, taskReference string, tanMediumName *string) Segment {
-	body := make([]DEG, 0, 12)
-	body = append(body, DEG{textElement(process)})
-	if version >= 6 {
-		body = append(body,
-			DEG{emptyElement()},
-			DEG{emptyElement()},
-			DEG{emptyElement()},
-			DEG{valueElement(taskReference)},
-			DEG{boolElement(false)},
-			DEG{emptyElement()},
-		)
-	} else {
-		body = append(body,
-			DEG{emptyElement()},
-			DEG{emptyElement()},
-			DEG{valueElement(taskReference)},
-			DEG{boolElement(false)},
-		)
-	}
-	if tanMediumName != nil {
-		if version >= 6 {
-			for count := 0; count < 3; count++ {
-				body = append(body, DEG{emptyElement()})
-			}
-		}
-		body = append(body, DEG{valueElement(*tanMediumName)})
+	var body []DEG
+	switch {
+	case version == 5:
+		body = hktanV5TaskReferenceFields(process, taskReference, tanMediumName)
+	case version >= 6:
+		body = hktanV6TaskReferenceFields(process, taskReference, tanMediumName)
+	default:
+		body = hktanLegacyTaskReferenceFields(process, taskReference, tanMediumName)
 	}
 	return newSegment("HKTAN", version, body...)
 }

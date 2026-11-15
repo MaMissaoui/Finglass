@@ -3,7 +3,6 @@ package fints
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -443,23 +442,172 @@ func TestHKSPAWireFormat(t *testing.T) {
 	}
 }
 
-func TestHKTANProcess4WithoutMedium(t *testing.T) {
-	for _, version := range []uint16{5, 6, 7} {
-		got := segmentWire(t, NewHKTANProcess4(version, TanRefHKIDN, nil), 3)
-		want := "HKTAN:3:" + strconv.FormatUint(uint64(version), 10) + "+4+HKIDN'"
-		if got != want {
-			t.Fatalf("version %d wire = %q, want %q", version, got, want)
-		}
-	}
-}
-
-func TestHKTANProcess4WithMedium(t *testing.T) {
+func TestHKTANWireLayoutPerVersion(t *testing.T) {
+	const taskReference = "task-123"
 	medium := "Handy"
-	if got := segmentWire(t, NewHKTANProcess4(7, TanRefHKIDN, &medium), 3); got != "HKTAN:3:7+4+HKIDN+++++++++Handy'" {
-		t.Fatalf("version 7 wire = %q", got)
+
+	cases := []struct {
+		name    string
+		version uint16
+		segment Segment
+		want    string
+	}{
+		{
+			name:    "process 4 v5 without medium",
+			version: 5,
+			// v5: 1 TAN process=4, 2 segment type=HKIDN; fields 3-12 absent.
+			segment: NewHKTANProcess4(5, TanRefHKIDN, nil),
+			want:    "HKTAN:3:5+4+HKIDN'",
+		},
+		{
+			name:    "process 4 v6 without medium",
+			version: 6,
+			// v6: 1 TAN process=4, 2 segment type=HKIDN; fields 3-12 absent.
+			segment: NewHKTANProcess4(6, TanRefHKIDN, nil),
+			want:    "HKTAN:3:6+4+HKIDN'",
+		},
+		{
+			name:    "process 4 v7 without medium",
+			version: 7,
+			// v7: 1 TAN process=4, 2 segment type=HKIDN; fields 3-12 absent.
+			segment: NewHKTANProcess4(7, TanRefHKIDN, nil),
+			want:    "HKTAN:3:7+4+HKIDN'",
+		},
+		{
+			name:    "process 4 v5 with medium",
+			version: 5,
+			// v5: 1 TAN process=4, 2 segment type=HKSAL, 3-11 empty,
+			// 12 TAN medium name=Handy.
+			segment: NewHKTANProcess4(5, TanRefHKSAL, &medium),
+			want:    "HKTAN:3:5+4+HKSAL++++++++++Handy'",
+		},
+		{
+			name:    "process 4 v6 with medium",
+			version: 6,
+			// v6: 1 TAN process=4, 2 segment type=HKIDN, 3-10 empty,
+			// 11 TAN medium name=Handy; 12 response HHD_UC absent.
+			segment: NewHKTANProcess4(6, TanRefHKIDN, &medium),
+			want:    "HKTAN:3:6+4+HKIDN+++++++++Handy'",
+		},
+		{
+			name:    "process 4 v7 with medium",
+			version: 7,
+			// v7: 1 TAN process=4, 2 segment type=HKIDN, 3-10 empty,
+			// 11 TAN medium name=Handy; 12 response HHD_UC absent.
+			segment: NewHKTANProcess4(7, TanRefHKIDN, &medium),
+			want:    "HKTAN:3:7+4+HKIDN+++++++++Handy'",
+		},
+		{
+			name:    "process 2 v5 without medium",
+			version: 5,
+			// v5: 1 TAN process=2, 2-4 empty, 5 task reference=task-123,
+			// 6 empty, 7 further TAN follows=N; fields 8-12 absent.
+			segment: NewHKTANProcess2(5, taskReference, nil),
+			want:    "HKTAN:3:5+2++++task-123++N'",
+		},
+		{
+			name:    "process 2 v6 without medium",
+			version: 6,
+			// v6: 1 TAN process=2, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N; fields 7-12 absent.
+			segment: NewHKTANProcess2(6, taskReference, nil),
+			want:    "HKTAN:3:6+2++++task-123+N'",
+		},
+		{
+			name:    "process 2 v7 without medium",
+			version: 7,
+			// v7: 1 TAN process=2, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N; fields 7-12 absent.
+			segment: NewHKTANProcess2(7, taskReference, nil),
+			want:    "HKTAN:3:7+2++++task-123+N'",
+		},
+		{
+			name:    "process 2 v5 with medium",
+			version: 5,
+			// v5: 1 TAN process=2, 2-4 empty, 5 task reference=task-123,
+			// 6 empty, 7 further TAN follows=N, 8-11 empty,
+			// 12 TAN medium name=Handy.
+			segment: NewHKTANProcess2(5, taskReference, &medium),
+			want:    "HKTAN:3:5+2++++task-123++N+++++Handy'",
+		},
+		{
+			name:    "process 2 v6 with medium",
+			version: 6,
+			// v6: 1 TAN process=2, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N, 7-10 empty, 11 TAN medium name=Handy;
+			// 12 response HHD_UC absent.
+			segment: NewHKTANProcess2(6, taskReference, &medium),
+			want:    "HKTAN:3:6+2++++task-123+N+++++Handy'",
+		},
+		{
+			name:    "process 2 v7 with medium",
+			version: 7,
+			// v7: 1 TAN process=2, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N, 7-10 empty, 11 TAN medium name=Handy;
+			// 12 response HHD_UC absent.
+			segment: NewHKTANProcess2(7, taskReference, &medium),
+			want:    "HKTAN:3:7+2++++task-123+N+++++Handy'",
+		},
+		{
+			name:    "process S v5 without medium",
+			version: 5,
+			// v5: 1 TAN process=S, 2-4 empty, 5 task reference=task-123,
+			// 6 empty, 7 further TAN follows=N; fields 8-12 absent.
+			segment: NewHKTANProcessS(5, taskReference, nil),
+			want:    "HKTAN:3:5+S++++task-123++N'",
+		},
+		{
+			name:    "process S v6 without medium",
+			version: 6,
+			// v6: 1 TAN process=S, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N; fields 7-12 absent.
+			segment: NewHKTANProcessS(6, taskReference, nil),
+			want:    "HKTAN:3:6+S++++task-123+N'",
+		},
+		{
+			name:    "process S v7 without medium",
+			version: 7,
+			// v7: 1 TAN process=S, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N; fields 7-12 absent.
+			segment: NewHKTANProcessS(7, taskReference, nil),
+			want:    "HKTAN:3:7+S++++task-123+N'",
+		},
+		{
+			name:    "process S v5 with medium",
+			version: 5,
+			// v5: 1 TAN process=S, 2-4 empty, 5 task reference=task-123,
+			// 6 empty, 7 further TAN follows=N, 8-11 empty,
+			// 12 TAN medium name=Handy.
+			segment: NewHKTANProcessS(5, taskReference, &medium),
+			want:    "HKTAN:3:5+S++++task-123++N+++++Handy'",
+		},
+		{
+			name:    "process S v6 with medium",
+			version: 6,
+			// v6: 1 TAN process=S, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N, 7-10 empty, 11 TAN medium name=Handy;
+			// 12 response HHD_UC absent.
+			segment: NewHKTANProcessS(6, taskReference, &medium),
+			want:    "HKTAN:3:6+S++++task-123+N+++++Handy'",
+		},
+		{
+			name:    "process S v7 with medium",
+			version: 7,
+			// v7: 1 TAN process=S, 2-4 empty, 5 task reference=task-123,
+			// 6 further TAN follows=N, 7-10 empty, 11 TAN medium name=Handy;
+			// 12 response HHD_UC absent.
+			segment: NewHKTANProcessS(7, taskReference, &medium),
+			want:    "HKTAN:3:7+S++++task-123+N+++++Handy'",
+		},
 	}
-	if got := segmentWire(t, NewHKTANProcess4(5, TanRefHKSAL, &medium), 3); got != "HKTAN:3:5+4+HKSAL+Handy'" {
-		t.Fatalf("version 5 wire = %q", got)
+
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			got := segmentWire(t, testCase.segment, 3)
+			if got != testCase.want {
+				t.Fatalf("version %d wire = %q\nwant %q", testCase.version, got, testCase.want)
+			}
+		})
 	}
 }
 
@@ -476,39 +624,9 @@ func TestHKTANProcess4RejectsUnknownReference(t *testing.T) {
 	}
 }
 
-func TestHKTANProcess2WireFormat(t *testing.T) {
-	const taskReference = "task-123"
-
-	if got := segmentWire(t, NewHKTANProcess2(7, taskReference, nil), 3); got != "HKTAN:3:7+2++++task-123+N'" {
-		t.Fatalf("version 7 wire = %q", got)
-	}
-	if got := segmentWire(t, NewHKTANProcess2(5, taskReference, nil), 3); got != "HKTAN:3:5+2+++task-123+N'" {
-		t.Fatalf("version 5 wire = %q", got)
-	}
-
-	medium := "Handy"
-	if got := segmentWire(t, NewHKTANProcess2(7, taskReference, &medium), 3); got != "HKTAN:3:7+2++++task-123+N+++++Handy'" {
-		t.Fatalf("version 7 with medium wire = %q", got)
-	}
-}
-
 // Process S (decoupled status poll) has process 2's layout with "S", as in
 // fints-rs's hktan_process_s.
-func TestHKTANProcessSWireFormat(t *testing.T) {
-	const taskReference = "task-123"
-
-	if got := segmentWire(t, NewHKTANProcessS(7, taskReference, nil), 3); got != "HKTAN:3:7+S++++task-123+N'" {
-		t.Fatalf("version 7 wire = %q", got)
-	}
-	if got := segmentWire(t, NewHKTANProcessS(5, taskReference, nil), 3); got != "HKTAN:3:5+S+++task-123+N'" {
-		t.Fatalf("version 5 wire = %q", got)
-	}
-
-	medium := "Handy"
-	if got := segmentWire(t, NewHKTANProcessS(7, taskReference, &medium), 3); got != "HKTAN:3:7+S++++task-123+N+++++Handy'" {
-		t.Fatalf("version 7 with medium wire = %q", got)
-	}
-
+func TestHKTANProcessSEscapesTaskReference(t *testing.T) {
 	// A task reference is escaped like every other caller value.
 	if got := segmentWire(t, NewHKTANProcessS(7, "a+b:c'd", nil), 3); got != "HKTAN:3:7+S++++a?+b?:c?'d+N'" {
 		t.Fatalf("escaped task reference wire = %q", got)
