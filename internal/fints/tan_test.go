@@ -56,8 +56,9 @@ func TestParseHITANVersion7TaskReferenceFromDEG3(t *testing.T) {
 	}
 }
 
-func TestParseHITANVersion3To5(t *testing.T) {
-	challenge, ok := ParseHITAN(parseOne(t, "HITAN:6:5:2+4+task-ref-2+challenge-text'"))
+func TestParseHITANVersion5TaskReferenceFromDEG3(t *testing.T) {
+	// HITAN v5 has the task hash value in DEG 2, like v6 and v7.
+	challenge, ok := ParseHITAN(parseOne(t, "HITAN:6:5:2+4+task-hash-2+task-ref-2+challenge-text'"))
 	if !ok {
 		t.Fatal("ParseHITAN reported no challenge")
 	}
@@ -113,5 +114,22 @@ func TestResponseTANChallengeAndMedia(t *testing.T) {
 	media := response.TanMedia()
 	if len(media) != 1 || media[0].Name() != "My Phone" {
 		t.Fatalf("TanMedia = %#v", media)
+	}
+}
+
+func TestParseHITANVersion3HashNeverBecomesTaskReference(t *testing.T) {
+	// HITAN v3: DEG 2 hash, DEG 3 task reference, DEG 4 challenge, DEG 5 validity.
+	challenge, ok := ParseHITAN(parseOne(t, "HITAN:6:3:2+4+task-hash-3+task-ref-3+challenge-text+20260315'"))
+	if !ok {
+		t.Fatal("ParseHITAN reported no challenge")
+	}
+	if challenge.TaskReference != "task-ref-3" {
+		t.Fatalf("TaskReference = %q", challenge.TaskReference)
+	}
+	if challenge.Challenge() != "challenge-text" {
+		t.Fatalf("Challenge = %q", challenge.Challenge())
+	}
+	if challenge.HHDUD() != nil {
+		t.Fatalf("HHDUD = %v, want nil", challenge.HHDUD())
 	}
 }

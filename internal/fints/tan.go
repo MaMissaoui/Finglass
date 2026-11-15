@@ -54,23 +54,18 @@ func (c TanChallenge) Format(f fmt.State, _ rune) {
 	_, _ = f.Write([]byte(c.String()))
 }
 
-// ParseHITAN ports fints-rs's parse_hitan with the corrected v6/v7 layout:
-// DEG 2 is the task hash value and DEG 3 is the task reference. It reports
-// false when the segment carries neither a task reference nor a challenge.
+// ParseHITAN reads a HITAN challenge. In every HITAN version (2, 3, 5, 6, 7)
+// of the FinTS 3.0 PIN/TAN spec, DEG 1 is the TAN process, DEG 2 the task hash
+// value, DEG 3 the task reference and DEG 4 the challenge. DEG 5 is the
+// challenge HHD_UC from version 5 on (versions 2 and 3 have the challenge's
+// validity there). It reports false when the segment carries neither a task
+// reference nor a challenge.
 func ParseHITAN(segment ParsedSegment) (TanChallenge, bool) {
-	version := segment.Version()
-
-	taskReference := ""
-	challenge := ""
+	taskReference := segment.DEG(3).Text(0)
+	challenge := segment.DEG(4).Text(0)
 	var hhduc []byte
-	if version >= 6 {
-		// DEG 2 is the task hash value; the task reference is DEG 3.
-		taskReference = segment.DEG(3).Text(0)
-		challenge = segment.DEG(4).Text(0)
+	if segment.Version() >= 5 {
 		hhduc = segment.DEG(5).Binary(0)
-	} else {
-		taskReference = segment.DEG(2).Text(0)
-		challenge = segment.DEG(3).Text(0)
 	}
 
 	if taskReference == "" && challenge == "" {
