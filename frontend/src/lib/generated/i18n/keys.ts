@@ -46,6 +46,7 @@ export const keys = [
   'PeriodLast3Months',
   'PeriodThisYear',
   'PeriodLastYear',
+  'PeriodThisAndLastYear',
   'PeriodAllTime',
   'PeriodCustomRange',
   'DirectionAll',

@@ -1305,6 +1305,7 @@ func transactionsPeriodOptions(language i18n.Language) []string {
 		i18n.PeriodLast3Months,
 		i18n.PeriodThisYear,
 		i18n.PeriodLastYear,
+		i18n.PeriodThisAndLastYear,
 		i18n.PeriodAllTime,
 	}
 	options := make([]string, 0, len(keys)+1)
@@ -1327,8 +1328,12 @@ func transactionsPeriodIndex(period transactionsview.Period) int {
 		return 3
 	case transactionsview.PeriodLastYear:
 		return 4
-	default:
+	case transactionsview.PeriodThisAndLastYear:
 		return 5
+	case transactionsview.PeriodAll:
+		return 6
+	default:
+		return 6
 	}
 }
 

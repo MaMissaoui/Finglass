@@ -29,15 +29,15 @@
   } = $props();
 
   const tabs = [
-    { id: 'summary', key: 'TabTaxSummary' },
-    { id: 'tax', key: 'TabTaxBookings' },
     { id: 'monthly', key: 'TabMonthlyBreakdown' },
     { id: 'category', key: 'TabCategoryAnalysis' },
     { id: 'recurring', key: 'TabRecurring' },
+    { id: 'summary', key: 'TabTaxSummary' },
+    { id: 'tax', key: 'TabTaxBookings' },
   ] as const;
 
   let dto = $state<ReportsDTO | null>(null);
-  let activeTab = $state('summary');
+  let activeTab = $state('monthly');
   let customEdit = $state(false);
   let fromEdit = $state('');
   let toEdit = $state('');
@@ -368,7 +368,8 @@
       ></button>
     {/if}
 
-    <div class="content">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="content" tabindex="0">
       {#if activeTab === 'recurring'}
         {#if dto.recurringEmpty}
           <ReportEmpty title={t('NoRecurringFound')} hint={t('RecurringHint')} />

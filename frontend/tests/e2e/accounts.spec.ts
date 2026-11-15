@@ -198,6 +198,40 @@ test('the Accounts page renders every scenario without a CSP or console error', 
   await expectClean(watcher);
 });
 
+test('only one Accounts menu is open and outside clicks close it', async ({ page }) => {
+  await goto(page, 'accounts');
+  const bankA = page.getByTestId('bank-card-1');
+  const bankB = page.getByTestId('bank-card-2');
+  const moreA = bankA.locator('.bank-head').getByRole('button', { name: 'More' });
+  const moreB = bankB.locator('.bank-head').getByRole('button', { name: 'More' });
+
+  await moreA.click();
+  await expect(bankA.getByRole('menu')).toBeVisible();
+  await expect(page.getByRole('menu')).toHaveCount(1);
+
+  await moreB.click();
+  await expect(bankA.getByRole('menu')).toHaveCount(0);
+  await expect(bankB.getByRole('menu')).toBeVisible();
+  await expect(page.getByRole('menu')).toHaveCount(1);
+
+  await page.mouse.click(8, 8);
+  await expect(page.getByRole('menu')).toHaveCount(0);
+
+  await moreA.click();
+  await expect(bankA.getByRole('menu')).toBeVisible();
+  await page.getByTestId('account-row-1').getByRole('button', { name: 'More' }).click();
+  await expect(bankA.getByRole('menu')).toHaveCount(0);
+  await expect(page.getByTestId('account-actions-1')).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('account-actions-1')).toHaveCount(0);
+
+  await moreB.click();
+  await expect(bankB.getByRole('menu')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(bankB.getByRole('menu')).toHaveCount(0);
+});
+
 test('account rows leave the bank monogram to the bank header', async ({ page }) => {
   await goto(page, 'accounts');
   const card = page.getByTestId('bank-card-1');

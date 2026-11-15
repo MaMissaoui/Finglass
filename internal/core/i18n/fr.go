@@ -47,6 +47,7 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	PeriodLast3Months:                   "3 derniers mois",
 	PeriodThisYear:                      "Cette année",
 	PeriodLastYear:                      "Année dernière",
+	PeriodThisAndLastYear:               "Cette année et la précédente",
 	PeriodAllTime:                       "Tout",
 	PeriodCustomRange:                   "Période personnalisée…",
 	DirectionAll:                        "Tout",

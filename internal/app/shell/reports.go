@@ -31,7 +31,8 @@ const (
 type ReportsPageState struct {
 	// State is a deep copy of the page's state.
 	State reportsview.ReportsState
-	// Tab is "summary" or "tax", as open_page sets it.
+	// Tab is "monthly", "category", "recurring", "summary" or "tax", as
+	// open_page sets it.
 	Tab string
 	// RangeFrom and RangeTo are the custom-range dialog's fields.
 	RangeFrom string
@@ -492,7 +493,7 @@ func (s *Session) beginReportsJobLocked(
 // resetReportsLocked replaces the Reports state and its controller fields.
 func (s *Session) resetReportsLocked() {
 	s.reports = reportsview.New(s.language, s.today())
-	s.reportsTab = "summary"
+	s.reportsTab = "monthly"
 	s.setReportsDefaultRangeLocked(s.today())
 	s.reportsRangeError = ""
 }

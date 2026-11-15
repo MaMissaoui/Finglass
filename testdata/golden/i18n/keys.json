@@ -3164,6 +3164,11 @@
     "de": "Letztes Jahr",
     "fr": "Année dernière"
   },
+  "PeriodThisAndLastYear": {
+    "en": "This & last year",
+    "de": "Dieses & letztes Jahr",
+    "fr": "Cette année et la précédente"
+  },
   "PeriodThisMonth": {
     "en": "This month",
     "de": "Dieser Monat",

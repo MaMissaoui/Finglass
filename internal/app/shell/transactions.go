@@ -1434,6 +1434,8 @@ func transactionsPeriodAt(index int) (transactionsview.Period, bool) {
 	case 4:
 		return transactionsview.PeriodLastYear, true
 	case 5:
+		return transactionsview.PeriodThisAndLastYear, true
+	case 6:
 		return transactionsview.PeriodAll, true
 	default:
 		return 0, false

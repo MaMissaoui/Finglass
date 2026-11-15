@@ -105,6 +105,9 @@ const (
 	PeriodLastYear
 	// PeriodAll has no date restriction.
 	PeriodAll
+	// PeriodThisAndLastYear runs from January 1 of last year through
+	// December 31 of this year.
+	PeriodThisAndLastYear
 )
 
 // Range returns the inclusive date range, or (nil, nil) for all time.
@@ -129,6 +132,10 @@ func (p Period) Range(today civil.Date) (*civil.Date, *civil.Date) {
 		year := today.Year() - 1
 		from := mustDate(year, time.January, 1)
 		to := mustDate(year, time.December, 31)
+		return &from, &to
+	case PeriodThisAndLastYear:
+		from := mustDate(today.Year()-1, time.January, 1)
+		to := mustDate(today.Year(), time.December, 31)
 		return &from, &to
 	default:
 		return nil, nil
@@ -422,7 +429,7 @@ func NewState(language i18n.Language) *TransactionsState {
 		Categories:           make([]model.Category, 0),
 		Accounts:             make([]accountsview.AccountItem, 0),
 		SearchQuery:          "",
-		Period:               PeriodThisMonth,
+		Period:               PeriodThisAndLastYear,
 		Month:                nil,
 		CustomRange:          nil,
 		Direction:            model.DirectionAll,

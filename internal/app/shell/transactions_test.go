@@ -218,8 +218,8 @@ func TestTransactionsLoadsRowsPanelTotalsAndPending(t *testing.T) {
 	defer remove()
 
 	state := session.TransactionsState()
-	if len(state.Transactions) != 3 {
-		t.Fatalf("this month's transactions = %d, want 3", len(state.Transactions))
+	if len(state.Transactions) != 4 {
+		t.Fatalf("default-period transactions = %d, want 4", len(state.Transactions))
 	}
 	if len(state.GrandTotal) != 1 || state.GrandTotal[0].Currency != money.EUR {
 		t.Fatalf("grand total = %+v", state.GrandTotal)
@@ -276,7 +276,7 @@ func TestTransactionsFiltersRangeAmountAndChart(t *testing.T) {
 		t.Fatal("Back stayed visible after clearing the search")
 	}
 
-	session.TransactionsPeriodChanged(5)
+	session.TransactionsPeriodChanged(6)
 	state = waitForTransactions(t, session, events, "all time", func(state transactionsview.TransactionsState) bool {
 		return !state.IsLoading && state.Period == transactionsview.PeriodAll
 	})
@@ -366,8 +366,8 @@ func TestTransactionsPeriodCategoryAndAccountChoices(t *testing.T) {
 	state = waitForTransactions(t, session, events, "uncategorized", func(state transactionsview.TransactionsState) bool {
 		return !state.IsLoading && state.CategoryFilter.Kind == transactionsview.CategoryFilterKindNone
 	})
-	if len(state.Transactions) != 1 {
-		t.Fatalf("uncategorized rows = %d, want 1", len(state.Transactions))
+	if len(state.Transactions) != 2 {
+		t.Fatalf("uncategorized rows = %d, want 2", len(state.Transactions))
 	}
 
 	session.TransactionsCategoryChanged(0)
@@ -873,7 +873,7 @@ func TestTransactionsSearchTypedDuringALoadWins(t *testing.T) {
 		<-release
 	}
 
-	session.TransactionsPeriodChanged(5)
+	session.TransactionsPeriodChanged(6)
 	select {
 	case <-entered:
 	case <-time.After(10 * time.Second):
@@ -909,7 +909,7 @@ func TestASecondTransactionsActionIsRefusedWhileOneRuns(t *testing.T) {
 		<-release
 	}
 
-	session.TransactionsPeriodChanged(5)
+	session.TransactionsPeriodChanged(6)
 	select {
 	case <-entered:
 	case <-time.After(10 * time.Second):
@@ -954,7 +954,7 @@ func TestASupersededTransactionsLoadIsDropped(t *testing.T) {
 	session.TransactionsPeriodChanged(0)
 	first := <-entered
 	session.transactionsWork.End()
-	session.TransactionsPeriodChanged(5)
+	session.TransactionsPeriodChanged(6)
 	second := <-entered
 
 	close(second)
@@ -986,7 +986,7 @@ func TestTeardownDuringATransactionsLoadDropsItAndClosesWhenTheJobEnds(t *testin
 		<-gate
 	}
 
-	session.TransactionsPeriodChanged(5)
+	session.TransactionsPeriodChanged(6)
 	gate := <-entered
 	generation := session.jobs.Generation()
 	old := sessionDatabase(t, session)
@@ -1038,7 +1038,7 @@ func TestTransactionsStateIsSafeWhileActionsRun(t *testing.T) {
 		}
 	}()
 
-	for _, index := range []int{5, 4, 3, 2} {
+	for _, index := range []int{6, 5, 4, 3, 2, 1, 0} {
 		session.TransactionsPanelFilterChanged(fmt.Sprintf("filter-%d", index))
 		waitForTransactions(t, session, events, "a panel filter while reading", func(state transactionsview.TransactionsState) bool {
 			return state.AccountFilterText == fmt.Sprintf("filter-%d", index)

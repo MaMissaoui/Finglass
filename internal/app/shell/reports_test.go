@@ -186,7 +186,7 @@ func newLoadedReportsSession(t *testing.T) (*Session, reportsSeedData, <-chan Ch
 	t.Cleanup(remove)
 	session.Navigate("reports")
 	waitForReports(t, session, events, "the loaded reports", func(page ReportsPageState) bool {
-		return !page.State.IsLoading && page.State.TaxReport != nil && page.Tab == "summary"
+		return !page.State.IsLoading && page.State.TaxReport != nil && page.Tab == "monthly"
 	})
 	return session, seed, events
 }
@@ -210,7 +210,7 @@ func TestReportsLoadsTheSummaryAndTheTaxTabForALinkedYear(t *testing.T) {
 	session, seed, events := newLoadedReportsSession(t)
 
 	page := session.ReportsState()
-	if page.Tab != "summary" || page.State.SelectedYear != 2026 {
+	if page.Tab != "monthly" || page.State.SelectedYear != 2026 {
 		t.Fatalf("page = %+v", page)
 	}
 	if !page.State.TaxReport.IsCalendarYear() {
@@ -647,7 +647,7 @@ func TestTeardownDuringAReportsLoadDropsItAndClosesWhenTheJobEnds(t *testing.T) 
 	if page.State.TaxReport != nil || page.State.IsLoading {
 		t.Fatalf("the teardown did not drop the load: %+v", page.State)
 	}
-	if page.Tab != "summary" {
+	if page.Tab != "monthly" {
 		t.Fatalf("the teardown kept the tab %q", page.Tab)
 	}
 }

@@ -14,7 +14,7 @@ describe('the mock reports fake', () => {
     expect(shell.screen).toBe('reports');
 
     const dto = await api.reportsState();
-    expect(dto.tab).toBe('summary');
+    expect(dto.tab).toBe('monthly');
     expect(dto.yearLabel).toBe('2026');
     expect(dto.loading).toBe(false);
     expect(dto.exporting).toBe(false);

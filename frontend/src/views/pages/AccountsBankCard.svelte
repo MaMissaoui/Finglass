@@ -5,14 +5,7 @@
     ConnectionTestDTO,
     LastTraceDTO,
   } from '../../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
-  import {
-    BankBadge,
-    CountBadge,
-    Icon,
-    IconButton,
-    SecondaryButton,
-    TextButton,
-  } from '../../lib/components';
+  import { BankBadge, CountBadge, Icon, SecondaryButton, TextButton } from '../../lib/components';
   import type { IconName } from '../../lib/icons';
 
   let {
@@ -21,6 +14,8 @@
     connectionTest = null,
     lastTrace = null,
     syncControlsVisible = false,
+    menuKey = null,
+    onMenuChange,
     onToggle,
     onSync,
     onAddAccount,
@@ -38,6 +33,8 @@
     connectionTest?: ConnectionTestDTO | null;
     lastTrace?: LastTraceDTO | null;
     syncControlsVisible?: boolean;
+    menuKey?: string | null;
+    onMenuChange: (key: string | null) => void;
     onToggle: (bankID: number) => void;
     onSync: (bankID: number) => void;
     onAddAccount: (bankID: number) => void;
@@ -51,10 +48,40 @@
     onSaveTrace: (bankID: number) => void;
   } = $props();
 
-  let bankMenuOpen = $state(false);
-  let accountMenu = $state(-1);
-
   const hasBank = $derived(card.bankId >= 0);
+  const bankMenuKey = $derived(`bank:${card.bankId}`);
+  const bankMenuOpen = $derived(menuKey === bankMenuKey);
+  let bankMenuEl = $state<HTMLDivElement | null>(null);
+  let bankTriggerEl = $state<HTMLButtonElement | null>(null);
+  let bankMenuStyle = $state('');
+
+  $effect(() => {
+    if (!bankMenuOpen) {
+      bankMenuStyle = '';
+      return;
+    }
+    const menu = bankMenuEl;
+    const trigger = bankTriggerEl;
+    if (menu === null || trigger === null) {
+      return;
+    }
+    const rect = trigger.getBoundingClientRect();
+    const margin = 8;
+    const gap = 4;
+    const menuHeight = menu.scrollHeight;
+    const below = window.innerHeight - margin - (rect.bottom + gap);
+    const above = rect.top - gap - margin;
+    const openAbove = menuHeight > below && above > below;
+    const maxHeight = Math.max(openAbove ? above : below, 0);
+    const right = Math.max(window.innerWidth - rect.right, margin);
+    const vertical = openAbove
+      ? `bottom: ${window.innerHeight - rect.top + gap}px;`
+      : `top: ${rect.bottom + gap}px;`;
+    // Fixed positioning keeps the menu above the following cards and out of
+    // the scroll container's overflow, while the measured coordinates keep it
+    // directly below or above its trigger.
+    bankMenuStyle = `position: fixed; right: ${right}px; ${vertical} max-height: ${maxHeight}px;`;
+  });
 
   function toneClass(tone: string): string {
     if (tone === 'negative') {
@@ -71,22 +98,25 @@
   }
 
   function toggleBankMenu(): void {
-    accountMenu = -1;
-    bankMenuOpen = !bankMenuOpen;
+    onMenuChange(bankMenuOpen ? null : bankMenuKey);
+  }
+
+  function accountMenuOpen(accountID: number): boolean {
+    return menuKey === `account:${accountID}`;
   }
 
   function toggleAccountMenu(accountID: number): void {
-    bankMenuOpen = false;
-    accountMenu = accountMenu === accountID ? -1 : accountID;
+    const key = `account:${accountID}`;
+    onMenuChange(menuKey === key ? null : key);
   }
 
   function chooseBankAction(action: string): void {
-    bankMenuOpen = false;
+    onMenuChange(null);
     onBankMenu(card.bankId, action);
   }
 
   function chooseAccount(accountID: number, action: () => void): void {
-    accountMenu = -1;
+    onMenuChange(null);
     action();
   }
 
@@ -100,15 +130,6 @@
     }
   }
 </script>
-
-<svelte:window
-  onkeydown={(event) => {
-    if (event.key === 'Escape') {
-      bankMenuOpen = false;
-      accountMenu = -1;
-    }
-  }}
-/>
 
 <article class="bank-card" data-testid={`bank-card-${card.bankId}`}>
   <header class="bank-head">
@@ -171,9 +192,28 @@
 
       {#if hasBank}
         <div class="menu-anchor">
-          <IconButton icon="more_vert" label={t('More')} filled onclick={toggleBankMenu} />
+          <button
+            type="button"
+            class="bank-menu-trigger"
+            aria-label={t('More')}
+            title={t('More')}
+            aria-haspopup="menu"
+            aria-expanded={bankMenuOpen}
+            data-menu-key={bankMenuKey}
+            bind:this={bankTriggerEl}
+            onclick={toggleBankMenu}
+          >
+            <Icon name="more_vert" size={20} />
+          </button>
           {#if bankMenuOpen}
-            <div class="bank-menu" role="menu" aria-label={t('More')}>
+            <div
+              class="bank-menu"
+              role="menu"
+              aria-label={t('More')}
+              data-menu-key={bankMenuKey}
+              bind:this={bankMenuEl}
+              style={bankMenuStyle}
+            >
               {#each card.menu as item (item.action)}
                 <button
                   type="button"
@@ -344,8 +384,7 @@
               type="button"
               class="account-main"
               onclick={() => {
-                accountMenu = -1;
-                bankMenuOpen = false;
+                onMenuChange(null);
                 onOpenDetail(account.accountId);
               }}
             >
@@ -382,7 +421,9 @@
               class="row-icon"
               aria-label={t('More')}
               title={t('More')}
-              aria-expanded={accountMenu === account.accountId}
+              aria-haspopup="menu"
+              aria-expanded={accountMenuOpen(account.accountId)}
+              data-menu-key={`account:${account.accountId}`}
               onclick={(event) => {
                 event.stopPropagation();
                 toggleAccountMenu(account.accountId);
@@ -392,8 +433,12 @@
             </button>
           </div>
 
-          {#if accountMenu === account.accountId}
-            <div class="account-actions" data-testid={`account-actions-${account.accountId}`}>
+          {#if accountMenuOpen(account.accountId)}
+            <div
+              class="account-actions"
+              data-testid={`account-actions-${account.accountId}`}
+              data-menu-key={`account:${account.accountId}`}
+            >
               <TextButton
                 text={t('MenuDetails')}
                 onclick={() =>
@@ -626,17 +671,41 @@
     display: inline-flex;
   }
 
+  .bank-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--size-icon-button);
+    height: var(--size-icon-button);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--color-control-fill);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .bank-menu-trigger:hover {
+    background: var(--color-control-fill-hover);
+  }
+
+  .bank-menu-trigger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
   .bank-menu {
-    position: absolute;
-    z-index: 12;
+    position: fixed;
+    z-index: 20;
     right: 0;
-    top: 0;
     width: 300px;
     padding: 8px 0;
     border: 1px solid var(--color-divider);
     border-radius: var(--radius-panel);
     background: var(--color-surface);
     box-shadow: var(--shadow-menu);
+    overflow-y: auto;
   }
 
   .menu-entry {

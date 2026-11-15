@@ -538,7 +538,7 @@ func newSession(
 		reportsWork:      reportsWork,
 		documentsWork:    documentsWork,
 		documentsPreview: documentsPreview{Kind: "none"},
-		reportsTab:       "summary",
+		reportsTab:       "monthly",
 		reportsRangeFrom: rangeFrom,
 		reportsRangeTo:   rangeTo,
 	}
@@ -1341,7 +1341,7 @@ func (s *Session) openPageLocked(screen string, args PageArgs) *pageJob {
 	case "documents":
 		return s.beginDocumentsOpenLocked()
 	case "reports":
-		s.reportsTab = "summary"
+		s.reportsTab = "monthly"
 		if args.ReportsYear != nil {
 			s.reportsTab = "tax"
 		}

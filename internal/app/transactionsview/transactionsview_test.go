@@ -329,10 +329,10 @@ func TestTransactionsFiltersApplyAndCategoryFilterIsHonoured(t *testing.T) {
 	today := date(t, "2026-03-20")
 	vm := view()
 	requireNoError(t, vm.Load(ctx, database, today))
-	assertEqual(t, len(vm.State().Transactions), 3, "this month")
+	assertEqual(t, len(vm.State().Transactions), 4, "default period")
 
 	requireNoError(t, vm.UpdateDirection(ctx, database, model.DirectionExpenses, today))
-	assertEqual(t, len(vm.State().Transactions), 2, "expenses")
+	assertEqual(t, len(vm.State().Transactions), 3, "expenses")
 
 	requireNoError(t, vm.UpdateCategoryFilter(ctx, database, OnlyCategoryFilter(food), today))
 	assertEqual(t, partners(t, vm), []string{"REWE"}, "only Food")
@@ -496,6 +496,16 @@ func TestAConfirmedIdenticalManualEntryIsAddedAsASecondBooking(t *testing.T) {
 	if confirmed {
 		t.Fatal("nothing left to confirm")
 	}
+}
+
+func TestThisAndLastYearRangeSpansBothCalendarYears(t *testing.T) {
+	today := date(t, "2026-11-15")
+	from, to := PeriodThisAndLastYear.Range(today)
+	if from == nil || to == nil {
+		t.Fatal("this & last year has no range")
+	}
+	assertEqual(t, *from, date(t, "2025-01-01"), "from")
+	assertEqual(t, *to, date(t, "2026-12-31"), "to")
 }
 
 func TestShowAllFromAPartnerClearsTheNarrowingFilters(t *testing.T) {
@@ -913,7 +923,7 @@ func TestANewBookingDatedLastMonthStaysBoldAfterOpeningTheAccount(t *testing.T) 
 	late := txn(t, database, accountID, date(t, "2026-02-27"), eur(-800), sp("Late"), nil, nil, true)
 	today := date(t, "2026-03-20")
 	vm := view()
-	requireNoError(t, vm.Start(ctx, database, StartArgs{}, today))
+	requireNoError(t, vm.Start(ctx, database, StartArgs{Period: pp(PeriodThisMonth)}, today))
 	requireNoError(t, vm.SelectAccounts(ctx, database, accountpanel.AccountSelectionFor(accountID), today))
 	for _, id := range ids(t, vm) {
 		if id == late {

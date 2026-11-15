@@ -99,6 +99,11 @@ async function openExport(page: Page): Promise<void> {
 test('the Reports reference screenshots', async ({ page }) => {
   await goto(page, 'reports-summary-en-light', 1100, 720);
   await expect(pageRoot(page)).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Monthly breakdown' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await page.getByRole('tab', { name: 'Tax summary' }).click();
   await expect(page.getByRole('tab', { name: 'Tax summary' })).toHaveAttribute(
     'aria-selected',
     'true',
@@ -107,14 +112,17 @@ test('the Reports reference screenshots', async ({ page }) => {
 
   await goto(page, 'reports-summary-de-light', 1440, 900);
   await expect(page.getByRole('heading', { name: 'Berichte' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Steuerübersicht' }).click();
   await expect(page.getByText('25.000,00 €', { exact: true })).toBeVisible();
   await shot(page, 'reports-summary-de-light');
 
   await goto(page, 'reports-summary-de-dark', 1100, 720, 'dark');
   await expect(page.getByRole('heading', { name: 'Berichte' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Steuerübersicht' }).click();
   await shot(page, 'reports-summary-de-dark');
 
   await goto(page, 'reports-summary-en-dark', 1100, 720, 'dark');
+  await page.getByRole('tab', { name: 'Tax summary' }).click();
   await expect(page.getByText('Tax-relevant expenses by category')).toBeVisible();
   await shot(page, 'reports-tax-categories-en-dark');
 
@@ -165,6 +173,14 @@ test('the Reports reference screenshots', async ({ page }) => {
 test('the tabs switch to their own content', async ({ page }) => {
   const watcher = await watch(page);
   await goto(page, 'reports-summary-en-light');
+  await expect(page.getByRole('tab')).toHaveText([
+    'Monthly breakdown',
+    'Category analysis',
+    'Recurring',
+    'Tax summary',
+    'Tax bookings',
+  ]);
+  await page.getByRole('tab', { name: 'Tax summary' }).click();
   await expect(page.getByText('Tax-relevant expenses by category')).toBeVisible();
 
   await page.getByRole('tab', { name: 'Tax bookings' }).click();
@@ -224,6 +240,7 @@ test('the year moves and the page pulls its state on mount', async ({ page }) =>
 test('the custom range validates and applies', async ({ page }) => {
   const watcher = await watch(page);
   await goto(page, 'reports-summary-en-light');
+  await page.getByRole('tab', { name: 'Tax summary' }).click();
   await page.getByRole('radio', { name: 'Custom range' }).click();
 
   const from = page.getByRole('textbox', { name: 'From' });

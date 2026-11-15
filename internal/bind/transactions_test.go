@@ -279,22 +279,26 @@ func TestTransactionsServiceLoadsEveryAppliedField(t *testing.T) {
 		t.Fatalf("flags = accounts %v transactions %v balance %v chart %v",
 			dto.HasAccounts, dto.HasTransactions, dto.HasBalance, dto.HasChart)
 	}
-	if dto.CountText != "3" {
-		t.Fatalf("count = %q, want 3", dto.CountText)
+	if dto.CountText != "4" {
+		t.Fatalf("count = %q, want 4", dto.CountText)
 	}
 	if len(dto.IncomeAmounts) != 1 || dto.IncomeAmounts[0].Text != "€20.00" ||
 		dto.IncomeAmounts[0].Tone != "positive" {
 		t.Fatalf("income = %+v", dto.IncomeAmounts)
 	}
-	if len(dto.ExpenseAmounts) != 1 || dto.ExpenseAmounts[0].Text != "€7.50" ||
+	if len(dto.ExpenseAmounts) != 1 || dto.ExpenseAmounts[0].Text != "€14.50" ||
 		dto.ExpenseAmounts[0].Tone != "negative" {
 		t.Fatalf("expenses = %+v", dto.ExpenseAmounts)
 	}
-	if len(dto.PeriodOptions) != 7 || dto.PeriodIndex != 0 {
+	if len(dto.PeriodOptions) != 8 || dto.PeriodIndex != 5 {
 		t.Fatalf("period = %+v / %d", dto.PeriodOptions, dto.PeriodIndex)
 	}
-	if dto.PeriodOptions[6] != i18n.Text(i18n.En, i18n.PeriodCustomRange) {
-		t.Fatalf("custom period option = %q", dto.PeriodOptions[6])
+	if dto.PeriodOptions[5] != i18n.Text(i18n.En, i18n.PeriodThisAndLastYear) ||
+		dto.PeriodOptions[6] != i18n.Text(i18n.En, i18n.PeriodAllTime) {
+		t.Fatalf("period options = %+v", dto.PeriodOptions)
+	}
+	if dto.PeriodOptions[7] != i18n.Text(i18n.En, i18n.PeriodCustomRange) {
+		t.Fatalf("custom period option = %q", dto.PeriodOptions[7])
 	}
 	if len(dto.DirectionOptions) != 3 || dto.DirectionIndex != 0 {
 		t.Fatalf("direction = %+v / %d", dto.DirectionOptions, dto.DirectionIndex)
@@ -373,13 +377,13 @@ func TestTransactionsServiceActionsChangeTheDTO(t *testing.T) {
 	dto = fixture.action(t, "the cleared search", func() (TransactionsDTO, error) {
 		return fixture.service.Back()
 	}, func(dto TransactionsDTO) bool {
-		return !dto.Loading && len(dto.Rows) == 3
+		return !dto.Loading && len(dto.Rows) == 4
 	})
 
 	dto = fixture.action(t, "all time", func() (TransactionsDTO, error) {
-		return fixture.service.PeriodChanged(5)
+		return fixture.service.PeriodChanged(6)
 	}, func(dto TransactionsDTO) bool {
-		return !dto.Loading && dto.PeriodIndex == 5 && len(dto.Rows) == 4
+		return !dto.Loading && dto.PeriodIndex == 6 && len(dto.Rows) == 4
 	})
 	if dto.PeriodExtra != "" {
 		t.Fatalf("period extra = %q", dto.PeriodExtra)
