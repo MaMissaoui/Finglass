@@ -434,7 +434,9 @@ func assertDashboardDTOMatchesView(t *testing.T, dto DashboardDTO, view dashboar
 		t.Fatalf("income/expenses cards = %+v", dto)
 	}
 	if dto.PendingTitle != view.PendingTitle || dto.PendingValue != view.PendingValue ||
-		dto.PendingSubtitle != view.PendingSubtitle || !reflect.DeepEqual(dto.PendingLines, view.PendingLines) ||
+		dto.PendingSubtitle != view.PendingSubtitle ||
+		dto.PendingAnnouncement != view.PendingAnnouncement ||
+		!reflect.DeepEqual(dto.PendingLines, view.PendingLines) ||
 		dto.PendingEnabled != view.PendingEnabled {
 		t.Fatalf("pending card = %+v", dto)
 	}
@@ -481,7 +483,8 @@ func assertDashboardDTOMatchesView(t *testing.T, dto DashboardDTO, view dashboar
 	for index, row := range view.Budgets {
 		want := DashboardBudgetRowDTO{
 			Name: row.Name, AmountText: row.AmountText, RestText: row.RestText,
-			Ratio: row.Ratio, Over: row.IsOver, Warning: row.Warning, Colour: row.Color,
+			Description: row.Description, Ratio: row.Ratio, Over: row.IsOver,
+			Warning: row.Warning, Colour: row.Color,
 		}
 		if dto.BudgetRows[index] != want {
 			t.Fatalf("budget row %d = %+v, want %+v", index, dto.BudgetRows[index], want)

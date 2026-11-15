@@ -9,6 +9,7 @@
     tone,
     pendingTitle,
     pendingValue,
+    pendingAnnouncement,
     pendingLines,
     pendingEnabled,
     onopenpending,
@@ -19,10 +20,28 @@
     tone: string;
     pendingTitle: string;
     pendingValue: string;
+    pendingAnnouncement: string;
     pendingLines: string[];
     pendingEnabled: boolean;
     onopenpending: () => void;
   } = $props();
+
+  // Only a change after the first render reaches the live region. The first
+  // value is the state the page opens with, not news.
+  let announced = $state('');
+  let previousPendingValue = $state<string | null>(null);
+  $effect(() => {
+    const current = pendingValue;
+    if (previousPendingValue === null) {
+      previousPendingValue = current;
+      return;
+    }
+    if (current === previousPendingValue) {
+      return;
+    }
+    previousPendingValue = current;
+    announced = pendingAnnouncement;
+  });
 </script>
 
 <section class="statement-card">
@@ -71,6 +90,16 @@
         <span>{pendingLines[0]}</span>
       </div>
     {/if}
+
+    <p
+      class="visually-hidden"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      data-testid="pending-announcement"
+    >
+      {announced}
+    </p>
   </div>
 </section>
 
@@ -269,6 +298,18 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   @media (max-width: 900px) {

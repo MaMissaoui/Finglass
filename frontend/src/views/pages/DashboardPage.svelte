@@ -197,6 +197,7 @@
               tone={dto.availableTone}
               pendingTitle={dto.pendingTitle}
               pendingValue={dto.pendingValue}
+              pendingAnnouncement={dto.pendingAnnouncement}
               pendingLines={dto.pendingLines}
               pendingEnabled={dto.pendingEnabled}
               onopenpending={openUncategorized}

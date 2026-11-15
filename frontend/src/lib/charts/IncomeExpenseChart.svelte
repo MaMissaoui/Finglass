@@ -245,11 +245,11 @@
 
     <div class="legend">
       <span class="key">
-        <span class="dot in"></span>
+        <span class="dot in" aria-hidden="true"></span>
         <span>{incomeLabel}</span>
       </span>
       <span class="key">
-        <span class="dot out"></span>
+        <span class="dot out" aria-hidden="true"></span>
         <span>{expensesLabel}</span>
       </span>
       {#if partialNote !== ''}

@@ -9,9 +9,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MaMissaoui/Finglass/internal/app/accountsview"
 	bankingcore "github.com/MaMissaoui/Finglass/internal/app/banking"
 	"github.com/MaMissaoui/Finglass/internal/app/shell"
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
+	"github.com/MaMissaoui/Finglass/internal/core/accountgrouping"
 	"github.com/MaMissaoui/Finglass/internal/core/balance"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
@@ -224,6 +226,83 @@ func (f *accountsFixture) drain() {
 	for len(f.events) > 0 {
 		<-f.events
 	}
+}
+
+func TestAccountsFiguresPutThePrimaryCurrencyOnTheFigureLine(t *testing.T) {
+	usd, err := money.NewCurrency("USD")
+	if err != nil {
+		t.Fatalf("NewCurrency: %v", err)
+	}
+	account := func(balance int64, currency money.Currency, accountType string) accountsview.AccountItem {
+		return accountsview.AccountItem{
+			Balance:     money.Money{Minor: balance, Currency: currency},
+			Currency:    currency,
+			AccountType: accountType,
+		}
+	}
+	state := func(accounts []accountsview.AccountItem, primary money.Currency) accountsview.AccountsState {
+		return accountsview.AccountsState{
+			Accounts:        accounts,
+			PrimaryCurrency: primary,
+			GrandTotal:      accountgrouping.GrandTotal(accountsGrouping(accounts), primary),
+			Language:        i18n.En,
+		}
+	}
+	texts := func(figure AccountsFigureDTO) []string {
+		values := make([]string, 0, len(figure.Values))
+		for _, value := range figure.Values {
+			values = append(values, value.Text)
+		}
+		return values
+	}
+
+	t.Run("one currency", func(t *testing.T) {
+		figures := accountsFigures(state([]accountsview.AccountItem{
+			account(1_000, money.EUR, "checking"),
+			account(2_500, money.EUR, "savings"),
+		}, money.EUR), i18n.En)
+		if len(figures) != 1 {
+			t.Fatalf("figures = %+v", figures)
+		}
+		if got := texts(figures[0]); !reflect.DeepEqual(got, []string{"€35.00"}) {
+			t.Fatalf("values = %+v", got)
+		}
+	})
+
+	t.Run("two currencies", func(t *testing.T) {
+		figures := accountsFigures(state([]accountsview.AccountItem{
+			account(1_000, money.EUR, "checking"),
+			account(500, usd, "savings"),
+		}, usd), i18n.En)
+		if len(figures) != 1 {
+			t.Fatalf("figures = %+v", figures)
+		}
+		if got := texts(figures[0]); !reflect.DeepEqual(got, []string{"$5.00", "€10.00"}) {
+			t.Fatalf("values = %+v, want the primary currency first", got)
+		}
+	})
+
+	t.Run("loans only", func(t *testing.T) {
+		figures := accountsFigures(state([]accountsview.AccountItem{
+			account(-9_000, money.EUR, "loan"),
+		}, money.EUR), i18n.En)
+		if len(figures) != 2 {
+			t.Fatalf("figures = %+v", figures)
+		}
+		if want := i18n.Format(i18n.En, i18n.AccountsNetLabel, i18n.Int(1)); figures[0].Label != want {
+			t.Fatalf("first label = %q, want %q", figures[0].Label, want)
+		}
+		if figures[1].Label != i18n.Text(i18n.En, i18n.AccountsLoansLabel) ||
+			!figures[1].Secondary {
+			t.Fatalf("loans figure = %+v", figures[1])
+		}
+		if got := texts(figures[0]); !reflect.DeepEqual(got, []string{"-€90.00"}) {
+			t.Fatalf("values = %+v", got)
+		}
+		if got := texts(figures[1]); !reflect.DeepEqual(got, []string{"-€90.00"}) {
+			t.Fatalf("loan values = %+v", got)
+		}
+	})
 }
 
 func TestAccountsServiceLoadsEveryAppliedField(t *testing.T) {

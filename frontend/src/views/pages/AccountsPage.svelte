@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { AccountsDTO, Api, BankingDTO, PromptDTO, ShellDTO } from '../../lib/api';
   import { Icon, MessageBanner, PrimaryButton, SecondaryButton } from '../../lib/components';
+  import { splitCurrencyAmounts } from '../../lib/currencyAmounts';
   import { languageFromCode, translate, type FormatArg, type Language } from '../../lib/i18n';
   import AccountDetail from './AccountDetail.svelte';
   import AccountPanel from './AccountPanel.svelte';
@@ -289,21 +290,26 @@
       <div class="figures-row">
         <div class="figures">
           {#each accounts.figures as figure (figure.label)}
-            <div class="figure">
+            {@const split = splitCurrencyAmounts(figure.values)}
+            <div class="figure" data-testid="accounts-figure">
               <span class="figure-label">{figure.label}</span>
               <div class="figure-values">
-                {#each figure.values as amount, index (amount.text)}
-                  {#if index > 0}
-                    <span class="separator">·</span>
-                  {/if}
+                {#if split.main}
                   <span
                     class="figure-amount"
-                    class:muted={noteAmountTone(amount.tone, figure.secondary) === 'muted'}
-                    class:negative={noteAmountTone(amount.tone, figure.secondary) === 'negative'}
-                    >{amount.text}</span
+                    class:muted={noteAmountTone(split.main.tone, figure.secondary) === 'muted'}
+                    class:negative={noteAmountTone(split.main.tone, figure.secondary) ===
+                      'negative'}>{split.main.text}</span
                   >
-                {/each}
+                {/if}
               </div>
+              {#if split.further.length > 0}
+                <div class="figure-further" data-testid="accounts-figure-further">
+                  {#each split.further as amount (amount.text)}
+                    <span>+ {amount.text}</span>
+                  {/each}
+                </div>
+              {/if}
             </div>
           {/each}
         </div>
@@ -570,15 +576,19 @@
 
   .figure-values {
     display: flex;
+    min-width: 0;
     align-items: center;
     gap: 8px;
   }
 
   .figure-amount {
+    display: block;
+    overflow: hidden;
     color: var(--color-text);
     font-size: var(--type-amount-size);
     font-weight: var(--type-amount-weight);
     white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .figure-amount.muted {
@@ -589,10 +599,28 @@
     color: var(--color-error);
   }
 
-  .separator {
+  .figure-further {
+    overflow: hidden;
     color: var(--color-muted-text);
-    font-size: var(--type-amount-size);
-    font-weight: var(--type-amount-weight);
+    font-size: var(--type-label-small-size);
+    font-weight: var(--type-label-small-weight);
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .figure-further span + span {
+    margin-left: var(--space-xs);
+  }
+
+  @media (max-width: 960px) {
+    .figures-row {
+      gap: 16px;
+    }
+
+    .figures {
+      gap: 16px;
+    }
   }
 
   .note {

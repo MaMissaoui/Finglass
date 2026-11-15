@@ -257,6 +257,8 @@ type BudgetRowView struct {
 	AmountText string
 	// RestText is the "left" or "over budget" line.
 	RestText string
+	// Description says the bar's and the month marker's state in words.
+	Description string
 }
 
 // UpcomingRowView is one recurring payment due in the next 30 days.
@@ -409,6 +411,8 @@ type DashboardView struct {
 	PendingValue string
 	// PendingSubtitle is the pending-tasks card's subtitle.
 	PendingSubtitle string
+	// PendingAnnouncement is the live-region sentence for a changed count.
+	PendingAnnouncement string
 	// PendingLines are the pending-tasks detail lines, one per kind, for the
 	// right-hand panel.
 	PendingLines []string
@@ -507,6 +511,11 @@ func FromFigures(figures dashboard.DashboardFigures, unlinkedDocuments int, lang
 		)
 	}
 	pendingLines := strings.Split(pendingSubtitle, " · ")
+	pendingAnnouncement := i18n.Format(
+		language,
+		i18n.PendingCountAnnouncement,
+		i18n.Int(int64(pending)),
+	)
 
 	var availableTitle string
 	if figures.BalanceDate != nil {
@@ -638,15 +647,16 @@ func FromFigures(figures dashboard.DashboardFigures, unlinkedDocuments int, lang
 			loaded,
 			language,
 		),
-		ExpensesValue:   format.Money(figures.MonthlyExpenses, language, false),
-		TaxTitle:        i18n.Text(language, i18n.TaxDeductibleYtd),
-		TaxValue:        format.Money(taxTotal, language, false),
-		TaxHint:         i18n.Text(language, i18n.TaxDeductibleHint),
-		PendingTitle:    i18n.Text(language, i18n.PendingTasks),
-		PendingValue:    strconv.Itoa(pending),
-		PendingSubtitle: pendingSubtitle,
-		PendingLines:    pendingLines,
-		PendingEnabled:  pending > 0,
+		ExpensesValue:       format.Money(figures.MonthlyExpenses, language, false),
+		TaxTitle:            i18n.Text(language, i18n.TaxDeductibleYtd),
+		TaxValue:            format.Money(taxTotal, language, false),
+		TaxHint:             i18n.Text(language, i18n.TaxDeductibleHint),
+		PendingTitle:        i18n.Text(language, i18n.PendingTasks),
+		PendingValue:        strconv.Itoa(pending),
+		PendingSubtitle:     pendingSubtitle,
+		PendingAnnouncement: pendingAnnouncement,
+		PendingLines:        pendingLines,
+		PendingEnabled:      pending > 0,
 		ExpensesSectionTitle: monthTitle(
 			currentLoaded,
 			i18n.ExpensesByCategory,
@@ -1387,6 +1397,12 @@ func budgetRow(budget dashboard.BudgetStatus, language i18n.Language, monthProgr
 			i18n.Str(format.Money(budget.Limit, language, false)),
 		),
 		RestText: restText,
+		Description: i18n.Format(
+			language,
+			i18n.BudgetProgressDescription,
+			i18n.Str(format.Percent(ratio, language)),
+			i18n.Str(format.Percent(monthProgress, language)),
+		),
 	}
 }
 

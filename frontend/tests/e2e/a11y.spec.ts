@@ -40,12 +40,24 @@ function formatViolations(violations: Result[]): string {
     .join('\n');
 }
 
-async function expectAccessible(page: Page, label: string, theme: Theme): Promise<void> {
+async function expectAccessible(
+  page: Page,
+  label: string,
+  theme: Theme,
+  forceTheme = true,
+): Promise<void> {
   // A scenario may pin its own theme in the DTO. Set the requested theme on the
-  // root so both palettes are checked for every state.
-  await page.evaluate((next: string) => {
-    document.documentElement.dataset.theme = next;
-  }, theme);
+  // root so both palettes are checked for every state. The System cases keep
+  // the root free of `data-theme`, so `prefers-color-scheme` decides.
+  if (forceTheme) {
+    await page.evaluate((next: string) => {
+      document.documentElement.dataset.theme = next;
+    }, theme);
+  } else {
+    expect(
+      await page.evaluate(() => document.documentElement.getAttribute('data-theme')),
+    ).toBeNull();
+  }
   await page.waitForTimeout(50);
 
   const results = await new AxeBuilder({ page }).withTags(tags).analyze();
@@ -283,5 +295,43 @@ for (const scenario of germanScenarios) {
     await goto(page, scenario.scenario, width, height, 'light');
     await scenario.after?.(page);
     await expectAccessible(page, scenario.name, 'light');
+  });
+}
+
+// The System theme follows the OS. These cases run with a dark OS colour
+// scheme and never write `data-theme`, so the dark tokens are the ones the app
+// really shows with "System".
+const systemScenarios: Scenario[] = [
+  {
+    name: 'accounts status lines (System)',
+    scenario: 'accounts-status-no-server-system-en',
+    after: async (page) => {
+      await expect(page.getByTestId('accounts-page')).toBeVisible();
+      await expect(page.getByTestId('bank-status-2')).toBeVisible();
+    },
+  },
+  {
+    name: 'test connection result (System)',
+    scenario: 'accounts-test-connection-nogo-system-en',
+    after: async (page) => {
+      await runConnectionTest(page, false);
+    },
+  },
+  {
+    name: 'dashboard (System)',
+    scenario: 'dashboard-system-en',
+    after: async (page) => {
+      await expect(page.getByTestId('dashboard-page')).toBeVisible();
+    },
+  },
+];
+
+for (const scenario of systemScenarios) {
+  test(`${scenario.name} has no serious accessibility violations (dark OS)`, async ({ page }) => {
+    test.setTimeout(60_000);
+    const [width, height] = scenario.size ?? [1440, 900];
+    await goto(page, scenario.scenario, width, height, 'dark');
+    await scenario.after?.(page);
+    await expectAccessible(page, scenario.name, 'dark', false);
   });
 }

@@ -307,6 +307,7 @@ const dashboardScenarios: Record<string, DashboardScenario> = {
   'dashboard-no-carry-en-light': { language: 'en', theme: 'light', variant: 'no-carry' },
   'dashboard-month-menu-en-light': { language: 'en', theme: 'light', variant: 'normal' },
   'dashboard-chart-hover-en-light': { language: 'en', theme: 'light', variant: 'normal' },
+  'dashboard-system-en': { language: 'en', theme: 'system', variant: 'normal' },
   'dashboard-error-en-light': { language: 'en', theme: 'light', variant: 'error' },
   'dashboard-loading-en-light': { language: 'en', theme: 'light', variant: 'loading' },
 };
@@ -513,6 +514,7 @@ function initialState(scenario: string): MockState {
     case 'accounts-status-no-server':
     case 'accounts-status-no-server-de':
     case 'accounts-status-no-server-fr':
+    case 'accounts-status-no-server-system-en':
     case 'accounts-syncing':
     case 'accounts-pin':
     case 'accounts-pin-remember':
@@ -524,19 +526,23 @@ function initialState(scenario: string): MockState {
     case 'accounts-test-connection-en-dark':
     case 'accounts-test-connection-nogo-en-light':
     case 'accounts-test-connection-nogo-en-dark':
+    case 'accounts-test-connection-nogo-system-en':
     case 'accounts-test-saved-pin':
     case 'accounts-test-saved-pin-rejected-de':
     case 'banking-walkthrough':
       openShell(state);
       state.theme =
-        scenario === 'shell-de-dark' ||
-        scenario === 'accounts-de-dark' ||
-        scenario === 'accounts-bank-menu-de-dark' ||
-        scenario === 'accounts-add-online-bank-no-match-de-dark' ||
-        scenario === 'accounts-test-connection-en-dark' ||
-        scenario === 'accounts-test-connection-nogo-en-dark'
-          ? 'dark'
-          : 'light';
+        scenario === 'accounts-status-no-server-system-en' ||
+        scenario === 'accounts-test-connection-nogo-system-en'
+          ? 'system'
+          : scenario === 'shell-de-dark' ||
+              scenario === 'accounts-de-dark' ||
+              scenario === 'accounts-bank-menu-de-dark' ||
+              scenario === 'accounts-add-online-bank-no-match-de-dark' ||
+              scenario === 'accounts-test-connection-en-dark' ||
+              scenario === 'accounts-test-connection-nogo-en-dark'
+            ? 'dark'
+            : 'light';
       state.language =
         scenario === 'accounts-status-no-server-fr'
           ? 'fr'
@@ -702,6 +708,8 @@ export function createMockApi(scenario = scenarioName()): Api {
     bankingAnswerChoice: (id: number, choice: string) => banking.answerChoice(id, choice),
     bankingAnswerDecoupled: (id: number, confirmed: boolean) =>
       banking.answerDecoupled(id, confirmed),
+    dashboardSetPending: (pending: number) =>
+      publishDashboardWith(() => dashboard.setPending(pending)),
     transactionsStateCalls: 0,
     transactionsSearchCalls: [] as string[],
     reportsStateCalls: 0,

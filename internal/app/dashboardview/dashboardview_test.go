@@ -873,6 +873,62 @@ func equalStrings(left []string, right []string) bool {
 	return reflect.DeepEqual(left, right)
 }
 
+func TestBudgetDescriptionAndOverBudgetTextInEveryLanguage(t *testing.T) {
+	budget := dashboard.BudgetStatus{
+		Limit: moneyOf(10_000),
+		Spent: moneyOf(6_200),
+	}
+	tests := []struct {
+		language i18n.Language
+		want     string
+	}{
+		{i18n.En, "62% of the budget used; 47% of the month has passed"},
+		{i18n.De, "62\u00a0% des Budgets genutzt; 47\u00a0% des Monats sind vergangen"},
+		{i18n.Fr, "62\u00a0% du budget utilisé ; 47\u00a0% du mois écoulé"},
+	}
+	for _, test := range tests {
+		row := budgetRow(budget, test.language, 0.47)
+		if row.Description != test.want {
+			t.Errorf("%s description = %q, want %q", test.language.Code(), row.Description, test.want)
+		}
+	}
+
+	over := budgetRow(dashboard.BudgetStatus{
+		Limit: moneyOf(10_000),
+		Spent: moneyOf(12_500),
+	}, i18n.En, 0.5)
+	if !over.IsOver || over.RestText != "€25.00 over budget" {
+		t.Errorf("over budget = %+v, want the words in RestText", over)
+	}
+}
+
+func TestPendingCountAnnouncementInEveryLanguage(t *testing.T) {
+	month := date(t, 2026, time.October, 15)
+	tests := []struct {
+		language i18n.Language
+		want     string
+	}{
+		{i18n.En, "3 pending tasks"},
+		{i18n.De, "3 offene Aufgaben"},
+		{i18n.Fr, "3 tâches en attente"},
+	}
+	for _, test := range tests {
+		loadedMonth := dashboard.YearMonthFromDate(month)
+		view := FromFigures(dashboard.DashboardFigures{
+			Currency:           money.EUR,
+			LoadedMonth:        loadedMonth,
+			CurrentMonth:       loadedMonth,
+			AvailableBalance:   moneyOf(0),
+			MonthlyIncome:      moneyOf(0),
+			MonthlyExpenses:    moneyOf(0),
+			UncategorizedCount: 2,
+		}, 1, test.language)
+		if view.PendingAnnouncement != test.want {
+			t.Errorf("%s announcement = %q, want %q", test.language.Code(), view.PendingAnnouncement, test.want)
+		}
+	}
+}
+
 func TestTwoCurrenciesATransferABudgetAndALoanKeepTheirFigures(t *testing.T) {
 	database := testDatabase(t)
 	eur := createAccount(

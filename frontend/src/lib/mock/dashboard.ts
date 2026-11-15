@@ -247,6 +247,12 @@ function budgetRows(language: Language): DashboardBudgetRowDTO[] {
         money(30000, language),
       ),
       restText: translate(language, 'LeftBudget', money(18000, language)),
+      description: translate(
+        language,
+        'BudgetProgressDescription',
+        percent(0.4, language),
+        percent(0.6, language),
+      ),
       ratio: 0.4,
       over: false,
       warning: false,
@@ -256,6 +262,12 @@ function budgetRows(language: Language): DashboardBudgetRowDTO[] {
       name: 'Health',
       amountText: translate(language, 'SpentOfLimit', money(0, language), money(20000, language)),
       restText: translate(language, 'LeftBudget', money(20000, language)),
+      description: translate(
+        language,
+        'BudgetProgressDescription',
+        percent(0, language),
+        percent(0.6, language),
+      ),
       ratio: 0,
       over: false,
       warning: false,
@@ -480,6 +492,7 @@ function emptyDTO(): DashboardDTO {
     pendingTitle: '',
     pendingValue: '',
     pendingSubtitle: '',
+    pendingAnnouncement: '',
     pendingLines: [],
     pendingEnabled: false,
     expensesSectionTitle: '',
@@ -523,6 +536,7 @@ export class MockDashboard {
   private language: Language;
   private selected = 0;
   private errorText = '';
+  private pendingOverride: number | null = null;
 
   constructor(variant: MockDashboardVariant, language: Language) {
     this.variant = variant;
@@ -573,6 +587,12 @@ export class MockDashboard {
     return this.dto();
   }
 
+  /** Test-only: change the pending count as categorizing a booking does. */
+  setPending(pending: number): DashboardDTO {
+    this.pendingOverride = Math.max(0, Math.trunc(pending));
+    return this.dto();
+  }
+
   dismissError(): DashboardDTO {
     this.errorText = '';
     return this.dto();
@@ -608,9 +628,15 @@ export class MockDashboard {
       );
     }
 
-    const pending: number = this.variant === 'no-carry' ? 1 : 6;
-    const uncategorized = this.variant === 'no-carry' ? 1 : 4;
-    const unlinked = this.variant === 'no-carry' ? 0 : 2;
+    const pending: number = this.pendingOverride ?? (this.variant === 'no-carry' ? 1 : 6);
+    const uncategorized =
+      this.pendingOverride !== null ? Math.min(pending, 4) : this.variant === 'no-carry' ? 1 : 4;
+    const unlinked =
+      this.pendingOverride !== null
+        ? Math.max(0, pending - uncategorized)
+        : this.variant === 'no-carry'
+          ? 0
+          : 2;
     let pendingLines: string[] = [];
     let pendingSubtitle: string;
     if (pending === 0) {
@@ -656,6 +682,7 @@ export class MockDashboard {
       pendingTitle: translate(language, 'PendingTasks'),
       pendingValue: String(pending),
       pendingSubtitle,
+      pendingAnnouncement: translate(language, 'PendingCountAnnouncement', pending),
       pendingLines,
       pendingEnabled: pending > 0,
       expensesSectionTitle: translate(

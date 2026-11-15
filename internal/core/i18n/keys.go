@@ -70,6 +70,7 @@ const (
 	ExpensesThisMonth
 	PendingTasks
 	PendingSubtitle
+	PendingCountAnnouncement
 	ExpensesByCategory
 	NoExpensesThisMonth
 	IncomeVsExpenses
@@ -79,6 +80,7 @@ const (
 	SpentOfLimit
 	OverBudget
 	LeftBudget
+	BudgetProgressDescription
 	TaxDeductibleYtd
 	TaxDeductibleHint
 	RecentTransactions
@@ -948,7 +950,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 938
+const NumKeys = 940
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1015,6 +1017,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	ExpensesThisMonth:                   "ExpensesThisMonth",
 	PendingTasks:                        "PendingTasks",
 	PendingSubtitle:                     "PendingSubtitle",
+	PendingCountAnnouncement:            "PendingCountAnnouncement",
 	ExpensesByCategory:                  "ExpensesByCategory",
 	NoExpensesThisMonth:                 "NoExpensesThisMonth",
 	IncomeVsExpenses:                    "IncomeVsExpenses",
@@ -1024,6 +1027,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	SpentOfLimit:                        "SpentOfLimit",
 	OverBudget:                          "OverBudget",
 	LeftBudget:                          "LeftBudget",
+	BudgetProgressDescription:           "BudgetProgressDescription",
 	TaxDeductibleYtd:                    "TaxDeductibleYtd",
 	TaxDeductibleHint:                   "TaxDeductibleHint",
 	RecentTransactions:                  "RecentTransactions",
