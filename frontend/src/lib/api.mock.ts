@@ -20,6 +20,7 @@ import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
 import { passphraseLength } from './passphrase';
 import { MockReports } from './reports.mock';
 import { createMockSettings } from './settings.mock';
+import { createSnapshotApi } from './snapshot.mock';
 import { createMockTransactions } from './transactions.mock';
 
 const info: AppInfoDTO = {
@@ -341,6 +342,13 @@ function scenarioName(): string {
   return new URLSearchParams(location.search).get('scenario') ?? '';
 }
 
+function snapshotName(): string {
+  if (typeof location === 'undefined') {
+    return '';
+  }
+  return new URLSearchParams(location.search).get('snapshot') ?? '';
+}
+
 function hasSurroundingSpace(value: string): boolean {
   return /^\s|\s$/u.test(value) || /^\s+$/u.test(value);
 }
@@ -637,6 +645,11 @@ function initialState(scenario: string): MockState {
 }
 
 export function createMockApi(scenario = scenarioName()): Api {
+  const snapshot = snapshotName();
+  if (snapshot !== '') {
+    return createSnapshotApi(snapshot);
+  }
+
   const state = initialState(scenario);
   const dashboard = new MockDashboard(
     dashboardScenarios[scenario]?.variant ?? 'normal',
