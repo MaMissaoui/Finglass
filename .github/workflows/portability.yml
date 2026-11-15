@@ -90,11 +90,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # A private session bus and a keyring daemon unlocked with an empty
-          # test password: throw-away, never a person's secret.
+          # A private session bus and a keyring daemon unlocked with a
+          # throw-away password (never a person's secret). --unlock creates the
+          # "login" collection; --start then registers the Secret Service on the
+          # bus, which points the "default" alias at it.
           dbus-run-session -- bash -c '
             set -euo pipefail
-            echo -n "" | gnome-keyring-daemon --unlock --components=secrets
+            echo -n "finglass-ci-throwaway" | gnome-keyring-daemon --unlock --components=secrets >/dev/null
+            gnome-keyring-daemon --start --components=secrets >/dev/null
+            echo "default collection Locked:"
+            dbus-send --session --print-reply --dest=org.freedesktop.secrets \
+              /org/freedesktop/secrets/aliases/default \
+              org.freedesktop.DBus.Properties.Get \
+              string:org.freedesktop.Secret.Collection string:Locked || true
             export FINGLASS_KEYCHAIN_TEST=1
             go test ./internal/platform/credstore/... -count=1 -v
           '
