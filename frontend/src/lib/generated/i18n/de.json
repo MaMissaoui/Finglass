@@ -938,5 +938,6 @@
   "TestConnectionNextStepTransport": "Prüfen Sie die Internetverbindung und die Serveradresse und testen Sie dann erneut.",
   "TestConnectionNextStepUnlock": "Entsperren Sie die Anmeldung bei Ihrer Bank und testen Sie dann erneut.",
   "TestConnectionNextStepApprove": "Testen Sie erneut und geben Sie rechtzeitig frei.",
-  "TestConnectionNextStepTrace": "Speichern Sie den verschleierten Verlauf und senden Sie ihn."
+  "TestConnectionNextStepTrace": "Speichern Sie den verschleierten Verlauf und senden Sie ihn.",
+  "PrivateFolderNotSecured": "Finglass konnte den Datenordner nicht für Ihr Benutzerkonto privat machen. Die Daten bleiben verschlüsselt."
 }

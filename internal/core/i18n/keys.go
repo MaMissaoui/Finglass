@@ -947,10 +947,11 @@ const (
 	TestConnectionNextStepUnlock
 	TestConnectionNextStepApprove
 	TestConnectionNextStepTrace
+	PrivateFolderNotSecured
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 940
+const NumKeys = 941
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1894,6 +1895,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	TestConnectionNextStepUnlock:        "TestConnectionNextStepUnlock",
 	TestConnectionNextStepApprove:       "TestConnectionNextStepApprove",
 	TestConnectionNextStepTrace:         "TestConnectionNextStepTrace",
+	PrivateFolderNotSecured:             "PrivateFolderNotSecured",
 }
 
 // keysByName is built from keyNames, so the two cannot drift apart.

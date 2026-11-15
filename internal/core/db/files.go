@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 )
 
 // sqliteHeader is the plain SQLite file header. A SQLCipher file never starts
@@ -80,7 +82,7 @@ func restrictFilePermissions(path string) error {
 	}
 
 	if info.Mode().Perm()&0o077 != 0 {
-		return os.Chmod(path, 0o600)
+		return privatefs.SecureFile(path)
 	}
 	return nil
 }

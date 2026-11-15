@@ -938,5 +938,6 @@
   "TestConnectionNextStepTransport": "Check the internet connection and the server address, then test again.",
   "TestConnectionNextStepUnlock": "Unlock the login with your bank, then test again.",
   "TestConnectionNextStepApprove": "Test again and approve in time.",
-  "TestConnectionNextStepTrace": "Save the redacted trace and send it."
+  "TestConnectionNextStepTrace": "Save the redacted trace and send it.",
+  "PrivateFolderNotSecured": "Finglass couldn't make its data folder private to your user account. The data stays encrypted."
 }

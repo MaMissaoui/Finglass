@@ -26,6 +26,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/bankconnections"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 	"github.com/MaMissaoui/Finglass/internal/core/settings"
@@ -357,7 +358,7 @@ func ensureMarker(marker string) error {
 	if err != nil {
 		return err
 	}
-	if err := file.Chmod(0o600); err != nil {
+	if err := privatefs.SecureFile(marker); err != nil {
 		_ = file.Close()
 		return err
 	}

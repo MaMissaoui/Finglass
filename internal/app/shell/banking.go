@@ -22,6 +22,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/format"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 	"github.com/MaMissaoui/Finglass/internal/fints"
 	"github.com/MaMissaoui/Finglass/internal/fints/trace"
@@ -1331,7 +1332,7 @@ func writeConnectionTrace(path string, trace []byte) error {
 		return err
 	}
 	defer func() { _ = file.Close() }()
-	if err := file.Chmod(0o600); err != nil {
+	if err := privatefs.SecureFile(path); err != nil {
 		return err
 	}
 	_, err = file.Write(trace)

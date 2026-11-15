@@ -3,6 +3,7 @@ package shell
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -32,11 +33,17 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/instance"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 )
 
 // PromptTimeout is how long a banking prompt waits for the user, as FinDesk's
 // UiBankingInteraction does.
 const PromptTimeout = 10 * time.Minute
+
+// secureDataRoot hardens the data root on every start. Tests override it to
+// exercise the unsecured-folder note without depending on the filesystem's ACL
+// support.
+var secureDataRoot = privatefs.SecureDir
 
 var (
 	// ErrUnlockBusy means another unlock, create or change call is running.
@@ -207,6 +214,10 @@ type Session struct {
 
 	lock            *instance.Lock
 	closedDatabases atomic.Int64
+
+	// privateFolderUnsecured says the start-up SecureDir call failed. The first
+	// unlock then writes one audit entry and shows the one-time note.
+	privateFolderUnsecured bool
 
 	// unlockGate is nil in production. Tests set it to hold an Unlock after it
 	// claimed the busy flag, so a second concurrent call can race it
@@ -427,16 +438,28 @@ func Start(
 		return session, nil, refusal
 	}
 
+	privateFolderUnsecured := false
+	if err := secureDataRoot(appPaths.Root()); err != nil {
+		privateFolderUnsecured = true
+		slog.Default().Warn(
+			"private folder permissions could not be set",
+			"path", appPaths.Root(),
+			"error", err,
+		)
+	}
+
 	prepared, err := startup.Prepare(appPaths, now)
 	if err != nil {
 		_ = lock.Release()
 		refusal := &StartupRefusal{Kind: StartupFailed}
 		session := newSession(appPaths, credentials, clock, today, getenv, language)
+		session.privateFolderUnsecured = privateFolderUnsecured
 		session.configureStartupErrorLocked(refusal.Message(language))
 		return session, nil, refusal
 	}
 
 	session := newSession(appPaths, credentials, clock, today, getenv, language)
+	session.privateFolderUnsecured = privateFolderUnsecured
 	session.lock = lock
 	session.slug = copyString(prepared.Slug)
 	session.restored = copyString(prepared.RestoredFrom)
@@ -891,6 +914,13 @@ func (s *Session) finishOpen(
 	}
 	s.jobs.EndGeneration(generation)
 
+	privateFolderUnsecured := s.privateFolderUnsecured
+	if privateFolderUnsecured {
+		s.privateFolderUnsecured = false
+		message := i18n.Text(loadedPrefs.Language, i18n.PrivateFolderNotSecured)
+		settings.Message = &message
+	}
+
 	busy := s.profileBusy
 	old := s.db
 	s.db = opened
@@ -927,6 +957,16 @@ func (s *Session) finishOpen(
 	s.auditRows = rows
 	job := s.beginDashboardOpenLocked()
 	s.mu.Unlock()
+
+	if privateFolderUnsecured {
+		_ = audit.Log(
+			ctx,
+			opened,
+			"PRIVATE_FOLDER_NOT_SECURED",
+			audit.ActorSystem,
+			"Private folder permissions could not be set",
+		)
+	}
 
 	s.notify(Change{Page: "shell"})
 	s.startPageJob(job)

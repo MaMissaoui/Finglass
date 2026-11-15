@@ -30,6 +30,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
@@ -596,7 +597,7 @@ func secureDirectory(path string) error {
 		return err
 	}
 
-	_ = chmod(path, 0o700)
+	_ = privatefs.SecureDir(path)
 
 	return nil
 }
@@ -604,7 +605,7 @@ func secureDirectory(path string) error {
 // secureFile restricts an existing file to the owner. Permission failures are
 // best effort.
 func secureFile(path string) {
-	_ = chmod(path, 0o600)
+	_ = privatefs.SecureFile(path)
 }
 
 // pathExists reports whether path exists, following symlinks.

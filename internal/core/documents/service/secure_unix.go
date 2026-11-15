@@ -2,8 +2,8 @@
 
 package service
 
-import "os"
+import "github.com/MaMissaoui/Finglass/internal/core/privatefs"
 
 func secureFile(path string) error {
-	return os.Chmod(path, 0o600)
+	return privatefs.SecureFile(path)
 }

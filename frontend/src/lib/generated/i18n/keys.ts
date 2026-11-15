@@ -941,6 +941,7 @@ export const keys = [
   'TestConnectionNextStepUnlock',
   'TestConnectionNextStepApprove',
   'TestConnectionNextStepTrace',
+  'PrivateFolderNotSecured',
 ] as const;
 
 export type Key = (typeof keys)[number];
