@@ -19,7 +19,7 @@ history.
 | UI | **Wails v3** (v3.1.0) with **Svelte 5 + TypeScript + Vite**. |
 | Live sync | Our own read-only **Go FinTS 3.0 client** (`internal/fints`), based on fints-rs 0.2.0 (MIT; its notice stays). HKWPD (securities depot) is left out; camt is added. |
 | Secrets | **Best effort, accepted** (2026-11-11). Secrets are `[]byte`, zeroed after use. The UI clears its fields and keeps no copies. Secrets are never logged and never appear in errors. Copies made by the Go GC and the webview (JS strings, JSON) cannot be wiped, and that is accepted. |
-| Next release | **Your target, 2026-11-14:** release (0.4.0 or higher) when the open items below are done. It keeps "Save redacted trace…" for tests and syncs. Online sync stays off until HVB reports GO; HVB and DKB fixes may follow in 0.4.x. |
+| Next release | Online sync is on per bank since 0.4.2; Volksbank and HVB sync with 0.4.3; DKB waits for its registration. |
 | Your data | **Fresh start, 2026-11-14:** you archive your current data folder and let the first-run migration import FinDesk again. Finglass keeps reading 0.3.4 data folders and backups (same format). |
 | Platforms | macOS only until the release; Windows and Linux follow (G11). Keep code portable meanwhile. |
 
@@ -128,7 +128,8 @@ the newest supported HKTAN version, and names kept out of traces.
   `fints.BlocksPINRepeat`: a bank-answered PIN/lock code (known PIN codes, 3938, any 93xx or 99xx) never sees the PIN
   twice, while a stale-system-id error such as 9010 still retries once with Sync.
 - [ ] **You:** retry DKB once the registration has propagated.
-- [ ] Check HKTAN v5's layout against a bank (none of yours uses v5).
+- [x] HKTAN v5 layout fixed to the spec (medium in field 12, task reference in 5, further-TAN in 7) and pinned by
+  tests; a real-bank check waits until one of your banks offers only v5.
 - [x] Real-bank sync with 0.4.3 (2026-11-14): Sync now works for Volksbank and HVB.
 - [x] Sync all with Volksbank and HVB works (2026-11-14), each bank's second sync included.
 - [ ] Once the DK's terms for the institute list are known: decide how Finglass gets bank server URLs (you load the

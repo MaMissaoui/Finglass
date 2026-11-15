@@ -209,6 +209,15 @@ func tanRequiredResponse(dialogID, taskReference, challenge string) string {
 	)
 }
 
+// tanRequiredResponseV5 answers with HITAN v5, whose task reference is DEG 2.
+func tanRequiredResponseV5(dialogID, taskReference, challenge string) string {
+	return responseMessage(
+		dialogID,
+		"HIRMS:3:2:4+0030::TAN erforderlich'",
+		"HITAN:4:5:3+4+"+taskReference+"+"+challenge+"'",
+	)
+}
+
 func decoupledResponse(dialogID, taskReference, challenge string) string {
 	return responseMessage(
 		dialogID,
@@ -252,6 +261,12 @@ func chipHitans(firstWait, nextWait int) string {
 			":942:2:TECH-CHIP:DKID-CHIP:1.0:chipTAN:6:1:SMS:3:1:J:1:0:N:0:2:N:2:00:1::%d:%d:J:J'",
 		firstWait, nextWait,
 	)
+}
+
+// v5Hitans offers only HITANS v5, with a required TAN medium.
+func v5Hitans() string {
+	return "HITANS:5:5:4+1+1+1+N:N:0" +
+		":912:2:TECH-V5:DKID-V5:1.0:mobileTAN:6:1:SMS:3:1:J:1:0:N:0:2:N:J:00:2:1'"
 }
 
 func allowedSecurityFunction(securityFunction string) string {
