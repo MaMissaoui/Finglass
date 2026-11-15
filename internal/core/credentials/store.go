@@ -1,28 +1,23 @@
 // Package credentials keeps secrets out of the database and out of files.
 //
-// On macOS a [Store] is the login Keychain through the Security framework, via
-// github.com/keybase/go-keychain. The package deliberately does not use
-// zalando/go-keyring or the security(1) command: both would put a secret in a
-// child process's argv, where any local process can read it. Other operating
-// systems get an unavailable store.
+// It defines the [Store] port only: the operating system's store is built by
+// internal/platform/credstore, which keeps packages that must never reach the
+// network (banksync) out of the store's dependency graph. This package holds
+// the port, the unavailable store and an in-memory store for tests.
 //
-// Secrets are bytes. They are never logged and never appear in an error; the
-// Keychain's error codes are mapped to a small fixed vocabulary.
+// Secrets are bytes. They are never logged and never appear in an error; a
+// store's error names the operation and a fixed kind only.
 package credentials
 
-import (
-	"errors"
-	"fmt"
-	"os"
-	"strings"
-)
+import "errors"
 
 // KeychainService is the service every Finglass credential is filed under: the
-// app's bundle identifier.
+// app's bundle identifier. The name predates the Windows and Linux stores; all
+// of them file their entries under it.
 const KeychainService = "io.github.mamissaoui.finglass"
 
 // ErrUnavailable is returned by a store that this operating system cannot
-// provide, such as the Keychain store on Linux.
+// provide, or whose service is missing or locked.
 var ErrUnavailable = errors.New("credential store is not available")
 
 // Store keeps secrets by account key.
@@ -37,63 +32,4 @@ type Store interface {
 	Write(account string, secret []byte) error
 	// Delete removes an entry. Deleting a missing entry succeeds.
 	Delete(account string) error
-}
-
-// AccountFor is the Keychain account string of a profile-scoped bank access.
-//
-// It uses an absolute path (without resolving symlinks or `..`), then
-// "#bank-<id>". The profile folder keeps two profiles with the same bank id
-// apart.
-func AccountFor(profileDir string, bankID int64) string {
-	return fmt.Sprintf("%s#bank-%d", absolutePath(profileDir), bankID)
-}
-
-// absolutePath makes a POSIX path absolute: collapse separators, drop `.`
-// components, keep `..`, keep a trailing separator, and start relative paths at
-// the current directory.
-func absolutePath(path string) string {
-	if path == "" {
-		return path
-	}
-
-	trailingSeparator := strings.HasSuffix(path, "/")
-	absolute := strings.HasPrefix(path, "/")
-
-	root, components := splitPOSIX(path, absolute)
-	if !absolute {
-		current, err := os.Getwd()
-		if err != nil {
-			return path
-		}
-		currentRoot, currentComponents := splitPOSIX(current, strings.HasPrefix(current, "/"))
-		root = currentRoot
-		components = append(currentComponents, components...)
-	}
-
-	result := root + strings.Join(components, "/")
-	if trailingSeparator && !strings.HasSuffix(result, "/") {
-		result += "/"
-	}
-	return result
-}
-
-// splitPOSIX separates an absolute root from its path components. Repeated
-// separators and `.` components disappear; `..` stays because resolving it
-// could change the meaning of a symlinked path.
-func splitPOSIX(value string, absolute bool) (root string, components []string) {
-	if absolute {
-		if strings.HasPrefix(value, "//") && !strings.HasPrefix(value, "///") {
-			root = "//"
-		} else {
-			root = "/"
-		}
-	}
-
-	for _, component := range strings.Split(value, "/") {
-		if component == "" || component == "." {
-			continue
-		}
-		components = append(components, component)
-	}
-	return root, components
 }

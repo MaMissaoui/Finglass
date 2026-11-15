@@ -20,8 +20,10 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/bind"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 	"github.com/MaMissaoui/Finglass/internal/core/fintsproduct"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
+	"github.com/MaMissaoui/Finglass/internal/platform/credstore"
 )
 
 // shellService is set from main before the Wails application is built. The
@@ -69,7 +71,7 @@ func main() {
 
 	session, offer, _ := shell.Start(
 		appPaths,
-		banksync.SystemCredentialStore(),
+		banksync.SystemCredentialStore(credstore.NewSystem(credentials.KeychainService)),
 		findeskStart,
 		time.Now,
 		func() civil.Date { return civil.FromTime(time.Now()) },

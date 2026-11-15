@@ -41,10 +41,27 @@ func TestTheAccountIsTheProfileScopedPinKey(t *testing.T) {
 }
 
 func TestTheNoneOverrideYieldsAnUnavailableStore(t *testing.T) {
-	store := SystemCredentialStoreWith(stringPointer("none"))
-	// On macOS this must be the no-op store and never the Keychain branch; only
-	// the returned type is asserted here.
+	store := SystemCredentialStoreWith(NewMemoryCredentialStore(), stringPointer("none"))
+	// The override must yield the no-op store and never the injected store;
+	// only the returned type is asserted here.
 	if _, ok := store.(NoCredentialStore); !ok {
 		t.Fatalf("store type = %T, want banksync.NoCredentialStore", store)
+	}
+}
+
+func TestTheInjectedStoreIsKeptWithoutTheNoneOverride(t *testing.T) {
+	injected := NewMemoryCredentialStore()
+	if got := SystemCredentialStoreWith(injected, nil); got != injected {
+		t.Fatalf("store = %T, want the injected store", got)
+	}
+	other := stringPointer("keychain")
+	if got := SystemCredentialStoreWith(injected, other); got != injected {
+		t.Fatalf("store = %T, want the injected store for an unknown override", got)
+	}
+}
+
+func TestNoPlatformStoreYieldsTheNoOpStore(t *testing.T) {
+	if got := SystemCredentialStoreWith(nil, nil); got != (NoCredentialStore{}) {
+		t.Fatalf("store = %T, want banksync.NoCredentialStore", got)
 	}
 }

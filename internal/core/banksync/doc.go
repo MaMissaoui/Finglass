@@ -16,7 +16,9 @@
 //     are out of scope by design.
 //   - CredentialSelfCheck: the operating-system credential store is wired by
 //     the desktop app; core defines the credentials.Store port, an in-memory
-//     store, a no-op store and the macOS Keychain store.
+//     store and a no-op store, and internal/platform/credstore builds the
+//     system store. banksync never imports credstore: its Windows and D-Bus
+//     dependencies reach net.
 //   - ProtocolTrace: that is M5b, together with the real adapter.
 //   - BankDirectory: the bank-directory data licence is still pending, so a
 //     connection needs an explicit server URL.

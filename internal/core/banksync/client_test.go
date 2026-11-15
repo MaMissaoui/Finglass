@@ -39,6 +39,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/bankconnections"
@@ -305,6 +306,83 @@ func TestAStoreThatCannotBeReadIsNotUsedAndNothingIsDeleted(t *testing.T) {
 	}
 	if len(report.Warnings) != 0 {
 		t.Fatalf("warnings = %v, want none", report.Warnings)
+	}
+}
+
+// unavailableReadStore reports ErrUnavailable for every read, like a locked
+// Linux Secret Service. Writes and deletes still reach the memory store.
+type unavailableReadStore struct{ *MemoryCredentialStore }
+
+// Read always reports that the store is unavailable.
+func (unavailableReadStore) Read(string) ([]byte, bool, error) {
+	return nil, false, credentials.ErrUnavailable
+}
+
+// TestAnUnavailableStoreKeepsTheMarkerAndAsksForThePin covers a locked Linux
+// keyring: the stored PIN cannot be read, so the dialog asks as if none were
+// saved. The marker and the saved-PIN flag stay, so a later run still knows an
+// entry exists, and nothing is audited as a forgotten PIN.
+func TestAnUnavailableStoreKeepsTheMarkerAndAsksForThePin(t *testing.T) {
+	h := newHarness(t)
+	storePin(t, h)
+	key := PinKey(h.dataDir, int64(h.bank))
+	marker := PinMarkerPath(h.dataDir, int64(h.bank))
+
+	service := h.serviceWithStore(unavailableReadStore{h.store})
+	interaction := newScriptedInteraction(stringPointer("12345"), false)
+
+	if _, err := service.SyncBankConnection(context.Background(), h.db, h.bank, interaction, h.today); err != nil {
+		t.Fatalf("sync: %v", err)
+	}
+
+	if got := interaction.pinAskedCount(); got != 1 {
+		t.Fatalf("pin asked = %d, want 1 (no saved PIN is used, so the dialog asks)", got)
+	}
+	if _, err := os.Stat(marker); err != nil {
+		t.Fatalf("the marker was deleted: %v", err)
+	}
+	if !service.HasSavedPin(context.Background(), h.db, h.bank) {
+		t.Fatal("the saved-PIN flag was deleted; an unavailable store is not \"no PIN saved\"")
+	}
+	if !h.store.Contains(key) {
+		t.Fatal("the stored PIN was deleted")
+	}
+	if got := auditCount(t, h.db, CodePinForgotten); got != 0 {
+		t.Fatalf("forgotten-PIN audit entries = %d, want 0", got)
+	}
+}
+
+// TestAnUnavailableStoreIsNeverABankRejection covers a bank rejection while
+// the store cannot be read: the PIN must not be counted or forgotten, because
+// the dialog did not use it.
+func TestAnUnavailableStoreIsNeverABankRejection(t *testing.T) {
+	h := newHarness(t)
+	storePin(t, h)
+	key := PinKey(h.dataDir, int64(h.bank))
+	marker := PinMarkerPath(h.dataDir, int64(h.bank))
+
+	service := h.serviceWithStore(unavailableReadStore{h.store})
+	h.gateway.setFailure(gatewayFailure(NewGatewayPinRejectedError()))
+	interaction := newScriptedInteraction(stringPointer("54321"), false)
+
+	if _, err := service.SyncBankConnection(context.Background(), h.db, h.bank, interaction, h.today); err == nil {
+		t.Fatal("sync succeeded, want the bank's rejection")
+	}
+
+	if _, err := os.Stat(marker); err != nil {
+		t.Fatalf("the marker was deleted: %v", err)
+	}
+	if !service.HasSavedPin(context.Background(), h.db, h.bank) {
+		t.Fatal("the saved-PIN flag was deleted")
+	}
+	if !h.store.Contains(key) {
+		t.Fatal("the stored PIN was forgotten although the dialog did not use it")
+	}
+	if got := auditCount(t, h.db, CodePinForgotten); got != 0 {
+		t.Fatalf("forgotten-PIN audit entries = %d, want 0", got)
+	}
+	if _, ok, err := settings.Get(context.Background(), h.db, PinRejectionsKey(h.bank)); err != nil || ok {
+		t.Fatalf("rejection count = present %t, err %v; want absent", ok, err)
 	}
 }
 

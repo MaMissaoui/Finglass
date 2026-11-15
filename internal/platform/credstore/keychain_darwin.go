@@ -1,12 +1,14 @@
 //go:build darwin
 
-package credentials
+package credstore
 
 import (
 	"errors"
 	"fmt"
 
 	"github.com/keybase/go-keychain"
+
+	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 )
 
 // keychainStore is the macOS login Keychain.
@@ -14,11 +16,11 @@ type keychainStore struct {
 	service string
 }
 
-// NewKeychain returns the login Keychain store for service.
+// NewSystem returns the login Keychain store for service.
 //
 // Constructing it does not unlock or prompt the Keychain; only reading and
 // writing an entry does.
-func NewKeychain(service string) Store {
+func NewSystem(service string) credentials.Store {
 	return keychainStore{service: service}
 }
 

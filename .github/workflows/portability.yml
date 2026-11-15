@@ -57,7 +57,8 @@ jobs:
           # (flags.go), so it needs no libssl-dev.
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev
+            build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev \
+            gnome-keyring dbus-x11
 
       - name: Check the Windows cgo toolchain
         if: runner.os == 'Windows'
@@ -72,3 +73,28 @@ jobs:
         env:
           PORTABILITY_OS: ${{ matrix.os }}
         run: bash scripts/ci/portability.sh
+
+      # G11: the real credential stores, exercised only here. FINGLASS_KEYCHAIN_TEST
+      # is never set in ci.yml or scripts/ci/go.sh, so the macOS gate and local
+      # runs never touch a real store. !cancelled() keeps these running after a
+      # red portability check, so one run reports both results.
+      - name: Credential store tests (Windows Credential Manager)
+        if: ${{ !cancelled() && runner.os == 'Windows' }}
+        shell: bash
+        env:
+          FINGLASS_KEYCHAIN_TEST: "1"
+        run: go test ./internal/platform/credstore/... -count=1 -v
+
+      - name: Credential store tests (Linux Secret Service)
+        if: ${{ !cancelled() && runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # A private session bus and a keyring daemon unlocked with an empty
+          # test password: throw-away, never a person's secret.
+          dbus-run-session -- bash -c '
+            set -euo pipefail
+            echo -n "" | gnome-keyring-daemon --unlock --components=secrets
+            export FINGLASS_KEYCHAIN_TEST=1
+            go test ./internal/platform/credstore/... -count=1 -v
+          '

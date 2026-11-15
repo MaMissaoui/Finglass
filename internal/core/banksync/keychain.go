@@ -19,23 +19,29 @@ func AccountFor(profileDir string, bankID int64) string {
 	return credentials.AccountFor(profileDir, bankID)
 }
 
-// SystemCredentialStore returns the credential store the running system offers.
+// SystemCredentialStore returns the credential store the app should use: the
+// store the platform built, unless FINGLASS_CREDENTIAL_STORE=none forces the
+// no-op store.
 //
-// The app calls this once at startup. FINGLASS_CREDENTIAL_STORE=none forces the
-// no-op store; on every other operating system the no-op store is used
-// regardless.
-func SystemCredentialStore() credentials.Store {
+// The desktop app builds the platform store once at startup with
+// credstore.NewSystem and passes it here. banksync never builds it itself: the
+// Windows and D-Bus dependencies reach net, and banksync must not.
+func SystemCredentialStore(store credentials.Store) credentials.Store {
 	if value, ok := os.LookupEnv(CredentialStoreEnv); ok {
-		return SystemCredentialStoreWith(&value)
+		return SystemCredentialStoreWith(store, &value)
 	}
-	return SystemCredentialStoreWith(nil)
+	return SystemCredentialStoreWith(store, nil)
 }
 
 // SystemCredentialStoreWith is [SystemCredentialStore] with the override value
-// passed in, so tests never touch the environment.
-func SystemCredentialStoreWith(override *string) credentials.Store {
+// passed in, so tests never touch the environment. A nil store (no platform
+// store built) is the no-op store.
+func SystemCredentialStoreWith(store credentials.Store, override *string) credentials.Store {
 	if override != nil && *override == "none" {
 		return NoCredentialStore{}
 	}
-	return newSystemCredentialStore()
+	if store == nil {
+		return NoCredentialStore{}
+	}
+	return store
 }

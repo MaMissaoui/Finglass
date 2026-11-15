@@ -34,24 +34,28 @@ func repoRoot(t *testing.T) string {
 // the non-test package's dependencies only.
 func TestBanksyncImportsNoNetworkOrProcessPackages(t *testing.T) {
 	root := repoRoot(t)
-	// #nosec G204 -- the command name and arguments are constants.
-	cmd := exec.Command("go", "list", "-deps", "./internal/core/banksync")
-	cmd.Dir = root
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("go list -deps ./internal/core/banksync: %v\n%s", err, output)
-	}
-
 	forbidden := map[string]struct{}{
 		"net":        {},
 		"net/http":   {},
 		"crypto/tls": {},
 		"os/exec":    {},
 	}
-	for _, line := range strings.Split(string(output), "\n") {
-		line = strings.TrimSpace(line)
-		if _, bad := forbidden[line]; bad {
-			t.Errorf("forbidden package %q is reachable from internal/core/banksync", line)
+
+	for _, goos := range []string{"darwin", "linux", "windows"} {
+		// #nosec G204 -- the command name and arguments are constants.
+		cmd := exec.Command("go", "list", "-deps", "./internal/core/banksync")
+		cmd.Dir = root
+		cmd.Env = append(os.Environ(), "GOOS="+goos, "CGO_ENABLED=0")
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("GOOS=%s go list -deps ./internal/core/banksync: %v\n%s", goos, err, output)
+		}
+
+		for _, line := range strings.Split(string(output), "\n") {
+			line = strings.TrimSpace(line)
+			if _, bad := forbidden[line]; bad {
+				t.Errorf("GOOS=%s: forbidden package %q is reachable from internal/core/banksync", goos, line)
+			}
 		}
 	}
 }
