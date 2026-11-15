@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -26,6 +28,12 @@ import (
 const (
 	testPassphrase = "correct horse battery staple"
 	testPIN        = "987654"
+
+	signalHelperEnv           = "FINGLASS_SHOTS_SIGNAL_HELPER"
+	signalHelperTempParentEnv = "FINGLASS_SHOTS_SIGNAL_TEMP_PARENT"
+	signalHelperBackupEnv     = "FINGLASS_SHOTS_SIGNAL_BACKUP"
+	signalHelperOutEnv        = "FINGLASS_SHOTS_SIGNAL_OUT"
+	signalHelperMarkerEnv     = "FINGLASS_SHOTS_SIGNAL_MARKER"
 )
 
 var testNow = time.Date(2026, 10, 15, 12, 34, 56, 0, time.UTC)
@@ -225,6 +233,116 @@ func TestExporterDeletesTheTempHomeAfterAFailedRestore(t *testing.T) {
 	if len(entries) != 0 {
 		t.Fatalf("the temporary home was not deleted after the error: %v", entries)
 	}
+}
+
+func TestExporterDeletesTheTempHomeOnInterrupt(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("sending os.Interrupt to a subprocess is not supported on Windows")
+	}
+
+	backupPath := makeSyntheticBackup(t)
+	tempParent := t.TempDir()
+	outDir := filepath.Join(t.TempDir(), "shots")
+	fakeHome := t.TempDir()
+	marker := filepath.Join(t.TempDir(), "restored")
+
+	command := exec.Command(os.Args[0], "-test.run=^TestExporterSignalHelper$") // #nosec G204 G702 -- the test runs its own binary.
+	command.Env = append(os.Environ(),
+		signalHelperEnv+"=1",
+		signalHelperTempParentEnv+"="+tempParent,
+		signalHelperBackupEnv+"="+backupPath,
+		signalHelperOutEnv+"="+outDir,
+		signalHelperMarkerEnv+"="+marker,
+		"HOME="+fakeHome,
+		"FINGLASS_HOME=",
+	)
+	command.Stdin = strings.NewReader(testPassphrase + "\n")
+	var stderr bytes.Buffer
+	command.Stderr = &stderr
+	if err := command.Start(); err != nil {
+		t.Fatalf("start exporter helper: %v", err)
+	}
+	waited := false
+	t.Cleanup(func() {
+		if waited {
+			return
+		}
+		_ = command.Process.Kill()
+		_ = command.Wait()
+	})
+
+	deadline := time.Now().Add(20 * time.Second)
+	for !exists(marker) {
+		if time.Now().After(deadline) {
+			_ = command.Process.Kill()
+			_ = command.Wait()
+			waited = true
+			t.Fatalf("the exporter did not reach the restore hook\nstderr: %s", stderr.String())
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if err := command.Process.Signal(os.Interrupt); err != nil {
+		t.Fatalf("send interrupt: %v", err)
+	}
+	waitResult := make(chan error, 1)
+	go func() { waitResult <- command.Wait() }()
+	var waitErr error
+	select {
+	case waitErr = <-waitResult:
+		waited = true
+	case <-time.After(20 * time.Second):
+		_ = command.Process.Kill()
+		waitErr = <-waitResult
+		waited = true
+		t.Fatalf("the exporter did not exit after the interrupt: %v\nstderr: %s", waitErr, stderr.String())
+	}
+
+	var exitErr *exec.ExitError
+	if !errors.As(waitErr, &exitErr) || exitErr.ExitCode() != 130 {
+		t.Fatalf("exit error = %v, want code 130\nstderr: %s", waitErr, stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "Interrupted; the temporary copy was removed.") {
+		t.Fatalf("interrupt message missing from stderr: %s", stderr.String())
+	}
+	entries, err := os.ReadDir(tempParent)
+	if err != nil {
+		t.Fatalf("read temp parent: %v", err)
+	}
+	if len(entries) != 0 {
+		t.Fatalf("the temporary home was not deleted after the interrupt: %v", entries)
+	}
+}
+
+func TestExporterSignalHelper(t *testing.T) {
+	if os.Getenv(signalHelperEnv) != "1" {
+		t.Skip("only runs as the exporter's interrupt subprocess")
+	}
+
+	tempParent := os.Getenv(signalHelperTempParentEnv)
+	backupPath := os.Getenv(signalHelperBackupEnv)
+	outDir := os.Getenv(signalHelperOutEnv)
+	marker := os.Getenv(signalHelperMarkerEnv)
+
+	err := run(
+		[]string{"--backup", backupPath, "--out", outDir},
+		os.Stdin,
+		os.Stdout,
+		os.Stderr,
+		runOptions{
+			tempParent: tempParent,
+			now:        func() time.Time { return testNow },
+			afterRestore: func() {
+				if err := os.WriteFile(marker, []byte("restored"), 0o600); err != nil { // #nosec G703 -- the marker is a temporary path from the parent test.
+					t.Fatalf("write restore marker: %v", err)
+				}
+				for {
+					time.Sleep(time.Hour)
+				}
+			},
+		},
+	)
+	t.Fatalf("run returned before the interrupt: %v", err)
 }
 
 func TestExporterRefusesAnOutputFolderInsideTheRepository(t *testing.T) {
