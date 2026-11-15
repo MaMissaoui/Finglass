@@ -674,6 +674,12 @@ func pathIsWithin(parent, child string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("resolve %q: %w", child, err)
 	}
+	// Paths on different volumes (C: and D: on Windows) are never inside one
+	// another; filepath.Rel reports that as an error. For the temp-home check
+	// "not inside" means refuse, so this stays fail-safe.
+	if !strings.EqualFold(filepath.VolumeName(canonicalParent), filepath.VolumeName(canonicalChild)) {
+		return false, nil
+	}
 	relative, err := filepath.Rel(canonicalParent, canonicalChild)
 	if err != nil {
 		return false, fmt.Errorf("compare %q: %w", child, err)
