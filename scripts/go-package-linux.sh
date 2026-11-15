@@ -62,7 +62,8 @@ package_assert_self_check "$check_output" absent
 
 # 5. Package root. Debian versions sort prereleases before the release, so a
 # hyphen in the version becomes a tilde (0.0.0-ci.5 -> 0.0.0~ci.5).
-deb_version="${version//-/~}"
+# tr, not ${version//-/~}: bash expands that ~ to $HOME.
+deb_version="$(printf '%s' "$version" | tr '-' '~')"
 deb_root="$build/go/deb"
 pkg="$deb_root/finglass"
 rm -rf "$deb_root"
