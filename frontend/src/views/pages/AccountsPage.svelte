@@ -27,6 +27,7 @@
   let banking = $state<BankingDTO | null>(null);
   let prompt = $state<PromptDTO | null>(null);
   let loadFailed = $state(false);
+  let openMenu = $state<string | null>(null);
 
   const language = $derived<Language>(languageFromCode(dto.language));
   const pageErrorText = $derived(accounts?.errorText || banking?.errorText || '');
@@ -143,6 +144,21 @@
     }
   }
 
+  function handlePointerDown(event: PointerEvent): void {
+    if (openMenu === null) {
+      return;
+    }
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+    const owner = target.closest('[data-menu-key]');
+    if (owner?.getAttribute('data-menu-key') === openMenu) {
+      return;
+    }
+    openMenu = null;
+  }
+
   function clearInfo(): void {
     if (banking !== null) {
       banking = { ...banking, infoText: '' };
@@ -251,8 +267,19 @@
 <svelte:window
   onkeydown={(event) => {
     if (event.key === 'Escape') {
+      if (openMenu !== null) {
+        openMenu = null;
+        return;
+      }
       closeTopLayer();
     }
+  }}
+  onpointerdown={handlePointerDown}
+  onresize={() => {
+    openMenu = null;
+  }}
+  onscroll={() => {
+    openMenu = null;
   }}
 />
 
@@ -385,7 +412,7 @@
         />
       </div>
     {:else}
-      <div class="cards">
+      <div class="cards" onscroll={() => (openMenu = null)}>
         {#each accounts.bankCards as card (card.bankId)}
           <AccountsBankCard
             {card}
@@ -395,6 +422,8 @@
               : null}
             lastTrace={traceFor(card.bankId)}
             syncControlsVisible={banking?.syncControlsVisible ?? false}
+            menuKey={openMenu}
+            onMenuChange={(key) => (openMenu = key)}
             onToggle={toggleBank}
             onSync={syncBank}
             onAddAccount={openAddAccount}

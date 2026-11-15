@@ -561,7 +561,7 @@ func TestTheImportDialogRunsWithoutTheSessionMutexAndInsideTheBusySection(t *tes
 		t.Fatal("the dialog did not run")
 	}
 
-	session.TransactionsPeriodChanged(5)
+	session.TransactionsPeriodChanged(6)
 	close(release)
 	waitForDialogJob(t, session)
 
@@ -569,7 +569,7 @@ func TestTheImportDialogRunsWithoutTheSessionMutexAndInsideTheBusySection(t *tes
 	if state.ImportPreview == nil {
 		t.Fatal("the preview did not open")
 	}
-	if state.Period != transactionsview.PeriodThisMonth {
+	if state.Period != transactionsview.PeriodThisAndLastYear {
 		t.Fatalf("an action started while the dialog was open: period = %v", state.Period)
 	}
 }
@@ -595,7 +595,7 @@ func TestASupersededImportResultIsDropped(t *testing.T) {
 	session.TransactionsOpenImport()
 	first := <-entered
 	session.transactionsWork.End()
-	session.TransactionsPeriodChanged(5)
+	session.TransactionsPeriodChanged(6)
 	second := <-entered
 
 	close(second)

@@ -410,7 +410,7 @@ export class MockReports {
   constructor(scenario: string, language: Language) {
     this.language = language;
     this.missingOnly = scenario.includes('tax-missing');
-    this.tab = 'summary';
+    this.tab = 'monthly';
     if (scenario.includes('category')) {
       this.tab = 'category';
     } else if (scenario.includes('monthly')) {

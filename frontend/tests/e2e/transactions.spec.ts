@@ -198,8 +198,8 @@ test('the Transactions page renders every scenario without a CSP or console erro
 
   await goto(page, 'transactions-en-light');
 
-  await page.getByRole('button', { name: 'All time', exact: true }).click();
-  await expect(page.getByRole('listbox', { name: 'All time' })).toBeVisible();
+  await page.getByRole('button', { name: 'This & last year', exact: true }).click();
+  await expect(page.getByRole('listbox', { name: 'This & last year' })).toBeVisible();
   await page.keyboard.press('Escape');
 
   await page.getByLabel('Search partner or purpose…').fill('Spotify');
@@ -229,10 +229,11 @@ test('every list filter changes the transactions', async ({ page }) => {
   await goto(page, 'transactions-en-light', 1440, 720);
   await expect(page.locator('.figure-count')).toHaveText('34');
 
-  await pick(page, 'All time', 'This month');
+  await pick(page, 'This & last year', 'This month');
   await expect(page.locator('.figure-count')).toHaveText('11');
-  await pick(page, 'This month', 'All time');
+  await pick(page, 'This month', 'This & last year');
   await expect(page.locator('.figure-count')).toHaveText('34');
+  await expect(page.getByRole('button', { name: 'This & last year', exact: true })).toBeVisible();
 
   await pick(page, 'All categories', 'Food');
   await expect(page.locator('.figure-count')).toHaveText('6');
@@ -313,7 +314,7 @@ test('the custom-range, amount and delete dialogs validate and submit', async ({
   await goto(page, 'transactions-en-light', 1440, 720);
 
   // Custom range, including both validation errors.
-  await page.getByRole('button', { name: 'All time', exact: true }).click();
+  await page.getByRole('button', { name: 'This & last year', exact: true }).click();
   await page.getByRole('option', { name: 'Custom range…', exact: true }).click();
   let dialog = page.getByTestId('custom-range-dialog');
   await expect(dialog).toBeVisible();
@@ -332,7 +333,7 @@ test('the custom-range, amount and delete dialogs validate and submit', async ({
   await expect(page.locator('.figure-count')).toHaveText('8');
 
   // The amount dialog refuses a non-number and applies the bounds.
-  await pick(page, '01.10.2026 – 15.10.2026', 'All time');
+  await pick(page, '01.10.2026 – 15.10.2026', 'This & last year');
   await page.getByRole('button', { name: 'Any amount', exact: true }).click();
   dialog = page.getByTestId('amount-dialog');
   await dialog.getByLabel('min €').fill('oops');
@@ -371,7 +372,7 @@ test('the localized dialog errors follow the DTO language', async ({ page }) => 
   const watcher = await watch(page);
   await goto(page, 'transactions-de-light', 1440, 900);
 
-  await page.getByRole('button', { name: 'Gesamter Zeitraum', exact: true }).click();
+  await page.getByRole('button', { name: 'Dieses & letztes Jahr', exact: true }).click();
   await page.getByRole('option', { name: 'Eigener Zeitraum…', exact: true }).click();
   const dialog = page.getByTestId('custom-range-dialog');
   await dialog.getByRole('textbox', { name: 'Von', exact: true }).fill('kein Datum');

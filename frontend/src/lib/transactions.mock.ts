@@ -18,7 +18,8 @@ import {
 
 type AccountType = 'checking' | 'savings' | 'credit_card' | 'loan' | 'depot';
 type Direction = 'all' | 'income' | 'expenses';
-type Period = 'this-month' | 'last-month' | 'last-3' | 'this-year' | 'last-year' | 'all';
+type Period =
+  'this-month' | 'last-month' | 'last-3' | 'this-year' | 'last-year' | 'this-and-last-year' | 'all';
 type Tone = 'positive' | 'negative' | 'loan' | 'zero' | 'plain';
 type CategoryFilter = { kind: 'any' } | { kind: 'none' } | { kind: 'only'; id: number };
 type Selection =
@@ -624,7 +625,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
   let groups: MockGroup[] = [{ id: 1, name: 'Reisen' }];
 
   let query = '';
-  let period: Period = 'all';
+  let period: Period = 'this-and-last-year';
   let customRange: MockRange | null = null;
   let direction: Direction = 'all';
   let categoryFilter: CategoryFilter = { kind: 'any' };
@@ -750,6 +751,8 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
         return { from: isoDate(2026, 1, 1), to: isoDate(2026, 12, 31) };
       case 'last-year':
         return { from: isoDate(2025, 1, 1), to: isoDate(2025, 12, 31) };
+      case 'this-and-last-year':
+        return { from: isoDate(2025, 1, 1), to: isoDate(2026, 12, 31) };
       default:
         return null;
     }
@@ -1017,8 +1020,12 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
         return 3;
       case 'last-year':
         return 4;
-      default:
+      case 'this-and-last-year':
         return 5;
+      case 'all':
+        return 6;
+      default:
+        return 6;
     }
   }
 
@@ -1677,6 +1684,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
       translate(language, 'PeriodLast3Months'),
       translate(language, 'PeriodThisYear'),
       translate(language, 'PeriodLastYear'),
+      translate(language, 'PeriodThisAndLastYear'),
       translate(language, 'PeriodAllTime'),
       translate(language, 'PeriodCustomRange'),
     ];
@@ -2011,6 +2019,7 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
       'last-3',
       'this-year',
       'last-year',
+      'this-and-last-year',
       'all',
     ];
     const next = periods[index];

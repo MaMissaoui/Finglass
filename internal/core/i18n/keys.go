@@ -52,6 +52,7 @@ const (
 	PeriodLast3Months
 	PeriodThisYear
 	PeriodLastYear
+	PeriodThisAndLastYear
 	PeriodAllTime
 	PeriodCustomRange
 	DirectionAll
@@ -969,7 +970,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 959
+const NumKeys = 960
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1018,6 +1019,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	PeriodLast3Months:                   "PeriodLast3Months",
 	PeriodThisYear:                      "PeriodThisYear",
 	PeriodLastYear:                      "PeriodLastYear",
+	PeriodThisAndLastYear:               "PeriodThisAndLastYear",
 	PeriodAllTime:                       "PeriodAllTime",
 	PeriodCustomRange:                   "PeriodCustomRange",
 	DirectionAll:                        "DirectionAll",
