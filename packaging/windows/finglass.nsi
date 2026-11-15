@@ -38,7 +38,6 @@ OutFile "${OUTFILE}"
 RequestExecutionLevel user
 InstallDir "$LOCALAPPDATA\Programs\Finglass"
 InstallDirRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Finglass" "InstallLocation"
-SetShellVarContext current
 
 SetCompressor /SOLID lzma
 Icon "${ICON}"
@@ -100,6 +99,7 @@ checkwebview2_done:
 FunctionEnd
 
 Function .onInit
+  SetShellVarContext current
   Call CheckWebView2
   StrCmp $1 "present" webview2_ok
 
