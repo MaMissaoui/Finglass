@@ -836,7 +836,7 @@
   "ErrorFinDeskTargetNotEmpty": "Das Finglass-Profil enthält bereits Daten. Erstelle im Bereich Profile ein neues Profil und importiere dorthin.",
   "FinDeskImportSummary": "Importiert: %d Kontogruppen, %d Bankverbindungen, %d Konten, %d Kategorien, %d Regeln, %d Umsätze, %d gelöschte Buchungen, %d vorgemerkte Buchungen, %d Dokumente, %d OCR-Texte und %d Einstellungen. Übersprungen: %d Zeilen, %d Dokumente mit fehlender Datei und %d abgelehnte Dokumente. %d Zahlungsaufträge blieben zurück.",
   "FinDeskImportTitle": "Aus FinDesk importieren",
-  "FinDeskImportHint": "Kopiert Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente aus FinDesk in das geöffnete Profil. Zahlungsaufträge und gespeicherte PINs werden nicht importiert. Beende FinDesk zuerst.",
+  "FinDeskImportHint": "Kopiert Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente aus FinDesk in das geöffnete Profil. Zahlungsaufträge und gespeicherte PINs werden nicht importiert.",
   "FinDeskImportChooseFolder": "FinDesk-Ordner wählen…",
   "FinDeskPassphraseTitle": "FinDesk-Passphrase",
   "FinDeskPassphraseText": "Gib die Passphrase der gewählten FinDesk-Datenbank ein. Sie wird nur für diesen Import verwendet und nicht gespeichert.",

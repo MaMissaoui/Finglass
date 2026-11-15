@@ -1,12 +1,14 @@
 package bind
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -16,6 +18,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/app/startup"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/findeskproc"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
 	"github.com/MaMissaoui/Finglass/internal/core/profiles"
@@ -24,6 +27,33 @@ import (
 const testPassphrase = "correct horse battery staple"
 
 var testNow = time.Date(2026, 10, 15, 12, 34, 56, 0, time.UTC)
+
+// fakeFindeskProcess is the test checker. No bind test runs ps.
+type fakeFindeskProcess struct {
+	mu    sync.Mutex
+	state findeskproc.State
+	err   error
+	calls int
+}
+
+func (f *fakeFindeskProcess) Running(context.Context) (findeskproc.State, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.calls++
+	return f.state, f.err
+}
+
+func (f *fakeFindeskProcess) callCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.calls
+}
+
+func useFakeFindeskProcess(session *shell.Session, state findeskproc.State) *fakeFindeskProcess {
+	fake := &fakeFindeskProcess{state: state}
+	session.SetFindeskProcessChecker(fake)
+	return fake
+}
 
 type shellFixture struct {
 	paths    paths.AppPaths
@@ -57,6 +87,7 @@ func newShellFixture(t *testing.T) *shellFixture {
 	}
 
 	fixture := &shellFixture{paths: appPaths, session: session}
+	useFakeFindeskProcess(session, findeskproc.NotRunning)
 	fixture.service = NewShell(session, offer, ShellOptions{
 		Paths: appPaths,
 		Clock: func() time.Time { return testNow },
@@ -103,6 +134,7 @@ func newOfferFixture(t *testing.T) *shellFixture {
 	}
 
 	fixture := &shellFixture{paths: appPaths, session: session}
+	useFakeFindeskProcess(session, findeskproc.NotRunning)
 	fixture.service = NewShell(session, offer, ShellOptions{
 		Paths: appPaths,
 		Clock: func() time.Time { return testNow },
@@ -138,6 +170,7 @@ func (f *shellFixture) restart(t *testing.T) *shellFixture {
 	}
 
 	restarted := &shellFixture{paths: f.paths, session: session}
+	useFakeFindeskProcess(session, findeskproc.NotRunning)
 	restarted.service = NewShell(session, offer, ShellOptions{
 		Paths: f.paths,
 		Clock: func() time.Time { return testNow },
@@ -660,6 +693,42 @@ func TestMigrationWizardStateFollowsTheSession(t *testing.T) {
 		t.Fatalf("summary lines = %v", skipped.MigrationSummaryLines)
 	}
 	requireEvent(t, fixture, skipped)
+}
+
+func TestMigrationQuitHintFollowsTheFinDeskProcessState(t *testing.T) {
+	tests := []struct {
+		name  string
+		state findeskproc.State
+		err   error
+		want  bool
+	}{
+		{"running", findeskproc.Running, nil, true},
+		{"unknown", findeskproc.Unknown, nil, true},
+		{"not running", findeskproc.NotRunning, nil, false},
+		{"a failed check stays unknown", findeskproc.Unknown, errors.New("no process list"), true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			fixture := newOfferFixture(t)
+			fake := &fakeFindeskProcess{state: test.state, err: test.err}
+			fixture.session.SetFindeskProcessChecker(fake)
+
+			deadline := time.Now().Add(10 * time.Second)
+			for {
+				state, err := fixture.service.State()
+				if err != nil {
+					t.Fatalf("State: %v", err)
+				}
+				if state.QuitFinDeskVisible == test.want && fake.callCount() > 0 {
+					return
+				}
+				if !time.Now().Before(deadline) {
+					t.Fatalf("quit hint visible = %v after %d checks, want %v", state.QuitFinDeskVisible, fake.callCount(), test.want)
+				}
+				time.Sleep(2 * time.Millisecond)
+			}
+		})
+	}
 }
 
 func TestMigrationContinueShowsTheUnlockViewOfTheActiveProfile(t *testing.T) {

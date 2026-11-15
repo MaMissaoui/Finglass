@@ -108,6 +108,11 @@
     section = index;
     sectionMenuOpen = false;
     moreMenuOpen = false;
+    if (index === 6) {
+      // Opening the FinDesk section runs the running check now; the five-second
+      // poll keeps the note current while the section stays open.
+      void run(() => api.settingsState());
+    }
   }
 
   function setTheme(index: number): void {
@@ -206,8 +211,23 @@
         loadFailed = true;
       });
 
+    // The FinDesk running check is cached in Go for five seconds; asking again
+    // keeps the quit note in step while FinDesk is started or quit.
+    const timer = setInterval(() => {
+      if (section !== 6) {
+        return;
+      }
+      void api
+        .settingsState()
+        .then((next) => setDTO(next))
+        .catch(() => {
+          // A transport error leaves the last state on screen.
+        });
+    }, 5000);
+
     return () => {
       stop();
+      clearInterval(timer);
     };
   });
 
@@ -639,6 +659,9 @@
 
       <div class="list-body">
         <p class="muted-text">{t('FinDeskImportHint')}</p>
+        {#if dto.quitFinDeskVisible}
+          <p class="muted-text" data-testid="findesk-quit-note">{t('MigrationQuitHint')}</p>
+        {/if}
 
         <div class="backup-actions">
           <PrimaryButton

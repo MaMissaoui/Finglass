@@ -27,6 +27,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/ocr"
+	"github.com/MaMissaoui/Finglass/internal/core/findeskproc"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/instance"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
@@ -223,6 +224,14 @@ type Session struct {
 	// findeskImportGate is nil in production. Tests set it to hold a FinDesk
 	// import inside its profile-busy section, before it opens the source.
 	findeskImportGate func()
+	// findeskProc checks whether FinDesk runs. The state is cached for
+	// findeskProcessTTL and refreshed off the caller's goroutine, so building a
+	// DTO never runs ps.
+	findeskProc           findeskproc.Checker
+	findeskProcState      findeskproc.State
+	findeskProcAt         time.Time
+	findeskProcChecking   bool
+	findeskProcGeneration uint64
 	// gatewayFactory is nil in production. The shell tests set it to inject a
 	// fake FinTS gateway; no production path ever opens a socket.
 	gatewayFactory func(i18n.Language) banksync.FinTsGateway
@@ -488,6 +497,7 @@ func newSession(
 		settings:         newSettingsState(language, profileBusy),
 		settingsWork:     settingsWork,
 		findesk:          findesk.NewFindeskImportState(language),
+		findeskProc:      findeskproc.NewChecker(),
 		accounts:         newAccountsState(language, profileBusy),
 		banking:          banking.New(language),
 		profileBusy:      profileBusy,

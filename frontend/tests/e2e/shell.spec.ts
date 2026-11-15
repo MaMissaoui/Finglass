@@ -212,6 +212,18 @@ test('the reference screenshots', async ({ page }) => {
   // clean-render test below checks the policy without taking screenshots.
 });
 
+test('the migration quit note follows FinDesk', async ({ page }) => {
+  await goto(page, 'migration-welcome', 560, 800);
+  await expect(page.getByTestId('migration-quit-note')).toHaveText('Quit FinDesk first.');
+
+  // Unknown shows the note too: a failed check must not hide it.
+  await goto(page, 'migration-welcome-unknown', 560, 800);
+  await expect(page.getByTestId('migration-quit-note')).toBeVisible();
+
+  await goto(page, 'migration-welcome-not-running', 560, 800);
+  await expect(page.getByTestId('migration-quit-note')).toHaveCount(0);
+});
+
 test('every view renders without a CSP or console error', async ({ page }) => {
   test.setTimeout(120_000);
   const watcher = await watch(page);
@@ -225,6 +237,8 @@ test('every view renders without a CSP or console error', async ({ page }) => {
     'unlock-wrong-de',
     'unlock-create-short-de',
     'migration-welcome',
+    'migration-welcome-unknown',
+    'migration-welcome-not-running',
     'migration-profile',
     'migration-profile-new-passphrase',
     'migration-wrong-passphrase',

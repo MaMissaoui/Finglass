@@ -29,6 +29,8 @@ const (
 	SettingsProfiles = 1
 	// SettingsCategories is the categories section.
 	SettingsCategories = 2
+	// SettingsFinDeskImport is the FinDesk import section.
+	SettingsFinDeskImport = 6
 )
 
 // PageArgs is one screen's arguments, mirroring the fields FinDesk's

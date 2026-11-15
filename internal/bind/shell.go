@@ -83,6 +83,9 @@ type ShellDTO struct {
 	MigrationNewPassphraseRequired bool     `json:"migrationNewPassphraseRequired"`
 	MigrationAcknowledged          bool     `json:"migrationAcknowledged"`
 	MigrationSummaryLines          []string `json:"migrationSummaryLines"`
+	// QuitFinDeskVisible says whether the wizard shows the "Quit FinDesk
+	// first." note. It is set only while the wizard is open.
+	QuitFinDeskVisible bool `json:"quitFinDeskVisible"`
 }
 
 // ShellOptions is the process wiring the caller supplies. The service itself
@@ -597,6 +600,7 @@ func (s *Shell) snapshot() ShellDTO {
 		dto.MigrationNewPassphraseRequired = !wizard.SamePassphrase() || wizard.NeedsNewPassphrase()
 		dto.MigrationAcknowledged = wizard.Acknowledged()
 		dto.MigrationSummaryLines = wizard.SummaryLines(language)
+		dto.QuitFinDeskVisible = s.session.QuitFinDeskVisible()
 	}
 	s.migrationMu.Unlock()
 	return dto
