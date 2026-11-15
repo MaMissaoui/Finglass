@@ -16,3 +16,7 @@ func SecureFile(string) error {
 func Check(string) error {
 	return nil
 }
+
+// Unsupported reports whether err means the volume cannot keep private
+// permissions. It is never true here, where the calls are no-ops.
+func Unsupported(error) bool { return false }

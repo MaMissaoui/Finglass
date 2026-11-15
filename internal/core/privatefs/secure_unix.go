@@ -18,6 +18,10 @@ func SecureFile(path string) error {
 	return os.Chmod(path, 0o600)
 }
 
+// Unsupported reports whether err means the volume cannot keep private
+// permissions. Unix permission bits always exist, so it is never true.
+func Unsupported(error) bool { return false }
+
 // Check reports whether path has the private mode for its type: 0700 for a
 // folder and 0600 for a file.
 func Check(path string) error {

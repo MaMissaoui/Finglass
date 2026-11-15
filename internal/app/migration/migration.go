@@ -517,18 +517,14 @@ func createStaging(appPaths paths.AppPaths) (string, error) {
 	if err := paths.EnsureDir(root); err != nil {
 		return "", err
 	}
-	if err := privatefs.SecureDir(root); err != nil {
-		return "", err
-	}
+	_ = privatefs.SecureDir(root)
 
 	for {
 		number := stagingCounter.Add(1) - 1
 		candidate := filepath.Join(root, strconv.FormatUint(number, 10))
 		err := os.Mkdir(candidate, 0o700)
 		if err == nil {
-			if err := privatefs.SecureDir(candidate); err != nil {
-				return "", err
-			}
+			_ = privatefs.SecureDir(candidate)
 			return candidate, nil
 		}
 		if errors.Is(err, fs.ErrExist) {

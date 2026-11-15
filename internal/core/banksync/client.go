@@ -26,7 +26,6 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
-	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/bankconnections"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 	"github.com/MaMissaoui/Finglass/internal/core/settings"
@@ -344,6 +343,12 @@ func (c *FinTsClient) savePin(
 // ensureMarker writes the empty marker file with 0600 permissions in a 0700
 // directory. This is deliberately stricter than a plain file create, which
 // takes the process umask.
+//
+// The marker lives in the profile's credentials/ folder inside the data root,
+// which SecureDir protects at start-up, so on Windows it inherits the
+// owner-only DACL from there. banksync therefore does not call privatefs: that
+// package pulls in golang.org/x/sys/windows on Windows, which would make net
+// reachable from a package that must never reach a bank.
 func ensureMarker(marker string) error {
 	directory := filepath.Dir(marker)
 	if err := paths.EnsureDir(directory); err != nil {
@@ -358,7 +363,7 @@ func ensureMarker(marker string) error {
 	if err != nil {
 		return err
 	}
-	if err := privatefs.SecureFile(marker); err != nil {
+	if err := file.Chmod(0o600); err != nil {
 		_ = file.Close()
 		return err
 	}

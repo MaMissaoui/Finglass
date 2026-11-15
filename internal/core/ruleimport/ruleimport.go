@@ -288,9 +288,7 @@ func Export(ctx context.Context, d *db.Database, file string) (int, error) {
 	if err := os.WriteFile(file, []byte(text), 0o600); err != nil {
 		return 0, wrap(err)
 	}
-	if err := privatefs.SecureFile(file); err != nil {
-		return 0, wrap(err)
-	}
+	_ = privatefs.SecureFile(file)
 
 	written := len(items) - skipped
 	var details string

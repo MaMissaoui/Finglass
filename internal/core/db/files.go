@@ -11,8 +11,6 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
-
-	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 )
 
 // sqliteHeader is the plain SQLite file header. A SQLCipher file never starts
@@ -75,6 +73,12 @@ func cleanupTemp(path string) {
 
 // restrictFilePermissions tightens the file mode to 0600 when group or others
 // have any bit.
+//
+// The database lives inside the data root, which SecureDir protects at
+// start-up, so on Windows it inherits the owner-only DACL from there. This is
+// why the package does not call privatefs: that package pulls in
+// golang.org/x/sys/windows on Windows, which would make net reachable from
+// internal/core/banksync and break its no-network guard.
 func restrictFilePermissions(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -82,7 +86,7 @@ func restrictFilePermissions(path string) error {
 	}
 
 	if info.Mode().Perm()&0o077 != 0 {
-		return privatefs.SecureFile(path)
+		return os.Chmod(path, 0o600)
 	}
 	return nil
 }

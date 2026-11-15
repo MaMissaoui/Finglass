@@ -82,7 +82,7 @@ func WriteAtomically(target string, write func(tempPath string) error) error {
 		return err
 	}
 
-	if err := privatefs.SecureFile(tempPath); err != nil {
+	if err := privatefs.SecureFile(tempPath); err != nil && !privatefs.Unsupported(err) {
 		return err
 	}
 
