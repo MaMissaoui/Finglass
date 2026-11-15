@@ -209,12 +209,13 @@ func tanRequiredResponse(dialogID, taskReference, challenge string) string {
 	)
 }
 
-// tanRequiredResponseV5 answers with HITAN v5, whose task reference is DEG 2.
+// tanRequiredResponseV5 answers with HITAN v5: DEG 2 is the task hash value,
+// DEG 3 the task reference, as in v6 and v7.
 func tanRequiredResponseV5(dialogID, taskReference, challenge string) string {
 	return responseMessage(
 		dialogID,
 		"HIRMS:3:2:4+0030::TAN erforderlich'",
-		"HITAN:4:5:3+4+"+taskReference+"+"+challenge+"'",
+		"HITAN:4:5:3+4+task-hash+"+taskReference+"+"+challenge+"'",
 	)
 }
 
