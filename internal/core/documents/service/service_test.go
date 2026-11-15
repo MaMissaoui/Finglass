@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -518,6 +519,9 @@ func TestAFileNameIsReducedToASafeLastSegment(t *testing.T) {
 }
 
 func TestAControlCharacterFileNameIsStoredInsideTheDocumentsFolder(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows forbids control characters in file names, so such a source file cannot exist there")
+	}
 	directory := t.TempDir()
 	database := testDatabase(t)
 	documentsDir := filepath.Join(directory, "documents")
