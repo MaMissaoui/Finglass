@@ -1,0 +1,74 @@
+name: Portability (probe)
+
+# Windows and Linux are not release targets yet (docs/PLAN.md, G11). This probe
+# only finds out whether the Go code builds and passes its tests there. It is
+# deliberately not part of "CI OK" and must never block main.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".gitignore"
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".gitignore"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    name: Go (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    # A red probe is a result, not a failure of the workflow run.
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      CGO_ENABLED: "1"
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install the Linux cgo, SQLCipher and Wails dependencies
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "== apt packages (${{ matrix.os }})"
+          # scripts/ci/linux.Dockerfile's packages plus build-essential: Wails
+          # v3's default Linux build is GTK4/WebKitGTK 6.0, not GTK3/WebKit2.
+          # go-sqlcipher's default provider is its vendored libtomcrypt
+          # (flags.go), so it needs no libssl-dev.
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev
+
+      - name: Check the Windows cgo toolchain
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "== MinGW gcc (${{ matrix.os }})"
+          gcc --version
+
+      - name: Go environment, build, vet and tests
+        shell: bash
+        env:
+          PORTABILITY_OS: ${{ matrix.os }}
+        run: bash scripts/ci/portability.sh

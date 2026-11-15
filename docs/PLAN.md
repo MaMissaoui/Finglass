@@ -163,6 +163,7 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 
 ## G11 — Windows and Linux
 
+- [ ] Probe: a non-blocking 'Portability (probe)' workflow builds and tests the Go code on Windows and Linux; results decide the next G11 steps.
 - [ ] WebView2 / WebKitGTK, MSI/NSIS and DEB/RPM, credential stores, each installer launched once in CI.
 
 ## Later
