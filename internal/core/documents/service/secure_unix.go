@@ -5,5 +5,8 @@ package service
 import "github.com/MaMissaoui/Finglass/internal/core/privatefs"
 
 func secureFile(path string) error {
-	return privatefs.SecureFile(path)
+	if err := privatefs.SecureFile(path); err != nil && !privatefs.Unsupported(err) {
+		return err
+	}
+	return nil
 }

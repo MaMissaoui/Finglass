@@ -1332,7 +1332,7 @@ func writeConnectionTrace(path string, trace []byte) error {
 		return err
 	}
 	defer func() { _ = file.Close() }()
-	if err := privatefs.SecureFile(path); err != nil {
+	if err := privatefs.SecureFile(path); err != nil && !privatefs.Unsupported(err) {
 		return err
 	}
 	_, err = file.Write(trace)

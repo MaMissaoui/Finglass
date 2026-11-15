@@ -356,10 +356,7 @@ func openSource(dataDir string, passphrase *secret.Passphrase) (*finDeskSource, 
 	if err != nil {
 		return nil, newIOError(err)
 	}
-	if err := privatefs.SecureDir(temporary); err != nil {
-		_ = os.RemoveAll(temporary)
-		return nil, newIOError(err)
-	}
+	_ = privatefs.SecureDir(temporary)
 	cleanup := func() {
 		_ = os.RemoveAll(temporary)
 	}
