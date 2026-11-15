@@ -75,6 +75,11 @@ run_lint() {
   step_begin "product id"
   bash scripts/tests/product-id.sh
   step_end
+
+  step_begin "release scope"
+  bash scripts/ci/check-release-scope.sh
+  bash scripts/tests/release-scope.sh
+  step_end
 }
 
 run_test() {

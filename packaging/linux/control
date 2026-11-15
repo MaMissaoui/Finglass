@@ -1,0 +1,13 @@
+Package: finglass
+Version: __VERSION__
+Architecture: amd64
+Maintainer: Finglass contributors <finglass@example.invalid>
+Installed-Size: __INSTALLED_SIZE__
+Depends: libgtk-4-1, libwebkitgtk-6.0-4, libsoup-3.0-0
+Recommends: gnome-keyring
+Section: office
+Priority: optional
+Homepage: https://github.com/MaMissaoui/Finglass
+Description: personal finance application
+ Finglass keeps accounts, transactions, documents and reports in a local
+ encrypted database and syncs them from German banks over FinTS.
