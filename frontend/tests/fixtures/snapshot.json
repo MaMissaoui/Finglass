@@ -1,6 +1,1107 @@
 {
   "version": 1,
   "languages": {
+    "de": {
+      "shell": {
+        "mode": "unlock",
+        "allowChange": true,
+        "busy": false,
+        "restored": false,
+        "startupError": false,
+        "errorText": "",
+        "profileLabel": "Profil: Personal",
+        "profileName": "Personal",
+        "passphraseHint": "Mindestens 10 Zeichen. Ein paar zusammenhanglose Wörter sind leicht zu merken und schwer zu erraten.",
+        "passphraseMinLength": 10,
+        "leftoverLines": null,
+        "shellOpen": true,
+        "language": "de",
+        "theme": "system",
+        "sidebarCollapsed": false,
+        "screen": "dashboard",
+        "screenTitle": "Übersicht",
+        "backTitle": "",
+        "currentProfileName": "Personal",
+        "profiles": [
+          {
+            "name": "Personal",
+            "slug": "",
+            "open": true
+          }
+        ],
+        "version": "0.4.0-dev",
+        "aboutVersion": "Version 0.4.0-dev",
+        "findEnabled": false,
+        "migrationStep": "",
+        "migrationProfileNames": null,
+        "migrationProfileHeading": "",
+        "migrationProfileName": "",
+        "migrationProfileCount": 0,
+        "migrationSamePassphrase": false,
+        "migrationNewPassphraseRequired": false,
+        "migrationAcknowledged": false,
+        "migrationSummaryLines": null,
+        "quitFinDeskVisible": false
+      },
+      "dashboard": {
+        "loading": false,
+        "firstRun": false,
+        "showContent": true,
+        "errorText": "",
+        "monthOptions": ["Oktober 2026"],
+        "monthSelected": 0,
+        "monthLabel": "Oktober 2026",
+        "previousEnabled": false,
+        "nextEnabled": false,
+        "isCurrentMonth": true,
+        "availableTitle": "Verfügbar",
+        "availableValue": "2.500,00 €",
+        "availableSubtitle": "",
+        "availableTone": "positive",
+        "statementLines": [
+          {
+            "label": "Übertrag aus September 2026",
+            "amountText": "2.512,50 €",
+            "kind": "carry"
+          },
+          {
+            "label": "Einnahmen",
+            "amountText": "+0,00 €",
+            "kind": "in"
+          },
+          {
+            "label": "Ausgaben",
+            "amountText": "-12,50 €",
+            "kind": "out"
+          },
+          {
+            "label": "Verfügbar",
+            "amountText": "2.500,00 €",
+            "kind": "result"
+          }
+        ],
+        "incomeTitle": "Einnahmen diesen Monat",
+        "incomeValue": "0,00 €",
+        "expensesTitle": "Ausgaben diesen Monat",
+        "expensesValue": "12,50 €",
+        "pendingTitle": "Offene Aufgaben",
+        "pendingValue": "1",
+        "pendingSubtitle": "0 ohne Kategorie · 1 unverknüpftes Dokument",
+        "pendingAnnouncement": "1 offene Aufgabe",
+        "pendingLines": ["0 ohne Kategorie", "1 unverknüpftes Dokument"],
+        "pendingEnabled": true,
+        "expensesSectionTitle": "Ausgaben nach Kategorie (dieser Monat)",
+        "expensesEmptyText": "Keine Ausgaben in diesem Monat",
+        "expenseRows": [
+          {
+            "label": "Food",
+            "percentText": "100 %",
+            "amountText": "12,50 €",
+            "colour": "#FF5722",
+            "categoryId": 1,
+            "isMore": false,
+            "fraction": 1
+          }
+        ],
+        "transfersNote": "",
+        "chartTitle": "Einnahmen vs. Ausgaben (6 Monate)",
+        "chartEmptyText": "",
+        "chartAxisTop": "20 €",
+        "chartAxisMid": "10 €",
+        "chartAxisZero": "0 €",
+        "monthBars": [
+          {
+            "label": "Mai",
+            "title": "Mai 2026",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Juni",
+            "title": "Juni 2026",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Juli",
+            "title": "Juli 2026",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Aug.",
+            "title": "August 2026",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Sept.",
+            "title": "September 2026",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Okt.",
+            "title": "Oktober 2026",
+            "incomeText": "0,00 €",
+            "expensesText": "-12,50 €",
+            "incomeFraction": 0,
+            "expensesFraction": 0.625,
+            "partial": true
+          }
+        ],
+        "incomeLegend": "Einnahmen",
+        "expensesLegend": "Ausgaben",
+        "partialNote": "Blass: Monat bisher",
+        "budgetsTitle": "Budgets diesen Monat",
+        "budgetRows": [],
+        "hasBudgets": false,
+        "monthProgress": 0.48387095,
+        "taxTitle": "Steuerlich absetzbare Ausgaben (Jahr bis dato)",
+        "taxHint": "Markieren Sie Kategorien in den Einstellungen als steuerrelevant, um absetzbare Ausgaben zu verfolgen.",
+        "taxValue": "0,00 €",
+        "taxRows": [],
+        "upcomingTitle": "Anstehend in den nächsten 30 Tagen",
+        "upcomingRows": [],
+        "hasUpcoming": false,
+        "recentTitle": "Letzte Umsätze",
+        "recentEmptyText": "Noch keine Umsätze",
+        "recentRows": [
+          {
+            "dateText": "02.10.2026",
+            "title": "Bakery",
+            "meta": "Food",
+            "amountText": "-12,50 €",
+            "expense": true,
+            "partner": "Bakery"
+          }
+        ],
+        "viewAllLabel": "Alle anzeigen"
+      },
+      "accounts": {
+        "loading": false,
+        "showContent": true,
+        "hasContent": true,
+        "errorText": "",
+        "messageText": "",
+        "figures": [
+          {
+            "label": "Gesamt über 1 Konto",
+            "values": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "secondary": false
+          }
+        ],
+        "bankCards": [
+          {
+            "bankId": -1,
+            "name": "Konten ohne Bank",
+            "subtitle": "",
+            "status": {
+              "tone": "",
+              "icon": "",
+              "text": "",
+              "action": "",
+              "actionText": "",
+              "actionEnabled": false
+            },
+            "centralBlzHint": "",
+            "offline": false,
+            "collapsed": false,
+            "accountCountText": "1 Konto",
+            "totals": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "accounts": [
+              {
+                "accountId": 1,
+                "name": "Girokonto",
+                "subtitle": "Girokonto · DE89 3704 0044 0532 0130 00",
+                "balanceText": "2.500,00 €",
+                "tone": "positive",
+                "newCount": 0
+              }
+            ],
+            "syncing": false,
+            "syncStep": "",
+            "pinText": "",
+            "canTestConnection": false,
+            "menu": [],
+            "logo": "",
+            "logoLetters": "",
+            "logoColour": 0
+          }
+        ],
+        "panelRows": [
+          {
+            "kind": "all",
+            "groupKind": "",
+            "accountType": "",
+            "id": -1,
+            "label": "Alle Konten",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": true,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "",
+            "logoLetters": "",
+            "logoColour": 0
+          },
+          {
+            "kind": "group",
+            "groupKind": "type",
+            "accountType": "checking",
+            "id": -1,
+            "label": "Girokonto",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          },
+          {
+            "kind": "account",
+            "groupKind": "",
+            "accountType": "checking",
+            "id": 1,
+            "label": "Girokonto",
+            "secondary": "…3000",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "indent": true,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          }
+        ],
+        "groupChoices": [],
+        "filterText": "",
+        "shownText": "",
+        "typeChoices": [
+          {
+            "code": "checking",
+            "label": "Girokonto"
+          },
+          {
+            "code": "savings",
+            "label": "Sparkonto"
+          },
+          {
+            "code": "credit_card",
+            "label": "Kreditkarte"
+          },
+          {
+            "code": "loan",
+            "label": "Kredit"
+          },
+          {
+            "code": "depot",
+            "label": "Depot"
+          }
+        ],
+        "currencyCodes": ["EUR", "USD", "GBP", "CHF", "JPY", "CAD"],
+        "daysChoices": [
+          {
+            "days": 30,
+            "label": "30 Tage"
+          },
+          {
+            "days": 90,
+            "label": "90 Tage"
+          },
+          {
+            "days": 365,
+            "label": "1 Jahr"
+          }
+        ],
+        "dayLabels": ["30 Tage", "90 Tage", "1 Jahr"],
+        "dialog": {
+          "kind": "",
+          "title": "",
+          "text": "",
+          "errorText": "",
+          "accountLabel": "",
+          "accountName": "",
+          "balance": "",
+          "accountType": "",
+          "offline": false,
+          "bankId": 0,
+          "accountId": 0,
+          "connectionName": "",
+          "connectionBlz": "",
+          "connectionUserId": "",
+          "connectionServerUrl": "",
+          "connectionHasPin": false,
+          "connectionPinText": "",
+          "connectionPinForgetAfter": "",
+          "connectionSyncing": false,
+          "historyDate": "",
+          "historyHasStart": false
+        },
+        "detailOpen": false,
+        "detailTitle": "",
+        "detailLogo": "",
+        "detailLetters": "",
+        "detailColour": 0,
+        "detailSubtitle": "",
+        "detailBalance": "",
+        "detailTone": "",
+        "detailAccountId": 0,
+        "detailDays": 90,
+        "detailSummary": "",
+        "detailPath": "",
+        "detailAxisTop": "",
+        "detailAxisBottom": "",
+        "detailEndX": 0,
+        "detailEndY": 0,
+        "detailEndLabel": "",
+        "detailRows": []
+      },
+      "transactions": {
+        "loading": false,
+        "hasAccounts": true,
+        "errorText": "",
+        "messageText": "",
+        "countText": "1",
+        "incomeAmounts": [],
+        "expenseAmounts": [
+          {
+            "text": "12,50 €",
+            "tone": "negative"
+          }
+        ],
+        "hasBalance": false,
+        "balanceText": "",
+        "balanceTone": "",
+        "showBack": false,
+        "periodOptions": [
+          "Dieser Monat",
+          "Letzter Monat",
+          "Letzte 3 Monate",
+          "Dieses Jahr",
+          "Letztes Jahr",
+          "Gesamter Zeitraum",
+          "Eigener Zeitraum…"
+        ],
+        "periodIndex": 0,
+        "periodExtra": "",
+        "categoryOptions": ["Alle Kategorien", "Ohne Kategorie", "Food"],
+        "categoryIndex": 0,
+        "directionOptions": ["Ein- und Ausgänge", "Einnahmen", "Ausgaben"],
+        "directionIndex": 0,
+        "amountLabel": "Jeder Betrag",
+        "accountOptions": ["Alle Konten", "Girokonto", "Girokonto"],
+        "accountIndex": 0,
+        "panelRows": [
+          {
+            "kind": "all",
+            "groupKind": "",
+            "accountType": "",
+            "id": -1,
+            "label": "Alle Konten",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": true,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "",
+            "logoLetters": "",
+            "logoColour": 0
+          },
+          {
+            "kind": "group",
+            "groupKind": "type",
+            "accountType": "checking",
+            "id": -1,
+            "label": "Girokonto",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          },
+          {
+            "kind": "account",
+            "groupKind": "",
+            "accountType": "checking",
+            "id": 1,
+            "label": "Girokonto",
+            "secondary": "…3000",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "2.500,00 €",
+                "tone": "positive"
+              }
+            ],
+            "indent": true,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          }
+        ],
+        "groupChoices": [],
+        "panelFilterText": "",
+        "panelShownText": "",
+        "pendingHeader": "",
+        "rows": [
+          {
+            "pending": false,
+            "id": 1,
+            "dateText": "02.10.2026",
+            "title": "Bakery",
+            "subtitle": "",
+            "categoryText": "Food",
+            "categoryColour": "#ff5722",
+            "partner": "Bakery",
+            "partnerLinkText": "Alle von Bakery anzeigen",
+            "amountText": "-12,50 €",
+            "expense": true,
+            "isNew": false,
+            "selected": false,
+            "hasDocuments": false,
+            "documentsText": "0 Dokumente",
+            "balanceText": "",
+            "balanceTone": "zero",
+            "balanceWarning": false,
+            "balanceMismatch": ""
+          }
+        ],
+        "hasTransactions": true,
+        "hasBalanceColumn": false,
+        "addCategoryNames": ["Automatisch (Regeln)", "Food"],
+        "addDate": "15.10.2026",
+        "addAmountLabel": "Betrag (€)",
+        "addAccountOptions": ["Girokonto"],
+        "addAccountIndex": 0,
+        "hasChart": false,
+        "chartCollapsed": false,
+        "chartLine": "",
+        "chartArea": "",
+        "chartAxisTop": "",
+        "chartAxisBottom": "",
+        "chartAxisStart": "",
+        "chartAxisMid": "",
+        "chartAxisEnd": "",
+        "chartValue": "",
+        "chartNotFromZero": false,
+        "chartEndX": 0,
+        "chartEndY": 0,
+        "chartEndLabel": "",
+        "selectionVisible": false,
+        "allSelected": false,
+        "selectionCountText": "0 ausgewählt",
+        "selectionTotalsText": "",
+        "categoryNames": ["Ohne Kategorie", "Food"],
+        "taxOptions": ["Automatisch", "Steuerrelevant", "Nicht steuerrelevant"],
+        "detailOpen": false,
+        "detailCanCreateRule": true,
+        "detailTitle": "",
+        "detailAmount": "",
+        "detailExpense": false,
+        "detailDate": "",
+        "detailAccount": "",
+        "detailPartner": "",
+        "detailShop": "",
+        "detailPurpose": "",
+        "detailCategoryIndex": 0,
+        "detailTaxRelevant": false,
+        "detailTaxState": "",
+        "detailTaxIndex": 0,
+        "detailHasMismatch": false,
+        "detailMismatch": "",
+        "detailPartnerLink": "",
+        "duplicateOpen": false,
+        "duplicateTitle": "",
+        "duplicateText": "",
+        "canUndoReapply": false,
+        "reapplyOpen": false,
+        "reapplySummary": "",
+        "reapplyWarning": "",
+        "reapplyGroups": null,
+        "reapplyConfirmText": "",
+        "reapplyConfirmEnabled": false,
+        "rangeOpen": false,
+        "rangeFrom": "",
+        "rangeTo": "",
+        "rangeError": "",
+        "amountOpen": false,
+        "amountMin": "",
+        "amountMax": "",
+        "amountMinLabel": "",
+        "amountMaxLabel": "",
+        "amountError": "",
+        "addOpen": false,
+        "addError": "",
+        "ruleOpen": false,
+        "rulePattern": "",
+        "ruleCategories": ["Food"],
+        "ruleCategoryIndex": 0,
+        "ruleError": "",
+        "deleteOpen": false,
+        "deleteId": 0,
+        "deleteTitle": "",
+        "deleteText": "",
+        "multiDeleteOpen": false,
+        "multiDeleteTitle": "",
+        "multiDeleteRange": "",
+        "multiDeleteTotals": "",
+        "multiDeleteLines": null,
+        "multiDeleteMore": "",
+        "importOpen": false,
+        "importTitle": "",
+        "importSummary": "",
+        "importFiles": null,
+        "importCsvFields": null,
+        "importCsvHint": "",
+        "importAccountOptions": null,
+        "importAccountIndex": 0,
+        "importBalanceAllowed": false,
+        "importUpdateBalance": false,
+        "importBalanceText": "",
+        "importNewerText": "",
+        "importing": false,
+        "importConfirmText": "",
+        "importConfirmEnabled": false
+      },
+      "documents": {
+        "rows": [
+          {
+            "id": 1,
+            "name": "receipt.pdf",
+            "meta": "15.11.2026 07:38 · nicht verknüpft",
+            "isLinked": false,
+            "hasOcr": false,
+            "isPdf": true,
+            "selected": false
+          }
+        ],
+        "tab": "all",
+        "tabAllLabel": "Alle Dokumente (1)",
+        "tabUnlinkedLabel": "Unverknüpft (1)",
+        "tabLinkedLabel": "Mit Umsatz verknüpft (0)",
+        "searchQuery": "",
+        "ocrAvailable": true,
+        "ocrHint": "",
+        "uploading": false,
+        "progressText": "",
+        "loading": false,
+        "errorText": "",
+        "messageText": "",
+        "hasSelection": false,
+        "selectedName": "",
+        "selectedLinked": false,
+        "selectedLinkLabel": "",
+        "selectedOcrHeading": "",
+        "selectedOcrText": "",
+        "previewKind": "none",
+        "previewDataUrl": "",
+        "suggestions": [],
+        "candidates": [],
+        "candidateQuery": "",
+        "deleteText": ""
+      },
+      "reports": {
+        "tab": "summary",
+        "year": 2026,
+        "yearLabel": "2026",
+        "loading": false,
+        "exporting": false,
+        "rangeFrom": "01.08.2026",
+        "rangeTo": "15.10.2026",
+        "rangeError": "",
+        "custom": false,
+        "errorText": "",
+        "messageText": "",
+        "hasReport": true,
+        "empty": false,
+        "canExportReport": true,
+        "exportDisabledReason": "",
+        "canExportTax": false,
+        "linkable": true,
+        "emptyTitle": "Keine Umsätze in 2026",
+        "emptyHint": "Berichte entstehen aus den Umsätzen des gewählten Zeitraums.",
+        "otherCurrencyHint": "",
+        "incomeValue": "0,00 €",
+        "expensesValue": "12,50 €",
+        "netValue": "-12,50 €",
+        "taxValue": "0,00 €",
+        "netTone": "negative",
+        "taxRelevantRows": [],
+        "taxRelevantEmpty": "Keine steuerrelevanten Ausgaben. Markieren Sie Kategorien in den Einstellungen als steuerrelevant (z. B. Arbeitsmittel, Spenden, Versicherungen).",
+        "statTransactions": "1",
+        "statCategories": "1",
+        "statAverage": "12,50 €",
+        "statHighest": "Oktober 12,50 €",
+        "monthlyTitle": "Monatliche Einnahmen \u0026 Ausgaben – 2026",
+        "monthlyRows": [
+          {
+            "month": "Januar",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "Februar",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "März",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "April",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "Mai",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "Juni",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "Juli",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "August",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "September",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "Oktober",
+            "incomeText": "0,00 €",
+            "expensesText": "12,50 €",
+            "netText": "-12,50 €",
+            "incomeZero": true,
+            "expensesZero": false,
+            "netZero": false,
+            "netTone": "negative"
+          },
+          {
+            "month": "November",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "Dezember",
+            "incomeText": "0,00 €",
+            "expensesText": "0,00 €",
+            "netText": "0,00 €",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          }
+        ],
+        "monthlyTotalIncome": "0,00 €",
+        "monthlyTotalExpenses": "12,50 €",
+        "monthlyTotalNet": "-12,50 €",
+        "monthlyTotalTone": "negative",
+        "monthlyTotalIncomeZero": true,
+        "monthlyTotalExpensesZero": false,
+        "monthlyTotalNetZero": false,
+        "categoryRows": [
+          {
+            "label": "Food",
+            "percentText": "100 %",
+            "amountText": "12,50 €",
+            "colour": "#FF5722",
+            "categoryId": 1,
+            "isMore": false,
+            "fraction": 1
+          }
+        ],
+        "transfersNote": "",
+        "vendorRows": [
+          {
+            "rank": "1.",
+            "name": "Bakery",
+            "amountText": "12,50 €"
+          }
+        ],
+        "recurringEmpty": true,
+        "recurringCount": "0",
+        "recurringYearly": "",
+        "recurringMonthly": "",
+        "recurringRows": [],
+        "hasTax": true,
+        "missingReceiptsOnly": false,
+        "taxEmpty": true,
+        "taxEmptyTitle": "Keine steuerrelevanten Buchungen in 2026",
+        "taxEmptyHint": "Markieren Sie eine Kategorie in Einstellungen → Kategorien als steuerrelevant, geben Sie einer Regel eine Steuer-Option oder markieren Sie Buchungen in der Buchungsliste.",
+        "taxIncomeValue": "0,00 €",
+        "taxDeductionValue": "0,00 €",
+        "taxNetValue": "0,00 €",
+        "taxNetTone": "zero",
+        "taxReceiptsMissing": false,
+        "taxReceiptsValue": "Vollständig",
+        "taxReceiptsSubtitle": "0 von 0",
+        "taxOtherHint": "",
+        "taxSuggestionsTitle": "Möglicherweise steuerrelevant: 0 Buchungen",
+        "taxSuggestionsHint": "Übereinstimmung per Stichwort. Übernehmen markiert die Buchung als steuerrelevant; Ablehnen verwirft den Vorschlag endgültig. Die Stichwörter können in den Einstellungen geändert werden.",
+        "taxSuggestions": [],
+        "taxRows": []
+      },
+      "settings": {
+        "loading": false,
+        "section": 0,
+        "errorText": "",
+        "messageText": "",
+        "categoriesEmpty": false,
+        "hasDuplicateColours": false,
+        "currencyOptions": [
+          "EUR",
+          "USD",
+          "GBP",
+          "CHF",
+          "PLN",
+          "CZK",
+          "SEK",
+          "DKK",
+          "NOK",
+          "HUF",
+          "JPY"
+        ],
+        "primaryCurrency": "EUR",
+        "primaryCurrencyIndex": 0,
+        "categoryRows": [
+          {
+            "id": 1,
+            "name": "Food",
+            "colour": "#FF5722",
+            "budgetText": "",
+            "usageText": "1 Buchung",
+            "taxRelevant": false,
+            "transfer": false
+          }
+        ],
+        "ruleRows": [],
+        "taxKeywords": "Spende\nHandwerker\nSchornsteinfeger\nSteuerberater\nLohnsteuerhilfe\nKita\nKindergarten\nTagesmutter\nSchulgeld\nKrankenkasse\nZahnarzt\nApotheke\nFortbildung\nFachliteratur\nGewerkschaft\nKirchensteuer\nRiester\nHaftpflicht\ndonation\ncharity\ntax advisor\ntuition\nassurance",
+        "taxKeywordsCount": "23 Stichwörter",
+        "categoryDialogSwatches": [
+          {
+            "hex": "#E76530",
+            "colour": "#E76530"
+          },
+          {
+            "hex": "#4693F3",
+            "colour": "#4693F3"
+          },
+          {
+            "hex": "#C38400",
+            "colour": "#C38400"
+          },
+          {
+            "hex": "#D56A93",
+            "colour": "#D56A93"
+          },
+          {
+            "hex": "#867DFF",
+            "colour": "#867DFF"
+          },
+          {
+            "hex": "#14AC77",
+            "colour": "#14AC77"
+          },
+          {
+            "hex": "#CF4E12",
+            "colour": "#CF4E12"
+          },
+          {
+            "hex": "#2F7DDB",
+            "colour": "#2F7DDB"
+          },
+          {
+            "hex": "#A77105",
+            "colour": "#A77105"
+          },
+          {
+            "hex": "#BD547E",
+            "colour": "#BD547E"
+          },
+          {
+            "hex": "#7364EC",
+            "colour": "#7364EC"
+          },
+          {
+            "hex": "#029465",
+            "colour": "#029465"
+          },
+          {
+            "hex": "#DB5923",
+            "colour": "#DB5923"
+          },
+          {
+            "hex": "#3B88E7",
+            "colour": "#3B88E7"
+          },
+          {
+            "hex": "#B57A03",
+            "colour": "#B57A03"
+          },
+          {
+            "hex": "#C95F88",
+            "colour": "#C95F88"
+          },
+          {
+            "hex": "#7C6FF8",
+            "colour": "#7C6FF8"
+          },
+          {
+            "hex": "#00A06E",
+            "colour": "#00A06E"
+          },
+          {
+            "hex": "#BE4403",
+            "colour": "#BE4403"
+          },
+          {
+            "hex": "#2170CD",
+            "colour": "#2170CD"
+          },
+          {
+            "hex": "#986603",
+            "colour": "#986603"
+          },
+          {
+            "hex": "#AF4872",
+            "colour": "#AF4872"
+          },
+          {
+            "hex": "#6857DE",
+            "colour": "#6857DE"
+          },
+          {
+            "hex": "#07865C",
+            "colour": "#07865C"
+          }
+        ],
+        "ruleDialogCategories": ["Food"],
+        "ruleDialogFieldOptions": ["Partner und Zweck", "Nur Partnername", "Nur Verwendungszweck"],
+        "ruleDialogDirectionOptions": ["Ausgaben und Einnahmen", "Nur Ausgaben", "Nur Einnahmen"],
+        "ruleDialogTaxOptions": ["Wie die Kategorie", "Steuerrelevant", "Nicht steuerrelevant"],
+        "categoryDialogOpen": false,
+        "categoryDialogId": 0,
+        "categoryDialogName": "",
+        "categoryDialogColour": "",
+        "categoryDialogBudget": "",
+        "categoryDialogTax": false,
+        "categoryDialogTransfer": false,
+        "categoryDialogError": "",
+        "categoryDeleteOpen": false,
+        "categoryDeleteId": 0,
+        "categoryDeleteTitle": "",
+        "categoryDeleteText": "",
+        "ruleDialogOpen": false,
+        "ruleDialogId": 0,
+        "ruleDialogPattern": "",
+        "ruleDialogCategoryIndex": 0,
+        "ruleDialogPriority": "",
+        "ruleDialogAutoApply": false,
+        "ruleDialogFieldIndex": 0,
+        "ruleDialogDirectionIndex": 0,
+        "ruleDialogTaxIndex": 0,
+        "ruleDialogError": "",
+        "ruleDeleteOpen": false,
+        "ruleDeleteId": 0,
+        "ruleDeleteTitle": "",
+        "ruleDeleteText": "",
+        "ruleImportOpen": false,
+        "ruleImportBusy": false,
+        "ruleImportCategorize": false,
+        "ruleImportNewRulesText": "",
+        "ruleImportCategoriesText": "",
+        "ruleImportCategoriesList": "",
+        "ruleImportDuplicatesText": "",
+        "ruleImportConflictsText": "",
+        "ruleImportConflictsList": "",
+        "ruleImportErrorsText": "",
+        "ruleImportErrorsList": "",
+        "ruleImportShowCategorize": false,
+        "ruleImportCategorizeText": "",
+        "ruleImportConfirmEnabled": false,
+        "profileRows": [
+          {
+            "index": 0,
+            "name": "Personal",
+            "open": true,
+            "nextStart": false,
+            "canSwitch": false,
+            "canDelete": false
+          }
+        ],
+        "profileDialogOpen": false,
+        "profileDialogIndex": 0,
+        "profileDialogTitle": "",
+        "profileDialogName": "",
+        "profileDialogError": "",
+        "profileDeleteOpen": false,
+        "profileDeleteIndex": 0,
+        "profileDeleteTitle": "",
+        "profileDeleteText": "",
+        "busy": false,
+        "hasPendingRestore": false,
+        "backupRestoredText": "",
+        "restoreOpen": false,
+        "restoreTitle": "",
+        "restoreText": "",
+        "restorePassphraseOpen": false,
+        "restorePassphraseFile": "",
+        "restorePassphraseWrong": false,
+        "findeskBusy": false,
+        "findeskFolder": "",
+        "findeskPassphraseOpen": false,
+        "findeskPassphraseWrong": false,
+        "findeskReportOpen": false,
+        "findeskReportTitle": "",
+        "findeskReportText": "",
+        "findeskReportError": false,
+        "quitFinDeskVisible": false
+      }
+    },
     "en": {
       "shell": {
         "mode": "unlock",
@@ -11,30 +1112,37 @@
         "errorText": "",
         "profileLabel": "Profile: Personal",
         "profileName": "Personal",
-        "passphraseHint": "At least 10 characters.",
+        "passphraseHint": "At least 10 characters. A few unrelated words are easy to remember and hard to guess.",
         "passphraseMinLength": 10,
-        "leftoverLines": [],
+        "leftoverLines": null,
         "shellOpen": true,
         "language": "en",
-        "theme": "light",
+        "theme": "system",
         "sidebarCollapsed": false,
         "screen": "dashboard",
         "screenTitle": "Dashboard",
         "backTitle": "",
         "currentProfileName": "Personal",
-        "profiles": [{ "name": "Personal", "slug": "", "open": true }],
+        "profiles": [
+          {
+            "name": "Personal",
+            "slug": "",
+            "open": true
+          }
+        ],
         "version": "0.4.0-dev",
         "aboutVersion": "Version 0.4.0-dev",
         "findEnabled": false,
         "migrationStep": "",
-        "migrationProfileNames": [],
+        "migrationProfileNames": null,
         "migrationProfileHeading": "",
         "migrationProfileName": "",
         "migrationProfileCount": 0,
-        "migrationSamePassphrase": true,
+        "migrationSamePassphrase": false,
         "migrationNewPassphraseRequired": false,
         "migrationAcknowledged": false,
-        "migrationSummaryLines": []
+        "migrationSummaryLines": null,
+        "quitFinDeskVisible": false
       },
       "dashboard": {
         "loading": false,
@@ -44,85 +1152,1055 @@
         "monthOptions": ["October 2026"],
         "monthSelected": 0,
         "monthLabel": "October 2026",
-        "previousEnabled": true,
+        "previousEnabled": false,
         "nextEnabled": false,
         "isCurrentMonth": true,
         "availableTitle": "Available",
-        "availableValue": "€1,200.00",
-        "availableSubtitle": "After every booking this month",
+        "availableValue": "€2,500.00",
+        "availableSubtitle": "",
         "availableTone": "positive",
         "statementLines": [
-          { "label": "Carried over", "amountText": "€1,000.00", "kind": "carry" },
-          { "label": "Income", "amountText": "€500.00", "kind": "in" },
-          { "label": "Expenses", "amountText": "€300.00", "kind": "out" }
+          {
+            "label": "Carried over from September 2026",
+            "amountText": "€2,512.50",
+            "kind": "carry"
+          },
+          {
+            "label": "Income",
+            "amountText": "+€0.00",
+            "kind": "in"
+          },
+          {
+            "label": "Expenses",
+            "amountText": "-€12.50",
+            "kind": "out"
+          },
+          {
+            "label": "Available",
+            "amountText": "€2,500.00",
+            "kind": "result"
+          }
         ],
-        "incomeTitle": "Income",
-        "incomeValue": "€500.00",
-        "expensesTitle": "Expenses",
-        "expensesValue": "€300.00",
-        "pendingTitle": "Pending",
-        "pendingValue": "0",
-        "pendingSubtitle": "No pending bookings",
-        "pendingAnnouncement": "",
-        "pendingLines": [],
-        "pendingEnabled": false,
-        "expensesSectionTitle": "Where the money went",
-        "expensesEmptyText": "No expenses this month.",
+        "incomeTitle": "Income this month",
+        "incomeValue": "€0.00",
+        "expensesTitle": "Expenses this month",
+        "expensesValue": "€12.50",
+        "pendingTitle": "Pending tasks",
+        "pendingValue": "1",
+        "pendingSubtitle": "0 uncategorized · 1 unlinked doc",
+        "pendingAnnouncement": "1 pending task",
+        "pendingLines": ["0 uncategorized", "1 unlinked doc"],
+        "pendingEnabled": true,
+        "expensesSectionTitle": "Expenses by category (this month)",
+        "expensesEmptyText": "No expenses this month",
         "expenseRows": [
           {
-            "label": "Demo Foods",
+            "label": "Food",
             "percentText": "100%",
-            "amountText": "€300.00",
-            "colour": "#E76530",
+            "amountText": "€12.50",
+            "colour": "#FF5722",
             "categoryId": 1,
             "isMore": false,
             "fraction": 1
           }
         ],
         "transfersNote": "",
-        "chartTitle": "Income and expenses",
+        "chartTitle": "Income vs expenses (6 months)",
         "chartEmptyText": "",
-        "chartAxisTop": "€500",
-        "chartAxisMid": "€250",
+        "chartAxisTop": "€20",
+        "chartAxisMid": "€10",
         "chartAxisZero": "€0",
         "monthBars": [
           {
+            "label": "May",
+            "title": "May 2026",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Jun",
+            "title": "June 2026",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Jul",
+            "title": "July 2026",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Aug",
+            "title": "August 2026",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
+            "label": "Sep",
+            "title": "September 2026",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "incomeFraction": 0,
+            "expensesFraction": 0,
+            "partial": false
+          },
+          {
             "label": "Oct",
             "title": "October 2026",
-            "incomeText": "€500.00",
-            "expensesText": "€300.00",
-            "incomeFraction": 1,
-            "expensesFraction": 0.6,
-            "partial": false
+            "incomeText": "€0.00",
+            "expensesText": "-€12.50",
+            "incomeFraction": 0,
+            "expensesFraction": 0.625,
+            "partial": true
           }
         ],
         "incomeLegend": "Income",
         "expensesLegend": "Expenses",
-        "partialNote": "",
-        "budgetsTitle": "Budgets",
+        "partialNote": "Pale: month so far",
+        "budgetsTitle": "Budgets this month",
         "budgetRows": [],
         "hasBudgets": false,
-        "monthProgress": 0.5,
-        "taxTitle": "Tax-deductible expenses",
-        "taxHint": "No tax-relevant expenses yet.",
+        "monthProgress": 0.48387095,
+        "taxTitle": "Tax-deductible expenses (year to date)",
+        "taxHint": "Mark categories as tax-relevant in Settings to track deductible expenses.",
         "taxValue": "€0.00",
         "taxRows": [],
-        "upcomingTitle": "Coming up",
+        "upcomingTitle": "Upcoming in the next 30 days",
         "upcomingRows": [],
         "hasUpcoming": false,
-        "recentTitle": "Recent bookings",
-        "recentEmptyText": "No bookings yet.",
+        "recentTitle": "Recent transactions",
+        "recentEmptyText": "No transactions yet",
         "recentRows": [
           {
             "dateText": "02.10.2026",
-            "title": "Demo Foods",
-            "meta": "Groceries",
-            "amountText": "−€300.00",
+            "title": "Bakery",
+            "meta": "Food",
+            "amountText": "-€12.50",
             "expense": true,
-            "partner": "Demo Foods"
+            "partner": "Bakery"
           }
         ],
         "viewAllLabel": "View all"
+      },
+      "accounts": {
+        "loading": false,
+        "showContent": true,
+        "hasContent": true,
+        "errorText": "",
+        "messageText": "",
+        "figures": [
+          {
+            "label": "Total of 1 account",
+            "values": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "secondary": false
+          }
+        ],
+        "bankCards": [
+          {
+            "bankId": -1,
+            "name": "Accounts without a bank",
+            "subtitle": "",
+            "status": {
+              "tone": "",
+              "icon": "",
+              "text": "",
+              "action": "",
+              "actionText": "",
+              "actionEnabled": false
+            },
+            "centralBlzHint": "",
+            "offline": false,
+            "collapsed": false,
+            "accountCountText": "1 account",
+            "totals": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "accounts": [
+              {
+                "accountId": 1,
+                "name": "Girokonto",
+                "subtitle": "Checking · DE89 3704 0044 0532 0130 00",
+                "balanceText": "€2,500.00",
+                "tone": "positive",
+                "newCount": 0
+              }
+            ],
+            "syncing": false,
+            "syncStep": "",
+            "pinText": "",
+            "canTestConnection": false,
+            "menu": [],
+            "logo": "",
+            "logoLetters": "",
+            "logoColour": 0
+          }
+        ],
+        "panelRows": [
+          {
+            "kind": "all",
+            "groupKind": "",
+            "accountType": "",
+            "id": -1,
+            "label": "All accounts",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": true,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "",
+            "logoLetters": "",
+            "logoColour": 0
+          },
+          {
+            "kind": "group",
+            "groupKind": "type",
+            "accountType": "checking",
+            "id": -1,
+            "label": "Checking",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          },
+          {
+            "kind": "account",
+            "groupKind": "",
+            "accountType": "checking",
+            "id": 1,
+            "label": "Girokonto",
+            "secondary": "…3000",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "indent": true,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          }
+        ],
+        "groupChoices": [],
+        "filterText": "",
+        "shownText": "",
+        "typeChoices": [
+          {
+            "code": "checking",
+            "label": "Checking"
+          },
+          {
+            "code": "savings",
+            "label": "Savings"
+          },
+          {
+            "code": "credit_card",
+            "label": "Credit card"
+          },
+          {
+            "code": "loan",
+            "label": "Loan"
+          },
+          {
+            "code": "depot",
+            "label": "Depot"
+          }
+        ],
+        "currencyCodes": ["EUR", "USD", "GBP", "CHF", "JPY", "CAD"],
+        "daysChoices": [
+          {
+            "days": 30,
+            "label": "30 days"
+          },
+          {
+            "days": 90,
+            "label": "90 days"
+          },
+          {
+            "days": 365,
+            "label": "1 year"
+          }
+        ],
+        "dayLabels": ["30 days", "90 days", "1 year"],
+        "dialog": {
+          "kind": "",
+          "title": "",
+          "text": "",
+          "errorText": "",
+          "accountLabel": "",
+          "accountName": "",
+          "balance": "",
+          "accountType": "",
+          "offline": false,
+          "bankId": 0,
+          "accountId": 0,
+          "connectionName": "",
+          "connectionBlz": "",
+          "connectionUserId": "",
+          "connectionServerUrl": "",
+          "connectionHasPin": false,
+          "connectionPinText": "",
+          "connectionPinForgetAfter": "",
+          "connectionSyncing": false,
+          "historyDate": "",
+          "historyHasStart": false
+        },
+        "detailOpen": false,
+        "detailTitle": "",
+        "detailLogo": "",
+        "detailLetters": "",
+        "detailColour": 0,
+        "detailSubtitle": "",
+        "detailBalance": "",
+        "detailTone": "",
+        "detailAccountId": 0,
+        "detailDays": 90,
+        "detailSummary": "",
+        "detailPath": "",
+        "detailAxisTop": "",
+        "detailAxisBottom": "",
+        "detailEndX": 0,
+        "detailEndY": 0,
+        "detailEndLabel": "",
+        "detailRows": []
+      },
+      "transactions": {
+        "loading": false,
+        "hasAccounts": true,
+        "errorText": "",
+        "messageText": "",
+        "countText": "1",
+        "incomeAmounts": [],
+        "expenseAmounts": [
+          {
+            "text": "€12.50",
+            "tone": "negative"
+          }
+        ],
+        "hasBalance": false,
+        "balanceText": "",
+        "balanceTone": "",
+        "showBack": false,
+        "periodOptions": [
+          "This month",
+          "Last month",
+          "Last 3 months",
+          "This year",
+          "Last year",
+          "All time",
+          "Custom range…"
+        ],
+        "periodIndex": 0,
+        "periodExtra": "",
+        "categoryOptions": ["All categories", "Uncategorized", "Food"],
+        "categoryIndex": 0,
+        "directionOptions": ["In and out", "Income", "Expenses"],
+        "directionIndex": 0,
+        "amountLabel": "Any amount",
+        "accountOptions": ["All accounts", "Checking", "Girokonto"],
+        "accountIndex": 0,
+        "panelRows": [
+          {
+            "kind": "all",
+            "groupKind": "",
+            "accountType": "",
+            "id": -1,
+            "label": "All accounts",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": true,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "",
+            "logoLetters": "",
+            "logoColour": 0
+          },
+          {
+            "kind": "group",
+            "groupKind": "type",
+            "accountType": "checking",
+            "id": -1,
+            "label": "Checking",
+            "secondary": "",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "indent": false,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          },
+          {
+            "kind": "account",
+            "groupKind": "",
+            "accountType": "checking",
+            "id": 1,
+            "label": "Girokonto",
+            "secondary": "…3000",
+            "detail": "",
+            "name": "",
+            "deleteText": "",
+            "selected": false,
+            "collapsed": false,
+            "newCount": 0,
+            "totals": [
+              {
+                "text": "€2,500.00",
+                "tone": "positive"
+              }
+            ],
+            "indent": true,
+            "logo": "commerzbank",
+            "logoLetters": "CO",
+            "logoColour": 1
+          }
+        ],
+        "groupChoices": [],
+        "panelFilterText": "",
+        "panelShownText": "",
+        "pendingHeader": "",
+        "rows": [
+          {
+            "pending": false,
+            "id": 1,
+            "dateText": "02.10.2026",
+            "title": "Bakery",
+            "subtitle": "",
+            "categoryText": "Food",
+            "categoryColour": "#ff5722",
+            "partner": "Bakery",
+            "partnerLinkText": "Show all from Bakery",
+            "amountText": "-€12.50",
+            "expense": true,
+            "isNew": false,
+            "selected": false,
+            "hasDocuments": false,
+            "documentsText": "0 documents",
+            "balanceText": "",
+            "balanceTone": "zero",
+            "balanceWarning": false,
+            "balanceMismatch": ""
+          }
+        ],
+        "hasTransactions": true,
+        "hasBalanceColumn": false,
+        "addCategoryNames": ["Auto (rules)", "Food"],
+        "addDate": "15.10.2026",
+        "addAmountLabel": "Amount (€)",
+        "addAccountOptions": ["Girokonto"],
+        "addAccountIndex": 0,
+        "hasChart": false,
+        "chartCollapsed": false,
+        "chartLine": "",
+        "chartArea": "",
+        "chartAxisTop": "",
+        "chartAxisBottom": "",
+        "chartAxisStart": "",
+        "chartAxisMid": "",
+        "chartAxisEnd": "",
+        "chartValue": "",
+        "chartNotFromZero": false,
+        "chartEndX": 0,
+        "chartEndY": 0,
+        "chartEndLabel": "",
+        "selectionVisible": false,
+        "allSelected": false,
+        "selectionCountText": "0 selected",
+        "selectionTotalsText": "",
+        "categoryNames": ["Uncategorized", "Food"],
+        "taxOptions": ["Automatic", "Tax relevant", "Not tax relevant"],
+        "detailOpen": false,
+        "detailCanCreateRule": true,
+        "detailTitle": "",
+        "detailAmount": "",
+        "detailExpense": false,
+        "detailDate": "",
+        "detailAccount": "",
+        "detailPartner": "",
+        "detailShop": "",
+        "detailPurpose": "",
+        "detailCategoryIndex": 0,
+        "detailTaxRelevant": false,
+        "detailTaxState": "",
+        "detailTaxIndex": 0,
+        "detailHasMismatch": false,
+        "detailMismatch": "",
+        "detailPartnerLink": "",
+        "duplicateOpen": false,
+        "duplicateTitle": "",
+        "duplicateText": "",
+        "canUndoReapply": false,
+        "reapplyOpen": false,
+        "reapplySummary": "",
+        "reapplyWarning": "",
+        "reapplyGroups": null,
+        "reapplyConfirmText": "",
+        "reapplyConfirmEnabled": false,
+        "rangeOpen": false,
+        "rangeFrom": "",
+        "rangeTo": "",
+        "rangeError": "",
+        "amountOpen": false,
+        "amountMin": "",
+        "amountMax": "",
+        "amountMinLabel": "",
+        "amountMaxLabel": "",
+        "amountError": "",
+        "addOpen": false,
+        "addError": "",
+        "ruleOpen": false,
+        "rulePattern": "",
+        "ruleCategories": ["Food"],
+        "ruleCategoryIndex": 0,
+        "ruleError": "",
+        "deleteOpen": false,
+        "deleteId": 0,
+        "deleteTitle": "",
+        "deleteText": "",
+        "multiDeleteOpen": false,
+        "multiDeleteTitle": "",
+        "multiDeleteRange": "",
+        "multiDeleteTotals": "",
+        "multiDeleteLines": null,
+        "multiDeleteMore": "",
+        "importOpen": false,
+        "importTitle": "",
+        "importSummary": "",
+        "importFiles": null,
+        "importCsvFields": null,
+        "importCsvHint": "",
+        "importAccountOptions": null,
+        "importAccountIndex": 0,
+        "importBalanceAllowed": false,
+        "importUpdateBalance": false,
+        "importBalanceText": "",
+        "importNewerText": "",
+        "importing": false,
+        "importConfirmText": "",
+        "importConfirmEnabled": false
+      },
+      "documents": {
+        "rows": [
+          {
+            "id": 1,
+            "name": "receipt.pdf",
+            "meta": "15.11.2026 07:38 · not linked",
+            "isLinked": false,
+            "hasOcr": false,
+            "isPdf": true,
+            "selected": false
+          }
+        ],
+        "tab": "all",
+        "tabAllLabel": "All documents (1)",
+        "tabUnlinkedLabel": "Unlinked (1)",
+        "tabLinkedLabel": "Linked to transaction (0)",
+        "searchQuery": "",
+        "ocrAvailable": false,
+        "ocrHint": "Text in images and scanned PDFs can't be read until Tesseract is installed (see Settings → Data \u0026 OCR). PDFs with text work without it.",
+        "uploading": false,
+        "progressText": "",
+        "loading": false,
+        "errorText": "",
+        "messageText": "",
+        "hasSelection": false,
+        "selectedName": "",
+        "selectedLinked": false,
+        "selectedLinkLabel": "",
+        "selectedOcrHeading": "",
+        "selectedOcrText": "",
+        "previewKind": "none",
+        "previewDataUrl": "",
+        "suggestions": [],
+        "candidates": [],
+        "candidateQuery": "",
+        "deleteText": ""
+      },
+      "reports": {
+        "tab": "summary",
+        "year": 2026,
+        "yearLabel": "2026",
+        "loading": false,
+        "exporting": false,
+        "rangeFrom": "01.08.2026",
+        "rangeTo": "15.10.2026",
+        "rangeError": "",
+        "custom": false,
+        "errorText": "",
+        "messageText": "",
+        "hasReport": true,
+        "empty": false,
+        "canExportReport": true,
+        "exportDisabledReason": "",
+        "canExportTax": false,
+        "linkable": true,
+        "emptyTitle": "No transactions in 2026",
+        "emptyHint": "Reports are built from the transactions of the selected period.",
+        "otherCurrencyHint": "",
+        "incomeValue": "€0.00",
+        "expensesValue": "€12.50",
+        "netValue": "-€12.50",
+        "taxValue": "€0.00",
+        "netTone": "negative",
+        "taxRelevantRows": [],
+        "taxRelevantEmpty": "No tax-relevant expenses. Mark categories as tax-relevant in Settings (e.g. Arbeitsmittel, Spenden, Versicherungen).",
+        "statTransactions": "1",
+        "statCategories": "1",
+        "statAverage": "€12.50",
+        "statHighest": "October €12.50",
+        "monthlyTitle": "Monthly income \u0026 expenses - 2026",
+        "monthlyRows": [
+          {
+            "month": "January",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "February",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "March",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "April",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "May",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "June",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "July",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "August",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "September",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "October",
+            "incomeText": "€0.00",
+            "expensesText": "€12.50",
+            "netText": "-€12.50",
+            "incomeZero": true,
+            "expensesZero": false,
+            "netZero": false,
+            "netTone": "negative"
+          },
+          {
+            "month": "November",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          },
+          {
+            "month": "December",
+            "incomeText": "€0.00",
+            "expensesText": "€0.00",
+            "netText": "€0.00",
+            "incomeZero": true,
+            "expensesZero": true,
+            "netZero": true,
+            "netTone": "zero"
+          }
+        ],
+        "monthlyTotalIncome": "€0.00",
+        "monthlyTotalExpenses": "€12.50",
+        "monthlyTotalNet": "-€12.50",
+        "monthlyTotalTone": "negative",
+        "monthlyTotalIncomeZero": true,
+        "monthlyTotalExpensesZero": false,
+        "monthlyTotalNetZero": false,
+        "categoryRows": [
+          {
+            "label": "Food",
+            "percentText": "100%",
+            "amountText": "€12.50",
+            "colour": "#FF5722",
+            "categoryId": 1,
+            "isMore": false,
+            "fraction": 1
+          }
+        ],
+        "transfersNote": "",
+        "vendorRows": [
+          {
+            "rank": "1.",
+            "name": "Bakery",
+            "amountText": "€12.50"
+          }
+        ],
+        "recurringEmpty": true,
+        "recurringCount": "0",
+        "recurringYearly": "",
+        "recurringMonthly": "",
+        "recurringRows": [],
+        "hasTax": true,
+        "missingReceiptsOnly": false,
+        "taxEmpty": true,
+        "taxEmptyTitle": "No tax-relevant bookings in 2026",
+        "taxEmptyHint": "Mark a category as tax relevant in Settings → Categories, give a rule a Tax option, or mark bookings in the transaction list.",
+        "taxIncomeValue": "€0.00",
+        "taxDeductionValue": "€0.00",
+        "taxNetValue": "€0.00",
+        "taxNetTone": "zero",
+        "taxReceiptsMissing": false,
+        "taxReceiptsValue": "All there",
+        "taxReceiptsSubtitle": "0 of 0",
+        "taxOtherHint": "",
+        "taxSuggestionsTitle": "Possibly tax relevant: 0 bookings",
+        "taxSuggestionsHint": "Matched by keyword. Accept marks the booking tax relevant; dismiss hides the suggestion for good. The keywords are editable in Settings.",
+        "taxSuggestions": [],
+        "taxRows": []
+      },
+      "settings": {
+        "loading": false,
+        "section": 0,
+        "errorText": "",
+        "messageText": "",
+        "categoriesEmpty": false,
+        "hasDuplicateColours": false,
+        "currencyOptions": [
+          "EUR",
+          "USD",
+          "GBP",
+          "CHF",
+          "PLN",
+          "CZK",
+          "SEK",
+          "DKK",
+          "NOK",
+          "HUF",
+          "JPY"
+        ],
+        "primaryCurrency": "EUR",
+        "primaryCurrencyIndex": 0,
+        "categoryRows": [
+          {
+            "id": 1,
+            "name": "Food",
+            "colour": "#FF5722",
+            "budgetText": "",
+            "usageText": "1 booking",
+            "taxRelevant": false,
+            "transfer": false
+          }
+        ],
+        "ruleRows": [],
+        "taxKeywords": "Spende\nHandwerker\nSchornsteinfeger\nSteuerberater\nLohnsteuerhilfe\nKita\nKindergarten\nTagesmutter\nSchulgeld\nKrankenkasse\nZahnarzt\nApotheke\nFortbildung\nFachliteratur\nGewerkschaft\nKirchensteuer\nRiester\nHaftpflicht\ndonation\ncharity\ntax advisor\ntuition\nassurance",
+        "taxKeywordsCount": "23 keywords",
+        "categoryDialogSwatches": [
+          {
+            "hex": "#E76530",
+            "colour": "#E76530"
+          },
+          {
+            "hex": "#4693F3",
+            "colour": "#4693F3"
+          },
+          {
+            "hex": "#C38400",
+            "colour": "#C38400"
+          },
+          {
+            "hex": "#D56A93",
+            "colour": "#D56A93"
+          },
+          {
+            "hex": "#867DFF",
+            "colour": "#867DFF"
+          },
+          {
+            "hex": "#14AC77",
+            "colour": "#14AC77"
+          },
+          {
+            "hex": "#CF4E12",
+            "colour": "#CF4E12"
+          },
+          {
+            "hex": "#2F7DDB",
+            "colour": "#2F7DDB"
+          },
+          {
+            "hex": "#A77105",
+            "colour": "#A77105"
+          },
+          {
+            "hex": "#BD547E",
+            "colour": "#BD547E"
+          },
+          {
+            "hex": "#7364EC",
+            "colour": "#7364EC"
+          },
+          {
+            "hex": "#029465",
+            "colour": "#029465"
+          },
+          {
+            "hex": "#DB5923",
+            "colour": "#DB5923"
+          },
+          {
+            "hex": "#3B88E7",
+            "colour": "#3B88E7"
+          },
+          {
+            "hex": "#B57A03",
+            "colour": "#B57A03"
+          },
+          {
+            "hex": "#C95F88",
+            "colour": "#C95F88"
+          },
+          {
+            "hex": "#7C6FF8",
+            "colour": "#7C6FF8"
+          },
+          {
+            "hex": "#00A06E",
+            "colour": "#00A06E"
+          },
+          {
+            "hex": "#BE4403",
+            "colour": "#BE4403"
+          },
+          {
+            "hex": "#2170CD",
+            "colour": "#2170CD"
+          },
+          {
+            "hex": "#986603",
+            "colour": "#986603"
+          },
+          {
+            "hex": "#AF4872",
+            "colour": "#AF4872"
+          },
+          {
+            "hex": "#6857DE",
+            "colour": "#6857DE"
+          },
+          {
+            "hex": "#07865C",
+            "colour": "#07865C"
+          }
+        ],
+        "ruleDialogCategories": ["Food"],
+        "ruleDialogFieldOptions": ["Partner and purpose", "Partner name only", "Purpose only"],
+        "ruleDialogDirectionOptions": ["Expenses and income", "Expenses only", "Income only"],
+        "ruleDialogTaxOptions": ["As the category", "Tax relevant", "Not tax relevant"],
+        "categoryDialogOpen": false,
+        "categoryDialogId": 0,
+        "categoryDialogName": "",
+        "categoryDialogColour": "",
+        "categoryDialogBudget": "",
+        "categoryDialogTax": false,
+        "categoryDialogTransfer": false,
+        "categoryDialogError": "",
+        "categoryDeleteOpen": false,
+        "categoryDeleteId": 0,
+        "categoryDeleteTitle": "",
+        "categoryDeleteText": "",
+        "ruleDialogOpen": false,
+        "ruleDialogId": 0,
+        "ruleDialogPattern": "",
+        "ruleDialogCategoryIndex": 0,
+        "ruleDialogPriority": "",
+        "ruleDialogAutoApply": false,
+        "ruleDialogFieldIndex": 0,
+        "ruleDialogDirectionIndex": 0,
+        "ruleDialogTaxIndex": 0,
+        "ruleDialogError": "",
+        "ruleDeleteOpen": false,
+        "ruleDeleteId": 0,
+        "ruleDeleteTitle": "",
+        "ruleDeleteText": "",
+        "ruleImportOpen": false,
+        "ruleImportBusy": false,
+        "ruleImportCategorize": false,
+        "ruleImportNewRulesText": "",
+        "ruleImportCategoriesText": "",
+        "ruleImportCategoriesList": "",
+        "ruleImportDuplicatesText": "",
+        "ruleImportConflictsText": "",
+        "ruleImportConflictsList": "",
+        "ruleImportErrorsText": "",
+        "ruleImportErrorsList": "",
+        "ruleImportShowCategorize": false,
+        "ruleImportCategorizeText": "",
+        "ruleImportConfirmEnabled": false,
+        "profileRows": [
+          {
+            "index": 0,
+            "name": "Personal",
+            "open": true,
+            "nextStart": false,
+            "canSwitch": false,
+            "canDelete": false
+          }
+        ],
+        "profileDialogOpen": false,
+        "profileDialogIndex": 0,
+        "profileDialogTitle": "",
+        "profileDialogName": "",
+        "profileDialogError": "",
+        "profileDeleteOpen": false,
+        "profileDeleteIndex": 0,
+        "profileDeleteTitle": "",
+        "profileDeleteText": "",
+        "busy": false,
+        "hasPendingRestore": false,
+        "backupRestoredText": "",
+        "restoreOpen": false,
+        "restoreTitle": "",
+        "restoreText": "",
+        "restorePassphraseOpen": false,
+        "restorePassphraseFile": "",
+        "restorePassphraseWrong": false,
+        "findeskBusy": false,
+        "findeskFolder": "",
+        "findeskPassphraseOpen": false,
+        "findeskPassphraseWrong": false,
+        "findeskReportOpen": false,
+        "findeskReportTitle": "",
+        "findeskReportText": "",
+        "findeskReportError": false,
+        "quitFinDeskVisible": true
       }
     }
   }

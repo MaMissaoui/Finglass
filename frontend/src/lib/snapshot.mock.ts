@@ -11,6 +11,15 @@ import type {
   ShellDTO,
   TransactionsDTO,
 } from './api';
+import {
+  AccountsDTO as AccountsModel,
+  DashboardDTO as DashboardModel,
+  DocumentsDTO as DocumentsModel,
+  ReportsDTO as ReportsModel,
+  SettingsDTO as SettingsModel,
+  ShellDTO as ShellModel,
+  TransactionsDTO as TransactionsModel,
+} from '../../bindings/github.com/MaMissaoui/Finglass/internal/bind/index';
 import { languageFromCode, translate, type Language } from './i18n';
 
 type SnapshotPage =
@@ -83,6 +92,30 @@ export function isValidSnapshotPath(value: string): boolean {
     return false;
   }
   return true;
+}
+
+/**
+ * Go writes an empty list as null. The app reads its DTOs through the
+ * generated models, whose createFrom turns null lists into []; the snapshot
+ * goes through the same models so the pages see the same shapes.
+ */
+function normalize(file: SnapshotFile): SnapshotFile {
+  const languages: SnapshotFile['languages'] = {};
+  for (const [code, raw] of Object.entries(file.languages)) {
+    if (raw === undefined) {
+      continue;
+    }
+    languages[code as Language] = {
+      shell: ShellModel.createFrom(raw.shell),
+      dashboard: DashboardModel.createFrom(raw.dashboard),
+      accounts: AccountsModel.createFrom(raw.accounts),
+      transactions: TransactionsModel.createFrom(raw.transactions),
+      documents: DocumentsModel.createFrom(raw.documents),
+      reports: ReportsModel.createFrom(raw.reports),
+      settings: SettingsModel.createFrom(raw.settings),
+    };
+  }
+  return { version: file.version, languages };
 }
 
 function isSnapshotPage(value: string): value is SnapshotPage {
@@ -168,7 +201,7 @@ export function createSnapshotApi(path: string): Api {
       ) {
         throw new Error('snapshot has no languages');
       }
-      loaded = parsed as SnapshotFile;
+      loaded = normalize(parsed as SnapshotFile);
       return loaded;
     })();
     return pending;
