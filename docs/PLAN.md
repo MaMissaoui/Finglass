@@ -168,9 +168,9 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 
 ## G11 — Windows and Linux
 
-- [ ] Probe: a non-blocking 'Portability (probe)' workflow builds and tests the Go code on Windows and Linux; results decide the next G11 steps.
+- [x] Probe: a non-blocking 'Portability (probe)' workflow builds and tests the Go code on Windows and Linux; results decide the next G11 steps.
 - [x] The Go test suite passes on Windows (path forms, USERPROFILE, LF for generated files, a backup file handle closed before the rename)
-- [ ] Private data folder on Windows: check the ACL of the data folder, database, traces and staging (POSIX mode checks are skipped there).
+- [x] Private data folder on Windows: protected owner/SYSTEM/Administrators DACL on the data folder and every private file, checked in tests.
 - [ ] WebView2 / WebKitGTK, MSI/NSIS and DEB/RPM, credential stores, each installer launched once in CI.
 
 ## Later

@@ -30,6 +30,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/findeskimport"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/paths"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 	"github.com/MaMissaoui/Finglass/internal/core/profiles"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
@@ -516,12 +517,18 @@ func createStaging(appPaths paths.AppPaths) (string, error) {
 	if err := paths.EnsureDir(root); err != nil {
 		return "", err
 	}
+	if err := privatefs.SecureDir(root); err != nil {
+		return "", err
+	}
 
 	for {
 		number := stagingCounter.Add(1) - 1
 		candidate := filepath.Join(root, strconv.FormatUint(number, 10))
 		err := os.Mkdir(candidate, 0o700)
 		if err == nil {
+			if err := privatefs.SecureDir(candidate); err != nil {
+				return "", err
+			}
 			return candidate, nil
 		}
 		if errors.Is(err, fs.ErrExist) {

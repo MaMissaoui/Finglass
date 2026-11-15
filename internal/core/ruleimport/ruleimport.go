@@ -21,6 +21,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 	"github.com/MaMissaoui/Finglass/internal/core/repo"
 	"github.com/MaMissaoui/Finglass/internal/core/repo/categories"
 	rulerepo "github.com/MaMissaoui/Finglass/internal/core/repo/rules"
@@ -285,6 +286,9 @@ func Export(ctx context.Context, d *db.Database, file string) (int, error) {
 
 	text, skipped := rulefiles.WriteRuleFile(items)
 	if err := os.WriteFile(file, []byte(text), 0o600); err != nil {
+		return 0, wrap(err)
+	}
+	if err := privatefs.SecureFile(file); err != nil {
 		return 0, wrap(err)
 	}
 

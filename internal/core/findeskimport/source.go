@@ -19,6 +19,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/MaMissaoui/Finglass/internal/core/db"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
 )
 
@@ -353,6 +354,10 @@ func openSource(dataDir string, passphrase *secret.Passphrase) (*finDeskSource, 
 
 	temporary, err := os.MkdirTemp("", "finglass-findesk-")
 	if err != nil {
+		return nil, newIOError(err)
+	}
+	if err := privatefs.SecureDir(temporary); err != nil {
+		_ = os.RemoveAll(temporary)
 		return nil, newIOError(err)
 	}
 	cleanup := func() {

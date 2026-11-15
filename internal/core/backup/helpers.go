@@ -263,6 +263,7 @@ func createPrivateTempFile(dir, prefix, suffix string) (string, error) {
 		file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 		if err == nil {
 			_ = file.Close()
+			secureFile(path)
 			return path, nil
 		}
 		if errors.Is(err, fs.ErrExist) {

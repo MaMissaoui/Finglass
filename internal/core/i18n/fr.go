@@ -942,4 +942,5 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	TestConnectionNextStepUnlock:        "Débloquez la connexion auprès de votre banque, puis testez à nouveau.",
 	TestConnectionNextStepApprove:       "Testez à nouveau et approuvez à temps.",
 	TestConnectionNextStepTrace:         "Enregistrez la trace expurgée et envoyez-la.",
+	PrivateFolderNotSecured:             "Finglass n'a pas pu rendre son dossier de données privé pour votre compte utilisateur. Les données restent chiffrées.",
 }

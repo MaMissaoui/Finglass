@@ -3229,6 +3229,11 @@
     "de": "Priorität muss eine ganze Zahl sein",
     "fr": "La priorité doit être un nombre entier"
   },
+  "PrivateFolderNotSecured": {
+    "en": "Finglass couldn't make its data folder private to your user account. The data stays encrypted.",
+    "de": "Finglass konnte den Datenordner nicht für Ihr Benutzerkonto privat machen. Die Daten bleiben verschlüsselt.",
+    "fr": "Finglass n'a pas pu rendre son dossier de données privé pour votre compte utilisateur. Les données restent chiffrées."
+  },
   "ProductIDPromptLabel": {
     "en": "Product id",
     "de": "Produkt-ID",

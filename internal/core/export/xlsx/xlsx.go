@@ -25,6 +25,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
+	"github.com/MaMissaoui/Finglass/internal/core/privatefs"
 )
 
 const xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
@@ -81,7 +82,7 @@ func WriteAtomically(target string, write func(tempPath string) error) error {
 		return err
 	}
 
-	if err := os.Chmod(tempPath, 0o600); err != nil {
+	if err := privatefs.SecureFile(tempPath); err != nil {
 		return err
 	}
 
