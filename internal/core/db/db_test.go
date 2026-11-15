@@ -16,6 +16,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/db/kdftest"
 	"github.com/MaMissaoui/Finglass/internal/core/secret"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/perm"
 )
 
 // fixturePassphrase is the test-only passphrase of the cross-language fixtures.
@@ -313,13 +314,7 @@ func TestTheDatabaseFileIsPrivate(t *testing.T) {
 	}
 	_ = d.Close()
 
-	info, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("stat database: %v", err)
-	}
-	if mode := info.Mode().Perm(); mode != 0o600 {
-		t.Fatalf("mode = %04o, want 0600", mode)
-	}
+	perm.AssertMode(t, path, 0o600)
 }
 
 func TestAFailedCreateLeavesNothingBehind(t *testing.T) {
@@ -621,8 +616,10 @@ func TestPathWithQuestionMarkIsRefused(t *testing.T) {
 	if _, err := Open(path, pass); !errors.Is(err, ErrInvalidPath) {
 		t.Fatalf("Open = %v, want ErrInvalidPath", err)
 	}
-	if _, err := os.Stat(path); !errors.Is(err, os.ErrNotExist) {
-		t.Fatalf("a refused path left a file behind: %v", err)
+	// Windows rejects the name itself, so any stat error means nothing is
+	// there; only a successful stat proves that a file was left behind.
+	if _, err := os.Stat(path); err == nil {
+		t.Fatal("a refused path left a file behind")
 	}
 }
 

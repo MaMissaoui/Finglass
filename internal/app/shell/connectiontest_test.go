@@ -24,6 +24,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/core/repo/bankconnections"
 	"github.com/MaMissaoui/Finglass/internal/core/settings"
 	"github.com/MaMissaoui/Finglass/internal/fints"
+	"github.com/MaMissaoui/Finglass/internal/testsupport/perm"
 )
 
 const (
@@ -539,13 +540,9 @@ func TestSaveConnectionTraceWritesMode0600AndCancelWritesNothing(t *testing.T) {
 	if len(data) == 0 || !strings.Contains(string(data), "Finglass FinTS trace") {
 		t.Fatalf("trace content = %q", string(data))
 	}
-	info, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("stat trace: %v", err)
-	}
-	if info.Mode().Perm() != 0o600 {
-		t.Fatalf("trace mode = %o, want 600", info.Mode().Perm())
-	}
+	t.Run("trace mode", func(t *testing.T) {
+		perm.AssertMode(t, path, 0o600)
+	})
 	if dialogs.traceTitle != i18n.Text(i18n.En, i18n.SaveConnectionTrace) {
 		t.Fatalf("dialog title = %q", dialogs.traceTitle)
 	}

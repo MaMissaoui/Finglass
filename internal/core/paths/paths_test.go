@@ -26,7 +26,7 @@ func TestEmptyEnvFallsBackToHome(t *testing.T) {
 		t.Fatalf("Resolve: %v", err)
 	}
 
-	if got, want := paths.Root(), "/home/alice/.finglass"; got != want {
+	if got, want := paths.Root(), filepath.Join("/home/alice", ".finglass"); got != want {
 		t.Errorf("root = %q, want %q", got, want)
 	}
 }
@@ -143,6 +143,8 @@ func TestFromEnvFallsBackToTheHomeFolder(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("FINGLASS_HOME", "")
 	t.Setenv("HOME", home)
+	// os.UserHomeDir reads USERPROFILE on Windows, not HOME.
+	t.Setenv("USERPROFILE", home)
 
 	paths, err := FromEnv()
 	if err != nil {
