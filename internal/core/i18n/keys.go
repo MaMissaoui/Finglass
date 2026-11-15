@@ -121,11 +121,9 @@ const (
 	BicPrefix
 	SyncedPrefix
 	Syncing
-	Sync
 	SyncAll
 	SyncAllProgress
 	IncludeInSyncAll
-	NotInSyncAll
 	SyncAllNothingIncluded
 	SyncAllStopped
 	FetchHistory
@@ -895,6 +893,7 @@ const (
 	TestConnectionTanTimeout
 	TestConnectionStatementsUnavailable
 	TestConnectionCancelled
+	TestConnectionNotCompleted
 	TestConnectionInvalidLogin
 	TestConnectionProductID
 	TestConnectionApproveThenRetry
@@ -927,6 +926,8 @@ const (
 	SyncStatusNotInAll
 	SyncStatusNotInAllTested
 	SyncStatusRunTest
+	SyncStatusStrongSyncLocked
+	SyncStatusAddServerURL
 	TestConnectionSyncNow
 	TestConnectionBankError
 	TestConnectionRegistrationMissing
@@ -947,7 +948,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 937
+const NumKeys = 938
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1065,11 +1066,9 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	BicPrefix:                           "BicPrefix",
 	SyncedPrefix:                        "SyncedPrefix",
 	Syncing:                             "Syncing",
-	Sync:                                "Sync",
 	SyncAll:                             "SyncAll",
 	SyncAllProgress:                     "SyncAllProgress",
 	IncludeInSyncAll:                    "IncludeInSyncAll",
-	NotInSyncAll:                        "NotInSyncAll",
 	SyncAllNothingIncluded:              "SyncAllNothingIncluded",
 	SyncAllStopped:                      "SyncAllStopped",
 	FetchHistory:                        "FetchHistory",
@@ -1839,6 +1838,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	TestConnectionTanTimeout:            "TestConnectionTanTimeout",
 	TestConnectionStatementsUnavailable: "TestConnectionStatementsUnavailable",
 	TestConnectionCancelled:             "TestConnectionCancelled",
+	TestConnectionNotCompleted:          "TestConnectionNotCompleted",
 	TestConnectionInvalidLogin:          "TestConnectionInvalidLogin",
 	TestConnectionProductID:             "TestConnectionProductID",
 	TestConnectionApproveThenRetry:      "TestConnectionApproveThenRetry",
@@ -1871,6 +1871,8 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	SyncStatusNotInAll:                  "SyncStatusNotInAll",
 	SyncStatusNotInAllTested:            "SyncStatusNotInAllTested",
 	SyncStatusRunTest:                   "SyncStatusRunTest",
+	SyncStatusStrongSyncLocked:          "SyncStatusStrongSyncLocked",
+	SyncStatusAddServerURL:              "SyncStatusAddServerURL",
 	TestConnectionSyncNow:               "TestConnectionSyncNow",
 	TestConnectionBankError:             "TestConnectionBankError",
 	TestConnectionRegistrationMissing:   "TestConnectionRegistrationMissing",

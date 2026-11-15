@@ -136,9 +136,8 @@ function emptyPrompt(): PromptDTO {
   };
 }
 
-function twoDigits(value: number): string {
-  return value < 10 ? `0${value}` : `${value}`;
-}
+/** The fixed civil date every mock screenshot and connection test uses. */
+const mockToday = '2026-11-14';
 
 function formatDate(iso: string): string {
   const parts = iso.split('-');
@@ -150,8 +149,7 @@ function formatDate(iso: string): string {
 }
 
 function todayIso(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${twoDigits(now.getMonth() + 1)}-${twoDigits(now.getDate())}`;
+  return mockToday;
 }
 
 function isoBack(iso: string, days: number): string {
@@ -213,7 +211,9 @@ export function createMockBanking(
     scenario === 'banking-walkthrough' ||
     scenario === 'accounts-sync-per-bank' ||
     scenario === 'accounts-bank-menu-en-light' ||
-    scenario === 'accounts-bank-menu-de-dark';
+    scenario === 'accounts-bank-menu-de-dark' ||
+    scenario === 'accounts-status-strong-sync' ||
+    scenario.startsWith('accounts-status-no-server');
   const canRememberPin = true;
   let errorText = '';
   let messageText = '';
@@ -238,6 +238,8 @@ export function createMockBanking(
   const linkedProductID = scenario === 'accounts-test-connection-linked';
   /** Mock only: this bank's login is refused with FinTS code 9942. */
   const noGoBankId = scenario.includes('nogo') ? 2 : null;
+  /** Mock only: the test is a GO through the strong sync, so the bank stays locked. */
+  const strongSyncGoTest = scenario === 'accounts-status-strong-sync';
   /** Mock only: the test uses a PIN the user saved earlier. */
   const savedPinTest = scenario === 'accounts-test-saved-pin';
   /** Mock only: that saved PIN is rejected and removed. */
@@ -519,12 +521,27 @@ export function createMockBanking(
     if (!bank.syncUnlocked) {
       status.tone = 'attention';
       status.icon = 'warning';
-      status.text = t('SyncStatusRunTest');
-      if (canTest) {
-        status.action = 'test-connection';
-        status.actionText = t('TestConnection');
-        status.actionEnabled = !isSyncing() && testingBankId === null;
+      if (
+        connectionTest !== null &&
+        !connectionTest.running &&
+        connectionTest.bankId === bank.id &&
+        connectionTest.go &&
+        connectionTest.strongSync
+      ) {
+        status.text = t('SyncStatusStrongSyncLocked');
+        return status;
       }
+      if (!canTest) {
+        status.text = t('SyncStatusAddServerURL');
+        status.action = 'connection';
+        status.actionText = t('ConnectionSettings');
+        status.actionEnabled = !isSyncing();
+        return status;
+      }
+      status.text = t('SyncStatusRunTest');
+      status.action = 'test-connection';
+      status.actionText = t('TestConnection');
+      status.actionEnabled = !isSyncing() && testingBankId === null;
       return status;
     }
     status.tone = bank.includeInSyncAll ? 'ready' : 'off';
@@ -546,13 +563,6 @@ export function createMockBanking(
       bankId: bank.id,
       syncing,
       syncStep: syncStep === '' ? t('Syncing') : syncStep,
-      syncEnabled:
-        onlineSyncAvailable && bank.syncUnlocked && !isSyncing() && testingBankId === null,
-      syncTooltip: !onlineSyncAvailable
-        ? t('OnlineSyncNotYetAvailable')
-        : bank.syncUnlocked
-          ? ''
-          : t('SyncLockedHint'),
       pinText: pinText(bank),
       canTestConnection: !bank.offline && bank.serverUrl.trim() !== '',
       menu: bankMenu(bank),
@@ -944,6 +954,7 @@ export function createMockBanking(
             bankId,
             running: false,
             go: false,
+            verdict: 'nogo',
             verdictText: 'NO-GO',
             reason: t('TestConnectionLoginRejected'),
             nextStep: t('TestConnectionNextStepCheckLogin'),
@@ -961,9 +972,10 @@ export function createMockBanking(
             bankId,
             running: false,
             go: true,
+            verdict: 'go',
             verdictText: 'GO',
             reason: t('TestConnectionGo'),
-            nextStep: t('TestConnectionSyncNow'),
+            nextStep: onlineSyncAvailable ? t('TestConnectionSyncNow') : '',
             codes: [],
             messages: [],
             probed: 1,
@@ -987,6 +999,7 @@ export function createMockBanking(
       bankId,
       running: true,
       go: false,
+      verdict: '',
       verdictText: '',
       reason: '',
       nextStep: '',
@@ -1017,7 +1030,8 @@ export function createMockBanking(
         bankId,
         running: false,
         go: false,
-        verdictText: 'NO-GO',
+        verdict: 'none',
+        verdictText: t('TestConnectionNotCompleted'),
         reason: t('TestConnectionCancelled'),
         nextStep: '',
         codes: [],
@@ -1031,11 +1045,32 @@ export function createMockBanking(
         savedPinRejectedOnce: false,
       };
       lastTrace = { kind: 'test', bankId, hasTrace: false };
+    } else if (strongSyncGoTest) {
+      connectionTest = {
+        bankId,
+        running: false,
+        go: true,
+        verdict: 'go',
+        verdictText: 'GO',
+        reason: t('TestConnectionGo'),
+        nextStep: t('TestConnectionStrongSyncNoUnlock'),
+        codes: [],
+        messages: [],
+        probed: 1,
+        skipped: 0,
+        strongSync: true,
+        strongSyncTAN: 'typed',
+        usedSavedPin: false,
+        savedPinForgotten: false,
+        savedPinRejectedOnce: false,
+      };
+      lastTrace = { kind: 'test', bankId, hasTrace: true };
     } else if (noGoBankId === bankId) {
       connectionTest = {
         bankId,
         running: false,
         go: false,
+        verdict: 'nogo',
         verdictText: 'NO-GO',
         reason: t('TestConnectionInvalidLogin'),
         nextStep: t('TestConnectionNextStepCheckLogin'),
@@ -1058,9 +1093,10 @@ export function createMockBanking(
         bankId,
         running: false,
         go: true,
+        verdict: 'go',
         verdictText: 'GO',
         reason: t('TestConnectionGo'),
-        nextStep: t('TestConnectionSyncNow'),
+        nextStep: onlineSyncAvailable ? t('TestConnectionSyncNow') : '',
         codes: [],
         messages: [],
         probed: 1,
@@ -1076,7 +1112,8 @@ export function createMockBanking(
     if (!cancelled) {
       const testedBank = bankById(bankId);
       if (testedBank !== undefined) {
-        testedBank.syncUnlocked = noGoBankId !== bankId;
+        const strongSyncGo = connectionTest.go && connectionTest.strongSync;
+        testedBank.syncUnlocked = noGoBankId !== bankId && !strongSyncGo;
         testedBank.syncUnlockedOn = testedBank.syncUnlocked ? todayIso() : null;
       }
     }
@@ -1398,6 +1435,44 @@ export function createMockBanking(
       }
       messageText = syncAllSkipped(['Nordlicht Bank']);
       errorText = '';
+    }
+    if (scenario === 'accounts-status-strong-sync') {
+      const bank = bankById(2);
+      if (bank !== undefined) {
+        bank.syncUnlocked = false;
+        bank.syncUnlockedOn = null;
+      }
+      connectionTest = {
+        bankId: 2,
+        running: false,
+        go: true,
+        verdict: 'go',
+        verdictText: 'GO',
+        reason: t('TestConnectionGo'),
+        nextStep: t('TestConnectionStrongSyncNoUnlock'),
+        codes: [],
+        messages: [],
+        probed: 1,
+        skipped: 0,
+        strongSync: true,
+        strongSyncTAN: 'typed',
+        usedSavedPin: false,
+        savedPinForgotten: false,
+        savedPinRejectedOnce: false,
+      };
+      lastTrace = { kind: 'test', bankId: 2, hasTrace: true };
+      errorText = '';
+      messageText = '';
+    }
+    if (scenario.startsWith('accounts-status-no-server')) {
+      const bank = bankById(2);
+      if (bank !== undefined) {
+        bank.syncUnlocked = false;
+        bank.syncUnlockedOn = null;
+        bank.serverUrl = '';
+      }
+      errorText = '';
+      messageText = '';
     }
     if (scenario === 'accounts-connection') {
       const bank = bankById(2);

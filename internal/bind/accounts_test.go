@@ -679,18 +679,32 @@ func TestTheBankStatusLineCoversEveryCardState(t *testing.T) {
 			ActionEnabled: true,
 		}
 	}
-	locked := func(language i18n.Language, canTest bool) BankStatusDTO {
-		status := BankStatusDTO{
+	locked := func(language i18n.Language) BankStatusDTO {
+		return BankStatusDTO{
+			Tone:          "attention",
+			Icon:          "warning",
+			Text:          i18n.Text(language, i18n.SyncStatusRunTest),
+			Action:        "test-connection",
+			ActionText:    i18n.Text(language, i18n.TestConnection),
+			ActionEnabled: true,
+		}
+	}
+	noServer := func(language i18n.Language) BankStatusDTO {
+		return BankStatusDTO{
+			Tone:          "attention",
+			Icon:          "warning",
+			Text:          i18n.Text(language, i18n.SyncStatusAddServerURL),
+			Action:        "connection",
+			ActionText:    i18n.Text(language, i18n.ConnectionSettings),
+			ActionEnabled: true,
+		}
+	}
+	strongSyncLocked := func(language i18n.Language) BankStatusDTO {
+		return BankStatusDTO{
 			Tone: "attention",
 			Icon: "warning",
-			Text: i18n.Text(language, i18n.SyncStatusRunTest),
+			Text: i18n.Text(language, i18n.SyncStatusStrongSyncLocked),
 		}
-		if canTest {
-			status.Action = "test-connection"
-			status.ActionText = i18n.Text(language, i18n.TestConnection)
-			status.ActionEnabled = true
-		}
-		return status
 	}
 
 	tests := []struct {
@@ -705,6 +719,8 @@ func TestTheBankStatusLineCoversEveryCardState(t *testing.T) {
 		syncing      bool
 		otherSyncing bool
 		testing      bool
+		otherTesting bool
+		strongSyncGo bool
 		want         BankStatusDTO
 	}{
 		{
@@ -743,7 +759,7 @@ func TestTheBankStatusLineCoversEveryCardState(t *testing.T) {
 			unlocked:    false,
 			include:     true,
 			canTest:     true,
-			want:        locked(i18n.En, true),
+			want:        locked(i18n.En),
 		},
 		{
 			name:        "locked without a server URL",
@@ -752,7 +768,45 @@ func TestTheBankStatusLineCoversEveryCardState(t *testing.T) {
 			unlocked:    false,
 			include:     true,
 			canTest:     false,
-			want:        locked(i18n.En, false),
+			want:        noServer(i18n.En),
+		},
+		{
+			name:        "German locked without a server URL",
+			language:    i18n.De,
+			onlineReady: true,
+			unlocked:    false,
+			include:     true,
+			canTest:     false,
+			want:        noServer(i18n.De),
+		},
+		{
+			name:        "French locked without a server URL",
+			language:    i18n.Fr,
+			onlineReady: true,
+			unlocked:    false,
+			include:     true,
+			canTest:     false,
+			want:        noServer(i18n.Fr),
+		},
+		{
+			name:         "a strong-sync GO keeps the bank locked without an action",
+			language:     i18n.En,
+			onlineReady:  true,
+			unlocked:     false,
+			include:      true,
+			canTest:      true,
+			strongSyncGo: true,
+			want:         strongSyncLocked(i18n.En),
+		},
+		{
+			name:         "a strong-sync GO in German keeps the bank locked without an action",
+			language:     i18n.De,
+			onlineReady:  true,
+			unlocked:     false,
+			include:      true,
+			canTest:      true,
+			strongSyncGo: true,
+			want:         strongSyncLocked(i18n.De),
 		},
 		{
 			name:        "German ready with the GO date",
@@ -828,6 +882,34 @@ func TestTheBankStatusLineCoversEveryCardState(t *testing.T) {
 				return status
 			}(),
 		},
+		{
+			name:         "another bank syncing disables the locked line's Test connection",
+			language:     i18n.En,
+			onlineReady:  true,
+			unlocked:     false,
+			include:      true,
+			canTest:      true,
+			otherSyncing: true,
+			want: func() BankStatusDTO {
+				status := locked(i18n.En)
+				status.ActionEnabled = false
+				return status
+			}(),
+		},
+		{
+			name:         "another bank testing disables the locked line's Test connection",
+			language:     i18n.En,
+			onlineReady:  true,
+			unlocked:     false,
+			include:      true,
+			canTest:      true,
+			otherTesting: true,
+			want: func() BankStatusDTO {
+				status := locked(i18n.En)
+				status.ActionEnabled = false
+				return status
+			}(),
+		},
 	}
 
 	restore := shell.SetOnlineSyncProductPresentForTest(true)
@@ -863,6 +945,20 @@ func TestTheBankStatusLineCoversEveryCardState(t *testing.T) {
 				state.ConnectionTest = &bankingcore.ConnectionTestResult{
 					BankID:  bankID,
 					Running: true,
+				}
+			}
+			if test.otherTesting {
+				state.ConnectionTest = &bankingcore.ConnectionTestResult{
+					BankID:  otherID,
+					Running: true,
+				}
+			}
+			if test.strongSyncGo {
+				state.ConnectionTest = &bankingcore.ConnectionTestResult{
+					BankID:     bankID,
+					Go:         true,
+					Verdict:    bankingcore.ConnectionTestVerdictGo,
+					StrongSync: true,
 				}
 			}
 			if got := bankStatus(&state.Banks[0], &state, test.language); got != test.want {

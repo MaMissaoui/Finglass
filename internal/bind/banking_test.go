@@ -476,14 +476,11 @@ func TestBankCardsCarryTheOnlineFieldsAndTheBankMenu(t *testing.T) {
 		return len(dto.BankCards) > 0 && dto.BankCards[0].BankID == int(fixture.bankID)
 	})
 	card := dto.BankCards[0]
-	if card.Syncing || card.SyncEnabled {
-		t.Fatalf("sync fields = syncing %v enabled %v", card.Syncing, card.SyncEnabled)
+	if card.Syncing {
+		t.Fatal("the card is syncing before any sync started")
 	}
 	if card.SyncStep != i18n.Text(i18n.En, i18n.Syncing) {
 		t.Fatalf("sync step = %q", card.SyncStep)
-	}
-	if card.SyncTooltip != i18n.Text(i18n.En, i18n.OnlineSyncNotYetAvailable) {
-		t.Fatalf("sync tooltip = %q", card.SyncTooltip)
 	}
 	if card.PinText != i18n.Text(i18n.En, i18n.PinSavedForSyncs) {
 		t.Fatalf("pin text = %q", card.PinText)
@@ -582,8 +579,8 @@ func TestWithTheUnavailableGatewaySyncControlsAreHiddenAndAnAttemptFails(t *test
 	dto := fixture.waitAccounts(t, "the loaded bank card", func(dto AccountsDTO) bool {
 		return len(dto.BankCards) > 0
 	})
-	if dto.BankCards[0].SyncEnabled || dto.BankCards[0].SyncTooltip == "" {
-		t.Fatalf("sync controls = enabled %v tooltip %q", dto.BankCards[0].SyncEnabled, dto.BankCards[0].SyncTooltip)
+	if dto.BankCards[0].Status.Text != "" {
+		t.Fatalf("card status without sync controls = %+v", dto.BankCards[0].Status)
 	}
 
 	bankingDTO, err := fixture.banking.StartSync(int(fixture.bankID))
@@ -650,7 +647,8 @@ func TestBankingDTOMapsEveryApplyPropsValue(t *testing.T) {
 	if dto.ErrorText != "error" || dto.MessageText != "message" || !dto.CanRememberPin {
 		t.Fatalf("messages = %q / %q can remember %v", dto.ErrorText, dto.MessageText, dto.CanRememberPin)
 	}
-	if len(dto.Banks) != 1 || dto.Banks[0].BankID != 7 || dto.Banks[0].SyncEnabled {
+	if len(dto.Banks) != 1 || dto.Banks[0].BankID != 7 ||
+		dto.Banks[0].PinText != i18n.Text(i18n.En, i18n.PinAskedEverySync) {
 		t.Fatalf("bank fields = %+v", dto.Banks)
 	}
 
@@ -1065,9 +1063,6 @@ func TestTheBankMenuGatesSyncNowOnTheUnlockAndLeavesIncludeEditable(t *testing.T
 			return len(dto.BankCards) > 0 && dto.BankCards[0].BankID == int(fixture.bankID)
 		})
 		card := dto.BankCards[0]
-		if card.SyncEnabled {
-			t.Fatal("the card sync button is enabled for a locked bank")
-		}
 		if strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.SyncLockedHint)) {
 			t.Fatalf("subtitle = %q, want no locked hint", card.Subtitle)
 		}
@@ -1077,9 +1072,6 @@ func TestTheBankMenuGatesSyncNowOnTheUnlockAndLeavesIncludeEditable(t *testing.T
 			card.Status.ActionText != i18n.Text(i18n.En, i18n.TestConnection) ||
 			!card.Status.ActionEnabled {
 			t.Fatalf("locked status = %+v", card.Status)
-		}
-		if card.SyncTooltip != i18n.Text(i18n.En, i18n.SyncLockedHint) {
-			t.Fatalf("sync tooltip = %q", card.SyncTooltip)
 		}
 		if item := bankMenuItem(card.Menu, "sync"); item == nil || item.Enabled ||
 			item.Label != i18n.Text(i18n.En, i18n.SyncNow) || item.Icon != "sync" {
@@ -1103,13 +1095,10 @@ func TestTheBankMenuGatesSyncNowOnTheUnlockAndLeavesIncludeEditable(t *testing.T
 			return len(dto.BankCards) > 0 && dto.BankCards[0].BankID == int(fixture.bankID)
 		})
 		card := dto.BankCards[0]
-		if !card.SyncEnabled {
-			t.Fatal("the card sync button is disabled for an unlocked bank")
-		}
 		if strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.SyncLockedHint)) {
 			t.Fatalf("subtitle = %q, want no locked hint", card.Subtitle)
 		}
-		if strings.Contains(card.Subtitle, i18n.Text(i18n.En, i18n.NotInSyncAll)) {
+		if strings.Contains(card.Subtitle, "not in Sync all") {
 			t.Fatalf("subtitle = %q, want no not-in-Sync-all text", card.Subtitle)
 		}
 		if card.Status.Tone != "off" ||

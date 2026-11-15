@@ -186,140 +186,171 @@ func TestConnectionTestDTOSerializesAnEmptyMessageList(t *testing.T) {
 
 func TestConnectionTestDTOCarriesTheVerdictAndNextStep(t *testing.T) {
 	tests := []struct {
-		name        string
-		result      bankingcore.ConnectionTestResult
-		wantGo      bool
-		wantStep    string
-		wantVerdict string
-		noProduct   bool
+		name         string
+		result       bankingcore.ConnectionTestResult
+		wantGo       bool
+		wantStep     string
+		wantVerdict  string
+		wantVerdictV string
+		noProduct    bool
 	}{
 		{
-			name:        "GO on the normal path",
-			result:      bankingcore.ConnectionTestResult{Go: true},
-			wantGo:      true,
-			wantVerdict: "GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionSyncNow),
+			name:         "GO on the normal path",
+			result:       bankingcore.ConnectionTestResult{Go: true, Verdict: bankingcore.ConnectionTestVerdictGo},
+			wantGo:       true,
+			wantVerdict:  "GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionSyncNow),
 		},
 		{
-			name:        "GO in a build without online sync promises no sync",
-			result:      bankingcore.ConnectionTestResult{Go: true},
-			wantGo:      true,
-			wantVerdict: "GO",
-			wantStep:    "",
-			noProduct:   true,
+			name:         "GO in a build without online sync promises no sync",
+			result:       bankingcore.ConnectionTestResult{Go: true, Verdict: bankingcore.ConnectionTestVerdictGo},
+			wantGo:       true,
+			wantVerdict:  "GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictGo,
+			wantStep:     "",
+			noProduct:    true,
 		},
 		{
-			name:        "GO through the strong sync",
-			result:      bankingcore.ConnectionTestResult{Go: true, StrongSync: true},
-			wantGo:      true,
-			wantVerdict: "GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionStrongSyncNoUnlock),
+			name: "GO through the strong sync",
+			result: bankingcore.ConnectionTestResult{
+				Go:         true,
+				Verdict:    bankingcore.ConnectionTestVerdictGo,
+				StrongSync: true,
+			},
+			wantGo:       true,
+			wantVerdict:  "GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionStrongSyncNoUnlock),
 		},
 		{
 			name: "running still shows the general help",
 			result: bankingcore.ConnectionTestResult{
 				Running: true,
 			},
-			wantVerdict: "",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionHelp),
+			wantVerdict:  "",
+			wantVerdictV: "",
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionHelp),
 		},
 		{
-			name: "NO-GO with no reason information asks for the trace",
+			name: "no bank verdict with no reason information asks for the trace",
 			result: bankingcore.ConnectionTestResult{
-				Go: false,
+				Go:      false,
+				Verdict: bankingcore.ConnectionTestVerdictNone,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepTrace),
+			wantVerdict:  i18n.Text(i18n.En, i18n.TestConnectionNotCompleted),
+			wantVerdictV: bankingcore.ConnectionTestVerdictNone,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepTrace),
 		},
 		{
 			name: "NO-GO login rejected checks the login",
 			result: bankingcore.ConnectionTestResult{
-				Kind: bankingcore.ConnectionTestKindLoginRejected,
+				Kind:    bankingcore.ConnectionTestKindLoginRejected,
+				Verdict: bankingcore.ConnectionTestVerdictNoGo,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepCheckLogin),
+			wantVerdict:  "NO-GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictNoGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepCheckLogin),
 		},
 		{
-			name: "NO-GO invalid login checks the login",
+			name: "invalid login without a bank verdict checks the login",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindOther,
-				Other: connectiontest.OtherInvalidLogin,
+				Kind:    bankingcore.ConnectionTestKindOther,
+				Other:   connectiontest.OtherInvalidLogin,
+				Verdict: bankingcore.ConnectionTestVerdictNone,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepCheckLogin),
+			wantVerdict:  i18n.Text(i18n.En, i18n.TestConnectionNotCompleted),
+			wantVerdictV: bankingcore.ConnectionTestVerdictNone,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepCheckLogin),
 		},
 		{
 			name: "NO-GO missing registration waits",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindOther,
-				Other: "BankError",
-				Codes: []string{"3079", "9078", "9800"},
+				Kind:    bankingcore.ConnectionTestKindOther,
+				Other:   "BankError",
+				Codes:   []string{"3079", "9078", "9800"},
+				Verdict: bankingcore.ConnectionTestVerdictNoGo,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepRegistration),
+			wantVerdict:  "NO-GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictNoGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepRegistration),
 		},
 		{
-			name: "NO-GO transport checks the internet",
+			name: "transport without a bank verdict checks the internet",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindOther,
-				Other: connectiontest.OtherTransport,
+				Kind:    bankingcore.ConnectionTestKindOther,
+				Other:   connectiontest.OtherTransport,
+				Verdict: bankingcore.ConnectionTestVerdictNone,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepTransport),
+			wantVerdict:  i18n.Text(i18n.En, i18n.TestConnectionNotCompleted),
+			wantVerdictV: bankingcore.ConnectionTestVerdictNone,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepTransport),
 		},
 		{
 			name: "cancelled",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindOther,
-				Other: connectiontest.OtherCancelled,
+				Kind:    bankingcore.ConnectionTestKindOther,
+				Other:   connectiontest.OtherCancelled,
+				Verdict: bankingcore.ConnectionTestVerdictNone,
 			},
-			wantGo:      false,
-			wantVerdict: "NO-GO",
-			wantStep:    "",
+			wantGo:       false,
+			wantVerdict:  i18n.Text(i18n.En, i18n.TestConnectionNotCompleted),
+			wantVerdictV: bankingcore.ConnectionTestVerdictNone,
+			wantStep:     "",
 		},
 		{
 			name: "NO-GO account locked asks to unlock",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindOther,
-				Other: "AccountLocked",
+				Kind:    bankingcore.ConnectionTestKindOther,
+				Other:   "AccountLocked",
+				Verdict: bankingcore.ConnectionTestVerdictNoGo,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepUnlock),
+			wantVerdict:  "NO-GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictNoGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepUnlock),
 		},
 		{
 			name: "NO-GO locked account code asks to unlock",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindLoginRejected,
-				Codes: []string{"3938"},
+				Kind:    bankingcore.ConnectionTestKindLoginRejected,
+				Codes:   []string{"3938"},
+				Verdict: bankingcore.ConnectionTestVerdictNoGo,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepUnlock),
+			wantVerdict:  "NO-GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictNoGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepUnlock),
 		},
 		{
 			name: "NO-GO TAN rejected asks to approve in time",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindOther,
-				Other: "TanRejected",
+				Kind:    bankingcore.ConnectionTestKindOther,
+				Other:   "TanRejected",
+				Verdict: bankingcore.ConnectionTestVerdictNoGo,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepApprove),
+			wantVerdict:  "NO-GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictNoGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepApprove),
 		},
 		{
-			name: "NO-GO approval timed out asks to approve in time",
+			name: "approval timeout without a bank verdict asks to approve in time",
 			result: bankingcore.ConnectionTestResult{
-				Kind: bankingcore.ConnectionTestKindTanTimeout,
+				Kind:    bankingcore.ConnectionTestKindTanTimeout,
+				Verdict: bankingcore.ConnectionTestVerdictNone,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepApprove),
+			wantVerdict:  i18n.Text(i18n.En, i18n.TestConnectionNotCompleted),
+			wantVerdictV: bankingcore.ConnectionTestVerdictNone,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepApprove),
 		},
 		{
 			name: "NO-GO protocol asks for the trace",
 			result: bankingcore.ConnectionTestResult{
-				Kind:  bankingcore.ConnectionTestKindOther,
-				Other: "Protocol",
+				Kind:    bankingcore.ConnectionTestKindOther,
+				Other:   "Protocol",
+				Verdict: bankingcore.ConnectionTestVerdictNoGo,
 			},
-			wantVerdict: "NO-GO",
-			wantStep:    i18n.Text(i18n.En, i18n.TestConnectionNextStepTrace),
+			wantVerdict:  "NO-GO",
+			wantVerdictV: bankingcore.ConnectionTestVerdictNoGo,
+			wantStep:     i18n.Text(i18n.En, i18n.TestConnectionNextStepTrace),
 		},
 	}
 	for _, test := range tests {
@@ -336,6 +367,9 @@ func TestConnectionTestDTOCarriesTheVerdictAndNextStep(t *testing.T) {
 			}
 			if dto.ConnectionTest.VerdictText != test.wantVerdict {
 				t.Fatalf("verdict = %q, want %q", dto.ConnectionTest.VerdictText, test.wantVerdict)
+			}
+			if dto.ConnectionTest.Verdict != test.wantVerdictV {
+				t.Fatalf("verdict value = %q, want %q", dto.ConnectionTest.Verdict, test.wantVerdictV)
 			}
 			if dto.ConnectionTest.NextStep != test.wantStep {
 				t.Fatalf("next step = %q, want %q", dto.ConnectionTest.NextStep, test.wantStep)

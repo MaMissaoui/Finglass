@@ -108,7 +108,7 @@
     <h2>SecondaryButton</h2>
     <div class="row">
       <SecondaryButton text={en.Cancel} onclick={() => {}} />
-      <SecondaryButton text={en.Sync} icon="sync" onclick={() => {}} />
+      <SecondaryButton text={en.SyncNow} icon="sync" onclick={() => {}} />
       <SecondaryButton text={en.Reset} enabled={false} onclick={() => {}} />
     </div>
   </section>

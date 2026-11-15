@@ -479,7 +479,7 @@ test('the connection test walks product id and PIN then saves the trace', async 
   const panel = connectionPanel(page);
   await expect(panel.locator('.verdict-chip')).toHaveText('GO');
   await expect(panel).toContainText('Connection works.');
-  await expect(panel).toContainText('This bank can sync now.');
+  await expect(panel.locator('.test-next-step')).toHaveCount(0);
   await expect(panel).toContainText('1 account checked');
   await expect(panel).toContainText('1 account skipped');
   await assertSecretGone(page, 'INVENTED-PIN-2468');
@@ -528,9 +528,74 @@ test('cancel at the product id prompt shows the cancelled panel', async ({ page 
   await expect(prompt(page)).toHaveCount(0);
 
   const panel = connectionPanel(page);
+  await expect(panel.locator('.verdict-chip')).toHaveText('Not completed');
+  await expect(panel.locator('.verdict-chip')).toHaveClass(/none/u);
   await expect(panel).toContainText('Connection test cancelled.');
   await expect(panel.getByRole('button', { name: 'Save redacted trace…' })).toHaveCount(0);
   await expectClean(watcher);
+});
+
+test('a strong-sync GO leaves the status line without an action', async ({ page }) => {
+  const watcher = await watch(page);
+  await goto(page, 'accounts-status-strong-sync');
+
+  const status = page.getByTestId('bank-status-2');
+  await expect(status).toContainText("Sync can't use this login path yet");
+  await expect(status.getByRole('button')).toHaveCount(0);
+  await expectClean(watcher);
+});
+
+test('a locked bank without a server address points at Connection settings', async ({ page }) => {
+  const watcher = await watch(page);
+  await goto(page, 'accounts-status-no-server');
+
+  const status = page.getByTestId('bank-status-2');
+  await expect(status).toContainText("Add the bank's server address first");
+  await status.getByRole('button', { name: 'Connection settings', exact: true }).click();
+  await expect(
+    page.getByTestId('accounts-dialog').getByRole('heading', {
+      name: 'Online banking for Sparkasse',
+    }),
+  ).toBeVisible();
+  await expectClean(watcher);
+});
+
+// 800 px is the window's minimum width (cmd/finglass MinWidth).
+test('the status line keeps its text and action apart at the narrowest window', async ({
+  page,
+}) => {
+  const cases = [
+    [
+      'accounts-status-no-server-de',
+      'accounts-status-narrow-de',
+      'Zuerst die Serveradresse der Bank eintragen',
+    ],
+    [
+      'accounts-status-no-server-fr',
+      'accounts-status-narrow-fr',
+      "Ajoutez d'abord l'adresse du serveur de la banque",
+    ],
+  ] as const;
+  for (const [scenario, name, want] of cases) {
+    await goto(page, scenario, 800, 720);
+    const status = page.getByTestId('bank-status-2');
+    await expect(status).toContainText(want);
+    const boxes = await status.evaluate((element) => {
+      const text = element.querySelector('.bank-status-text')?.getBoundingClientRect();
+      const action = element.querySelector('.bank-status-action')?.getBoundingClientRect();
+      const line = element.getBoundingClientRect();
+      return { text, action, line };
+    });
+    expect(boxes.text).not.toBeNull();
+    expect(boxes.action).not.toBeNull();
+    const text = boxes.text!;
+    const action = boxes.action!;
+    const apart = action.left >= text.right - 1 || action.top >= text.bottom - 1;
+    expect(apart).toBe(true);
+    expect(action.right).toBeLessThanOrEqual(boxes.line.right + 1);
+    expect(action.bottom).toBeLessThanOrEqual(boxes.line.bottom + 1);
+    await shot(page, name);
+  }
 });
 
 test('cancel closes the prompt and ends the sync', async ({ page }) => {
@@ -686,6 +751,10 @@ test('every banking scenario renders without a CSP or console error', async ({ p
     'accounts-history',
     'accounts-sync-all',
     'accounts-sync-per-bank',
+    'accounts-status-strong-sync',
+    'accounts-status-no-server',
+    'accounts-status-no-server-de',
+    'accounts-status-no-server-fr',
     'accounts-syncing',
     'accounts-pin',
     'accounts-pin-remember',
