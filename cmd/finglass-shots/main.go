@@ -17,8 +17,11 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"golang.org/x/term"
@@ -43,6 +46,105 @@ type runOptions struct {
 	tempParent string
 	// now supplies the restore timestamp and the page's current day.
 	now func() time.Time
+	// afterRestore, when set by a test helper, runs once the restore finished.
+	// Production leaves it nil.
+	afterRestore func()
+}
+
+// interruptCleanup holds the state an interrupt handler needs to undo an
+// interrupted run. The handler runs on its own goroutine, so the fields are
+// guarded by mu.
+type interruptCleanup struct {
+	mu            sync.Mutex
+	tempHome      string
+	session       *shell.Session
+	passphrase    []byte
+	terminalFD    int
+	terminalState *term.State
+}
+
+func (c *interruptCleanup) setSession(session *shell.Session) {
+	c.mu.Lock()
+	c.session = session
+	c.mu.Unlock()
+}
+
+func (c *interruptCleanup) setPassphrase(passphrase []byte) {
+	c.mu.Lock()
+	c.passphrase = passphrase
+	c.mu.Unlock()
+}
+
+func (c *interruptCleanup) setTerminal(fd int, state *term.State) {
+	c.mu.Lock()
+	c.terminalFD = fd
+	c.terminalState = state
+	c.mu.Unlock()
+}
+
+func (c *interruptCleanup) clearTerminal() {
+	c.mu.Lock()
+	c.terminalFD = -1
+	c.terminalState = nil
+	c.mu.Unlock()
+}
+
+// cleanUp removes everything an interrupted run may have restored. It is best
+// effort: the process exits right after it.
+func (c *interruptCleanup) cleanUp() {
+	c.mu.Lock()
+	tempHome := c.tempHome
+	session := c.session
+	passphrase := c.passphrase
+	terminalFD := c.terminalFD
+	terminalState := c.terminalState
+	c.session = nil
+	c.passphrase = nil
+	c.terminalState = nil
+	c.mu.Unlock()
+
+	if terminalState != nil && terminalFD >= 0 {
+		_ = term.Restore(terminalFD, terminalState)
+	}
+	if session != nil {
+		done := make(chan struct{})
+		go func() {
+			_ = session.Shutdown()
+			close(done)
+		}()
+		select {
+		case <-done:
+		case <-time.After(2 * time.Second):
+		}
+	}
+	if tempHome != "" {
+		_ = os.RemoveAll(tempHome)
+	}
+	wipe(passphrase)
+}
+
+// installInterruptHandler removes the temporary copy when the user interrupts
+// the exporter. It returns a function that stops listening on a normal return.
+func installInterruptHandler(cleanup *interruptCleanup) func() {
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+	done := make(chan struct{})
+	go func() {
+		select {
+		case <-signals:
+			cleanup.cleanUp()
+			_, _ = fmt.Fprintln(
+				os.Stderr,
+				"Interrupted; the temporary copy was removed.",
+			)
+			os.Exit(130)
+		case <-done:
+		}
+	}()
+	return func() {
+		signal.Stop(signals)
+		close(done)
+	}
 }
 
 // snapshotFile is one JSON file holding every page state in EN and DE.
@@ -102,7 +204,10 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, options runOp
 	if err != nil {
 		return fmt.Errorf("create temporary home: %w", err)
 	}
+	cleanup := &interruptCleanup{tempHome: tempHome, terminalFD: -1}
+	stopInterrupts := installInterruptHandler(cleanup)
 	defer func() { _ = os.RemoveAll(tempHome) }()
+	defer stopInterrupts()
 	if err := os.Chmod(tempHome, 0o700); err != nil { // #nosec G302 -- a directory must be owner-only.
 		return fmt.Errorf("restrict temporary home: %w", err)
 	}
@@ -131,14 +236,19 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, options runOp
 		return err
 	}
 
-	passphrase, err := readPassphrase(stdin, stderr)
+	passphrase, err := readPassphrase(stdin, stderr, cleanup.setTerminal)
+	cleanup.clearTerminal()
 	if err != nil {
 		return err
 	}
+	cleanup.setPassphrase(passphrase)
 	defer wipe(passphrase)
 
 	if err := restoreBackup(appPaths, *backupPath, passphrase, now()); err != nil {
 		return err
+	}
+	if options.afterRestore != nil {
+		options.afterRestore()
 	}
 
 	session, _, refusal := shell.StartOffline(
@@ -152,7 +262,11 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, options runOp
 	if refusal != nil {
 		return fmt.Errorf("start session: %s", refusal.Message(i18n.En))
 	}
-	defer func() { _ = session.Shutdown() }()
+	cleanup.setSession(session)
+	defer func() {
+		_ = session.Shutdown()
+		cleanup.setSession(nil)
+	}()
 
 	if err := session.Unlock(passphrase); err != nil {
 		return fmt.Errorf("unlock restored database: %w", err)
@@ -350,10 +464,20 @@ func throwawayPassphrase() (*secret.Passphrase, error) {
 	return value, nil
 }
 
-func readPassphrase(stdin io.Reader, stderr io.Writer) ([]byte, error) {
+func readPassphrase(
+	stdin io.Reader,
+	stderr io.Writer,
+	onTerminal func(fd int, state *term.State),
+) ([]byte, error) {
 	if file, ok := stdin.(*os.File); ok && term.IsTerminal(int(file.Fd())) {
+		fd := int(file.Fd())
+		if onTerminal != nil {
+			if state, err := term.GetState(fd); err == nil {
+				onTerminal(fd, state)
+			}
+		}
 		_, _ = fmt.Fprint(stderr, "Backup passphrase: ")
-		value, err := term.ReadPassword(int(file.Fd()))
+		value, err := term.ReadPassword(fd)
 		_, _ = fmt.Fprintln(stderr)
 		if err != nil {
 			return nil, fmt.Errorf("read passphrase: %w", err)
