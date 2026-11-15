@@ -192,6 +192,9 @@ type SettingsDTO struct {
 	FindeskReportTitle     string `json:"findeskReportTitle"`
 	FindeskReportText      string `json:"findeskReportText"`
 	FindeskReportError     bool   `json:"findeskReportError"`
+	// QuitFinDeskVisible says whether the FinDesk import section shows the
+	// "Quit FinDesk first." note.
+	QuitFinDeskVisible bool `json:"quitFinDeskVisible"`
 }
 
 // SettingsOptions is the process wiring the caller supplies.
@@ -555,6 +558,7 @@ func (s *Settings) snapshot() SettingsDTO {
 		s.session.SettingsSection(),
 		s.session.RestoredFrom(),
 		s.session.FindeskState(),
+		s.session.QuitFinDeskVisible(),
 	)
 }
 
@@ -564,6 +568,7 @@ func settingsDTO(
 	section int,
 	restoredFrom *string,
 	findeskState findesk.FindeskImportState,
+	quitFinDeskVisible bool,
 ) SettingsDTO {
 	dto := SettingsDTO{
 		Loading:                    state.IsLoading,
@@ -620,6 +625,7 @@ func settingsDTO(
 		Busy:                       state.IsBusy,
 		HasPendingRestore:          state.HasPendingRestore,
 		FindeskPassphraseOpen:      dialog.FindeskPassphraseOpen,
+		QuitFinDeskVisible:         quitFinDeskVisible,
 	}
 	if state.Error != nil {
 		dto.ErrorText = *state.Error

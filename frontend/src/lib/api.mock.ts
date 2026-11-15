@@ -20,6 +20,7 @@ import { MockDashboard, type MockDashboardVariant } from './mock/dashboard';
 import { passphraseLength } from './passphrase';
 import { MockReports } from './reports.mock';
 import { createMockSettings } from './settings.mock';
+import { createSnapshotApi } from './snapshot.mock';
 import { createMockTransactions } from './transactions.mock';
 
 const info: AppInfoDTO = {
@@ -67,6 +68,7 @@ type MockState = {
   migrationNeedsNewPassphrase: boolean;
   migrationAcknowledged: boolean;
   migrationSummaryLines: string[];
+  quitFinDeskVisible: boolean;
 };
 
 const pageTargets = ['dashboard', 'accounts', 'transactions', 'documents', 'reports', 'settings'];
@@ -162,6 +164,7 @@ type SettingsScenario = {
   findeskTargetNotEmpty?: boolean;
   findeskNotAFolder?: boolean;
   findeskBusy?: boolean;
+  quitFinDeskVisible?: boolean;
   backupRestored?: boolean;
 };
 
@@ -239,6 +242,18 @@ const settingsScenarios: Record<string, SettingsScenario> = {
   },
   'settings-findesk-import-en-light': { language: 'en', theme: 'light', section: 6 },
   'settings-findesk-import-de-dark': { language: 'de', theme: 'dark', section: 6 },
+  'settings-findesk-import-unknown-en': {
+    language: 'en',
+    theme: 'light',
+    section: 6,
+    quitFinDeskVisible: true,
+  },
+  'settings-findesk-import-not-running-en': {
+    language: 'en',
+    theme: 'light',
+    section: 6,
+    quitFinDeskVisible: false,
+  },
   'settings-findesk-passphrase-en': {
     language: 'en',
     theme: 'light',
@@ -327,6 +342,13 @@ function scenarioName(): string {
   return new URLSearchParams(location.search).get('scenario') ?? '';
 }
 
+function snapshotName(): string {
+  if (typeof location === 'undefined') {
+    return '';
+  }
+  return new URLSearchParams(location.search).get('snapshot') ?? '';
+}
+
 function hasSurroundingSpace(value: string): boolean {
   return /^\s|\s$/u.test(value) || /^\s+$/u.test(value);
 }
@@ -371,6 +393,7 @@ function baseState(): MockState {
     migrationNeedsNewPassphrase: false,
     migrationAcknowledged: false,
     migrationSummaryLines: [],
+    quitFinDeskVisible: true,
   };
 }
 
@@ -575,9 +598,17 @@ function initialState(scenario: string): MockState {
       }
       break;
     case 'migration-welcome':
+    case 'migration-welcome-unknown':
       state.mode = 'migrate';
       state.migrationStep = 'welcome';
       state.migrationProfileNames = ['Personal', 'Business'];
+      state.quitFinDeskVisible = true;
+      break;
+    case 'migration-welcome-not-running':
+      state.mode = 'migrate';
+      state.migrationStep = 'welcome';
+      state.migrationProfileNames = ['Personal', 'Business'];
+      state.quitFinDeskVisible = false;
       break;
     case 'migration-profile':
     case 'migration-profile-new-passphrase':
@@ -614,6 +645,11 @@ function initialState(scenario: string): MockState {
 }
 
 export function createMockApi(scenario = scenarioName()): Api {
+  const snapshot = snapshotName();
+  if (snapshot !== '') {
+    return createSnapshotApi(snapshot);
+  }
+
   const state = initialState(scenario);
   const dashboard = new MockDashboard(
     dashboardScenarios[scenario]?.variant ?? 'normal',
@@ -643,6 +679,7 @@ export function createMockApi(scenario = scenarioName()): Api {
     findeskTargetNotEmpty: settingsScenario?.findeskTargetNotEmpty ?? false,
     findeskNotAFolder: settingsScenario?.findeskNotAFolder ?? false,
     findeskBusy: settingsScenario?.findeskBusy ?? false,
+    quitFinDeskVisible: settingsScenario?.quitFinDeskVisible ?? true,
     backupRestored: settingsScenario?.backupRestored ?? false,
   });
   const documents = createMockDocuments(scenario, state.language);
@@ -768,6 +805,7 @@ export function createMockApi(scenario = scenarioName()): Api {
         !state.migrationSamePassphrase || state.migrationNeedsNewPassphrase,
       migrationAcknowledged: state.migrationAcknowledged,
       migrationSummaryLines: [...state.migrationSummaryLines],
+      quitFinDeskVisible: state.quitFinDeskVisible,
     };
   }
 

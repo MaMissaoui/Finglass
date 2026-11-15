@@ -3095,6 +3095,12 @@ export class SettingsDTO {
     "findeskReportText": string;
     "findeskReportError": boolean;
 
+    /**
+     * QuitFinDeskVisible says whether the FinDesk import section shows the
+     * "Quit FinDesk first." note.
+     */
+    "quitFinDeskVisible": boolean;
+
     /** Creates a new SettingsDTO instance. */
     constructor($$source: Partial<SettingsDTO> = {}) {
         if (!("loading" in $$source)) {
@@ -3352,6 +3358,9 @@ export class SettingsDTO {
         if (!("findeskReportError" in $$source)) {
             this["findeskReportError"] = false;
         }
+        if (!("quitFinDeskVisible" in $$source)) {
+            this["quitFinDeskVisible"] = false;
+        }
 
         Object.assign(this, $$source);
     }
@@ -3564,6 +3573,12 @@ export class ShellDTO {
     "migrationAcknowledged": boolean;
     "migrationSummaryLines": string[];
 
+    /**
+     * QuitFinDeskVisible says whether the wizard shows the "Quit FinDesk
+     * first." note. It is set only while the wizard is open.
+     */
+    "quitFinDeskVisible": boolean;
+
     /** Creates a new ShellDTO instance. */
     constructor($$source: Partial<ShellDTO> = {}) {
         if (!("mode" in $$source)) {
@@ -3661,6 +3676,9 @@ export class ShellDTO {
         }
         if (!("migrationSummaryLines" in $$source)) {
             this["migrationSummaryLines"] = [];
+        }
+        if (!("quitFinDeskVisible" in $$source)) {
+            this["quitFinDeskVisible"] = false;
         }
 
         Object.assign(this, $$source);

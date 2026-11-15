@@ -161,7 +161,9 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 - [x] **C — onboarding:** the migration asks for the passphrase acknowledgement on the passphrase step (once per
   wizard; a click without the tick keeps the typed fields); passphrase rules under the field with a live count
   ("4 of 10 characters", counted like Go). "Quit FinDesk first." is a neutral note now.
-- [ ] **C2:** show "Quit FinDesk" only while FinDesk runs (needs a portable running check; not started).
+- [x] **C2:** show "Quit FinDesk" only while FinDesk runs. Done: `internal/core/findeskproc` checks `ps`/`tasklist`
+  off the UI thread, the note is hidden only on a positive NotRunning (Unknown stays visible) and both views ask again
+  every 5 s.
 - [x] **D — checks:** automated accessibility check in the Playwright run (dev dependency only), failing on serious or
   critical findings; fix what it finds. Done: axe found nested buttons in the account and transaction rows (fixed);
   the "new" dot and the count badge have names.
@@ -175,8 +177,11 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 
 ## Later
 
-- [ ] A real-data screenshot mode for comparing pages with your own data (tooling only; runs against your data, so
-  **you** run it).
+- [x] A real-data screenshot mode for comparing pages with your own data (tooling only; runs against your data, so
+  **you** run it). Done: `scripts/real-data-shots.sh` takes a backup and an output folder; it never opens
+  `~/.finglass`.
+- [ ] **You:** make a backup in Settings, run `scripts/real-data-shots.sh <backup> <folder outside the repo>`, and
+  look at the pages.
 
 ## Risks
 

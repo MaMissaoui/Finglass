@@ -167,6 +167,17 @@ func (s *Session) bankingServiceWithTraceLocked(
 	if err != nil {
 		return nil, false
 	}
+	if s.offlineGateway {
+		// No product id is read and no gateway other than the offline one is
+		// built: headless tools must never be able to dial a bank.
+		client := banksync.NewFinTsClient(
+			banksync.NewUnavailableGateway(language),
+			dir,
+			"",
+			s.credentials,
+		).WithLanguage(language)
+		return banksync.NewBankingService(client), true
+	}
 	gateway := selectGateway(OnlineSyncAvailable, fintsproduct.Present(), language, func() banksync.FinTsGateway {
 		options := make([]fintsgateway.Option, 0, 1)
 		if sink != nil {
@@ -891,6 +902,18 @@ func (s *Session) BankingTestConnection(bankID int) {
 		s.mu.Unlock()
 		return
 	}
+	if s.offlineGateway {
+		// Offline sessions never read the product id, build a transport or
+		// start the job. Leave the same not-completed result a cancelled test
+		// leaves and return at once.
+		id := model.BankConnectionID(bankID)
+		s.banking.ConnectionTest = cancelledConnectionTestResult(s.language, id)
+		s.banking.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
+		s.lastTrace = lastTraceState{kind: traceKindTest, bankID: id}
+		s.mu.Unlock()
+		s.notifyBanking()
+		return
+	}
 	if s.banking.IsBusy() {
 		s.setBankingErrorLocked(i18n.ErrorConnectionBusy)
 		s.mu.Unlock()
@@ -944,18 +967,7 @@ func (s *Session) BankingTestConnection(bankID int) {
 		if productID == nil {
 			productID = bridge.AskProductID()
 			if productID == nil {
-				cancelled := connectiontest.Outcome{
-					Kind:      fintsprobe.NoGoOther,
-					Other:     connectiontest.OtherCancelled,
-					Cancelled: true,
-				}
-				state.ConnectionTest = &banking.ConnectionTestResult{
-					BankID:  id,
-					Verdict: connectionTestVerdictFor(cancelled),
-					Reason:  connectionTestReason(state.Language, cancelled),
-					Kind:    connectionTestKindName(fintsprobe.NoGoOther),
-					Other:   connectiontest.OtherCancelled,
-				}
+				state.ConnectionTest = cancelledConnectionTestResult(state.Language, id)
 				state.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
 				job.setLastTrace = true
 				job.lastTrace = lastTraceState{kind: traceKindTest, bankID: id}
@@ -1144,6 +1156,27 @@ func (s *Session) setBankingErrorLocked(key i18n.Key) {
 	}
 	message := i18n.Text(s.language, key)
 	s.banking.Error = &message
+}
+
+// cancelledConnectionTestResult is the result a cancelled test leaves: no bank
+// verdict, the cancelled reason, and the "other" kind. An offline session
+// reuses it because it never starts a network test at all.
+func cancelledConnectionTestResult(
+	language i18n.Language,
+	id model.BankConnectionID,
+) *banking.ConnectionTestResult {
+	cancelled := connectiontest.Outcome{
+		Kind:      fintsprobe.NoGoOther,
+		Other:     connectiontest.OtherCancelled,
+		Cancelled: true,
+	}
+	return &banking.ConnectionTestResult{
+		BankID:  id,
+		Verdict: connectionTestVerdictFor(cancelled),
+		Reason:  connectionTestReason(language, cancelled),
+		Kind:    connectionTestKindName(fintsprobe.NoGoOther),
+		Other:   connectiontest.OtherCancelled,
+	}
 }
 
 // connectionTestVerdictFor is the tri-state the result carries: GO when the

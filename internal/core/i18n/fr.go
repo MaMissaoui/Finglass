@@ -839,7 +839,7 @@ var frTexts = [NumKeys]string{ // #nosec G101 -- UI labels such as "PIN" or "Pas
 	ErrorFinDeskTargetNotEmpty:          "Le profil Finglass contient déjà des données. Créez un nouveau profil dans la section Profils et importez-y.",
 	FinDeskImportSummary:                "Importé : %d groupes de comptes, %d connexions bancaires, %d comptes, %d catégories, %d règles, %d opérations, %d écritures supprimées, %d écritures en attente, %d documents, %d textes OCR et %d paramètres. Ignoré : %d lignes, %d documents avec un fichier manquant et %d documents refusés. %d ordres de paiement laissés de côté.",
 	FinDeskImportTitle:                  "Importer depuis FinDesk",
-	FinDeskImportHint:                   "Copie les comptes, connexions bancaires, catégories, règles, écritures et documents de FinDesk dans le profil ouvert. Les ordres de paiement et les codes PIN mémorisés ne sont pas importés. Quittez FinDesk d'abord.",
+	FinDeskImportHint:                   "Copie les comptes, connexions bancaires, catégories, règles, écritures et documents de FinDesk dans le profil ouvert. Les ordres de paiement et les codes PIN mémorisés ne sont pas importés.",
 	FinDeskImportChooseFolder:           "Choisir le dossier FinDesk…",
 	FinDeskPassphraseTitle:              "Phrase secrète FinDesk",
 	FinDeskPassphraseText:               "Saisissez la phrase secrète de la base FinDesk sélectionnée. Elle n'est utilisée que pour cet import et n'est pas enregistrée.",

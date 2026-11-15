@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { untrack } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import type { Api, ShellDTO } from '../lib/api';
   import { Checkbox, OutlinedField, PrimaryButton, TextButton } from '../lib/components';
   import { languageFromCode, translate, type FormatArg, type Language } from '../lib/i18n';
@@ -127,6 +127,23 @@
     clearSecrets();
     void run(() => api.migrationContinue());
   }
+
+  onMount(() => {
+    // The running check is cached in Go for five seconds; asking again keeps
+    // the quit note in step while FinDesk is started or quit.
+    const timer = setInterval(() => {
+      if (dto.migrationStep === '') {
+        return;
+      }
+      void api
+        .state()
+        .then((next) => onchange(next))
+        .catch(() => {
+          // A transport error leaves the last state on screen.
+        });
+    }, 5000);
+    return () => clearInterval(timer);
+  });
 </script>
 
 {#if dto.migrationStep === 'welcome'}
@@ -138,7 +155,9 @@
       <p class="muted">• {name}</p>
     {/each}
     <p class="small">{t('MigrationCopiedText')}</p>
-    <p class="small">{t('MigrationQuitHint')}</p>
+    {#if dto.quitFinDeskVisible}
+      <p class="small" data-testid="migration-quit-note">{t('MigrationQuitHint')}</p>
+    {/if}
     {#if errorText !== ''}
       <p class="error" role="alert" data-testid="migration-error">{errorText}</p>
     {/if}

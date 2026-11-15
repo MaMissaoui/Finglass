@@ -16,6 +16,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/findeskproc"
 	"github.com/MaMissaoui/Finglass/internal/core/i18n"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/money"
@@ -109,6 +110,7 @@ func newSettingsBindFixture(t *testing.T) *settingsBindFixture {
 		seed:    seed,
 		events:  make(chan SettingsDTO, 256),
 	}
+	useFakeFindeskProcess(session, findeskproc.NotRunning)
 	fixture.shell = NewShell(session, offer, ShellOptions{
 		Paths: appPaths,
 		Clock: func() time.Time { return testNow },
@@ -356,7 +358,7 @@ func TestRuleImportDTOTruncatesLongListsAndSizesTheDialog(t *testing.T) {
 	}
 	dialog := shell.SettingsDialogState{RuleImportOpen: true, RuleImportCategorize: false}
 
-	dto := settingsDTO(state, dialog, 0, nil, findesk.FindeskImportState{Language: i18n.En})
+	dto := settingsDTO(state, dialog, 0, nil, findesk.FindeskImportState{Language: i18n.En}, false)
 	if !dto.RuleImportOpen || !dto.RuleImportShowCategorize || !dto.RuleImportConfirmEnabled {
 		t.Fatalf("rule import flags = %+v", dto)
 	}
@@ -462,6 +464,37 @@ func TestSettingsBindingsNeverTakeAPath(t *testing.T) {
 		if len(actualNames[name]) != 0 {
 			t.Fatalf("%s takes %v", name, actualNames[name])
 		}
+	}
+}
+
+func TestSettingsQuitHintFollowsTheFinDeskProcessState(t *testing.T) {
+	tests := []struct {
+		name  string
+		state findeskproc.State
+		want  bool
+	}{
+		{"running", findeskproc.Running, true},
+		{"unknown", findeskproc.Unknown, true},
+		{"not running", findeskproc.NotRunning, false},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			fixture := newSettingsBindFixture(t)
+			fake := useFakeFindeskProcess(fixture.session, test.state)
+			fixture.session.NavigateToSection("settings", shell.SettingsFinDeskImport)
+
+			deadline := time.Now().Add(10 * time.Second)
+			for {
+				dto := fixture.service.snapshot()
+				if dto.QuitFinDeskVisible == test.want && fake.callCount() > 0 {
+					return
+				}
+				if !time.Now().Before(deadline) {
+					t.Fatalf("quit hint visible = %v after %d checks, want %v", dto.QuitFinDeskVisible, fake.callCount(), test.want)
+				}
+				time.Sleep(2 * time.Millisecond)
+			}
+		})
 	}
 }
 
