@@ -63,6 +63,7 @@
     font-size: var(--type-body-size);
     font-weight: var(--type-body-weight);
     line-height: 1.35;
+    white-space: pre-line;
   }
 
   .banner.error .text {

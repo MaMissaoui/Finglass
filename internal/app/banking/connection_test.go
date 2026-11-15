@@ -22,7 +22,7 @@ func TestConnectionTestCloneCopiesTheCodesAndResult(t *testing.T) {
 		StrongSync:    true,
 		StrongSyncTAN: "typed",
 	}
-	state.LastTrace = &LastTrace{Kind: "test", BankID: 7, HasTrace: true}
+	state.Traces = []LastTrace{{Kind: "test", BankID: 7, HasTrace: true}}
 	state.Banks = []BankItem{{ID: 7, CanTestConnection: true}}
 
 	clone := state.Clone()
@@ -35,9 +35,14 @@ func TestConnectionTestCloneCopiesTheCodesAndResult(t *testing.T) {
 		!clone.ConnectionTest.StrongSync || clone.ConnectionTest.StrongSyncTAN != "typed" {
 		t.Fatalf("cloned result = %+v", clone.ConnectionTest)
 	}
-	if clone.LastTrace == state.LastTrace || clone.LastTrace.Kind != "test" ||
-		clone.LastTrace.BankID != 7 || !clone.LastTrace.HasTrace {
-		t.Fatalf("cloned last trace = %+v", clone.LastTrace)
+	if len(clone.Traces) != 1 || clone.Traces[0].Kind != "test" ||
+		clone.Traces[0].BankID != 7 || !clone.Traces[0].HasTrace ||
+		&clone.Traces[0] == &state.Traces[0] {
+		t.Fatalf("cloned traces = %+v", clone.Traces)
+	}
+	clone.Traces[0].HasTrace = false
+	if !state.Traces[0].HasTrace {
+		t.Fatal("Clone shares the Traces slice")
 	}
 	clone.ConnectionTest.Codes[0] = "0000"
 	if state.ConnectionTest.Codes[0] != "9942" {

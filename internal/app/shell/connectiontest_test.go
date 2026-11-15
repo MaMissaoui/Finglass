@@ -327,9 +327,9 @@ func TestConnectionTestRunsThroughTheBridgeAndChangesNothing(t *testing.T) {
 	}
 	state = session.BankingState()
 	if result.Probed != 1 || result.Skipped != 0 ||
-		state.LastTrace == nil || state.LastTrace.Kind != traceKindTest ||
-		state.LastTrace.BankID != bankID || !state.LastTrace.HasTrace {
-		t.Fatalf("counts/trace = %+v %+v", result, state.LastTrace)
+		len(state.Traces) != 1 || state.Traces[0].Kind != traceKindTest ||
+		state.Traces[0].BankID != bankID || !state.Traces[0].HasTrace {
+		t.Fatalf("counts/trace = %+v %+v", result, state.Traces)
 	}
 	if !store.IsEmpty() {
 		t.Fatalf("credential store has %d entries after a test", store.Len())
@@ -462,9 +462,9 @@ func TestConnectionTestIsRefusedWhileSyncing(t *testing.T) {
 func TestLastTraceClearsOnANewTestAndOnClose(t *testing.T) {
 	session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
 	runTypedTANConnectionTest(t, session, typedTANConnectionBank(t))
-	if state := session.BankingState(); state.LastTrace == nil || !state.LastTrace.HasTrace ||
-		state.LastTrace.Kind != traceKindTest || state.LastTrace.BankID != bankID {
-		t.Fatalf("last trace = %+v", state.LastTrace)
+	if state := session.BankingState(); len(state.Traces) != 1 || !state.Traces[0].HasTrace ||
+		state.Traces[0].Kind != traceKindTest || state.Traces[0].BankID != bankID {
+		t.Fatalf("last trace = %+v", state.Traces)
 	}
 
 	// A new test clears the previous trace at once.
@@ -472,7 +472,7 @@ func TestLastTraceClearsOnANewTestAndOnClose(t *testing.T) {
 	session.connectionTestFactory = func(string) (fints.Transport, error) { return cancelled, nil }
 	session.BankingTestConnection(int(bankID))
 	session.mu.Lock()
-	trace := append([]byte(nil), session.lastTrace.trace...)
+	trace := append([]byte(nil), session.lastTraces[bankID].trace...)
 	session.mu.Unlock()
 	if len(trace) != 0 {
 		t.Fatal("the old trace survived a new test")
@@ -480,13 +480,13 @@ func TestLastTraceClearsOnANewTestAndOnClose(t *testing.T) {
 	answerProductID(t, session, nil)
 	waitConnectionTestDone(t, session)
 	state := session.BankingState()
-	if state.LastTrace == nil || state.LastTrace.HasTrace {
-		t.Fatalf("cancelled test reports a trace: %+v", state.LastTrace)
+	if len(state.Traces) != 1 || state.Traces[0].HasTrace {
+		t.Fatalf("cancelled test reports a trace: %+v", state.Traces)
 	}
-	if state.LastTrace.Kind != traceKindTest {
-		t.Fatalf("cancelled test trace kind = %q", state.LastTrace.Kind)
+	if state.Traces[0].Kind != traceKindTest {
+		t.Fatalf("cancelled test trace kind = %q", state.Traces[0].Kind)
 	}
-	if session.lastTraceBLZForTest() != "" {
+	if session.lastTraceBLZForTest(bankID) != "" {
 		t.Fatal("cancelled test kept a BLZ")
 	}
 
@@ -501,25 +501,29 @@ func TestLastTraceClearsOnANewTestAndOnClose(t *testing.T) {
 	waitConnectionTestDone(t, session)
 	session.Teardown(startup.Startup{})
 	session.mu.Lock()
-	trace = append([]byte(nil), session.lastTrace.trace...)
+	trace = append([]byte(nil), session.lastTraces[bankID].trace...)
+	slots := len(session.lastTraces)
 	session.mu.Unlock()
 	if len(trace) != 0 {
 		t.Fatal("the trace survived the profile close")
 	}
+	if slots != 0 {
+		t.Fatalf("profile close kept %d trace slots", slots)
+	}
 }
 
-func sessionLastTraceBLZForTest(session *Session) string {
+func sessionLastTraceBLZForTest(session *Session, bankID model.BankConnectionID) string {
 	session.mu.Lock()
 	defer session.mu.Unlock()
-	return session.lastTrace.blz
+	return session.lastTraces[bankID].blz
 }
 
-func (s *Session) lastTraceBLZForTest() string {
-	return sessionLastTraceBLZForTest(s)
+func (s *Session) lastTraceBLZForTest(bankID model.BankConnectionID) string {
+	return sessionLastTraceBLZForTest(s, bankID)
 }
 
 func TestSaveConnectionTraceWritesMode0600AndCancelWritesNothing(t *testing.T) {
-	session, _, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
+	session, bankID, _ := newBankingSession(t, banksync.NoCredentialStore{}, nil)
 	runTypedTANConnectionTest(t, session, typedTANConnectionBank(t))
 
 	path := filepath.Join(t.TempDir(), "trace.txt")
@@ -529,7 +533,7 @@ func TestSaveConnectionTraceWritesMode0600AndCancelWritesNothing(t *testing.T) {
 	}
 	dialogs := &fakeFileDialogs{tracePath: path, traceResult: true}
 	session.SetFileDialogs(dialogs)
-	session.BankingSaveConnectionTrace()
+	session.BankingSaveConnectionTrace(int(bankID))
 	waitForJobs(t, session)
 
 	// #nosec G304 -- path is a test temporary file.
@@ -552,7 +556,7 @@ func TestSaveConnectionTraceWritesMode0600AndCancelWritesNothing(t *testing.T) {
 
 	cancelPath := filepath.Join(t.TempDir(), "cancelled.txt")
 	session.SetFileDialogs(&fakeFileDialogs{tracePath: cancelPath, traceResult: false})
-	session.BankingSaveConnectionTrace()
+	session.BankingSaveConnectionTrace(int(bankID))
 	waitForJobs(t, session)
 	if _, err := os.Stat(cancelPath); !os.IsNotExist(err) {
 		t.Fatalf("cancel wrote %s", cancelPath)
@@ -668,7 +672,7 @@ func TestBankMessagesReachTheScreenButAreNeverStored(t *testing.T) {
 
 	path := filepath.Join(t.TempDir(), "trace.txt")
 	session.SetFileDialogs(&fakeFileDialogs{tracePath: path, traceResult: true})
-	session.BankingSaveConnectionTrace()
+	session.BankingSaveConnectionTrace(int(testBankID(t, session)))
 	waitForJobs(t, session)
 	// #nosec G304 -- path is a test temporary file.
 	saved, err := os.ReadFile(path)

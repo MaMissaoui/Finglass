@@ -1042,7 +1042,7 @@ export class BankingDTO {
     "onlineSyncNote": string;
     "banks": BankingBankDTO[];
     "connectionTest": ConnectionTestDTO | null;
-    "lastTrace": LastTraceDTO | null;
+    "traces": LastTraceDTO[];
     "infoText": string;
 
     /** Creates a new BankingDTO instance. */
@@ -1092,8 +1092,8 @@ export class BankingDTO {
         if (!("connectionTest" in $$source)) {
             this["connectionTest"] = null;
         }
-        if (!("lastTrace" in $$source)) {
-            this["lastTrace"] = null;
+        if (!("traces" in $$source)) {
+            this["traces"] = [];
         }
         if (!("infoText" in $$source)) {
             this["infoText"] = "";
@@ -1116,8 +1116,8 @@ export class BankingDTO {
         if ("connectionTest" in $$parsedSource) {
             $$parsedSource["connectionTest"] = $$createField14_0($$parsedSource["connectionTest"]);
         }
-        if ("lastTrace" in $$parsedSource) {
-            $$parsedSource["lastTrace"] = $$createField15_0($$parsedSource["lastTrace"]);
+        if ("traces" in $$parsedSource) {
+            $$parsedSource["traces"] = $$createField15_0($$parsedSource["traces"]);
         }
         return new BankingDTO($$parsedSource as Partial<BankingDTO>);
     }
@@ -2084,8 +2084,8 @@ export class ImportFileRowDTO {
 }
 
 /**
- * LastTraceDTO names the last sync or connection test whose redacted trace is
- * in memory. It never carries trace bytes.
+ * LastTraceDTO names one bank's last sync or connection test whose redacted
+ * trace is in memory. It never carries trace bytes.
  */
 export class LastTraceDTO {
     "kind": string;
@@ -4471,7 +4471,7 @@ const $$createType24 = $Create.Array($$createType23);
 const $$createType25 = ConnectionTestDTO.createFrom;
 const $$createType26 = $Create.Nullable($$createType25);
 const $$createType27 = LastTraceDTO.createFrom;
-const $$createType28 = $Create.Nullable($$createType27);
+const $$createType28 = $Create.Array($$createType27);
 const $$createType29 = BankMessageDTO.createFrom;
 const $$createType30 = $Create.Array($$createType29);
 const $$createType31 = DashboardStatementLineDTO.createFrom;

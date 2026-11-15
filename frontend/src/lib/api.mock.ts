@@ -540,6 +540,8 @@ function initialState(scenario: string): MockState {
     case 'accounts-history':
     case 'accounts-sync-all':
     case 'accounts-sync-per-bank':
+    case 'accounts-sync-all-two-banks-en':
+    case 'accounts-sync-all-two-banks-de':
     case 'accounts-status-strong-sync':
     case 'accounts-status-no-server':
     case 'accounts-status-no-server-de':
@@ -583,6 +585,7 @@ function initialState(scenario: string): MockState {
               scenario === 'accounts-detail-flat-de' ||
               scenario === 'accounts-add-online-bank-no-match-de-dark' ||
               scenario === 'accounts-bank-menu-de-dark' ||
+              scenario === 'accounts-sync-all-two-banks-de' ||
               scenario === 'accounts-test-saved-pin-rejected-de' ||
               scenario === 'accounts-status-no-server-de'
             ? 'de'
@@ -1358,8 +1361,8 @@ export function createMockApi(scenario = scenarioName()): Api {
     bankingTestConnection(bankID: number) {
       return Promise.resolve(banking.testConnection(bankID));
     },
-    bankingSaveConnectionTrace() {
-      return Promise.resolve(banking.saveConnectionTrace());
+    bankingSaveConnectionTrace(bankID: number) {
+      return Promise.resolve(banking.saveConnectionTrace(bankID));
     },
     bankingStartSync(bankID: number) {
       return Promise.resolve(banking.startSync(bankID));

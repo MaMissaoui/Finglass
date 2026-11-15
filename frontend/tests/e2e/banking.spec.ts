@@ -454,6 +454,52 @@ test('the scripted sync walks through every prompt', async ({ page }) => {
   await shot(page, 'accounts-sync-trace-en-light');
 });
 
+test('Sync all keeps one trace per bank and shows one summary line per bank', async ({ page }) => {
+  const cases = [
+    {
+      scenario: 'accounts-sync-all-two-banks-en',
+      syncAll: 'Sync all',
+      save: 'Save redacted trace…',
+      confirmed: 'I confirmed it',
+    },
+    {
+      scenario: 'accounts-sync-all-two-banks-de',
+      syncAll: 'Alle synchronisieren',
+      save: 'Verschleierten Verlauf speichern…',
+      confirmed: 'Ich habe bestätigt',
+    },
+  ];
+  for (const testCase of cases) {
+    await goto(page, testCase.scenario, 1100, 900);
+    await page.getByRole('button', { name: testCase.syncAll, exact: true }).click();
+
+    for (let bank = 0; bank < 2; bank += 1) {
+      await expect(prompt(page).getByRole('textbox', { name: 'PIN', exact: true })).toBeVisible();
+      await answerPin(page, 'S3cret-PIN-9931');
+      await answerChoice(page, 'chipTAN optisch');
+      await answerChoice(page, 'Mein Smartphone');
+      await answerTan(page, '7F3K-TAN-8812');
+      await prompt(page).getByRole('button', { name: testCase.confirmed }).click();
+    }
+
+    await expect(prompt(page)).toHaveCount(0);
+    for (const bankID of [2, 3]) {
+      const syncTrace = page.getByTestId(`sync-trace-${bankID}`);
+      await expect(syncTrace).toBeVisible();
+      await expect(
+        syncTrace.getByRole('button', { name: testCase.save, exact: true }),
+      ).toBeVisible();
+    }
+
+    const banner = page.getByRole('status').filter({ hasText: 'Sparkasse:' });
+    await expect(banner).toHaveCount(1);
+    await expect(banner).toContainText('Nordlicht Bank:');
+    const rendered = await banner.innerText();
+    expect(rendered).toContain('\n');
+    expect(rendered.split('\n').length).toBeGreaterThanOrEqual(2);
+  }
+});
+
 test('the connection test walks product id and PIN then saves the trace', async ({ page }) => {
   const watcher = await watch(page);
   await goto(page, 'accounts');
