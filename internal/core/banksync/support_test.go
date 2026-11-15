@@ -13,6 +13,7 @@ import (
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
+	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/decimal"
 	"github.com/MaMissaoui/Finglass/internal/core/imports"
@@ -296,6 +297,13 @@ func newHarnessWithToday(t *testing.T, today civil.Date) *harness {
 func (h *harness) sync(t *testing.T, interaction BankingInteraction) (SyncReport, error) {
 	t.Helper()
 	return h.service.SyncBankConnection(context.Background(), h.db, h.bank, interaction, h.today)
+}
+
+// serviceWithStore builds another service over the harness's database and
+// gateway, with a different credential store (for example one that reports
+// ErrUnavailable).
+func (h *harness) serviceWithStore(store credentials.Store) *BankingService {
+	return NewBankingService(NewFinTsClient(h.gateway, h.dataDir, "TEST-PRODUCT", store))
 }
 
 func (h *harness) accounts(t *testing.T) []model.Account {

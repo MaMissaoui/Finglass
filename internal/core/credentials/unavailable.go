@@ -1,14 +1,13 @@
-//go:build !darwin
-
 package credentials
 
-// unavailableStore is what every non-macOS system gets: remembering a PIN is
-// not offered, and every call reports that no protected store exists.
+// unavailableStore is what a system without a protected credential store
+// gets: remembering a PIN is not offered, and every call reports that no
+// protected store exists.
 type unavailableStore struct{}
 
-// NewKeychain returns an unavailable store on every operating system without
-// the macOS Keychain.
-func NewKeychain(_ string) Store {
+// NewUnavailable returns a store for a system without a protected credential
+// store. Every call reports [ErrUnavailable]; IsAvailable is false.
+func NewUnavailable() Store {
 	return unavailableStore{}
 }
 

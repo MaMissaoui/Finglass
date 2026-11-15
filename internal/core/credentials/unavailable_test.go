@@ -1,5 +1,3 @@
-//go:build !darwin
-
 package credentials
 
 import (
@@ -7,10 +5,10 @@ import (
 	"testing"
 )
 
-func TestUnavailableKeychainStore(t *testing.T) {
-	store := NewKeychain(KeychainService)
+func TestUnavailableStore(t *testing.T) {
+	store := NewUnavailable()
 	if store.IsAvailable() {
-		t.Fatal("the non-macOS Keychain store reports itself available")
+		t.Fatal("the unavailable store reports itself available")
 	}
 
 	secret, found, err := store.Read("account")

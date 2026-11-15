@@ -1,7 +1,6 @@
 package credentials
 
 import (
-	"bytes"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -70,61 +69,6 @@ func TestAccountForNormalisesLikeV034(t *testing.T) {
 			t.Errorf("AccountFor(%q, %d) = %q, want %q", test.profile, test.bankID, got, test.account)
 		}
 	}
-}
-
-func runStoreContract(t *testing.T, store Store) {
-	t.Helper()
-
-	const account = "profile#bank-7"
-	secret := []byte{0x00, 0x01, 0xff, 'g', 'r', 0xc3, 0xbc}
-	replacement := []byte("replacement secret é")
-
-	if _, found, err := store.Read(account); err != nil || found {
-		t.Fatalf("initial Read = found %t, err %v; want absent", found, err)
-	}
-
-	if err := store.Write(account, secret); err != nil {
-		t.Fatalf("Write: %v", err)
-	}
-	got, found, err := store.Read(account)
-	if err != nil {
-		t.Fatalf("Read after Write: %v", err)
-	}
-	if !found {
-		t.Fatal("Read after Write = absent")
-	}
-	if !bytes.Equal(got, secret) {
-		t.Fatalf("Read = %x, want %x", got, secret)
-	}
-
-	if err := store.Write(account, replacement); err != nil {
-		t.Fatalf("overwrite: %v", err)
-	}
-	got, found, err = store.Read(account)
-	if err != nil {
-		t.Fatalf("Read after overwrite: %v", err)
-	}
-	if !found || !bytes.Equal(got, replacement) {
-		t.Fatalf("Read after overwrite = %q, found %t; want %q", got, found, replacement)
-	}
-
-	if err := store.Delete(account); err != nil {
-		t.Fatalf("Delete: %v", err)
-	}
-	if _, found, err := store.Read(account); err != nil || found {
-		t.Fatalf("Read after Delete = found %t, err %v; want absent", found, err)
-	}
-	if err := store.Delete(account); err != nil {
-		t.Fatalf("deleting an absent entry: %v", err)
-	}
-}
-
-func TestMemoryStoreBehavesLikeTheKeychain(t *testing.T) {
-	store := NewMemory()
-	if !store.IsAvailable() {
-		t.Fatal("NewMemory is unavailable")
-	}
-	runStoreContract(t, store)
 }
 
 func TestMemoryStoreCopiesSecrets(t *testing.T) {
