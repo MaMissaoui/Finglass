@@ -151,6 +151,8 @@ export interface MockSettingsOptions {
   findeskNotAFolder?: boolean;
   /** Keeps the FinDesk passphrase dialog open while it is importing. */
   findeskBusy?: boolean;
+  /** Shows the "Quit FinDesk first." note in the FinDesk import section. */
+  quitFinDeskVisible?: boolean;
   /** Shows the note that a backup was restored at this start. */
   backupRestored?: boolean;
 }
@@ -486,6 +488,7 @@ function blankDTO(): SettingsDTO {
     findeskReportTitle: '',
     findeskReportText: '',
     findeskReportError: false,
+    quitFinDeskVisible: true,
   };
 }
 
@@ -565,6 +568,7 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
   let findeskReportTitle = '';
   let findeskReportText = '';
   let findeskReportError = false;
+  const quitFinDeskVisible = options.quitFinDeskVisible ?? true;
   const findeskNotAFolder = options.findeskNotAFolder ?? false;
   const restoreNeedsPassphrase = options.restorePassphrase ?? false;
 
@@ -902,6 +906,7 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
     data.findeskReportTitle = findeskReportTitle;
     data.findeskReportText = findeskReportText;
     data.findeskReportError = findeskReportError;
+    data.quitFinDeskVisible = quitFinDeskVisible;
     return data;
   }
 

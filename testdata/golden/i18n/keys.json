@@ -1765,9 +1765,9 @@
     "fr": "Échec de l'import FinDesk"
   },
   "FinDeskImportHint": {
-    "en": "Copies accounts, bank connections, categories, rules, bookings and documents from FinDesk into the open profile. Payment orders and remembered PINs are not imported. Quit FinDesk first.",
-    "de": "Kopiert Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente aus FinDesk in das geöffnete Profil. Zahlungsaufträge und gespeicherte PINs werden nicht importiert. Beende FinDesk zuerst.",
-    "fr": "Copie les comptes, connexions bancaires, catégories, règles, écritures et documents de FinDesk dans le profil ouvert. Les ordres de paiement et les codes PIN mémorisés ne sont pas importés. Quittez FinDesk d'abord."
+    "en": "Copies accounts, bank connections, categories, rules, bookings and documents from FinDesk into the open profile. Payment orders and remembered PINs are not imported.",
+    "de": "Kopiert Konten, Bankverbindungen, Kategorien, Regeln, Buchungen und Dokumente aus FinDesk in das geöffnete Profil. Zahlungsaufträge und gespeicherte PINs werden nicht importiert.",
+    "fr": "Copie les comptes, connexions bancaires, catégories, règles, écritures et documents de FinDesk dans le profil ouvert. Les ordres de paiement et les codes PIN mémorisés ne sont pas importés."
   },
   "FinDeskImportReportTitle": {
     "en": "FinDesk import finished",

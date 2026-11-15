@@ -257,7 +257,7 @@ func TestSettingsDTOShowsProfilesBackupAndFindesk(t *testing.T) {
 		Error:           pointer("the import failed"),
 	}
 
-	dto := settingsDTO(state, dialog, 0, &restoredFrom, findeskState)
+	dto := settingsDTO(state, dialog, 0, &restoredFrom, findeskState, false)
 
 	if len(dto.ProfileRows) != 2 {
 		t.Fatalf("profile rows = %+v", dto.ProfileRows)

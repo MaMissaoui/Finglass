@@ -179,6 +179,8 @@ test('every settings data state renders without a CSP or console error', async (
     'settings-restore-passphrase-en',
     'settings-findesk-import-en-light',
     'settings-findesk-import-de-dark',
+    'settings-findesk-import-unknown-en',
+    'settings-findesk-import-not-running-en',
     'settings-findesk-passphrase-en',
     'settings-findesk-importing-en',
     'settings-findesk-report-en',
@@ -319,6 +321,18 @@ test('the restore passphrase is checked wrong then right and forgotten', async (
   ]);
 
   await expectClean(watcher);
+});
+
+test('the FinDesk quit note follows FinDesk', async ({ page }) => {
+  await goto(page, 'settings-findesk-import-en-light');
+  await expect(page.getByTestId('findesk-quit-note')).toHaveText('Quit FinDesk first.');
+
+  // Unknown shows the note too: a failed check must not hide it.
+  await goto(page, 'settings-findesk-import-unknown-en');
+  await expect(page.getByTestId('findesk-quit-note')).toBeVisible();
+
+  await goto(page, 'settings-findesk-import-not-running-en');
+  await expect(page.getByTestId('findesk-quit-note')).toHaveCount(0);
 });
 
 test('the FinDesk import asks for its passphrase, reports, closes and cancels', async ({
