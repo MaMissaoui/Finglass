@@ -182,11 +182,8 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 
 ## Later
 
-- [x] A real-data screenshot mode for comparing pages with your own data (tooling only; runs against your data, so
-  **you** run it). Done: `scripts/real-data-shots.sh` takes a backup and an output folder; it never opens
-  `~/.finglass`.
-- [ ] **You:** make a backup in Settings, run `scripts/real-data-shots.sh <backup> <folder outside the repo>`, and
-  look at the pages.
+- Real-data screenshots: removed on 2026-11-15 (your call: too complex to use). You provide screenshots of your own
+  data on demand; mock screenshots stay in the Playwright suite.
 
 ## Risks
 

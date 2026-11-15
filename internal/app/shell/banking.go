@@ -167,17 +167,6 @@ func (s *Session) bankingServiceWithTraceLocked(
 	if err != nil {
 		return nil, false
 	}
-	if s.offlineGateway {
-		// No product id is read and no gateway other than the offline one is
-		// built: headless tools must never be able to dial a bank.
-		client := banksync.NewFinTsClient(
-			banksync.NewUnavailableGateway(language),
-			dir,
-			"",
-			s.credentials,
-		).WithLanguage(language)
-		return banksync.NewBankingService(client), true
-	}
 	gateway := selectGateway(OnlineSyncAvailable, fintsproduct.Present(), language, func() banksync.FinTsGateway {
 		options := make([]fintsgateway.Option, 0, 1)
 		if sink != nil {
@@ -900,18 +889,6 @@ func (s *Session) BankingTestConnection(bankID int) {
 	s.mu.Lock()
 	if s.db == nil || s.bridge == nil || s.banking == nil {
 		s.mu.Unlock()
-		return
-	}
-	if s.offlineGateway {
-		// Offline sessions never read the product id, build a transport or
-		// start the job. Leave the same not-completed result a cancelled test
-		// leaves and return at once.
-		id := model.BankConnectionID(bankID)
-		s.banking.ConnectionTest = cancelledConnectionTestResult(s.language, id)
-		s.banking.LastTrace = &banking.LastTrace{Kind: traceKindTest, BankID: id}
-		s.lastTrace = lastTraceState{kind: traceKindTest, bankID: id}
-		s.mu.Unlock()
-		s.notifyBanking()
 		return
 	}
 	if s.banking.IsBusy() {
