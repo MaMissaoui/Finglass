@@ -42,6 +42,9 @@ type FileDialogs interface {
 	// PickBackup asks for one backup file, with the zip filter. The boolean is
 	// false when the user cancelled.
 	PickBackup(title string) (string, bool)
+	// PickBankList asks for the DK bank list CSV. The boolean is false when the
+	// user cancelled.
+	PickBankList(title string) (string, bool)
 	// PickFindeskFolder asks for a FinDesk folder. startDir is the folder the
 	// picker starts in; it may be empty and is never resolved by the shell.
 	PickFindeskFolder(title string, startDir string) (string, bool)

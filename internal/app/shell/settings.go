@@ -108,7 +108,11 @@ func (s *Session) SettingsState() settingsview.SettingsState {
 	if s.settings == nil {
 		return *settingsview.New(s.language)
 	}
-	return s.settings.Clone()
+	state := s.settings.Clone()
+	state.BankListPresent = s.bankListPresent
+	state.BankListCount = len(s.bankList)
+	state.BankListLoadedOn = s.bankListLoadedOn
+	return state
 }
 
 // SettingsDialog returns a copy of the Settings page's dialog state.

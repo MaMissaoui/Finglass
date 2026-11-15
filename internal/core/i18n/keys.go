@@ -948,10 +948,28 @@ const (
 	TestConnectionNextStepApprove
 	TestConnectionNextStepTrace
 	PrivateFolderNotSecured
+	BankList
+	BankListHint
+	BankListLoad
+	BankListRemove
+	BankListSummary
+	MessageBankListLoaded
+	MessageBankListLoadedAll
+	MessageBankListRemoved
+	BankListReasonBlz
+	BankListReasonNotHTTPS
+	BankListReasonNoScheme
+	BankListReasonEmpty
+	BankListReasonDuplicate
+	BankListReasonInvalid
+	BankListSkippedReason
+	ErrorBankListTooLarge
+	ErrorBankListUseCsv
+	ErrorBankListMissingColumn
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 941
+const NumKeys = 959
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1896,6 +1914,24 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	TestConnectionNextStepApprove:       "TestConnectionNextStepApprove",
 	TestConnectionNextStepTrace:         "TestConnectionNextStepTrace",
 	PrivateFolderNotSecured:             "PrivateFolderNotSecured",
+	BankList:                            "BankList",
+	BankListHint:                        "BankListHint",
+	BankListLoad:                        "BankListLoad",
+	BankListRemove:                      "BankListRemove",
+	BankListSummary:                     "BankListSummary",
+	MessageBankListLoaded:               "MessageBankListLoaded",
+	MessageBankListLoadedAll:            "MessageBankListLoadedAll",
+	MessageBankListRemoved:              "MessageBankListRemoved",
+	BankListReasonBlz:                   "BankListReasonBlz",
+	BankListReasonNotHTTPS:              "BankListReasonNotHTTPS",
+	BankListReasonNoScheme:              "BankListReasonNoScheme",
+	BankListReasonEmpty:                 "BankListReasonEmpty",
+	BankListReasonDuplicate:             "BankListReasonDuplicate",
+	BankListReasonInvalid:               "BankListReasonInvalid",
+	BankListSkippedReason:               "BankListSkippedReason",
+	ErrorBankListTooLarge:               "ErrorBankListTooLarge",
+	ErrorBankListUseCsv:                 "ErrorBankListUseCsv",
+	ErrorBankListMissingColumn:          "ErrorBankListMissingColumn",
 }
 
 // keysByName is built from keyNames, so the two cannot drift apart.

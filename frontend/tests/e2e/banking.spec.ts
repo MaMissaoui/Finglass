@@ -737,6 +737,23 @@ test('the add-online-bank dialog maps a typed branch BLZ and keeps filled fields
   await expectClean(watcher);
 });
 
+test('the add-online-bank dialog fills an empty server address and keeps a typed one', async ({
+  page,
+}) => {
+  await goto(page, 'banking-walkthrough');
+  await page.getByRole('button', { name: 'Add bank', exact: true }).click();
+  const dialog = page.getByTestId('accounts-dialog');
+  await page.getByRole('radio', { name: 'Online banking (FinTS)' }).click();
+
+  const server = dialog.getByLabel('FinTS server URL');
+  await dialog.getByLabel('BLZ (8 digits)').fill('10020890');
+  await expect(server).toHaveValue('https://fints.example.test/rheintal');
+
+  await server.fill('https://typed.example.test/bank');
+  await dialog.getByLabel('BLZ (8 digits)').fill('20050550');
+  await expect(server).toHaveValue('https://typed.example.test/bank');
+});
+
 test('every banking scenario renders without a CSP or console error', async ({ page }) => {
   const watcher = await watch(page);
 

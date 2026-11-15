@@ -165,6 +165,7 @@ type SettingsScenario = {
   findeskBusy?: boolean;
   quitFinDeskVisible?: boolean;
   backupRestored?: boolean;
+  bankListLoaded?: boolean;
 };
 
 const settingsScenarios: Record<string, SettingsScenario> = {
@@ -215,6 +216,20 @@ const settingsScenarios: Record<string, SettingsScenario> = {
   },
   'settings-backup-en-light': { language: 'en', theme: 'light', section: 5 },
   'settings-backup-de-dark': { language: 'de', theme: 'dark', section: 5 },
+  'settings-bank-list-en-light': { language: 'en', theme: 'light', section: 5 },
+  'settings-bank-list-de-dark': { language: 'de', theme: 'dark', section: 5 },
+  'settings-bank-list-loaded-en': {
+    language: 'en',
+    theme: 'light',
+    section: 5,
+    bankListLoaded: true,
+  },
+  'settings-bank-list-loaded-de': {
+    language: 'de',
+    theme: 'light',
+    section: 5,
+    bankListLoaded: true,
+  },
   'settings-backup-pending-en': {
     language: 'en',
     theme: 'light',
@@ -668,6 +683,7 @@ export function createMockApi(scenario = scenarioName()): Api {
     findeskBusy: settingsScenario?.findeskBusy ?? false,
     quitFinDeskVisible: settingsScenario?.quitFinDeskVisible ?? true,
     backupRestored: settingsScenario?.backupRestored ?? false,
+    bankListLoaded: settingsScenario?.bankListLoaded ?? false,
   });
   const documents = createMockDocuments(scenario, state.language);
   const banking = createMockBanking(scenario, state.language, {
@@ -1312,8 +1328,8 @@ export function createMockApi(scenario = scenarioName()): Api {
     bankingPickBankSuggestion(name: string, blz: string, bic: string) {
       return Promise.resolve(banking.pickBankSuggestion(name, blz, bic));
     },
-    bankingBankBlzChanged(name: string, blz: string, bic: string) {
-      return Promise.resolve(banking.bankBlzChanged(name, blz, bic));
+    bankingBankBlzChanged(name: string, blz: string, bic: string, serverURL: string) {
+      return Promise.resolve(banking.bankBlzChanged(name, blz, bic, serverURL));
     },
     bankingSubmitConnection(
       bankID: number,
@@ -1867,6 +1883,12 @@ export function createMockApi(scenario = scenarioName()): Api {
     },
     settingsCancelPendingRestore() {
       return Promise.resolve(settings.cancelPendingRestore());
+    },
+    settingsLoadBankList() {
+      return Promise.resolve(settings.loadBankList());
+    },
+    settingsRemoveBankList() {
+      return Promise.resolve(settings.removeBankList());
     },
     settingsImportFindesk() {
       return Promise.resolve(settings.importFindesk());

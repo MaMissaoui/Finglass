@@ -47,6 +47,9 @@ type bindFileDialogs struct {
 	pickBackup       string
 	pickBackupResult bool
 
+	bankList       string
+	bankListResult bool
+
 	findeskFolder string
 	findeskResult bool
 	findeskStart  string
@@ -84,6 +87,12 @@ func (f *bindFileDialogs) PickBackup(string) (string, bool) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return f.pickBackup, f.pickBackupResult
+}
+
+func (f *bindFileDialogs) PickBankList(string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.bankList, f.bankListResult
 }
 
 func (f *bindFileDialogs) PickFindeskFolder(string, startDir string) (string, bool) {
@@ -759,5 +768,46 @@ func TestNoDTOEventOrLogCarriesAPassphrase(t *testing.T) {
 		if strings.Contains(logOutput.String(), forbidden) {
 			t.Fatalf("a log line carries %q", forbidden)
 		}
+	}
+}
+
+func TestLoadingAndRemovingTheBankListUpdatesTheSettingsDTO(t *testing.T) {
+	fixture, dialogs, _ := newSettingsDataFixture(t)
+	fixture.load(t)
+
+	csvPath := filepath.Join(t.TempDir(), "invented-bank-list.csv")
+	csv := "Institut;BLZ;PIN/TAN URL\n" +
+		"Beispiel Eins;99999901;https://fints.example.test/one\n" +
+		"Beispiel Zwei;99999902;https://fints.example.test/two\n"
+	if err := os.WriteFile(csvPath, []byte(csv), 0o600); err != nil {
+		t.Fatalf("write bank list: %v", err)
+	}
+	dialogs.mu.Lock()
+	dialogs.bankList = csvPath
+	dialogs.bankListResult = true
+	dialogs.mu.Unlock()
+
+	if _, err := fixture.service.LoadBankList(); err != nil {
+		t.Fatalf("LoadBankList: %v", err)
+	}
+	dto := waitForDTO(t, fixture, "the loaded bank list", func(dto SettingsDTO) bool {
+		return dto.BankListPresent && strings.Contains(dto.BankListSummary, "2 banks")
+	})
+	if !strings.Contains(dto.BankListSummary, "2 banks") ||
+		!strings.Contains(dto.BankListSummary, "2026-10-15") {
+		t.Fatalf("bank list summary = %q", dto.BankListSummary)
+	}
+	if !strings.Contains(dto.MessageText, "2 banks loaded") {
+		t.Fatalf("load message = %q", dto.MessageText)
+	}
+
+	if _, err := fixture.service.RemoveBankList(); err != nil {
+		t.Fatalf("RemoveBankList: %v", err)
+	}
+	dto = waitForDTO(t, fixture, "the removed bank list", func(dto SettingsDTO) bool {
+		return !dto.BankListPresent && dto.BankListSummary == ""
+	})
+	if !strings.Contains(dto.MessageText, "2 banks") {
+		t.Fatalf("remove message = %q", dto.MessageText)
 	}
 }

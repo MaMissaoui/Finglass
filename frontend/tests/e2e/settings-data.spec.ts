@@ -132,6 +132,18 @@ test('the settings data reference screenshots', async ({ page }) => {
   await goto(page, 'settings-backup-de-dark', 'dark');
   await shot(page, 'settings-backup-de-dark');
 
+  await goto(page, 'settings-bank-list-en-light');
+  await shot(page, 'settings-bank-list-en-light');
+
+  await goto(page, 'settings-bank-list-de-dark', 'dark');
+  await shot(page, 'settings-bank-list-de-dark');
+
+  await goto(page, 'settings-bank-list-loaded-en');
+  await shot(page, 'settings-bank-list-loaded-en');
+
+  await goto(page, 'settings-bank-list-loaded-de');
+  await shot(page, 'settings-bank-list-loaded-de');
+
   await goto(page, 'settings-backup-pending-en');
   await expect(page.getByText('A restore is waiting. Restart Finglass to apply it.')).toBeVisible();
   await shot(page, 'settings-backup-pending-en');
@@ -173,6 +185,10 @@ test('every settings data state renders without a CSP or console error', async (
     'settings-profile-delete-en',
     'settings-backup-en-light',
     'settings-backup-de-dark',
+    'settings-bank-list-en-light',
+    'settings-bank-list-de-dark',
+    'settings-bank-list-loaded-en',
+    'settings-bank-list-loaded-de',
     'settings-backup-pending-en',
     'settings-backup-restored-en',
     'settings-restore-dialog-en',
@@ -248,6 +264,39 @@ test('profiles are created, renamed, validated, deleted and opened', async ({ pa
     .getByRole('button', { name: 'Open' })
     .click();
   await expect(page.getByRole('heading', { name: 'Enter your passphrase' })).toBeVisible();
+});
+
+test('the bank list block shows the load hint and the loaded summary in both languages', async ({
+  page,
+}) => {
+  const block = page.getByTestId('settings-bank-list');
+
+  await goto(page, 'settings-bank-list-en-light');
+  await expect(block.getByRole('heading', { name: 'Bank list' })).toBeVisible();
+  await expect(
+    block.getByText(
+      'Load the FinTS bank list you received from the DK (CSV). It stays on this computer and only fills in server addresses.',
+    ),
+  ).toBeVisible();
+  await expect(block.getByRole('button', { name: 'Load bank list…' })).toBeVisible();
+
+  await goto(page, 'settings-bank-list-loaded-en');
+  await expect(block.getByText('3 banks · loaded on 2026-11-14')).toBeVisible();
+  await expect(block.getByRole('button', { name: 'Remove bank list' })).toBeVisible();
+
+  await goto(page, 'settings-bank-list-de-dark', 'dark');
+  await expect(block.getByRole('heading', { name: 'Bankenliste' })).toBeVisible();
+  await expect(block.getByRole('button', { name: 'Bankenliste laden…' })).toBeVisible();
+
+  await goto(page, 'settings-bank-list-loaded-de');
+  await expect(block.getByText('3 Banken · geladen am 2026-11-14')).toBeVisible();
+  await expect(block.getByRole('button', { name: 'Bankenliste entfernen' })).toBeVisible();
+
+  await goto(page, 'settings-bank-list-en-light');
+  await block.getByRole('button', { name: 'Load bank list…' }).click();
+  await expect(block.getByText('3 banks · loaded on 2026-11-14')).toBeVisible();
+  await block.getByRole('button', { name: 'Remove bank list' }).click();
+  await expect(block.getByRole('button', { name: 'Load bank list…' })).toBeVisible();
 });
 
 test('a backup is created and a restore is confirmed, cancelled and pending-cancelled', async ({

@@ -23,6 +23,7 @@ import (
 	"github.com/MaMissaoui/Finglass/internal/app/transactionsview"
 	"github.com/MaMissaoui/Finglass/internal/app/unlock"
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
+	"github.com/MaMissaoui/Finglass/internal/core/banklist"
 	"github.com/MaMissaoui/Finglass/internal/core/banksync"
 	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/credentials"
@@ -147,22 +148,25 @@ type Session struct {
 	language i18n.Language
 	theme    prefs.ThemePref
 
-	db              *db.Database
-	dashboard       *dashboardview.DashboardState
-	reports         *reportsview.ReportsState
-	settings        *settingsview.SettingsState
-	settingsDialog  SettingsDialogState
-	settingsWork    accountsview.Busy
-	settingsSection int
-	findesk         *findesk.FindeskImportState
-	accounts        *accountsview.AccountsState
-	accountsDialog  AccountsDialogState
-	banking         *banking.BankingState
-	bridge          *banking.PromptBridge
-	profileBusy     accountsview.Busy
-	accountsWork    accountsview.Busy
-	documents       *documentsview.DocumentsState
-	transactions    *transactionsview.TransactionsView
+	db               *db.Database
+	dashboard        *dashboardview.DashboardState
+	reports          *reportsview.ReportsState
+	settings         *settingsview.SettingsState
+	settingsDialog   SettingsDialogState
+	settingsWork     accountsview.Busy
+	settingsSection  int
+	findesk          *findesk.FindeskImportState
+	accounts         *accountsview.AccountsState
+	accountsDialog   AccountsDialogState
+	banking          *banking.BankingState
+	bridge           *banking.PromptBridge
+	bankList         banklist.List
+	bankListLoadedOn civil.Date
+	bankListPresent  bool
+	profileBusy      accountsview.Busy
+	accountsWork     accountsview.Busy
+	documents        *documentsview.DocumentsState
+	transactions     *transactionsview.TransactionsView
 
 	documentsWork           accountsview.Busy
 	documentsPreview        documentsPreview
@@ -457,6 +461,7 @@ func Start(
 	session := newSession(appPaths, credentials, clock, today, getenv, language)
 	session.privateFolderUnsecured = privateFolderUnsecured
 	session.lock = lock
+	session.reloadBankListLocked()
 	session.slug = copyString(prepared.Slug)
 	session.restored = copyString(prepared.RestoredFrom)
 	session.configureUnlockLocked(prepared)

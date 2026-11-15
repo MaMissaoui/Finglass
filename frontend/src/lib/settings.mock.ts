@@ -155,6 +155,8 @@ export interface MockSettingsOptions {
   quitFinDeskVisible?: boolean;
   /** Shows the note that a backup was restored at this start. */
   backupRestored?: boolean;
+  /** Shows the loaded bank list's summary instead of the load hint. */
+  bankListLoaded?: boolean;
 }
 
 /** The stateful settings fake the mock API uses. */
@@ -211,6 +213,8 @@ export interface MockSettings {
   confirmRestorePassphrase(passphrase: string): SettingsDTO;
   cancelRestorePassphrase(): SettingsDTO;
   cancelPendingRestore(): SettingsDTO;
+  loadBankList(): SettingsDTO;
+  removeBankList(): SettingsDTO;
   importFindesk(): SettingsDTO;
   submitFindeskPassphrase(passphrase: string): SettingsDTO;
   cancelFindeskPassphrase(): SettingsDTO;
@@ -489,6 +493,8 @@ function blankDTO(): SettingsDTO {
     findeskReportText: '',
     findeskReportError: false,
     quitFinDeskVisible: true,
+    bankListPresent: false,
+    bankListSummary: '',
   };
 }
 
@@ -570,6 +576,10 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
   let findeskReportError = false;
   const quitFinDeskVisible = options.quitFinDeskVisible ?? true;
   const findeskNotAFolder = options.findeskNotAFolder ?? false;
+  let bankListPresent = options.bankListLoaded ?? false;
+  let bankListSummary = bankListPresent
+    ? translate(language, 'BankListSummary', 3, '2026-11-14')
+    : '';
   const restoreNeedsPassphrase = options.restorePassphrase ?? false;
 
   function nextCategoryID(): number {
@@ -907,6 +917,8 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
     data.findeskReportText = findeskReportText;
     data.findeskReportError = findeskReportError;
     data.quitFinDeskVisible = quitFinDeskVisible;
+    data.bankListPresent = bankListPresent;
+    data.bankListSummary = bankListSummary;
     return data;
   }
 
@@ -1323,6 +1335,20 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
     cancelPendingRestore() {
       hasPendingRestore = false;
       messageText = translate(language, 'MessageRestoreCancelled');
+      errorText = '';
+      return publish();
+    },
+    loadBankList() {
+      bankListPresent = true;
+      bankListSummary = translate(language, 'BankListSummary', 3, '2026-11-14');
+      messageText = translate(language, 'MessageBankListLoadedAll', 3);
+      errorText = '';
+      return publish();
+    },
+    removeBankList() {
+      bankListPresent = false;
+      bankListSummary = '';
+      messageText = translate(language, 'MessageBankListRemoved', 3);
       errorText = '';
       return publish();
     },

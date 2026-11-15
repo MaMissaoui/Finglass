@@ -386,6 +386,7 @@ describe('banking.mock', () => {
       name: 'Rheintal Hypobank',
       blz: '70020270',
       bic: 'HYVEDEMM488',
+      serverUrl: '',
       centralNote: translate('en', 'CentralBlzNote', '70020270', '10020890'),
     });
 
@@ -400,27 +401,44 @@ describe('banking.mock', () => {
 
   it('fills only empty fields from a typed 8-digit BLZ and maps its branch code', () => {
     const { banking } = fake();
-    const empty = banking.bankBlzChanged('', '10020890', '');
+    const empty = banking.bankBlzChanged('', '10020890', '', '');
     expect(empty.name).toBe('Rheintal Hypobank');
     expect(empty.blz).toBe('70020270');
     expect(empty.bic).toBe('HYVEDEMM488');
+    expect(empty.serverUrl).toBe('https://fints.example.test/rheintal');
     expect(empty.centralNote).toBe(translate('en', 'CentralBlzNote', '70020270', '10020890'));
 
-    const filled = banking.bankBlzChanged('My bank', '10020890', 'MYBIC');
+    const filled = banking.bankBlzChanged('My bank', '10020890', 'MYBIC', '');
     expect(filled.name).toBe('My bank');
     expect(filled.blz).toBe('70020270');
     expect(filled.bic).toBe('MYBIC');
+    expect(filled.serverUrl).toBe('https://fints.example.test/rheintal');
 
-    const partial = banking.bankBlzChanged('My bank', '1002', 'MYBIC');
+    const typed = banking.bankBlzChanged(
+      'My bank',
+      '10020890',
+      'MYBIC',
+      'https://typed.example.test',
+    );
+    expect(typed.serverUrl).toBe('');
+
+    const partial = banking.bankBlzChanged('My bank', '1002', 'MYBIC', '');
     expect(partial).toEqual({
       name: 'My bank',
       blz: '1002',
       bic: 'MYBIC',
+      serverUrl: '',
       centralNote: '',
     });
 
-    const unknown = banking.bankBlzChanged('', '99999999', '');
-    expect(unknown).toEqual({ name: '', blz: '99999999', bic: '', centralNote: '' });
+    const unknown = banking.bankBlzChanged('', '99999999', '', '');
+    expect(unknown).toEqual({
+      name: '',
+      blz: '99999999',
+      bic: '',
+      serverUrl: '',
+      centralNote: '',
+    });
   });
 
   it('localizes the central note from the current language', () => {

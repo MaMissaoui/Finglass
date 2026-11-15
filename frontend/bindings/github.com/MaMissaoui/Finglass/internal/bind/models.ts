@@ -698,6 +698,7 @@ export class AddBankFieldsDTO {
     "name": string;
     "blz": string;
     "bic": string;
+    "serverUrl": string;
     "centralNote": string;
 
     /** Creates a new AddBankFieldsDTO instance. */
@@ -710,6 +711,9 @@ export class AddBankFieldsDTO {
         }
         if (!("bic" in $$source)) {
             this["bic"] = "";
+        }
+        if (!("serverUrl" in $$source)) {
+            this["serverUrl"] = "";
         }
         if (!("centralNote" in $$source)) {
             this["centralNote"] = "";
@@ -3101,6 +3105,16 @@ export class SettingsDTO {
      */
     "quitFinDeskVisible": boolean;
 
+    /**
+     * BankListPresent says whether the installation-wide bank list is loaded.
+     */
+    "bankListPresent": boolean;
+
+    /**
+     * BankListSummary is "N banks · loaded on <date>" while a list is loaded.
+     */
+    "bankListSummary": string;
+
     /** Creates a new SettingsDTO instance. */
     constructor($$source: Partial<SettingsDTO> = {}) {
         if (!("loading" in $$source)) {
@@ -3360,6 +3374,12 @@ export class SettingsDTO {
         }
         if (!("quitFinDeskVisible" in $$source)) {
             this["quitFinDeskVisible"] = false;
+        }
+        if (!("bankListPresent" in $$source)) {
+            this["bankListPresent"] = false;
+        }
+        if (!("bankListSummary" in $$source)) {
+            this["bankListSummary"] = "";
         }
 
         Object.assign(this, $$source);

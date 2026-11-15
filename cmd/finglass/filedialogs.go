@@ -181,6 +181,22 @@ func (d *wailsFileDialogs) PickBackup(title string) (string, bool) {
 	return path, true
 }
 
+// PickBankList asks for the DK bank list CSV.
+func (d *wailsFileDialogs) PickBankList(title string) (string, bool) {
+	if d == nil || d.app == nil {
+		return "", false
+	}
+	path, err := d.app.Dialog.OpenFile().
+		CanChooseFiles(true).
+		AddFilter(title, "*.csv").
+		AttachToWindow(d.window).
+		PromptForSingleSelection()
+	if err != nil || strings.TrimSpace(path) == "" {
+		return "", false
+	}
+	return path, true
+}
+
 // PickFindeskFolder asks for the FinDesk folder, starting in startDir when it
 // is not empty. The start folder comes from cmd/finglass, not the shell.
 func (d *wailsFileDialogs) PickFindeskFolder(title string, startDir string) (string, bool) {

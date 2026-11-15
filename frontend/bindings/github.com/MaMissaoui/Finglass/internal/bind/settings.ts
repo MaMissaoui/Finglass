@@ -274,6 +274,15 @@ export function Load(): $CancellablePromise<$models.SettingsDTO> {
 }
 
 /**
+ * LoadBankList asks for the DK bank list CSV and stores its server addresses.
+ */
+export function LoadBankList(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2065032219).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * NewProfile opens the name dialog for a new profile.
  */
 export function NewProfile(): $CancellablePromise<$models.SettingsDTO> {
@@ -332,6 +341,15 @@ export function OpenEditCategory(id: number): $CancellablePromise<$models.Settin
  */
 export function OpenEditRule(id: number): $CancellablePromise<$models.SettingsDTO> {
     return $Call.ByID(4214126555, id).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * RemoveBankList deletes the installation-wide bank list.
+ */
+export function RemoveBankList(): $CancellablePromise<$models.SettingsDTO> {
+    return $Call.ByID(2400884519).then(($result: any) => {
         return $$createType0($result);
     });
 }
