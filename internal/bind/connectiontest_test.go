@@ -33,7 +33,7 @@ func TestConnectionTestDTOsCarryNoTraceProductIDOrBankText(t *testing.T) {
 			Probed:  1,
 			Skipped: 1,
 		},
-		LastTrace: &bankingcore.LastTrace{Kind: "test", BankID: 7, HasTrace: true},
+		Traces: []bankingcore.LastTrace{{Kind: "test", BankID: 7, HasTrace: true}},
 		Banks: []bankingcore.BankItem{{
 			ID:                7,
 			BankName:          bankTextMarker,
@@ -73,9 +73,9 @@ func TestConnectionTestDTOsCarryNoTraceProductIDOrBankText(t *testing.T) {
 		len(dto.ConnectionTest.Codes) != 1 {
 		t.Fatalf("connection test block = %+v", dto.ConnectionTest)
 	}
-	if dto.LastTrace == nil || dto.LastTrace.Kind != "test" ||
-		dto.LastTrace.BankID != 7 || !dto.LastTrace.HasTrace {
-		t.Fatalf("last trace block = %+v", dto.LastTrace)
+	if len(dto.Traces) != 1 || dto.Traces[0].Kind != "test" ||
+		dto.Traces[0].BankID != 7 || !dto.Traces[0].HasTrace {
+		t.Fatalf("trace blocks = %+v", dto.Traces)
 	}
 	if len(dto.Banks) != 1 || !dto.Banks[0].CanTestConnection {
 		t.Fatalf("bank DTO = %+v", dto.Banks)

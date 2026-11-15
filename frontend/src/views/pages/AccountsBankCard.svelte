@@ -48,7 +48,7 @@
     onForgetDeleted: (accountID: number) => void;
     onOpenDeleteAccount: (accountID: number) => void;
     onBankMenu: (bankID: number, action: string) => void;
-    onSaveTrace: () => void;
+    onSaveTrace: (bankID: number) => void;
   } = $props();
 
   let bankMenuOpen = $state(false);
@@ -310,7 +310,7 @@
               <SecondaryButton
                 text={t('SaveConnectionTrace')}
                 icon="file_download"
-                onclick={onSaveTrace}
+                onclick={() => onSaveTrace(card.bankId)}
               />
             </div>
           {/if}
@@ -321,7 +321,11 @@
 
   {#if lastTrace !== null && lastTrace.kind === 'sync' && lastTrace.hasTrace && syncControlsVisible}
     <div class="sync-trace" data-testid={`sync-trace-${card.bankId}`}>
-      <TextButton text={t('SaveConnectionTrace')} icon="file_download" onclick={onSaveTrace} />
+      <TextButton
+        text={t('SaveConnectionTrace')}
+        icon="file_download"
+        onclick={() => onSaveTrace(card.bankId)}
+      />
     </div>
   {/if}
 

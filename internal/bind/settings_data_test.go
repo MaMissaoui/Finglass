@@ -54,6 +54,11 @@ type bindFileDialogs struct {
 	findeskResult bool
 	findeskStart  string
 	onFindesk     func()
+
+	tracePath   string
+	traceResult bool
+	traceTitle  string
+	traceName   string
 }
 
 func (f *bindFileDialogs) PickStatements(string) ([]string, bool) { return nil, false }
@@ -64,7 +69,14 @@ func (f *bindFileDialogs) SaveCSV(string, string) (string, bool) { return "", fa
 
 func (f *bindFileDialogs) SaveFile(i18n.Key, string) (string, bool) { return "", false }
 
-func (f *bindFileDialogs) SaveTrace(string, string) (string, bool) { return "", false }
+func (f *bindFileDialogs) SaveTrace(title string, defaultName string) (string, bool) {
+	f.mu.Lock()
+	f.traceTitle = title
+	f.traceName = defaultName
+	path, result := f.tracePath, f.traceResult
+	f.mu.Unlock()
+	return path, result
+}
 
 func (f *bindFileDialogs) SaveRules(string, string) (string, bool) { return "", false }
 

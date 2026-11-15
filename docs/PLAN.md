@@ -132,6 +132,7 @@ the newest supported HKTAN version, and names kept out of traces.
   tests; a real-bank check waits until one of your banks offers only v5.
 - [x] Real-bank sync with 0.4.3 (2026-11-14): Sync now works for Volksbank and HVB.
 - [x] Sync all with Volksbank and HVB works (2026-11-14), each bank's second sync included.
+- [x] Sync all keeps one redacted trace per bank; the summary shows one line per bank.
 - [x] Settings → Load bank list: you load the DK list (CSV) you received; only BLZ, server URL and name are kept in
   `bank-servers.json` in the data folder; Add bank fills an empty server address. Nothing is shipped.
 - [ ] **You:** request the list from registrierung@hbci-zka.de with your product registration, load the CSV, and

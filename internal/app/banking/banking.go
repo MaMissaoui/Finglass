@@ -219,8 +219,8 @@ type BankingState struct {
 	CanRememberPin bool
 	// ConnectionTest is the latest read-only connection test, if any.
 	ConnectionTest *ConnectionTestResult
-	// LastTrace is the last sync's or connection test's redacted trace.
-	LastTrace *LastTrace
+	// Traces are the redacted traces in memory, one per bank.
+	Traces []LastTrace
 }
 
 // New builds empty state for language.
@@ -261,10 +261,7 @@ func (s *BankingState) Clone() *BankingState {
 		value.Messages = append([]BankMessage(nil), s.ConnectionTest.Messages...)
 		cloned.ConnectionTest = &value
 	}
-	if s.LastTrace != nil {
-		value := *s.LastTrace
-		cloned.LastTrace = &value
-	}
+	cloned.Traces = append([]LastTrace(nil), s.Traces...)
 	cloned.Banks = make([]BankItem, len(s.Banks))
 	for index, bank := range s.Banks {
 		copied := bank

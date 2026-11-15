@@ -173,6 +173,28 @@ describe('banking.mock', () => {
     expect(after.syncing).toBe(false);
   });
 
+  it('keeps one trace per bank after Sync all and joins the summary lines', () => {
+    const { banking } = fake('accounts-sync-all-two-banks-en');
+    banking.startSyncAll();
+    for (let bank = 0; bank < 2; bank += 1) {
+      banking.answerPin(banking.prompt().id, '1234', false);
+      banking.answerChoice(banking.prompt().id, 'chiptan');
+      banking.answerChoice(banking.prompt().id, 'phone');
+      banking.answerTan(banking.prompt().id, '555666');
+      banking.answerDecoupled(banking.prompt().id, true);
+    }
+
+    const state = banking.state();
+    expect(state.traces).toEqual([
+      { kind: 'sync', bankId: 2, hasTrace: true },
+      { kind: 'sync', bankId: 3, hasTrace: true },
+    ]);
+    expect(state.messageText.split('\n')).toHaveLength(2);
+    expect(state.messageText).toContain('Sparkasse:');
+    expect(state.messageText).toContain('Nordlicht Bank:');
+    expect(state.syncing).toBe(false);
+  });
+
   it('validates an online bank and reports the localized error', () => {
     const { banking, errors, known } = fake();
     banking.addOnlineBank('', '37040044', '', '', 'https://fints.example/pintan');
@@ -471,7 +493,7 @@ describe('banking.mock', () => {
       probed: 0,
       skipped: 0,
     });
-    expect(running.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: false });
+    expect(running.traces).toEqual([{ kind: 'test', bankId: 2, hasTrace: false }]);
 
     const productID = banking.prompt();
     expect(productID.kind).toBe('product-id');
@@ -501,7 +523,7 @@ describe('banking.mock', () => {
       probed: 1,
       skipped: 1,
     });
-    expect(done.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: true });
+    expect(done.traces).toEqual([{ kind: 'test', bankId: 2, hasTrace: true }]);
     const published = JSON.stringify(done) + JSON.stringify(banking.prompt());
     expect(published).not.toContain('invented-product-id');
     expect(published).not.toContain('S3cret-PIN-9931');
@@ -527,7 +549,7 @@ describe('banking.mock', () => {
       probed: 0,
       skipped: 0,
     });
-    expect(done.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: false });
+    expect(done.traces).toEqual([{ kind: 'test', bankId: 2, hasTrace: false }]);
   });
 
   it('reports the NO-GO login with the bank return code', () => {
@@ -552,7 +574,7 @@ describe('banking.mock', () => {
       probed: 0,
       skipped: 0,
     });
-    expect(done.lastTrace).toEqual({ kind: 'test', bankId: 2, hasTrace: true });
+    expect(done.traces).toEqual([{ kind: 'test', bankId: 2, hasTrace: true }]);
   });
 
   it('skips the product id prompt when the build has a linked id', () => {
@@ -591,13 +613,13 @@ describe('banking.mock', () => {
 
   it('saves the redacted trace only after a test produced one', () => {
     const { banking } = fake('banking-walkthrough');
-    const absent = banking.saveConnectionTrace();
+    const absent = banking.saveConnectionTrace(2);
     expect(absent.errorText).toBe(translate('en', 'ErrorNoConnectionTrace'));
 
     banking.testConnection(2);
     banking.answerProductID(banking.prompt().id, 'invented-product-id');
     banking.answerPin(banking.prompt().id, '1234', false);
-    const saved = banking.saveConnectionTrace();
+    const saved = banking.saveConnectionTrace(2);
     expect(saved.errorText).toBe('');
     expect(saved.messageText).toBe(translate('en', 'MessageConnectionTraceSaved'));
   });

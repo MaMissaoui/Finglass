@@ -210,6 +210,8 @@ export function createMockBanking(
   const onlineSyncAvailable =
     scenario === 'banking-walkthrough' ||
     scenario === 'accounts-sync-per-bank' ||
+    scenario === 'accounts-sync-all-two-banks-en' ||
+    scenario === 'accounts-sync-all-two-banks-de' ||
     scenario === 'accounts-bank-menu-en-light' ||
     scenario === 'accounts-bank-menu-de-dark' ||
     scenario === 'accounts-status-strong-sync' ||
@@ -221,6 +223,8 @@ export function createMockBanking(
   let syncingBankId: number | null = null;
   let syncStep = '';
   let syncAll: MockSyncAll | null = null;
+  let syncAllRemaining: number[] = [];
+  let syncAllMessages: string[] = [];
   let prompt = emptyPrompt();
   let nextPromptId = 1;
   let nextBankId = 3;
@@ -229,8 +233,8 @@ export function createMockBanking(
   let testingBankId: number | null = null;
   let testStage: TestStage = '';
   let connectionTest: ConnectionTestDTO | null = null;
-  /** The last sync's or connection test's trace slot, as the Go shell keeps it. */
-  let lastTrace: LastTraceDTO | null = null;
+  /** One redacted trace slot per bank, as the Go shell keeps it. */
+  const traces = new Map<number, LastTraceDTO>();
   /**
    * Mock only: a build with a linked product id asks for no product id. The
    * default asks, so the prompt is part of the walkthrough.
@@ -636,7 +640,7 @@ export function createMockBanking(
       onlineSyncNote: !onlineSyncAvailable && hasOnlineBank() ? t('OnlineSyncNotYetAvailable') : '',
       banks: banksForCard(),
       connectionTest: connectionTestState(),
-      lastTrace: lastTrace === null ? null : { ...lastTrace },
+      traces: [...traces.values()].map((trace) => ({ ...trace })),
       infoText,
     };
   }
@@ -733,6 +737,8 @@ export function createMockBanking(
   function finishSync(): void {
     const bank = syncingBankId === null ? undefined : bankById(syncingBankId);
     const wasSyncAll = syncAll !== null;
+    const position = syncAll?.position ?? 0;
+    const total = syncAll?.total ?? 1;
     prompt = emptyPrompt();
     syncingBankId = null;
     syncStep = '';
@@ -742,13 +748,39 @@ export function createMockBanking(
         bank.hasSavedPin = true;
       }
       bank.rememberedThisRun = false;
-      lastTrace = { kind: 'sync', bankId: bank.id, hasTrace: true };
+      traces.set(bank.id, { kind: 'sync', bankId: bank.id, hasTrace: true });
     }
-    const included = banks.filter((bank) => bank.includeInSyncAll && !bank.offline);
-    const skipped = included.filter((bank) => !bank.syncUnlocked).map((bank) => bank.name);
-    const skippedText = wasSyncAll ? syncAllSkipped(skipped) : '';
-    messageText =
-      skippedText === '' ? t('SyncSummary', 2) : `${t('SyncSummary', 2)}\n${skippedText}`;
+    if (wasSyncAll) {
+      if (bank !== undefined) {
+        syncAllMessages.push(`${bank.name}: ${t('SyncSummary', 2)}`);
+      }
+      const nextID = syncAllRemaining.shift();
+      const next = nextID === undefined ? undefined : bankById(nextID);
+      if (next !== undefined) {
+        syncAll = { position: position + 1, total, bankName: next.name };
+        syncingBankId = next.id;
+        traces.set(next.id, { kind: 'sync', bankId: next.id, hasTrace: false });
+        syncStep = t('SyncConnecting');
+        script = [...walkthroughScript];
+        scriptIndex = 0;
+        runStep();
+        return;
+      }
+      const included = banks.filter((item) => item.includeInSyncAll && !item.offline);
+      const skipped = included.filter((item) => !item.syncUnlocked).map((item) => item.name);
+      const skippedText = syncAllSkipped(skipped);
+      const lines = [...syncAllMessages];
+      if (skippedText !== '') {
+        lines.push(skippedText);
+      }
+      messageText = lines.join('\n');
+      syncAllMessages = [];
+      errorText = '';
+      publish();
+      publishPrompt();
+      return;
+    }
+    messageText = t('SyncSummary', 2);
     errorText = '';
     publish();
     publishPrompt();
@@ -759,6 +791,8 @@ export function createMockBanking(
     syncingBankId = null;
     syncStep = '';
     syncAll = null;
+    syncAllRemaining = [];
+    syncAllMessages = [];
     publish();
     publishPrompt();
   }
@@ -798,7 +832,7 @@ export function createMockBanking(
       return publish();
     }
     syncingBankId = bankId;
-    lastTrace = { kind: 'sync', bankId, hasTrace: false };
+    traces.set(bankId, { kind: 'sync', bankId, hasTrace: false });
     syncStep = t('SyncConnecting');
     errorText = '';
     messageText = '';
@@ -839,8 +873,10 @@ export function createMockBanking(
       return state();
     }
     syncAll = { position: 1, total: ready.length, bankName: first.name };
+    syncAllRemaining = ready.slice(1).map((bank) => bank.id);
+    syncAllMessages = [];
     syncingBankId = first.id;
-    lastTrace = { kind: 'sync', bankId: 0, hasTrace: false };
+    traces.set(first.id, { kind: 'sync', bankId: first.id, hasTrace: false });
     syncStep = t('SyncConnecting');
     errorText = '';
     messageText = '';
@@ -1001,7 +1037,7 @@ export function createMockBanking(
             savedPinForgotten: false,
             savedPinRejectedOnce: false,
           };
-      lastTrace = { kind: 'test', bankId, hasTrace: true };
+      traces.set(bankId, { kind: 'test', bankId, hasTrace: true });
       errorText = '';
       messageText = '';
       publish();
@@ -1028,7 +1064,7 @@ export function createMockBanking(
       savedPinForgotten: false,
       savedPinRejectedOnce: false,
     };
-    lastTrace = { kind: 'test', bankId, hasTrace: false };
+    traces.set(bankId, { kind: 'test', bankId, hasTrace: false });
     errorText = '';
     messageText = '';
     startTestPrompt();
@@ -1059,7 +1095,7 @@ export function createMockBanking(
         savedPinForgotten: false,
         savedPinRejectedOnce: false,
       };
-      lastTrace = { kind: 'test', bankId, hasTrace: false };
+      traces.set(bankId, { kind: 'test', bankId, hasTrace: false });
     } else if (strongSyncGoTest) {
       connectionTest = {
         bankId,
@@ -1079,7 +1115,7 @@ export function createMockBanking(
         savedPinForgotten: false,
         savedPinRejectedOnce: false,
       };
-      lastTrace = { kind: 'test', bankId, hasTrace: true };
+      traces.set(bankId, { kind: 'test', bankId, hasTrace: true });
     } else if (noGoBankId === bankId) {
       connectionTest = {
         bankId,
@@ -1102,7 +1138,7 @@ export function createMockBanking(
         savedPinForgotten: false,
         savedPinRejectedOnce: false,
       };
-      lastTrace = { kind: 'test', bankId, hasTrace: true };
+      traces.set(bankId, { kind: 'test', bankId, hasTrace: true });
     } else {
       connectionTest = {
         bankId,
@@ -1122,7 +1158,7 @@ export function createMockBanking(
         savedPinForgotten: false,
         savedPinRejectedOnce: false,
       };
-      lastTrace = { kind: 'test', bankId, hasTrace: true };
+      traces.set(bankId, { kind: 'test', bankId, hasTrace: true });
     }
     if (!cancelled) {
       const testedBank = bankById(bankId);
@@ -1155,8 +1191,9 @@ export function createMockBanking(
     publishPrompt();
   }
 
-  function saveConnectionTrace(): BankingDTO {
-    if (lastTrace === null || !lastTrace.hasTrace) {
+  function saveConnectionTrace(bankID: number): BankingDTO {
+    const trace = traces.get(bankID);
+    if (trace === undefined || !trace.hasTrace) {
       errorText = t('ErrorNoConnectionTrace');
       return publish();
     }
@@ -1333,6 +1370,7 @@ export function createMockBanking(
     const index = banks.findIndex((bank) => bank.id === bankId);
     if (index >= 0) {
       banks.splice(index, 1);
+      traces.delete(bankId);
       hooks.closeDialog();
       hooks.removeBank(bankId);
     }
@@ -1422,6 +1460,29 @@ export function createMockBanking(
 
   function init(): void {
     alignBanks();
+    if (
+      scenario === 'accounts-sync-all-two-banks-en' ||
+      scenario === 'accounts-sync-all-two-banks-de'
+    ) {
+      hooks.addOnlineBank(3, 'Nordlicht Bank', '20050550', 'NOLADEHHXXX');
+      alignBanks();
+      const sparkasse = bankById(2);
+      if (sparkasse !== undefined) {
+        sparkasse.includeInSyncAll = true;
+        sparkasse.syncUnlocked = true;
+        sparkasse.syncUnlockedOn = '2026-11-14';
+      }
+      const second = bankById(3);
+      if (second !== undefined) {
+        second.includeInSyncAll = true;
+        second.syncUnlocked = true;
+        second.syncUnlockedOn = '2026-11-14';
+        second.serverUrl = 'https://fints.example/nordlicht';
+        second.userId = 'nordlicht-user';
+      }
+      messageText = '';
+      errorText = '';
+    }
     if (scenario === 'accounts-sync-per-bank') {
       hooks.addOnlineBank(3, 'Nordlicht Bank', '20050550', 'NOLADEHHXXX');
       hooks.addOnlineBank(4, 'Rheintal Hypobank', '70020270', 'HYVEDEMM488');
@@ -1475,7 +1536,7 @@ export function createMockBanking(
         savedPinForgotten: false,
         savedPinRejectedOnce: false,
       };
-      lastTrace = { kind: 'test', bankId: 2, hasTrace: true };
+      traces.set(2, { kind: 'test', bankId: 2, hasTrace: true });
       errorText = '';
       messageText = '';
     }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { AccountsDTO, Api, BankingDTO, PromptDTO, ShellDTO } from '../../lib/api';
+  import type { LastTraceDTO } from '../../../bindings/github.com/MaMissaoui/Finglass/internal/bind/models';
   import { Icon, MessageBanner, PrimaryButton, SecondaryButton } from '../../lib/components';
   import { splitCurrencyAmounts } from '../../lib/currencyAmounts';
   import { languageFromCode, translate, type FormatArg, type Language } from '../../lib/i18n';
@@ -202,6 +203,10 @@
     void runBanking(() => api.bankingHandleBankMenu(bankID, action));
   }
 
+  function traceFor(bankID: number): LastTraceDTO | null {
+    return banking?.traces.find((trace) => trace.bankId === bankID) ?? null;
+  }
+
   function openAddAccount(bankID: number): void {
     void run(() => api.accountsOpenAddAccount(bankID));
   }
@@ -388,7 +393,7 @@
             connectionTest={banking?.connectionTest?.bankId === card.bankId
               ? banking.connectionTest
               : null}
-            lastTrace={banking?.lastTrace?.bankId === card.bankId ? banking.lastTrace : null}
+            lastTrace={traceFor(card.bankId)}
             syncControlsVisible={banking?.syncControlsVisible ?? false}
             onToggle={toggleBank}
             onSync={syncBank}
@@ -400,7 +405,7 @@
             onForgetDeleted={forgetDeleted}
             onOpenDeleteAccount={openDeleteAccount}
             onBankMenu={bankMenu}
-            onSaveTrace={() => void runBanking(() => api.bankingSaveConnectionTrace())}
+            onSaveTrace={(bankID) => void runBanking(() => api.bankingSaveConnectionTrace(bankID))}
           />
         {/each}
       </div>

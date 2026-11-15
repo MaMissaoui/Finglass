@@ -133,14 +133,14 @@ func TestASyncRecordsARedactedTraceInTheOneSlot(t *testing.T) {
 	if state.Error != nil {
 		t.Fatalf("sync error = %q", *state.Error)
 	}
-	if state.LastTrace == nil || state.LastTrace.Kind != traceKindSync ||
-		state.LastTrace.BankID != bankID || !state.LastTrace.HasTrace {
-		t.Fatalf("last trace = %+v", state.LastTrace)
+	if len(state.Traces) != 1 || state.Traces[0].Kind != traceKindSync ||
+		state.Traces[0].BankID != bankID || !state.Traces[0].HasTrace {
+		t.Fatalf("last trace = %+v", state.Traces)
 	}
 
 	session.mu.Lock()
-	trace := append([]byte(nil), session.lastTrace.trace...)
-	blz := session.lastTrace.blz
+	trace := append([]byte(nil), session.lastTraces[bankID].trace...)
+	blz := session.lastTraces[bankID].blz
 	session.mu.Unlock()
 	if blz != connectionTestBLZ {
 		t.Fatalf("trace BLZ = %q, want %q", blz, connectionTestBLZ)
@@ -166,7 +166,7 @@ func TestASyncRecordsARedactedTraceInTheOneSlot(t *testing.T) {
 	// The sync's trace is what "Save redacted trace…" writes, with mode 0600.
 	path := filepath.Join(t.TempDir(), "sync-trace.txt")
 	session.SetFileDialogs(&fakeFileDialogs{tracePath: path, traceResult: true})
-	session.BankingSaveConnectionTrace()
+	session.BankingSaveConnectionTrace(int(bankID))
 	waitForJobs(t, session)
 	// #nosec G304 -- path is a test temporary file.
 	saved, err := os.ReadFile(path)
@@ -180,15 +180,15 @@ func TestASyncRecordsARedactedTraceInTheOneSlot(t *testing.T) {
 		perm.AssertMode(t, path, 0o600)
 	})
 
-	// A connection test replaces the sync's trace in the one slot.
+	// A connection test replaces the sync's trace in that bank's slot only.
 	runTypedTANConnectionTest(t, session, typedTANConnectionBank(t))
 	state = session.BankingState()
-	if state.LastTrace == nil || state.LastTrace.Kind != traceKindTest {
-		t.Fatalf("last trace after a test = %+v", state.LastTrace)
+	if len(state.Traces) != 1 || state.Traces[0].Kind != traceKindTest {
+		t.Fatalf("last trace after a test = %+v", state.Traces)
 	}
 	session.mu.Lock()
-	kind := session.lastTrace.kind
-	replaced := string(session.lastTrace.trace) != text
+	kind := session.lastTraces[bankID].kind
+	replaced := string(session.lastTraces[bankID].trace) != text
 	session.mu.Unlock()
 	if kind != traceKindTest || !replaced {
 		t.Fatalf("slot kind = %q, replaced = %t", kind, replaced)

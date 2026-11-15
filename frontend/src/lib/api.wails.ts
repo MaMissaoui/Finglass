@@ -334,8 +334,8 @@ export function createWailsApi(): Api {
     bankingTestConnection(bankID: number) {
       return Banking.TestConnection(bankID);
     },
-    bankingSaveConnectionTrace() {
-      return Banking.SaveConnectionTrace();
+    bankingSaveConnectionTrace(bankID: number) {
+      return Banking.SaveConnectionTrace(bankID);
     },
     bankingStartSync(bankID: number) {
       return Banking.StartSync(bankID);

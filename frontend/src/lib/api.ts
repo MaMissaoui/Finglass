@@ -212,7 +212,7 @@ export interface Api {
   bankingClearHistory(bankID: number): Promise<BankingDTO>;
   bankingSubmitHistory(bankID: number, date: string): Promise<BankingDTO>;
   bankingTestConnection(bankID: number): Promise<BankingDTO>;
-  bankingSaveConnectionTrace(): Promise<BankingDTO>;
+  bankingSaveConnectionTrace(bankID: number): Promise<BankingDTO>;
   bankingStartSync(bankID: number): Promise<BankingDTO>;
   bankingStartSyncAll(): Promise<BankingDTO>;
   bankingDeleteBank(bankID: number): Promise<BankingDTO>;

@@ -127,8 +127,8 @@ func (m BankMessageDTO) Format(f fmt.State, _ rune) {
 	_, _ = f.Write([]byte(m.String()))
 }
 
-// LastTraceDTO names the last sync or connection test whose redacted trace is
-// in memory. It never carries trace bytes.
+// LastTraceDTO names one bank's last sync or connection test whose redacted
+// trace is in memory. It never carries trace bytes.
 type LastTraceDTO struct {
 	Kind     string `json:"kind"`
 	BankID   int    `json:"bankId"`
@@ -174,7 +174,7 @@ type BankingDTO struct {
 	OnlineSyncNote string             `json:"onlineSyncNote"`
 	Banks          []BankingBankDTO   `json:"banks"`
 	ConnectionTest *ConnectionTestDTO `json:"connectionTest"`
-	LastTrace      *LastTraceDTO      `json:"lastTrace"`
+	Traces         []LastTraceDTO     `json:"traces"`
 	InfoText       string             `json:"infoText"`
 }
 
@@ -324,10 +324,10 @@ func (b *Banking) TestConnection(bankID int) (BankingDTO, error) {
 	return b.action(func() { b.session.BankingTestConnection(bankID) })
 }
 
-// SaveConnectionTrace asks where to save the last redacted sync or connection
-// test trace.
-func (b *Banking) SaveConnectionTrace() (BankingDTO, error) {
-	return b.action(func() { b.session.BankingSaveConnectionTrace() })
+// SaveConnectionTrace asks where to save one bank's last redacted sync or
+// connection test trace.
+func (b *Banking) SaveConnectionTrace(bankID int) (BankingDTO, error) {
+	return b.action(func() { b.session.BankingSaveConnectionTrace(bankID) })
 }
 
 // StartSync starts one bank's sync.
@@ -551,6 +551,7 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 		CanRememberPin:      state.CanRememberPin,
 		OnlineSyncNote:      onlineSyncNote(&state),
 		Banks:               bankingBanks(&state, language),
+		Traces:              make([]LastTraceDTO, 0, len(state.Traces)),
 	}
 	if state.Error != nil {
 		dto.ErrorText = *state.Error
@@ -592,12 +593,12 @@ func bankingDTO(state bankingcore.BankingState, language i18n.Language) BankingD
 			SavedPinRejectedOnce: state.ConnectionTest.SavedPinRejectedOnce,
 		}
 	}
-	if state.LastTrace != nil {
-		dto.LastTrace = &LastTraceDTO{
-			Kind:     state.LastTrace.Kind,
-			BankID:   int(state.LastTrace.BankID),
-			HasTrace: state.LastTrace.HasTrace,
-		}
+	for _, trace := range state.Traces {
+		dto.Traces = append(dto.Traces, LastTraceDTO{
+			Kind:     trace.Kind,
+			BankID:   int(trace.BankID),
+			HasTrace: trace.HasTrace,
+		})
 	}
 	return dto
 }
