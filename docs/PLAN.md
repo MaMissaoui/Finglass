@@ -180,8 +180,8 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 - [x] A real-data screenshot mode for comparing pages with your own data (tooling only; runs against your data, so
   **you** run it). Done: `scripts/real-data-shots.sh` takes a backup and an output folder; it never opens
   `~/.finglass`.
-- [ ] **You:** make a backup in Settings, run `scripts/real-data-shots.sh <backup> <folder outside the repo>`, and
-  look at the pages.
+- [x] **You:** make a backup in Settings, run `scripts/real-data-shots.sh <backup> <folder outside the repo>`, and
+  look at the pages. First real run worked on 2026-11-15 (after the null-list fix, #232).
 
 ## Risks
 
