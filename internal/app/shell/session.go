@@ -226,6 +226,10 @@ type Session struct {
 	// gatewayFactory is nil in production. The shell tests set it to inject a
 	// fake FinTS gateway; no production path ever opens a socket.
 	gatewayFactory func(i18n.Language) banksync.FinTsGateway
+	// offlineGateway pins banking to the offline gateway and stops the shell
+	// from reading the build's product id. Headless tooling sets it through
+	// StartOffline; the normal app leaves it false.
+	offlineGateway bool
 	// syncGatewayFactory is nil in production. The shell tests set it to build
 	// a real gateway with a fake transport and the running sync's trace sink.
 	syncGatewayFactory func(i18n.Language, *syncTraceSink) banksync.FinTsGateway
