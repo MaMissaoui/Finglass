@@ -32,6 +32,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: typescript
+        # TypeScript 7: wait until svelte-check and typescript-eslint accept it in their peer ranges.
+        versions: [">=7"]
     groups:
       npm-minor-patch:
         applies-to: version-updates
