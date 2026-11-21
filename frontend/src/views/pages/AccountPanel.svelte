@@ -204,8 +204,9 @@
                   class="amount"
                   class:muted={amountClass(row, split.main.tone) === 'muted'}
                   class:negative={amountClass(row, split.main.tone) === 'negative'}
-                  >{split.main.text}</span
                 >
+                  {split.main.text}
+                </span>
               {/if}
               {#if split.further.length > 0}
                 <span class="amount-further">
@@ -266,8 +267,10 @@
                 onclick={() => {
                   openActions = '';
                   onMarkRead(row.kind, row.groupKind, row.id, row.accountType);
-                }}>{t('MarkAsRead')}</button
+                }}
               >
+                {t('MarkAsRead')}
+              </button>
             {/if}
             {#if row.kind === 'group' && row.groupKind === 'custom'}
               <button
@@ -276,32 +279,40 @@
                 onclick={() => {
                   openActions = '';
                   startRename(row.id, row.name);
-                }}>{t('RenameGroup')}</button
+                }}
               >
+                {t('RenameGroup')}
+              </button>
               <button
                 type="button"
                 class="panel-action"
                 onclick={() => {
                   openActions = '';
                   onMoveGroup(row.id, true);
-                }}>{t('MoveUp')}</button
+                }}
               >
+                {t('MoveUp')}
+              </button>
               <button
                 type="button"
                 class="panel-action"
                 onclick={() => {
                   openActions = '';
                   onMoveGroup(row.id, false);
-                }}>{t('MoveDown')}</button
+                }}
               >
+                {t('MoveDown')}
+              </button>
               <button
                 type="button"
                 class="panel-action"
                 onclick={() => {
                   openActions = '';
                   startDelete(row.id, row.deleteText);
-                }}>{t('Delete')}</button
+                }}
               >
+                {t('Delete')}
+              </button>
             {/if}
             {#if row.kind === 'account'}
               <button
@@ -310,8 +321,10 @@
                 onclick={() => {
                   openActions = '';
                   startMove(row.id);
-                }}>{t('MoveToGroup')}</button
+                }}
               >
+                {t('MoveToGroup')}
+              </button>
             {/if}
           </div>
         {/if}

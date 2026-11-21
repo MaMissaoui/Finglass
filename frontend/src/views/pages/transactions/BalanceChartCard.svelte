@@ -62,8 +62,10 @@
           class="end-label"
           class:above={endLabelAbove}
           style:top={dotTop}
-          data-testid="balance-chart-end-label">{dto.chartEndLabel}</span
+          data-testid="balance-chart-end-label"
         >
+          {dto.chartEndLabel}
+        </span>
       </div>
       <div class="dates">
         <span>{dto.chartAxisStart}</span>

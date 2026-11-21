@@ -468,21 +468,25 @@
               <span
                 class="monthly-value"
                 class:alert={row.netTone === 'negative'}
-                class:in={row.netTone !== 'negative'}>{row.netText}</span
+                class:in={row.netTone !== 'negative'}
               >
+                {row.netText}
+              </span>
             </div>
           {/each}
           <div class="monthly-row total">
             <span class="monthly-month">{t('ReportTotal')}</span>
-            <span class="monthly-value" class:in={!dto.monthlyTotalIncomeZero}
-              >{dto.monthlyTotalIncome}</span
-            >
+            <span class="monthly-value" class:in={!dto.monthlyTotalIncomeZero}>
+              {dto.monthlyTotalIncome}
+            </span>
             <span class="monthly-value">{dto.monthlyTotalExpenses}</span>
             <span
               class="monthly-value"
               class:alert={dto.monthlyTotalTone === 'negative'}
-              class:in={dto.monthlyTotalTone !== 'negative'}>{dto.monthlyTotalNet}</span
+              class:in={dto.monthlyTotalTone !== 'negative'}
             >
+              {dto.monthlyTotalNet}
+            </span>
           </div>
           <div class="rule" role="none"></div>
         </SectionCard>
@@ -557,9 +561,9 @@
                     <span class="suggestion-title">{suggestion.title}</span>
                     <span class="suggestion-keyword">{suggestion.keywordText}</span>
                   </div>
-                  <span class="suggestion-amount" class:in={!suggestion.expense}
-                    >{suggestion.amountText}</span
-                  >
+                  <span class="suggestion-amount" class:in={!suggestion.expense}>
+                    {suggestion.amountText}
+                  </span>
                   <TextButton
                     text={t('Accept')}
                     enabled={!busy}

@@ -45,12 +45,14 @@ jobs:
       - name: Set up Go from go.mod
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
+          check-latest: true
           go-version-file: go.mod
           cache: true
 
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
+          check-latest: true
           node-version: "26"
 
       - name: Download the Go modules
@@ -186,12 +188,14 @@ jobs:
       - name: Set up Go from go.mod
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
+          check-latest: true
           go-version-file: go.mod
           cache: true
 
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
+          check-latest: true
           node-version: "26"
 
       - name: Install the Linux cgo and Wails dependencies

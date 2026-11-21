@@ -331,8 +331,10 @@
                     class="figure-amount"
                     class:muted={noteAmountTone(split.main.tone, figure.secondary) === 'muted'}
                     class:negative={noteAmountTone(split.main.tone, figure.secondary) ===
-                      'negative'}>{split.main.text}</span
+                      'negative'}
                   >
+                    {split.main.text}
+                  </span>
                 {/if}
               </div>
               {#if split.further.length > 0}

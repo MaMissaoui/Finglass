@@ -252,8 +252,10 @@
               <span
                 class="figure-amount"
                 class:negative={noteTone(dto.balanceTone, false) === 'negative'}
-                class:muted={noteTone(dto.balanceTone, false) === 'muted'}>{dto.balanceText}</span
+                class:muted={noteTone(dto.balanceTone, false) === 'muted'}
               >
+                {dto.balanceText}
+              </span>
             </div>
           {/if}
         </div>

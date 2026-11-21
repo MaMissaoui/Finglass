@@ -162,8 +162,10 @@
           <span
             class="bank-total"
             class:muted={toneClass(total.tone) === 'muted'}
-            class:negative={toneClass(total.tone) === 'negative'}>{total.text}</span
+            class:negative={toneClass(total.tone) === 'negative'}
           >
+            {total.text}
+          </span>
         {/each}
       </div>
       {#if card.subtitle !== ''}
@@ -401,8 +403,10 @@
               <span
                 class="account-amount"
                 class:muted={accountTone(account) === 'muted'}
-                class:negative={accountTone(account) === 'negative'}>{account.balanceText}</span
+                class:negative={accountTone(account) === 'negative'}
               >
+                {account.balanceText}
+              </span>
             </button>
             <button
               type="button"
