@@ -104,5 +104,6 @@ jobs:
               org.freedesktop.DBus.Properties.Get \
               string:org.freedesktop.Secret.Collection string:Locked || true
             export FINGLASS_KEYCHAIN_TEST=1
+            export FINGLASS_KEYCHAIN_HANG_TEST=1
             go test ./internal/platform/credstore/... -count=1 -v
           '

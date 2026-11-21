@@ -138,3 +138,57 @@ func TestAFailedStoreDeleteKeepsTheMarker(t *testing.T) {
 		t.Fatalf("marker was removed: %v", err)
 	}
 }
+
+func TestForgettingAProfileDoesNotTrustTheAvailabilityCheck(t *testing.T) {
+	profile := filepath.Join(t.TempDir(), "business")
+	credentialsDir := filepath.Join(profile, "credentials")
+	if err := os.MkdirAll(credentialsDir, 0o700); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	marker := filepath.Join(credentialsDir, "bank-7")
+	if err := os.WriteFile(marker, nil, 0o600); err != nil {
+		t.Fatalf("write marker: %v", err)
+	}
+
+	// A cached unavailable result must not skip the deletes: this store still
+	// reports itself unavailable, but the delete itself succeeds.
+	store := NewUnavailableMemoryCredentialStore()
+	if err := store.Write(PinKey(profile, 7), []byte("12345")); err != nil {
+		t.Fatalf("write PIN: %v", err)
+	}
+
+	ForgetPinsForProfile(store, profile)
+
+	if store.Contains(PinKey(profile, 7)) {
+		t.Fatal("PIN was not forgotten although the delete succeeded")
+	}
+	if _, err := os.Stat(marker); !os.IsNotExist(err) {
+		t.Fatalf("marker still exists: %v", err)
+	}
+}
+
+func TestAnUnavailableStoreWithFailingDeletesKeepsTheMarker(t *testing.T) {
+	profile := filepath.Join(t.TempDir(), "business")
+	credentialsDir := filepath.Join(profile, "credentials")
+	if err := os.MkdirAll(credentialsDir, 0o700); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	marker := filepath.Join(credentialsDir, "bank-7")
+	if err := os.WriteFile(marker, nil, 0o600); err != nil {
+		t.Fatalf("write marker: %v", err)
+	}
+
+	store := NewUnavailableMemoryCredentialStore().FailingDeletes()
+	if err := store.Write(PinKey(profile, 7), []byte("12345")); err != nil {
+		t.Fatalf("write PIN: %v", err)
+	}
+
+	ForgetPinsForProfile(store, profile)
+
+	if !store.Contains(PinKey(profile, 7)) {
+		t.Fatal("PIN was forgotten although the delete failed")
+	}
+	if _, err := os.Stat(marker); err != nil {
+		t.Fatalf("marker was removed although the delete failed: %v", err)
+	}
+}

@@ -37,9 +37,12 @@ const (
 // It keeps one private session-bus connection per store for the process
 // lifetime, replacing it only after the D-Bus library closed it (the library
 // never exposes a close). Every D-Bus call this file makes itself has a
-// deadline. The library calls it relies on (SearchCollection, GetSecret,
-// CreateItem, DeleteItem) have none; that is accepted because they only run
-// after a successful, deadline-bounded availability check.
+// deadline. A failed availability check costs at most one deadline: a timeout
+// drops the session locally and keeps the client, and only an error reply
+// closes the session and pings. The library calls it relies on
+// (SearchCollection, GetSecret, CreateItem, DeleteItem) have no deadlines;
+// that is accepted because they only run after a successful, deadline-bounded
+// availability check.
 type linuxStore struct {
 	service string
 
@@ -102,8 +105,7 @@ func (l *linuxStore) Read(account string) ([]byte, bool, error) {
 	}
 	items, err := l.client.SearchCollection(secretservice.DefaultCollection, l.attributes(account))
 	if err != nil {
-		l.resetSessionLocked()
-		l.dropClientIfClosedLocked(err)
+		l.handleErrorLocked(err)
 		return nil, false, linuxError("read")
 	}
 	if len(items) == 0 {
@@ -112,8 +114,7 @@ func (l *linuxStore) Read(account string) ([]byte, bool, error) {
 
 	plaintext, err := l.client.GetSecret(items[0], *l.session)
 	if err != nil {
-		l.resetSessionLocked()
-		l.dropClientIfClosedLocked(err)
+		l.handleErrorLocked(err)
 		return nil, false, linuxError("read")
 	}
 	secret := make([]byte, len(plaintext))
@@ -144,8 +145,7 @@ func (l *linuxStore) Write(account string, secret []byte) error {
 	}
 	clear(value)
 	if err != nil {
-		l.resetSessionLocked()
-		l.dropClientIfClosedLocked(err)
+		l.handleErrorLocked(err)
 		return linuxError("write")
 	}
 	return nil
@@ -161,14 +161,12 @@ func (l *linuxStore) Delete(account string) error {
 	}
 	items, err := l.client.SearchCollection(secretservice.DefaultCollection, l.attributes(account))
 	if err != nil {
-		l.resetSessionLocked()
-		l.dropClientIfClosedLocked(err)
+		l.handleErrorLocked(err)
 		return linuxError("delete")
 	}
 	for _, item := range items {
 		if err := l.client.DeleteItem(item); err != nil {
-			l.resetSessionLocked()
-			l.dropClientIfClosedLocked(err)
+			l.handleErrorLocked(err)
 			return linuxError("delete")
 		}
 	}
@@ -209,8 +207,7 @@ func (l *linuxStore) prepare() error {
 	if l.session == nil {
 		session, err := openSession(l.client)
 		if err != nil {
-			l.resetSessionLocked()
-			l.dropClientIfClosedLocked(err)
+			l.handleOpenSessionErrorLocked(err)
 			return credentials.ErrUnavailable
 		}
 		l.session = session
@@ -220,8 +217,7 @@ func (l *linuxStore) prepare() error {
 	if err != nil {
 		// The alias does not exist or the daemon went away: drop the stale
 		// session, but keep a live bus connection.
-		l.resetSessionLocked()
-		l.dropClientIfClosedLocked(err)
+		l.handleErrorLocked(err)
 		return credentials.ErrUnavailable
 	}
 	if locked {
@@ -250,15 +246,98 @@ func (l *linuxStore) collectionLocked() (bool, error) {
 	return locked, nil
 }
 
-// openSession opens a DH-AES encrypted session. plain is only for a service
-// that refuses the DH handshake; every daemon Finglass has met accepts DH-AES,
-// so it stays the default.
+// openSession opens a DH-AES encrypted session. Plaintext is used only when
+// the service refuses DH-AES with an error reply; a timeout, a closed
+// connection or any other failure returns the error, never a plaintext session.
 func openSession(client *secretservice.SecretService) (*secretservice.Session, error) {
 	session, err := client.OpenSession(secretservice.AuthenticationDHAES)
 	if err == nil {
 		return session, nil
 	}
+	if errorKind(err) != reply {
+		return nil, err
+	}
 	return client.OpenSession(secretservice.AuthenticationInsecurePlain)
+}
+
+// kind classifies a D-Bus failure by what it proves about the connection.
+type kind int
+
+const (
+	// other is a failure that says nothing about the connection.
+	other kind = iota
+	// closed means the D-Bus library closed the connection.
+	closed
+	// reply is an error reply from the service: the connection is open.
+	reply
+	// timeout is a deadline reached while waiting. A closed connection fails
+	// at once, so a timeout proves the connection is open.
+	timeout
+)
+
+// errorKind classifies err. The library wraps its errors with %w and returns
+// D-Bus error replies as either a value or a pointer, so both are matched.
+func errorKind(err error) kind {
+	if err == nil {
+		return other
+	}
+	if errors.Is(err, kdbus.ErrClosed) {
+		return closed
+	}
+	var replyValue kdbus.Error
+	if errors.As(err, &replyValue) {
+		return reply
+	}
+	var replyPointer *kdbus.Error
+	if errors.As(err, &replyPointer) {
+		return reply
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return timeout
+	}
+	return other
+}
+
+// handleErrorLocked cleans up after a failed D-Bus call with one deadline at
+// most. A closed connection has nothing left to close or ping. A timeout
+// proves the connection is open, so the client stays and needs no ping; the
+// session is dropped locally because closing it would wait for the same slow
+// service. An error reply or an unclassified failure keeps the current
+// cleanup: close the session, then ping to notice a closed connection.
+func (l *linuxStore) handleErrorLocked(err error) {
+	switch errorKind(err) {
+	case closed:
+		l.wipeSessionLocked()
+		l.client = nil
+	case timeout:
+		l.wipeSessionLocked()
+	default:
+		l.resetSessionLocked()
+		l.dropClientIfClosedLocked(err)
+	}
+}
+
+// handleOpenSessionErrorLocked cleans up after openSession fails. The library
+// reports its own session-open timeout as a plain error, while a D-Bus deadline
+// is context.DeadlineExceeded; both mean the same here: keep the client and do
+// not ping it.
+func (l *linuxStore) handleOpenSessionErrorLocked(err error) {
+	if errorKind(err) == other {
+		l.wipeSessionLocked()
+		return
+	}
+	l.handleErrorLocked(err)
+}
+
+// wipeSessionLocked forgets the session and wipes its key without calling the
+// service. It is for a connection that is closed or too slow to answer.
+func (l *linuxStore) wipeSessionLocked() {
+	if l.session == nil {
+		return
+	}
+	clear(l.session.AESKey)
+	l.session.Private = nil
+	l.session = nil
 }
 
 // resetSessionLocked closes the session with a deadline and wipes its key. The
@@ -268,8 +347,6 @@ func (l *linuxStore) resetSessionLocked() {
 	if l.session == nil {
 		return
 	}
-	clear(l.session.AESKey)
-	l.session.Private = nil
 	if l.client != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), l.callTimeout)
 		// A session that cannot be closed is already gone; its error is
@@ -278,7 +355,7 @@ func (l *linuxStore) resetSessionLocked() {
 			CallWithContext(ctx, "org.freedesktop.Secret.Session.Close", 0).Err
 		cancel()
 	}
-	l.session = nil
+	l.wipeSessionLocked()
 }
 
 // dropClientIfClosedLocked pings the service and drops the client only when

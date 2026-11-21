@@ -4,12 +4,17 @@ package credstore
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"os"
+	"syscall"
 	"testing"
 	"time"
+
+	kdbus "github.com/keybase/dbus"
+	"github.com/keybase/go-keychain/secretservice"
 
 	"github.com/MaMissaoui/Finglass/internal/core/credentials"
 	"github.com/MaMissaoui/Finglass/internal/core/credentials/storetest"
@@ -169,5 +174,129 @@ func TestLinuxStoreWriteIgnoresAvailabilityCache(t *testing.T) {
 	}
 	if !bytes.Equal(got, secret) {
 		t.Fatalf("Read = %q, want %q", got, secret)
+	}
+}
+
+// TestErrorKindClassifiesFailures needs no D-Bus: it checks the classification
+// the store's cleanup decisions depend on.
+func TestErrorKindClassifiesFailures(t *testing.T) {
+	replyValue := kdbus.Error{Name: "org.freedesktop.Secret.Error.IsLocked"}
+	replyPointer := kdbus.NewError("org.freedesktop.Secret.Error.IsLocked", nil)
+
+	tests := []struct {
+		name string
+		err  error
+		want kind
+	}{
+		{"wrapped closed connection", fmt.Errorf("call: %w", kdbus.ErrClosed), closed},
+		{"wrapped reply value", fmt.Errorf("call: %w", replyValue), reply},
+		{"wrapped reply pointer", fmt.Errorf("call: %w", error(replyPointer)), reply},
+		{"wrapped deadline", fmt.Errorf("call: %w", context.DeadlineExceeded), timeout},
+		{"plain library timeout", errors.New("timed out after 3s"), other},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := errorKind(tt.err); got != tt.want {
+				t.Fatalf("errorKind = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+// secretServicePID asks the session bus which process owns the Secret Service
+// name.
+func secretServicePID(t *testing.T) int {
+	t.Helper()
+
+	conn, err := kdbus.ConnectSessionBus()
+	if err != nil {
+		t.Fatal("could not connect to the session bus")
+	}
+	defer func() {
+		if err := conn.Close(); err != nil {
+			t.Errorf("close the bus connection: %v", err)
+		}
+	}()
+
+	var pid uint32
+	err = conn.BusObject().Call(
+		"org.freedesktop.DBus.GetConnectionUnixProcessID", 0,
+		"org.freedesktop.secrets",
+	).Store(&pid)
+	if err != nil {
+		t.Fatal("could not ask the bus for the Secret Service process")
+	}
+	return int(pid)
+}
+
+// TestLinuxStoreHungDaemonCostsOneDeadline stops the keyring daemon and asserts
+// that a failed availability check costs one deadline, keeps the client and
+// never opens a plaintext session. It is gated twice because stopping the
+// daemon must never happen on a person's machine.
+func TestLinuxStoreHungDaemonCostsOneDeadline(t *testing.T) {
+	if os.Getenv("FINGLASS_KEYCHAIN_TEST") != "1" || os.Getenv("FINGLASS_KEYCHAIN_HANG_TEST") != "1" {
+		t.Skip("set FINGLASS_KEYCHAIN_TEST=1 and FINGLASS_KEYCHAIN_HANG_TEST=1 to stop the keyring daemon")
+	}
+
+	pid := secretServicePID(t)
+	now := time.Date(2026, 11, 21, 12, 0, 0, 0, time.UTC)
+	store := linuxTestStore(t, func() time.Time { return now })
+	if !store.IsAvailable() {
+		t.Fatal("the system credential store is not available")
+	}
+	client := store.client
+	if store.session == nil {
+		t.Fatal("the store has no session after a successful availability check")
+	}
+
+	const deadline = 300 * time.Millisecond
+	store.callTimeout = deadline
+	store.sessionOpenTimeout = deadline
+	if err := syscall.Kill(pid, syscall.SIGSTOP); err != nil {
+		t.Fatalf("stop the keyring daemon: %v", err)
+	}
+	t.Cleanup(func() {
+		_ = syscall.Kill(pid, syscall.SIGCONT)
+	})
+
+	now = now.Add(6 * time.Second)
+	start := time.Now()
+	if store.IsAvailable() {
+		t.Fatal("IsAvailable succeeded while the keyring daemon was stopped")
+	}
+	if elapsed := time.Since(start); elapsed > 700*time.Millisecond {
+		t.Fatalf("IsAvailable took %s, want at most one 300ms deadline", elapsed)
+	}
+	if store.client != client {
+		t.Fatal("a timeout replaced the bus client")
+	}
+	if store.session != nil {
+		t.Fatal("a timeout kept the session")
+	}
+
+	// The open path has no session yet: the DH-AES handshake times out with
+	// the library's own plain error, which must not fall back to plaintext.
+	fresh := linuxTestStore(t, func() time.Time { return now })
+	fresh.callTimeout = deadline
+	fresh.sessionOpenTimeout = deadline
+	start = time.Now()
+	if fresh.IsAvailable() {
+		t.Fatal("IsAvailable succeeded while the keyring daemon was stopped")
+	}
+	if elapsed := time.Since(start); elapsed > 700*time.Millisecond {
+		t.Fatalf("opening a session took %s, want at most one 300ms deadline", elapsed)
+	}
+	if fresh.session != nil && fresh.session.Mode != secretservice.AuthenticationDHAES {
+		t.Fatal("a timeout opened a plaintext session")
+	}
+
+	if err := syscall.Kill(pid, syscall.SIGCONT); err != nil {
+		t.Fatalf("resume the keyring daemon: %v", err)
+	}
+	store.callTimeout = defaultCallTimeout
+	store.sessionOpenTimeout = defaultSessionOpenTimeout
+	now = now.Add(6 * time.Second)
+	if !store.IsAvailable() {
+		t.Fatal("the store did not recover after the keyring daemon resumed")
 	}
 }
