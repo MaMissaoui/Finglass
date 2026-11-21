@@ -6,6 +6,7 @@ require (
 	github.com/WissCore/go-sqlcipher/v4 v4.15.1
 	github.com/danieljoos/wincred v1.2.3
 	github.com/dlclark/regexp2 v1.12.0
+	github.com/keybase/dbus v0.0.0-20220506165403-5aa21ea2c23a
 	github.com/keybase/go-keychain v0.0.2-0.20261015142909-81300cc4cb68
 	github.com/ledongthuc/pdf v0.0.0-20261020125853-5e46805f718e
 	github.com/signintech/gopdf v0.38.4
@@ -86,7 +87,6 @@ require (
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kevinburke/ssh_config v1.4.0 // indirect
-	github.com/keybase/dbus v0.0.0-20220506165403-5aa21ea2c23a // indirect
 	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
