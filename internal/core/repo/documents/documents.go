@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
+	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 	"github.com/MaMissaoui/Finglass/internal/core/repo"
@@ -140,28 +141,31 @@ func itemFromRow(row scanner) (model.DocumentItem, error) {
 		converted := model.TransactionID(*transactionID)
 		transactionIDValue = &converted
 	}
-	var transactionLabel *string
-	if transactionIDValue != nil && bookingDate != nil {
-		title := "Transaction"
-		if partnerName != nil {
-			title = *partnerName
-		} else if purpose != nil {
-			title = *purpose
+	var transactionPartner *string
+	var transactionPurpose *string
+	var transactionDate *civil.Date
+	if transactionIDValue != nil {
+		transactionPartner = partnerName
+		transactionPurpose = purpose
+		if bookingDate != nil {
+			if parsed, err := repo.ParseDate(*bookingDate); err == nil {
+				transactionDate = &parsed
+			}
 		}
-		label := title + " (" + *bookingDate + ")"
-		transactionLabel = &label
 	}
 
 	return model.DocumentItem{
-		ID:               id,
-		FileName:         fileName,
-		StoredPath:       storedPath,
-		MIMEType:         mimeType,
-		UploadedAt:       parsedUploadedAt,
-		TransactionID:    transactionIDValue,
-		TransactionLabel: transactionLabel,
-		HasOCR:           hasOCRValue != 0,
-		OCRConfidence:    ocrConfidence,
+		ID:                 id,
+		FileName:           fileName,
+		StoredPath:         storedPath,
+		MIMEType:           mimeType,
+		UploadedAt:         parsedUploadedAt,
+		TransactionID:      transactionIDValue,
+		TransactionPartner: transactionPartner,
+		TransactionPurpose: transactionPurpose,
+		TransactionDate:    transactionDate,
+		HasOCR:             hasOCRValue != 0,
+		OCRConfidence:      ocrConfidence,
 	}, nil
 }
 

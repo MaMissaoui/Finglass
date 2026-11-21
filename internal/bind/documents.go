@@ -253,9 +253,7 @@ func documentsDTO(page shell.DocumentsPageState) DocumentsDTO {
 	if selected != nil {
 		dto.SelectedName = selected.FileName
 		dto.SelectedLinked = selected.TransactionID != nil
-		if selected.TransactionLabel != nil {
-			dto.SelectedLinkLabel = *selected.TransactionLabel
-		}
+		dto.SelectedLinkLabel = documentLinkedLabel(language, *selected)
 		dto.SelectedOCRText = ""
 		if state.SelectedOCRText != nil {
 			dto.SelectedOCRText = *state.SelectedOCRText
@@ -298,13 +296,32 @@ func documentTabLabel(state documentsview.DocumentsState, tab documentsview.Docu
 	)
 }
 
+// documentLinkedLabel is the linked-booking label the page shows: the partner,
+// else the purpose, else a localized fallback, followed by the formatted
+// booking date when the repository parsed it.
+func documentLinkedLabel(language i18n.Language, document model.DocumentItem) string {
+	if document.TransactionID == nil {
+		return ""
+	}
+	title := i18n.Text(language, i18n.LinkedTransactionFallback)
+	if document.TransactionPartner != nil {
+		title = *document.TransactionPartner
+	} else if document.TransactionPurpose != nil {
+		title = *document.TransactionPurpose
+	}
+	if document.TransactionDate != nil {
+		title += " (" + format.Date(*document.TransactionDate) + ")"
+	}
+	return title
+}
+
 // documentRows is one list row per document.
 func documentRows(state documentsview.DocumentsState) []DocumentRowDTO {
 	rows := make([]DocumentRowDTO, 0, len(state.Documents))
 	for _, document := range state.Documents {
 		label := i18n.Text(state.Language, i18n.NotLinked)
-		if document.TransactionLabel != nil {
-			label = *document.TransactionLabel
+		if linked := documentLinkedLabel(state.Language, document); linked != "" {
+			label = linked
 		}
 		rows = append(rows, DocumentRowDTO{
 			ID:       documentID(document.ID),

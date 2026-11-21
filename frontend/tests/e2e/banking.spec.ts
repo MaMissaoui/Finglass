@@ -383,7 +383,7 @@ test('the banking reference screenshots', async ({ page }) => {
 });
 
 test('the page pulls the banking state and prompt on mount', async ({ page }) => {
-  await goto(page, 'accounts');
+  await goto(page, 'accounts-no-sync');
   await expect(page.getByText("Online sync isn't available in Finglass yet.")).toBeVisible();
   const debug = await mockDebug(page);
   expect(debug.bankingStateCalls).toBeGreaterThanOrEqual(1);
@@ -502,7 +502,7 @@ test('Sync all keeps one trace per bank and shows one summary line per bank', as
 
 test('the connection test walks product id and PIN then saves the trace', async ({ page }) => {
   const watcher = await watch(page);
-  await goto(page, 'accounts');
+  await goto(page, 'accounts-no-sync');
 
   await openTestConnection(page);
   const productIDField = prompt(page).getByRole('textbox', { name: 'Product id', exact: true });

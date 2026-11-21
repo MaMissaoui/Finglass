@@ -188,10 +188,6 @@
     gap: 8px;
   }
 
-  .tax-row {
-    align-items: flex-start;
-  }
-
   .tax-tag {
     display: inline-flex;
     align-items: center;

@@ -654,7 +654,7 @@ func settingsDTO(
 			state.Language,
 			i18n.BankListSummary,
 			i18n.Int(int64(state.BankListCount)),
-			i18n.Str(state.BankListLoadedOn.String()),
+			i18n.Str(format.Date(state.BankListLoadedOn)),
 		)
 	}
 	applyRuleImport(&dto, state, dialog)

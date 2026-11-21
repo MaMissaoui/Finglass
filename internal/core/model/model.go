@@ -518,9 +518,15 @@ type DocumentItem struct {
 	UploadedAt time.Time
 	// TransactionID is the linked transaction.
 	TransactionID *TransactionID
-	// TransactionLabel is a readable label for the linked transaction, when
-	// there is one.
-	TransactionLabel *string
+	// TransactionPartner is the linked transaction's partner, when there is a
+	// link and the booking names one.
+	TransactionPartner *string
+	// TransactionPurpose is the linked transaction's purpose, when there is a
+	// link and the booking names one.
+	TransactionPurpose *string
+	// TransactionDate is the linked transaction's booking date, when there is a
+	// link and the stored date is valid.
+	TransactionDate *civil.Date
 	// HasOCR says whether an OCR text row exists for this document.
 	HasOCR bool
 	// OCRConfidence is the OCR confidence, when known. This is not money, so it

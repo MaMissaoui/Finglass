@@ -806,7 +806,7 @@ func TestLoadingAndRemovingTheBankListUpdatesTheSettingsDTO(t *testing.T) {
 		return dto.BankListPresent && strings.Contains(dto.BankListSummary, "2 banks")
 	})
 	if !strings.Contains(dto.BankListSummary, "2 banks") ||
-		!strings.Contains(dto.BankListSummary, "2026-10-15") {
+		!strings.Contains(dto.BankListSummary, "15.10.2026") {
 		t.Fatalf("bank list summary = %q", dto.BankListSummary)
 	}
 	if !strings.Contains(dto.MessageText, "2 banks loaded") {

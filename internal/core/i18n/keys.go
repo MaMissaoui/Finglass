@@ -393,6 +393,7 @@ const (
 	NoText
 	ReExtractText
 	LinkedTransaction
+	LinkedTransactionFallback
 	SuggestedMatches
 	FindTransactionToLink
 	ExtractedText
@@ -970,7 +971,7 @@ const (
 )
 
 // NumKeys is the number of keys.
-const NumKeys = 960
+const NumKeys = 961
 
 // keyNames holds the variant name of every key, indexed by Key.
 var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not credentials.
@@ -1360,6 +1361,7 @@ var keyNames = [NumKeys]string{ // #nosec G101 -- key names such as "Pin", not c
 	NoText:                              "NoText",
 	ReExtractText:                       "ReExtractText",
 	LinkedTransaction:                   "LinkedTransaction",
+	LinkedTransactionFallback:           "LinkedTransactionFallback",
 	SuggestedMatches:                    "SuggestedMatches",
 	FindTransactionToLink:               "FindTransactionToLink",
 	ExtractedText:                       "ExtractedText",

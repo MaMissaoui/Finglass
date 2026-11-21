@@ -65,7 +65,7 @@ const suggestionCandidate: MockCandidate = {
   date: '13.03.2026',
   amount: '-€3.78',
   amountDe: '-3,78\u00a0€',
-  linkLabel: 'REWE Markt GmbH (2026-03-13)',
+  linkLabel: 'REWE Markt GmbH (13.03.2026)',
 };
 
 const candidates: MockCandidate[] = [
@@ -76,7 +76,7 @@ const candidates: MockCandidate[] = [
     date: '05.11.2026',
     amount: '-€37.80',
     amountDe: '-37,80\u00a0€',
-    linkLabel: 'Beispiel Energie AG (2026-11-05)',
+    linkLabel: 'Beispiel Energie AG (05.11.2026)',
   },
   {
     id: 3,
@@ -84,7 +84,7 @@ const candidates: MockCandidate[] = [
     date: '12.11.2026',
     amount: '-€4.20',
     amountDe: '-4,20\u00a0€',
-    linkLabel: 'Muster Bäckerei (2026-11-12)',
+    linkLabel: 'Muster Bäckerei (12.11.2026)',
   },
 ];
 
@@ -133,7 +133,7 @@ function normalDocuments(): MockDocument[] {
       ocrText: 'Stadtwerke Musterstadt\nAbschlag März 2026\nBetrag 37,80 EUR',
       confidence: 91,
       previewKind: 'pdf',
-      linked: { id: 7, label: 'Interest (2026-10-07)' },
+      linked: { id: 7, label: 'Interest (07.10.2026)' },
     },
     {
       id: 3,

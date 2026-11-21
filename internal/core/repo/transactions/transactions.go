@@ -1497,6 +1497,36 @@ func OldestDate(ctx context.Context, d *db.Database, currency *money.Currency) (
 	return oldest, nil
 }
 
+// OldestDateForAccount returns one account's oldest booking date. It returns
+// nil when the account has no booking.
+func OldestDateForAccount(ctx context.Context, d *db.Database, accountID model.AccountID) (*civil.Date, error) {
+	var oldest *civil.Date
+
+	err := d.WithConn(ctx, func(ctx context.Context, conn *sql.Conn) error {
+		var oldestText *string
+		if err := conn.QueryRowContext(
+			ctx,
+			"SELECT min(booking_date) FROM transactions WHERE account_id = ?1",
+			int64(accountID),
+		).Scan(&oldestText); err != nil {
+			return err
+		}
+		if oldestText == nil {
+			return nil
+		}
+		parsed, err := repo.ParseDate(*oldestText)
+		if err != nil {
+			return err
+		}
+		oldest = &parsed
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return oldest, nil
+}
+
 func sortedAccountIDs(set model.AccountIDSet) []model.AccountID {
 	ids := make([]model.AccountID, 0, len(set))
 	for id := range set {

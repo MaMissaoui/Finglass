@@ -578,7 +578,7 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
   const findeskNotAFolder = options.findeskNotAFolder ?? false;
   let bankListPresent = options.bankListLoaded ?? false;
   let bankListSummary = bankListPresent
-    ? translate(language, 'BankListSummary', 3, '2026-11-14')
+    ? translate(language, 'BankListSummary', 3, '14.11.2026')
     : '';
   const restoreNeedsPassphrase = options.restorePassphrase ?? false;
 
@@ -1340,7 +1340,7 @@ export function createMockSettings(options: MockSettingsOptions = {}): MockSetti
     },
     loadBankList() {
       bankListPresent = true;
-      bankListSummary = translate(language, 'BankListSummary', 3, '2026-11-14');
+      bankListSummary = translate(language, 'BankListSummary', 3, '14.11.2026');
       messageText = translate(language, 'MessageBankListLoadedAll', 3);
       errorText = '';
       return publish();

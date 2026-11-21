@@ -34,7 +34,9 @@ func TestCloneIsDeep(t *testing.T) {
 	taxRule := "market"
 	taxOverride := true
 	iban := "DE89370400440532013000"
-	documentLabel := "Booking"
+	documentPartner := "Booking"
+	documentPurpose := "Purpose"
+	documentDate := date(t, "2026-11-05")
 	confidence := 0.9
 	balanceDifference := money.Money{Minor: -20, Currency: money.EUR}
 	minimum := money.Money{Minor: 100, Currency: money.EUR}
@@ -129,11 +131,13 @@ func TestCloneIsDeep(t *testing.T) {
 	state.MaxAmount = &maximum
 	state.Selected = &state.Transactions[0]
 	state.SelectedDocuments = []model.DocumentItem{{
-		ID:               1,
-		FileName:         "receipt.pdf",
-		TransactionID:    &transactionID,
-		TransactionLabel: &documentLabel,
-		OCRConfidence:    &confidence,
+		ID:                 1,
+		FileName:           "receipt.pdf",
+		TransactionID:      &transactionID,
+		TransactionPartner: &documentPartner,
+		TransactionPurpose: &documentPurpose,
+		TransactionDate:    &documentDate,
+		OCRConfidence:      &confidence,
 	}}
 	state.PendingDuplicate = &ManualEntry{
 		AccountID:   accountID,
@@ -215,7 +219,9 @@ func TestCloneIsDeep(t *testing.T) {
 	cloned.ImportPreview.Failures[0].Message = "changed"
 	cloned.MinAmount.Minor = 1
 	cloned.Selected.PartnerName = stringPointer("changed")
-	cloned.SelectedDocuments[0].TransactionLabel = stringPointer("changed")
+	cloned.SelectedDocuments[0].TransactionPartner = stringPointer("changed")
+	cloned.SelectedDocuments[0].TransactionPurpose = stringPointer("changed")
+	cloned.SelectedDocuments[0].TransactionDate = datePointer(documentDate.AddDays(1))
 	*cloned.SelectedDocuments[0].OCRConfidence = 0
 	cloned.PendingDuplicate.PartnerName = stringPointer("changed")
 	cloned.PendingBookings[0].Purpose = stringPointer("changed")
@@ -282,7 +288,10 @@ func TestCloneIsDeep(t *testing.T) {
 	if *state.Selected.PartnerName != "Partner" {
 		t.Fatal("the clone shares the selected transaction")
 	}
-	if *state.SelectedDocuments[0].TransactionLabel != "Booking" ||
+	if *state.SelectedDocuments[0].TransactionPartner != "Booking" ||
+		*state.SelectedDocuments[0].TransactionPurpose != "Purpose" ||
+		state.SelectedDocuments[0].TransactionDate == nil ||
+		*state.SelectedDocuments[0].TransactionDate != documentDate ||
 		*state.SelectedDocuments[0].OCRConfidence != 0.9 {
 		t.Fatal("the clone shares the selected documents")
 	}

@@ -523,6 +523,7 @@ function initialState(scenario: string): MockState {
     case 'shell-profiles-de':
     case 'shell-back':
     case 'accounts':
+    case 'accounts-no-sync':
     case 'accounts-empty':
     case 'accounts-add-account':
     case 'accounts-detail':

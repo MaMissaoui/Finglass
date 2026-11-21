@@ -389,6 +389,48 @@ test('the localized dialog errors follow the DTO language', async ({ page }) => 
   await expectClean(watcher);
 });
 
+test('the balance chart end label stays clear of the minimum label and inside the card', async ({
+  page,
+}) => {
+  const sizes = [
+    { width: 1280, scheme: 'light' as const },
+    { width: 1280, scheme: 'dark' as const },
+    { width: 900, scheme: 'light' as const },
+    { width: 900, scheme: 'dark' as const },
+  ];
+  for (const { width, scheme } of sizes) {
+    await goto(page, 'transactions-chart-en', width, 720, scheme);
+    const card = page.getByTestId('balance-chart');
+    const endLabel = page.getByTestId('balance-chart-end-label');
+    const minLabel = page.getByTestId('balance-chart-axis-bottom');
+    await expect(card).toBeVisible();
+    await expect(endLabel).toBeVisible();
+    await expect(minLabel).toBeVisible();
+
+    const [cardBox, endBox, minBox] = await Promise.all([
+      card.boundingBox(),
+      endLabel.boundingBox(),
+      minLabel.boundingBox(),
+    ]);
+    if (cardBox === null || endBox === null || minBox === null) {
+      throw new Error(`a balance chart box is missing at ${width} ${scheme}`);
+    }
+    const intersects =
+      endBox.x < minBox.x + minBox.width &&
+      endBox.x + endBox.width > minBox.x &&
+      endBox.y < minBox.y + minBox.height &&
+      endBox.y + endBox.height > minBox.y;
+    expect(intersects, `end label overlaps the minimum label at ${width} ${scheme}`).toBe(false);
+
+    const inside =
+      endBox.x >= cardBox.x &&
+      endBox.y >= cardBox.y &&
+      endBox.x + endBox.width <= cardBox.x + cardBox.width &&
+      endBox.y + endBox.height <= cardBox.y + cardBox.height;
+    expect(inside, `end label leaves the card at ${width} ${scheme}`).toBe(true);
+  }
+});
+
 test('the detail panel opens, changes category and closes', async ({ page }) => {
   const watcher = await watch(page);
   await goto(page, 'transactions-en-light', 1440, 720);

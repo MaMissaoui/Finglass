@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/MaMissaoui/Finglass/internal/core/audit"
 	"github.com/MaMissaoui/Finglass/internal/core/db"
@@ -168,8 +169,15 @@ func TestLinkUnlinkAndDelete(t *testing.T) {
 	if item.TransactionID == nil || *item.TransactionID != transactionID {
 		t.Errorf("item transaction = %v", item.TransactionID)
 	}
-	if item.TransactionLabel == nil || *item.TransactionLabel != "Shop (2026-03-13)" {
-		t.Errorf("transaction label = %v", item.TransactionLabel)
+	if item.TransactionPartner == nil || *item.TransactionPartner != "Shop" {
+		t.Errorf("transaction partner = %v", item.TransactionPartner)
+	}
+	if item.TransactionPurpose == nil || *item.TransactionPurpose != "Receipt" {
+		t.Errorf("transaction purpose = %v", item.TransactionPurpose)
+	}
+	if item.TransactionDate == nil || item.TransactionDate.Year() != 2026 ||
+		item.TransactionDate.Month() != time.March || item.TransactionDate.Day() != 13 {
+		t.Errorf("transaction date = %v", item.TransactionDate)
 	}
 	if item.HasOCR {
 		t.Error("has OCR")
@@ -189,8 +197,9 @@ func TestLinkUnlinkAndDelete(t *testing.T) {
 		t.Errorf("unlinked transaction = %v", unlinked.TransactionID)
 	}
 	item, ok, err = GetItem(ctx, d, created.ID)
-	if err != nil || !ok || item.TransactionLabel != nil {
-		t.Errorf("label after unlink = %v, %v", item, err)
+	if err != nil || !ok || item.TransactionPartner != nil ||
+		item.TransactionPurpose != nil || item.TransactionDate != nil {
+		t.Errorf("parts after unlink = %v, %v, %v, %v", item.TransactionPartner, item.TransactionPurpose, item.TransactionDate, err)
 	}
 
 	if deleted, err := Delete(ctx, d, created.ID); err != nil || !deleted {

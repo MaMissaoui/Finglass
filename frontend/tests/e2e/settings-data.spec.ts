@@ -281,7 +281,7 @@ test('the bank list block shows the load hint and the loaded summary in both lan
   await expect(block.getByRole('button', { name: 'Load bank list…' })).toBeVisible();
 
   await goto(page, 'settings-bank-list-loaded-en');
-  await expect(block.getByText('3 banks · loaded on 2026-11-14')).toBeVisible();
+  await expect(block.getByText('3 banks · loaded on 14.11.2026')).toBeVisible();
   await expect(block.getByRole('button', { name: 'Remove bank list' })).toBeVisible();
 
   await goto(page, 'settings-bank-list-de-dark', 'dark');
@@ -289,12 +289,12 @@ test('the bank list block shows the load hint and the loaded summary in both lan
   await expect(block.getByRole('button', { name: 'Bankenliste laden…' })).toBeVisible();
 
   await goto(page, 'settings-bank-list-loaded-de');
-  await expect(block.getByText('3 Banken · geladen am 2026-11-14')).toBeVisible();
+  await expect(block.getByText('3 Banken · geladen am 14.11.2026')).toBeVisible();
   await expect(block.getByRole('button', { name: 'Bankenliste entfernen' })).toBeVisible();
 
   await goto(page, 'settings-bank-list-en-light');
   await block.getByRole('button', { name: 'Load bank list…' }).click();
-  await expect(block.getByText('3 banks · loaded on 2026-11-14')).toBeVisible();
+  await expect(block.getByText('3 banks · loaded on 14.11.2026')).toBeVisible();
   await block.getByRole('button', { name: 'Remove bank list' }).click();
   await expect(block.getByRole('button', { name: 'Load bank list…' })).toBeVisible();
 });

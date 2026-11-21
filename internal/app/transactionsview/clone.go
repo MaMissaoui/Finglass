@@ -135,7 +135,9 @@ func cloneDocuments(items []model.DocumentItem) []model.DocumentItem {
 	for index := range items {
 		cloned[index] = items[index]
 		cloned[index].TransactionID = cloneTransactionID(items[index].TransactionID)
-		cloned[index].TransactionLabel = cloneString(items[index].TransactionLabel)
+		cloned[index].TransactionPartner = cloneString(items[index].TransactionPartner)
+		cloned[index].TransactionPurpose = cloneString(items[index].TransactionPurpose)
+		cloned[index].TransactionDate = cloneCivilDate(items[index].TransactionDate)
 		if items[index].OCRConfidence != nil {
 			confidence := *items[index].OCRConfidence
 			cloned[index].OCRConfidence = &confidence

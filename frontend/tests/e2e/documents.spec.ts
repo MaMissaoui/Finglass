@@ -214,7 +214,7 @@ test('link, unlink, reprocess and delete call their methods', async ({ page }) =
   await detail(page).getByRole('button', { name: 'Link', exact: true }).click();
   await expect(page.getByText('Document linked', { exact: true })).toBeVisible();
   await expect(detail(page).getByRole('button', { name: 'Unlink', exact: true })).toBeVisible();
-  await expect(detail(page).getByText('REWE Markt GmbH (2026-03-13)')).toBeVisible();
+  await expect(detail(page).getByText('REWE Markt GmbH (13.03.2026)')).toBeVisible();
 
   await page.getByRole('button', { name: 'Dismiss', exact: true }).click();
   await expect(page.getByText('Document linked', { exact: true })).toHaveCount(0);

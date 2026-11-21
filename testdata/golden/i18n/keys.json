@@ -765,9 +765,9 @@
     "fr": "Description"
   },
   "ColEvery": {
-    "en": "Every",
-    "de": "Alle",
-    "fr": "Tous les"
+    "en": "Interval",
+    "de": "Rhythmus",
+    "fr": "Fréquence"
   },
   "ColExpenses": {
     "en": "Expenses",
@@ -2148,6 +2148,11 @@
     "en": "Linked transaction",
     "de": "Verknüpfter Umsatz",
     "fr": "Opération liée"
+  },
+  "LinkedTransactionFallback": {
+    "en": "Booking",
+    "de": "Buchung",
+    "fr": "Opération"
   },
   "LoanBalanceHint": {
     "en": "Enter what you still owe as a negative amount, e.g. -12,000.00.",
