@@ -1090,13 +1090,15 @@ export function createMockTransactions(scenario: string, initialLanguage: Langua
     accountBookings: MockTransaction[],
   ): Partial<TransactionsDTO> {
     const range = periodRange();
+    const oldest = accountBookings.reduce<string | undefined>(
+      (current, booking) =>
+        current === undefined || booking.date < current ? booking.date : current,
+      undefined,
+    );
     let from = range?.from;
     if (from === undefined) {
-      const oldest = accountBookings.reduce<string | undefined>(
-        (current, booking) =>
-          current === undefined || booking.date < current ? booking.date : current,
-        undefined,
-      );
+      from = oldest;
+    } else if (oldest !== undefined && oldest > from) {
       from = oldest;
     }
     if (from === undefined || accountBookings.length === 0) {

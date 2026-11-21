@@ -42,8 +42,12 @@ func bindDocumentsItem(
 	}
 	if linked != nil {
 		item.TransactionID = linked
-		label := "Shop (2026-03-13)"
-		item.TransactionLabel = &label
+		partner := "Shop"
+		purpose := "Receipt"
+		date, _ := civil.New(2026, time.March, 13)
+		item.TransactionPartner = &partner
+		item.TransactionPurpose = &purpose
+		item.TransactionDate = &date
 	}
 	if hasOCR {
 		confidence := 88.0
@@ -90,7 +94,7 @@ func TestDocumentRowsShowTheNameDateLinkStateAndOCRBADGE(t *testing.T) {
 	if rows[1].Name != "rechnung.pdf" {
 		t.Fatalf("name = %q", rows[1].Name)
 	}
-	if !strings.Contains(rows[1].Meta, "Shop (2026-03-13)") {
+	if !strings.Contains(rows[1].Meta, "Shop (13.03.2026)") {
 		t.Fatalf("meta = %q", rows[1].Meta)
 	}
 	if !rows[1].IsPDF || !rows[1].HasOCR || !rows[1].IsLinked {
@@ -101,6 +105,57 @@ func TestDocumentRowsShowTheNameDateLinkStateAndOCRBADGE(t *testing.T) {
 	}
 	if !rows[2].Selected {
 		t.Fatal("the state's selected document is not marked")
+	}
+}
+
+func TestDocumentLinkedLabelUsesPartnerThenPurposeThenTheLocalizedFallback(t *testing.T) {
+	linked := model.TransactionID(7)
+	date, ok := civil.New(2026, time.October, 7)
+	if !ok {
+		t.Fatal("invalid date")
+	}
+	partner := "Interest"
+	purpose := "Purpose"
+
+	withPartner := model.DocumentItem{
+		TransactionID:      &linked,
+		TransactionPartner: &partner,
+		TransactionPurpose: &purpose,
+		TransactionDate:    &date,
+	}
+	if got := documentLinkedLabel(i18n.En, withPartner); got != "Interest (07.10.2026)" {
+		t.Fatalf("partner label = %q", got)
+	}
+
+	withPurpose := withPartner
+	withPurpose.TransactionPartner = nil
+	if got := documentLinkedLabel(i18n.En, withPurpose); got != "Purpose (07.10.2026)" {
+		t.Fatalf("purpose label = %q", got)
+	}
+
+	fallback := withPartner
+	fallback.TransactionPartner = nil
+	fallback.TransactionPurpose = nil
+	if got := documentLinkedLabel(i18n.En, fallback); got != "Booking (07.10.2026)" {
+		t.Fatalf("En fallback label = %q", got)
+	}
+	if got := documentLinkedLabel(i18n.De, fallback); got != "Buchung (07.10.2026)" {
+		t.Fatalf("De fallback label = %q", got)
+	}
+	if got := documentLinkedLabel(i18n.Fr, fallback); got != "Opération (07.10.2026)" {
+		t.Fatalf("Fr fallback label = %q", got)
+	}
+
+	noDate := fallback
+	noDate.TransactionDate = nil
+	if got := documentLinkedLabel(i18n.En, noDate); got != "Booking" {
+		t.Fatalf("no-date label = %q", got)
+	}
+
+	unlinked := withPartner
+	unlinked.TransactionID = nil
+	if got := documentLinkedLabel(i18n.En, unlinked); got != "" {
+		t.Fatalf("unlinked label = %q", got)
 	}
 }
 

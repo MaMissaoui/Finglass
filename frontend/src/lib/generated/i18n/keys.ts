@@ -387,6 +387,7 @@ export const keys = [
   'NoText',
   'ReExtractText',
   'LinkedTransaction',
+  'LinkedTransactionFallback',
   'SuggestedMatches',
   'FindTransactionToLink',
   'ExtractedText',

@@ -18,7 +18,7 @@ describe('documents.mock', () => {
     expect(dto.rows.map((row) => row.isPdf)).toEqual([false, true, false]);
     expect(dto.rows.map((row) => row.hasOcr)).toEqual([false, true, true]);
     expect(dto.rows[0]?.meta).toBe('12.11.2026 18:46 · not linked');
-    expect(dto.rows[1]?.meta).toBe('12.11.2026 18:46 · Interest (2026-10-07)');
+    expect(dto.rows[1]?.meta).toBe('12.11.2026 18:46 · Interest (07.10.2026)');
     expect(dto.rows.map((row) => row.selected)).toEqual([false, false, true]);
 
     expect(dto.tab).toBe('all');
@@ -79,7 +79,7 @@ describe('documents.mock', () => {
     const selected = documents.select(2);
     expect(selected.selectedName).toBe('stadtwerke-rechnung.pdf');
     expect(selected.selectedLinked).toBe(true);
-    expect(selected.selectedLinkLabel).toBe('Interest (2026-10-07)');
+    expect(selected.selectedLinkLabel).toBe('Interest (07.10.2026)');
     expect(selected.previewKind).toBe('pdf');
     expect(selected.previewDataUrl).toBe('');
     expect(selected.suggestions).toEqual([]);
@@ -94,7 +94,7 @@ describe('documents.mock', () => {
 
     const linked = documents.link(1);
     expect(linked.selectedLinked).toBe(true);
-    expect(linked.selectedLinkLabel).toBe('REWE Markt GmbH (2026-03-13)');
+    expect(linked.selectedLinkLabel).toBe('REWE Markt GmbH (13.03.2026)');
     expect(linked.rows[2]?.isLinked).toBe(true);
     expect(linked.messageText).toBe(translate('en', 'MessageDocumentLinked'));
     expect(linked.suggestions).toEqual([]);

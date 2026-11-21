@@ -45,12 +45,17 @@ function fake(scenario = 'accounts', language: 'en' | 'de' = 'en'): Harness {
 }
 
 describe('banking.mock', () => {
-  it('keeps online sync unavailable unless the scenario turns it on', () => {
+  it('keeps online sync available by default and shows the note without it', () => {
     const plain = fake().banking.state();
-    expect(plain.onlineSyncAvailable).toBe(false);
-    expect(plain.syncControlsVisible).toBe(false);
-    expect(plain.onlineSyncNote).toBe(translate('en', 'OnlineSyncNotYetAvailable'));
+    expect(plain.onlineSyncAvailable).toBe(true);
+    expect(plain.syncControlsVisible).toBe(true);
+    expect(plain.onlineSyncNote).toBe('');
     expect(plain.syncAllVisible).toBe(true);
+
+    const without = fake('accounts-no-sync').banking.state();
+    expect(without.onlineSyncAvailable).toBe(false);
+    expect(without.syncControlsVisible).toBe(false);
+    expect(without.onlineSyncNote).toBe(translate('en', 'OnlineSyncNotYetAvailable'));
 
     const walkthrough = fake('banking-walkthrough').banking.state();
     expect(walkthrough.onlineSyncAvailable).toBe(true);
@@ -233,10 +238,15 @@ describe('banking.mock', () => {
       translate('en', 'ConnectionSettings'),
       translate('en', 'RemoveBank'),
     ]);
-    expect(online?.menu.find((item) => item.action === 'sync')?.enabled).toBe(false);
-    expect(online?.menu.find((item) => item.action === 'history')?.enabled).toBe(false);
+    expect(online?.menu.find((item) => item.action === 'sync')?.enabled).toBe(true);
+    expect(online?.menu.find((item) => item.action === 'history')?.enabled).toBe(true);
     expect(online?.menu.find((item) => item.action === 'include')?.enabled).toBe(true);
     expect(online?.menu.find((item) => item.action === 'include')?.checked).toBe(true);
+
+    const unavailable = fake('accounts-no-sync').banking.state();
+    const unavailableOnline = unavailable.banks.find((bank) => bank.bankId === 2);
+    expect(unavailableOnline?.menu.find((item) => item.action === 'sync')?.enabled).toBe(false);
+    expect(unavailableOnline?.menu.find((item) => item.action === 'history')?.enabled).toBe(false);
 
     const offline = plain.banks.find((bank) => bank.bankId === 1);
     expect(offline?.menu.map((item) => item.label)).toEqual([
@@ -274,7 +284,12 @@ describe('banking.mock', () => {
 
   it('builds the card status line and its next action', () => {
     const plain = fake().banking;
-    expect(plain.bankForCard(2)?.status.text).toBe('');
+    expect(plain.bankForCard(2)?.status.text).toBe(
+      translate('en', 'SyncStatusReadyTested', '14.11.2026'),
+    );
+
+    const unavailable = fake('accounts-no-sync').banking;
+    expect(unavailable.bankForCard(2)?.status.text).toBe('');
 
     const perBank = fake('accounts-sync-per-bank').banking;
     const ready = perBank.bankForCard(2)?.status;
@@ -586,7 +601,7 @@ describe('banking.mock', () => {
   });
 
   it('keeps a GO next step empty when online sync is unavailable', () => {
-    const { banking } = fake('accounts-test-connection-linked');
+    const { banking } = fake('accounts-test-connection-linked-no-sync');
     banking.testConnection(2);
     banking.answerPin(banking.prompt().id, '1234', false);
     expect(banking.state().connectionTest).toMatchObject({

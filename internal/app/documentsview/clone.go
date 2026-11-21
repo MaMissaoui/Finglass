@@ -1,6 +1,7 @@
 package documentsview
 
 import (
+	"github.com/MaMissaoui/Finglass/internal/core/civil"
 	"github.com/MaMissaoui/Finglass/internal/core/documents/service"
 	"github.com/MaMissaoui/Finglass/internal/core/model"
 )
@@ -47,7 +48,9 @@ func cloneDocumentItem(item *model.DocumentItem) *model.DocumentItem {
 func cloneDocumentItemValue(item model.DocumentItem) model.DocumentItem {
 	cloned := item
 	cloned.TransactionID = cloneTransactionID(item.TransactionID)
-	cloned.TransactionLabel = cloneString(item.TransactionLabel)
+	cloned.TransactionPartner = cloneString(item.TransactionPartner)
+	cloned.TransactionPurpose = cloneString(item.TransactionPurpose)
+	cloned.TransactionDate = cloneCivilDate(item.TransactionDate)
 	if item.OCRConfidence != nil {
 		confidence := *item.OCRConfidence
 		cloned.OCRConfidence = &confidence
@@ -115,6 +118,14 @@ func cloneCategoryID(value *model.CategoryID) *model.CategoryID {
 }
 
 func cloneString(value *string) *string {
+	if value == nil {
+		return nil
+	}
+	copied := *value
+	return &copied
+}
+
+func cloneCivilDate(value *civil.Date) *civil.Date {
 	if value == nil {
 		return nil
 	}

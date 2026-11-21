@@ -814,6 +814,46 @@ func TestTheBalanceChartSpansTheShownPeriodClampedToToday(t *testing.T) {
 	assertEqual(t, chart[len(chart)-1].Balance, eur(150_000), "last balance")
 }
 
+func TestTheBalanceChartStartsAtTheAccountsFirstBookingInsideThePeriod(t *testing.T) {
+	database := testDatabase(t)
+	accountID := createAccount(t, database, "DE89370400440532013001", 150_000, money.EUR, "checking")
+	txn(t, database, accountID, date(t, "2026-08-10"), eur(-1_000), sp("First"), nil, nil, false)
+	txn(t, database, accountID, date(t, "2026-10-01"), eur(-1_000), sp("Second"), nil, nil, false)
+	today := date(t, "2026-11-15")
+	vm := view()
+	requireNoError(t, vm.Start(ctx, database, StartArgs{
+		AccountID: ap(accountID),
+		Period:    pp(PeriodThisAndLastYear),
+	}, today))
+
+	chart := vm.State().BalanceChart
+	if chart == nil {
+		t.Fatal("the chart shows")
+	}
+	assertEqual(t, chart[0].Date, date(t, "2026-08-10"), "first day")
+	assertEqual(t, chart[len(chart)-1].Date, today, "last day")
+}
+
+func TestTheBalanceChartKeepsThePeriodStartWhenTheAccountHasOlderBookings(t *testing.T) {
+	database := testDatabase(t)
+	accountID := createAccount(t, database, "DE89370400440532013002", 150_000, money.EUR, "checking")
+	txn(t, database, accountID, date(t, "2024-06-01"), eur(-1_000), sp("Older"), nil, nil, false)
+	txn(t, database, accountID, date(t, "2026-10-01"), eur(-1_000), sp("Recent"), nil, nil, false)
+	today := date(t, "2026-11-15")
+	vm := view()
+	requireNoError(t, vm.Start(ctx, database, StartArgs{
+		AccountID: ap(accountID),
+		Period:    pp(PeriodThisAndLastYear),
+	}, today))
+
+	chart := vm.State().BalanceChart
+	if chart == nil {
+		t.Fatal("the chart shows")
+	}
+	assertEqual(t, chart[0].Date, date(t, "2025-01-01"), "first day")
+	assertEqual(t, chart[len(chart)-1].Date, today, "last day")
+}
+
 func TestATextSearchNeverChangesTheBalanceChart(t *testing.T) {
 	database, accountID, _, _ := standard(t)
 	today := date(t, "2026-03-20")

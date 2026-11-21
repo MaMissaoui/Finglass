@@ -26,6 +26,7 @@
 
   const dotLeft = $derived(`${Math.min(99, Math.max(1, (dto.chartEndX / 700) * 100))}%`);
   const dotTop = $derived(`${Math.min(97, Math.max(3, (dto.chartEndY / 200) * 100))}%`);
+  const endLabelAbove = $derived(dto.chartEndY > 100);
 </script>
 
 <div class="chart-card" class:collapsed={dto.chartCollapsed} data-testid="balance-chart">
@@ -48,23 +49,26 @@
   {#if !dto.chartCollapsed}
     <div class="chart-body">
       <div class="axis" aria-hidden="true">
-        <span>{dto.chartAxisTop}</span>
-        <span>{dto.chartAxisBottom}</span>
+        <span data-testid="balance-chart-axis-top">{dto.chartAxisTop}</span>
+        <span data-testid="balance-chart-axis-bottom">{dto.chartAxisBottom}</span>
       </div>
-      <div class="plot-area">
-        <div class="plot">
-          <svg viewBox="0 0 700 200" preserveAspectRatio="none" aria-hidden="true">
-            <path class="area" d={dto.chartArea}></path>
-            <path class="line" d={dto.chartLine}></path>
-          </svg>
-          <span class="end-dot" style:left={dotLeft} style:top={dotTop}></span>
-          <span class="end-label" style:top={dotTop}>{dto.chartEndLabel}</span>
-        </div>
-        <div class="dates">
-          <span>{dto.chartAxisStart}</span>
-          <span class="mid">{dto.chartAxisMid}</span>
-          <span class="end">{dto.chartAxisEnd}</span>
-        </div>
+      <div class="plot">
+        <svg viewBox="0 0 700 200" preserveAspectRatio="none" aria-hidden="true">
+          <path class="area" d={dto.chartArea}></path>
+          <path class="line" d={dto.chartLine}></path>
+        </svg>
+        <span class="end-dot" style:left={dotLeft} style:top={dotTop}></span>
+        <span
+          class="end-label"
+          class:above={endLabelAbove}
+          style:top={dotTop}
+          data-testid="balance-chart-end-label">{dto.chartEndLabel}</span
+        >
+      </div>
+      <div class="dates">
+        <span>{dto.chartAxisStart}</span>
+        <span class="mid">{dto.chartAxisMid}</span>
+        <span class="end">{dto.chartAxisEnd}</span>
       </div>
     </div>
   {/if}
@@ -139,16 +143,20 @@
   }
 
   .chart-body {
-    display: flex;
+    display: grid;
     flex: 1;
     min-height: 0;
-    gap: 6px;
+    grid-template-columns: 66px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    column-gap: 6px;
+    row-gap: 2px;
   }
 
   .axis {
     display: flex;
-    flex: none;
-    width: 66px;
+    min-height: 0;
+    grid-column: 1;
+    grid-row: 1;
     flex-direction: column;
     justify-content: space-between;
     color: var(--color-muted-text);
@@ -164,18 +172,11 @@
     text-overflow: ellipsis;
   }
 
-  .plot-area {
-    display: flex;
-    flex: 1;
-    min-width: 0;
-    flex-direction: column;
-    gap: 2px;
-  }
-
   .plot {
     position: relative;
-    flex: 1;
     min-height: 0;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .plot svg {
@@ -213,17 +214,27 @@
   .end-label {
     position: absolute;
     right: 0;
+    padding: 0 4px;
+    border-radius: var(--radius-small);
+    background: var(--color-surface);
     color: var(--color-text);
     font-size: var(--type-label-size);
     font-weight: var(--type-label-weight);
+    line-height: 1.2;
     white-space: nowrap;
-    transform: translateY(4px);
+    transform: translateY(6px);
     pointer-events: none;
+  }
+
+  .end-label.above {
+    transform: translateY(calc(-100% - 6px));
   }
 
   .dates {
     display: flex;
-    flex: none;
+    min-width: 0;
+    grid-column: 2;
+    grid-row: 2;
     color: var(--color-muted-text);
     font-size: var(--type-body-small-size);
     font-weight: var(--type-body-small-weight);

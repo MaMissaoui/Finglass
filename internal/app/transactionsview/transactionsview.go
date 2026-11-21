@@ -975,7 +975,11 @@ func (v *TransactionsView) refresh(ctx context.Context, d *db.Database, today ci
 	var chart []balance.BalancePoint
 	if balanceAccount != nil {
 		running = balance.ComputeRunning(balanceAccount.Balance, accountBookings)
-		chart = v.balanceChartPoints(accountBookings, running, today)
+		firstEver, err := transactions.OldestDateForAccount(ctx, d, balanceAccount.ID)
+		if err != nil {
+			return accountpanel.RepoError(err)
+		}
+		chart = v.balanceChartPoints(accountBookings, running, firstEver, today)
 		if chart == nil {
 			chart = make([]balance.BalancePoint, 0)
 		}
@@ -1069,12 +1073,19 @@ func pendingRowsAreFresh(rows []model.PendingBookingItem, today civil.Date) bool
 func (v *TransactionsView) balanceChartPoints(
 	bookings []model.TransactionItem,
 	running map[model.TransactionID]balance.Entry,
+	firstEver *civil.Date,
 	today civil.Date,
 ) []balance.BalancePoint {
 	start, end := v.DateRange(today)
 	var from civil.Date
 	if start != nil {
+		if firstEver == nil {
+			return make([]balance.BalancePoint, 0)
+		}
 		from = *start
+		if firstEver.After(from) {
+			from = *firstEver
+		}
 	} else {
 		oldest := civil.Date{}
 		for index, booking := range bookings {

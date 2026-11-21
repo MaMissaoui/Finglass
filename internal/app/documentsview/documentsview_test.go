@@ -420,7 +420,9 @@ func TestClearMessagesClearsTheErrorAndMessage(t *testing.T) {
 
 func TestCloneCopiesEverySliceAndPointedToField(t *testing.T) {
 	transactionID := model.TransactionID(7)
-	label := "Shop (2026-03-13)"
+	documentPartner := "Shop"
+	documentPurpose := "Receipt"
+	documentDate, _ := civil.New(2026, time.March, 13)
 	confidence := 88.0
 	ocrText := "SUMME 3,78"
 	errorText := "error"
@@ -431,14 +433,16 @@ func TestCloneCopiesEverySliceAndPointedToField(t *testing.T) {
 
 	state := New(i18n.En, true)
 	state.Documents = []model.DocumentItem{{
-		ID:               1,
-		FileName:         "bon.png",
-		StoredPath:       "documents/bon.png",
-		MIMEType:         "image/png",
-		TransactionID:    &transactionID,
-		TransactionLabel: &label,
-		HasOCR:           true,
-		OCRConfidence:    &confidence,
+		ID:                 1,
+		FileName:           "bon.png",
+		StoredPath:         "documents/bon.png",
+		MIMEType:           "image/png",
+		TransactionID:      &transactionID,
+		TransactionPartner: &documentPartner,
+		TransactionPurpose: &documentPurpose,
+		TransactionDate:    &documentDate,
+		HasOCR:             true,
+		OCRConfidence:      &confidence,
 	}}
 	state.SelectedDocument = &state.Documents[0]
 	state.SelectedOCRText = &ocrText
@@ -467,7 +471,9 @@ func TestCloneCopiesEverySliceAndPointedToField(t *testing.T) {
 
 	// Mutating the clone must not touch the original, and the other way round.
 	cloned.Documents[0].FileName = "changed.png"
-	*cloned.Documents[0].TransactionLabel = "changed"
+	*cloned.Documents[0].TransactionPartner = "changed"
+	*cloned.Documents[0].TransactionPurpose = "changed"
+	*cloned.Documents[0].TransactionDate = documentDate.AddDays(1)
 	*cloned.Documents[0].OCRConfidence = 10
 	cloned.SelectedDocument.FileName = "changed.png"
 	*cloned.SelectedOCRText = "changed"
@@ -482,7 +488,10 @@ func TestCloneCopiesEverySliceAndPointedToField(t *testing.T) {
 	*cloned.Message = "changed"
 
 	if state.Documents[0].FileName != "bon.png" ||
-		*state.Documents[0].TransactionLabel != label ||
+		*state.Documents[0].TransactionPartner != documentPartner ||
+		*state.Documents[0].TransactionPurpose != documentPurpose ||
+		state.Documents[0].TransactionDate == nil ||
+		*state.Documents[0].TransactionDate != documentDate ||
 		*state.Documents[0].OCRConfidence != confidence {
 		t.Fatalf("the clone shares the document: %+v", state.Documents[0])
 	}

@@ -1353,6 +1353,8 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-divider);
   }
 
   .block-title {
@@ -1367,6 +1369,10 @@
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+
+  .bank-list .backup-actions {
+    margin-left: -12px;
   }
 
   .backup-actions .spinner {

@@ -207,15 +207,7 @@ export function createMockBanking(
   hooks: MockBankingHooks,
 ) {
   let language = initialLanguage;
-  const onlineSyncAvailable =
-    scenario === 'banking-walkthrough' ||
-    scenario === 'accounts-sync-per-bank' ||
-    scenario === 'accounts-sync-all-two-banks-en' ||
-    scenario === 'accounts-sync-all-two-banks-de' ||
-    scenario === 'accounts-bank-menu-en-light' ||
-    scenario === 'accounts-bank-menu-de-dark' ||
-    scenario === 'accounts-status-strong-sync' ||
-    scenario.startsWith('accounts-status-no-server');
+  const onlineSyncAvailable = !scenario.includes('-no-sync');
   const canRememberPin = true;
   let errorText = '';
   let messageText = '';
@@ -239,7 +231,9 @@ export function createMockBanking(
    * Mock only: a build with a linked product id asks for no product id. The
    * default asks, so the prompt is part of the walkthrough.
    */
-  const linkedProductID = scenario === 'accounts-test-connection-linked';
+  const linkedProductID =
+    scenario === 'accounts-test-connection-linked' ||
+    scenario === 'accounts-test-connection-linked-no-sync';
   /** Mock only: this bank's login is refused with FinTS code 9942. */
   const noGoBankId = scenario.includes('nogo') ? 2 : null;
   /** Mock only: the test is a GO through the strong sync, so the bank stays locked. */
