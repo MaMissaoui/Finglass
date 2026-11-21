@@ -193,7 +193,8 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
   PR #16, amalgamation byte-identical to a rebuild from the upstream sqlcipher v4.20.0 tag). Drop the go.mod replace
   once WissCore tags a 4.20.x release; stay on 4.x (not the v5 betas). 4.17.0 fixed LibTomCrypt-provider issues
   (fortuna reinitialisation, error propagation) and 4.19.0 two low-risk export/hexkey issues.
-- [ ] Playwright 1.65 (new WebKit) and TypeScript 7 (major) in their own PRs.
+- [x] Playwright 1.65 (#248) and TypeScript 6.0.3.
+- [ ] TypeScript 7 once svelte-check and typescript-eslint accept it (Dependabot ignores >=7 until then).
 
 ## Later
 
