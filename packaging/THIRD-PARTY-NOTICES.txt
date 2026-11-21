@@ -107,7 +107,7 @@ SOFTWARE.
 Go modules compiled into the app
 --------------------------------
 
-== github.com/WissCore/go-sqlcipher/v4 v4.15.1 ==
+== github.com/MaMissaoui/go-sqlcipher/v4 v4.20.0-finglass.1 ==
 
 -- LICENSE --
 

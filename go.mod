@@ -154,3 +154,5 @@ require (
 tool github.com/wailsapp/wails/v3/cmd/wails3
 
 ignore ./frontend/node_modules
+
+replace github.com/WissCore/go-sqlcipher/v4 => github.com/MaMissaoui/go-sqlcipher/v4 v4.20.0-finglass.1

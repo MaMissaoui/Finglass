@@ -88,14 +88,14 @@ print_entry() {
   # The target is pinned to the macOS app, so the list is the same on every host.
   go_module_lines="$(
     cd "$root"
-    GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go list -deps -f '{{with .Module}}{{if not .Main}}{{.Path}} {{.Version}} {{.Dir}}{{end}}{{end}}' ./cmd/finglass |
+    GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go list -deps -f '{{with .Module}}{{if not .Main}}{{with .Replace}}{{.Path}} {{.Version}}{{else}}{{.Path}} {{.Version}}{{end}} {{.Dir}}{{end}}{{end}}' ./cmd/finglass |
       sed '/^[[:space:]]*$/d' | sort -u
   )"
   if printf '%s\n' "$go_module_lines" | awk 'NF < 3 { found = 1 } END { exit !found }'; then
     (cd "$root" && go mod download)
     go_module_lines="$(
       cd "$root"
-      GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go list -deps -f '{{with .Module}}{{if not .Main}}{{.Path}} {{.Version}} {{.Dir}}{{end}}{{end}}' ./cmd/finglass |
+      GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go list -deps -f '{{with .Module}}{{if not .Main}}{{with .Replace}}{{.Path}} {{.Version}}{{else}}{{.Path}} {{.Version}}{{end}} {{.Dir}}{{end}}{{end}}' ./cmd/finglass |
         sed '/^[[:space:]]*$/d' | sort -u
     )"
   fi
