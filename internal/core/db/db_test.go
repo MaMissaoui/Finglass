@@ -1,6 +1,7 @@
 package db
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"database/sql/driver"
@@ -503,6 +504,69 @@ func TestTheGoCreatedFixtureOpens(t *testing.T) {
 	}
 }
 
+func TestAWrongPassphraseOnTheCommittedFixturesIsReported(t *testing.T) {
+	kdftest.RealKDF(t)
+
+	fixtures := []struct {
+		name  string
+		value string
+	}{
+		{name: "v0.3.4-created.db", value: "from-rust"},
+		{name: "go-created.db", value: "from-go"},
+	}
+
+	for _, fixture := range fixtures {
+		t.Run(fixture.name, func(t *testing.T) {
+			original := fixturePath(t, fixture.name)
+			path := filepath.Join(t.TempDir(), fixture.name)
+			copyFile(t, original, path)
+
+			// SQLCipher 4.17.0 changed the error for a wrong key when the first
+			// operation modifies the schema; Open runs migrations before the
+			// database is usable, so the wrong key must still be reported.
+			const wrong = "zz-WRONG-4f2a fixture passphrase"
+			_, err := Open(path, unlockPassphrase(t, wrong))
+			if !errors.Is(err, ErrWrongPassphraseOrDamaged) {
+				t.Fatalf(
+					"Open(%s) with a wrong passphrase = %v, want ErrWrongPassphraseOrDamaged",
+					fixture.name,
+					err,
+				)
+			}
+			if err != nil && strings.Contains(err.Error(), wrong) {
+				t.Fatalf("Open(%s) error contains the wrong passphrase", fixture.name)
+			}
+
+			before, err := os.ReadFile(original) // #nosec G304 -- fixture path from the repository root
+			if err != nil {
+				t.Fatalf("read %s: %v", original, err)
+			}
+			after, err := os.ReadFile(path) // #nosec G304 -- path is the test's temporary database
+			if err != nil {
+				t.Fatalf("read %s: %v", path, err)
+			}
+			if !bytes.Equal(before, after) {
+				t.Fatalf("%s changed after the failed open", fixture.name)
+			}
+
+			d, err := Open(path, fixtureUnlock(t))
+			if err != nil {
+				t.Fatalf("Open(%s) with the fixture passphrase: %v", fixture.name, err)
+			}
+			defer func() {
+				_ = d.Close()
+			}()
+
+			if version := userVersion(t, d); version != 3 {
+				t.Fatalf("user_version = %d, want 3", version)
+			}
+			if value := settingValue(t, d, "go.fixture"); value != fixture.value {
+				t.Fatalf("settings go.fixture = %q, want %q", value, fixture.value)
+			}
+		})
+	}
+}
+
 func TestTheCipherIsPinned(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "finglass.db")
 	d, err := Create(path, newPassphrase(t, "correct horse battery staple"))
@@ -517,8 +581,8 @@ func TestTheCipherIsPinned(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CipherInfo: %v", err)
 	}
-	if !strings.HasPrefix(version, "4.15.0") {
-		t.Fatalf("cipher version = %q, want it to start with 4.15.0", version)
+	if !strings.HasPrefix(version, "4.20.0") {
+		t.Fatalf("cipher version = %q, want it to start with 4.20.0", version)
 	}
 	if provider != "libtomcrypt" {
 		t.Fatalf("cipher provider = %q, want libtomcrypt", provider)
