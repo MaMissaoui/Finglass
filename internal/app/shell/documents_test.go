@@ -397,14 +397,54 @@ func TestDocumentsTicketOrderPublishesTheLaterReload(t *testing.T) {
 	session, _, events := newLoadedDocumentsSession(t)
 
 	entered := make(chan chan struct{}, 2)
+
+	var (
+		gateMu sync.Mutex
+		gates  []chan struct{}
+		opened = make(map[chan struct{}]bool)
+	)
+	release := func(gate chan struct{}) {
+		gateMu.Lock()
+		defer gateMu.Unlock()
+		if !opened[gate] {
+			return
+		}
+		delete(opened, gate)
+		close(gate)
+	}
+
 	session.pageLoadGate = func(page string) {
 		if page != "documents" {
 			return
 		}
+		gateMu.Lock()
+		if len(gates) >= 2 {
+			// Only the two loads this test drives wait. Any further load means
+			// the page loaded more often than expected; it passes straight
+			// through, so an unexpected extra load can never block its job.
+			gateMu.Unlock()
+			return
+		}
 		gate := make(chan struct{})
+		gates = append(gates, gate)
+		opened[gate] = true
+		gateMu.Unlock()
 		entered <- gate
 		<-gate
 	}
+
+	// Every gate this test opened is closed even when an assertion fails, so the
+	// session's own cleanup cannot hang on a blocked load.
+	t.Cleanup(func() {
+		gateMu.Lock()
+		defer gateMu.Unlock()
+		for _, gate := range gates {
+			if opened[gate] {
+				delete(opened, gate)
+				close(gate)
+			}
+		}
+	})
 
 	session.mu.Lock()
 	session.documents.Tab = documentsview.DocumentTabAll
@@ -419,12 +459,12 @@ func TestDocumentsTicketOrderPublishesTheLaterReload(t *testing.T) {
 	second := <-entered
 
 	// The later reload finishes first and must keep its result.
-	close(second)
+	release(second)
 	waitForDocuments(t, session, events, "the later reload", func(page DocumentsPageState) bool {
 		return !page.State.IsLoading && page.State.Tab == documentsview.DocumentTabLinked
 	})
 
-	close(first)
+	release(first)
 	waitForJobs(t, session)
 	page := session.DocumentsState()
 	if page.State.Tab != documentsview.DocumentTabLinked {
@@ -435,6 +475,34 @@ func TestDocumentsTicketOrderPublishesTheLaterReload(t *testing.T) {
 	}
 	if len(page.State.Documents) != 0 {
 		t.Fatalf("the linked tab shows %d documents", len(page.State.Documents))
+	}
+}
+
+// TestDocumentsProbeLeavesNoIdleGap pins the first open's ordering: the OCR
+// probe reloads the page before it releases its own job, so a caller that waits
+// for the session to go idle never sees an idle session with a page load still
+// to come. An idle gap here let a test's own reloads meet an unexpected third
+// load.
+func TestDocumentsProbeLeavesNoIdleGap(t *testing.T) {
+	session, _, _ := newLoadedDocumentsSession(t)
+
+	var mu sync.Mutex
+	loads := 0
+	session.pageLoadGate = func(page string) {
+		if page != "documents" {
+			return
+		}
+		mu.Lock()
+		loads++
+		mu.Unlock()
+	}
+
+	time.Sleep(200 * time.Millisecond)
+
+	mu.Lock()
+	defer mu.Unlock()
+	if loads != 0 {
+		t.Fatalf("%d documents page jobs started after the page was loaded", loads)
 	}
 }
 
