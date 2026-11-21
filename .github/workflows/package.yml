@@ -32,10 +32,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
+          check-latest: true
           go-version-file: go.mod
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
+          check-latest: true
           node-version: "26"
+      - name: Print the toolchain versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          go version
+          node --version
       - name: Determine the version
         id: version
         shell: bash
@@ -69,6 +77,23 @@ jobs:
             echo "::error::--self-check did not print OK: $VERSION"
             exit 1
           fi
+      - name: Scan the release binary
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # The binary the packager puts into Finglass.app and the DMG.
+          binary=build/go/Finglass.app/Contents/MacOS/Finglass
+          if [ ! -f "$binary" ]; then
+            echo "::error::no built binary at $binary"
+            exit 1
+          fi
+
+          # One arm64 slice is enough: both slices come from the same source.
+          lipo -thin arm64 "$binary" -output "$RUNNER_TEMP/finglass-arm64"
+          go version "$RUNNER_TEMP/finglass-arm64"
+          # A finding fails the build, so nothing vulnerable is published.
+          go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 -mode=binary "$RUNNER_TEMP/finglass-arm64"
       - name: Launch the packaged app once
         env:
           VERSION: ${{ steps.version.outputs.version }}

@@ -1,3 +1,9 @@
+# Security updates arrive as their own PRs, are never grouped, and are handled
+# first (see SECURITY.md). Version updates are grouped below.
+#
+# The Wails Go module github.com/wailsapp/wails/v3 and the npm package
+# @wailsio/runtime wrap the same native runtime and must stay on the same
+# version: a PR that bumps one is completed by bumping the other in the same PR.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -7,4 +13,27 @@ updates:
     open-pull-requests-limit: 5
     groups:
       actions:
+        applies-to: version-updates
         patterns: ["*"]
+
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      go-minor-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]

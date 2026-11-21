@@ -186,6 +186,12 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 - [ ] Before any Windows/Linux release with Remember PIN, tell the user: unlike the macOS Keychain, Windows Credential
   Manager and an unlocked Secret Service collection let any process running as the user read the PIN without a prompt.
 
+## Maintenance
+
+- [x] Dependabot for Go, npm and Actions; daily Security workflow (govulncheck on three OSes, npm audit, issue on failure); latest Go/Node patches in CI; release binaries scanned before publishing.
+- [ ] **Decision:** the database layer bundles SQLCipher 4.15.0 / SQLite 3.53.0 (go-sqlcipher v4.15.1, last released 2026-05); upstream is SQLCipher 4.20.0 / SQLite 3.54.1. 4.19.0 fixed two low-risk issues in sqlcipher_export and the hexkey URI parameter, which Finglass does not use. Options: wait for go-sqlcipher, or update the bundled amalgamation ourselves (fork).
+- [ ] Playwright 1.65 (new WebKit) and TypeScript 7 (major) in their own PRs.
+
 ## Later
 
 - Real-data screenshots: removed on 2026-11-15 (your call: too complex to use). You provide screenshots of your own

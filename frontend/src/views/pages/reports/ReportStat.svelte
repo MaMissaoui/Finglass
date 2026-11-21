@@ -53,8 +53,10 @@
     class:compact
     class:in={tone === 'in'}
     class:alert={tone === 'alert'}
-    class:success={tone === 'success'}>{value}</span
+    class:success={tone === 'success'}
   >
+    {value}
+  </span>
   {#if subtitle !== ''}
     <span class="subtitle">{subtitle}</span>
   {/if}

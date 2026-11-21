@@ -9,10 +9,10 @@ require (
 	github.com/keybase/dbus v0.0.0-20220506165403-5aa21ea2c23a
 	github.com/keybase/go-keychain v0.0.2-0.20261015142909-81300cc4cb68
 	github.com/ledongthuc/pdf v0.0.0-20261020125853-5e46805f718e
-	github.com/signintech/gopdf v0.38.4
+	github.com/signintech/gopdf v0.38.6
 	github.com/wailsapp/wails/v3 v3.1.0
-	golang.org/x/sys v0.49.0
-	golang.org/x/term v0.47.0
+	golang.org/x/sys v0.50.0
+	golang.org/x/term v0.48.0
 	golang.org/x/text v0.44.0
 )
 
