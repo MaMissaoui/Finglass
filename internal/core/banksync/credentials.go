@@ -205,11 +205,10 @@ func PinMarkerPath(profileDir string, bankID int64) string {
 // so moving the folder alone would leave them behind. The markers under
 // credentials/ name the banks even when the profile's database is locked. A
 // stray marker is harmless: deleting a missing entry succeeds and the marker is
-// removed.
+// removed. The deletes run even when the store reports itself unavailable: a
+// cached result must not keep a PIN behind, and a failed delete keeps its
+// marker.
 func ForgetPinsForProfile(store credentials.Store, profileDir string) {
-	if !store.IsAvailable() {
-		return
-	}
 	credentialsDir := filepath.Join(profileDir, "credentials")
 	entries, err := os.ReadDir(credentialsDir)
 	if err != nil {

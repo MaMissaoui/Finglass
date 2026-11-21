@@ -180,7 +180,9 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
   installed, launched once and uninstalled in CI (`installers.yml`); artifacts only, no product id, never release assets.
 - [ ] Before any Windows/Linux release: signing (your decision), and the release workflow gains these assets only then.
 - [x] Linux Secret Service store: one bus connection per store, replaced only after the D-Bus library closed it (no leak on
-  errors); its own D-Bus calls have a 2 s deadline, session open 3 s; an unavailable result is cached for 5 s.
+  errors); its own D-Bus calls have a 2 s deadline, session open 3 s; an unavailable result is cached for 5 s: a failed
+  check costs at most one deadline; plaintext sessions only when the service refuses DH-AES; forgetting a profile's PINs
+  no longer depends on the availability check.
 - [ ] Before any Windows/Linux release with Remember PIN, tell the user: unlike the macOS Keychain, Windows Credential
   Manager and an unlocked Secret Service collection let any process running as the user read the PIN without a prompt.
 
