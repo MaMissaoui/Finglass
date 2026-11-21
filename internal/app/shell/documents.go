@@ -404,11 +404,20 @@ func (s *Session) probeDocumentsEngine(generation uint64, factory func() ocr.Eng
 		}
 	}
 	s.mu.Unlock()
-	s.jobs.EndGeneration(generation)
 	if !current {
+		s.jobs.EndGeneration(generation)
 		return
 	}
+
+	// Start the reload before ending the probe's own job. Ending the probe first
+	// would make the session look idle for a moment, although the reload's job is
+	// still to come; "no job runs" may then be observed by a caller that starts
+	// work of its own, and that work would see an unexpected extra load. The
+	// reload takes its generation through beginJobLocked while this one is still
+	// counted, which needs no more than the session mutex and the jobs tracker,
+	// so the order cannot deadlock.
 	s.documentsReload()
+	s.jobs.EndGeneration(generation)
 }
 
 // documentsReload loads the list again for the current tab and search.
