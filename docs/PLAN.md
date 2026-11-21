@@ -135,8 +135,8 @@ the newest supported HKTAN version, and names kept out of traces.
 - [x] Sync all keeps one redacted trace per bank; the summary shows one line per bank.
 - [x] Settings → Load bank list: you load the DK list (CSV) you received; only BLZ, server URL and name are kept in
   `bank-servers.json` in the data folder; Add bank fills an empty server address. Nothing is shipped.
-- [ ] **You:** request the list from registrierung@hbci-zka.de with your product registration, load the CSV, and
-  report only the counts.
+- [x] **You:** request the list from registrierung@hbci-zka.de with your product registration, load the CSV, and
+  report only the counts. Done 2026-11-21: the list loaded in the app.
 
 The product id is the GitHub secret `FINGLASS_FINTS_PRODUCT_ID`, built into tag builds only; keep it in your password
 manager and never paste it into a chat, issue, commit or file. A CI check confirms it never appears in the
@@ -179,8 +179,8 @@ with before/after screenshots (EN/DE, light/dark, narrow), PR.
 - [x] Windows NSIS installer (per-user, WebView2 checked, not downloaded) and Linux DEB (GTK4/WebKitGTK 6.0), each
   installed, launched once and uninstalled in CI (`installers.yml`); artifacts only, no product id, never release assets.
 - [ ] Before any Windows/Linux release: signing (your decision), and the release workflow gains these assets only then.
-- [ ] Before any Linux release: the Secret Service store closes its dbus connection on a reset, and `IsAvailable`
-  gets a timeout (today it makes dbus round trips on every call).
+- [x] Linux Secret Service store: one bus connection per store, replaced only after the D-Bus library closed it (no leak on
+  errors); its own D-Bus calls have a 2 s deadline, session open 3 s; an unavailable result is cached for 5 s.
 - [ ] Before any Windows/Linux release with Remember PIN, tell the user: unlike the macOS Keychain, Windows Credential
   Manager and an unlocked Secret Service collection let any process running as the user read the PIN without a prompt.
 
